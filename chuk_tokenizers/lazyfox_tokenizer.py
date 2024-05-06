@@ -35,10 +35,19 @@ class CustomTokenizer(PreTrainedTokenizer):
 
     def _convert_token_to_id(self, token):
         return self.vocab.get(token, self.vocab.get('<unk>'))
-
+    
     def _convert_id_to_token(self, index):
-        # Reverse lookup by index
-        return {idx: tok for tok, idx in self.vocab.items()}.get(index, '<unk>')
+        if isinstance(index, list):
+            return [self._convert_id_to_token(idx) for idx in index]
+        else:
+            return {idx: tok for tok, idx in self.vocab.items()}.get(index, '<unk>')
+
+
+
+    def convert_ids_to_tokens(self, ids, skip_special_tokens=False):
+        if isinstance(ids, int):
+            ids = [ids]  # Ensure ids are always handled as a list
+        return [self._convert_id_to_token(id) for id in ids if not (skip_special_tokens and id == self.vocab.get('<pad>'))]
 
     def convert_tokens_to_ids(self, tokens):
         if isinstance(tokens, str):

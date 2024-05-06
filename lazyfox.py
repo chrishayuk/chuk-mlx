@@ -9,7 +9,7 @@ from utils.sequence_utility import SequenceUtility
 # Load tokenizer and define vocabulary size
 tokenizer = load_tokenizer('lazyfox_tokenizer')
 vocab_size = len(tokenizer.vocab)
-pad_token_id = tokenizer.pad_token_id
+pad_token_id = [0]#tokenizer.pad_token_id
 
 # Example input sequences
 input_sequences = [
@@ -55,78 +55,80 @@ input_indices = [tokenizer.encode(seq, add_special_tokens=False) for seq in inpu
 max_seq_length = max(len(seq) for seq in input_indices)
 
 # Instantiate SequenceUtility
-seq_util = SequenceUtility(max_seq_length=max_seq_length, padding_value=tokenizer.pad_token_id)
+seq_util = SequenceUtility(max_seq_length=max_seq_length, padding_value=pad_token_id)
 
 # Pad input indices to make all sequences of the same length
-# input_indices = [seq_util.pad_sequence(seq) for seq in input_indices]
-# input_tensor = mx.array(input_indices)
 input_indices = seq_util.batch_sequences(input_indices)
 
-# # Create target indices by shifting input indices by one to the right and padding
-# target_indices = []
-# for seq in input_indices:
-#     # Shift and pad: Remove the first element, append pad_token_id
-#     target_seq = seq[1:] + pad_token_id  # Here, ensure no additional brackets are around pad_token_id
-#     target_indices.append(target_seq)
+# Create target indices by shifting input indices by one to the right and padding
+target_indices = []
+for seq in input_indices:
+    # Shift and pad: Remove the first element, append pad_token_id
+    target_seq = seq[1:] + pad_token_id  # Ensure no additional brackets are around pad_token_id
+    target_indices.append(target_seq)
 
-# # Correct the length mismatch by padding the target sequences to full length
-# target_indices = [seq + pad_token_id * (max_seq_length - len(seq)) for seq in target_indices]
+# Pad target indices to make all sequences of the same lengths
+target_indices_padded = []
+for seq in target_indices:
+    seq_padded = seq + pad_token_id * (max_seq_length - len(seq))
+    target_indices_padded.append(seq_padded)
+target_indices = target_indices_padded
 
-
-
-# Visualize input sequences
-print("Input:")
-print("")
-seq_util.visualize_sequences(input_indices, tokenizer)
+# print(input_indices)
+# print(target_indices)
+# # Visualize input sequences
+# print("Input:")
+# print("")
+# seq_util.visualize_sequences(input_indices, tokenizer)
 
 # # Visualize target sequences
 # print("")
 # print("Target:")
 # print("")
-# #seq_util.visualize_sequences(target_indices, tokenizer)
+# seq_util.visualize_sequences(target_indices, tokenizer)
 
 # Convert lists to tensors
 input_tensor = mx.array(input_indices)
-#target_tensor = mx.array(target_indices)
+target_tensor = mx.array(target_indices)
 
-# # Calculate sequence lengths
-# lengths = mx.array([len(seq) for seq in input_sequences])
+# Calculate sequence lengths
+lengths = mx.array([len(seq) for seq in input_sequences])
 
-# # Define model parameters
-# embedding_dim = 32
-# hidden_size = 32
-# intermediate_size = 64
+# Define model parameters
+embedding_dim = 32
+hidden_size = 32
+intermediate_size = 64
 
-# # Create an instance of the SimpleLanguageModel
-# model = SimpleLanguageModel(vocab_size, embedding_dim, hidden_size, intermediate_size)
+# Create an instance of the SimpleLanguageModel
+model = SimpleLanguageModel(vocab_size, embedding_dim, hidden_size, intermediate_size)
 
-# # Define the optimizer
-# learning_rate = 0.01
-# optimizer = optim.Adam(learning_rate=learning_rate)
+# Define the optimizer
+learning_rate = 0.01
+optimizer = optim.Adam(learning_rate=learning_rate)
 
-# # Create value and grad function for loss
-# loss_value_and_grad = nn.value_and_grad(model, loss)
+# Create value and grad function for loss
+loss_value_and_grad = nn.value_and_grad(model, loss)
 
-# # Training loop
-# num_epochs = 50
-# for epoch in range(num_epochs):
-#     # Forward and backward pass
-#     (lvalue, ntoks), grad = loss_value_and_grad(model, input_tensor, target_tensor, lengths)
+# Training loop
+num_epochs = 50
+for epoch in range(num_epochs):
+    # Forward and backward pass
+    (lvalue, ntoks), grad = loss_value_and_grad(model, input_tensor, target_tensor, lengths)
 
-#     # Model update
-#     optimizer.update(model, grad)
-#     mx.eval(model.parameters(), optimizer.state, lvalue)
+    # Model update
+    optimizer.update(model, grad)
+    mx.eval(model.parameters(), optimizer.state, lvalue)
 
-#     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {lvalue.item():.4f}, Tokens: {ntoks.item()}")
+    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {lvalue.item():.4f}, Tokens: {ntoks.item()}")
 
-# # Prediction
-# input_sequence = 'dog'
-# input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)
-# input_tensor = mx.array([input_indices])
+# Prediction
+input_sequence = 'fox jumps'
+input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)
+input_tensor = mx.array([input_indices])
 
-# output = model(input_tensor)
-# predicted_index = mx.argmax(output[:, -1, :], axis=-1).item()
-# predicted_word = tokenizer.decode([predicted_index])
+output = model(input_tensor)
+predicted_index = mx.argmax(output[:, -1, :], axis=-1).item()
+predicted_word = tokenizer.decode([predicted_index])
 
-# print(f"Input sequence: {input_sequence}")
-# print(f"Predicted next word: {predicted_word}")
+print(f"Input sequence: {input_sequence}")
+print(f"Predicted next word: {predicted_word}")
