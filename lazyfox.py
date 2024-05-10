@@ -5,11 +5,17 @@ from models.loss_function import loss
 from models.mlx.simple_language_model import SimpleLanguageModel
 from utils.tokenizer_loader import load_tokenizer
 from utils.sequence_utility import SequenceUtility
-
+from trainer import Trainer
+from dataset import Dataset
+    
 # Load tokenizer and define vocabulary size
-tokenizer = load_tokenizer('lazyfox_tokenizer')
+#tokenizer = load_tokenizer('lazyfox_tokenizer')
+tokenizer = load_tokenizer('mistralai/Mistral-7B-Instruct-v0.2')
+tokenizer.pad_token = tokenizer.eos_token
+tokenizer.padding_side = 'right'
+pad_token_id = tokenizer.pad_token_id
 vocab_size = len(tokenizer.vocab)
-pad_token_id = [0]#tokenizer.pad_token_id
+
 
 # Example input sequences
 input_sequences = [
@@ -64,32 +70,33 @@ input_indices = seq_util.batch_sequences(input_indices)
 target_indices = []
 for seq in input_indices:
     # Shift and pad: Remove the first element, append pad_token_id
-    target_seq = seq[1:] + pad_token_id  # Ensure no additional brackets are around pad_token_id
+    if isinstance(pad_token_id, list):
+        target_seq = seq[1:] + pad_token_id
+    else:
+        target_seq = seq[1:] + [pad_token_id]
+    
+    # Ensure the target sequence has the same length as the input sequence
+    target_seq = target_seq[:max_seq_length]
+    
     target_indices.append(target_seq)
-
-# Pad target indices to make all sequences of the same lengths
-target_indices_padded = []
-for seq in target_indices:
-    seq_padded = seq + pad_token_id * (max_seq_length - len(seq))
-    target_indices_padded.append(seq_padded)
-target_indices = target_indices_padded
-
-# print(input_indices)
-# print(target_indices)
-# # Visualize input sequences
-# print("Input:")
-# print("")
-# seq_util.visualize_sequences(input_indices, tokenizer)
-
-# # Visualize target sequences
-# print("")
-# print("Target:")
-# print("")
-# seq_util.visualize_sequences(target_indices, tokenizer)
 
 # Convert lists to tensors
 input_tensor = mx.array(input_indices)
 target_tensor = mx.array(target_indices)
+
+# Visualize input sequences
+print("Input:")
+print("")
+seq_util.visualize_sequences(input_indices, tokenizer)
+
+# Visualize target sequences
+print("")
+print("Target:")
+print("")
+seq_util.visualize_sequences(target_indices, tokenizer)
+
+# Reshape the target_tensor to match the expected shape of the logits
+#target_tensor = target_tensor.reshape((-1,))
 
 # Calculate sequence lengths
 lengths = mx.array([len(seq) for seq in input_sequences])
@@ -107,22 +114,29 @@ learning_rate = 0.01
 optimizer = optim.Adam(learning_rate=learning_rate)
 
 # Create value and grad function for loss
-loss_value_and_grad = nn.value_and_grad(model, loss)
+loss_function = nn.value_and_grad(model, loss)
 
-# Training loop
-num_epochs = 50
-for epoch in range(num_epochs):
-    # Forward and backward pass
-    (lvalue, ntoks), grad = loss_value_and_grad(model, input_tensor, target_tensor, lengths)
+# # Training loop
+# num_epochs = 7
+# for epoch in range(num_epochs):
+#     # Forward and backward pass
+#     (lvalue, ntoks), grad = loss_function(model, input_tensor, target_tensor, lengths)
 
-    # Model update
-    optimizer.update(model, grad)
-    mx.eval(model.parameters(), optimizer.state, lvalue)
+#     # Model update
+#     optimizer.update(model, grad)
+#     mx.eval(model.parameters(), optimizer.state, lvalue)
 
-    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {lvalue.item():.4f}, Tokens: {ntoks.item()}")
+#     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {lvalue.item():.4f}, Tokens: {ntoks.item()}")
+
+
+# Train the model
+# Create a dataset
+dataset = Dataset(input_sequences, tokenizer)
+trainer = Trainer(model, optimizer, loss_function, lengths)
+trainer.train(dataset, 32)
 
 # Prediction
-input_sequence = 'fox jumps'
+input_sequence = 'the quick brown'
 input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)
 input_tensor = mx.array([input_indices])
 

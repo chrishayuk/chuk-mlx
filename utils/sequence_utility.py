@@ -8,28 +8,32 @@ class SequenceUtility:
 
     def pad_sequence(self, sequence):
         """Pad the sequence to the maximum length with the specified padding value."""
-
-        # truncate the sequence if it is longer than max_seq_length
+        # Truncate the sequence if it is longer than max_seq_length
         padded_sequence = sequence[:self.max_seq_length]
-
-        # check if padding_value is not set or not an integer
-        if self.padding_value is None or not isinstance(self.padding_value, int):
-            self.padding_value = 0  # default padding value if none provided
-
-        # pad the sequence if it is shorter than max_seq_length
+        
+        # Check if padding_value is not set
+        if self.padding_value is None:
+            self.padding_value = 0  # Default padding value if none provided
+        
+        # Check if padding_value is a list
+        if isinstance(self.padding_value, list):
+            pad_token = self.padding_value[0]
+        else:
+            pad_token = self.padding_value
+        
+        # Pad the sequence if it is shorter than max_seq_length
         padding_length = self.max_seq_length - len(padded_sequence)
-        padded_sequence += self.padding_value * padding_length
-
-        # return the padded sequence
+        padded_sequence += [pad_token] * padding_length
+        
         return padded_sequence
-
 
     def batch_sequences(self, sequences):
         # Ensure all sequences have the same length
         sequences_padded = []
         for seq in sequences:
-            seq_padded = seq[:self.max_seq_length] + self.padding_value * (self.max_seq_length - len(seq))
+            seq_padded = self.pad_sequence(seq)
             sequences_padded.append(seq_padded)
+    
         return sequences_padded
 
     def create_next_token_target_sequence(self, input_sequences, pad_token_id):

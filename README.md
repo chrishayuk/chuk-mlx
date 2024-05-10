@@ -1,8 +1,66 @@
+TODO
+1 - Generate large file generator for jsonl
+2 - Batch Sequence Visualizer (batch name, row)
+3 - Fix batch analyzer to show pad token calcs same way as load generator
+2 - JSONL to Numpy Converter (check works llama2, llama3 formats)
+3 - Migrate trainer to use mx data loader
+4 - Migrate lazy fox to use data loader
+
 ## Model Downloader
 This is a simple utility that allows you to download a model from huggingface hug, and stick it the cache
 
 ```bash
 python model_downloader.py --model mistralai/Mistral-7B-Instruct-v0.2
+```
+
+## Batches
+
+### Generate Random Numpy Batches
+The following script generates random numpy batches shaped to match the model.
+This contains nonsense data but can be used to performance test batch loading.
+This will produce a table outlining the generation performance times.
+
+The following generates a llama-3 style batch
+```bash
+python generate_random_npy_batches.py --vocab_size 128256 --max_sequence_length 8096 --batch_size 1024 --num_batches 1 --file_prefix llama3
+```
+
+### Batch Generator
+The follwoing script will take a jsonl dataset, tokenize it using the passed tokenizer, and split into batches, saving to the file system.
+
+```bash
+python batch_generator.py --input_files ./sample_data/sample_training_data_small.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output --file_prefix sample_tokenized --max_sequence_length 8096 --batch_size 1024
+```
+
+### Batch Analyzer
+The following takes a batch file and performs analysis on the batch.
+This will produce a pretty table that outlines rows, tokens per batch, padding tokens etc
+
+```bash
+python batch_analyzer.py --batch_file output/llama3_batch_0001.npy
+```
+
+### Batch Memory Calculator
+The following script calculates the memory requirements per batch and across a number of batches.
+This allows us to calculate how many batches we could load at once.
+```bash
+python batch_memory_calculator.py --max_sequence_length 4096 --batch_size 1024 --dtype float32 --num_batches 1024
+```
+
+### Batch Token Calculator
+The following script calculates the the number of batches required for a given number of tokens.
+This allows us to calculate how many batches we could load at once.
+
+```bash
+python batch_token_calculator.py --max_sequence_length 8096 --batch_size 1024 --dtype float32 --num_tokens 1024
+```
+
+### Batch Loader Test
+The following script performs a batch load of the batches into memory.
+It also produces a pretty summary table that gives the loading times etc
+
+```bash
+python batch_token_calculator.py --max_sequence_length 8096 --batch_size 1024 --dtype float32 --num_tokens 1024
 ```
 
 ## Model Viewer
