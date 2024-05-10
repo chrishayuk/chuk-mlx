@@ -1,7 +1,6 @@
 TODO
 1 - Generate large file generator for jsonl
 2 - Batch Sequence Visualizer (batch name, row)
-3 - Fix batch analyzer to show pad token calcs same way as load generator
 2 - JSONL to Numpy Converter (check works llama2, llama3 formats)
 3 - Migrate trainer to use mx data loader
 4 - Migrate lazy fox to use data loader
@@ -37,7 +36,7 @@ The following takes a batch file and performs analysis on the batch.
 This will produce a pretty table that outlines rows, tokens per batch, padding tokens etc
 
 ```bash
-python batch_analyzer.py --batch_file output/llama3_batch_0001.npy
+python batch_analyzer.py --batch_file output/sample_tokenized_batch_0001.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
 ```
 
 ### Batch Memory Calculator

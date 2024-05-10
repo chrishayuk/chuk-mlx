@@ -1,11 +1,46 @@
 import argparse
 import json
 import os
+import time
 import numpy as np
 from utils.tokenizer_loader import load_tokenizer
 from utils.sequence_utility import SequenceUtility
-import time
+from batches.summary_utility import generate_batch_analysis_summary_table, generate_batch_generation_summary
 
+def save_batch(batch_data, file_path, max_sequence_length, pad_token_id):
+    # get sequence utility
+    seq_util = SequenceUtility(max_seq_length=max_sequence_length, padding_value=pad_token_id)
+    
+    # pad the batch
+    padded_batch = seq_util.batch_sequences(batch_data)
+    
+    # load the padded batch
+    batch_data = np.array(padded_batch, dtype=np.int32)
+
+    # save the batch
+    np.save(file_path, batch_data)
+    
+    return batch_data
+
+def process_batch(batch_idx, batch_data, file_path, max_sequence_length, pad_token_id):
+        # start the batch timer
+        batch_start_time = time.time()
+
+        # save the batch
+        batch_data = save_batch(batch_data, file_path, max_sequence_length, pad_token_id)
+
+        # capture batch end time
+        batch_end_time = time.time()
+
+        # calculate the batch generation time
+        summary_table = generate_batch_analysis_summary_table(batch_data, file_path, pad_token_id)
+        generation_stats = generate_batch_generation_summary(batch_idx, batch_data, batch_start_time, batch_end_time, pad_token_id)
+        
+        # print out the batch summary
+        print(f"Batch {batch_idx + 1} Summary:")
+        print(generation_stats)
+        print(summary_table)
+        
 def tokenize_and_batch(input_files, tokenizer_name, output_directory, file_prefix, max_sequence_length, batch_size):
     # load the tokenizer
     tokenizer = load_tokenizer(tokenizer_name)
@@ -21,7 +56,6 @@ def tokenize_and_batch(input_files, tokenizer_name, output_directory, file_prefi
     
     batch_idx = 0
     current_batch = []
-    total_tokens = 0
     total_batches = 0
     
     for input_file in input_files:
@@ -34,106 +68,18 @@ def tokenize_and_batch(input_files, tokenizer_name, output_directory, file_prefi
                 
                 current_batch.append(tokens)
                 
-                # check that we're at the end of the batch
+                # check if the current batch is full
                 if len(current_batch) == batch_size:
-                    # TODO: refactor this into save batch
-                    # get sequence utility
-                    seq_util = SequenceUtility(max_seq_length=max_sequence_length, padding_value=pad_token_id)
-                    
-                    # pad the batch
-                    padded_batch = seq_util.batch_sequences(current_batch)
-                    
-                    # load the padded batch
-                    batch_data = np.array(padded_batch, dtype=np.int32)
-
-                    # save the batch
+                    # get the file path
                     file_path = os.path.join(output_directory, f'{file_prefix}_batch_{batch_idx + 1:04d}.npy')
-                    np.save(file_path, batch_data)
-                    
-                    # generate the summary table for the batch
-                    batch_start_time = time.time()
-                    summary_table = generate_summary_table(file_path, batch_data, pad_token_id)
-                    batch_end_time = time.time()
-                    batch_generation_time = batch_end_time - batch_start_time
-                    batch_tokens_per_second = np.sum(batch_data != pad_token_id) / batch_generation_time
-                    
-                    print(f"Batch {batch_idx + 1} Summary:")
-                    print(summary_table)
-                    print(f"Batch Generation Time: {batch_generation_time:.2f} seconds")
-                    print(f"Batch Tokens per Second: {batch_tokens_per_second:.2f}")
-                    print("=" * 50)
+
+                    # process the batch
+                    process_batch(batch_idx, current_batch, file_path, max_sequence_length, pad_token_id)
                     
                     # next batch
                     current_batch = []
                     batch_idx += 1
                     total_batches += 1
-    
-    if current_batch:
-        # TODO: refactor this into save batch
-        # get sequence utility
-        seq_util = SequenceUtility(max_seq_length=max_sequence_length, padding_value=pad_token_id)
-        
-        # pad the batch
-        padded_batch = seq_util.batch_sequences(current_batch)
-        
-        # save the batch
-        batch_data = np.array(padded_batch, dtype=np.int32)
-        file_path = os.path.join(output_directory, f'{file_prefix}_batch_{batch_idx + 1:04d}.npy')
-        np.save(file_path, batch_data)
-        total_batches += 1
-        
-        # generate the summary table for the last batch
-        batch_start_time = time.time()
-        summary_table = generate_summary_table(file_path, batch_data, pad_token_id)
-        batch_end_time = time.time()
-        batch_generation_time = batch_end_time - batch_start_time
-        batch_tokens_per_second = np.sum(batch_data != pad_token_id) / batch_generation_time
-        
-        print(f"Last Batch Summary:")
-        print(summary_table)
-        print(f"Batch Generation Time: {batch_generation_time:.2f} seconds")
-        print(f"Batch Tokens per Second: {batch_tokens_per_second:.2f}")
-        print("=" * 50)
-
-def generate_summary_table(file_path, batch_data, pad_token_id):
-    if batch_data.ndim == 1:
-        batch_data = batch_data.reshape(1, -1)
-    
-    num_rows, max_seq_length = batch_data.shape
-    
-    real_tokens_per_row = np.sum(batch_data != pad_token_id, axis=1)
-    num_tokens = np.sum(real_tokens_per_row)
-    avg_real_tokens_per_row = np.mean(real_tokens_per_row)
-    
-    padding_tokens_per_row = np.sum(batch_data == pad_token_id, axis=1)
-    avg_padding_tokens_per_row = np.mean(padding_tokens_per_row)
-    
-    total_real_tokens = np.sum(real_tokens_per_row)
-    total_padding_tokens = np.sum(padding_tokens_per_row)
-    
-    memory_usage_real_tokens = total_real_tokens * 4  # Each token is stored as int32 (4 bytes)
-    memory_usage_padding_tokens = total_padding_tokens * 4
-    
-    summary_table = f"""
-Batch Analysis Summary:
-==================================================
-Batch File: {file_path}
---------------------------------------------------
-Number of Rows: {num_rows}
-Number of Tokens: {num_tokens}
-Max Sequence Length: {max_seq_length}
---------------------------------------------------
-Average Real Tokens per Row: {avg_real_tokens_per_row:.2f}
-Average Padding Tokens per Row: {avg_padding_tokens_per_row:.2f}
---------------------------------------------------
-Total Real Tokens in Batch: {total_real_tokens}
-Total Padding Tokens in Batch: {total_padding_tokens}
---------------------------------------------------
-Memory Usage for Real Tokens: {memory_usage_real_tokens} bytes
-Memory Usage for Padding Tokens: {memory_usage_padding_tokens} bytes
-==================================================
-"""   
-    return summary_table
 
 def main():
     parser = argparse.ArgumentParser(description='Tokenize JSONL scripts into batches.')

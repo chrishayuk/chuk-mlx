@@ -1,5 +1,4 @@
 import numpy as np
-import os
 
 def calculate_memory_per_batch(max_sequence_length, batch_size, dtype=np.int32):
     """

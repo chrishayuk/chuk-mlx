@@ -1,44 +1,30 @@
 import argparse
 import numpy as np
 import os
+from utils.tokenizer_loader import load_tokenizer
+from batches.summary_utility import generate_batch_analysis_summary_table
 
-def analyze_batch_file(batch_file):
+def analyze_batch_file(batch_file, tokenizer_name):
+    # check we have a tokenizer
+    if tokenizer_name:
+        # load the tokenizer
+        tokenizer = load_tokenizer(tokenizer_name)
+
+        # TODO: handle this in load tokenizer if a llama based tokenizer
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.padding_side = 'right'
+        pad_token_id = tokenizer.pad_token_id
+    else:
+        pad_token_id = 0
+
     # Load the batch data from the .npy file
     batch_data = np.load(batch_file)
 
-    # Get the number of rows and sequence length
-    num_rows, max_sequence_length = batch_data.shape
-
-    # Count the number of real tokens and padding tokens in each row
-    real_tokens_per_row = np.sum(batch_data != 0, axis=1)
-    padding_tokens_per_row = max_sequence_length - real_tokens_per_row
-
-    # Calculate the total number of real tokens and padding tokens in the batch
-    total_real_tokens = np.sum(real_tokens_per_row)
-    total_padding_tokens = np.sum(padding_tokens_per_row)
-
-    # Calculate the average number of real tokens and padding tokens per row
-    avg_real_tokens_per_row = total_real_tokens / num_rows
-    avg_padding_tokens_per_row = total_padding_tokens / num_rows
-
-    # Calculate the memory usage for real tokens and padding tokens (assuming 4 bytes per token)
-    memory_usage_real_tokens = total_real_tokens * 4
-    memory_usage_padding_tokens = total_padding_tokens * 4
+    # Generate the summary table using the utility method
+    summary_table = generate_batch_analysis_summary_table(batch_data, batch_file, pad_token_id)
 
     # Print the summary table
-    print("\nBatch Analysis Summary:")
-    print("=" * 50)
-    print(f"{'Batch File:':<35} {batch_file}")
-    print(f"{'Number of Rows:':<35} {num_rows:>15,}")
-    print(f"{'Number of Tokens:':<35} {num_rows * max_sequence_length:>15,}")
-    print(f"{'Max Sequence Length:':<35} {max_sequence_length:>15,}")
-    print(f"{'Average Real Tokens per Row:':<35} {avg_real_tokens_per_row:>15.2f}")
-    print(f"{'Average Padding Tokens per Row:':<35} {avg_padding_tokens_per_row:>15.2f}")
-    print(f"{'Total Real Tokens in Batch:':<35} {total_real_tokens:>15,}")
-    print(f"{'Total Padding Tokens in Batch:':<35} {total_padding_tokens:>15,}")
-    print(f"{'Memory Usage for Real Tokens:':<35} {memory_usage_real_tokens:>15,} bytes")
-    print(f"{'Memory Usage for Padding Tokens:':<35} {memory_usage_padding_tokens:>15,} bytes")
-    print("=" * 50)
+    print(summary_table)
 
 def main():
     # Initialize the argument parser
@@ -46,6 +32,7 @@ def main():
 
     # Define the arguments
     parser.add_argument('--batch_file', type=str, help='Path to the .npy batch file.')
+    parser.add_argument('--tokenizer', type=str, required=False, default=None, help='Name or path of the tokenizer')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -56,7 +43,7 @@ def main():
         return
 
     # Call the batch analysis function with the provided batch file
-    analyze_batch_file(args.batch_file)
+    analyze_batch_file(args.batch_file, args.tokenizer)
 
 if __name__ == '__main__':
     main()
