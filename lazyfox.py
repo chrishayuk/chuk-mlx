@@ -9,10 +9,7 @@ from trainer import Trainer
 from dataset import Dataset
     
 # Load tokenizer and define vocabulary size
-#tokenizer = load_tokenizer('lazyfox_tokenizer')
-tokenizer = load_tokenizer('mistralai/Mistral-7B-Instruct-v0.2')
-tokenizer.pad_token = tokenizer.eos_token
-tokenizer.padding_side = 'right'
+tokenizer = load_tokenizer('lazyfox_tokenizer')
 pad_token_id = tokenizer.pad_token_id
 vocab_size = len(tokenizer.vocab)
 
@@ -81,8 +78,8 @@ for seq in input_indices:
     target_indices.append(target_seq)
 
 # Convert lists to tensors
-input_tensor = mx.array(input_indices)
-target_tensor = mx.array(target_indices)
+#input_tensor = mx.array(input_indices)
+#target_tensor = mx.array(target_indices)
 
 # Visualize input sequences
 print("Input:")
@@ -98,23 +95,23 @@ seq_util.visualize_sequences(target_indices, tokenizer)
 # Reshape the target_tensor to match the expected shape of the logits
 #target_tensor = target_tensor.reshape((-1,))
 
-# Calculate sequence lengths
-lengths = mx.array([len(seq) for seq in input_sequences])
+# # Calculate sequence lengths
+# lengths = mx.array([len(seq) for seq in input_sequences])
 
-# Define model parameters
-embedding_dim = 32
-hidden_size = 32
-intermediate_size = 64
+# # Define model parameters
+# embedding_dim = 32
+# hidden_size = 32
+# intermediate_size = 64
 
-# Create an instance of the SimpleLanguageModel
-model = SimpleLanguageModel(vocab_size, embedding_dim, hidden_size, intermediate_size)
+# # Create an instance of the SimpleLanguageModel
+# model = SimpleLanguageModel(vocab_size, embedding_dim, hidden_size, intermediate_size)
 
-# Define the optimizer
-learning_rate = 0.01
-optimizer = optim.Adam(learning_rate=learning_rate)
+# # Define the optimizer
+# learning_rate = 0.01
+# optimizer = optim.Adam(learning_rate=learning_rate)
 
-# Create value and grad function for loss
-loss_function = nn.value_and_grad(model, loss)
+# # Create value and grad function for loss
+# loss_function = nn.value_and_grad(model, loss)
 
 # # Training loop
 # num_epochs = 7
@@ -129,20 +126,20 @@ loss_function = nn.value_and_grad(model, loss)
 #     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {lvalue.item():.4f}, Tokens: {ntoks.item()}")
 
 
-# Train the model
-# Create a dataset
-dataset = Dataset(input_sequences, tokenizer)
-trainer = Trainer(model, optimizer, loss_function, lengths)
-trainer.train(dataset, 32)
+# # Train the model
+# # Create a dataset
+# dataset = Dataset(input_sequences, tokenizer)
+# trainer = Trainer(model, optimizer, loss_function, lengths)
+# trainer.train(dataset, 32)
 
-# Prediction
-input_sequence = 'the quick brown'
-input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)
-input_tensor = mx.array([input_indices])
+# # Prediction
+# input_sequence = 'the quick brown'
+# input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)
+# input_tensor = mx.array([input_indices])
 
-output = model(input_tensor)
-predicted_index = mx.argmax(output[:, -1, :], axis=-1).item()
-predicted_word = tokenizer.decode([predicted_index])
+# output = model(input_tensor)
+# predicted_index = mx.argmax(output[:, -1, :], axis=-1).item()
+# predicted_word = tokenizer.decode([predicted_index])
 
-print(f"Input sequence: {input_sequence}")
-print(f"Predicted next word: {predicted_word}")
+# print(f"Input sequence: {input_sequence}")
+# print(f"Predicted next word: {predicted_word}")

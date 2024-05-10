@@ -65,6 +65,7 @@ def format_memory_size(memory_in_bytes):
         return f"{memory_in_bytes / (1024 ** 3):.2f} GB"
 
 def main():
+    # parse arguments
     parser = argparse.ArgumentParser(description='Benchmark batch loading performance and memory usage.')
     parser.add_argument('--output_directory', type=str, default='./output', help='Directory containing batch files. Default: ./output')
     parser.add_argument('--file_prefix', type=str, default='chuk_random', help='Prefix for batch files. Default: chuk_random')

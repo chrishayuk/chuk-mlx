@@ -5,23 +5,14 @@ from utils.tokenizer_loader import load_tokenizer
 from batches.summary_utility import generate_batch_analysis_summary_table
 
 def analyze_batch_file(batch_file, tokenizer_name):
-    # check we have a tokenizer
-    if tokenizer_name:
-        # load the tokenizer
-        tokenizer = load_tokenizer(tokenizer_name)
-
-        # TODO: handle this in load tokenizer if a llama based tokenizer
-        tokenizer.pad_token = tokenizer.eos_token
-        tokenizer.padding_side = 'right'
-        pad_token_id = tokenizer.pad_token_id
-    else:
-        pad_token_id = 0
-
+    # load the tokenizer
+    tokenizer = load_tokenizer(tokenizer_name)
+    
     # Load the batch data from the .npy file
     batch_data = np.load(batch_file)
 
     # Generate the summary table using the utility method
-    summary_table = generate_batch_analysis_summary_table(batch_data, batch_file, pad_token_id)
+    summary_table = generate_batch_analysis_summary_table(batch_data, batch_file, tokenizer.pad_token_id)
 
     # Print the summary table
     print(summary_table)

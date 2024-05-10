@@ -1,7 +1,6 @@
 TODO
 1 - Generate large file generator for jsonl
 2 - Batch Sequence Visualizer (batch name, row)
-2 - JSONL to Numpy Converter (check works llama2, llama3 formats)
 3 - Migrate trainer to use mx data loader
 4 - Migrate lazy fox to use data loader
 
@@ -31,12 +30,24 @@ The follwoing script will take a jsonl dataset, tokenize it using the passed tok
 python batch_generator.py --input_files ./sample_data/sample_training_data_small.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output --file_prefix sample_tokenized --max_sequence_length 8096 --batch_size 1024
 ```
 
+#### LazyFox Batching
+The following will batch up the lazy fox dataset:
+```bash
+python batch_generator.py --input_files ./sample_data/lazyfox_train.jsonl --tokenizer lazyfox_tokenizer --output_directory ./output --file_prefix lazyfox --max_sequence_length 16 --batch_size 1024
+```
+
 ### Batch Analyzer
 The following takes a batch file and performs analysis on the batch.
 This will produce a pretty table that outlines rows, tokens per batch, padding tokens etc
 
 ```bash
 python batch_analyzer.py --batch_file output/sample_tokenized_batch_0001.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
+```
+
+#### LazyFox Analysis
+The following will batch up the lazy fox dataset:
+```bash
+python batch_analyzer.py --batch_file output/lazyfox_batch_0001.npy --tokenizer lazyfox_tokenizer
 ```
 
 ### Batch Memory Calculator
