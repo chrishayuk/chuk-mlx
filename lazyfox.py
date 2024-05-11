@@ -44,6 +44,7 @@ print("batches generated")
 # Load the input batch
 print("loading batch")
 input_tensor = mx.load("./output/lazyfox_batch_0001.npy")
+target_tensor = mx.load("./output/lazyfox_batch_0001_target.npy")
 print("batch loaded")
 
 #target_tensor = mx.array(target_indices)
@@ -65,32 +66,35 @@ print("batch loaded")
 # # Calculate sequence lengths
 # lengths = mx.array([len(seq) for seq in input_sequences])
 
-# # Define model parameters
-# embedding_dim = 32
-# hidden_size = 32
-# intermediate_size = 64
+# Calculate sequence lengths
+lengths = mx.sum(input_tensor, axis=1)
 
-# # Create an instance of the SimpleLanguageModel
-# model = SimpleLanguageModel(vocab_size, embedding_dim, hidden_size, intermediate_size)
+# Define model parameters
+embedding_dim = 32
+hidden_size = 32
+intermediate_size = 64
 
-# # Define the optimizer
-# learning_rate = 0.01
-# optimizer = optim.Adam(learning_rate=learning_rate)
+# Create an instance of the SimpleLanguageModel
+model = SimpleLanguageModel(vocab_size, embedding_dim, hidden_size, intermediate_size)
 
-# # Create value and grad function for loss
-# loss_function = nn.value_and_grad(model, loss)
+# Define the optimizer
+learning_rate = 0.01
+optimizer = optim.Adam(learning_rate=learning_rate)
 
-# # Training loop
-# num_epochs = 7
-# for epoch in range(num_epochs):
-#     # Forward and backward pass
-#     (lvalue, ntoks), grad = loss_function(model, input_tensor, target_tensor, lengths)
+# Create value and grad function for loss
+loss_function = nn.value_and_grad(model, loss)
 
-#     # Model update
-#     optimizer.update(model, grad)
-#     mx.eval(model.parameters(), optimizer.state, lvalue)
+# Training loop
+num_epochs = 50
+for epoch in range(num_epochs):
+    # Forward and backward pass
+    (lvalue, ntoks), grad = loss_function(model, input_tensor, target_tensor, lengths)
 
-#     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {lvalue.item():.4f}, Tokens: {ntoks.item()}")
+    # Model update
+    optimizer.update(model, grad)
+    mx.eval(model.parameters(), optimizer.state, lvalue)
+
+    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {lvalue.item():.4f}, Tokens: {ntoks.item()}")
 
 
 # # Train the model
@@ -99,14 +103,14 @@ print("batch loaded")
 # trainer = Trainer(model, optimizer, loss_function, lengths)
 # trainer.train(dataset, 32)
 
-# # Prediction
-# input_sequence = 'the quick brown'
-# input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)
-# input_tensor = mx.array([input_indices])
+# Prediction
+input_sequence = 'the quick brown'
+input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)
+input_tensor = mx.array([input_indices])
 
-# output = model(input_tensor)
-# predicted_index = mx.argmax(output[:, -1, :], axis=-1).item()
-# predicted_word = tokenizer.decode([predicted_index])
+output = model(input_tensor)
+predicted_index = mx.argmax(output[:, -1, :], axis=-1).item()
+predicted_word = tokenizer.decode([predicted_index])
 
-# print(f"Input sequence: {input_sequence}")
-# print(f"Predicted next word: {predicted_word}")
+print(f"Input sequence: {input_sequence}")
+print(f"Predicted next word: {predicted_word}")

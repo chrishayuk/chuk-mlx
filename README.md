@@ -55,8 +55,15 @@ python batch_analyzer.py --batch_file output/sample_tokenized_batch_0001.npy --t
 
 #### LazyFox Analysis
 The following will batch up the lazy fox dataset:
+
 ```bash
 python batch_analyzer.py --batch_file output/lazyfox_batch_0001.npy --tokenizer lazyfox_tokenizer
+```
+
+### Batch Generator Pre-train Target
+
+```bash
+python batch_pretrain_target_shift_generator.py --input_directory ./output --batch_prefix lazyfox
 ```
 
 ### Batch Memory Calculator
