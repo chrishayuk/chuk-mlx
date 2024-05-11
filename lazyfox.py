@@ -7,90 +7,57 @@ from utils.tokenizer_loader import load_tokenizer
 from utils.sequence_utility import SequenceUtility
 from trainer import Trainer
 from dataset import Dataset
-    
+from batches.generate_batch import tokenize_and_batch
+
+# settings
+input_files = ['./sample_data/lazyfox_train.jsonl']
+tokenizer_name = 'lazyfox_tokenizer'
+output_dir = './output'
+max_sequence_length = 16
+batchfile_prefix = 'lazyfox'
+batch_size = 1024
+
 # Load tokenizer and define vocabulary size
-tokenizer = load_tokenizer('lazyfox_tokenizer')
+tokenizer = load_tokenizer(tokenizer_name)
 pad_token_id = tokenizer.pad_token_id
 vocab_size = len(tokenizer.vocab)
 
+# Generate a batch
+print("generating batches")
+tokenize_and_batch(input_files,tokenizer_name, output_dir, batchfile_prefix, max_sequence_length, batch_size, False)
+print("batches generated")
 
-# Example input sequences
-input_sequences = [
-    'the quick brown fox jumps over the lazy dog',
-        'the quick brown fox jumps over the lazy',
-        'the quick brown fox jumps over the',
-        'the quick brown fox jumps over',
-        'the quick brown fox jumps',
-        'the quick brown fox',
-        'the quick brown',
-        'the quick',
-        'the',
-        'quick brown fox jumps over the lazy dog',
-        'quick brown fox jumps over the lazy',
-        'quick brown fox jumps over the',
-        'quick brown fox jumps',
-        'quick brown fox',
-        'quick brown',
-        'brown fox jumps over the lazy dog',
-        'brown fox jumps over the lazy',
-        'brown fox jumps over the',
-        'brown fox jumps',
-        'brown fox',
-        'fox jumps over the lazy dog',
-        'fox jumps over the lazy',
-        'fox jumps over the',
-        'fox jumps',
-        'jumps over the lazy dog',
-        'jumps over the lazy',
-        'jumps over',
-        'over the lazy dog',
-        'over the lazy',
-        'over the',
-        'the lazy dog',
-        'the lazy',
-        'lazy dog'
-]
-
-# Convert input sequences to index sequences
-input_indices = [tokenizer.encode(seq, add_special_tokens=False) for seq in input_sequences]
-
-# Determine the maximum length of input sequences for padding
-max_seq_length = max(len(seq) for seq in input_indices)
-
-# Instantiate SequenceUtility
-seq_util = SequenceUtility(max_seq_length=max_seq_length, padding_value=pad_token_id)
-
-# Pad input indices to make all sequences of the same length
-input_indices = seq_util.batch_sequences(input_indices)
-
-# Create target indices by shifting input indices by one to the right and padding
-target_indices = []
-for seq in input_indices:
-    # Shift and pad: Remove the first element, append pad_token_id
-    if isinstance(pad_token_id, list):
-        target_seq = seq[1:] + pad_token_id
-    else:
-        target_seq = seq[1:] + [pad_token_id]
+# # Create target indices by shifting input indices by one to the right and padding
+# target_indices = []
+# for seq in input_indices:
+#     # Shift and pad: Remove the first element, append pad_token_id
+#     if isinstance(pad_token_id, list):
+#         target_seq = seq[1:] + pad_token_id
+#     else:
+#         target_seq = seq[1:] + [pad_token_id]
     
-    # Ensure the target sequence has the same length as the input sequence
-    target_seq = target_seq[:max_seq_length]
+#     # Ensure the target sequence has the same length as the input sequence
+#     target_seq = target_seq[:max_seq_length]
     
-    target_indices.append(target_seq)
+#     target_indices.append(target_seq)
 
-# Convert lists to tensors
-#input_tensor = mx.array(input_indices)
+# Load the input batch
+print("loading batch")
+input_tensor = mx.load("./output/lazyfox_batch_0001.npy")
+print("batch loaded")
+
 #target_tensor = mx.array(target_indices)
 
-# Visualize input sequences
-print("Input:")
-print("")
-seq_util.visualize_sequences(input_indices, tokenizer)
+# # Visualize input sequences
+# print("Input:")
+# print("")
+# seq_util.visualize_sequences(input_indices, tokenizer)
 
 # Visualize target sequences
-print("")
-print("Target:")
-print("")
-seq_util.visualize_sequences(target_indices, tokenizer)
+# print("")
+# print("Target:")
+# print("")
+# seq_util.visualize_sequences(target_indices, tokenizer)
 
 # Reshape the target_tensor to match the expected shape of the logits
 #target_tensor = target_tensor.reshape((-1,))

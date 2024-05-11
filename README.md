@@ -4,6 +4,15 @@ TODO
 3 - Migrate trainer to use mx data loader
 4 - Migrate lazy fox to use data loader
 
+# Introduction
+This is a ground up rework of an MLX training script.
+
+## Diagnosis tools
+As it stands there is a set of utiltiies that help you benchmark and diagnose the performance of MLX.
+
+## Batch Loader
+
+
 ## Model Downloader
 This is a simple utility that allows you to download a model from huggingface hug, and stick it the cache
 
@@ -13,14 +22,14 @@ python model_downloader.py --model mistralai/Mistral-7B-Instruct-v0.2
 
 ## Batches
 
-### Generate Random Numpy Batches
+### Batch Generator - Random Numpy Batches
 The following script generates random numpy batches shaped to match the model.
 This contains nonsense data but can be used to performance test batch loading.
 This will produce a table outlining the generation performance times.
 
 The following generates a llama-3 style batch
 ```bash
-python generate_random_npy_batches.py --vocab_size 128256 --max_sequence_length 8096 --batch_size 1024 --num_batches 1 --file_prefix llama3
+python batch_generator_random.py --vocab_size 128256 --max_sequence_length 8096 --batch_size 1024 --num_batches 1 --file_prefix llama3
 ```
 
 ### Batch Generator

@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 import os
 from utils.tokenizer_loader import load_tokenizer
-from batches.summary_utility import generate_batch_analysis_summary_table
+from batches.batch_analysis_summary import generate_batch_analysis_summary_table
 
 def analyze_batch_file(batch_file, tokenizer_name):
     # load the tokenizer
