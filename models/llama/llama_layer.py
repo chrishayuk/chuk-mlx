@@ -3,7 +3,8 @@ import mlx.core as mx
 import mlx.nn as nn
 from models.model_config import ModelConfig
 from models.llama.llama_attention import LlamaAttention
-from models.mlp.swiglu_mlp import MLP
+from models.mlp.swiglu_mlp import MLP as SwiGluMLP
+from models.mlp.gelu_glu_mlp import MLP as GeluGluMLP
 
 class LlamaLayer(nn.Module):
     def __init__(self, config: ModelConfig):
@@ -21,7 +22,15 @@ class LlamaLayer(nn.Module):
         # We replace the ReLU non-linearity by the SwiGLU activation function
         # introduced by Shazeer (2020) to improve the performance.
         # We use a dimension 2/3 4d instead of 4d as in PaLM.
-        self.mlp = MLP(config.hidden_size, config.intermediate_size)
+        if config.hidden_act == "silu" :
+            # use swiglu mlp
+            self.mlp = SwiGluMLP(config.hidden_size, config.intermediate_size)
+        elif config.hidden_act == "gelu":
+            # use geluglu mlp
+            self.mlp = GeluGluMLP(config.hidden_size, config.intermediate_size)
+        else:
+            # use swiglu mlp
+            self.mlp = SwiGluMLP(config.hidden_size, config.intermediate_size)
 
         # llama models normalize the inputs for each sub layer to stablize training
         # Llama-Paper

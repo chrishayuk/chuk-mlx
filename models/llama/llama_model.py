@@ -45,5 +45,7 @@ class LlamaModel(nn.Module):
         for e, layer in enumerate(self.layers):
             h, cache[e] = layer(h, mask, cache[e])
 
+        # TODO: I don't think we need to normalize, as it's done on input layer
         return self.norm(h), cache
+        #return h, cache#self.norm(h), cache
 

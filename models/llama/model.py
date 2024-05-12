@@ -12,6 +12,7 @@ class Model(nn.Module):
         self.model = LlamaModel(args)
 
         # set the head
+        # TODO: Not supported by Google Gemma
         self.lm_head = nn.Linear(args.hidden_size, args.vocab_size, bias=False)
 
     def __call__(
@@ -22,3 +23,4 @@ class Model(nn.Module):
         # perform a forward pass
         out, cache = self.model(inputs, cache)
         return self.lm_head(out), cache
+        #return out, cache

@@ -9,7 +9,7 @@ class ModelConfig(BaseModel):
     #attention_dropout: Optional[float]
     #bos_token_id: Optional[int]
     #eos_token_id: Optional[int]
-    #hidden_act: Optional[str]
+    hidden_act: str
     hidden_size: int
     #initializer_range: Optional[float]
     intermediate_size: int

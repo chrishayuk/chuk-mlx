@@ -11,9 +11,12 @@ from utils.huggingface_utils import load_from_hub
 from utils.tokenizer_loader import load_tokenizer
 
 # set the model name
-model_name = "mistralai/Mistral-7B-Instruct-v0.2"
-#model_name = "ibm/granite-7b-base"
+#odel_name = "mistralai/Mistral-7B-Instruct-v0.2"
+model_name = "ibm/granite-7b-base"
 #model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+
+# not supported
+#model_name = "google/gemma-2b"
 
 # load the model from huggingface
 print(f"Loading Model: {model_name}")
@@ -44,7 +47,7 @@ print("weights loaded")
 tokenizer = load_tokenizer(model_name)
 
 def generatey(
-    prompt: mx.array, model: nn.Module, temp: float = 0.8
+    prompt: mx.array, model: nn.Module, temp: float = 0
 ) -> Generator[mx.array, None, None]:
     
     def sample(logits: mx.array) -> mx.array:
@@ -65,8 +68,6 @@ def generatey(
         yield y
 
 def generate(model, prompt, tokenizer):
-    max_tokens = 500
-    temp = 0.8
     print(prompt, end="", flush=True)
 
     prompt = mx.array(tokenizer.encode(prompt))
@@ -74,8 +75,8 @@ def generate(model, prompt, tokenizer):
     tokens = []
     skip = 0
     for token, n in zip(
-        generatey(prompt, model, temp),
-        range(max_tokens),
+        generatey(prompt, model),
+        range(500),
     ):
         if token == tokenizer.eos_token_id:
             break

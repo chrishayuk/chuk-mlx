@@ -56,6 +56,7 @@ config_settings["vocab_size"]=vocab_size
 config_settings["hidden_size"]=32
 config_settings["intermediate_size"]=64
 config_settings["num_hidden_layers"]=1
+config_settings["hidden_act"] = "silu"
 model_config = ModelConfig.from_dict(config_settings)
 
 # Print the Configuration
