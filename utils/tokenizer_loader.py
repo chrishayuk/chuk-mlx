@@ -18,7 +18,7 @@ def load_tokenizer(tokenizer_name):
             print(f"No CustomTokenizer class found in the module {tokenizer_name}. Falling back to Hugging Face hub.")
             tokenizer = None
     except ImportError as e:
-        print(f"Local tokenizer {tokenizer_name} not found, loading from Hugging Face hub. Error: {e}")
+        # not found locally
         tokenizer = None
     
     if tokenizer is None:

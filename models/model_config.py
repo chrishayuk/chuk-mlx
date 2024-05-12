@@ -4,27 +4,32 @@ from typing import List, Optional
 from pathlib import Path
 
 class ModelConfig(BaseModel):
-    architectures: List[str]
-    attention_bias: Optional[float] = None
-    attention_dropout: float
-    bos_token_id: Optional[int]
-    eos_token_id: Optional[int]
-    hidden_act: str
+    #architectures: Optional[List[str]]
+    #attention_bias: Optional[float] = None
+    #attention_dropout: Optional[float]
+    #bos_token_id: Optional[int]
+    #eos_token_id: Optional[int]
+    #hidden_act: Optional[str]
     hidden_size: int
-    initializer_range: float
+    #initializer_range: Optional[float]
     intermediate_size: int
-    max_position_embeddings: int
-    model_type: str
-    num_attention_heads: int
+    #max_position_embeddings: Optional[int]
+    #model_type: Optional[str]
+    num_attention_heads: Optional[int] = None
     num_hidden_layers: int
-    num_key_value_heads: int
-    rms_norm_eps: float
-    rope_theta: float
-    sliding_window: Optional[dict] = None
-    tie_word_embeddings: bool
-    torch_dtype: str
-    transformers_version: str
-    use_cache: bool
+    num_key_value_heads: Optional[int] = None
+    rms_norm_eps: Optional[float] = None
+
+    # rope settings
+    # not sure what scaling should be
+    rope_scaling: Optional[str] = None
+    rope_theta: Optional[float] = None
+    rope_traditional: Optional[bool] = False
+    #sliding_window: Optional[dict] = None
+    #tie_word_embeddings: Optional[bool]
+    #torch_dtype: Optional[str]
+    #transformers_version: Optional[str]
+    #use_cache: Optional[bool]
     vocab_size: int
 
     class Config:
@@ -36,6 +41,11 @@ class ModelConfig(BaseModel):
             file_path /= "config.json"
         with open(file_path, "r") as f:
             config_data = json.load(f)
+        return cls(**config_data)
+    
+    @classmethod
+    def from_dict(cls, config_data) -> 'ModelConfig':
+        # load the config from the dictionary
         return cls(**config_data)
     
     def print_layers(self):

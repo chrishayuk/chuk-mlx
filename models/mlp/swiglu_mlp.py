@@ -6,7 +6,7 @@ class MLP(nn.Module):
         # initialize
         super().__init__()
 
-        # 3 gates
+        # Gated Logic Units (GLU)
         self.gate_proj = nn.Linear(hidden_size, intermediate_size, bias=False)
         self.down_proj = nn.Linear(intermediate_size, hidden_size, bias=False)
         self.up_proj = nn.Linear(hidden_size, intermediate_size, bias=False)
@@ -16,6 +16,6 @@ class MLP(nn.Module):
         return self.forward(x)
     
     def forward(self, x):
-        # Applying the SiLU (Swish) activation function
+        # Applying the swish activation function
         gate = nn.silu(self.gate_proj(x))
         return self.down_proj(gate * self.up_proj(x))

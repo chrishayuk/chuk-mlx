@@ -2,7 +2,7 @@
 import glob
 import mlx.core as mx
 
-def load_weight_files(model_path):
+def load_model_weights(model_path):
     # get the path to the weights file
     weight_files = glob.glob(str(model_path / "*.safetensors"))
 

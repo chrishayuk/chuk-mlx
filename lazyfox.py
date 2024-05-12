@@ -2,7 +2,8 @@ import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 from models.loss_function import loss
-from models.mlx.simple_language_model import SimpleLanguageModel
+from models.simple_language_model import SimpleLanguageModel
+from models.model_config import ModelConfig
 from utils.tokenizer_loader import load_tokenizer
 from utils.sequence_utility import SequenceUtility
 from trainer import Trainer
@@ -27,20 +28,6 @@ print("generating batches")
 tokenize_and_batch(input_files,tokenizer_name, output_dir, batchfile_prefix, max_sequence_length, batch_size, False)
 print("batches generated")
 
-# # Create target indices by shifting input indices by one to the right and padding
-# target_indices = []
-# for seq in input_indices:
-#     # Shift and pad: Remove the first element, append pad_token_id
-#     if isinstance(pad_token_id, list):
-#         target_seq = seq[1:] + pad_token_id
-#     else:
-#         target_seq = seq[1:] + [pad_token_id]
-    
-#     # Ensure the target sequence has the same length as the input sequence
-#     target_seq = target_seq[:max_seq_length]
-    
-#     target_indices.append(target_seq)
-
 # Load the input batch
 print("loading batch")
 input_tensor = mx.load("./output/lazyfox_batch_0001.npy")
@@ -60,22 +47,25 @@ print("batch loaded")
 # print("")
 # seq_util.visualize_sequences(target_indices, tokenizer)
 
-# Reshape the target_tensor to match the expected shape of the logits
-#target_tensor = target_tensor.reshape((-1,))
-
-# # Calculate sequence lengths
-# lengths = mx.array([len(seq) for seq in input_sequences])
-
 # Calculate sequence lengths
 lengths = mx.sum(input_tensor, axis=1)
 
-# Define model parameters
-embedding_dim = 32
-hidden_size = 32
-intermediate_size = 64
+# set the config for simple language model
+config_settings = {}
+config_settings["vocab_size"]=vocab_size
+config_settings["hidden_size"]=32
+config_settings["intermediate_size"]=64
+config_settings["num_hidden_layers"]=1
+model_config = ModelConfig.from_dict(config_settings)
 
-# Create an instance of the SimpleLanguageModel
-model = SimpleLanguageModel(vocab_size, embedding_dim, hidden_size, intermediate_size)
+# Print the Configuration
+model_config.print_config()
+
+# Print the Layers
+model_config.print_layers()
+
+# Load the simple language model
+model = SimpleLanguageModel(model_config)
 
 # Define the optimizer
 learning_rate = 0.01

@@ -1,7 +1,7 @@
 import argparse
 import mlx.core as mx
 from models.model_config import ModelConfig
-from models.mlx_model_weights_loader import load_weight_files
+from models.load_weights import load_model_weights
 from utils.tokenizer_loader import load_tokenizer
 from utils.huggingface_utils import load_from_hub
 
@@ -41,9 +41,8 @@ if __name__ == "__main__":
     print(f"Loading Model Config")
     model_config = ModelConfig.load(model_path)
 
-    # loading weights
-    print(f"Loading Model Weights")
-    weights = load_weight_files(model_path)
+    # loading model
+    load_model_weights(model_path)
 
     # load the tokenizer
     print(f"Loading Tokenizer")
