@@ -1,16 +1,19 @@
-import glob
+from typing import Generator
 import mlx.core as mx
 import mlx.nn as nn
 import models
 import models.llama
 import models.llama.llama_model
 from models.load_weights import load_model_weights
-import models.model
+import models.llama.model
 from models.model_config import ModelConfig
 from utils.huggingface_utils import load_from_hub
+from utils.tokenizer_loader import load_tokenizer
 
 # set the model name
 model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+#model_name = "ibm/granite-7b-base"
+#model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
 
 # load the model from huggingface
 print(f"Loading Model: {model_name}")
@@ -23,7 +26,7 @@ model_config = ModelConfig.load(model_path)
 weights = load_model_weights(model_path)
 
 # create the model instance
-model = models.model.Model(model_config)
+model = models.llama.model.Model(model_config)
 
 # Model Loaded
 print(f"Model Loaded: {model_name}")
@@ -35,5 +38,61 @@ model.load_weights(list(weights.items()))
 mx.eval(model.parameters())
 print("weights loaded")
 
-# Create value and grad function for loss
-#loss_value_and_grad = nn.value_and_grad(model, loss)
+
+# prompt it
+# Load tokenizer and define vocabulary size
+tokenizer = load_tokenizer(model_name)
+
+def generatey(
+    prompt: mx.array, model: nn.Module, temp: float = 0.8
+) -> Generator[mx.array, None, None]:
+    
+    def sample(logits: mx.array) -> mx.array:
+        return (
+            mx.argmax(logits, axis=-1)
+            if temp == 0
+            else mx.random.categorical(logits * (1 / temp))
+        )
+
+    y = prompt
+    cache = None
+    while True:
+        # TODO: handle cache in the future
+        #logits, cache = model(y[None])
+        logits, cache = model(y[None], cache=cache)
+        logits = logits[:, -1, :]
+        y = sample(logits)
+        yield y
+
+def generate(model, prompt, tokenizer):
+    max_tokens = 500
+    temp = 0.8
+    print(prompt, end="", flush=True)
+
+    prompt = mx.array(tokenizer.encode(prompt))
+
+    tokens = []
+    skip = 0
+    for token, n in zip(
+        generatey(prompt, model, temp),
+        range(max_tokens),
+    ):
+        if token == tokenizer.eos_token_id:
+            break
+
+        tokens.append(token.item())
+        s = tokenizer.decode(tokens)
+        if len(s) - skip > 1:
+            print(s[skip:-1], end="", flush=True)
+            skip = len(s) - 1
+    print(tokenizer.decode(tokens)[skip:], flush=True)
+    print("=" * 10)
+    if len(tokens) == 0:
+        print("No tokens generated for this prompt")
+        return
+
+
+print("prompting")
+prompt = "Who is Ada Lovelace?"
+response = generate(model, prompt, tokenizer)
+print(response)

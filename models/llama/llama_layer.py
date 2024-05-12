@@ -43,7 +43,8 @@ class LlamaLayer(nn.Module):
         mask: Optional[mx.array] = None,
         cache: Optional[Tuple[mx.array, mx.array]] = None,
     ) -> mx.array:
-        r, cache = self.self_attn(self.input_layer_norm(x), mask, cache)
+        #print('llama layer call')
+        r, cache = self.self_attn(self.input_layernorm(x), mask, cache)
         h = x + r
 
         # execute our mlp, performing normalisation on the input

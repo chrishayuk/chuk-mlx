@@ -9,7 +9,7 @@ class LlamaModel(nn.Module):
         super().__init__()
 
         # we store the config for later
-        self.config = config
+        self.args = config
 
         # set the vocabulary size
         self.vocab_size = config.vocab_size
@@ -46,3 +46,4 @@ class LlamaModel(nn.Module):
             h, cache[e] = layer(h, mask, cache[e])
 
         return self.norm(h), cache
+
