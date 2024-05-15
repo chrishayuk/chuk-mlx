@@ -11,12 +11,16 @@ from utils.huggingface_utils import load_from_hub
 from utils.tokenizer_loader import load_tokenizer
 
 # set the model name
-#odel_name = "mistralai/Mistral-7B-Instruct-v0.2"
-model_name = "ibm/granite-7b-base"
+#model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+#model_name = "ibm/granite-7b-base"
 #model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+model_name = "ibm-granite/granite-3b-code-instruct"
 
 # not supported
 #model_name = "google/gemma-2b"
+#model_name = "google/gemma-1.1-2b-it"
+#model_name = "google/code-gemma-2b"
+#model_name = "google/code-gemma-7b"
 
 # load the model from huggingface
 print(f"Loading Model: {model_name}")
@@ -41,6 +45,8 @@ model.load_weights(list(weights.items()))
 mx.eval(model.parameters())
 print("weights loaded")
 
+# load the model
+#model = models.llama.llama_model.LlamaModel.load(model_name)
 
 # prompt it
 # Load tokenizer and define vocabulary size
@@ -94,6 +100,6 @@ def generate(model, prompt, tokenizer):
 
 
 print("prompting")
-prompt = "Who is Ada Lovelace?"
+prompt = "Weite a fibonacci function in python?"
 response = generate(model, prompt, tokenizer)
 print(response)

@@ -24,13 +24,13 @@ class LlamaLayer(nn.Module):
         # We use a dimension 2/3 4d instead of 4d as in PaLM.
         if config.hidden_act == "silu" :
             # use swiglu mlp
-            self.mlp = SwiGluMLP(config.hidden_size, config.intermediate_size)
+            self.mlp = SwiGluMLP(config.hidden_size, config.intermediate_size, config.mlp_bias)
         elif config.hidden_act == "gelu":
             # use geluglu mlp
-            self.mlp = GeluGluMLP(config.hidden_size, config.intermediate_size)
+            self.mlp = GeluGluMLP(config.hidden_size, config.intermediate_size, config.mlp_bias)
         else:
             # use swiglu mlp
-            self.mlp = SwiGluMLP(config.hidden_size, config.intermediate_size)
+            self.mlp = SwiGluMLP(config.hidden_size, config.intermediate_size, config.mlp_bias)
 
         # llama models normalize the inputs for each sub layer to stablize training
         # Llama-Paper

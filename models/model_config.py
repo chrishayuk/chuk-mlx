@@ -5,7 +5,6 @@ from pathlib import Path
 
 class ModelConfig(BaseModel):
     #architectures: Optional[List[str]]
-    #attention_bias: Optional[float] = None
     #attention_dropout: Optional[float]
     #bos_token_id: Optional[int]
     #eos_token_id: Optional[int]
@@ -15,9 +14,13 @@ class ModelConfig(BaseModel):
     intermediate_size: int
     #max_position_embeddings: Optional[int]
     #model_type: Optional[str]
+    tie_word_embeddings: Optional[bool] = True
+
+    # attention settings
     num_attention_heads: Optional[int] = None
     num_hidden_layers: int
     num_key_value_heads: Optional[int] = None
+    attention_bias: Optional[float] = False
     rms_norm_eps: Optional[float] = None
 
     # rope settings
@@ -26,12 +29,15 @@ class ModelConfig(BaseModel):
     rope_theta: Optional[float] = None
     rope_traditional: Optional[bool] = False
     #sliding_window: Optional[dict] = None
-    #tie_word_embeddings: Optional[bool]
     #torch_dtype: Optional[str]
     #transformers_version: Optional[str]
     #use_cache: Optional[bool]
-    vocab_size: int
 
+    # MLP Bias
+    mlp_bias: Optional[bool] = False
+    
+    # vocab
+    vocab_size: int
     class Config:
         allow_population_by_field_name = True
 

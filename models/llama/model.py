@@ -1,7 +1,9 @@
 import mlx.core as mx
 import mlx.nn as nn
+from models.load_weights import load_model_weights
 from models.model_config import ModelConfig
 from models.llama.llama_model import LlamaModel
+from utils.huggingface_utils import load_from_hub
 
 class Model(nn.Module):
     def __init__(self, args: ModelConfig):
@@ -11,9 +13,12 @@ class Model(nn.Module):
         # set the model as Llama
         self.model = LlamaModel(args)
 
+        # store the config, just in-case we need
+        self.config = args
+
         # set the head
-        # TODO: Not supported by Google Gemma
-        self.lm_head = nn.Linear(args.hidden_size, args.vocab_size, bias=False)
+        if not self.config.tie_word_embeddings:
+            self.lm_head = nn.Linear(args.hidden_size, args.vocab_size, bias=False)
 
     def __call__(
         self,
@@ -22,5 +27,9 @@ class Model(nn.Module):
     ):
         # perform a forward pass
         out, cache = self.model(inputs, cache)
-        return self.lm_head(out), cache
-        #return out, cache
+
+        # set the head
+        if self.config.tie_word_embeddings:
+            return self.model.embed_tokens.as_linear(out), cache
+        else:
+            return self.lm_head(out), cache

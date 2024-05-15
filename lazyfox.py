@@ -91,7 +91,7 @@ for epoch in range(num_epochs):
 # # Train the model
 # # Create a dataset
 # dataset = Dataset(input_sequences, tokenizer)
-# trainer = Trainer(model, optimizer, loss_function, lengths)
+trainer = Trainer(model, optimizer, loss_function, lengths)
 # trainer.train(dataset, 32)
 
 # Prediction

@@ -24,10 +24,10 @@ class LlamaAttention(nn.Module):
         self.scale = dimensions_per_head**-0.5
 
         # set Q, K, V and O
-        self.q_proj = nn.Linear(dimensions, n_heads * dimensions_per_head, bias=False)
-        self.k_proj = nn.Linear(dimensions, n_kv_heads * dimensions_per_head, bias=False)
-        self.v_proj = nn.Linear(dimensions, n_kv_heads * dimensions_per_head, bias=False)
-        self.o_proj = nn.Linear(n_heads * dimensions_per_head, dimensions, bias=False)
+        self.q_proj = nn.Linear(dimensions, n_heads * dimensions_per_head, bias=config.attention_bias)
+        self.k_proj = nn.Linear(dimensions, n_kv_heads * dimensions_per_head, bias=config.attention_bias)
+        self.v_proj = nn.Linear(dimensions, n_kv_heads * dimensions_per_head, bias=config.attention_bias)
+        self.o_proj = nn.Linear(n_heads * dimensions_per_head, dimensions, bias=config.attention_bias)
 
         # rope scaling is 1 by default
         rope_scale = 1
