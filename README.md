@@ -47,9 +47,14 @@ python infer.py --model ibm/granite-7b-base
 python infer.py --model meta-llama/Meta-Llama-3-8B-Instruct
 ```
 
+```bash
+python infer.py --model ibm-granite/granite-3b-code-instruct
+```
+
 TODO
 1 - Refactor train.py, to move inference out into infer
 1 - Generate large file generator for jsonl
 2 - Batch Sequence Visualizer (batch name, row)
 3 - Migrate trainer to use mx data loader
 4 - Migrate lazy fox to use data loader
+5 - Add latency and tokens per seconds stats for inference
