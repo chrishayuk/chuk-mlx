@@ -1,6 +1,20 @@
 # Introduction
 This is a ground up rework of an MLX training script.
 
+## Intallation
+To get started install this using pip
+
+```bash
+pip install -r requirements.txt
+```
+
+## Inference
+The folloing scripts show how to prompt a model
+
+```python
+python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a fibonacci function in python"
+```
+
 ## Supported Models
 The following model familes are supported.
 
@@ -9,8 +23,6 @@ The following model familes are supported.
 - Mistral-7B
 - IBM Granite
 - IBM Granite Code Models
-
-
 
 ### Meta Llama 3
 All Meta Llama 3 models are supported including:
@@ -33,28 +45,10 @@ The following MistralAI models are supported including:
 
 - mistralai/Mistral-7B-Instruct-v0.2
 
-## Infer
-
-```bash
-python infer.py --model mistralai/Mistral-7B-Instruct-v0.2
-```
-
-```bash
-python infer.py --model ibm/granite-7b-base
-```
-
-```bash
-python infer.py --model meta-llama/Meta-Llama-3-8B-Instruct
-```
-
-```bash
-python infer.py --model ibm-granite/granite-3b-code-instruct
-```
-
 TODO
-1 - Refactor train.py, to move inference out into infer
+1 - Modify infer to be interactive
+2 - Modify model to support bloat16
 1 - Generate large file generator for jsonl
 2 - Batch Sequence Visualizer (batch name, row)
 3 - Migrate trainer to use mx data loader
 4 - Migrate lazy fox to use data loader
-5 - Add latency and tokens per seconds stats for inference

@@ -1,4 +1,5 @@
 import argparse
+import time
 import mlx.core as mx
 import models
 from models.inference_utility import generate_response
@@ -50,4 +51,14 @@ if __name__ == "__main__":
 
     # Generate response for the prompt
     print("Prompting")
-    generate_response(model, args.prompt, tokenizer)
+    start_time = time.time()
+    tokens = generate_response(model, args.prompt, tokenizer)
+    end_time = time.time()
+
+    if tokens is not None:
+        total_time = end_time - start_time
+        num_tokens = len(tokens)
+        tokens_per_second = num_tokens / total_time if total_time > 0 else float('inf')
+        print(f"Generated {num_tokens} tokens in {total_time:.2f} seconds ({tokens_per_second:.2f} tokens/second)")
+    else:
+        print("No tokens generated")
