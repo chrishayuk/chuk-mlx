@@ -34,6 +34,7 @@ class LlamaModel(nn.Module):
         inputs: mx.array,
         cache=None,
     ):
+        # perform a forward pass on the embeddings layer
         h = self.embed_tokens(inputs)
 
         mask = None

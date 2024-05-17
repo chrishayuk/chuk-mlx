@@ -56,18 +56,25 @@ class LlamaAttention(nn.Module):
     ) -> mx.array:
         B, L, D = x.shape
 
+        # get the queries, keys and values
         queries, keys, values = self.q_proj(x), self.k_proj(x), self.v_proj(x)
 
-        # Prepare the queries, keys and values for the attention computation
+        # reshape queries, keys and values for the attention computation
         queries = queries.reshape(B, L, self.n_heads, -1).transpose(0, 2, 1, 3)
         keys = keys.reshape(B, L, self.n_kv_heads, -1).transpose(0, 2, 1, 3)
         values = values.reshape(B, L, self.n_kv_heads, -1).transpose(0, 2, 1, 3)
 
+        # check if we have a cache
         if cache is not None:
+            # set the key and value caches to the cache
             key_cache, value_cache = cache
             queries = self.rope(queries, offset=key_cache.shape[2])
             keys = self.rope(keys, offset=key_cache.shape[2])
+
+            # add keys to the key cache
             keys = mx.concatenate([key_cache, keys], axis=2)
+
+            # add values to the value cache
             values = mx.concatenate([value_cache, values], axis=2)
         else:
             queries = self.rope(queries)
