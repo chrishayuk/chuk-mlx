@@ -12,9 +12,10 @@ from batches.pretrain_batch import tokenize_and_batch
 # settings
 input_files = ['./sample_data/lazyfox_train.jsonl']
 tokenizer_name = 'lazyfox_tokenizer'
-output_dir = './output'
-max_sequence_length = 16
+output_dir = './output/lazyfox'
+batch_output_dir = f'{output_dir}/batches'
 batchfile_prefix = 'lazyfox'
+max_sequence_length = 16
 batch_size = 1024
 
 # Load tokenizer and define vocabulary size
@@ -24,7 +25,7 @@ vocab_size = len(tokenizer.vocab)
 
 # Generate a batch
 print("generating batches")
-tokenize_and_batch(input_files,tokenizer_name, output_dir, batchfile_prefix, max_sequence_length, batch_size, False)
+tokenize_and_batch(input_files,tokenizer_name, batch_output_dir, batchfile_prefix, max_sequence_length, batch_size, False)
 print("batches generated")
 
 # Load the input batch

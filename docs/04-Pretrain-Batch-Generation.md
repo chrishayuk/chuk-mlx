@@ -14,15 +14,14 @@ The target batchfile is a next token shift of the batchfile.
 The following script will take a jsonl dataset, tokenize it using the passed tokenizer, and split into batches, saving to the file system.
 
 ```bash
-python batch_generator_pretrain.py --input_files ./sample_data/sample_training_data_small.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output --file_prefix sample_tokenized --max_sequence_length 8096 --batch_size 1024
+python batch_generator_pretrain.py --input_files ./sample_data/sample_training_data_small.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output/sample --file_prefix sample --max_sequence_length 8096 --batch_size 1024
 ```
-
 
 ## Generating Batchfiles for targets (next token prediction)
 The following script will take a pre-train numpy file, generate a target file using a target shift, and save to the file system.  This gives you the next token generation files
 
 ```bash
-python batch_pretrain_target_shift_generator.py --input_directory ./output --batch_prefix sample_tokenized
+python batch_pretrain_target_shift_generator.py --input_directory ./output/sample --batch_prefix sample
 ```
 
 ## Batch Analyzer
@@ -32,11 +31,11 @@ This will produce a pretty table that outlines rows, tokens per batch, padding t
 The following will analyze the input batch we created earlier
 
 ```bash
-python batch_analyzer.py --batch_file output/sample_tokenized_batch_0001.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
+python batch_analyzer.py --batch_file output/sample/sample_batch_0001.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
 ```
 
 The following will analyze the target batch we created earlier
 
 ```bash
-python batch_analyzer.py --batch_file output/sample_tokenized_batch_0001_target.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
+python batch_analyzer.py --batch_file output/sample/sample_batch_0001_target.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
 ```

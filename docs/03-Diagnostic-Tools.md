@@ -1,6 +1,20 @@
 # Diagnosis tools
 As it stands there is a set of utiltiies that help you benchmark and diagnose the performance of MLX.
 
+## Model Viewer - Show Layers
+This is a simple utility that allows you to print the configuration of a model
+
+```bash
+python model_viewer.py --model ibm-granite/granite-3b-code-instruct --show-config
+```
+
+## Model Viewer - Show Config
+This is a simple utility that allows you to print the configuration of a model
+
+```bash
+python model_viewer.py --model mistralai/Mistral-7B-Instruct-v0.2 --show-layers
+```
+
 ## Print Layer Modules
 This is a simple utility that allows you to print the modules of a layer.
 
