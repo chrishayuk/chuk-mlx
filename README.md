@@ -25,7 +25,7 @@ The following model familes are supported.
 - IBM Granite Code Models
 
 TODO
-2 - Batch Sequence Visualizer (batch name, row)
+--------
 1 - Getting a working finetune trainer
 2 - Get a working pretrain trainer
 1 - Modify infer to be interactive
