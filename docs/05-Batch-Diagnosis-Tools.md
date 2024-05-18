@@ -46,5 +46,5 @@ python batch_analyzer.py --batch_file output/random/batches/random_batch_0001.np
 This views the random generated batch:
 
 ```bash
-python batch_viewer.py --batch_file output/random/batches/random_batch_0001.npy --tokenizer meta-llama/Meta-Llama-3-8B-Instruct
+python batch_viewer.py --batch_file output/random/batches/random_batch_0001.npy --tokenizer meta-llama/Meta-Llama-3-8B-Instruct --rows 5
 ```
