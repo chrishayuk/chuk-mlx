@@ -5,9 +5,8 @@ from models.loss_function import loss
 from models.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
 from utils.tokenizer_loader import load_tokenizer
-from utils.sequence_utility import SequenceUtility
+from batches.sequence_utility import SequenceUtility
 from trainer import Trainer
-from dataset import Dataset
 from batches.pretrain_batch import tokenize_and_batch
 
 # settings
