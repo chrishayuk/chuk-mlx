@@ -1,24 +1,7 @@
 import argparse
 import os
 import numpy as np
-
-def create_target_batch(input_batch, pad_token_id, max_seq_length):
-    target_indices = []
-    for seq in input_batch:
-        if isinstance(pad_token_id, list):
-            target_seq = seq[1:].tolist() + pad_token_id
-        else:
-            target_seq = seq[1:].tolist() + [pad_token_id]
-        
-        # Pad or truncate the target sequence to match the input sequence length
-        if len(target_seq) < max_seq_length:
-            target_seq += [pad_token_id] * (max_seq_length - len(target_seq))
-        else:
-            target_seq = target_seq[:max_seq_length]
-        
-        target_indices.append(target_seq)
-    
-    return np.array(target_indices, dtype=np.int32)
+from batches.batch_utils import create_target_batch
 
 def process_batches(input_directory, batch_prefix, individual_batch=None):
     if individual_batch:
@@ -26,7 +9,7 @@ def process_batches(input_directory, batch_prefix, individual_batch=None):
         batch_files = [individual_batch]
     else:
         # Get all batch files with the specified prefix
-        batch_files = [f for f in os.listdir(input_directory) if f.startswith(batch_prefix) and f.endswith('.npy')]
+        batch_files = [f for f in os.listdir(input_directory) if f.startswith(batch_prefix) and f.endswith('.npy') and not f.endswith('_target.npy')]
 
     for batch_file in batch_files:
         # Load the input batch
@@ -46,7 +29,7 @@ def process_batches(input_directory, batch_prefix, individual_batch=None):
         np.save(target_batch_path, target_batch)
 
         print(f"Created target batch: {target_batch_file}")
-
+        
 def main():
     # setup arg parser
     parser = argparse.ArgumentParser(description='Create target batches by shifting input batches.')

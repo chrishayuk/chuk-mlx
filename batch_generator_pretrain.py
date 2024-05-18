@@ -1,5 +1,5 @@
 import argparse
-from batches.generate_batch import tokenize_and_batch
+from batches.pretrain_batch import tokenize_and_batch
 
 def main():
     # set argument parser

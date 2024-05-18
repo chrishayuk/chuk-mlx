@@ -25,11 +25,13 @@ The following model familes are supported.
 - IBM Granite Code Models
 
 TODO
+2 - Batch Sequence Visualizer (batch name, row)
+1 - Getting a working finetune trainer
+2 - Get a working pretrain trainer
 1 - Modify infer to be interactive
 2 - Clean up the inference utilities
 2 - Modify model to support bloat16
 1 - Generate large file generator for jsonl
-2 - Batch Sequence Visualizer (batch name, row)
 3 - Migrate trainer to use mx data loader
 4 - Migrate lazy fox to use data loader
 5 - Inference performance benchmarking tool that outputs a table of tokens per second

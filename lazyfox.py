@@ -8,7 +8,7 @@ from utils.tokenizer_loader import load_tokenizer
 from utils.sequence_utility import SequenceUtility
 from trainer import Trainer
 from dataset import Dataset
-from batches.generate_batch import tokenize_and_batch
+from batches.pretrain_batch import tokenize_and_batch
 
 # settings
 input_files = ['./sample_data/lazyfox_train.jsonl']
