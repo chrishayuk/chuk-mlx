@@ -25,3 +25,19 @@ class TokenDisplayUtility:
         
         # print the table
         print(tabulate(table_data, headers=["Index", "Token ID", "Decoded Token"], tablefmt="grid"))
+
+    def display_full_vocabulary(self):
+        # get the full vocabulary
+        vocab = self.tokenizer.get_vocab()
+        
+        # get the token IDs
+        token_ids = list(vocab.values())
+        
+        # create a table of the vocabulary
+        table_data = [
+            [i, token_id, self.tokenizer.decode([token_id])]
+            for i, token_id in enumerate(token_ids)
+        ]
+        
+        # print the table
+        print(tabulate(table_data, headers=["Index", "Token ID", "Decoded Token"], tablefmt="grid"))

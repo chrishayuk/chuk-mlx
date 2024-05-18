@@ -10,6 +10,7 @@ class CustomTokenizer(PreTrainedTokenizer):
 
         # Initialize vocabulary
         local_vocab = ['the', 'quick', 'brown', 'fox', 'jumps', 'over', 'lazy', 'dog']
+
         # Combine pad and unk with the local vocabulary
         combined_vocab = [pad_token, unk_token] + local_vocab
         
@@ -41,7 +42,12 @@ class CustomTokenizer(PreTrainedTokenizer):
             return [self._convert_id_to_token(idx) for idx in index]
         else:
             return {idx: tok for tok, idx in self.vocab.items()}.get(index, '<unk>')
-
+        
+    # def _convert_id_to_token(self, index):
+    #     if isinstance(index, list):
+    #         return [self._convert_id_to_token(idx) for idx in index]
+    #     else:
+    #         return list(self.vocab.keys())[list(self.vocab.values()).index(index)]
 
 
     def convert_ids_to_tokens(self, ids, skip_special_tokens=False):
@@ -51,7 +57,10 @@ class CustomTokenizer(PreTrainedTokenizer):
 
     def convert_tokens_to_ids(self, tokens):
         if isinstance(tokens, str):
-            tokens = [tokens]  # Ensure tokens are always handled as a list
+            # Ensure tokens are always handled as a list
+            tokens = [tokens]
+        
+        # convert the token to a list of ids
         return [self._convert_token_to_id(token) for token in tokens]
 
     def convert_ids_to_tokens(self, ids, skip_special_tokens=False):

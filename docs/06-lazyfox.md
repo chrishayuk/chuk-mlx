@@ -7,11 +7,13 @@ the lazyfox dataset in jsonl format can be found at 'sample_data/lazyfox_train.j
 ## lazyfox tokenizer
 there is a very simple tokenizer for lazyfox which just consists of the words of the phrase, the tokenizer can be found at 'chuk_tokenizers/lazyfox_tokenizer.py'.  the model_hub loader natively supports local tokenizers in this folder as well as huggingface tokenizers.
 
+### printing tokens for a prompt
 if you wish to test the lazyfox tokenizer you can use the print_tokens utility
 
 ```bash
 python print_tokens.py --tokenizer lazyfox_tokenizer --prompt "the quick brown fox jumps over the lazy dog"
 ```
+
 
 ## Batch Generation
 Since the lazyfox model is a blank model, it uses pre-trained batchfiles to train the model.
@@ -54,4 +56,19 @@ if you wish to run this against the target batch you can run
 
 ```bash
 python batch_analyzer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001_target.npy --tokenizer lazyfox_tokenizer
+```
+
+#### Batch Viewer
+The following allows you to view the generated batches.
+
+to run this against the generated input batch, you can run:
+
+```bash
+python batch_viewer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001.npy --tokenizer lazyfox_tokenizer
+```
+
+if you wish to run this against the target batch you can run
+
+```bash
+python batch_viewer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001_target.npy --tokenizer lazyfox_tokenizer
 ```

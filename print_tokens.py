@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # Argument for tokenizer; if not specified, use the model path
     parser.add_argument(
         "--prompt",
-        default="Who is Ada Lovelace?",
+        default=None,
         help="The prompt"
     )
 
@@ -37,5 +37,12 @@ if __name__ == "__main__":
 
     # display the tokens
     tokenizer_utility = TokenDisplayUtility(tokenizer)
-    tokenizer_utility.display_tokens_from_prompt(args.prompt)
+
+    # check if a prompt is provided
+    if args.prompt:
+        # display the prompt tokens
+        tokenizer_utility.display_tokens_from_prompt(args.prompt)
+    else:
+        # display the full vocabulary
+        tokenizer_utility.display_full_vocabulary()
 

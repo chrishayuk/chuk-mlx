@@ -69,15 +69,10 @@ class SequenceUtility:
             tokens = [tokenizer.decode([token_id]) for token_id in seq[:max_columns - 1]]
             token_ids = [str(token_id) for token_id in seq[:max_columns - 1]]
 
-            # Find the last non-pad token's index
-            last_non_pad_index = next((i for i, token_id in enumerate(seq[:self.max_seq_length - 1]) if token_id != 0), None)
-            if last_non_pad_index == 0:
-                last_non_pad_index = self.max_seq_length-1
-
             # Find the last non-pad token's index correctly
-            last_non_pad_index = max((index for index, token_id in enumerate(seq[:max_columns - 1]) if token_id != 0), default=0)
-            last_token = tokens[last_non_pad_index]
-            last_token_id = token_ids[last_non_pad_index]
+            last_non_pad_index = max((index for index, token_id in enumerate(seq) if token_id != 0), default=0)
+            last_token = tokenizer.decode([seq[last_non_pad_index]])
+            last_token_id = str(seq[last_non_pad_index])
             lt_display = f"T{last_non_pad_index}:({last_token_id})"
 
             # Handle the token at the maximum sequence length - 1

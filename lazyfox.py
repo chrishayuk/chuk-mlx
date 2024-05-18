@@ -1,6 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
+import numpy as np
 from models.loss_function import loss
 from models.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
@@ -18,52 +19,41 @@ batchfile_prefix = 'lazyfox'
 max_sequence_length = 16
 batch_size = 1024
 
-# Load tokenizer and define vocabulary size
-tokenizer = load_tokenizer(tokenizer_name)
-pad_token_id = tokenizer.pad_token_id
-vocab_size = len(tokenizer.vocab)
-
-# Generate a batch
-print("generating batches")
-tokenize_and_batch(input_files,tokenizer_name, batch_output_dir, batchfile_prefix, max_sequence_length, batch_size, False)
-print("batches generated")
-
 # Load the input batch
 print("loading batch")
-input_tensor = mx.load("./output/lazyfox_batch_0001.npy")
-target_tensor = mx.load("./output/lazyfox_batch_0001_target.npy")
+input_tensor = mx.load(f"{batch_output_dir}/lazyfox_batch_0001.npy")
+target_tensor = mx.load(f"{batch_output_dir}/lazyfox_batch_0001_target.npy")
 print("batch loaded")
 
-#target_tensor = mx.array(target_indices)
-
 # # Visualize input sequences
+# seq_util = SequenceUtility(max_sequence_length, pad_token_id)
 # print("Input:")
 # print("")
-# seq_util.visualize_sequences(input_indices, tokenizer)
+# seq_util.visualize_sequences(np.array(input_tensor), tokenizer)
 
-# Visualize target sequences
+# #Visualize target sequences
 # print("")
 # print("Target:")
 # print("")
-# seq_util.visualize_sequences(target_indices, tokenizer)
+# seq_util.visualize_sequences(np.array(target_tensor), tokenizer)
 
 # Calculate sequence lengths
 lengths = mx.sum(input_tensor, axis=1)
 
 # set the config for simple language model
 config_settings = {}
-config_settings["vocab_size"]=vocab_size
+config_settings["vocab_size"]=16
 config_settings["hidden_size"]=32
 config_settings["intermediate_size"]=64
 config_settings["num_hidden_layers"]=1
 config_settings["hidden_act"] = "silu"
 model_config = ModelConfig.from_dict(config_settings)
 
-# Print the Configuration
-model_config.print_config()
+# # Print the Configuration
+# model_config.print_config()
 
-# Print the Layers
-model_config.print_layers()
+# # Print the Layers
+# model_config.print_layers()
 
 # Load the simple language model
 model = SimpleLanguageModel(model_config)
@@ -95,6 +85,10 @@ trainer = Trainer(model, optimizer, loss_function, lengths)
 # trainer.train(dataset, 32)
 
 # Prediction
+# Load tokenizer and define vocabulary size
+tokenizer = load_tokenizer(tokenizer_name)
+pad_token_id = tokenizer.pad_token_id
+vocab_size = len(tokenizer.vocab)
 input_sequence = 'the quick brown'
 input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)
 input_tensor = mx.array([input_indices])
