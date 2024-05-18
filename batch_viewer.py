@@ -2,7 +2,7 @@ import argparse
 import os
 import numpy as np
 from utils.tokenizer_loader import load_tokenizer
-from batches.sequence_utility import SequenceUtility
+from batches.sequence_visualizer import visualize_sequences
 
 def analyze_batch_file(batch_file, tokenizer_name):
     # load the tokenizer
@@ -14,11 +14,8 @@ def analyze_batch_file(batch_file, tokenizer_name):
     # Get the maximum sequence length
     max_sequence_length = batch_tensor.shape[1]
 
-    # Create a SequenceUtility instance
-    seq_util = SequenceUtility(max_sequence_length, tokenizer.pad_token_id)
-
     # Visualize input sequences
-    seq_util.visualize_sequences(batch_tensor, tokenizer)
+    visualize_sequences(batch_tensor, tokenizer, max_sequence_length)
 
 def main():
     # Initialize the argument parser

@@ -25,18 +25,6 @@ input_tensor = mx.load(f"{batch_output_dir}/lazyfox_batch_0001.npy")
 target_tensor = mx.load(f"{batch_output_dir}/lazyfox_batch_0001_target.npy")
 print("batch loaded")
 
-# # Visualize input sequences
-# seq_util = SequenceUtility(max_sequence_length, pad_token_id)
-# print("Input:")
-# print("")
-# seq_util.visualize_sequences(np.array(input_tensor), tokenizer)
-
-# #Visualize target sequences
-# print("")
-# print("Target:")
-# print("")
-# seq_util.visualize_sequences(np.array(target_tensor), tokenizer)
-
 # Calculate sequence lengths
 lengths = mx.sum(input_tensor, axis=1)
 
