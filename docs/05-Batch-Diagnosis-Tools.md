@@ -32,12 +32,12 @@ This will produce a table outlining the generation performance times.
 
 The following generates a llama-3 style batch
 ```bash
-python batch_generator_random.py --vocab_size 128256 --max_sequence_length 8096 --batch_size 1024 --num_batches 1 --file_prefix random --output_directory output/random
+python batch_generator_random.py --vocab_size 128256 --max_sequence_length 8096 --batch_size 1024 --num_batches 1 --file_prefix random --output_directory output/random/batches
 ```
 
 ## Batch Analyzer - Random Numpy Batches
 This analyses the random generated batch:
 
 ```bash
-python batch_analyzer.py --batch_file output/random/random_batch_0001.npy --tokenizer meta-llama/Meta-Llama-3-8B-Instruct
+python batch_analyzer.py --batch_file output/random/batches/random_batch_0001.npy --tokenizer meta-llama/Meta-Llama-3-8B-Instruct
 ```
