@@ -1,16 +1,20 @@
 import mlx.core as mx
 import time
+from tqdm import tqdm
 
 class Trainer:
-    def __init__(self, model, optimizer, loss_function):
+    def __init__(self, model, optimizer, loss_function, progress_interval=100):
         # set the model
         self.model = model
-
+        
         # set the optimizer
         self.optimizer = optimizer
 
         # set the loss function
         self.loss_function = loss_function
+
+        # set the progress update interval
+        self.progress_interval = progress_interval
 
     def train(self, num_epochs, batch_dataset):
         # set the timers
@@ -27,8 +31,11 @@ class Trainer:
             epoch_loss = 0
             epoch_tokens = 0
 
+            # create a progress bar for the batches
+            batch_progress = tqdm(total=len(batch_dataset), desc=f"Epoch [{epoch+1}/{num_epochs}]", unit="batch")
+
             # load each batch file
-            for input_tensor, target_tensor, lengths in batch_dataset:
+            for batch_index, (input_tensor, target_tensor, lengths) in enumerate(batch_dataset, start=1):
                 # kick off the batch timer
                 batch_start_time = time.time()
 
@@ -50,6 +57,17 @@ class Trainer:
                 batch_time = batch_end_time - batch_start_time
                 batch_times.append(batch_time)
 
+                # update the progress bar at the specified interval
+                if batch_index % self.progress_interval == 0:
+                    batch_progress.update(self.progress_interval)
+                    batch_progress.set_postfix({"Loss": epoch_loss / batch_index, "Tokens": epoch_tokens})
+
+            # update the remaining progress
+            remaining_batches = len(batch_dataset) % self.progress_interval
+            if remaining_batches > 0:
+                batch_progress.update(remaining_batches)
+                batch_progress.set_postfix({"Loss": epoch_loss / len(batch_dataset), "Tokens": epoch_tokens})
+
             # end the epoch timers
             epoch_end_time = time.time()
             epoch_time = epoch_end_time - epoch_start_time
@@ -57,16 +75,3 @@ class Trainer:
             # update the batch timers
             total_batch_time += sum(batch_times)
             total_epoch_time += epoch_time
-
-            # show the epoch stats
-            print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}, Tokens: {epoch_tokens}")
-
-        # calculate the total and average batch times
-        avg_total_batch_time = total_batch_time / (num_epochs * len(batch_dataset))
-        avg_total_epoch_time = total_epoch_time / num_epochs
-
-        # print out the total and average batch times
-        print(f"Total Batch Time: {total_batch_time:.2f}s")
-        print(f"Total Epoch Time: {total_epoch_time:.2f}s")
-        print(f"Average Batch Time: {avg_total_batch_time:.4f}s")
-        print(f"Average Epoch Time: {avg_total_epoch_time:.4f}s")

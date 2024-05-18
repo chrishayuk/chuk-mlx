@@ -60,7 +60,9 @@ trainer = Trainer(model, optimizer, loss_function)
 num_epochs = 50
 
 # train the model
+print("Starting Training\n")
 trainer.train(num_epochs, batch_dataset)
+print("\n\nCompleted Training\n")
 
 # Prediction
 # Load tokenizer and define vocabulary size
