@@ -11,30 +11,19 @@ class SequenceUtility:
         # Truncate the sequence if it is longer than max_seq_length
         padded_sequence = sequence[:self.max_seq_length]
         
-        # Check if padding_value is not set
-        if self.padding_value is None:
-            self.padding_value = 0  # Default padding value if none provided
-        
-        # Check if padding_value is a list
-        if isinstance(self.padding_value, list):
-            pad_token = self.padding_value[0]
-        else:
-            pad_token = self.padding_value
+        # Set default padding value if not set
+        pad_token = self.padding_value[0] if isinstance(self.padding_value, list) else self.padding_value or 0
         
         # Pad the sequence if it is shorter than max_seq_length
         padding_length = self.max_seq_length - len(padded_sequence)
         padded_sequence += [pad_token] * padding_length
         
+        # return the sequence
         return padded_sequence
 
     def batch_sequences(self, sequences):
         # Ensure all sequences have the same length
-        sequences_padded = []
-        for seq in sequences:
-            seq_padded = self.pad_sequence(seq)
-            sequences_padded.append(seq_padded)
-    
-        return sequences_padded
+        return [self.pad_sequence(seq) for seq in sequences]
 
     def create_next_token_target_sequence(self, input_sequences, pad_token_id):
         """Create next token target sequences by shifting input sequences by one position to the right."""
