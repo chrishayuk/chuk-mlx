@@ -27,6 +27,8 @@ The following model familes are supported.
 TODO
 --------
 1 - Pretrainer
+    - Clear old batches on generation
+    - Implement Warm Up
     - Fix Final Batch Shape Issue
     - Fix so zeroes rather than using EOS token for padding
     - Implement LORA (model freezing, specifying layers)
