@@ -1,4 +1,5 @@
 import mlx.core as mx
+import mlx.nn as nn
 import models
 import models.llama
 import models.llama.llama_model
@@ -6,12 +7,26 @@ import models.llama.model
 from models.load_weights import load_model_weights
 from models.model_config import ModelConfig
 from utils.huggingface_utils import load_from_hub
-from batches.llama_finetune_batch import LLaMAFineTuneBatch
+from trainer import Trainer
+from models.loss_function import loss
+import mlx.optimizers as optim
+from batches.directory_batch_dataset import DirectoryBatchDataset
+
+def chukloss(model, inputs, targets, lengths):
+    # Run model on inputs
+    logits, _ = model(inputs)
+    logits = logits.astype(mx.float32)
+
+    # Mask padding tokens
+    length_mask = mx.arange(inputs.shape[1])[None, :] < lengths[:, None]
+
+    # Calculate the loss
+    ce = nn.losses.cross_entropy(logits, targets) * length_mask
+    ntoks = length_mask.sum()
+    ce = ce.sum() / ntoks
+    return ce, ntoks
 
 # set the model name
-#model_name = "mistralai/Mistral-7B-Instruct-v0.2"
-#model_name = "ibm/granite-7b-base"
-#model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
 model_name = "ibm-granite/granite-3b-code-instruct"
 
 # load the model from huggingface
@@ -38,46 +53,30 @@ print("weights loaded")
 
 # Generate a batch
 input_files = ['./sample_data/calvin_scale_llama/train.jsonl']
-output_dir = './output'
+output_dir = './output/calvin'
+batch_output_dir = f'{output_dir}/batches'
 batchfile_prefix = 'calvin'
 max_sequence_length = 512
 batch_size = 512
 
-# Generate batches for LLaMA fine-tuning
-print("generating LLaMA fine-tuning batches")
-llama_finetune_batching = LLaMAFineTuneBatch(model_name, output_dir, batchfile_prefix, max_sequence_length, batch_size, False)
-llama_finetune_batching.tokenize_and_batch(input_files)
-print("LLaMA fine-tuning batches generated")
+# Define the optimizer
+learning_rate = 2e-4
+optimizer = optim.Adam(learning_rate=learning_rate)
 
-# Load the input batch
-print("loading batch")
-input_tensor = mx.load("./output/calvin_batch_0001.npy")
-target_tensor = mx.load("./output/calvin_batch_0001_target.npy")
-print("batch loaded")
+# Create value and grad function for loss
+loss_function = nn.value_and_grad(model, chukloss)
 
-# # Create value and grad function for loss
-# loss_function = nn.value_and_grad(model, loss)
+# Load the batch data
+output_dir = './output/calvin'
+batch_output_dir = f'{output_dir}/batches'
+batchfile_prefix = "calvin"
+batch_dataset = DirectoryBatchDataset(batch_output_dir, batchfile_prefix)
 
-# # Define the optimizer
-# learning_rate = 0.01
-# optimizer = optim.Adam(learning_rate=learning_rate)
+# Create an instance of the Trainer
+trainer = Trainer(model, optimizer, loss_function)
 
-# # Training loop
-# num_epochs = 50
-# losses = []
-# for epoch in range(num_epochs):
-#     # Forward and backward pass
-#     (lvalue, toks), grad = loss_function(model, *batch)
+# Training loop
+num_epochs = 1
 
-#     # Model update
-#     optimizer.update(model, grad)
-#     mx.eval(model.parameters(), optimizer.state, lvalue)
-
-#     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {lvalue.item():.4f}, Tokens: {ntoks.item()}")
-
-
-# # Generate response for the prompt
-# print("Prompting")
-# prompt = "Weite a fibonacci function in python?"
-# response = generate_response(model, prompt, tokenizer)
-# #print(response)
+# Train the model
+trainer.train(num_epochs, batch_dataset)

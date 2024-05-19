@@ -26,14 +26,26 @@ The following model familes are supported.
 
 TODO
 --------
-1 - Getting a working finetune trainer
-2 - Get a working pretrain trainer
+1 - Pretrainer
+    - Fix Final Batch Shape Issue
+    - Fix so zeroes rather than using EOS token for padding
+    - Implement LORA (model freezing, specifying layers)
+    - Save Adapters
+    - Get a working finetune
+    - Infer from saved adapters
+    - Show Tokens per Second
+    - Improve monitoring at a batch level
+    - improve trainer
+        - loss reporting etc
+        - warm up ratio
+    - Implement QLora (quantized)
 1 - Modify infer to be interactive
 2 - Clean up the inference utilities
 2 - Modify model to support bloat16
 1 - Generate large file generator for jsonl
-3 - Migrate trainer to use mx data loader
-4 - Migrate lazy fox to use data loader
 5 - Inference performance benchmarking tool that outputs a table of tokens per second
 6 - Implement support for quantization
+
+Calvin Run (no lora, 3b code)
+402/403 [37:56<00:05,  5.66s/batch, Batch Loss=0.774, Batch Tokens=64, Batch Time=5.814s]
 

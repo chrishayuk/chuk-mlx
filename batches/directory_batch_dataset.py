@@ -78,4 +78,6 @@ class DirectoryBatchDataset(BatchDatasetBase):
         input_tensor = mx.load(batch_path)
         
         # Calculate the lengths based on the first batch
-        return mx.sum(mx.greater(input_tensor, 0), axis=1)
+        #lengths = mx.sum(mx.greater(input_tensor, 0), axis=1)
+        lengths = mx.reshape(mx.sum(mx.greater(input_tensor, 0), axis=1), (-1,))
+        return lengths

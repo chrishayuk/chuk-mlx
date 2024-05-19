@@ -12,8 +12,13 @@ class FineTuneBatch(BatchBase):
         raise NotImplementedError("Subclasses must implement the tokenize_line method.")
 
     def get_batch_file_path(self, batch_idx):
+        # set the input file path
         input_file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}.npy')
+
+        # set the target file path
         target_file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}_target.npy')
+
+        # return the input and target
         return input_file_path, target_file_path
 
     def process_batch(self, batch_idx, batch_data, file_paths):

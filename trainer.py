@@ -3,16 +3,16 @@ import time
 from tqdm import tqdm
 
 class Trainer:
-    def __init__(self, model, optimizer, loss_function, progress_interval=100):
+    def __init__(self, model, optimizer, loss_function, progress_interval=1):
         # set the model
         self.model = model
-        
+
         # set the optimizer
         self.optimizer = optimizer
 
         # set the loss function
         self.loss_function = loss_function
-
+        
         # set the progress update interval
         self.progress_interval = progress_interval
 
@@ -60,13 +60,21 @@ class Trainer:
                 # update the progress bar at the specified interval
                 if batch_index % self.progress_interval == 0:
                     batch_progress.update(self.progress_interval)
-                    batch_progress.set_postfix({"Loss": epoch_loss / batch_index, "Tokens": epoch_tokens})
+                    batch_progress.set_postfix({
+                        "Batch Loss": lvalue.item(),
+                        "Batch Tokens": ntoks.item(),
+                        "Batch Time": f"{batch_time:.3f}s"
+                    })
 
             # update the remaining progress
             remaining_batches = len(batch_dataset) % self.progress_interval
             if remaining_batches > 0:
                 batch_progress.update(remaining_batches)
-                batch_progress.set_postfix({"Loss": epoch_loss / len(batch_dataset), "Tokens": epoch_tokens})
+                batch_progress.set_postfix({
+                    "Epoch Loss": epoch_loss / len(batch_dataset),
+                    "Epoch Tokens": epoch_tokens,
+                    "Avg Batch Time": f"{sum(batch_times) / len(batch_times):.3f}s"
+                })
 
             # end the epoch timers
             epoch_end_time = time.time()
