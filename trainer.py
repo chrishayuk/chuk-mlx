@@ -4,23 +4,28 @@ import time
 from tqdm import tqdm
 import logging
 import os
+from math import pi, cos
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class Trainer:
-    def __init__(self, model, optimizer, loss_function, scheduler=None, progress_interval=1, checkpoint_dir='checkpoints'):
+    def __init__(self, model, optimizer, loss_function, progress_interval=1, checkpoint_dir='checkpoints'):
+        # set the parameters
         self.model = model
         self.optimizer = optimizer
         self.loss_function = loss_function
-        self.scheduler = scheduler
         self.progress_interval = progress_interval
         self.checkpoint_dir = checkpoint_dir
 
+        # create the checkpoint directory
         if not os.path.exists(self.checkpoint_dir):
             os.makedirs(self.checkpoint_dir)
 
+    def get_current_lr(self):
+        return self.optimizer.learning_rate.item()
+    
     def train(self, num_epochs, batch_dataset, num_iterations=None):
         # intialize the batch timeers etc
         total_batch_time = 0
@@ -53,6 +58,9 @@ class Trainer:
                 batch_start_time = time.time()
 
                 try:
+                    # Get the current learning rate before update
+                    lr_before_update = self.get_current_lr()
+
                     # Forward pass
                     (lvalue, ntoks), grad = self.loss_function(self.model, input_tensor, target_tensor, lengths)
 
@@ -83,7 +91,8 @@ class Trainer:
                             "Batch Loss": lvalue.item(),
                             "Batch Tokens": ntoks,
                             "Batch Time": f"{batch_time:.3f}s",
-                            "Tokens/s": f"{actual_tokens_per_second:.2f} (Actual) / {theoretical_tokens_per_second:.2f} (Theoretical)"
+                            "Tokens/s": f"{actual_tokens_per_second:.2f}",
+                            "Learning Rate": f"{lr_before_update:.7f}"
                         })
 
                     # increment the iteration
@@ -114,11 +123,6 @@ class Trainer:
             epoch_time = epoch_end_time - epoch_start_time
             total_batch_time += sum(batch_times)
             total_epoch_time += epoch_time
-
-            # check if we have a scheduler
-            if self.scheduler:
-                # increase the scheduler step
-                self.scheduler.step()
 
             # log the result for the epoch
             logger.info(f"Epoch [{epoch+1}/{num_epochs}] completed. Loss: {epoch_loss / total_batches:.4f}")

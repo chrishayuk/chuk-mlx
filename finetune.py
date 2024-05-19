@@ -68,10 +68,17 @@ batch_output_dir = f'{output_dir}/batches'
 batchfile_prefix = 'calvin'
 max_sequence_length = 512
 batch_size = 512
+total_iterations = 20
 
-# Define the optimizer
-learning_rate = 2e-4
-optimizer = optim.Adam(learning_rate=learning_rate)
+# Define the optimizer with learning rate scheduling, same settings as llama-2
+initial_lr = 2e-5
+lr_schedule = optim.cosine_decay(initial_lr, total_iterations)
+optimizer = optim.AdamW(
+    learning_rate=lr_schedule,
+    betas=[0.9,0.95],
+    eps=1e-5,
+    weight_decay=0.1
+)
 
 # Create value and grad function for loss
 loss_function = nn.value_and_grad(model, chukloss)
@@ -89,4 +96,4 @@ trainer = Trainer(model, optimizer, loss_function)
 num_epochs = 1
 
 # Train the model
-trainer.train(num_epochs, batch_dataset, 5)
+trainer.train(num_epochs, batch_dataset, total_iterations)
