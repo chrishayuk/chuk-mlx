@@ -109,7 +109,7 @@ class Trainer:
                             "Batch Tokens": ntoks,
                             "Batch Time": f"{batch_time:.3f}s",
                             "Tokens/s": f"{actual_tokens_per_second:.2f}",
-                            "Learning Rate": f"{lr_before_update:.7f}"
+                            "LR": f"{lr_before_update:.7f}"
                         })
 
                     # increment the iteration

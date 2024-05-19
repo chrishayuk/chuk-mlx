@@ -33,12 +33,10 @@ TODO
     - Save Adapters
     - Get a working finetune
     - Infer from saved adapters
-    - Show Tokens per Second
-    - Improve monitoring at a batch level
-    - improve trainer
-        - loss reporting etc
-        - warm up ratio
+    - warm up
     - Implement QLora (quantized)
+    - load checkpoint and infer script
+    - Fix Padding Issue
 1 - Modify infer to be interactive
 2 - Clean up the inference utilities
 2 - Modify model to support bloat16

@@ -74,9 +74,12 @@ total_iterations = 20
 checkpoint_freq=500
 checkpoint_output_dir = f'{output_dir}/checkpoints'
 
+# Training loop
+num_epochs = 1
+
 # Define the optimizer with learning rate scheduling, same settings as llama-2
 initial_lr = 2e-5
-lr_schedule = optim.cosine_decay(initial_lr, total_iterations)
+lr_schedule = optim.cosine_decay(initial_lr, num_epochs * 1000)
 optimizer = optim.AdamW(
     learning_rate=lr_schedule,
     betas=[0.9,0.95],
@@ -95,9 +98,6 @@ batch_dataset = DirectoryBatchDataset(batch_output_dir, batchfile_prefix)
 
 # Create an instance of the Trainer
 trainer = Trainer(model, optimizer, loss_function, 1, checkpoint_output_dir, checkpoint_freq)
-
-# Training loop
-num_epochs = 1
 
 # Train the model
 trainer.train(num_epochs, batch_dataset, total_iterations)
