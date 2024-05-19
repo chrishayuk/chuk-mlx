@@ -17,14 +17,24 @@ def chukloss(model, inputs, targets, lengths):
     logits, _ = model(inputs)
     logits = logits.astype(mx.float32)
 
-    # Mask padding tokens
+    # Create a mask for the padding tokens
+    # lengths: (batch_size,) - actual lengths of each sequence in the batch
+    # length_mask: (batch_size, seq_length) - mask with True for valid tokens and False for padding
     length_mask = mx.arange(inputs.shape[1])[None, :] < lengths[:, None]
 
-    # Calculate the loss
-    ce = nn.losses.cross_entropy(logits, targets) * length_mask
-    ntoks = length_mask.sum()
+    # Calculate the cross-entropy loss
+    ce = nn.losses.cross_entropy(logits, targets)
+    
+    # Apply the mask to exclude padding tokens
+    ce = ce * length_mask
+
+    # Calculate the number of valid tokens
+    ntoks = length_mask.sum().item()
+
+    # Normalize the loss by the number of valid tokens
     ce = ce.sum() / ntoks
     return ce, ntoks
+
 
 # set the model name
 model_name = "ibm-granite/granite-3b-code-instruct"
@@ -79,4 +89,4 @@ trainer = Trainer(model, optimizer, loss_function)
 num_epochs = 1
 
 # Train the model
-trainer.train(num_epochs, batch_dataset)
+trainer.train(num_epochs, batch_dataset, 5)

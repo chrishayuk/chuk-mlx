@@ -8,6 +8,27 @@ from models.model_config import ModelConfig
 from utils.tokenizer_loader import load_tokenizer
 from trainer import Trainer
 
+def chukloss(model, inputs, targets, lengths):
+    # Run model on inputs
+    logits = model(inputs)  # Assuming model returns only logits
+    logits = logits.astype(mx.float32)
+
+    # Create a mask for the padding tokens
+    length_mask = mx.arange(inputs.shape[1])[None, :] < lengths[:, None]
+
+    # Calculate the cross-entropy loss
+    ce = nn.losses.cross_entropy(logits, targets)
+    
+    # Apply the mask to exclude padding tokens
+    ce = ce * length_mask
+
+    # Calculate the number of valid tokens
+    ntoks = length_mask.sum().item()
+
+    # Normalize the loss by the number of valid tokens
+    ce = ce.sum() / ntoks
+    return ce, ntoks
+
 # settings
 input_files = ['./sample_data/lazyfox_train.jsonl']
 tokenizer_name = 'lazyfox_tokenizer'
@@ -46,7 +67,7 @@ learning_rate = 0.01
 optimizer = optim.Adam(learning_rate=learning_rate)
 
 # Create value and grad function for loss
-loss_function = nn.value_and_grad(model, loss)
+loss_function = nn.value_and_grad(model, chukloss)
 
 # Load the batch data
 batch_output_dir = "./output/lazyfox/batches"
