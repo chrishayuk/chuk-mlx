@@ -11,20 +11,31 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class Trainer:
-    def __init__(self, model, optimizer, loss_function, progress_interval=1, checkpoint_dir='checkpoints'):
+    def __init__(self, model, optimizer, loss_function, progress_interval=1, checkpoint_dir='checkpoints', checkpoint_freq=None):
         # set the parameters
         self.model = model
         self.optimizer = optimizer
         self.loss_function = loss_function
         self.progress_interval = progress_interval
         self.checkpoint_dir = checkpoint_dir
+        self.checkpoint_freq = checkpoint_freq
 
-        # create the checkpoint directory
-        if not os.path.exists(self.checkpoint_dir):
+        # Create the checkpoint directory if it doesn't exist and checkpointing is enabled
+        if self.checkpoint_freq is not None and not os.path.exists(self.checkpoint_dir):
             os.makedirs(self.checkpoint_dir)
 
     def get_current_lr(self):
         return self.optimizer.learning_rate.item()
+
+    def save_checkpoint(self, identifier):
+        # get the checkpoint path
+        checkpoint_path = os.path.join(self.checkpoint_dir, f'checkpoint_{identifier}.npz')
+
+        # save the model
+        self.model.save_weights(checkpoint_path)
+
+        # log the save
+        logger.info(f'Saved checkpoint: {checkpoint_path}')
     
     def train(self, num_epochs, batch_dataset, num_iterations=None):
         # intialize the batch timeers etc
@@ -34,6 +45,12 @@ class Trainer:
         total_batches = len(batch_dataset)
         total_tokens = 0
         total_theoretical_tokens = 0
+        checkpoint_interval = None
+
+        # set the checkpoint interval based on frequency
+        if self.checkpoint_freq is not None:
+            checkpoint_interval = max(1, (num_epochs * total_batches) // self.checkpoint_freq)
+
 
         # loop through each epoch
         for epoch in range(num_epochs):
@@ -98,6 +115,11 @@ class Trainer:
                     # increment the iteration
                     iteration_count += 1
 
+                    # checkpointing
+                    if self.checkpoint_freq and iteration_count % self.checkpoint_freq == 0:
+                        logger.info(f'Checkpointing at iteration {iteration_count}')
+                        self.save_checkpoint(f'iter_{iteration_count}')
+
                 except Exception as e:
                     logger.error(f"Error in batch {batch_index}: {e}")
                     continue
@@ -126,6 +148,11 @@ class Trainer:
 
             # log the result for the epoch
             logger.info(f"Epoch [{epoch+1}/{num_epochs}] completed. Loss: {epoch_loss / total_batches:.4f}")
+
+            # Always save a checkpoint at the end of each epoch if checkpointing is enabled
+            if self.checkpoint_freq is not None:
+                logger.info(f'Checkpointing at end of epoch {epoch+1}')
+                self.save_checkpoint(f'epoch_{epoch+1}')
 
             # check if we're out of iterations
             if num_iterations is not None and iteration_count >= num_iterations:

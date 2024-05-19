@@ -70,6 +70,10 @@ max_sequence_length = 512
 batch_size = 512
 total_iterations = 20
 
+# checkpointing, we want to checkpoint every 5 batches
+checkpoint_freq=500
+checkpoint_output_dir = f'{output_dir}/checkpoints'
+
 # Define the optimizer with learning rate scheduling, same settings as llama-2
 initial_lr = 2e-5
 lr_schedule = optim.cosine_decay(initial_lr, total_iterations)
@@ -90,7 +94,7 @@ batchfile_prefix = "calvin"
 batch_dataset = DirectoryBatchDataset(batch_output_dir, batchfile_prefix)
 
 # Create an instance of the Trainer
-trainer = Trainer(model, optimizer, loss_function)
+trainer = Trainer(model, optimizer, loss_function, 1, checkpoint_output_dir, checkpoint_freq)
 
 # Training loop
 num_epochs = 1
