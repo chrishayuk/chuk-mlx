@@ -14,9 +14,8 @@ class PreTrainBatchDataset(BatchDatasetBase):
         # load the batch files
         self._load_batch_files()
         
-        # set the lengths
+        # set the length of the dataset
         self.length = len(self.batch_files)
-        self.lengths = self._get_lengths()
 
     def _load_batch_files(self):
         # loop through the files in the directory
@@ -30,12 +29,15 @@ class PreTrainBatchDataset(BatchDatasetBase):
     def __getitem__(self, index):
         # set the batch file as the current index
         batch_file = self.batch_files[index]
-
-        # load the in input and target tensors
+        
+        # load the input and target tensors
         input_tensor, target_tensor = self._load_tensors(batch_file)
-
+        
+        # get the lengths for the current batch
+        lengths = self._get_lengths(index)
+        
         # return the tensors and the lengths
-        return input_tensor, target_tensor, self.lengths
+        return input_tensor, target_tensor, lengths
 
     def _load_tensors(self, batch_file):
         # set the input and target filenames
@@ -49,14 +51,14 @@ class PreTrainBatchDataset(BatchDatasetBase):
         # return input and target tensors
         return input_tensor, target_tensor
 
-    def _get_lengths(self):
+    def _get_lengths(self, index):
         # set the batch file
-        batch_file = self.batch_files[0]
+        batch_file = self.batch_files[index]
         input_path = os.path.join(self.batch_output_dir, batch_file)
-
+        
         # load the input tensor
         input_tensor = mx.load(input_path)
-
+        
         # calculate the lengths
         lengths = mx.sum(mx.greater(input_tensor, 0), axis=1)
         

@@ -12,7 +12,7 @@ optimizer = MockOptimizer()
 loss_function = mock_value_and_grad(mockloss) 
 
 # Settings
-output_dir = './output/mock'
+output_dir = './output/mock_finetune'
 checkpoint_output_dir = f'{output_dir}/checkpoints'
 batchfile_prefix = 'batch'
 num_batches = 100
