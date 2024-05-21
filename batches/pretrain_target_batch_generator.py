@@ -1,20 +1,4 @@
-import json
 import numpy as np
-
-def get_line_text(line):
-    line = line.strip()
-    if line.startswith('{'):
-        # JSONL format
-        data = json.loads(line)
-        if 'text' in data:
-            return data['text']
-        elif 'content' in data:
-            return data['content']
-        else:
-            raise ValueError(f"No 'text' or 'content' field found in JSONL: {line}")
-    else:
-        # Plain text format
-        return line
 
 def create_target_batch(input_batch, pad_token_id, max_seq_length):
     target_indices = []

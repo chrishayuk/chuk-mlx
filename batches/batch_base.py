@@ -15,16 +15,29 @@ class BatchBase:
         self.batch_size = batch_size
         self.print_summaries = print_summaries
 
-    def save_batch(self, batch_data, file_path):    
+    def save_batch(self, batch_data, file_path):
         # get sequence utility
         seq_util = SequenceUtility(max_seq_length=self.max_sequence_length, padding_value=self.tokenizer.pad_token_id)
-        
+
         # pad the batch
         padded_batch = seq_util.batch_sequences(batch_data)
-        
+
+        # Remove sequences with None values from the padded batch
+        valid_padded_batch = [seq for seq in padded_batch if None not in seq]
+
+        # Check if the padded batch is empty
+        if not valid_padded_batch:
+            print("Skipping empty padded batch.")
+            return None
+
         # load the padded batch
-        batch_data = np.array(padded_batch, dtype=np.int32)
-        
+        try:
+            batch_data = np.array(valid_padded_batch, dtype=np.int32)
+        except TypeError as e:
+            print(f"TypeError during np.array conversion: {e}")
+            print(f"padded_batch: {valid_padded_batch}")
+            return None
+
         # save the batch
         np.save(file_path, batch_data)
         return batch_data
@@ -33,15 +46,19 @@ class BatchBase:
         # start the batch timer
         batch_start_time = time.time()
 
-        # save the batch
-        batch_data = self.save_batch(batch_data, file_path, self.max_sequence_length, self.pad_token_id)
+        # save the concatenated batch
+        concatenated_batch = self.save_batch(batch_data, file_path)
+
+        # If the concatenated batch is None, skip the rest of the processing
+        if concatenated_batch is None:
+            return
 
         # capture batch end time
         batch_end_time = time.time()
 
         # calculate the batch generation time
-        summary_table = generate_batch_analysis_summary_table(batch_data, file_path, self.tokenizer.pad_token_id)
-        generation_stats = generate_batch_generation_summary(batch_idx, batch_data, batch_start_time, batch_end_time, self.tokenizer.pad_token_id)
+        summary_table = generate_batch_analysis_summary_table(concatenated_batch, file_path, self.tokenizer.pad_token_id)
+        generation_stats = generate_batch_generation_summary(batch_idx, concatenated_batch, batch_start_time, batch_end_time, self.tokenizer.pad_token_id)
 
         if self.print_summaries:
             # print out the batch summary
@@ -65,8 +82,14 @@ class BatchBase:
                     # tokenize the line
                     tokens = self.tokenize_line(line)
 
-                    # add the tokens to the batch
-                    current_batch.append(tokens)
+                    # Debug statement to check tokens
+                    if tokens is None:
+                        print("tokenize_and_batch found a None value in tokens:", line)
+                    elif not tokens:
+                        print("tokenize_and_batch found an empty token list:", line)
+                    else:
+                        # add the tokens to the batch
+                        current_batch.append(tokens)
 
                     # check if the current batch is full
                     if len(current_batch) == self.batch_size:

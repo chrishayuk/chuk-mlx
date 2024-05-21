@@ -8,30 +8,27 @@ class SequenceUtility:
 
     def pad_sequence(self, sequence):
         """Pad the sequence to the maximum length with the specified padding value."""
+        if not sequence:
+            # Return a list of padding tokens if the sequence is empty
+            return [self.padding_value] * self.max_seq_length
+
         # Truncate the sequence if it is longer than max_seq_length
         padded_sequence = sequence[:self.max_seq_length]
-        
+
         # Set default padding value if not set
         pad_token = self.padding_value[0] if isinstance(self.padding_value, list) else self.padding_value or 0
-        
+
         # Pad the sequence if it is shorter than max_seq_length
         padding_length = self.max_seq_length - len(padded_sequence)
         padded_sequence += [pad_token] * padding_length
-        
-        # return the sequence
+
+        # Ensure there are no None values in the padded sequence
+        padded_sequence = [token if token is not None else pad_token for token in padded_sequence]
+
         return padded_sequence
 
     def batch_sequences(self, sequences):
-        # Ensure all sequences have the same length
-        return [self.pad_sequence(seq) for seq in sequences]
+        # Pad the sequences and filter out any None values
+        padded_sequences = [self.pad_sequence(seq) for seq in sequences if seq]
 
-    def create_next_token_target_sequence(self, input_sequences, pad_token_id):
-        """Create next token target sequences by shifting input sequences by one position to the right."""
-        target_sequences = []
-        for seq in input_sequences:
-            # Shift right: remove the first element, append pad_token_id
-            target_seq = seq[1:] + pad_token_id
-            # Pad the rest to make sure all are the same length
-            padded_target_seq = self.pad_sequence(target_seq)
-            target_sequences.append(padded_target_seq)
-        return np.array(target_sequences, dtype=int)
+        return padded_sequences

@@ -10,21 +10,28 @@ from utils.huggingface_utils import load_from_hub
 from trainer import Trainer
 from models.loss_function import loss
 import mlx.optimizers as optim
-from batches.directory_batch_dataset import DirectoryBatchDataset
+from batches.dataset.finetune_batch_dataset import FineTuneBatchDataset
 
 def chukloss(model, inputs, targets, lengths):
+    # Check if inputs and targets are concatenated
+    if inputs.shape[1] == targets.shape[1] * 2:
+        split_index = inputs.shape[1] // 2
+        input_tensor = inputs[:, :split_index]
+        target_tensor = inputs[:, split_index:]
+    else:
+        input_tensor = inputs
+        target_tensor = targets
+
     # Run model on inputs
-    logits, _ = model(inputs)
+    logits, _ = model(input_tensor)
     logits = logits.astype(mx.float32)
 
     # Create a mask for the padding tokens
-    # lengths: (batch_size,) - actual lengths of each sequence in the batch
-    # length_mask: (batch_size, seq_length) - mask with True for valid tokens and False for padding
-    length_mask = mx.arange(inputs.shape[1])[None, :] < lengths[:, None]
+    length_mask = mx.arange(input_tensor.shape[1])[None, :] < lengths[:, None]
 
     # Calculate the cross-entropy loss
-    ce = nn.losses.cross_entropy(logits, targets)
-    
+    ce = nn.losses.cross_entropy(logits, target_tensor)
+
     # Apply the mask to exclude padding tokens
     ce = ce * length_mask
 
@@ -94,7 +101,7 @@ loss_function = nn.value_and_grad(model, chukloss)
 output_dir = './output/calvin'
 batch_output_dir = f'{output_dir}/batches'
 batchfile_prefix = "calvin"
-batch_dataset = DirectoryBatchDataset(batch_output_dir, batchfile_prefix)
+batch_dataset = FineTuneBatchDataset(batch_output_dir, batchfile_prefix)
 
 # Create an instance of the Trainer
 trainer = Trainer(model, optimizer, loss_function, 1, checkpoint_output_dir, checkpoint_freq)

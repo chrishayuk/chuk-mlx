@@ -1,7 +1,7 @@
 import argparse
 import os
 import numpy as np
-from batches.batch_utils import create_target_batch
+from batches.pretrain_target_batch_generator import create_target_batch
 
 def process_batches(input_directory, batch_prefix, individual_batch=None):
     if individual_batch:

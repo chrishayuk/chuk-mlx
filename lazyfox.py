@@ -1,9 +1,9 @@
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
-from batches.directory_batch_dataset import DirectoryBatchDataset
+from batches.dataset.pretrain_batch_dataset import PreTrainBatchDataset
 from models.loss_function import loss
-from models.simple_language_model import SimpleLanguageModel
+from chuk_models.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
 from utils.tokenizer_loader import load_tokenizer
 from trainer import Trainer
@@ -72,7 +72,7 @@ loss_function = nn.value_and_grad(model, chukloss)
 # Load the batch data
 batch_output_dir = "./output/lazyfox/batches"
 batchfile_prefix = "lazyfox"
-batch_dataset = DirectoryBatchDataset(batch_output_dir, batchfile_prefix)
+batch_dataset = PreTrainBatchDataset(batch_output_dir, batchfile_prefix)
 
 # Create an instance of the Trainer
 trainer = Trainer(model, optimizer, loss_function)
