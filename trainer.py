@@ -4,14 +4,36 @@ import logging
 import os
 import mlx.core as mx
 
+from batches.sequence_utility import SequenceUtility
+from utils.tokenizer_loader import load_tokenizer
+
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class Trainer:
-    def __init__(self, model, optimizer, loss_function, progress_interval=1, checkpoint_dir='checkpoints', checkpoint_freq=None, warmup_steps=0):
+    @staticmethod
+    def pad_sequences(sequences, max_length, padding_value=0):
+        padded_sequences = []
+        for seq in sequences:
+            seq_length = seq.shape[0]
+            if seq_length < max_length:
+                # Create a list of padding values and concatenate it with the sequence
+                padding = [padding_value] * (max_length - seq_length)
+                padded_seq = mx.array(seq.tolist() + padding)
+            else:
+                padded_seq = seq[:max_length]  # Truncate if necessary
+            padded_sequences.append(padded_seq)
+        return mx.stack(padded_sequences)
+
+    def __init__(self, model, tokenizer, optimizer, loss_function, progress_interval=1, checkpoint_dir='checkpoints', checkpoint_freq=None, warmup_steps=0):
         # initialize
         self.model = model
+
+        # set the tokenizer
+        self.tokenizer = tokenizer
+
+        # set the other values
         self.optimizer = optimizer
         self.loss_function = loss_function
         self.progress_interval = progress_interval
@@ -131,24 +153,79 @@ class Trainer:
             "epoch_time": epoch_time
         }
 
-    def train_batch(self, batch, batch_index, iteration_count):
-        # check if we have a concatenated input and target
-        if len(batch) == 3:
-            input_tensor, target_tensor, lengths = batch
-        else:
-            concatenated_tensor, lengths = batch
-            split_index = concatenated_tensor.shape[1] // 2
-            input_tensor = concatenated_tensor[:, :split_index]
-            target_tensor = concatenated_tensor[:, split_index:]
+    import mlx.core as mx
 
-        # work out the expected number of tokens
+    def train_batch(self, batch, batch_index, iteration_count):
+        concatenated_tensor, lengths = batch
+
+        # Check if sep_token_id is valid
+        if self.tokenizer.sep_token_id is None:
+            logger.error("Separator token ID (sep_token_id) is not set in the tokenizer.")
+            raise ValueError("Separator token ID (sep_token_id) is not set in the tokenizer.")
+
+        # Create empty lists to store the input and target tensors
+        input_tensors = []
+        target_tensors = []
+
+        # Iterate over the sequences in the batch
+        for i in range(concatenated_tensor.shape[0]):
+            seq_length = int(lengths[i].item())  # Convert scalar tensor to integer
+            seq_tensor = concatenated_tensor[i, :seq_length]
+
+            # Find the first occurrence of the separator token
+            sep_index = -1
+            for idx in range(seq_length):
+                if int(seq_tensor[idx].item()) == self.tokenizer.sep_token_id:
+                    sep_index = idx
+                    break
+
+            if sep_index == -1:
+                logger.warning(f"No separator found in sequence {i} of batch {batch_index}. Skipping this sequence.")
+                continue
+
+            # Slice the concatenated tensor to obtain the input and target tensors
+            input_tensor = seq_tensor[:sep_index + 1]  # Include the separator token in the input
+            target_tensor = seq_tensor[sep_index + 1:seq_length]
+
+            # Pad the target tensor to match the length of the input tensor
+            if target_tensor.shape[0] < input_tensor.shape[0]:
+                padding_length = input_tensor.shape[0] - target_tensor.shape[0]
+                padding = [self.tokenizer.pad_token_id] * padding_length
+                target_tensor = mx.array(target_tensor.tolist() + padding)
+
+            # Append the input and target tensors to the respective lists
+            input_tensors.append(input_tensor)
+            target_tensors.append(target_tensor)
+
+        if not input_tensors or not target_tensors:
+            logger.error(f"No valid sequences in batch {batch_index}. Skipping this batch.")
+            return {
+                "loss": 0,
+                "ntoks": 0,
+                "expected_tokens": 0,
+                "batch_time": 0,
+                "lr_before_update": self.optimizer.learning_rate
+            }
+
+        # Determine the maximum length for padding
+        max_input_length = max(tensor.shape[0] for tensor in input_tensors)
+        max_target_length = max(tensor.shape[0] for tensor in target_tensors)
+
+        # Pad the sequences to have the same length
+        input_tensor = self.pad_sequences(input_tensors, max_input_length, self.tokenizer.pad_token_id)
+        target_tensor = self.pad_sequences(target_tensors, max_input_length, self.tokenizer.pad_token_id)
+
+        # Print the shapes of the input and target tensors after padding
+        #print(f"Batch {batch_index} - Padded Input shape: {input_tensor.shape}, Padded Target shape: {target_tensor.shape}")
+
+        # Work out the expected number of tokens
         expected_tokens = input_tensor.shape[0] * input_tensor.shape[1]
 
-        # start the batch timer
+        # Start the batch timer
         batch_start_time = time.time()
 
         try:
-            # get the current learning rate
+            # Get the current learning rate
             if iteration_count < self.warmup_steps:
                 # Warmup phase
                 warmup_factor = (iteration_count + 1) / self.warmup_steps
@@ -158,27 +235,19 @@ class Trainer:
                 # Post-warmup phase
                 current_lr = self.optimizer.learning_rate
 
-            # get the current learning rate
+            # Get the current learning rate
             lr_before_update = float(current_lr) if isinstance(current_lr, (int, float)) else current_lr.item()
 
+            # Execute the loss function
+            # execute the loss function
             # execute the loss function
             (lvalue, ntoks), grad = self.loss_function(self.model, input_tensor, target_tensor, lengths)
 
-            # check we have a valid number
-            if mx.isnan(lvalue):
-                logger.warning(f"NaN loss detected in batch {batch_index}. Skipping this batch.")
-                return {
-                    "loss": 0,
-                    "ntoks": 0,
-                    "expected_tokens": expected_tokens,
-                    "batch_time": time.time() - batch_start_time,
-                    "lr_before_update": lr_before_update
-                }
 
-            # update the optimizer
+            # Update the optimizer
             self.optimizer.update(self.model, grad)
 
-            # set the batch end time
+            # Set the batch end time
             batch_end_time = time.time()
             batch_time = batch_end_time - batch_start_time
 

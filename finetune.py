@@ -13,29 +13,21 @@ from models.loss_function import loss
 import mlx.optimizers as optim
 from batches.dataset.finetune_batch_dataset import FineTuneBatchDataset
 from utils.optimizer_loader import load_optimizer
+from utils.tokenizer_loader import load_tokenizer
 
 def chukloss(model, inputs, targets, lengths):
-    # Check if inputs and targets are concatenated
-    if inputs.shape[1] == targets.shape[1] * 2:
-        split_index = inputs.shape[1] // 2
-        input_tensor = inputs[:, :split_index]
-        target_tensor = inputs[:, split_index:]
-    else:
-        input_tensor = inputs
-        target_tensor = targets
-
     # Run model on inputs
-    logits, _ = model(input_tensor)
+    logits, _ = model(inputs)
     logits = logits.astype(mx.float32)
 
     # Create a mask for the padding tokens
-    length_mask = mx.arange(input_tensor.shape[1])[None, :] < lengths[:, None]
+    length_mask = mx.arange(inputs.shape[1])[None, :] < lengths[:, None]
 
     # Calculate the cross-entropy loss
-    ce = nn.losses.cross_entropy(logits, target_tensor)
+    ce = nn.losses.cross_entropy(logits, targets)
 
     # Apply the mask to exclude padding tokens
-    ce = ce * length_mask
+    ce = ce * mx.array(length_mask)
 
     # Calculate the number of valid tokens
     ntoks = length_mask.sum().item()
@@ -46,8 +38,8 @@ def chukloss(model, inputs, targets, lengths):
 
 
 # set the model name
-#model_name = "ibm-granite/granite-3b-code-instruct"
-model_name = "ibm/merlinite-7b"
+model_name = "ibm-granite/granite-3b-code-instruct"
+#model_name = "ibm/merlinite-7b"
 
 # load the model from huggingface
 print(f"Loading Model: {model_name}")
@@ -78,7 +70,7 @@ batch_output_dir = f'{output_dir}/batches'
 batchfile_prefix = 'calvin'
 max_sequence_length = 512
 batch_size = 512
-total_iterations = 20
+total_iterations = 2000
 
 # checkpointing, we want to checkpoint every 5 batches
 checkpoint_freq=500
@@ -106,9 +98,11 @@ batch_output_dir = f'{output_dir}/batches'
 batchfile_prefix = "calvin"
 batch_dataset = FineTuneBatchDataset(batch_output_dir, batchfile_prefix)
 
+tokenizer = load_tokenizer(model_name)
+
 # Create an instance of the Trainer
 lr_schedule_warmup_steps = int(optimizer_config['lr_schedule'].get('warmup_steps', 0))
-trainer = Trainer(model, optimizer, loss_function, 1, checkpoint_output_dir, checkpoint_freq, lr_schedule_warmup_steps)
+trainer = Trainer(model, tokenizer, optimizer, loss_function, 1, checkpoint_output_dir, checkpoint_freq, lr_schedule_warmup_steps)
 
 # Train the model
 trainer.train(num_epochs, batch_dataset, total_iterations)
