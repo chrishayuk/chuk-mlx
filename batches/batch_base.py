@@ -1,6 +1,7 @@
 import os
 import time
 import numpy as np
+from batches.bucketing import add_to_buckets, get_batch_from_buckets, merge_small_buckets, split_large_buckets
 from utils.tokenizer_loader import load_tokenizer
 from batches.sequence_utility import SequenceUtility
 from .batch_generation_summary import generate_batch_generation_summary
@@ -16,8 +17,20 @@ class BatchBase:
         self.print_summaries = print_summaries
 
     def save_batch(self, batch_data, file_path):
-        # get sequence utility
-        seq_util = SequenceUtility(max_seq_length=self.max_sequence_length, padding_value=self.tokenizer.pad_token_id)
+        # calculate the maximum sequence length within the batch
+        min_seq_length = min(len(seq) for seq in batch_data)
+        max_seq_length = max(len(seq) for seq in batch_data)
+
+        # check if the batch is missized
+        if min_seq_length != max_seq_length:
+            print("Missized batch detected!")
+            print(f"Min sequence length: {min_seq_length}")
+            print(f"Max sequence length: {max_seq_length}")
+            print(f"Batch data: {batch_data}")
+            return None
+
+        # create sequence utility with the batch-specific maximum sequence length
+        seq_util = SequenceUtility(max_seq_length=max_seq_length, padding_value=self.tokenizer.pad_token_id)
 
         # pad the batch
         padded_batch = seq_util.batch_sequences(batch_data)
@@ -41,6 +54,64 @@ class BatchBase:
         # save the batch
         np.save(file_path, batch_data)
         return batch_data
+    
+    def create_batches(self, tokenized_dataset, output_directory, file_prefix, max_sequence_length, batch_size, tokenizer, print_summaries):
+        # create the output directory if it doesn't exist
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+
+        # start at the beginning for the batch
+        batch_idx = 0
+        total_batches = 0
+
+        # get the batch from the buckets
+        batch_data = get_batch_from_buckets(tokenized_dataset, batch_size)
+
+        while batch_data is not None:
+            # get the file path
+            file_path = os.path.join(output_directory, f'{file_prefix}_batch_{batch_idx + 1:04d}.npy')
+
+            # process the batch
+            self.process_batch(batch_idx, batch_data, file_path)
+
+            batch_idx += 1
+            total_batches += 1
+
+            # check if another batch can be formed
+            batch_data = get_batch_from_buckets(tokenized_dataset, batch_size)
+
+        # process any remaining batches in the buckets
+        for bucket in tokenized_dataset.values():
+            while bucket:
+                # get the file path for the remaining batch
+                file_path = os.path.join(output_directory, f'{file_prefix}_batch_{batch_idx + 1:04d}.npy')
+
+                # process the remaining batch
+                batch_data = bucket[:batch_size]
+                self.process_batch(batch_idx, batch_data, file_path)
+
+                bucket = bucket[batch_size:]
+                batch_idx += 1
+                total_batches += 1
+
+    def tokenize_dataset(self, input_files):
+        # empty dataset
+        tokenized_dataset = []
+
+        # loop through each file
+        for input_file in input_files:
+            # open the file
+            with open(input_file, 'r') as file:
+                for line in file:
+                    # tokenize the line
+                    tokens = self.tokenize_line(line)
+                    
+                    # if we have tokens, add them
+                    if tokens:
+                        tokenized_dataset.append(tokens)
+
+        # return the dataset
+        return tokenized_dataset
 
     def process_batch(self, batch_idx, batch_data, file_path):
         # start the batch timer
@@ -67,51 +138,23 @@ class BatchBase:
             print(summary_table)
 
     def tokenize_and_batch(self, input_files):
-        # create the output directory if it doesn't exist
-        if not os.path.exists(self.output_directory):
-            os.makedirs(self.output_directory)
+        # tokenize the dataset
+        tokenized_dataset = self.tokenize_dataset(input_files)
 
-        # start at the beginning for the batch
-        batch_idx = 0
-        current_batch = []
-        total_batches = 0
+        # add tokenized sequences to buckets
+        buckets = {}
+        for tokens in tokenized_dataset:
+            add_to_buckets(buckets, tokens)
 
-        for input_file in input_files:
-            with open(input_file, 'r') as file:
-                for line in file:
-                    # tokenize the line
-                    tokens = self.tokenize_line(line)
+        # split large buckets
+        #split_buckets = split_large_buckets(buckets, self.batch_size)
 
-                    # Debug statement to check tokens
-                    if tokens is None:
-                        print("tokenize_and_batch found a None value in tokens:", line)
-                    elif not tokens:
-                        print("tokenize_and_batch found an empty token list:", line)
-                    else:
-                        # add the tokens to the batch
-                        current_batch.append(tokens)
+        # merge small buckets
+        #merged_buckets = merge_small_buckets(split_buckets, self.batch_size)
 
-                    # check if the current batch is full
-                    if len(current_batch) == self.batch_size:
-                        # get the file path
-                        file_path = self.get_batch_file_path(batch_idx)
-
-                        # process the batch
-                        self.process_batch(batch_idx, current_batch, file_path)
-
-                        # next batch
-                        current_batch = []
-                        batch_idx += 1
-                        total_batches += 1
-
-        # check if there are any remaining samples in the current batch
-        if current_batch:
-            # get the file path for the last batch
-            file_path = self.get_batch_file_path(batch_idx)
-
-            # process the last batch
-            self.process_batch(batch_idx, current_batch, file_path)
-            total_batches += 1
+        # create batches from the merged buckets
+        self.create_batches(buckets, self.output_directory, self.file_prefix, self.max_sequence_length,
+                       self.batch_size, self.tokenizer, self.print_summaries)
 
     def tokenize_line(self, line):
         raise NotImplementedError("Subclasses must implement the tokenize_line method.")

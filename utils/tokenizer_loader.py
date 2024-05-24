@@ -29,6 +29,7 @@ def load_tokenizer(tokenizer_name):
     # Check if the tokenizer is LLAMA-based and set the pad_token_id accordingly
     if hasattr(tokenizer, 'eos_token_id'):
         tokenizer.pad_token_id = tokenizer.eos_token_id
+        tokenizer.sep_token_id = tokenizer.eos_token_id
     
     # check pad_token_id is none
     if tokenizer.pad_token_id is None:

@@ -39,4 +39,11 @@ class LLaMAFineTuneBatch(FineTuneBatch):
             print(f"Skipping sequence due to exceeding max_sequence_length: {len(sequence)}")
             return []
 
+        # Check if there is a mismatch in lengths
+        if len(input_tokens) + len(target_tokens) + 1 != len(sequence):
+            print(f"Mismatched lengths detected:")
+            print(f"Instruction tokens length: {len(input_tokens)}")
+            print(f"Target tokens length: {len(target_tokens)}")
+            print(f"Concatenated sequence length: {len(sequence)}")
+
         return sequence
