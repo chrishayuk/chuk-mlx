@@ -1,0 +1,12 @@
+# fine tuning
+
+# optimizer settings
+optimizer:
+  name: AdamW
+  initial_lr: 1e-5
+  lr_schedule:
+    type: cosine_decay
+    warmup_steps: 250
+  betas: [0.9, 0.95]
+  eps: 1e-5
+  weight_decay: 0.1

@@ -1,3 +1,4 @@
+import yaml
 import mlx.core as mx
 import mlx.nn as nn
 import models
@@ -11,6 +12,7 @@ from trainer import Trainer
 from models.loss_function import loss
 import mlx.optimizers as optim
 from batches.dataset.finetune_batch_dataset import FineTuneBatchDataset
+from utils.optimizer_loader import load_optimizer
 
 def chukloss(model, inputs, targets, lengths):
     # Check if inputs and targets are concatenated
@@ -44,7 +46,8 @@ def chukloss(model, inputs, targets, lengths):
 
 
 # set the model name
-model_name = "ibm-granite/granite-3b-code-instruct"
+#model_name = "ibm-granite/granite-3b-code-instruct"
+model_name = "ibm/merlinite-7b"
 
 # load the model from huggingface
 print(f"Loading Model: {model_name}")
@@ -84,15 +87,15 @@ checkpoint_output_dir = f'{output_dir}/checkpoints'
 # Training loop
 num_epochs = 1
 
-# Define the optimizer with learning rate scheduling, same settings as llama-2
-initial_lr = 2e-5
-lr_schedule = optim.cosine_decay(initial_lr, num_epochs * 1000)
-optimizer = optim.AdamW(
-    learning_rate=lr_schedule,
-    betas=[0.9,0.95],
-    eps=1e-5,
-    weight_decay=0.1
-)
+config_file = "./hyperparameters/finetune/granite-3b.yaml"
+
+# Load hyperparameters from YAML file
+with open(config_file, 'r') as file:
+    config = yaml.safe_load(file)
+
+# Load optimizer settings from YAML
+optimizer_config = config['optimizer']
+optimizer = load_optimizer(optimizer_config, total_iterations)
 
 # Create value and grad function for loss
 loss_function = nn.value_and_grad(model, chukloss)
@@ -104,7 +107,8 @@ batchfile_prefix = "calvin"
 batch_dataset = FineTuneBatchDataset(batch_output_dir, batchfile_prefix)
 
 # Create an instance of the Trainer
-trainer = Trainer(model, optimizer, loss_function, 1, checkpoint_output_dir, checkpoint_freq)
+lr_schedule_warmup_steps = int(optimizer_config['lr_schedule'].get('warmup_steps', 0))
+trainer = Trainer(model, optimizer, loss_function, 1, checkpoint_output_dir, checkpoint_freq, lr_schedule_warmup_steps)
 
 # Train the model
 trainer.train(num_epochs, batch_dataset, total_iterations)

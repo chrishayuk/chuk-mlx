@@ -1,0 +1,12 @@
+# phase 2 - pretraining
+
+# optimizer settings
+optimizer:
+  name: AdamW
+  initial_lr: 3e-4  # Use 1.5e-4 for 20B and 34B models
+  lr_schedule:
+    type: exponential_decay
+    decay_rate: 0.1
+  betas: [0.9, 0.95]
+  eps: 1e-5
+  weight_decay: 0.1

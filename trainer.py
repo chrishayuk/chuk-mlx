@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class Trainer:
-    def __init__(self, model, optimizer, loss_function, progress_interval=1, checkpoint_dir='checkpoints', checkpoint_freq=None):
+    def __init__(self, model, optimizer, loss_function, progress_interval=1, checkpoint_dir='checkpoints', checkpoint_freq=None, warmup_steps=0):
         # initialize
         self.model = model
         self.optimizer = optimizer
@@ -17,6 +17,7 @@ class Trainer:
         self.progress_interval = progress_interval
         self.checkpoint_dir = checkpoint_dir
         self.checkpoint_freq = checkpoint_freq
+        self.warmup_steps = warmup_steps
 
         # if we've set to checkpoint, create the directory
         if self.checkpoint_freq is not None and not os.path.exists(self.checkpoint_dir):
@@ -148,7 +149,17 @@ class Trainer:
 
         try:
             # get the current learning rate
-            lr_before_update = self.get_current_learning_rate()
+            if iteration_count < self.warmup_steps:
+                # Warmup phase
+                warmup_factor = (iteration_count + 1) / self.warmup_steps
+                current_lr = self.optimizer.learning_rate * warmup_factor
+                self.optimizer.learning_rate = current_lr
+            else:
+                # Post-warmup phase
+                current_lr = self.optimizer.learning_rate
+
+            # get the current learning rate
+            lr_before_update = float(current_lr) if isinstance(current_lr, (int, float)) else current_lr.item()
 
             # execute the loss function
             (lvalue, ntoks), grad = self.loss_function(self.model, input_tensor, target_tensor, lengths)
