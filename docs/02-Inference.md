@@ -8,15 +8,6 @@ The following scripts show how to prompt a model
 python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a fibonacci function in python"
 ```
 
-## Supported Models
-The following model familes are supported.
-
-- Meta Llama-3
-- Meta Llama-2
-- Mistral-7B
-- IBM Granite
-- IBM Granite Code Models
-
 ### Meta Llama 3
 The following shows how to prompt the meta-llama/Meta-Llama-3-8B-Instruct model
 

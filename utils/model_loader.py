@@ -1,9 +1,13 @@
 import mlx.core as mx
 import models.llama.model
+import logging
 from utils.huggingface_utils import load_from_hub
 from utils.tokenizer_loader import load_tokenizer
-from models.load_weights import load_model_weights
+from models.load_weights import load_checkpoint_weights, load_model_weights
 from models.model_config import ModelConfig
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def load_model(model_name):
     # get the model path
@@ -47,3 +51,37 @@ def load_model_and_tokenizer(model_name):
 
     # return the model and tokenizer
     return model, tokenizer
+
+def load_model_tokenizer_and_checkpoint(model_name, checkpoint_path=None, tokenizer_name=None):
+    try:
+        model_path = load_from_hub(model_name)
+        
+        # Load model config
+        model_config = ModelConfig.load(model_path)
+        
+        # Create the model instance
+        model = models.llama.model.Model(model_config)
+        
+        # Initialize and load model weights
+        if checkpoint_path:
+            logger.info(f"Loading weights from checkpoint: {checkpoint_path}")
+            checkpoint_weights = load_checkpoint_weights(checkpoint_path)
+            model.load_weights(list(checkpoint_weights.items()))
+        else:
+            logger.info(f"Loading initial weights from model path: {model_path}")
+            weights = load_model_weights(model_path)
+            model.load_weights(list(weights.items()))
+        
+        # Set model to evaluation mode
+        mx.eval(model.parameters())
+        
+        # Load the tokenizer
+        tokenizer_path = tokenizer_name if tokenizer_name else model_name
+        tokenizer = load_tokenizer(tokenizer_path)
+        
+        logger.info("Model and tokenizer loaded successfully")
+        return model, tokenizer
+    
+    except Exception as e:
+        logger.error(f"Error loading model or tokenizer: {e}")
+        raise

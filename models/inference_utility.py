@@ -21,29 +21,42 @@ def generate_sequence(prompt: mx.array, model: nn.Module, temperature: float = 0
         step += 1
 
 def generate_response(model, prompt, tokenizer, max_length: int = 500):
-    print(prompt, end="", flush=True)
+    # encode the prompt
     prompt_encoded = mx.array(tokenizer.encode(prompt))
-    print(f"Encoded prompt: {prompt_encoded}")
 
+    # clear tokens
     tokens = []
     skip = 0
 
+    # loop through the sequence
     for token, _ in zip(generate_sequence(prompt_encoded, model), range(max_length)):
+        # check for end of sequence token
         if token == tokenizer.eos_token_id:
             break
 
+        # append the token
         tokens.append(token.item())
+
+        # decode the token
         s = tokenizer.decode(tokens)
+
+        # check the length
         if len(s) - skip > 1:
             print(s[skip:-1], end="", flush=True)
             skip = len(s) - 1
 
+    # get the decoded response
     decoded_response = tokenizer.decode(tokens)[skip:]
+
+    # print it out, in future we should yield it, so that it's in the UI's gift
     print(decoded_response, flush=True)
     print("=" * 10)
 
+    # check if we got tokens
     if len(tokens) == 0:
+        # no tokens
         print("No tokens generated for this prompt")
         return []
-
+    
+    # return tokens
     return tokens
