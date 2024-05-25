@@ -1,108 +1,78 @@
-import yaml
+import argparse
 import mlx.core as mx
 import mlx.nn as nn
-import models
-import models.llama
-import models.llama.llama_model
-import models.llama.model
-from models.load_weights import load_model_weights
-from models.model_config import ModelConfig
-from utils.huggingface_utils import load_from_hub
 from trainer import Trainer
-from models.loss_function import loss
-import mlx.optimizers as optim
+from chuk_loss_function.chuk_loss_function import chukloss
 from batches.dataset.finetune_batch_dataset import FineTuneBatchDataset
+from utils.training_config_loader import load_training_config
+from utils.model_loader import load_model_and_tokenizer
 from utils.optimizer_loader import load_optimizer
-from utils.tokenizer_loader import load_tokenizer
 
-def chukloss(model, inputs, targets, lengths):
-    # Run model on inputs
-    logits, _ = model(inputs)
-    logits = logits.astype(mx.float32)
+def load_configurations(config_file):
+    """Load configurations from YAML file."""
+    config = load_training_config(config_file)
 
-    # Create a mask for the padding tokens
-    length_mask = mx.arange(inputs.shape[1])[None, :] < lengths[:, None]
+    # get the config sections
+    model_config = config['model']
+    optimizer_config = config['optimizer']
+    checkpoint_config = config['checkpoint']
+    training_config = config['training']
+    batch_config = config['batch']
 
-    # Calculate the cross-entropy loss
-    ce = nn.losses.cross_entropy(logits, targets)
+    # return the config
+    return model_config, optimizer_config, checkpoint_config, training_config, batch_config
 
-    # Apply the mask to exclude padding tokens
-    ce = ce * mx.array(length_mask)
+def create_trainer_instance(model, tokenizer, optimizer_config, checkpoint_config, training_config):
+    """Create an instance of the Trainer."""
+    total_iterations = training_config['total_iterations']
+    optimizer = load_optimizer(optimizer_config, total_iterations)
+    loss_function = nn.value_and_grad(model, chukloss)
+    lr_schedule_warmup_steps = int(optimizer_config['lr_schedule'].get('warmup_steps', 0))
 
-    # Calculate the number of valid tokens
-    ntoks = length_mask.sum().item()
+    trainer = Trainer(
+        model, tokenizer, optimizer, loss_function, 
+        training_config['num_epochs'], 
+        checkpoint_config['output_dir'], 
+        checkpoint_config['frequency'], 
+        lr_schedule_warmup_steps
+    )
+    return trainer
 
-    # Normalize the loss by the number of valid tokens
-    ce = ce.sum() / ntoks
-    return ce, ntoks
+def load_batch_data(batch_config):
+    """Load the batch data."""
+    batch_dataset = FineTuneBatchDataset(batch_config['output_dir'], batch_config['file_prefix'])
+    return batch_dataset
 
+def main():
+    # setup the argument parser
+    parser = argparse.ArgumentParser(description="Fine-tune a model using specified configuration.")
+    parser.add_argument('--config', type=str, required=True, help='Path to the YAML configuration file.')
+    parser.add_argument('--iterations', type=int, help='Override the total number of iterations.')
+    parser.add_argument('--epochs', type=int, help='Override the number of epochs.')
 
-# set the model name
-model_name = "ibm-granite/granite-3b-code-instruct"
-#model_name = "ibm/merlinite-7b"
+    # parse arguments
+    args = parser.parse_args()
 
-# load the model from huggingface
-print(f"Loading Model: {model_name}")
-model_path = load_from_hub(model_name)
+    # Load configurations
+    model_config, optimizer_config, checkpoint_config, training_config, batch_config = load_configurations(args.config)
 
-# load config
-model_config = ModelConfig.load(model_path)
+    # Load the model and tokenizer
+    model, tokenizer = load_model_and_tokenizer(model_config['name'])
 
-# load the model weights
-weights = load_model_weights(model_path)
+    # Override iterations and epochs if provided
+    if args.iterations:
+        training_config['total_iterations'] = args.iterations
+    if args.epochs:
+        training_config['num_epochs'] = args.epochs
 
-# create the model instance
-model = models.llama.model.Model(model_config)
+    # Create an instance of the Trainer
+    trainer = create_trainer_instance(model, tokenizer, optimizer_config, checkpoint_config, training_config)
 
-# Model Loaded
-print(f"Model Loaded: {model_name}")
+    # Load batch data
+    batch_dataset = load_batch_data(batch_config)
 
-# loading weights
-print("loading weights")
-model.load_weights(list(weights.items()))
-mx.eval(model.parameters())
-print("weights loaded")
+    # Train the model
+    trainer.train(training_config['num_epochs'], batch_dataset, training_config['total_iterations'])
 
-# Generate a batch
-input_files = ['./sample_data/calvin_scale_llama/train.jsonl']
-output_dir = './output/calvin'
-batch_output_dir = f'{output_dir}/batches'
-batchfile_prefix = 'calvin'
-max_sequence_length = 512
-batch_size = 512
-total_iterations = 2000
-
-# checkpointing, we want to checkpoint every 5 batches
-checkpoint_freq=500
-checkpoint_output_dir = f'{output_dir}/checkpoints'
-
-# Training loop
-num_epochs = 1
-
-config_file = "./hyperparameters/finetune/granite-3b.yaml"
-
-# Load hyperparameters from YAML file
-with open(config_file, 'r') as file:
-    config = yaml.safe_load(file)
-
-# Load optimizer settings from YAML
-optimizer_config = config['optimizer']
-optimizer = load_optimizer(optimizer_config, total_iterations)
-
-# Create value and grad function for loss
-loss_function = nn.value_and_grad(model, chukloss)
-
-# Load the batch data
-output_dir = './output/calvin'
-batch_output_dir = f'{output_dir}/batches'
-batchfile_prefix = "calvin"
-batch_dataset = FineTuneBatchDataset(batch_output_dir, batchfile_prefix)
-
-tokenizer = load_tokenizer(model_name)
-
-# Create an instance of the Trainer
-lr_schedule_warmup_steps = int(optimizer_config['lr_schedule'].get('warmup_steps', 0))
-trainer = Trainer(model, tokenizer, optimizer, loss_function, 1, checkpoint_output_dir, checkpoint_freq, lr_schedule_warmup_steps)
-
-# Train the model
-trainer.train(num_epochs, batch_dataset, total_iterations)
+if __name__ == "__main__":
+    main()

@@ -2,35 +2,11 @@ import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 from batches.dataset.pretrain_batch_dataset import PreTrainBatchDataset
-from models.loss_function import loss
+from chuk_loss_function.lazyfox_loss_function import chukloss
 from chuk_models.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
 from utils.tokenizer_loader import load_tokenizer
 from trainer import Trainer
-
-def chukloss(model, inputs, targets, lengths):
-    # Run model on inputs
-    logits = model(inputs)
-    
-    # Assuming model returns only logits
-    logits = logits.astype(mx.float32)
-    
-    # Create a mask for the padding tokens
-    length_mask = mx.arange(inputs.shape[1])[None, :] < lengths[:, None]
-    
-    # Calculate the cross-entropy loss
-    ce = nn.losses.cross_entropy(logits, targets)
-    
-    # Apply the mask to exclude padding tokens
-    ce = ce * length_mask
-    
-    # Calculate the number of valid tokens
-    ntoks = length_mask.sum().item()
-    
-    # Normalize the loss by the number of valid tokens
-    ce = ce.sum() / ntoks
-    
-    return ce, ntoks
 
 # settings
 input_files = ['./sample_data/lazyfox_train.jsonl']
@@ -53,6 +29,11 @@ model_config = ModelConfig.from_dict(config_settings)
 # Load the simple language model
 model = SimpleLanguageModel(model_config)
 
+# Load tokenizer and define vocabulary size
+tokenizer = load_tokenizer(tokenizer_name)
+pad_token_id = tokenizer.pad_token_id
+vocab_size = len(tokenizer.vocab)
+
 # Define the optimizer
 learning_rate = 0.01
 optimizer = optim.Adam(learning_rate=learning_rate)
@@ -66,7 +47,7 @@ batchfile_prefix = "lazyfox"
 batch_dataset = PreTrainBatchDataset(batch_output_dir, batchfile_prefix)
 
 # Create an instance of the Trainer
-trainer = Trainer(model, optimizer, loss_function)
+trainer = Trainer(model, tokenizer, optimizer, loss_function)
 
 # set the number of epochs
 num_epochs = 50
@@ -75,12 +56,6 @@ num_epochs = 50
 print("Starting Training\n")
 trainer.train(num_epochs, batch_dataset)
 print("\n\nCompleted Training\n")
-
-# Prediction
-# Load tokenizer and define vocabulary size
-tokenizer = load_tokenizer(tokenizer_name)
-pad_token_id = tokenizer.pad_token_id
-vocab_size = len(tokenizer.vocab)
 
 input_sequence = 'the quick brown'
 input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)

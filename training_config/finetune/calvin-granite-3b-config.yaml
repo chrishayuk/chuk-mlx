@@ -1,0 +1,36 @@
+# Fine-tuning 
+
+model:
+  # model name
+  name: "ibm-granite/granite-3b-code-instruct"
+  # Uncomment the following line to use a different model
+  # name: "ibm/merlinite-7b"
+
+# optimizer settings
+optimizer:
+  name: AdamW
+  initial_lr: 1e-5
+  lr_schedule:
+    type: cosine_decay
+    warmup_steps: 10
+  betas: [0.9, 0.95]
+  eps: 1e-5
+  weight_decay: 0.1
+
+# checkpointing
+checkpoint:
+  frequency: 500
+  output_dir: './output/calvin/checkpoints'
+
+# training
+training:
+  num_epochs: 1
+  total_iterations: 2000
+
+# batches
+batch:
+  input_files: ['./sample_data/calvin_scale_llama/train.jsonl']
+  output_dir: './output/calvin/batches'
+  file_prefix: 'calvin'
+  max_sequence_length: 512
+  batch_size: 512

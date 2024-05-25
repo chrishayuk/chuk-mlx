@@ -27,13 +27,19 @@ The following model familes are supported.
 TODO
 --------
 1 - Pretrainer
-    - implement batch sorter thingy
     - Clear old batches on generation
+    - Fixed bucketing and merging
+    - Fix tokens per second for batching and duplicates
+    - Optimize trainer
+    - Consider splitting input and target files for finetune
+    - Large batches not performing as well as small (eos?)
+    - validation etc batches
+    - Get a better more diverse dataset
     - Implement LORA (model freezing, specifying layers)
     - Implement QLora (quantized)
+    - Implement CLR
     - Infer from saved adapters
     - load checkpoint and infer script
-    - Fix Padding Issue
 1 - Modify infer to be interactive
 2 - Clean up the inference utilities
 2 - Modify model to support bloat16

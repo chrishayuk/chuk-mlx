@@ -92,13 +92,13 @@ class Trainer:
                 break
 
         # calculate the tokens per second for the total training
-        actual_tokens_per_second = total_tokens / total_epoch_time
-        theoretical_tokens_per_second = total_theoretical_tokens / total_epoch_time
+        actual_tokens_per_second = total_tokens / total_epoch_time if total_epoch_time > 0 else 0
+        theoretical_tokens_per_second = total_theoretical_tokens / total_epoch_time if total_epoch_time > 0 else 0
 
         # log out the total training time etc
         logger.info(f"Total training time: {total_epoch_time:.3f}s")
         logger.info(f"Total iterations: {iteration_count}")
-        logger.info(f"Average batch time: {total_batch_time / iteration_count:.3f}s")
+        logger.info(f"Average batch time: {total_batch_time / iteration_count if iteration_count > 0 else 0:.3f}s")
         logger.info(f"Tokens per second: {actual_tokens_per_second:.2f} (Actual) / {theoretical_tokens_per_second:.2f} (Theoretical)")
 
     def train_epoch(self, epoch, num_epochs, batch_dataset, num_iterations, iteration_count):
@@ -135,9 +135,9 @@ class Trainer:
         # calculate epoch metrics
         epoch_end_time = time.time()
         epoch_time = epoch_end_time - epoch_start_time
-        average_batch_time = sum(batch_times) / len(batch_times)
-        actual_tokens_per_second = epoch_tokens / sum(batch_times)
-        theoretical_tokens_per_second = epoch_theoretical_tokens / sum(batch_times)
+        average_batch_time = sum(batch_times) / len(batch_times) if len(batch_times) > 0 else 0
+        actual_tokens_per_second = epoch_tokens / sum(batch_times) if sum(batch_times) > 0 else 0
+        theoretical_tokens_per_second = epoch_theoretical_tokens / sum(batch_times) if sum(batch_times) > 0 else 0
 
         # log epoch metrics
         self.log_epoch_metrics(epoch, num_epochs, batch_count, epoch_loss, epoch_tokens, average_batch_time, actual_tokens_per_second, theoretical_tokens_per_second)
@@ -153,16 +153,89 @@ class Trainer:
             "epoch_time": epoch_time
         }
 
-    import mlx.core as mx
-
     def train_batch(self, batch, batch_index, iteration_count):
-        concatenated_tensor, lengths = batch
+        try:
+            # Check if the batch contains concatenated tensors and lengths
+            if isinstance(batch, tuple) and len(batch) == 2:
+                concatenated_tensor, lengths = batch
+                input_tensors, target_tensors = self.process_concatenated_batch(concatenated_tensor, lengths, batch_index)
+            else:
+                input_tensors, target_tensors = self.process_non_concatenated_batch(batch, batch_index)
 
-        # Check if sep_token_id is valid
-        if self.tokenizer.sep_token_id is None:
-            logger.error("Separator token ID (sep_token_id) is not set in the tokenizer.")
-            raise ValueError("Separator token ID (sep_token_id) is not set in the tokenizer.")
+            if not input_tensors or not target_tensors:
+                logger.error(f"No valid sequences in batch {batch_index}. Skipping this batch.")
+                return {
+                    "loss": 0,
+                    "ntoks": 0,
+                    "expected_tokens": 0,
+                    "batch_time": 0,
+                    "lr_before_update": self.optimizer.learning_rate
+                }
 
+            # Determine the maximum length for padding
+            max_input_length = max(tensor.shape[0] for tensor in input_tensors)
+            max_target_length = max(tensor.shape[0] for tensor in target_tensors)
+
+            # Pad the sequences to have the same length
+            input_tensor = self.pad_sequences(input_tensors, max_input_length, self.tokenizer.pad_token_id)
+            target_tensor = self.pad_sequences(target_tensors, max_input_length, self.tokenizer.pad_token_id)
+
+            # Print the shapes of the input and target tensors after padding
+            #print(f"Batch {batch_index} - Padded Input shape: {input_tensor.shape}, Padded Target shape: {target_tensor.shape}")
+
+            # Work out the expected number of tokens
+            expected_tokens = input_tensor.shape[0] * input_tensor.shape[1]
+
+            # Start the batch timer
+            batch_start_time = time.time()
+
+            try:
+                # Get the current learning rate
+                if iteration_count < self.warmup_steps:
+                    # Warmup phase
+                    warmup_factor = (iteration_count + 1) / self.warmup_steps
+                    current_lr = self.optimizer.learning_rate * warmup_factor
+                    self.optimizer.learning_rate = current_lr
+                else:
+                    # Post-warmup phase
+                    current_lr = self.optimizer.learning_rate
+
+                # Get the current learning rate
+                lr_before_update = float(current_lr) if isinstance(current_lr, (int, float)) else current_lr.item()
+
+                # Execute the loss function
+                (lvalue, ntoks), grad = self.loss_function(self.model, input_tensor, target_tensor, lengths)
+
+                # Update the optimizer
+                self.optimizer.update(self.model, grad)
+
+                # Set the batch end time
+                batch_end_time = time.time()
+                batch_time = batch_end_time - batch_start_time
+
+                return {
+                    "loss": lvalue if isinstance(lvalue, (float, int)) else lvalue.item(),
+                    "ntoks": ntoks,
+                    "expected_tokens": expected_tokens,
+                    "batch_time": batch_time,
+                    "lr_before_update": lr_before_update
+                }
+
+            except Exception as e:
+                logger.error(f"Error in batch {batch_index}: {e}")
+                return {
+                    "loss": 0,
+                    "ntoks": 0,
+                    "expected_tokens": expected_tokens,
+                    "batch_time": time.time() - batch_start_time,
+                    "lr_before_update": lr_before_update
+                }
+
+        except ValueError as ve:
+            logger.error(f"ValueError: {ve} - Batch structure: {batch}")
+            raise
+
+    def process_concatenated_batch(self, concatenated_tensor, lengths, batch_index):
         # Create empty lists to store the input and target tensors
         input_tensors = []
         target_tensors = []
@@ -197,84 +270,33 @@ class Trainer:
             input_tensors.append(input_tensor)
             target_tensors.append(target_tensor)
 
-        if not input_tensors or not target_tensors:
-            logger.error(f"No valid sequences in batch {batch_index}. Skipping this batch.")
-            return {
-                "loss": 0,
-                "ntoks": 0,
-                "expected_tokens": 0,
-                "batch_time": 0,
-                "lr_before_update": self.optimizer.learning_rate
-            }
+        return input_tensors, target_tensors
 
-        # Determine the maximum length for padding
-        max_input_length = max(tensor.shape[0] for tensor in input_tensors)
-        max_target_length = max(tensor.shape[0] for tensor in target_tensors)
+    def process_non_concatenated_batch(self, batch, batch_index):
+        # Assuming the non-concatenated batch is a list of arrays
+        input_tensors = []
+        target_tensors = []
 
-        # Pad the sequences to have the same length
-        input_tensor = self.pad_sequences(input_tensors, max_input_length, self.tokenizer.pad_token_id)
-        target_tensor = self.pad_sequences(target_tensors, max_input_length, self.tokenizer.pad_token_id)
-
-        # Print the shapes of the input and target tensors after padding
-        #print(f"Batch {batch_index} - Padded Input shape: {input_tensor.shape}, Padded Target shape: {target_tensor.shape}")
-
-        # Work out the expected number of tokens
-        expected_tokens = input_tensor.shape[0] * input_tensor.shape[1]
-
-        # Start the batch timer
-        batch_start_time = time.time()
-
-        try:
-            # Get the current learning rate
-            if iteration_count < self.warmup_steps:
-                # Warmup phase
-                warmup_factor = (iteration_count + 1) / self.warmup_steps
-                current_lr = self.optimizer.learning_rate * warmup_factor
-                self.optimizer.learning_rate = current_lr
+        for i, tensor in enumerate(batch):
+            if len(tensor.shape) == 2:
+                input_tensors.append(tensor)
+                target_tensors.append(tensor)
+            elif len(tensor.shape) == 1:
+                # Handle case where tensor is 1D (target tensor)
+                input_tensor = tensor.reshape(-1, 1)  # Reshape to 2D
+                input_tensors.append(input_tensor)
+                target_tensors.append(input_tensor)
             else:
-                # Post-warmup phase
-                current_lr = self.optimizer.learning_rate
+                logger.error(f"Skipping tensor in sequence {i} of batch {batch_index}. Expected 1D or 2D tensor, but got: {tensor.shape}")
 
-            # Get the current learning rate
-            lr_before_update = float(current_lr) if isinstance(current_lr, (int, float)) else current_lr.item()
-
-            # Execute the loss function
-            # execute the loss function
-            # execute the loss function
-            (lvalue, ntoks), grad = self.loss_function(self.model, input_tensor, target_tensor, lengths)
-
-
-            # Update the optimizer
-            self.optimizer.update(self.model, grad)
-
-            # Set the batch end time
-            batch_end_time = time.time()
-            batch_time = batch_end_time - batch_start_time
-
-            return {
-                "loss": lvalue if isinstance(lvalue, (float, int)) else lvalue.item(),
-                "ntoks": ntoks,
-                "expected_tokens": expected_tokens,
-                "batch_time": batch_time,
-                "lr_before_update": lr_before_update
-            }
-
-        except Exception as e:
-            logger.error(f"Error in batch {batch_index}: {e}")
-            return {
-                "loss": 0,
-                "ntoks": 0,
-                "expected_tokens": expected_tokens,
-                "batch_time": time.time() - batch_start_time,
-                "lr_before_update": lr_before_update
-            }
+        return input_tensors, target_tensors
 
     def update_progress_bar(self, batch_progress, batch_index, batch_metrics):
         # check if we need to update the progress for the batch
         if batch_index % self.progress_interval == 0:
             # calculate tokens per second
-            actual_tokens_per_second = batch_metrics["ntoks"] / batch_metrics["batch_time"]
-            theoretical_tokens_per_second = batch_metrics["expected_tokens"] / batch_metrics["batch_time"]
+            actual_tokens_per_second = batch_metrics["ntoks"] / batch_metrics["batch_time"] if batch_metrics["batch_time"] > 0 else 0
+            theoretical_tokens_per_second = batch_metrics["expected_tokens"] / batch_metrics["batch_time"] if batch_metrics["batch_time"] > 0 else 0
 
             # update the batch progress
             batch_progress.update(self.progress_interval)
