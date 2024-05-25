@@ -25,28 +25,38 @@ def main(model_path, tokenizer_path, checkpoint_path, initial_prompt, system_pro
         else:
             interactive_mode(model, tokenizer)
 
-def prompt_user(model, tokenizer, prompt):
+def generate_and_time_response(model, tokenizer, context):
     # Start the timer
     start_time = time.time()
 
     # Generate a response
-    tokens = generate_response(model, prompt, tokenizer)
+    tokens = generate_response(model, context, tokenizer)
 
     # End the timer
     end_time = time.time()
 
-    # ensure we have tokens
+    return tokens, start_time, end_time
+
+def print_generation_summary(tokens, start_time, end_time):
+    # Ensure we have tokens
     if tokens is not None and len(tokens) > 0:
-        # calculate the timings
+        # Calculate the timings
         total_time = end_time - start_time
         num_tokens = len(tokens)
         tokens_per_second = num_tokens / total_time if total_time > 0 else float('inf')
 
         # Generation summary
-        print(f"\nGenerated {num_tokens} tokens in {total_time:.2f} seconds ({tokens_per_second:.2f} tokens/second)\n")
+        print("\n")
+        print("=" * 50)
+        print(f"Generated {num_tokens} tokens in {total_time:.2f} seconds ({tokens_per_second:.2f} tokens/second)")
+        print("=" * 50)
     else:
         # No tokens
         print("No tokens generated")
+
+def prompt_user(model, tokenizer, prompt):
+    tokens, start_time, end_time = generate_and_time_response(model, tokenizer, prompt)
+    print_generation_summary(tokens, start_time, end_time)
 
 def interactive_mode(model, tokenizer):
     while True:
@@ -65,33 +75,17 @@ def prompt_user_chat(model, tokenizer, prompt, conversation_context):
     tokenized_chat = tokenizer.apply_chat_template(conversation_context, tokenize=True, return_tensors="pt")
     context = tokenizer.decode(tokenized_chat[0])
 
-    # Start the timer
-    start_time = time.time()
+    tokens, start_time, end_time = generate_and_time_response(model, tokenizer, context)
 
-    # Generate a response
-    tokens = generate_response(model, context, tokenizer)
-
-    # End the timer
-    end_time = time.time()
-
-    # ensure we have tokens
+    # Ensure we have tokens
     if tokens is not None and len(tokens) > 0:
-        # get and decode the response
+        # Get and decode the response
         response = tokenizer.decode(tokens, skip_special_tokens=True).strip()
 
-        # calculate time
-        total_time = end_time - start_time
-        num_tokens = len(tokens)
-        tokens_per_second = num_tokens / total_time if total_time > 0 else float('inf')
-
-        # add the response to the context
+        # Add the response to the context
         conversation_context.append({"role": "assistant", "content": response})
 
-        # Generation summary
-        print(f"\nGenerated {num_tokens} tokens in {total_time:.2f} seconds ({tokens_per_second:.2f} tokens/second)\n")
-    else:
-        # No tokens
-        print("No tokens generated")
+    print_generation_summary(tokens, start_time, end_time)
 
 def interactive_mode_chat(model, tokenizer, conversation_context):
     while True:
@@ -112,10 +106,20 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint", default=None, help="The path to a checkpoint to load the model weights from.")
     parser.add_argument("--prompt", default=None, help="The initial prompt")
     parser.add_argument("--system_prompt", default="You are a helpful assistant", help="The system prompt to set the assistant's behavior")
-    parser.add_argument("--chat", default=True, type=bool, help="Use chat mode with the Hugging Face chat template")
-    
+    parser.add_argument("--chat", default=None, type=bool, help="Use chat mode with the Hugging Face chat template")
+    parser.add_argument("--text", default=None, type=bool, help="Use text mode for direct text generation")
+
     # Parse arguments
     args = parser.parse_args()
 
+    # Determine the mode based on the provided arguments
+    if args.chat:
+        chat_mode = True
+    elif args.text:
+        chat_mode = False
+    else:
+        # Default to chat mode for interactive mode, text mode for non-interactive mode
+        chat_mode = args.prompt is None
+
     # Call main
-    main(args.model, args.tokenizer, args.checkpoint, args.prompt, args.system_prompt, args.chat)
+    main(args.model, args.tokenizer, args.checkpoint, args.prompt, args.system_prompt, chat_mode)

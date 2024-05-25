@@ -50,7 +50,6 @@ def generate_response(model, prompt, tokenizer, max_length: int = 500):
 
     # print it out, in future we should yield it, so that it's in the UI's gift
     print(decoded_response, flush=True)
-    print("=" * 10)
 
     # check if we got tokens
     if len(tokens) == 0:
