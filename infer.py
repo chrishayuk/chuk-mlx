@@ -68,11 +68,15 @@ def interactive_mode(model, tokenizer):
         prompt_user(model, tokenizer, user_input)
 
 def prompt_user_chat(model, tokenizer, prompt, conversation_context):
-    # Setup the conversation context
-    conversation_context.append({"role": "user", "content": prompt})
+    # Ensure the conversation context alternates roles correctly
+    if len(conversation_context) % 2 == 0 or conversation_context[-1]['role'] != 'user':
+        conversation_context.append({"role": "user", "content": prompt})
+    else:
+        print("The conversation roles must alternate between user and assistant.")
+        return
 
     # Apply the chat template to the conversation context
-    tokenized_chat = tokenizer.apply_chat_template(conversation_context, tokenize=True, return_tensors="pt")
+    tokenized_chat = tokenizer.apply_chat_template(conversation_context, tokenize=True, add_generation_prompt=True, return_tensors="pt")
     context = tokenizer.decode(tokenized_chat[0])
 
     tokens, start_time, end_time = generate_and_time_response(model, tokenizer, context)
