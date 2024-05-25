@@ -106,8 +106,8 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint", default=None, help="The path to a checkpoint to load the model weights from.")
     parser.add_argument("--prompt", default=None, help="The initial prompt")
     parser.add_argument("--system_prompt", default="You are a helpful assistant", help="The system prompt to set the assistant's behavior")
-    parser.add_argument("--chat", default=None, type=bool, help="Use chat mode with the Hugging Face chat template")
-    parser.add_argument("--text", default=None, type=bool, help="Use text mode for direct text generation")
+    parser.add_argument("--chat", action='store_true', help="Use chat mode with the Hugging Face chat template")
+    parser.add_argument("--text", action='store_true', help="Use text mode for direct text generation")
 
     # Parse arguments
     args = parser.parse_args()
