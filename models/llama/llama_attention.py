@@ -23,6 +23,7 @@ class LlamaAttention(nn.Module):
         # set scale
         self.scale = dimensions_per_head**-0.5
 
+        # set q,k,v,o
         self.q_proj = nn.Linear(dimensions, n_heads * dimensions_per_head, bias=config.attention_bias)
         self.k_proj = nn.Linear(dimensions, n_kv_heads * dimensions_per_head, bias=config.attention_bias)
         self.v_proj = nn.Linear(dimensions, n_kv_heads * dimensions_per_head, bias=config.attention_bias)
