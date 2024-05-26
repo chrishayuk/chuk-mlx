@@ -12,7 +12,6 @@ class ModelConfig(BaseModel):
     hidden_size: int
     #initializer_range: Optional[float]
     intermediate_size: int
-    #max_position_embeddings: Optional[int]
     #model_type: Optional[str]
     tie_word_embeddings: Optional[bool] = True
 
@@ -24,10 +23,11 @@ class ModelConfig(BaseModel):
     rms_norm_eps: Optional[float] = None
 
     # rope settings
-    # not sure what scaling should be
+    max_position_embeddings: Optional[int]
     rope_scaling: Optional[Dict[str, Union[float, str]]] = None
     rope_theta: float = 10000
     rope_traditional: bool = False
+
     #sliding_window: Optional[dict] = None
     #torch_dtype: Optional[str]
     #transformers_version: Optional[str]
