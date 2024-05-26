@@ -1,6 +1,8 @@
-import mlx.core as mx
 import logging
-from models.architectures.llama.model import Model
+import mlx.core as mx
+from models.architectures.llama.model import Model as LlamaModel
+from models.architectures.mistral.model import Model as MistralModel
+from models.architectures.gemma.model import Model as GemmaModel
 from utils.huggingface_utils import load_from_hub
 from utils.tokenizer_loader import load_tokenizer
 from models.load_weights import load_checkpoint_weights, load_model_weights
@@ -9,15 +11,26 @@ from models.model_config import ModelConfig
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_model(model_name):
-    # get the model path
-    model_path = load_from_hub(model_name)
-    
+def get_model_from_path(model_path):
     # load the model config
     model_config = ModelConfig.load(model_path)
 
-    # use the llama model (will change in future)
-    model = Model(model_config)
+    # Load the correct model based on architecture
+    if model_config.architectures[0] == "LlamaForCausalLM":
+        return LlamaModel(model_config)
+    elif model_config.architectures[0] == "MistralForCausalLM":
+        return MistralModel(model_config)
+    elif model_config.architectures[0] == "GemmaForCausalLM":
+        return GemmaModel(model_config)
+    else:
+        return LlamaModel(model_config)
+
+def load_model(model_name):
+    # get the model path
+    model_path = load_from_hub(model_name)    
+
+    # get the model
+    model = get_model_from_path(model_path)
 
     # load the weights
     weights = load_model_weights(model_path)
@@ -50,12 +63,9 @@ def load_model_tokenizer_and_checkpoint(model_name, checkpoint_path=None, tokeni
         # load the model from the hub
         model_path = load_from_hub(model_name)
         
-        # Load model config
-        model_config = ModelConfig.load(model_path)
-        
-        # Create the model instance
-        model = Model(model_config)
-        
+         # get the model
+        model = get_model_from_path(model_path)
+
         # Initialize and load model weights
         if checkpoint_path:
             logger.info(f"Loading weights from checkpoint: {checkpoint_path}")

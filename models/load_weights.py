@@ -1,7 +1,7 @@
 # mlx_model_weights_loader.py
 import glob
-from pathlib import Path
 import mlx.core as mx
+from pathlib import Path
 
 def load_model_weights(model_path):
     # get the path to the weights file

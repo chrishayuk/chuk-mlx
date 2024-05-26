@@ -1,7 +1,8 @@
-from typing import Optional, Tuple
 import mlx.core as mx
 import mlx.nn as nn
-from ...model_config import ModelConfig
+from typing import Optional, Tuple
+from models.model_config import ModelConfig
+
 
 class LlamaAttention(nn.Module):
     def __init__(self, config: ModelConfig):

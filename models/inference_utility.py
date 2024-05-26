@@ -1,6 +1,6 @@
-from typing import Generator
 import mlx.core as mx
 import mlx.nn as nn
+from typing import Generator
 
 def generate_sequence(prompt: mx.array, model: nn.Module, temperature: float = 0) -> Generator[mx.array, None, None]:
     def sample(logits: mx.array) -> mx.array:

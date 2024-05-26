@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Union
 from pathlib import Path
 
 class ModelConfig(BaseModel):
-    #architectures: Optional[List[str]]
+    architectures: Optional[List[str]]
     #attention_dropout: Optional[float]
     bos_token_id: Optional[int]
     eos_token_id: Optional[int]

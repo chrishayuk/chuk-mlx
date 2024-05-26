@@ -1,8 +1,8 @@
-from typing import Optional, Tuple
 import mlx.core as mx
 import mlx.nn as nn
+from typing import Optional, Tuple
 from models.model_config import ModelConfig
-from .llama_attention import LlamaAttention
+from models.architectures.llama.llama_attention import LlamaAttention
 from models.mlp.swiglu_mlp import MLP as SwiGluMLP
 from models.mlp.gelu_glu_mlp import MLP as GeluGluMLP
 

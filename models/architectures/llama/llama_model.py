@@ -1,7 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 from models.model_config import ModelConfig
-from .llama_layer import LlamaLayer
+from models.architectures.llama.llama_layer import LlamaLayer
   
 class LlamaModel(nn.Module):
     def __init__(self, config: ModelConfig):
