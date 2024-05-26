@@ -18,7 +18,8 @@ class LlamaAttention(nn.Module):
         self.n_kv_heads = n_kv_heads = config.num_key_value_heads
 
         # dimensions per head is hidden size / heads
-        dimensions_per_head = config.hidden_size // n_heads
+        # Use head_dim if provided, otherwise calculate dimensions_per_head
+        dimensions_per_head = config.head_dim if hasattr(config, 'head_dim') else config.hidden_size // n_heads
 
         # set scale
         self.scale = dimensions_per_head**-0.5
