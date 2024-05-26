@@ -17,7 +17,11 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
-1 - Pretrainer
+1 - Models
+    - Test new version of mistral
+    - Fix Gemma models
+2 - Perform a light fine tune, with a inference load using Mistral
+3 - Training
     - Clear old batches on generation
     - Fixed bucketing and merging
     - Fix tokens per second for batching and duplicates
