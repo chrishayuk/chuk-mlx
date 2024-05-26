@@ -1,9 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
-from models.load_weights import load_model_weights
 from models.model_config import ModelConfig
-from models.llama.llama_model import LlamaModel
-from utils.huggingface_utils import load_from_hub
+from .llama_model import LlamaModel
 
 class Model(nn.Module):
     def __init__(self, args: ModelConfig):

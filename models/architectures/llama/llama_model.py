@@ -1,9 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
-from models.load_weights import load_model_weights
 from models.model_config import ModelConfig
-from models.llama.llama_layer import LlamaLayer
-from utils.huggingface_utils import load_from_hub
+from .llama_layer import LlamaLayer
   
 class LlamaModel(nn.Module):
     def __init__(self, config: ModelConfig):
@@ -51,3 +49,4 @@ class LlamaModel(nn.Module):
         # TODO: I don't think we need to normalize, as it's done on input layer
         return self.norm(h), cache
         #return h, cache#self.norm(h), cache
+        

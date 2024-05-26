@@ -1,6 +1,6 @@
 import mlx.core as mx
-import models.llama.model
 import logging
+from models.architectures.llama.model import Model
 from utils.huggingface_utils import load_from_hub
 from utils.tokenizer_loader import load_tokenizer
 from models.load_weights import load_checkpoint_weights, load_model_weights
@@ -17,7 +17,7 @@ def load_model(model_name):
     model_config = ModelConfig.load(model_path)
 
     # use the llama model (will change in future)
-    model = models.llama.model.Model(model_config)
+    model = Model(model_config)
 
     # load the weights
     weights = load_model_weights(model_path)
@@ -54,7 +54,7 @@ def load_model_tokenizer_and_checkpoint(model_name, checkpoint_path=None, tokeni
         model_config = ModelConfig.load(model_path)
         
         # Create the model instance
-        model = models.llama.model.Model(model_config)
+        model = Model(model_config)
         
         # Initialize and load model weights
         if checkpoint_path:

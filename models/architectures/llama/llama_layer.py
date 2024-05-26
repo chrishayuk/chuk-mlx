@@ -2,10 +2,20 @@ from typing import Optional, Tuple
 import mlx.core as mx
 import mlx.nn as nn
 from models.model_config import ModelConfig
-from models.llama.llama_attention import LlamaAttention
+from .llama_attention import LlamaAttention
 from models.mlp.swiglu_mlp import MLP as SwiGluMLP
 from models.mlp.gelu_glu_mlp import MLP as GeluGluMLP
 
+# TODO: this is need for gemma
+# class RMSNorm(nn.Module):
+#     def __init__(self, dims: int, eps: float = 1e-5):
+#         super().__init__()
+#         self.weight = mx.ones((dims,))
+#         self.eps = eps
+
+#     def __call__(self, x):
+#         return mx.fast.rms_norm(x, 1.0 + self.weight, self.eps)
+    
 class LlamaLayer(nn.Module):
     def __init__(self, config: ModelConfig):
         # initialize
@@ -37,16 +47,14 @@ class LlamaLayer(nn.Module):
         # Pre-normalization [GPT3]. 
         # To improve the training stability, 
         # we normalize the input of each transformer sub-layer, 
-        # instead of normalizing the output. 
+        # instead of normalizing the outsput. 
         # We use the RMSNorm normalizing func- tion, introduced by Zhang and Sennrich (2019).
         self.input_layernorm = nn.RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
         
         # Set the post attention layer normalisation, again, we use RMS
-        self.post_attention_layernorm = nn.RMSNorm(
-            config.hidden_size, eps=config.rms_norm_eps
-        )
+        self.post_attention_layernorm = nn.RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
-    def __call__(
+    def __call__(   
         self,
         x: mx.array,
         mask: Optional[mx.array] = None,

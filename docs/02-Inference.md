@@ -53,12 +53,6 @@ python infer.py --model mistralai/Mistral-7B-Instruct-v0.2
 ## IBM Models
 The following shows how to interact with the IBM Granite and Granite Code Models
 
-### Granite 3B Code Instruct
-
-```bash
-python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a fibonacci function in python"
-```
-
 ### IBM Granite
 The following shows how to prompt the ibm/granite-7b-base model
 
@@ -67,10 +61,27 @@ python infer.py --model ibm/granite-7b-base --prompt "who is ada lovelace?"
 ```
 
 ### IBM Granite Code
-The following shows how to prompt the ibm/granite-7b-base model
+The following shows how to interact with the IBM Granite Code Models
+
+#### 3 Billion Parameter Model
+The following shows how to prompt the ibm/granite 3B code instuct model
 
 ```bash
 python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a fibonacci function in python"
+```
+
+#### 8 Billion Parameter Model
+The following shows how to prompt the ibm/granite 8B code instuct model
+
+```bash
+python infer.py --model ibm-granite/granite-8b-code-instruct --prompt "write a fibonacci function in python" --chat
+```
+
+#### 34 Billion Parameter Model
+The following shows how to prompt the ibm/granite 34B code instuct model
+
+```bash
+python infer.py --model ibm-granite/granite-34b-code-instruct --prompt "write a fibonacci function in python" --chat
 ```
 
 ### IBM Merlinite
@@ -78,4 +89,10 @@ The following shows how to prompt the ibm/merlinite-7b model
 
 ```bash
 python infer.py --model ibm/merlinite-7b --prompt "write a fibonacci function in python"
+```
+
+### Gemma Model
+
+```bash
+python infer.py --model ibm-granite/granite-8b-code-instruct --prompt "write a fibonacci function in python" --chat
 ```
