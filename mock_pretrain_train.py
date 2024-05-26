@@ -4,6 +4,9 @@ from chuk_models.mock_model import MockModel
 from chuk_optimizers.mock_optimizer import MockOptimizer
 from training.trainer import Trainer
 
+# Import the tokenizer, assuming it's required for the new Trainer structure
+from utils.tokenizer_loader import load_tokenizer
+
 # Instantiate mock components
 model = MockModel()
 optimizer = MockOptimizer()
@@ -17,6 +20,10 @@ num_batches = 100
 batch_size = 32
 seq_length = 50
 
+# TODO: we do need a mock tokenizer
+# Load a mock tokenizer (adjust this part according to your tokenizer implementation)
+tokenizer = load_tokenizer('mistralai/Mistral-7B-Instruct-v0.2')
+
 # Create mock dataset
 mock_dataset = MockPreTrainBatchDataset(
     batch_output_dir=output_dir,
@@ -29,6 +36,7 @@ mock_dataset = MockPreTrainBatchDataset(
 # Instantiate the trainer
 trainer = Trainer(
     model=model,
+    tokenizer=tokenizer,
     optimizer=optimizer,
     loss_function=loss_function,
     progress_interval=10,
