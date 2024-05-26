@@ -3,19 +3,28 @@ The following is the list of models that i've tested works.
 
 ## Llama Models
 
+- meta-llama/Llama-2-7b
+- meta-llama/Llama-2-7b-chat-hf
+- meta-llama/Meta-Llama-3-8B-Instruct 
+
 ## Mistral Models
 
+- mistralai/Mistral-7B-Instruct-v0.2
+
+Not currently working
+
+- mistralai/Mistral-7B-Instruct-v0.3
+
 ## Granite Models
-The following is a list of IBM granite models that i've tested.
 
 - ibm/merlinite-7b
 - ibm/granite-7b-base
-
-## TODO
-
 - ibm/labradorite-13b
-
-
-## Code Granite Models
-
 - ibm-granite/granite-3b-code-instruct
+- ibm-granite/granite-8b-code-instruct
+- ibm-granite/granite-34b-code-instruct
+
+## Gemma Models
+Not currently working
+
+- google/gemma-2b

@@ -14,8 +14,9 @@ class Model(nn.Module):
         # store the config, just in-case we need
         self.config = args
 
-        # set the head
+        # check if the weights are tied between the input embeddings and the output embeddings
         if not self.config.tie_word_embeddings:
+            # set the head as a language modelling head
             self.lm_head = nn.Linear(args.hidden_size, args.vocab_size, bias=False)
 
     def __call__(
@@ -25,15 +26,17 @@ class Model(nn.Module):
     ):
         # perform a forward pass
         out, cache = self.model(inputs, cache)
-
-        # set the head
+        
+        # check if the weights are tied between the input embeddings and the output embeddings
         if self.config.tie_word_embeddings:
+            # execute through the embeddings layer
             return self.model.embed_tokens.as_linear(out), cache
         else:
+            # execute through the language modelling head
             return self.lm_head(out), cache
         
     def sanitize(self, weights):
-        # Remove unused precomputed rotary freqs
+        # nothing to sanitize
         return {
-            k: v for k, v in weights.items() if "self_attn.rotary_emb.inv_freq" not in k
+            k: v for k, v in weights.items()
         }

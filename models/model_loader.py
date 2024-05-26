@@ -1,8 +1,8 @@
 import logging
 import mlx.core as mx
-from models.architectures.llama.model import Model as LlamaModel
-from models.architectures.mistral.model import Model as MistralModel
-from models.architectures.gemma.model import Model as GemmaModel
+from models.architectures.llama.llama_for_causal_lm import LlamaForCausalLM
+from models.architectures.mistral.mistral_for_causal_lm import MistralForCausalLM
+from models.architectures.gemma.gemma_for_causal_lm import GemmaForCausalLM
 from utils.huggingface_utils import load_from_hub
 from utils.tokenizer_loader import load_tokenizer
 from models.load_weights import load_checkpoint_weights, load_model_weights
@@ -17,13 +17,13 @@ def get_model_from_path(model_path):
 
     # Load the correct model based on architecture
     if model_config.architectures[0] == "LlamaForCausalLM":
-        return LlamaModel(model_config)
+        return LlamaForCausalLM(model_config)
     elif model_config.architectures[0] == "MistralForCausalLM":
-        return MistralModel(model_config)
+        return MistralForCausalLM(model_config)
     elif model_config.architectures[0] == "GemmaForCausalLM":
-        return GemmaModel(model_config)
+        return GemmaForCausalLM(model_config)
     else:
-        return LlamaModel(model_config)
+        return LlamaForCausalLM(model_config)
 
 def load_model(model_name):
     # get the model path
