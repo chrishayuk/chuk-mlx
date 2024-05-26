@@ -1,72 +1,83 @@
 import os
 import mlx.core as mx
+import numpy as np
 
 class MockFineTuneBatchDataset:
-    def __init__(self, batch_output_dir, batchfile_prefix, num_batches, batch_size, seq_length):
-        # intiailize
+    def __init__(self, batch_output_dir, batchfile_prefix, num_batches, batch_size, seq_length, sep_token_id=99):
+        # Initialize
         self.batch_output_dir = batch_output_dir
         self.batchfile_prefix = batchfile_prefix
         self.num_batches = num_batches
         self.batch_size = batch_size
         self.seq_length = seq_length
         self.batch_files = []
+        self.sep_token_id = sep_token_id
 
         # Generate mock batches
         self._generate_mock_batches()
 
     def _generate_mock_batches(self):
-        # create the output directory if it doesn't exist
+        # Create the output directory if it doesn't exist
         if not os.path.exists(self.batch_output_dir):
             os.makedirs(self.batch_output_dir)
 
         for i in range(self.num_batches):
-            # generate a random number for the input and target
-            input_tensor = mx.random.randint(0, 100, (self.batch_size, self.seq_length))
-            target_tensor = mx.random.randint(0, 100, (self.batch_size, self.seq_length))
+            # Generate random input and target tensors starting from 3 onwards
+            input_tensor = mx.random.randint(3, 100, (self.batch_size, self.seq_length // 2 - 1))
+            target_tensor = mx.random.randint(3, 100, (self.batch_size, self.seq_length // 2))
 
-            # lengths looks odd
-            lengths = mx.random.randint(1, self.seq_length + 1, (self.batch_size,))
+            # Append the separator token at the end of the input tensor
+            sep_column = mx.full((self.batch_size, 1), self.sep_token_id)
+            input_tensor = mx.concatenate((input_tensor, sep_column), axis=1)
 
-            # concatenate the tensor
+            # Create lengths (full length of the input tensor including the separator)
+            lengths = mx.full((self.batch_size,), self.seq_length // 2)
+
+            # Concatenate the input and target tensors
             concatenated_tensor = mx.concatenate((input_tensor, target_tensor), axis=1)
 
-            # set the batch file and path
+            # Set the batch file and path
             batch_file = f"{self.batchfile_prefix}_{i}.npz"
             batch_path = os.path.join(self.batch_output_dir, batch_file)
 
-            # save it
+            # Save it
             mx.savez(batch_path, concatenated_tensor=concatenated_tensor, lengths=lengths)
 
-            # add
+            # Add to the batch files list
             self.batch_files.append(batch_file)
 
     def __len__(self):
-        # return the size of the dataset
+        # Return the size of the dataset
         return len(self.batch_files)
 
     def __getitem__(self, index):
-        # load the tensor
+        # Load the tensor
         concatenated_tensor = self._load_tensor(self.batch_files[index])
 
-        # get the lengths
+        # Get the lengths
         lengths = self._get_lengths(index)
 
-        # return the tensor and lengths
+        # Debugging: Check if the separator token is present at the end of the input tensor
+        for i, seq in enumerate(concatenated_tensor['concatenated_tensor'][:, :self.seq_length // 2]):
+            if seq[-1] != self.sep_token_id:
+                print(f"Warning: No separator found at the end of sequence {i} of batch {index}")
+
+        # Return the tensor and lengths
         return concatenated_tensor['concatenated_tensor'], lengths
 
     def _load_tensor(self, batch_file):
-         # get the batch file
+        # Get the batch file path
         batch_path = os.path.join(self.batch_output_dir, batch_file)
 
-        # load the tensor
+        # Load the tensor
         concatenated_tensor = mx.load(batch_path)
 
-        # return the tensor
+        # Return the tensor
         return concatenated_tensor
 
     def _get_lengths(self, index):
-        # load the tensor
+        # Load the tensor
         concatenated_tensor = self._load_tensor(self.batch_files[index])
         
-        # return the lengths
+        # Return the lengths
         return concatenated_tensor['lengths']

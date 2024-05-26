@@ -6,7 +6,7 @@ from chuk_loss_function.lazyfox_loss_function import chukloss
 from chuk_models.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
 from utils.tokenizer_loader import load_tokenizer
-from trainer import Trainer
+from training.trainer import Trainer
 
 # settings
 input_files = ['./sample_data/lazyfox_train.jsonl']

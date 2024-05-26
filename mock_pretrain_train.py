@@ -2,7 +2,7 @@ from batches.dataset.mock_pretrain_batch_dataset import MockPreTrainBatchDataset
 from chuk_loss_function.mock_loss_function import mock_value_and_grad, mockloss
 from chuk_models.mock_model import MockModel
 from chuk_optimizers.mock_optimizer import MockOptimizer
-from trainer import Trainer
+from training.trainer import Trainer
 
 # Instantiate mock components
 model = MockModel()

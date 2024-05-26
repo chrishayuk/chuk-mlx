@@ -1,15 +1,16 @@
-import numpy as np
 from batches.dataset.mock_finetune_batch_dataset import MockFineTuneBatchDataset
 from chuk_loss_function.mock_loss_function import mock_value_and_grad, mockloss
 from chuk_models.mock_model import MockModel
 from chuk_optimizers.mock_optimizer import MockOptimizer
-from trainer import Trainer
-import mlx.nn as nn
+from training.trainer import Trainer
+
+# Import the tokenizer, assuming it's required for the new Trainer structure
+from utils.tokenizer_loader import load_tokenizer
 
 # Instantiate mock components
 model = MockModel()
 optimizer = MockOptimizer()
-loss_function = mock_value_and_grad(mockloss) 
+loss_function = mock_value_and_grad(mockloss)
 
 # Settings
 output_dir = './output/mock_finetune'
@@ -19,23 +20,30 @@ num_batches = 100
 batch_size = 32
 seq_length = 50
 
+# TODO: we do need a mock tokenizer
+# Load a mock tokenizer (adjust this part according to your tokenizer implementation)
+tokenizer = load_tokenizer('mistralai/Mistral-7B-Instruct-v0.2')
+
 # Create mock dataset
 mock_dataset = MockFineTuneBatchDataset(
     batch_output_dir=output_dir,
     batchfile_prefix=batchfile_prefix,
     num_batches=num_batches,
     batch_size=batch_size,
-    seq_length=seq_length
+    seq_length=seq_length,
+    sep_token_id=tokenizer.sep_token_id
 )
 
 # Instantiate the trainer
 trainer = Trainer(
     model=model,
+    tokenizer=tokenizer,
     optimizer=optimizer,
     loss_function=loss_function,
     progress_interval=10,
     checkpoint_dir=checkpoint_output_dir,
-    checkpoint_freq=50
+    checkpoint_freq=50,
+    warmup_steps=0  # Adjust warmup steps if needed
 )
 
 # Run training
