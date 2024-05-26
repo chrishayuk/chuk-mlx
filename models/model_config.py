@@ -1,13 +1,13 @@
 import json
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Dict, List, Optional, Union
 from pathlib import Path
 
 class ModelConfig(BaseModel):
     #architectures: Optional[List[str]]
     #attention_dropout: Optional[float]
-    #bos_token_id: Optional[int]
-    #eos_token_id: Optional[int]
+    bos_token_id: Optional[int]
+    eos_token_id: Optional[int]
     hidden_act: str
     hidden_size: int
     #initializer_range: Optional[float]
@@ -20,14 +20,14 @@ class ModelConfig(BaseModel):
     num_attention_heads: Optional[int] = None
     num_hidden_layers: int
     num_key_value_heads: Optional[int] = None
-    attention_bias: Optional[float] = False
+    attention_bias: Optional[bool] = False
     rms_norm_eps: Optional[float] = None
 
     # rope settings
     # not sure what scaling should be
-    rope_scaling: Optional[str] = None
-    rope_theta: Optional[float] = None
-    rope_traditional: Optional[bool] = False
+    rope_scaling: Optional[Dict[str, Union[float, str]]] = None
+    rope_theta: float = 10000
+    rope_traditional: bool = False
     #sliding_window: Optional[dict] = None
     #torch_dtype: Optional[str]
     #transformers_version: Optional[str]
@@ -38,6 +38,19 @@ class ModelConfig(BaseModel):
     
     # vocab
     vocab_size: int
+
+    def __post_init__(self):
+        if self.num_key_value_heads is None:
+            self.num_key_value_heads = self.num_attention_heads
+
+        if self.rope_scaling:
+            required_keys = {"factor", "type"}
+            if not all(key in self.rope_scaling for key in required_keys):
+                raise ValueError(f"rope_scaling must contain keys {required_keys}")
+
+            if self.rope_scaling["type"] != "linear":
+                raise ValueError("rope_scaling 'type' currently only supports 'linear'")
+
     class Config:
         allow_population_by_field_name = True
 

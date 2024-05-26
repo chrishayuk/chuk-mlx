@@ -51,29 +51,3 @@ class LlamaModel(nn.Module):
         # TODO: I don't think we need to normalize, as it's done on input layer
         return self.norm(h), cache
         #return h, cache#self.norm(h), cache
-
-    # @classmethod
-    # def load(cls, model_name) -> 'LlamaModel':        
-    #     # load the model from huggingface
-    #     print(f"Loading Model: {model_name}")
-
-    #     # load the model from huggingface
-    #     model_path = load_from_hub(model_name)
-
-    #     # load config
-    #     model_config = ModelConfig.load(model_path)
-
-        
-
-    #     # create the model instance
-    #     model = cls(model_config)
-    #     print(model)
-
-    #     # Model Loaded
-    #     print(f"Model Loaded: {model_name}")
-
-        
-
-    #     # return the model
-    #     return model
-
