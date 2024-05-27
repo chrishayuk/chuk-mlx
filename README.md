@@ -18,6 +18,7 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 TODO
 --------
 1 - Update Lazyfox to use BOS and EOS to improve batching
+2 - Fix Fine Tuning
 1 - Models
     - Test new version of mistral
 2 - Perform a light fine tune, with a inference load using Mistral
