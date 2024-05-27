@@ -31,13 +31,13 @@ This will produce a pretty table that outlines rows, tokens per batch, padding t
 The following will analyze the input batch we created earlier
 
 ```bash
-python batch_analyzer.py --batch_file output/sample/batches/sample_batch_0001.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
+python batch_analyzer.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer mistralai/Mistral-7B-Instruct-v0.2
 ```
 
 The following will analyze the target batch we created earlier
 
 ```bash
-python batch_analyzer.py --batch_file output/sample/batches/sample_batch_0001_target.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
+python batch_analyzer.py --batch_file output/sample/batches/sample_batch_0001_target.npz --tokenizer mistralai/Mistral-7B-Instruct-v0.2
 ```
 
 ## Batch Viewer
@@ -46,12 +46,12 @@ The following takes a batch file and allows you to the view the batch.
 The following will view the input batch we created earlier
 
 ```bash
-python batch_viewer.py --batch_file output/sample/batches/sample_batch_0001.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
+python batch_viewer.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer mistralai/Mistral-7B-Instruct-v0.2
 ```
 
 The following will analyze the target batch we created earlier
 
 ```bash
-python batch_viewer.py --batch_file output/sample/batches/sample_batch_0001_target.npy --tokenizer mistralai/Mistral-7B-Instruct-v0.2
+python batch_viewer.py --batch_file output/sample/batches/sample_batch_0001_target.npz --tokenizer mistralai/Mistral-7B-Instruct-v0.2
 ```
 

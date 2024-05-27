@@ -19,7 +19,6 @@ TODO
 --------
 1 - Models
     - Test new version of mistral
-    - Fix Gemma models
 2 - Perform a light fine tune, with a inference load using Mistral
 3 - Training
     - Clear old batches on generation

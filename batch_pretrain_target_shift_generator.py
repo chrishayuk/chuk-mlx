@@ -9,12 +9,13 @@ def process_batches(input_directory, batch_prefix, individual_batch=None):
         batch_files = [individual_batch]
     else:
         # Get all batch files with the specified prefix
-        batch_files = [f for f in os.listdir(input_directory) if f.startswith(batch_prefix) and f.endswith('.npy') and not f.endswith('_target.npy')]
+        batch_files = [f for f in os.listdir(input_directory) if f.startswith(batch_prefix) and f.endswith('.npz') and not f.endswith('_target.npz')]
 
     for batch_file in batch_files:
         # Load the input batch
         input_batch_path = os.path.join(input_directory, batch_file)
-        input_batch = np.load(input_batch_path)
+        input_batch_data = np.load(input_batch_path)
+        input_batch = input_batch_data['input_tensor']
 
         # Get the maximum sequence length and pad token ID from the input batch
         max_seq_length = input_batch.shape[1]
@@ -23,10 +24,10 @@ def process_batches(input_directory, batch_prefix, individual_batch=None):
         # Create the target batch
         target_batch = create_target_batch(input_batch, pad_token_id, max_seq_length)
 
-        # Save the target batch with the postfix '_target.npy'
-        target_batch_file = batch_file.replace('.npy', '_target.npy')
+        # Save the target batch with the postfix '_target.npz'
+        target_batch_file = batch_file.replace('.npz', '_target.npz')
         target_batch_path = os.path.join(input_directory, target_batch_file)
-        np.save(target_batch_path, target_batch)
+        np.savez(target_batch_path, target_tensor=target_batch)
 
         print(f"Created target batch: {target_batch_file}")
         

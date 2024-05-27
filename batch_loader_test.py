@@ -2,22 +2,21 @@ import argparse
 import time
 import os
 import numpy as np
-import mlx.core as mx
 
 def load_batches(output_directory, file_prefix, num_batches):
     """
-    Load batches using MLX and measure performance.
+    Load batches using numpy and measure performance.
 
     :param output_directory: Directory containing batch files.
     :param file_prefix: Prefix of batch files.
     :param num_batches: Number of batches to load.
-    :return: List of loaded MLX arrays.
+    :return: List of loaded numpy arrays.
     """
     loaded_batches = []
     load_times = []
 
     for batch_idx in range(num_batches):
-        file_path = os.path.join(output_directory, f"{file_prefix}_batch_{batch_idx + 1:04d}.npy")
+        file_path = os.path.join(output_directory, f"{file_prefix}_batch_{batch_idx + 1:04d}.npz")
         
         if not os.path.exists(file_path):
             print(f"File not found: {file_path}")
@@ -26,23 +25,31 @@ def load_batches(output_directory, file_prefix, num_batches):
         # Measure loading time
         start_time = time.time()
 
-        # load mlx
-        mlx_array = mx.load(file_path)
+        # Load npz file
+        batch_data = np.load(file_path)
+
+        # Determine the correct tensor key and load it
+        if 'input_tensor' in batch_data:
+            tensor = batch_data['input_tensor']
+        elif 'target_tensor' in batch_data:
+            tensor = batch_data['target_tensor']
+        else:
+            raise KeyError(f"Neither 'input_tensor' nor 'target_tensor' found in the .npz file {file_path}")
 
         # Measure finish time
         end_time = time.time()
 
-        # set the load times and batches
+        # Store the load times and batches
         load_times.append(end_time - start_time)
-        loaded_batches.append(mlx_array)
+        loaded_batches.append(tensor)
 
     return loaded_batches, load_times
 
 def measure_memory_usage(arrays):
     """
-    Measure the memory usage of loaded MLX arrays.
+    Measure the memory usage of loaded numpy arrays.
 
-    :param arrays: List of MLX arrays.
+    :param arrays: List of numpy arrays.
     :return: Total memory usage in bytes.
     """
     total_memory_usage = sum(array.nbytes for array in arrays)
