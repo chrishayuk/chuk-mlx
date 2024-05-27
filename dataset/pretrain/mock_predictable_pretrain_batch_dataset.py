@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from batches.dataset.pretrain.pretrain_batch_dataset_base import PreTrainBatchDatasetBase
+from dataset.pretrain.pretrain_batch_dataset_base import PreTrainBatchDatasetBase
 
 class SimpleMultiplicationDataset(PreTrainBatchDatasetBase):
     def __init__(self, batch_output_dir, batchfile_prefix, num_batches, batch_size, seq_length):

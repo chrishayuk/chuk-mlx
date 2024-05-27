@@ -1,6 +1,6 @@
 import os
 import mlx.core as mx
-from .batch_dataset_base import BatchDatasetBase
+from dataset.batch_dataset_base import BatchDatasetBase
 
 class FineTuneBatchDataset(BatchDatasetBase):
     def __init__(self, batch_output_dir, batchfile_prefix):

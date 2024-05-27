@@ -1,7 +1,7 @@
 import os
 import time
-from batches.batch_analysis_summary import generate_batch_analysis_summary_table
-from batches.batch_generation_summary import generate_batch_generation_summary
+from batch_generation.batch_analysis_summary import generate_batch_analysis_summary_table
+from batch_generation.batch_generation_summary import generate_batch_generation_summary
 from .batch_base import BatchBase
 
 class FineTuneBatch(BatchBase):

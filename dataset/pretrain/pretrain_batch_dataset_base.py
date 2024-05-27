@@ -1,6 +1,6 @@
 import os
 import mlx.core as mx
-from batches.dataset.batch_dataset_base import BatchDatasetBase
+from dataset.batch_dataset_base import BatchDatasetBase
 
 class PreTrainBatchDatasetBase(BatchDatasetBase):
     def __init__(self, batch_output_dir, batchfile_prefix):

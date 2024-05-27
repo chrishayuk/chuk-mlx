@@ -1,11 +1,11 @@
 import os
 import time
 import numpy as np
-from batches.bucketing import add_to_buckets, get_batch_from_buckets, merge_small_buckets, split_large_buckets
+from batch_generation.bucketing import add_to_buckets, get_batch_from_buckets, merge_small_buckets, split_large_buckets
 from utils.tokenizer_loader import load_tokenizer
-from batches.sequence_utility import SequenceUtility
-from .batch_generation_summary import generate_batch_generation_summary
-from .batch_analysis_summary import generate_batch_analysis_summary_table
+from batch_generation.sequence_utility import SequenceUtility
+from batch_generation.batch_generation_summary import generate_batch_generation_summary
+from batch_generation.batch_analysis_summary import generate_batch_analysis_summary_table
 
 class BatchBase:
     def __init__(self, tokenizer_name, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries):

@@ -3,7 +3,7 @@ import mlx.core as mx
 import mlx.nn as nn
 from training.trainer import Trainer
 from chuk_loss_function.chuk_loss_function import chukloss
-from batches.dataset.finetune_batch_dataset import FineTuneBatchDataset
+from dataset.finetune_batch_dataset import FineTuneBatchDataset
 from utils.training_config_loader import load_training_config
 from models.model_loader import load_model_and_tokenizer
 from utils.optimizer_loader import load_optimizer

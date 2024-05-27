@@ -1,5 +1,5 @@
 import argparse
-from batches.llama_finetune_batch import LLaMAFineTuneBatch
+from batch_generation.llama_finetune_batch import LLaMAFineTuneBatch
 
 def main():
     # set argument parser

@@ -1,6 +1,6 @@
 import argparse
 import numpy as np
-from batches.calculate_batch_memory import calculate_memory_per_batch, format_memory_size
+from batch_generation.calculate_batch_memory import calculate_memory_per_batch, format_memory_size
 
 def main():
     parser = argparse.ArgumentParser(description='Calculate estimated memory usage per batch and across multiple batches, or calculate required batches for a specified number of tokens.')

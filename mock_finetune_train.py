@@ -1,4 +1,4 @@
-from batches.dataset.mock_finetune_batch_dataset import MockFineTuneBatchDataset
+from dataset.mock_finetune_batch_dataset import MockFineTuneBatchDataset
 from chuk_loss_function.mock_loss_function import mock_value_and_grad, mockloss
 from chuk_models.mock_model import MockModel
 from chuk_optimizers.mock_optimizer import MockOptimizer
