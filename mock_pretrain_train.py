@@ -1,7 +1,7 @@
 from dataset.pretrain.mock_pretrain_batch_dataset import MockPreTrainBatchDataset
-from chuk_loss_function.mock_loss_function import mock_value_and_grad, mockloss
-from chuk_models.mock_model import MockModel
-from chuk_optimizers.mock_optimizer import MockOptimizer
+from models.architectures.mock.mock_loss_function import mock_value_and_grad, mockloss
+from models.architectures.mock.mock_model import MockModel
+from models.architectures.mock.mock_optimizer import MockOptimizer
 from training.trainer import Trainer
 
 # Import the tokenizer, assuming it's required for the new Trainer structure

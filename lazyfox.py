@@ -1,11 +1,11 @@
-from utils.tokenizer_loader import load_tokenizer
-from training.trainer import Trainer
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
+from utils.tokenizer_loader import load_tokenizer
+from training.trainer import Trainer
 from dataset.pretrain.pretrain_batch_dataset import PreTrainBatchDataset
-from chuk_loss_function.lazyfox_loss_function import chukloss
-from chuk_models.simple_language_model import SimpleLanguageModel
+from models.architectures.lazyfox.lazyfox_loss_function import chukloss
+from models.architectures.lazyfox.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
 
 # Settings
