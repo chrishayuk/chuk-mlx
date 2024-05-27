@@ -1,9 +1,10 @@
 import mlx.core as mx
 import mlx.nn as nn
+from models.architectures.gemma.rms import RMSNorm
+from models.architectures.gemma.transformer_layer import TransformerLayer
 from models.model_config import ModelConfig
-from models.architectures.llama.llama_layer import LlamaLayer
   
-class LlamaModel(nn.Module):
+class GemmaModel(nn.Module):
     def __init__(self, config: ModelConfig):
         # initialize
         super().__init__()
@@ -21,11 +22,11 @@ class LlamaModel(nn.Module):
         # now we create the layers 
         self.layers = [
             # create a llama layer for each hidden layer
-            LlamaLayer(config=config) for _ in range(config.num_hidden_layers)
+            TransformerLayer(config=config) for _ in range(config.num_hidden_layers)
         ]
 
         # set the normalization layer as using RMS normalization
-        self.norm = nn.RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        self.norm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
     def __call__(
         self,
@@ -34,6 +35,9 @@ class LlamaModel(nn.Module):
     ):
         # perform a forward pass on the embeddings layer
         h = self.embed_tokens(inputs)
+
+        # NOTE: This is different from llama models
+        h = h * (self.args.hidden_size**0.5)
 
         mask = None
         if h.shape[1] > 1:

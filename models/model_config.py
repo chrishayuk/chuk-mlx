@@ -4,20 +4,28 @@ from typing import Dict, List, Optional, Union
 from pathlib import Path
 
 class ModelConfig(BaseModel):
+    # set the architexture
     architectures: Optional[List[str]]
     #attention_dropout: Optional[float]
+
+    # special tokens
     bos_token_id: Optional[int]
     eos_token_id: Optional[int]
+
+    # hidden layers
     hidden_act: str
     hidden_size: int
+    num_hidden_layers: int
     #initializer_range: Optional[float]
     intermediate_size: int
     #model_type: Optional[str]
+
+    # tie word embeddings to layers
     tie_word_embeddings: Optional[bool] = True
 
     # attention settings
     num_attention_heads: Optional[int] = None
-    num_hidden_layers: int
+    head_dim: Optional[int] = None
     num_key_value_heads: Optional[int] = None
     attention_bias: Optional[bool] = False
     rms_norm_eps: Optional[float] = None
