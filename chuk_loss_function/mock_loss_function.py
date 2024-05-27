@@ -1,31 +1,32 @@
 import numpy as np
 
 def mockloss(model, inputs, targets, lengths):
-    inputs = np.array(inputs, dtype=np.int32)  # Ensure inputs are integers for embedding lookup
+    inputs = np.array(inputs, dtype=np.int32) 
     targets = np.array(targets, dtype=np.float32)
     lengths = np.array(lengths, dtype=np.int32)
-    
+
     logits = model(inputs)
     
+    # Apply softmax to logits to get probabilities
+    exp_logits = np.exp(logits - np.max(logits, axis=-1, keepdims=True))
+    probabilities = exp_logits / np.sum(exp_logits, axis=-1, keepdims=True)
+    
     # Ensure logits are in a valid range to avoid NaNs in log
-    logits = np.clip(logits, 1e-8, 1.0)
+    probabilities = np.clip(probabilities, 1e-8, 1.0)
     
     length_mask = (np.arange(inputs.shape[1])[None, :] < lengths[:, None]).astype(bool)
     length_mask = length_mask[..., None]
     
-    ce = -np.log(logits) * targets[..., None]
+    ce = -np.log(probabilities) * targets[..., None]
     ce = ce * length_mask
-    
+
     # Check for NaN values in the loss components
     if np.isnan(ce).any():
-        print("NaN detected in cross-entropy loss components.")
-        print("Logits:", logits)
-        print("Targets:", targets)
-        print("Cross-entropy components:", ce)
         return (float('nan'), 0)
-    
+
     ntoks = length_mask.sum().item()
     ce = ce.sum() / ntoks
+    
     return (float(ce), int(ntoks))
 
 

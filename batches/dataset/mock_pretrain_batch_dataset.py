@@ -24,7 +24,9 @@ class MockPreTrainBatchDataset:
             # input tensor
             input_tensor = np.random.randint(0, 100, (self.batch_size, self.seq_length))
             target_tensor = np.random.randint(0, 100, (self.batch_size, self.seq_length))
-            lengths = np.random.randint(1, self.seq_length + 1, (self.batch_size,))
+            
+            # generate lengths tensor with the same shape as input_tensor
+            lengths = np.full((self.batch_size, self.seq_length), self.seq_length)
 
             # batch file and path
             batch_file = f"{self.batchfile_prefix}_{i}.npz"
