@@ -1,7 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 from models.model_config import ModelConfig
-from models.architectures.llama.llama_layer import LlamaLayer
+from models.architectures.llama.transformer_layer import TransformerLayer
   
 class LlamaModel(nn.Module):
     def __init__(self, config: ModelConfig):
@@ -20,8 +20,8 @@ class LlamaModel(nn.Module):
 
         # now we create the layers 
         self.layers = [
-            # create a llama layer for each hidden layer
-            LlamaLayer(config=config) for _ in range(config.num_hidden_layers)
+            # create a transformer layer for each hidden layer
+            TransformerLayer(config=config) for _ in range(config.num_hidden_layers)
         ]
 
         # set the normalization layer as using RMS normalization

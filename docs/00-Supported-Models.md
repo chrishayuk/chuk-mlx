@@ -22,9 +22,20 @@ Not currently working
 - ibm/labradorite-13b
 - ibm-granite/granite-3b-code-instruct
 - ibm-granite/granite-8b-code-instruct
+
+TODO: Need to test these
+- ibm-granite/granite-20b-code-instruct
 - ibm-granite/granite-34b-code-instruct
 
 ## Gemma Models
-Not currently working
+The following Google Gemma models have been tested and are supported
 
-- google/gemma-2b
+- google/gemma-1.1-2b
+- google/gemma-1.1-2b-it
+- google/gemma-1.1-7b-it
+
+TODO: CodeGemma
+
+## Phi Models
+## Falcon Models
+## Aya Models
