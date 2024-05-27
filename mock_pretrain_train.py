@@ -1,4 +1,4 @@
-from batches.dataset.mock_pretrain_batch_dataset import MockPreTrainBatchDataset
+from batches.dataset.pretrain.mock_pretrain_batch_dataset import MockPreTrainBatchDataset
 from chuk_loss_function.mock_loss_function import mock_value_and_grad, mockloss
 from chuk_models.mock_model import MockModel
 from chuk_optimizers.mock_optimizer import MockOptimizer
@@ -17,7 +17,7 @@ output_dir = './output/mock_pretrain'
 checkpoint_output_dir = f'{output_dir}/checkpoints'
 batchfile_prefix = 'batch'
 num_batches = 100
-batch_size = 32
+batch_size = 2
 seq_length = 50
 
 # TODO: we do need a mock tokenizer

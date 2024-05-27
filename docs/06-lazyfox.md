@@ -23,7 +23,7 @@ This section shows how to generate batches for training the lazyfox model.
 To generate the batchfiles for the inputs then run the following.
 
 ```bash
-python batch_generator_pretrain.py --input_files ./sample_data/lazyfox_train.jsonl --tokenizer lazyfox_tokenizer --output_directory ./output/lazyfox/batches --file_prefix lazyfox --max_sequence_length 16 --batch_size 1024
+python batch_generator_pretrain.py --input_files ./sample_data/lazyfox_train.jsonl --tokenizer lazyfox_tokenizer --output_directory ./output/lazyfox/batches --file_prefix lazyfox --max_sequence_length 16 --batch_size 1
 ```
 
 ### Generating the target batchfiles
@@ -49,13 +49,7 @@ The following allows you to perform a more detailed analysis of the generated ba
 to run this against the generated input batch, you can run:
 
 ```bash
-python batch_analyzer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001.npy --tokenizer lazyfox_tokenizer
-```
-
-if you wish to run this against the target batch you can run
-
-```bash
-python batch_analyzer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001_target.npy --tokenizer lazyfox_tokenizer
+python batch_analyzer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001.npz --tokenizer lazyfox_tokenizer
 ```
 
 #### Batch Viewer
@@ -64,11 +58,11 @@ The following allows you to view the generated batches.
 to run this against the generated input batch, you can run:
 
 ```bash
-python batch_viewer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001.npy --tokenizer lazyfox_tokenizer
+python batch_viewer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001.npz --tokenizer lazyfox_tokenizer
 ```
 
-if you wish to run this against the target batch you can run
+# Execute Lazy Fox
 
 ```bash
-python batch_viewer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001_target.npy --tokenizer lazyfox_tokenizer
+python lazyfox.py
 ```

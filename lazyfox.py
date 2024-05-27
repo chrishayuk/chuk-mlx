@@ -3,7 +3,7 @@ from training.trainer import Trainer
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
-from batches.dataset.pretrain_batch_dataset import PreTrainBatchDataset
+from batches.dataset.pretrain.pretrain_batch_dataset import PreTrainBatchDataset
 from chuk_loss_function.lazyfox_loss_function import chukloss
 from chuk_models.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
@@ -13,8 +13,6 @@ input_files = ['./sample_data/lazyfox_train.jsonl']
 output_dir = './output/lazyfox'
 batch_output_dir = f'{output_dir}/batches'
 batchfile_prefix = 'lazyfox'
-max_sequence_length = 16
-batch_size = 1024
 
 # Load tokenizer and define vocabulary size
 tokenizer_name = 'lazyfox_tokenizer'
@@ -77,14 +75,22 @@ print("Starting Training\n")
 trainer.train(num_epochs, batch_dataset)
 print("\n\nCompleted Training\n")
 
+#################
 # Test the model
+#################
+
+# tokenize
 input_sequence = 'the quick brown'
-input_indices = tokenizer.build_inputs_with_special_tokens(tokenizer.convert_tokens_to_ids(tokenizer.tokenize(input_sequence)))
+input_indices = tokenizer.encode(input_sequence, add_special_tokens=False)
 input_tensor = mx.array([input_indices])
 
+# forward pass
 output = model(input_tensor)
-predicted_index = mx.argmax(output[:, -1, :], axis=-1).item()
-predicted_word = tokenizer.convert_ids_to_tokens([predicted_index])[0]
 
+# get prediction
+predicted_index = mx.argmax(output[:, -1, :], axis=-1).item()
+predicted_word = tokenizer.decode([predicted_index])
+
+# show prediction
 print(f"Input sequence: {input_sequence}")
 print(f"Predicted next word: {predicted_word}")

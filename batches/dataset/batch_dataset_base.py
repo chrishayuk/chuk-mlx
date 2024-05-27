@@ -1,3 +1,4 @@
+import os
 class BatchDatasetBase:
     def __init__(self):
         # initialize
@@ -17,8 +18,15 @@ class BatchDatasetBase:
         raise NotImplementedError
 
     def _load_batch_files(self):
-        # not implemented, must be implemented by the subclass
-        raise NotImplementedError
+        # loop through the dir
+        for filename in os.listdir(self.batch_output_dir):
+            # check for a batch file
+            if filename.startswith(self.batchfile_prefix) and filename.endswith(".npz"):
+                # add it
+                self.batch_files.append(filename)
+
+        # sort
+        self.batch_files.sort()
 
     def __iter__(self):
         self.current_index = 0

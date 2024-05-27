@@ -17,6 +17,7 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
+1 - Update Lazyfox to use BOS and EOS to improve batching
 1 - Models
     - Test new version of mistral
 2 - Perform a light fine tune, with a inference load using Mistral
@@ -36,6 +37,7 @@ TODO
 1 - Memory Calculator
 4 - Refactor and Fix Lazyfox
 5 - Refactor and Fix Pretrain
+6 - fix batch analyzer and viewer to show input and target tensors
 
 Calvin Run (no lora, 3b code)
 402/403 [37:56<00:05,  5.66s/batch, Batch Loss=0.774, Batch Tokens=64, Batch Time=5.814s]

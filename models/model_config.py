@@ -5,7 +5,7 @@ from pathlib import Path
 
 class ModelConfig(BaseModel):
     # set the architexture
-    architectures: Optional[List[str]]
+    architectures: Optional[List[str]] = None
     #attention_dropout: Optional[float]
 
     # special tokens

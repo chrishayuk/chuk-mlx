@@ -17,9 +17,9 @@ class BatchProcessor:
         self.warmup_steps = warmup_steps
 
     def process_batch(self, batch, batch_index, iteration_count):
-        batch_start_time = time.time()
+            batch_start_time = time.time()
 
-        try:
+        #try:
             logger.debug(f"Starting to process batch {batch_index}")
 
             expected_tokens = 0
@@ -33,11 +33,18 @@ class BatchProcessor:
                 # load the lengths
                 lengths = mx.array(lengths)
 
-                # calculate the max length
-                max_length = mx.max(lengths, axis=1, keepdims=True)
+                if lengths.ndim > 1:
+                    # If lengths has more than 1 dimension, specify axis=1
+                    max_length = mx.max(lengths, axis=1, keepdims=True)
 
-                # reshape
-                lengths = mx.reshape(mx.max(lengths, axis=1, keepdims=True), (-1, 1))
+                    # reshape
+                    lengths = mx.reshape(mx.max(lengths, axis=1, keepdims=True), (-1, 1))
+                else:
+                    # If lengths has only 1 dimension, no need to specify axis
+                    max_length = mx.max(lengths)
+
+                    # reshape
+                    lengths = mx.reshape(max_length, (1,))
 
                 # load the input and target tensor
                 input_tensor = mx.array(input_tensor)
@@ -91,15 +98,15 @@ class BatchProcessor:
                 "lr_before_update": lr_before_update
             }
 
-        except Exception as e:
-            # error
-            logger.error(f"Error in batch {batch_index}: {e}")
+        # except Exception as e:
+        #     # error
+        #     logger.error(f"Error in batch {batch_index}: {e}")
 
-            # return the stats
-            return {
-                "loss": 0,
-                "ntoks": 0,
-                "expected_tokens": expected_tokens,
-                "batch_time": time.time() - batch_start_time,
-                "lr_before_update": self.optimizer.learning_rate
-            }
+        #     # return the stats
+        #     return {
+        #         "loss": 0,
+        #         "ntoks": 0,
+        #         "expected_tokens": expected_tokens,
+        #         "batch_time": time.time() - batch_start_time,
+        #         "lr_before_update": self.optimizer.learning_rate
+        #     }
