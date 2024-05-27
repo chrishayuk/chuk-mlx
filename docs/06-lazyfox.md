@@ -62,7 +62,14 @@ python batch_viewer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001.np
 ```
 
 # Execute Lazy Fox
+You can perform a pretrain of lazyfox using the lazyfox script
 
 ```bash
 python lazyfox.py
+```
+
+or you can use the generic pretrain script
+
+```bash
+python pretrain.py --config ./training_config/pretrain/lazyfox.yaml
 ```

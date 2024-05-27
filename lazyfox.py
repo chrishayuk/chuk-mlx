@@ -39,6 +39,11 @@ config_settings = {
     "max_position_embeddings": vocab_size  # Maximum sequence length
 }
 
+print(vocab_size)
+print(bos_token_id)
+print(eos_token_id)
+print('blah')
+
 # Load the model config
 model_config = ModelConfig.from_dict(config_settings)
 
