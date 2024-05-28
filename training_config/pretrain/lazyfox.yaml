@@ -17,7 +17,7 @@ checkpoint:
 
 training:
   num_epochs: 50
-  total_iterations: 100000
+  total_iterations: 5000
   loss_function: models.architectures.lazyfox.lazyfox_loss_function.chukloss
 
 batch:
