@@ -1,3 +1,5 @@
+import os
+import shutil
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
@@ -8,11 +10,21 @@ from models.architectures.lazyfox.lazyfox_loss_function import chukloss
 from models.architectures.lazyfox.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
 
+def clear_checkpoint_directory(output_directory):
+    """Clear the output directory."""
+    if os.path.exists(output_directory):
+        shutil.rmtree(output_directory)
+    os.makedirs(output_directory)
+
 # Settings
 input_files = ['./sample_data/lazyfox_train.jsonl']
 output_dir = './output/lazyfox'
 batch_output_dir = f'{output_dir}/batches'
+checkpoint_output_dir = f'{output_dir}/checkpoints'
 batchfile_prefix = 'lazyfox'
+
+# Clear the output directory
+clear_checkpoint_directory(checkpoint_output_dir)
 
 # Load tokenizer and define vocabulary size
 tokenizer_name = 'lazyfox_tokenizer'
@@ -67,7 +79,7 @@ trainer = Trainer(
     optimizer=optimizer,
     loss_function=loss_function,
     progress_interval=10,
-    checkpoint_dir=output_dir,
+    checkpoint_dir=checkpoint_output_dir,
     checkpoint_freq=50,
     warmup_steps=0  # Adjust warmup steps if needed
 )

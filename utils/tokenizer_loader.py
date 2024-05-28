@@ -9,6 +9,7 @@ def load_tokenizer(tokenizer_name):
     """
     try:
         # Attempt to import the tokenizer module from the 'chuk_tokenizers' directory
+        tokenizer_name = tokenizer_name.strip("_tokenizer")
         tokenizer_module = importlib.import_module(f"chuk_tokenizers.{tokenizer_name}_tokenizer")
         
         # If the module exists and has a class named CustomTokenizer, create an instance

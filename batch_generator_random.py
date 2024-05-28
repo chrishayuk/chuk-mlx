@@ -2,6 +2,13 @@ import argparse
 import time
 import numpy as np
 import os
+import shutil
+
+def clear_output_directory(output_directory):
+    """Clear the output directory."""
+    if os.path.exists(output_directory):
+        shutil.rmtree(output_directory)
+    os.makedirs(output_directory)
 
 def generate_npz_batches(output_directory, file_prefix, max_sequence_length=8192, batch_size=1024, num_batches=1, vocab_size=32000):
     """
@@ -45,6 +52,9 @@ def main():
 
     # Parse the arguments
     args = parser.parse_args()
+
+    # Clear the output directory
+    clear_output_directory(args.output_directory)
 
     # Record the start time
     start_time = time.time()

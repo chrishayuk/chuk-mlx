@@ -1,4 +1,6 @@
 import argparse
+import os
+import shutil
 import mlx.core as mx
 import mlx.nn as nn
 from models.loss_function_loader import load_loss_function
@@ -48,6 +50,12 @@ def load_batch_data(batch_config):
     """Load the batch data."""
     return PreTrainBatchDataset(batch_config['output_dir'], batch_config['file_prefix'])
 
+def clear_output_checkpoints(checkpoint_dir):
+    """Clear the output checkpoints directory."""
+    if os.path.exists(checkpoint_dir):
+        shutil.rmtree(checkpoint_dir)
+    os.makedirs(checkpoint_dir)
+
 def main():
     parser = argparse.ArgumentParser(description="Pre-train a model using specified configuration.")
     parser.add_argument('--config', type=str, required=True, help='Path to the YAML configuration file.')
@@ -60,7 +68,10 @@ def main():
     except ValueError as e:
         logger.error(f"Configuration error: {e}")
         return
-    
+
+    # Clear the output checkpoints directory
+    clear_output_checkpoints(checkpoint_config['output_dir'])
+
     try:
         model, tokenizer = load_model_and_tokenizer(model_config['name'], load_weights=False)
     except Exception as e:

@@ -73,3 +73,9 @@ or you can use the generic pretrain script
 ```bash
 python pretrain.py --config ./training_config/pretrain/lazyfox.yaml
 ```
+
+# infer lazy fox (pre-train)
+
+```bash
+python infer.py --model lazyfox --checkpoint ./output/lazyfox/checkpoints/checkpoint_epoch_50.npz --prompt "the quick brown"
+```

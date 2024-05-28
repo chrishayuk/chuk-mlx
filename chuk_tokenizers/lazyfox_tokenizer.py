@@ -50,22 +50,17 @@ class CustomTokenizer(PreTrainedTokenizer):
         return self.vocab.get(token, self.vocab.get('<unk>'))
     
     def _convert_id_to_token(self, index):
-        if isinstance(index, list):
-            return [self._convert_id_to_token(idx) for idx in index]
-        else:
-            return {idx: tok for tok, idx in self.vocab.items()}.get(index, '<unk>')
+        return {idx: tok for tok, idx in self.vocab.items()}.get(index, '<unk>')
 
     def convert_ids_to_tokens(self, ids, skip_special_tokens=False):
+        # Ensure ids are always handled as a list
         if isinstance(ids, int):
-            ids = [ids]  # Ensure ids are always handled as a list
-        return [self._convert_id_to_token(id) for id in ids if not (skip_special_tokens and id in [self.vocab['<pad>'], self.vocab['<unk>'], self.vocab['<bos>'], self.vocab['<eos>']])]
+            ids = [ids]
+        return [self._convert_id_to_token(id) for id in ids if not (skip_special_tokens and id in [self.pad_token_id, self.unk_token_id, self.bos_token_id, self.eos_token_id])]
 
     def convert_tokens_to_ids(self, tokens):
         if isinstance(tokens, str):
-            # Ensure tokens are always handled as a list
             tokens = [tokens]
-        
-        # Convert the tokens to a list of ids
         return [self._convert_token_to_id(token) for token in tokens]
 
     def save_vocabulary(self, save_directory):
