@@ -10,5 +10,5 @@ python train.py --config "./training_config/finetune/calvin-mistral-7b-config.ya
 
 # calvin infer
 ```bash
-python infer.py --model "ibm-granite/granite-3b-code-instruct" --checkpoint "./output/checkpoints/checkpoint_epoch_1.npz"
+python infer.py --model "ibm-granite/granite-3b-code-instruct" --checkpoint "./output/calvin/checkpoints/checkpoint_epoch_1.npz"
 ```
