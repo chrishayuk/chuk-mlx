@@ -57,9 +57,6 @@ class BatchProcessor:
             # get the learning rate before we do the update
             lr_before_update = float(current_lr) if isinstance(current_lr, (int, float)) else current_lr.item()
 
-            # reshape the lengths
-            lengths = lengths.reshape(-1, 1)
-
             # Calculate loss
             (lvalue, ntoks), grad = self.loss_function(self.model, input_tensor, target_tensor, lengths)
 
