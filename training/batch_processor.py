@@ -2,7 +2,6 @@ import time
 import logging
 import mlx.core as mx
 from training.trainer_utils import schedule_learning_rate
-import numpy as np
 
 # Set the logger
 logger = logging.getLogger(__name__)
@@ -57,12 +56,6 @@ class BatchProcessor:
 
             # get the learning rate before we do the update
             lr_before_update = float(current_lr) if isinstance(current_lr, (int, float)) else current_lr.item()
-
-            # check we have lengths
-            if lengths is None:
-                # no lengths, so calculate them
-                lengths = mx.array([mx.sum(tensor != self.tokenizer.pad_token_id, axis=-1) for tensor in input_tensors])
-                lengths = mx.reshape(lengths, (-1,))
 
             # reshape the lengths
             lengths = lengths.reshape(-1, 1)
