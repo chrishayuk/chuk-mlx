@@ -5,7 +5,7 @@ import mlx.core as mx
 import mlx.nn as nn
 from models.loss_function_loader import load_loss_function
 from training.trainer import Trainer
-from dataset.pretrain_batch_dataset import PreTrainBatchDataset
+from dataset.train_batch_dataset import TrainBatchDataset
 from utils.training_config_loader import load_training_config
 from models.model_loader import load_model_and_tokenizer
 from utils.optimizer_loader import load_optimizer
@@ -48,7 +48,7 @@ def create_trainer_instance(model, tokenizer, optimizer_config, checkpoint_confi
 
 def load_batch_data(batch_config):
     """Load the batch data."""
-    return PreTrainBatchDataset(batch_config['output_dir'], batch_config['file_prefix'])
+    return TrainBatchDataset(batch_config['output_dir'], batch_config['file_prefix'])
 
 def clear_output_checkpoints(checkpoint_dir):
     """Clear the output checkpoints directory."""

@@ -5,7 +5,7 @@ import mlx.nn as nn
 import mlx.optimizers as optim
 from utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
-from dataset.pretrain_batch_dataset import PreTrainBatchDataset
+from dataset.train_batch_dataset import TrainBatchDataset
 from models.architectures.lazyfox.lazyfox_loss_function import chukloss
 from models.architectures.lazyfox.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
@@ -70,7 +70,7 @@ optimizer = optim.Adam(learning_rate=learning_rate)
 loss_function = nn.value_and_grad(model, chukloss)
 
 # Load the batch data
-batch_dataset = PreTrainBatchDataset(batch_output_dir, batchfile_prefix)
+batch_dataset = TrainBatchDataset(batch_output_dir, batchfile_prefix)
 
 # Create an instance of the Trainer
 trainer = Trainer(
