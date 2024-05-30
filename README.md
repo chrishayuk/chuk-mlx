@@ -18,9 +18,11 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 TODO
 --------
 1 - Attempt Fine tuning of something like calvinscale (fixup dataset)
-2 - refactor finetune and pretrain batch dataset
-3 - grouping and bucketing
-4 - Revisit batching (bos,eos,pad), batch sizes and bucketing
+2 - refactor finetune and pretrain batch dataset code
+3 - yield batches rather than keep in memory
+4 - validation datasets etc
+5 - grouping and bucketing
+6 - Revisit batching (bos,eos,pad), batch sizes and bucketing
 5 - find optimal batch sizes
 2 - refactor attention layer to attention block
 5 - Attempt pretrain of something like tiny shakespeare, fineweb or tiny stories
