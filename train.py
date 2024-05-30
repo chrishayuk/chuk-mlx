@@ -3,8 +3,9 @@ import os
 import shutil
 import mlx.core as mx
 import mlx.nn as nn
-from models.loss_function_loader import load_loss_function
 from training.trainer import Trainer
+from models.chuk_loss_function import chukloss
+from models.loss_function_loader import load_loss_function
 from dataset.train_batch_dataset import TrainBatchDataset
 from utils.training_config_loader import load_training_config
 from models.model_loader import load_model_and_tokenizer
@@ -24,8 +25,10 @@ def load_configurations(config_file: str):
         if section not in config:
             raise ValueError(f"Configuration file missing '{section}' section")
     
+    # Set default loss function if not specified
     if 'loss_function' not in config['training']:
-        raise ValueError("Training configuration missing 'loss_function' entry")
+        logger.info("No loss function specified in configuration, using default 'chukloss'.")
+        config['training']['loss_function'] = 'chukloss'
     
     return config['model'], config['optimizer'], config['checkpoint'], config['training'], config['batch']
 
@@ -33,8 +36,13 @@ def create_trainer_instance(model, tokenizer, optimizer_config, checkpoint_confi
     """Create an instance of the Trainer."""
     total_iterations = training_config.get('total_iterations', 1000)
     optimizer = load_optimizer(optimizer_config, total_iterations)
-    chukloss = load_loss_function(training_config['loss_function'])
-    loss_function = nn.value_and_grad(model, chukloss)
+
+    # Load the specified loss function
+    if training_config['loss_function'] == 'chukloss':
+        loss_function = nn.value_and_grad(model, chukloss)
+    else:
+        loss_function = nn.value_and_grad(model, load_loss_function(training_config['loss_function']))
+
     lr_schedule_warmup_steps = int(optimizer_config['lr_schedule'].get('warmup_steps', 0))
     
     trainer = Trainer(
@@ -57,7 +65,7 @@ def clear_output_checkpoints(checkpoint_dir):
     os.makedirs(checkpoint_dir)
 
 def main():
-    parser = argparse.ArgumentParser(description="Pre-train a model using specified configuration.")
+    parser = argparse.ArgumentParser(description="Train a model using specified configuration.")
     parser.add_argument('--config', type=str, required=True, help='Path to the YAML configuration file.')
     parser.add_argument('--iterations', type=int, help='Override the total number of iterations.')
     parser.add_argument('--epochs', type=int, help='Override the number of epochs.')
@@ -73,7 +81,7 @@ def main():
     clear_output_checkpoints(checkpoint_config['output_dir'])
 
     try:
-        model, tokenizer = load_model_and_tokenizer(model_config['name'], load_weights=False)
+        model, tokenizer = load_model_and_tokenizer(model_config['name'])
     except Exception as e:
         logger.error(f"Error loading model and tokenizer: {e}")
         return

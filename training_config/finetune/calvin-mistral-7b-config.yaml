@@ -3,8 +3,6 @@
 model:
   # model name
   name: "mistralai/Mistral-7B-Instruct-v0.2"
-  # Uncomment the following line to use a different model
-  # name: "ibm/merlinite-7b"
 
 # optimizer settings
 optimizer:
@@ -26,6 +24,7 @@ checkpoint:
 training:
   num_epochs: 1
   total_iterations: 2000
+  loss_function: models.chuk_loss_function.chukloss
 
 # batches
 batch:

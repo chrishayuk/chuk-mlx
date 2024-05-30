@@ -1,10 +1,7 @@
 # Fine-tuning 
 
 model:
-  # model name
-  name: "ibm-granite/granite-3b-code-instruct"
-  # Uncomment the following line to use a different model
-  # name: "ibm/merlinite-7b"
+  name: ibm-granite/granite-3b-code-instruct
 
 # optimizer settings
 optimizer:
@@ -26,6 +23,7 @@ checkpoint:
 training:
   num_epochs: 1
   total_iterations: 2000
+  loss_function: models.chuk_loss_function.chukloss
 
 # batches
 batch:
