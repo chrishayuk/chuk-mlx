@@ -1,6 +1,5 @@
 import os
 import mlx.core as mx
-import numpy as np
 
 class MockFineTuneBatchDataset:
     def __init__(self, batch_output_dir, batchfile_prefix, num_batches, batch_size, seq_length, sep_token_id=99):

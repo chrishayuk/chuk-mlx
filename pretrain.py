@@ -5,7 +5,7 @@ import mlx.core as mx
 import mlx.nn as nn
 from models.loss_function_loader import load_loss_function
 from training.trainer import Trainer
-from dataset.pretrain.pretrain_batch_dataset import PreTrainBatchDataset
+from dataset.pretrain_batch_dataset import PreTrainBatchDataset
 from utils.training_config_loader import load_training_config
 from models.model_loader import load_model_and_tokenizer
 from utils.optimizer_loader import load_optimizer
