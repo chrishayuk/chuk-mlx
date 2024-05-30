@@ -17,11 +17,10 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
-2 - refactor train with concatenation
-3 - yield batches rather than keep in memory
-1 - Attempt Fine tuning of something like calvinscale (fixup dataset)
-4 - validation datasets etc
 5 - grouping and bucketing
+3 - yield batches rather than keep in memory
+1 - Attempt Fine tuning of something like calvinscale
+4 - validation datasets etc
 6 - Revisit batching (bos,eos,pad), batch sizes and bucketing
 5 - find optimal batch sizes
 2 - refactor attention layer to attention block
@@ -29,7 +28,6 @@ TODO
 1 - Models
     - Test new version of mistral
 3 - Training
-    - Cleanup and Optimize trainer
     - Consider splitting input and target files for finetune
     - Large batches not performing as well as small (eos?)
     - validation etc batches

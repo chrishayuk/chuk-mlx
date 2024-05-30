@@ -2,7 +2,6 @@ import time
 import logging
 import mlx.core as mx
 from training.trainer_utils import schedule_learning_rate
-from .batch_processor_utils import process_non_concatenated_batch, pad_sequences
 import numpy as np
 
 # Set the logger
@@ -17,11 +16,11 @@ class BatchProcessor:
         self.warmup_steps = warmup_steps
 
     def process_batch(self, batch, batch_index, iteration_count):
-            batch_start_time = time.time()
+        # set the batch timer
+        batch_start_time = time.time()
 
-        #try:
-            logger.debug(f"Starting to process batch {batch_index}")
-
+        try:
+            # clear token counts etx
             expected_tokens = 0
             lengths = None
 
@@ -52,17 +51,6 @@ class BatchProcessor:
 
                 # calculate expected tokens
                 expected_tokens = input_tensor.shape[0]
-
-            else:
-                input_tensors, target_tensors = process_non_concatenated_batch(batch, batch_index, self.tokenizer)
-                max_length = max(tensor.shape[1] for tensor in input_tensors)
-                input_tensors = pad_sequences(input_tensors, max_length, self.tokenizer.pad_token_id)
-                target_tensors = pad_sequences(target_tensors, max_length, self.tokenizer.pad_token_id)
-
-                input_tensor = mx.stack([mx.array(tensor) for tensor in input_tensors])
-                target_tensor = mx.stack([mx.array(tensor) for tensor in target_tensors])
-
-                expected_tokens = sum(tensor.shape[0] for tensor in input_tensors)
 
             # get the current learning rate
             current_lr = schedule_learning_rate(self.optimizer, iteration_count, self.warmup_steps)
@@ -98,15 +86,15 @@ class BatchProcessor:
                 "lr_before_update": lr_before_update
             }
 
-        # except Exception as e:
-        #     # error
-        #     logger.error(f"Error in batch {batch_index}: {e}")
+        except Exception as e:
+            # error
+            logger.error(f"Error in batch {batch_index}: {e}")
 
-        #     # return the stats
-        #     return {
-        #         "loss": 0,
-        #         "ntoks": 0,
-        #         "expected_tokens": expected_tokens,
-        #         "batch_time": time.time() - batch_start_time,
-        #         "lr_before_update": self.optimizer.learning_rate
-        #     }
+            # return the stats
+            return {
+                "loss": 0,
+                "ntoks": 0,
+                "expected_tokens": expected_tokens,
+                "batch_time": time.time() - batch_start_time,
+                "lr_before_update": self.optimizer.learning_rate
+            }
