@@ -34,6 +34,7 @@ class EpochProcessor:
         with tqdm(total=num_batches, desc=f"Epoch [{epoch+1}/{num_epochs}]", unit="batch") as batch_progress:
             # loop through each batch in the dataset
             for batch_index, batch in enumerate(batch_dataset, start=1):
+                
                 # check if we have busted number of iterations
                 if num_iterations is not None and iteration_count >= num_iterations:
                     break

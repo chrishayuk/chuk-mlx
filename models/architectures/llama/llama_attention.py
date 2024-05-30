@@ -9,18 +9,28 @@ class LlamaAttention(nn.Module):
         # call the base constructor
         super().__init__()
 
+        # Validate the configuration values
+        if config.hidden_size is None:
+            raise ValueError("hidden_size must be provided in the config.")
+        if config.num_attention_heads is None:
+            raise ValueError("num_attention_heads must be provided in the config.")
+        if config.num_key_value_heads is None:
+            raise ValueError("num_key_value_heads must be provided in the config.")
+
         # set the dimensions
         dimensions = config.hidden_size
-
-        # set the attention heads
         self.n_heads = n_heads = config.num_attention_heads
-
-        # set the KV heads
         self.n_kv_heads = n_kv_heads = config.num_key_value_heads
 
         # dimensions per head is hidden size / heads
         # Use head_dim if provided, otherwise calculate dimensions_per_head
-        dimensions_per_head = config.head_dim if hasattr(config, 'head_dim') else config.hidden_size // n_heads
+        dimensions_per_head = config.head_dim if hasattr(config, 'head_dim') and config.head_dim is not None else config.hidden_size // n_heads
+        
+        # Add a debug print to trace the values
+        #print(f"dimensions: {dimensions}, n_heads: {n_heads}, n_kv_heads: {n_kv_heads}, dimensions_per_head: {dimensions_per_head}")
+
+        if dimensions_per_head is None:
+            raise ValueError("dimensions_per_head could not be determined. Check the configuration.")
 
         # set scale
         self.scale = dimensions_per_head**-0.5

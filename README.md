@@ -17,20 +17,17 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
-1 - Refactor pretrain.py and extract out a training config loader
-2 - Perform a dummy pretrain of a llama model
-3 - Update Lazyfox to use BOS and EOS to improve batching
-4 - Fix Fine Tuning
-5 - Attempt pretrain of something like tiny shakespeare or tiny stories
-6 - Attempt Fine tuning of something like calvinscale
+1 - Attempt Fine tuning of something like calvinscale (fixup dataset)
+2 - refactor finetune and pretrain batch dataset
+3 - grouping and bucketing
+4 - Revisit batching (bos,eos,pad), batch sizes and bucketing
+5 - find optimal batch sizes
+2 - refactor attention layer to attention block
+5 - Attempt pretrain of something like tiny shakespeare, fineweb or tiny stories
 1 - Models
     - Test new version of mistral
-2 - Perform a light fine tune, with a inference load using Mistral
 3 - Training
-    - Clear old batches on generation
-    - Fixed bucketing and merging
-    - Fix tokens per second for batching and duplicates
-    - Optimize trainer
+    - Cleanup and Optimize trainer
     - Consider splitting input and target files for finetune
     - Large batches not performing as well as small (eos?)
     - validation etc batches
@@ -40,6 +37,7 @@ TODO
 2 - Modify model to support bloat16
 1 - Generate large file generator for jsonl
 1 - Memory Calculator
+1 - attempt golden gate claude
 
 Calvin Run (no lora, 3b code)
 402/403 [37:56<00:05,  5.66s/batch, Batch Loss=0.774, Batch Tokens=64, Batch Time=5.814s]

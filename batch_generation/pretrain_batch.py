@@ -106,6 +106,3 @@ def tokenize_and_batch(input_files, tokenizer_name, output_directory, file_prefi
         total_batches += 1
 
     print(f"Total batches processed: {total_batches}")
-
-# Example usage:
-# tokenize_and_batch(['input1.txt', 'input2.txt'], 'tokenizer_name', 'output_dir', 'file_prefix', 128, 32, True)

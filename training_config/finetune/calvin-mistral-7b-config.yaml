@@ -2,14 +2,14 @@
 
 model:
   # model name
-  name: "ibm-granite/granite-3b-code-instruct"
+  name: "mistralai/Mistral-7B-Instruct-v0.2"
   # Uncomment the following line to use a different model
   # name: "ibm/merlinite-7b"
 
 # optimizer settings
 optimizer:
   name: AdamW
-  initial_lr: 1e-5
+  initial_lr: 2e-5
   lr_schedule:
     type: cosine_decay
     warmup_steps: 10

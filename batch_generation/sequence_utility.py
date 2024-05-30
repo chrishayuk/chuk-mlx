@@ -1,4 +1,3 @@
-import pandas
 import numpy as np
 
 class SequenceUtility:
@@ -16,7 +15,7 @@ class SequenceUtility:
         padded_sequence = sequence[:self.max_seq_length]
 
         # Set default padding value if not set
-        pad_token = self.padding_value[0] if isinstance(self.padding_value, list) else self.padding_value or 0
+        pad_token = self.padding_value
 
         # Pad the sequence if it is shorter than max_seq_length
         padding_length = self.max_seq_length - len(padded_sequence)

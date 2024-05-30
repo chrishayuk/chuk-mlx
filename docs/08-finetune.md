@@ -1,6 +1,10 @@
 
 ```bash
-python finetune.py --config "./training_config/finetune/calvin-granite-3b-config.yaml"
+    python finetune.py --config "./training_config/finetune/calvin-granite-3b-config.yaml"
+```
+
+```bash
+python finetune.py --config "./training_config/finetune/calvin-mistral-7b-config.yaml"
 ```
 
 

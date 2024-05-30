@@ -1,5 +1,13 @@
 import argparse
+import os
+import shutil
 from batch_generation.llama_finetune_batch import LLaMAFineTuneBatch
+
+def clear_output_directory(output_directory):
+    """Clear the output directory."""
+    if os.path.exists(output_directory):
+        shutil.rmtree(output_directory)
+    os.makedirs(output_directory)
 
 def main():
     # set argument parser
@@ -15,6 +23,9 @@ def main():
     
     # parse arguments
     args = parser.parse_args()
+
+    # Clear the output directory
+    clear_output_directory(args.output_directory)
     
     # tokenize and batch
     batcher = LLaMAFineTuneBatch(args.tokenizer, args.output_directory, args.file_prefix, args.max_sequence_length, args.batch_size, False)
