@@ -1,11 +1,12 @@
 import os
 import time
-import numpy as np
+import random
 from batch_generation.batch_analysis_summary import generate_batch_analysis_summary_table
 from batch_generation.batch_generation_summary import generate_batch_generation_summary
 from batch_generation.sequence_utility import SequenceUtility
 from utils.tokenizer_loader import load_tokenizer
-from .batch_base import BatchBase
+from batch_generation.batch_base import BatchBase
+from batch_generation.bucketing import add_to_buckets, split_large_buckets, merge_small_buckets, get_batch_from_buckets
 
 class FineTuneBatch(BatchBase):
     def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries):
@@ -15,6 +16,7 @@ class FineTuneBatch(BatchBase):
         self.max_sequence_length = max_sequence_length
         self.batch_size = batch_size
         self.print_summaries = print_summaries
+        self.buckets = {}
 
     def tokenize_line(self, line):
         # Implement the logic to extract input and target sequences from the line
@@ -58,11 +60,6 @@ class FineTuneBatch(BatchBase):
         if not os.path.exists(self.output_directory):
             os.makedirs(self.output_directory)
         
-        # initialize batch variables
-        batch_idx = 0
-        current_batch = []
-        total_batches = 0
-        
         for input_file in input_files:
             try:
                 with open(input_file, 'r') as file:
@@ -71,33 +68,36 @@ class FineTuneBatch(BatchBase):
                         input_tokens, target_tokens = self.tokenize_line(line)
                         
                         if input_tokens is not None and target_tokens is not None:
-                            # add the tokens to the current batch
-                            current_batch.append((input_tokens, target_tokens))
-                        
-                            # check if the current batch is full
-                            if len(current_batch) == self.batch_size:
-                                # construct the file path for the batch
-                                file_path = self.get_batch_file_path(batch_idx)
-
-                                # process the batch
-                                self.process_batch(batch_idx, current_batch, file_path)
-                                
-                                # reset the current batch
-                                current_batch = []
-                                batch_idx += 1
-                                total_batches += 1
+                            # add the tokens to the appropriate bucket
+                            add_to_buckets(self.buckets, input_tokens, target_tokens)
             except (OSError, IOError) as e:
                 print(f"Error reading file {input_file}: {e}")
         
-        # process any remaining samples in the current batch
-        if current_batch:
+        # split large buckets and merge small buckets
+        split_buckets = split_large_buckets(self.buckets, self.batch_size)
+        merged_buckets = merge_small_buckets(split_buckets, self.batch_size)
+        
+        # create a list to store the batches
+        batches = []
+        
+        # process buckets and create batches
+        batch_idx = 0
+        total_batches = 0
+        while True:
+            batch_data = get_batch_from_buckets(merged_buckets, self.batch_size)
+            if batch_data is None:
+                break
+            
             file_path = self.get_batch_file_path(batch_idx)
-            self.process_batch(batch_idx, current_batch, file_path)
+            batches.append((batch_idx, batch_data, file_path))
+            batch_idx += 1
             total_batches += 1
-
+        
+        # shuffle the batches
+        random.shuffle(batches)
+        
+        # process and save the shuffled batches
+        for batch_idx, batch_data, file_path in batches:
+            self.process_batch(batch_idx, batch_data, file_path)
+        
         print(f"Total batches processed: {total_batches}")
-
-# Example usage:
-# tokenizer = load_tokenizer('tokenizer_name')
-# fine_tune_batch = LLaMAFineTuneBatch(tokenizer, 'output_dir', 'file_prefix', 128, 32, True)
-# fine_tune_batch.tokenize_and_batch(['input1.txt', 'input2.txt'])

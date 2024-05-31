@@ -48,8 +48,16 @@ class LLaMAFineTuneBatch(FineTuneBatch):
         input_lengths = [len(input_seq) for input_seq in inputs]
         target_lengths = [len(target_seq) for target_seq in targets]
 
-        # Get sequence utility
-        seq_util = SequenceUtility(max_seq_length=self.max_sequence_length, padding_value=self.tokenizer.pad_token_id)
+        # Check if any of the inputs or targets are empty
+        if not inputs or not targets:
+            print(f"Skipping empty batch: {file_path}")
+            return None, None
+
+        # Determine the maximum sequence length for the current batch
+        max_seq_length = max(max(input_lengths), max(target_lengths))
+
+        # Get sequence utility for both inputs and targets
+        seq_util = SequenceUtility(max_seq_length=max_seq_length, padding_value=self.tokenizer.pad_token_id)
         
         # Pad the inputs and targets
         padded_inputs = seq_util.batch_sequences(inputs)
@@ -61,7 +69,15 @@ class LLaMAFineTuneBatch(FineTuneBatch):
         input_lengths_array = np.array(input_lengths, dtype=np.int32)
         target_lengths_array = np.array(target_lengths, dtype=np.int32)
 
+        # Ensure that the inputs and targets have the same shape
+        assert inputs_array.shape == targets_array.shape, "Inconsistent shapes for inputs and targets"
+
         # Save the batch to a .npz file
-        np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array, input_lengths=input_lengths_array, target_lengths=target_lengths_array)
+        try:
+            np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array, input_lengths=input_lengths_array, target_lengths=target_lengths_array)
+        except Exception as e:
+            print(f"Error saving batch: {file_path}")
+            print(f"Error message: {str(e)}")
+            return None, None
         
         return inputs_array, targets_array

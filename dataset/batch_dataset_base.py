@@ -1,5 +1,8 @@
 import os
 import mlx.core as mx
+import logging
+
+logger = logging.getLogger(__name__)
 
 class BatchDatasetBase:
     def __init__(self, batch_output_dir, batchfile_prefix):
@@ -37,10 +40,16 @@ class BatchDatasetBase:
     def _load_and_cache_tensors(self, batch_file, index):
         # Load the input batch file
         batch_path = os.path.join(self.batch_output_dir, batch_file)
-        batch_data = mx.load(batch_path)
+        
+        try:
+            batch_data = mx.load(batch_path)
+        except Exception as e:
+            logger.error(f"Error loading batch file {batch_file}: {str(e)}")
+            raise
 
         # Ensure that the 'target_tensor' key exists in the target batch
         if 'target_tensor' not in batch_data:
+            logger.error(f"'target_tensor' not found in the file {batch_file}")
             raise KeyError(f"'target_tensor' not found in the file {batch_file}")
 
         # Get the input and target tensors
@@ -69,8 +78,12 @@ class BatchDatasetBase:
         if self.current_index >= self.length:
             raise StopIteration
 
-        # Set the batch data as the data in the current index
-        batch_data = self[self.current_index]
+        try:
+            # Set the batch data as the data in the current index
+            batch_data = self[self.current_index]
+        except Exception as e:
+            logger.error(f"Error retrieving batch data at index {self.current_index}: {str(e)}")
+            raise
 
         # Increment
         self.current_index += 1
