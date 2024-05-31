@@ -17,10 +17,9 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
-1 - Attempt Fine tuning of something like calvinscale
 3 - fix checkpoint start and stopping
+1 - Attempt Fine tuning of something like calvinscale
 4 - validation datasets etc
-5 - grouping and bucketing
 6 - Revisit batching (bos,eos,pad), batch sizes and bucketing
 5 - find optimal batch sizes
 2 - refactor attention layer to attention block
