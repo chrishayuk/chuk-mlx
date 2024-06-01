@@ -28,7 +28,7 @@ class LLaMAFineTuneBatch(FineTuneBatch):
 
         # Extract the instruction and target from the LLaMA format
         instruction = text[inst_start:inst_end].strip()
-        target = text[inst_end + len('[/INST]'):].strip('</s>').strip()
+        target = text[inst_end + len('[/INST]'):].strip()
 
         try:
             # Tokenize the instruction and target
@@ -54,18 +54,33 @@ class LLaMAFineTuneBatch(FineTuneBatch):
             return None, None
 
         # Determine the maximum sequence length for the current batch
-        max_seq_length = max(max(input_lengths), max(target_lengths))
+        max_seq_length = max(max(input_lengths), max(target_lengths)) + 1  # +1 for the EOS token
 
-        # Get sequence utility for both inputs and targets
-        seq_util = SequenceUtility(max_seq_length=max_seq_length, padding_value=self.tokenizer.pad_token_id)
+        # Get sequence utility for inputs and targets
+        seq_util_inputs = SequenceUtility(max_seq_length=max_seq_length, padding_value=0, initial_pad_token=self.tokenizer.pad_token_id)
+        seq_util_targets = SequenceUtility(max_seq_length=max_seq_length, padding_value=0, initial_pad_token=self.tokenizer.pad_token_id)
+
+        # Pad the inputs
+        padded_inputs = seq_util_inputs.batch_sequences(inputs)
         
-        # Pad the inputs and targets
-        padded_inputs = seq_util.batch_sequences(inputs)
-        padded_targets = seq_util.batch_sequences(targets)
+        # Process targets to strip padding and existing EOS, then add a single EOS and pad
+        eos_token_id = self.tokenizer.eos_token_id
+        processed_targets = []
+        for seq in targets:
+            # Strip existing padding and EOS
+            stripped_seq = [token for token in seq if token != eos_token_id and token != 0]
+            # Append a single EOS token
+            stripped_seq.append(eos_token_id)
+            # Pad to the max sequence length
+            if len(stripped_seq) < max_seq_length:
+                padded_target = stripped_seq + [0] * (max_seq_length - len(stripped_seq))
+            else:
+                padded_target = stripped_seq[:max_seq_length]
+            processed_targets.append(padded_target)
         
         # Convert the padded batches to numpy arrays
         inputs_array = np.array(padded_inputs, dtype=np.int32)
-        targets_array = np.array(padded_targets, dtype=np.int32)
+        targets_array = np.array(processed_targets, dtype=np.int32)
         input_lengths_array = np.array(input_lengths, dtype=np.int32)
         target_lengths_array = np.array(target_lengths, dtype=np.int32)
 

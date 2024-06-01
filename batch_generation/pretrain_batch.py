@@ -23,27 +23,38 @@ def get_line_text(line):
     else:  # Plain text format
         return line
 
-def save_batch(batch_data, file_path, max_sequence_length, pad_token_id):
+def save_batch(batch_data, file_path, max_sequence_length, pad_token_id, initial_pad_token_id, eos_token_id):
     # get sequence utility
-    seq_util = SequenceUtility(max_seq_length=max_sequence_length, padding_value=pad_token_id)
-    
+    seq_util = SequenceUtility(max_seq_length=max_sequence_length, padding_value=pad_token_id, initial_pad_token=initial_pad_token_id)
+        
     # pad the batch
     padded_batch = seq_util.batch_sequences(batch_data)
     
+    # Append the EOS token if needed and pad again if required
+    processed_batch = []
+    for seq in padded_batch:
+        stripped_seq = [token for token in seq if token != eos_token_id and token != 0]
+        stripped_seq.append(eos_token_id)
+        if len(stripped_seq) < max_sequence_length:
+            padded_seq = stripped_seq + [0] * (max_sequence_length - len(stripped_seq))
+        else:
+            padded_seq = stripped_seq[:max_sequence_length]
+        processed_batch.append(padded_seq)
+    
     # convert the padded batch to a numpy array
-    batch_data = np.array(padded_batch, dtype=np.int32)
+    batch_data = np.array(processed_batch, dtype=np.int32)
 
     # save the batch to a .npz file
     np.savez(file_path, input_tensor=batch_data)
     
     return batch_data
 
-def process_batch(batch_idx, batch_data, file_path, max_sequence_length, pad_token_id, print_summaries):
+def process_batch(batch_idx, batch_data, file_path, max_sequence_length, pad_token_id, initial_pad_token_id, eos_token_id, print_summaries):
     # start the batch timer
     batch_start_time = time.time()
 
     # save the batch
-    batch_data = save_batch(batch_data, file_path, max_sequence_length, pad_token_id)
+    batch_data = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, initial_pad_token_id, eos_token_id)
 
     # capture batch end time
     batch_end_time = time.time()
@@ -90,7 +101,7 @@ def tokenize_and_batch(input_files, tokenizer_name, output_directory, file_prefi
                         file_path = os.path.join(output_directory, f'{file_prefix}_batch_{batch_idx + 1:04d}.npz')
 
                         # process the batch
-                        process_batch(batch_idx, current_batch, file_path, max_sequence_length, tokenizer.pad_token_id, print_summaries)
+                        process_batch(batch_idx, current_batch, file_path, max_sequence_length, tokenizer.pad_token_id, tokenizer.pad_token_id, tokenizer.eos_token_id, print_summaries)
                         
                         # reset the current batch
                         current_batch = []
@@ -102,7 +113,7 @@ def tokenize_and_batch(input_files, tokenizer_name, output_directory, file_prefi
     # process any remaining samples in the current batch
     if current_batch:
         file_path = os.path.join(output_directory, f'{file_prefix}_batch_{batch_idx + 1:04d}.npz')
-        process_batch(batch_idx, current_batch, file_path, max_sequence_length, tokenizer.pad_token_id, print_summaries)
+        process_batch(batch_idx, current_batch, file_path, max_sequence_length, tokenizer.pad_token_id, tokenizer.pad_token_id, tokenizer.eos_token_id, print_summaries)
         total_batches += 1
 
     print(f"Total batches processed: {total_batches}")
