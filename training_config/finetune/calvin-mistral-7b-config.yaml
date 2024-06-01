@@ -18,7 +18,7 @@ optimizer:
 # checkpointing
 checkpoint:
   frequency_epochs: 1  # Checkpoint every epochs
-  frequency_iterations: 200  # Checkpoint every n iterations
+  frequency_iterations: 500  # Checkpoint every n iterations
   output_dir: './output/calvin/checkpoints'
 
 # training

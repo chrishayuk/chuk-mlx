@@ -18,6 +18,7 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 TODO
 --------
 3 - fix checkpoint start and stopping
+    - maybe a if there is no final model, start from checkpoint, unless overriden with flag to be clean
 1 - Attempt Fine tuning of something like calvinscale
 4 - validation datasets etc
 6 - Revisit batching (bos,eos,pad), batch sizes and bucketing
