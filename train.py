@@ -44,13 +44,14 @@ def create_trainer_instance(model, tokenizer, optimizer_config, checkpoint_confi
         loss_function = nn.value_and_grad(model, load_loss_function(training_config['loss_function']))
 
     lr_schedule_warmup_steps = int(optimizer_config['lr_schedule'].get('warmup_steps', 0))
-    
+
     trainer = Trainer(
         model, tokenizer, optimizer, loss_function, 
-        training_config['num_epochs'], 
-        checkpoint_config['output_dir'], 
-        checkpoint_config['frequency'], 
-        lr_schedule_warmup_steps
+        progress_interval=training_config.get('progress_interval', 1),
+        checkpoint_dir=checkpoint_config['output_dir'], 
+        checkpoint_freq_epochs=checkpoint_config.get('frequency_epochs', None),
+        checkpoint_freq_iterations=checkpoint_config.get('frequency_iterations', None),
+        warmup_steps=lr_schedule_warmup_steps
     )
     return trainer
 
