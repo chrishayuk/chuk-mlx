@@ -19,9 +19,18 @@ def main():
         print(f"Error: Batch file '{args.batch_file}' does not exist.")
         return
 
-    # view the npz file
+    # Load the npz file
     data = np.load(args.batch_file)
-    print(data)
+
+    # Print the contents of the npz file
+    print(f"Contents of '{args.batch_file}':")
+    for key in data:
+        print(f"\nKey: {key}")
+        tensor = data[key]
+        if args.rows is not None:
+            print(tensor[:args.rows])
+        else:
+            print(tensor)
 
 if __name__ == '__main__':
     main()

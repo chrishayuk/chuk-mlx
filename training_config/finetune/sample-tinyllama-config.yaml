@@ -1,0 +1,32 @@
+# Fine-tuning 
+
+model:
+  name: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+# optimizer settings
+optimizer:
+  name: AdamW
+  initial_lr: 1e-5
+  lr_schedule:
+    type: cosine_decay
+    warmup_steps: 10
+  betas: [0.9, 0.95]
+  eps: 1e-5
+  weight_decay: 0.1
+
+# checkpointing
+checkpoint:
+  frequency_epochs: 10  # Checkpoint every epochs
+  frequency_iterations: 500  # Checkpoint every n iterations
+  output_dir: './output/sample/checkpoints'
+
+# training
+training:
+  num_epochs: 50
+  total_iterations: 2000
+  loss_function: models.chuk_loss_function.chukloss
+
+# batches
+batch:
+  output_dir: './output/sample/batches'
+  file_prefix: 'sample'

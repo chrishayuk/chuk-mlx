@@ -28,10 +28,6 @@ TODO
 1 - Models
     - Test new version of mistral
 3 - Training
-    - Consider splitting input and target files for finetune
-    - Large batches not performing as well as small (eos?)
-    - validation etc batches
-    - Get a better more diverse dataset
     - Implement LORA (model freezing, specifying layers)
     - Implement QLora (quantized)
 2 - Modify model to support bloat16
