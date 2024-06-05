@@ -1,6 +1,16 @@
 import argparse
 import os
+import zipfile
 import numpy as np
+
+def check_batch_file(filepath):
+    try:
+        with zipfile.ZipFile(filepath, 'r') as file:
+            print("Batch file is valid.")
+            return True
+    except zipfile.BadZipFile:
+        print("Batch file is corrupted or invalid.")
+        return False
 
 def main():
     # Initialize the argument parser
@@ -17,6 +27,10 @@ def main():
     # Check if the batch file exists
     if not os.path.isfile(args.batch_file):
         print(f"Error: Batch file '{args.batch_file}' does not exist.")
+        return
+
+    # Validate the batch file
+    if not check_batch_file(args.batch_file):
         return
 
     # Load the npz file
