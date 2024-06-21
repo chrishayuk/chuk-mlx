@@ -57,7 +57,7 @@ def create_trainer_instance(model, tokenizer, optimizer_config, checkpoint_confi
 
 def load_batch_data(batch_config):
     """Load the batch data."""
-    return TrainBatchDataset(batch_config['output_dir'], batch_config['file_prefix'])
+    return TrainBatchDataset(batch_config['output_dir'], batch_config['file_prefix'], pre_cache_size=batch_config['pre_cache_size'], shuffle=batch_config['shuffle'])
 
 def clear_output_checkpoints(checkpoint_dir):
     """Clear the output checkpoints directory."""

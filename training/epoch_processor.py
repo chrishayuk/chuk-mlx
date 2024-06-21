@@ -2,6 +2,7 @@ import logging
 import os
 import time
 from tqdm import tqdm
+import traceback
 from training.epoch_processor_utils import update_progress_bar, calculate_epoch_metrics
 
 logger = logging.getLogger(__name__)
@@ -63,12 +64,12 @@ class EpochProcessor:
                     if self.checkpoint_freq_iterations is not None and iteration_count % self.checkpoint_freq_iterations == 0:
                         logger.info(f'Checkpointing at iteration {iteration_count}')
                         self.save_checkpoint(f'iteration_{iteration_count}')
-
-                except IOError as io_err:
-                    logger.error(f"IOError processing batch at index {batch_index}: {str(io_err)}")
-                    continue
+                        
                 except Exception as e:
                     logger.error(f"Error processing batch at index {batch_index}: {str(e)}")
+                    logger.error(f"Batch type: {type(batch)}")
+                    logger.error(f"Batch content: {batch}")
+                    logger.error(f"Traceback: {traceback.format_exc()}")
                     continue
 
             # calculate the metrics

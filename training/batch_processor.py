@@ -77,8 +77,7 @@ class BatchProcessor:
             }
 
         except Exception as e:
-            # error
-            logger.error(f"Error in batch {batch_index}: {e}")
+            logger.error(f"Error in batch {batch_index}: {str(e)}")
 
             # return the stats
             return {
