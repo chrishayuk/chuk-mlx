@@ -25,46 +25,58 @@ class EpochProcessor:
             os.makedirs(self.checkpoint_dir)
 
     def process_epoch(self, epoch, num_epochs, batch_dataset, num_iterations, iteration_count):
-        # reset epoch counters
         epoch_start_time = time.time()
         batch_times = []
+        data_loading_times = []
+        overhead_times = []
         epoch_loss = 0
         epoch_tokens = 0
         epoch_theoretical_tokens = 0
         batch_count = 0
 
-        # number of batches is the length of the dataset
         num_batches = len(batch_dataset)
 
-        # setup the progress bar
         with tqdm(total=num_batches, desc=f"Epoch [{epoch+1}/{num_epochs}]", unit="batch") as batch_progress:
-            # loop the batches
             for batch_index in range(num_batches):
                 try:
-                    # get the batch
+                    data_loading_start = time.time()
                     batch = batch_dataset[batch_index]
+                    data_loading_time = time.time() - data_loading_start
+                    data_loading_times.append(data_loading_time)
 
-                    # process
+                    process_start = time.time()
                     batch_metrics = self.batch_processor.process_batch(batch, batch_index, iteration_count)
+                    process_time = time.time() - process_start
 
-                    # set the epoch counters
                     epoch_loss += batch_metrics["loss"]
                     epoch_tokens += batch_metrics["ntoks"]
                     epoch_theoretical_tokens += batch_metrics["expected_tokens"]
-                    batch_times.append(batch_metrics["batch_time"])
+                    batch_times.append(process_time)
 
-                    # update the counts
                     batch_count += 1
                     iteration_count += 1
 
-                    # update the progress bar
+                    overhead_start = time.time()
                     update_progress_bar(batch_progress, batch_index, batch_metrics, self.progress_interval)
 
-                    # Checkpoint based on iterations
                     if self.checkpoint_freq_iterations is not None and iteration_count % self.checkpoint_freq_iterations == 0:
                         logger.info(f'Checkpointing at iteration {iteration_count}')
                         self.save_checkpoint(f'iteration_{iteration_count}')
-                        
+                    
+                    overhead_time = time.time() - overhead_start
+                    overhead_times.append(overhead_time)
+
+                    total_batch_time = data_loading_time + process_time + overhead_time
+                    batch_progress.set_postfix({
+                        "Batch Loss": f"{batch_metrics['loss']:.2f}",
+                        "Tokens": batch_metrics["ntoks"],
+                        "Batch Time": f"{process_time:.3f}s",
+                        "Data Loading": f"{data_loading_time:.3f}s",
+                        "Overhead": f"{overhead_time:.3f}s",
+                        "Total Time": f"{total_batch_time:.3f}s",
+                        "Tokens/s": f"{batch_metrics['ntoks']/process_time:.2f}"
+                    })
+                    
                 except Exception as e:
                     logger.error(f"Error processing batch at index {batch_index}: {str(e)}")
                     logger.error(f"Batch type: {type(batch)}")
@@ -72,21 +84,22 @@ class EpochProcessor:
                     logger.error(f"Traceback: {traceback.format_exc()}")
                     continue
 
-            # calculate the metrics
             epoch_metrics = calculate_epoch_metrics(epoch_start_time, batch_times, epoch_tokens, epoch_theoretical_tokens)
-
-            # update the progress bar
+            
+            avg_data_loading = sum(data_loading_times) / len(data_loading_times) if data_loading_times else 0
+            avg_overhead = sum(overhead_times) / len(overhead_times) if overhead_times else 0
+            
             batch_progress.set_postfix({
                 "Epoch Loss": f"{epoch_loss / batch_count:.4f}" if batch_count > 0 else "N/A",
                 "Tokens": epoch_tokens,
                 "Avg Batch Time": f"{epoch_metrics['average_batch_time']:.3f}s",
+                "Avg Data Loading": f"{avg_data_loading:.3f}s",
+                "Avg Overhead": f"{avg_overhead:.3f}s",
                 "Tokens/s": f"{epoch_metrics['actual_tokens_per_second']:.2f} (Actual) / {epoch_metrics['theoretical_tokens_per_second']:.2f} (Theoretical)"
             })
 
-            # close up the progress
             batch_progress.close()
 
-            # Checkpoint based on epochs
             if self.checkpoint_freq_epochs is not None and (epoch + 1) % self.checkpoint_freq_epochs == 0:
                 logger.info(f'Checkpointing at end of epoch {epoch+1}')
                 self.save_checkpoint(f'epoch_{epoch+1}')
@@ -96,6 +109,8 @@ class EpochProcessor:
             "epoch_tokens": epoch_tokens,
             "epoch_theoretical_tokens": epoch_theoretical_tokens,
             "total_batch_time": sum(batch_times),
+            "total_data_loading_time": sum(data_loading_times),
+            "total_overhead_time": sum(overhead_times),
             "epoch_time": epoch_metrics['epoch_time']
         }
 
