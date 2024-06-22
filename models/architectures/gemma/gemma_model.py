@@ -1,7 +1,8 @@
 import mlx.core as mx
 import mlx.nn as nn
+from models.architectures.transformer_block import TransformerBlock
+from models.architectures.gemma.gemma_attention import GemmaAttention
 from models.architectures.gemma.rms import RMSNorm
-from models.architectures.gemma.transformer_block import TransformerBlock
 from models.model_config import ModelConfig
   
 class GemmaModel(nn.Module):
@@ -22,7 +23,11 @@ class GemmaModel(nn.Module):
         # now we create the layers 
         self.layers = [
             # create a transformer block for each hidden layer
-            TransformerBlock(config=config) for _ in range(config.num_hidden_layers)
+            TransformerBlock(
+                config=config,
+                attention_layer=GemmaAttention,
+                norm_layer=lambda hidden_size, eps: RMSNorm(hidden_size, eps=eps)
+            ) for _ in range(config.num_hidden_layers)
         ]
 
         # set the normalization layer as using RMS normalization
