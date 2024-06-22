@@ -1,8 +1,17 @@
+import mlx.nn as nn
+from models.model_config import ModelConfig
+from models.architectures.model import Model
 from models.architectures.transformer_base_model import TransformerBaseModel
 from models.architectures.gemma.gemma_attention import GemmaAttention
 from models.architectures.gemma.rms import RMSNorm
-from models.model_config import ModelConfig
-  
+
+class GemmaForCausalLM(Model):
+    def __init__(self, args: ModelConfig):
+        # initialize
+        super().__init__(args)
+
+        # set the model as Gemma
+        self.model = GemmaModel(args)
 class GemmaModel(TransformerBaseModel):
     def __init__(self, config: ModelConfig):
         # call the base constructor

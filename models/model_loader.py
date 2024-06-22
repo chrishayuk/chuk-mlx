@@ -21,19 +21,19 @@ def get_model_from_path(model_path):
     
     # a giant if..elif statement switchign architecture
     if architecture == "LlamaForCausalLM":
-        from models.architectures.llama.llama_for_causal_lm import LlamaForCausalLM
+        from models.architectures.llama.llama_model import LlamaForCausalLM
         model_class = LlamaForCausalLM
     elif architecture == "MistralForCausalLM":
-        from models.architectures.mistral.mistral_for_causal_lm import MistralForCausalLM
+        from models.architectures.mistral.mistral_model import MistralForCausalLM
         model_class = MistralForCausalLM
     elif architecture == "GemmaForCausalLM":
-        from models.architectures.gemma.gemma_for_causal_lm import GemmaForCausalLM
+        from models.architectures.gemma.gemma_model import GemmaForCausalLM
         model_class = GemmaForCausalLM
     elif architecture == "SimpleLanguageModel":
         from models.architectures.lazyfox.simple_language_model import SimpleLanguageModel
         model_class = SimpleLanguageModel
     else:
-        from models.architectures.llama.llama_for_causal_lm import LlamaForCausalLM
+        from models.architectures.llama.llama_model import LlamaForCausalLM
         model_class = LlamaForCausalLM
 
     return model_class(model_config)
