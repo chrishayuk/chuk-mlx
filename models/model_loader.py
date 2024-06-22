@@ -106,12 +106,16 @@ def load_model_tokenizer_and_checkpoint(model_name, checkpoint_path=None, tokeni
             logger.info(f"Loading initial weights from model path: {model_path}")
             weights = load_model_weights(model_path)
             
-            # sanitize
-            if hasattr(model, "sanitize"):
-                weights = model.sanitize(weights)
-            
-            # load weights
-            model.load_weights(list(weights.items()))
+            # check if weights were loaded successfully
+            if weights:
+                # sanitize
+                if hasattr(model, "sanitize"):
+                    weights = model.sanitize(weights)
+                
+                # load weights
+                model.load_weights(list(weights.items()))
+            else:
+                logger.warning("No weights found. Initializing model with random weights.")
         
         # eval
         mx.eval(model.parameters())

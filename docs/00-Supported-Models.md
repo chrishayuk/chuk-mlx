@@ -15,6 +15,12 @@ All llama-3 models are supported.
 
 - meta-llama/Meta-Llama-3-8B-Instruct
 
+### Tiny Llama
+Tiny Llama is supported:
+
+TODO: Need to check this
+- TinyLlama/TinyLlama_v1.1
+
 ### Code Llama
 TODO: Need to check this
 

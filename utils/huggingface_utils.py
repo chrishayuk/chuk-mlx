@@ -15,7 +15,7 @@ def load_from_hub(path_or_hf_repo):
             model_path = Path(
                 snapshot_download(
                     repo_id=path_or_hf_repo,
-                    allow_patterns=["*.json", "*.safetensors", "tokenizer.model"],
+                    allow_patterns=["*.json", "*.safetensors", "*.bin", "tokenizer.model"],
                 )
             )
         except Exception as e:
