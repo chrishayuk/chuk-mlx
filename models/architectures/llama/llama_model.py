@@ -16,6 +16,18 @@ class LlamaForCausalLM(Model):
         # Create and set the core Llama model
         self.model = LlamaModel(args)
 
+    def sanitize(self, weights):
+        sanitized_weights = {}
+
+        # loop through the weight
+        for k, v in weights.items():
+            # add everything but the rotary embedding inverse frequency
+            if 'rotary_emb.inv_freq' not in k:
+                sanitized_weights[k] = v
+        
+        # return the santiized weights
+        return sanitized_weights
+
 class LlamaModel(TransformerBaseModel):
     """
     Core Llama model implementation.

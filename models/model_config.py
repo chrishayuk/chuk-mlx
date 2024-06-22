@@ -14,7 +14,14 @@ class ModelConfig(BaseModel):
 
     # hidden layers
     hidden_act: str
+    
     hidden_size: int
+
+    # activiation function
+    hidden_act: Optional[str] = None
+    hidden_activation: Optional[str] = None
+
+
     num_hidden_layers: int
     #initializer_range: Optional[float]
     intermediate_size: int
@@ -58,6 +65,10 @@ class ModelConfig(BaseModel):
 
             if self.rope_scaling["type"] != "linear":
                 raise ValueError("rope_scaling 'type' currently only supports 'linear'")
+            
+        # Handle Gemma's 'hidden_activation'
+        if self.hidden_activation and not self.hidden_act:
+            self.hidden_act = self.hidden_activation
 
     class Config:
         allow_population_by_field_name = True

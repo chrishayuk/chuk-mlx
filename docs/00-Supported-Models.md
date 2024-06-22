@@ -2,12 +2,24 @@
 The following is the list of models that i've tested works.
 
 ## Llama Models
+All llama-2 and llama-3 models are supported.
 
-- meta-llama/Llama-2-7b
+### Llama 2
+All llama-2 models are supported.
+
+- meta-llama/Llama-2-7b-hf
 - meta-llama/Llama-2-7b-chat-hf
-- meta-llama/Meta-Llama-3-8B-Instruct 
+
+### Llama 3
+All llama-3 models are supported.
+
+- meta-llama/Meta-Llama-3-8B-Instruct
+
+### Code Llama
+TODO: Need to check this
 
 ## Mistral Models
+The following mistral models have been tested and work.
 
 - mistralai/Mistral-7B-Instruct-v0.2
 
@@ -16,10 +28,15 @@ Not currently working
 - mistralai/Mistral-7B-Instruct-v0.3
 
 ## Granite Models
+The following granite models works:
 
 - ibm/merlinite-7b
 - ibm/granite-7b-base
 - ibm/labradorite-13b
+
+### Granite Code Models
+The following granite code models works:
+
 - ibm-granite/granite-3b-code-instruct
 - ibm-granite/granite-8b-code-instruct
 
