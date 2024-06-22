@@ -1,18 +1,16 @@
 import mlx.core as mx
 import mlx.nn as nn
 from models.model_config import ModelConfig
-from models.architectures.llama.llama_model import LlamaModel
 
 class Model(nn.Module):
     def __init__(self, args: ModelConfig):
         # initialize
         super().__init__()
 
-        # set the model as Llama
-        self.model = LlamaModel(args)
-
         # store the config, just in-case we need
         self.config = args
+
+        # The specific model (e.g., LlamaModel) will be set in the subclass
 
         # check if the weights are tied between the input embeddings and the output embeddings
         if not self.config.tie_word_embeddings:

@@ -3,8 +3,6 @@ from models.model_config import ModelConfig
 from models.architectures.model import Model
 from models.architectures.transformer_base_model import TransformerBaseModel
 from models.architectures.llama.llama_attention import LlamaAttention
-from models.architectures.llama.llama_model import LlamaModel
-
 class LlamaModel(TransformerBaseModel):
     def __init__(self, config: ModelConfig):
         # call the base constructor
