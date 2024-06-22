@@ -2,3 +2,4 @@ __pycache__
 tutorial
 .DS_Store
 output
+.env
