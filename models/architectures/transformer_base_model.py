@@ -5,12 +5,16 @@ from models.model_config import ModelConfig
 
 class TransformerBaseModel(nn.Module):
     def __init__(self, config: ModelConfig, attention_layer, norm_layer):
+        # call the constructor of the base class
         super().__init__()
+
+        # define the model parameters
         self.args = config
         self.vocab_size = config.vocab_size
         self.num_hidden_layers = config.num_hidden_layers
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
         
+        # construct the layers
         self.layers = [
             TransformerBlock(
                 config=config,
@@ -19,7 +23,9 @@ class TransformerBaseModel(nn.Module):
             ) for _ in range(config.num_hidden_layers)
         ]
         
+        # create the final normalization layer
         self.norm = norm_layer(config.hidden_size, eps=config.rms_norm_eps)
+        self._mask_cache = {}
 
     def embed_inputs(self, inputs):
         # embed
@@ -29,6 +35,13 @@ class TransformerBaseModel(nn.Module):
         # No scaling by default
         return embeddings  
 
+    def get_mask(self, seq_length, dtype):
+        # Check if mask for this sequence length is already cached
+        if seq_length not in self._mask_cache:
+            # If not, create and cache the mask
+            self._mask_cache[seq_length] = nn.MultiHeadAttention.create_additive_causal_mask(seq_length).astype(dtype)
+        return self._mask_cache[seq_length]
+
     def __call__(self, inputs: mx.array, cache=None):
         # Embed and scale input tokens
         h = self.embed_inputs(inputs)
@@ -37,8 +50,7 @@ class TransformerBaseModel(nn.Module):
         # Create causal mask for self-attention
         mask = None
         if h.shape[1] > 1:
-            mask = nn.MultiHeadAttention.create_additive_causal_mask(h.shape[1])
-            mask = mask.astype(h.dtype)
+            mask = self.get_mask(h.shape[1], h.dtype)
 
         # Initialize cache if not provided
         if cache is None:
