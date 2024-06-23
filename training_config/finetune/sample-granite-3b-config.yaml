@@ -29,6 +29,6 @@ training:
 # batches
 batch:
   output_dir: './output/sample/batches'
-  file_prefix: 'calvin'
+  file_prefix: 'sample'
   pre_cache_size: 5
   shuffle: True

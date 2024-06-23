@@ -56,9 +56,13 @@ The following Google Gemma models have been tested and are supported
 - google/gemma-1.1-2b
 - google/gemma-1.1-2b-it
 - google/gemma-1.1-7b-it
+- google/codegemma-7b
 
-TODO: CodeGemma
 
+## Starcoder 2 Models
+    - bigcode/starcoder2-3b
+    - bigcode/starcoder2-7b
+    - bigcode/starcoder2-15b
 ## Phi Models
 ## Falcon Models
 ## Aya Models

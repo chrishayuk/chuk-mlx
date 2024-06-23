@@ -1,3 +1,4 @@
+import mlx.nn as nn
 from models.model_config import ModelConfig
 from .swiglu_mlp import MLP as SwiGluMLP
 from .gelu_glu_mlp import MLP as GeluGluMLP
@@ -27,6 +28,7 @@ def create_mlp(config: ModelConfig) -> SwiGluMLP | GeluGluMLP:
     if hidden_act == "silu":
         # use swiglu mlp
         return SwiGluMLP(config.hidden_size, config.intermediate_size, config.mlp_bias)
+        #return KAN(config.hidden_size, config.intermediate_size, config.mlp_bias)
     elif hidden_act in ["gelu", "gelu_pytorch_tanh"]:
         # use geluglu mlp
         return GeluGluMLP(config.hidden_size, config.intermediate_size, config.mlp_bias)
