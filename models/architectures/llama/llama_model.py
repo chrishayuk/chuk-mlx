@@ -17,16 +17,13 @@ class LlamaForCausalLM(Model):
         self.model = LlamaModel(args)
 
     def sanitize(self, weights):
-        sanitized_weights = {}
-
-        # loop through the weight
-        for k, v in weights.items():
-            # add everything but the rotary embedding inverse frequency
-            if 'rotary_emb.inv_freq' not in k:
-                sanitized_weights[k] = v
-        
-        # return the santiized weights
-        return sanitized_weights
+        # Simply return all weights without filtering
+        return weights
+    
+    def set_inv_freq(self, inv_freq):
+        for layer in self.model.layers:
+            if hasattr(layer.self_attn, 'set_inv_freq'):
+                layer.self_attn.set_inv_freq(inv_freq)
 
 class LlamaModel(TransformerBaseModel):
     """

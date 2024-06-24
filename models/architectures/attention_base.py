@@ -51,6 +51,13 @@ class AttentionBase(nn.Module):
             )
         return None
 
+    def set_inv_freq(self, inv_freq):
+        if self.rope is not None:
+            self.rope.inv_freq = inv_freq
+            # Recalculate cos and sin cache
+            self.rope.cos_cached = None
+            self.rope.sin_cached = None
+
     def _get_mask(self, seq_length: int, dtype: mx.Dtype):
         """
         Get or create a causal mask for the attention mechanism.

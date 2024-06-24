@@ -17,20 +17,20 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
+1 - Fix Checkpoint and Load, ensure works
+2 - Training
+    - Implement LORA (model freezing, specifying layers)
+    - Implement QLora (quantized)
+3 - Modify model to support bloat16
 3 - fix checkpoint start and stopping
     - maybe a if there is no final model, start from checkpoint, unless overriden with flag to be clean
 1 - Attempt Fine tuning of something like calvinscale
 4 - validation datasets etc
 6 - Revisit batching (bos,eos,pad), batch sizes and bucketing
 5 - find optimal batch sizes
-2 - refactor attention layer to attention block
 5 - Attempt pretrain of something like tiny shakespeare, fineweb or tiny stories
 1 - Models
     - Test new version of mistral
-3 - Training
-    - Implement LORA (model freezing, specifying layers)
-    - Implement QLora (quantized)
-2 - Modify model to support bloat16
 1 - Generate large file generator for jsonl
 1 - Memory Calculator
 1 - attempt golden gate claude

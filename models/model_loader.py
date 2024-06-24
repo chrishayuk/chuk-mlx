@@ -81,50 +81,69 @@ def load_model_and_tokenizer(model_name, local_config_path=DEFAULT_LOCAL_CONFIG_
 def load_model_tokenizer_and_checkpoint(model_name, checkpoint_path=None, tokenizer_name=None, local_config_path=DEFAULT_LOCAL_CONFIG_PATH):
     """ Load the model, tokenizer, and optionally, weights from a checkpoint, preferring a local config path if provided and exists. """
     try:
-        # get the local model path
+        # Get the local model path
         local_model_path = Path(local_config_path) / model_name
 
-        # if we have it locally, load
+        # If we have it locally, load
         if local_model_path.exists():
-            # set the path as local
+            # Set the path as local
             model_path = local_model_path
         else:
-            # load from hub
+            # Load from hub
             model_path = load_from_hub(model_name)
         
-        # get the model
+        # Get the model
         model = get_model_from_path(model_path)
         
-        # check if we have a checkpoint path
+        inv_freq = None
+        # Check if we have a checkpoint path
         if checkpoint_path:
-            # load weights from checkpoint, into the model
+            # Load weights from checkpoint, into the model
             logger.info(f"Loading weights from checkpoint: {checkpoint_path}")
             checkpoint_weights = load_checkpoint_weights(checkpoint_path)
+            for k, v in checkpoint_weights.items():
+                if 'rotary_emb.inv_freq' in k:
+                    inv_freq = v
+                    break
             model.load_weights(list(checkpoint_weights.items()))
         else:
-            # use the model weights
+            # Use the model weights
             logger.info(f"Loading initial weights from model path: {model_path}")
             weights = load_model_weights(model_path)
             
-            # check if weights were loaded successfully
+            # Check if weights were loaded successfully
             if weights:
-                # sanitize
+                for k, v in weights.items():
+                    if 'rotary_emb.inv_freq' in k:
+                        inv_freq = v
+                        break
+                # Sanitize
                 if hasattr(model, "sanitize"):
                     weights = model.sanitize(weights)
                 
-                # load weights
+                # Load weights
                 model.load_weights(list(weights.items()))
             else:
                 logger.warning("No weights found. Initializing model with random weights.")
         
-        # eval
+        # Set the inverse frequencies if they were found
+        if inv_freq is not None:
+            if hasattr(model, "set_inv_freq"):
+                model.set_inv_freq(inv_freq)
+                logger.info("Inverse frequencies for rotary embeddings loaded from weights.")
+            else:
+                logger.warning("Model doesn't have set_inv_freq method. Unable to set inverse frequencies.")
+        else:
+            logger.info("No 'rotary_emb.inv_freq' found in weights. Using default initialization.")
+        
+        # Eval
         mx.eval(model.parameters())
         
-        # tokenize
+        # Tokenize
         tokenizer_path = tokenizer_name if tokenizer_name else model_name
         tokenizer = load_tokenizer(tokenizer_path)
 
-        # loaded
+        # Loaded
         logger.info("Model and tokenizer loaded successfully")
         return model, tokenizer
     
