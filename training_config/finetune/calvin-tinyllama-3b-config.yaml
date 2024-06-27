@@ -1,12 +1,13 @@
 # Fine-tuning 
 
 model:
-  name: ibm-granite/granite-3b-code-instruct
+  # model name
+  name: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
 # optimizer settings
 optimizer:
   name: AdamW
-  initial_lr: 1e-5
+  initial_lr: 2e-5
   lr_schedule:
     type: cosine_decay
     warmup_steps: 10
@@ -16,9 +17,9 @@ optimizer:
 
 # checkpointing
 checkpoint:
-  frequency_epochs: 10  # Checkpoint every epochs
+  frequency_epochs: 1  # Checkpoint every epochs
   frequency_iterations: 500  # Checkpoint every n iterations
-  output_dir: './output/sample_llama/checkpoints'
+  output_dir: './output/calvin/checkpoints'
 
 # training
 training:
@@ -28,7 +29,7 @@ training:
 
 # batches
 batch:
-  output_dir: './output/sample_llama/batches'
-  file_prefix: 'sample'
+  output_dir: './output/calvin/batches'
+  file_prefix: 'calvin'
   pre_cache_size: 5
   shuffle: True

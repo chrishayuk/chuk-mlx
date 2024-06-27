@@ -16,6 +16,8 @@ class Model(nn.Module):
         if not self.config.tie_word_embeddings:
             # set the head as a language modelling head
             self.lm_head = nn.Linear(args.hidden_size, args.vocab_size, bias=False)
+        else:
+            self.lm_head = None
 
     def __call__(
         self,
@@ -26,12 +28,11 @@ class Model(nn.Module):
         out, cache = self.model(inputs, cache)
         
         # check if the weights are tied between the input embeddings and the output embeddings
-        if self.config.tie_word_embeddings:
-            # execute through the embeddings layer
-            return self.model.embed_tokens.as_linear(out), cache
+        if self.lm_head is not None:
+            out = self.lm_head(out)
         else:
-            # execute through the language modelling head
-            return self.lm_head(out), cache
+            out = self.model.embed_tokens.as_linear(out)
+        return out, cache
         
     def sanitize(self, weights):
         # nothing to sanitize

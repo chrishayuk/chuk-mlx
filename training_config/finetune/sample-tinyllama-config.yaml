@@ -16,9 +16,9 @@ optimizer:
 
 # checkpointing
 checkpoint:
-  frequency_epochs: 10  # Checkpoint every epochs
+  frequency_epochs: 1  # Checkpoint every epochs
   frequency_iterations: 500  # Checkpoint every n iterations
-  output_dir: './output/sample/checkpoints'
+  output_dir: './output/sample_llama/checkpoints'
 
 # training
 training:
@@ -28,7 +28,7 @@ training:
 
 # batches
 batch:
-  output_dir: './output/sample/batches'
+  output_dir: './output/sample_llama/batches'
   file_prefix: 'sample'
   pre_cache_size: 5
   shuffle: True

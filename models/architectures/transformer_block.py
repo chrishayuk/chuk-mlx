@@ -6,6 +6,7 @@ from models.model_config import ModelConfig
 
 class TransformerBlock(nn.Module):
     def __init__(self, config: ModelConfig, attention_layer: Type[nn.Module], norm_layer: Callable[[int, float], nn.Module]):
+        # call the constructor
         super().__init__()
 
         #  set the hidden size

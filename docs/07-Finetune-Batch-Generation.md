@@ -8,12 +8,26 @@ The following script will take a training jsonl file, tokenize it, and split int
 python batch_generator_finetune.py --input_files ./sample_data/calvin_scale_llama/train.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output/calvin/batches --file_prefix calvin --max_sequence_length 600 --batch_size 2
 ```
 
+python batch_generator_finetune.py --input_files ./sample_data/calvin_scale_llama/train.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output/calvin/batches --file_prefix calvin --max_sequence_length 600 --batch_size 1
+
 or
 
 ```bash
-python batch_generator_finetune.py --input_files ./sample_data/sample_llama/train.jsonl --tokenizer TinyLlama/TinyLlama-1.1B-Chat-v1.0 --output_directory ./output/sample/batches --file_prefix sample --max_sequence_length 600 --batch_size 2
+python batch_generator_finetune.py --input_files ./sample_data/sample_llama/train.jsonl --tokenizer TinyLlama/TinyLlama-1.1B-Chat-v1.0 --output_directory ./output/sample_llama/batches --file_prefix sample --max_sequence_length 600 --batch_size 1
 ```
 /Users/christopherhay/chris-source/chuk-datasets/datasets/sample/output/llama/
+
+or
+
+python batch_generator_finetune.py --input_files ./sample_data/sample_llama/train.jsonl --tokenizer ibm-granite/granite-3b-code-instruct --output_directory ./output/sample_llama/batches --file_prefix sample --max_sequence_length 600 --batch_size 1
+
+
+
+python batch_generator_finetune.py --input_files ./sample_data/sample_llama/train.jsonl --tokenizer meta-llama/Llama-2-7b-chat-hf --output_directory ./output/sample_llama/batches --file_prefix sample --max_sequence_length 600 --batch_size 1
+
+```bash
+python batch_generator_finetune.py --input_files ./sample_data/calvin_scale_llama/train.jsonl --tokenizer TinyLlama/TinyLlama-1.1B-Chat-v1.0 --output_directory ./output/calvin/batches --file_prefix calvin --max_sequence_length 600 --batch_size 1
+```
 
 ## Batch Analyzer
 The following takes a batch file and performs analysis on the batch.
@@ -30,6 +44,12 @@ or
 
 ```bash
 python batch_analyzer.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer TinyLlama/TinyLlama-1.1B-Chat-v1.0
+```
+
+or
+
+```bash
+python batch_analyzer.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
 ```
 
 ## Batch Viewer
@@ -49,6 +69,12 @@ or
 python batch_viewer.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer TinyLlama/TinyLlama-1.1B-Chat-v1.0
 ```
 
+or
+
+```bash
+python batch_viewer.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
+```
+
 ## Npz Viewer
 The following takes a npz file and performs analysis on the batch.
 This will output the raw entries of the tensor
@@ -63,7 +89,7 @@ python npz_viewer.py --batch_file output/calvin/batches/calvin_batch_0112.npz
 or
 
 ```bash
-python npz_viewer.py --batch_file output/sample/batches/sample_batch_0001.npz 
+python npz_viewer.py --batch_file output/sample_llama/batches/sample_batch_0001.npz 
 ```
 
 
