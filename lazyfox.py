@@ -1,14 +1,13 @@
 import os
 import shutil
 import argparse
-import mlx.core as mx
-import mlx.nn as nn
+from models.architectures.lazyfox.lazyfox_loss_function import chukloss
+from utils.model_adapter import ModelAdapter
 import mlx.optimizers as optim
 from batch_generation.pretrain_batch import tokenize_and_batch
 from utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from dataset.train_batch_dataset import TrainBatchDataset
-from models.architectures.lazyfox.lazyfox_loss_function import chukloss
 from models.architectures.lazyfox.simple_language_model import SimpleLanguageModel
 from models.model_config import ModelConfig
 
@@ -18,7 +17,7 @@ def clear_checkpoint_directory(output_directory):
         shutil.rmtree(output_directory)
     os.makedirs(output_directory)
 
-def main(regenerate_batches, prompt):
+def main(regenerate_batches, prompt, framework='mlx'):
     # Settings
     input_files = ['./sample_data/lazyfox/lazyfox_train.jsonl']
     output_dir = './output/lazyfox'
@@ -74,15 +73,19 @@ def main(regenerate_batches, prompt):
     # Load the model config
     model_config = ModelConfig.from_dict(config_settings)
 
-    # Load the simple language model
+    # Initialize the ModelAdapter with the specified framework
+    model_adapter = ModelAdapter(framework=framework)
+
+    # Load the appropriate model
     model = SimpleLanguageModel(model_config)
+    model_adapter.model = model
 
     # Define the optimizer
     learning_rate = 0.01
     optimizer = optim.Adam(learning_rate=learning_rate)
 
     # Create value and grad function for loss
-    loss_function = nn.value_and_grad(model, chukloss)
+    loss_function = model_adapter.create_value_and_grad_fn(chukloss)
 
     # Load the batch data
     batch_dataset = TrainBatchDataset(batch_output_dir, batchfile_prefix)
@@ -113,11 +116,15 @@ def main(regenerate_batches, prompt):
 
     # Tokenize the input prompt
     input_indices = tokenizer.encode(prompt, add_special_tokens=False)
-    input_tensor = mx.array([input_indices])
+    input_tensor = model_adapter.to_tensor([input_indices])
 
     # Forward pass to generate the sequence
-    output = model(input_tensor)
-    predicted_ids = mx.argmax(output, axis=-1).tolist()[0]  # Flatten the list
+    output = model_adapter.forward(input_tensor)
+    predicted_ids = model_adapter.argmax(output, axis=-1)
+
+    # If predicted_ids is a list of lists, flatten it
+    if isinstance(predicted_ids[0], list):
+        predicted_ids = [item for sublist in predicted_ids for item in sublist]
 
     # Post-process the predicted IDs to stop at <eos>
     if eos_token_id in predicted_ids:
@@ -139,9 +146,10 @@ if __name__ == "__main__":
     # arguments
     parser.add_argument("--regenerate-batches", action="store_true", help="Regenerate the batches before training.")
     parser.add_argument("--prompt", type=str, default="the quick brown", help="Prompt to test the model after training.")
+    parser.add_argument("--framework", type=str, default="mlx", choices=["mlx", "torch"], help="Framework to use for training and inference.")
 
     # parse
     args = parser.parse_args()
 
     # start
-    main(args.regenerate_batches, args.prompt)
+    main(args.regenerate_batches, args.prompt, args.framework)
