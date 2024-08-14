@@ -2,6 +2,7 @@ import json
 import os
 import time
 import numpy as np
+from batch_generation.pretrain_target_batch_generator import create_target_batch
 from utils.tokenizer_loader import load_tokenizer
 from batch_generation.sequence_utility import SequenceUtility
 from batch_generation.batch_generation_summary import generate_batch_generation_summary
@@ -23,31 +24,45 @@ def get_line_text(line):
     else:  # Plain text format
         return line
 
+import numpy as np
+
 def save_batch(batch_data, file_path, max_sequence_length, pad_token_id, initial_pad_token_id, eos_token_id):
-    # get sequence utility
+    # Initialize sequence utility
     seq_util = SequenceUtility(max_seq_length=max_sequence_length, padding_value=pad_token_id, initial_pad_token=initial_pad_token_id)
-        
-    # pad the batch
+    
+    # Pad the input sequences
     padded_batch = seq_util.batch_sequences(batch_data)
     
-    # Append the EOS token if needed and pad again if required
+    # Prepare the input tensor
     processed_batch = []
     for seq in padded_batch:
-        stripped_seq = [token for token in seq if token != eos_token_id and token != 0]
-        stripped_seq.append(eos_token_id)
-        if len(stripped_seq) < max_sequence_length:
-            padded_seq = stripped_seq + [0] * (max_sequence_length - len(stripped_seq))
-        else:
-            padded_seq = stripped_seq[:max_sequence_length]
-        processed_batch.append(padded_seq)
+        # Flatten the sequence if any nested lists exist
+        flat_seq = [item if isinstance(item, int) else item[0] for item in seq]
+        
+        # Add EOS token if it doesn't exceed the max length
+        if len(flat_seq) < max_sequence_length:
+            flat_seq.append(eos_token_id)
+        # Pad the sequence to max length
+        padded_seq = flat_seq + [pad_token_id] * (max_sequence_length - len(flat_seq))
+        processed_batch.append(padded_seq[:max_sequence_length])
     
-    # convert the padded batch to a numpy array
-    batch_data = np.array(processed_batch, dtype=np.int32)
+    # Convert the processed batch to a numpy array
+    try:
+        input_tensor = np.array(processed_batch, dtype=np.int32)
+    except ValueError as e:
+        print(f"Error converting to numpy array: {e}")
+        print(f"Processed batch: {processed_batch}")
+        raise
+    
+    # Generate the target tensor using the create_target_batch function
+    target_tensor, lengths = create_target_batch(input_tensor, pad_token_id, max_sequence_length)
+    
+    # Save both the input and target tensors to a .npz file
+    np.savez(file_path, input_tensor=input_tensor, target_tensor=target_tensor)
+    
+    # return the input tensor
+    return input_tensor
 
-    # save the batch to a .npz file
-    np.savez(file_path, input_tensor=batch_data)
-    
-    return batch_data
 
 def process_batch(batch_idx, batch_data, file_path, max_sequence_length, pad_token_id, initial_pad_token_id, eos_token_id, print_summaries):
     # start the batch timer
