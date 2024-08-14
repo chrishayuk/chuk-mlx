@@ -13,11 +13,18 @@ def analyze_batch_file(batch_file, tokenizer_name, tensor_type=None):
     # Analyze the specified tensor type or both
     tensor_types = [tensor_type] if tensor_type else ['input', 'target']
     
+    # loop through the tensor types
     for tensor_type in tensor_types:
+        # set the tensor key
         tensor_key = f"{tensor_type}_tensor"
         if tensor_key in batch_data:
+            # get the tensor
             tensor = batch_data[tensor_key]
+
+            # generate a summary table
             summary_table = generate_batch_analysis_summary_table(tensor, batch_file, tokenizer.pad_token_id)
+
+            # print the summary table
             print(f"\nSummary for {tensor_type} tensor:")
             print(summary_table)
         else:

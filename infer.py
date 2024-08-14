@@ -13,11 +13,12 @@ def main(model_path, tokenizer_path, checkpoint_path, initial_prompt, system_pro
             {"role": "system", "content": system_prompt}
         ]
 
-        # If an initial prompt is provided, use it; otherwise, enter interactive mode
+        # If an initial prompt is provided, use it
         if initial_prompt:
             prompt_user_chat(model, tokenizer, initial_prompt, conversation_context)
-        else:
-            interactive_mode_chat(model, tokenizer, conversation_context)
+
+        # Enter interactive chat mode
+        interactive_mode_chat(model, tokenizer, conversation_context)
     else:
         # If an initial prompt is provided, use it; otherwise, enter interactive mode
         if initial_prompt:

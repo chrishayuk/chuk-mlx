@@ -17,6 +17,8 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
+1 - Add support for mistral nemo (mistralai/Mistral-Nemo-Instruct-2407)
+
 1 - Fix 2nd Epoch Caching Problem
 2 - Generate Batches from Config if don't exist 
 1 - Fix Checkpoint and Load, ensure works
