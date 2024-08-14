@@ -52,9 +52,9 @@ def main(regenerate_batches, prompt):
     pad_token_id = tokenizer.pad_token_id
     vocab_size = len(tokenizer.vocab)
 
-    # Validate bos_token_id and eos_token_id are integers
-    bos_token_id = int(tokenizer.bos_token_id[0]) if isinstance(tokenizer.bos_token_id, list) else int(tokenizer.bos_token_id)
-    eos_token_id = int(tokenizer.eos_token_id[0]) if isinstance(tokenizer.eos_token_id, list) else int(tokenizer.eos_token_id)
+    # Ensure bos_token_id and eos_token_id are integers
+    bos_token_id = tokenizer.bos_token_id[0] if isinstance(tokenizer.bos_token_id, list) else tokenizer.bos_token_id
+    eos_token_id = tokenizer.eos_token_id[0] if isinstance(tokenizer.eos_token_id, list) else tokenizer.eos_token_id
 
     # Print to verify values
     print(f'bos_token_id: {bos_token_id}, eos_token_id: {eos_token_id}')
@@ -66,9 +66,9 @@ def main(regenerate_batches, prompt):
         "intermediate_size": 64,
         "num_hidden_layers": 1,
         "hidden_act": "silu",
-        "bos_token_id": bos_token_id,  # Begin-of-sequence token ID
-        "eos_token_id": eos_token_id,  # End-of-sequence token ID
-        "max_position_embeddings": vocab_size  # Maximum sequence length
+        "bos_token_id": int(bos_token_id),  # Begin-of-sequence token ID
+        "eos_token_id": int(eos_token_id),  # End-of-sequence token ID
+        "max_position_embeddings": max_sequence_length  # Maximum sequence length
     }
 
     # Load the model config
@@ -111,20 +111,26 @@ def main(regenerate_batches, prompt):
     # Test the model with the provided prompt
     #################
 
-    # tokenize
+    # Tokenize the input prompt
     input_indices = tokenizer.encode(prompt, add_special_tokens=False)
     input_tensor = mx.array([input_indices])
 
-    # forward pass
+    # Forward pass to generate the sequence
     output = model(input_tensor)
+    predicted_ids = mx.argmax(output, axis=-1).tolist()[0]  # Flatten the list
 
-    # get prediction
-    predicted_index = mx.argmax(output[:, -1, :], axis=-1).item()
-    predicted_word = tokenizer.decode([predicted_index])
+    # Post-process the predicted IDs to stop at <eos>
+    if eos_token_id in predicted_ids:
+        eos_index = predicted_ids.index(eos_token_id)
+        predicted_ids = predicted_ids[:eos_index + 1]  # Include the eos token
 
-    # show prediction
+    # Convert predicted IDs to tokens
+    predicted_tokens = tokenizer.convert_ids_to_tokens(predicted_ids)
+
+    # Show the prediction
     print(f"Input sequence: {prompt}")
-    print(f"Predicted next word: {predicted_word}")
+    print(f"Predicted sequence: {' '.join(predicted_tokens)}")
+    print(f"Predicted token IDs: {predicted_ids}")
 
 if __name__ == "__main__":
     # parser
