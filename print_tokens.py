@@ -44,5 +44,5 @@ if __name__ == "__main__":
         tokenizer_utility.display_tokens_from_prompt(args.prompt)
     else:
         # display the full vocabulary
-        tokenizer_utility.display_full_vocabulary()
+        tokenizer_utility.display_full_vocabulary(chunk_size=500,pause_between_chunks=True)
 
