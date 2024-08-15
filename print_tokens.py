@@ -20,11 +20,18 @@ if __name__ == "__main__":
         help="The name or path for the tokenizer; if not specified, use the model path."
     )
 
-    # Argument for tokenizer; if not specified, use the model path
+    # Argument for prompt
     parser.add_argument(
         "--prompt",
         default=None,
         help="The prompt"
+    )
+
+    # New argument to control special tokens
+    parser.add_argument(
+        "--no_special_tokens",
+        action="store_true",
+        help="Don't add special tokens when tokenizing the prompt"
     )
 
     # parse arguments
@@ -40,9 +47,8 @@ if __name__ == "__main__":
 
     # check if a prompt is provided
     if args.prompt:
-        # display the prompt tokens
-        tokenizer_utility.display_tokens_from_prompt(args.prompt)
+        # display the prompt tokens, respecting the --no_special_tokens flag
+        tokenizer_utility.display_tokens_from_prompt(args.prompt, add_special_tokens=not args.no_special_tokens)
     else:
         # display the full vocabulary
-        tokenizer_utility.display_full_vocabulary(chunk_size=500,pause_between_chunks=True)
-
+        tokenizer_utility.display_full_vocabulary(chunk_size=500, pause_between_chunks=True)

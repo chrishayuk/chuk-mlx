@@ -17,6 +17,12 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
+1 - Ensure lazyfox works with all utilities (print_tokens etc)
+2 - update pre-train (and docs) to show next_token is already done
+3 - work all way through until have working pre-train and fine tune
+4 - start adding pyunit tests
+2 - build lazyfox tutorial
+
 1 - Add support for mistral nemo (mistralai/Mistral-Nemo-Instruct-2407)
 
 1 - Fix 2nd Epoch Caching Problem
