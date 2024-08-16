@@ -89,24 +89,37 @@ class CustomTokenizer(PreTrainedTokenizer):
 
         input_ids = encoded_inputs['input_ids']
 
+        # Ensure input_ids is a list of lists
         if isinstance(input_ids[0], int):
             input_ids = [input_ids]
 
+        # Determine the maximum length for padding
         if max_length is None:
             max_length = max(len(ids) for ids in input_ids)
 
         padded_inputs = []
         for ids in input_ids:
-            padding_length = max_length - len(ids)
-            padded_inputs.append(ids + [self.pad_token_id] * padding_length)
+            # Calculate the padding length needed
+            padding_length = max_length - len(ids) - 1  # Subtract 1 to account for the EOS token
+
+            if padding_length > 0:
+                # Append the EOS token, then pad
+                padded_sequence = ids + [self.eos_token_id] + [self.pad_token_id] * padding_length
+            else:
+                # If no padding is needed, just add the EOS token
+                padded_sequence = ids[:max_length - 1] + [self.eos_token_id]
+
+            padded_inputs.append(padded_sequence)
 
         encoded_inputs['input_ids'] = padded_inputs
 
+        # Handle attention mask if requested
         if return_attention_mask:
-            attention_mask = [[1] * len(ids) + [0] * (max_length - len(ids)) for ids in input_ids]
+            attention_mask = [[1] * len(ids) + [0] * (max_length - len(ids)) for ids in padded_inputs]
             encoded_inputs['attention_mask'] = attention_mask
 
         return encoded_inputs
+
 
     def save_vocabulary(self, save_directory):
         vocab_file = os.path.join(save_directory, "vocab.json")

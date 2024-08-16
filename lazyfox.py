@@ -25,8 +25,8 @@ def main(regenerate_batches, prompt, framework='mlx'):
     batch_output_dir = f'{output_dir}/batches'
     checkpoint_output_dir = f'{output_dir}/checkpoints'
     batchfile_prefix = 'lazyfox'
-    max_sequence_length = 128  # Example max sequence length
-    batch_size = 32  # Example batch size
+    max_sequence_length = 15  # Example max sequence length
+    batch_size = 4   # Example batch size
 
     # Clear the output directory
     clear_checkpoint_directory(checkpoint_output_dir)

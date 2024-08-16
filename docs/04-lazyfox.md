@@ -26,13 +26,6 @@ To generate the batchfiles for the inputs then run the following.
 python batch_generator_pretrain.py --input_files ./sample_data/lazyfox_train.jsonl --tokenizer lazyfox_tokenizer --output_directory ./output/lazyfox/batches --file_prefix lazyfox --max_sequence_length 16 --batch_size 1
 ```
 
-### Generating the target batchfiles
-To generate the batchfiles for the targets then run the following.
-
-```bash
-python batch_pretrain_target_shift_generator.py --input_directory ./output/lazyfox/batches --batch_prefix lazyfox
-```
-
 ### Diagnosing the Batchfiles
 If you wish to check the lazyfox batchfiles have been generated correctly you can run the following.
 
@@ -71,7 +64,7 @@ python lazyfox.py
 or you can use the generic pretrain script
 
 ```bash
-python pretrain.py --config ./training_config/pretrain/lazyfox.yaml
+python train.py --config ./training_config/pretrain/lazyfox.yaml
 ```
 
 # infer lazy fox (pre-train)
