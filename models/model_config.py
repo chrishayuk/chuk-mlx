@@ -103,15 +103,31 @@ Loaded config.json
         print(table)
 
     def print_config(self):
-        table = "Configurations:\n\n"
-        max_key_length = max(len(str(key)) for key in self.dict().keys())
-        max_value_length = max(len(str(value)) if not isinstance(value, list) else max(len(str(item)) for item in value) for value in self.dict().values())
-        table += f"| {'Parameter':<{max_key_length}} | {'Value':<{max_value_length}} |\n"
-        table += f"| {'-' * max_key_length} | {'-' * max_value_length} |\n"
-        for key, value in self.dict().items():
-            if isinstance(value, list):
-                value_str = ', '.join(map(str, value))
-            else:
-                value_str = str(value)
-            table += f"| {str(key):<{max_key_length}} | {value_str:<{max_value_length}} |\n"
-        print(table)
+        # Get a dictionary of all fields and their values
+        config_data = self.dict()
+
+        # Exclude parameters with None values or with values that are the same as their defaults
+        filtered_data = {
+            key: value for key, value in config_data.items()
+            if value is not None and value != self.__fields__[key].default
+        }
+
+        # Prepare the output table
+        if filtered_data:
+            max_key_length = max(len(str(key)) for key in filtered_data.keys())
+            max_value_length = max(len(str(value)) if not isinstance(value, list) else max(len(str(item)) for item in value) for value in filtered_data.values())
+
+            table = "Configurations:\n\n"
+            table += f"| {'Parameter':<{max_key_length}} | {'Value':<{max_value_length}} |\n"
+            table += f"| {'-' * max_key_length} | {'-' * (max_value_length+1)} |\n"
+
+            for key, value in filtered_data.items():
+                if isinstance(value, list):
+                    value_str = ', '.join(map(str, value))
+                else:
+                    value_str = str(value)
+                table += f"| {str(key):<{max_key_length}} | {value_str:<{(max_value_length+1)}} |\n"
+
+            print(table)
+        else:
+            print("No configurations to display.")
