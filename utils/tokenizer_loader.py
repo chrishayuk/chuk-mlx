@@ -1,12 +1,9 @@
 import importlib
 import transformers
 from utils.huggingface_utils import load_from_hub
-
-import importlib
-import transformers
-from utils.huggingface_utils import load_from_hub
 import logging
 
+# set the logger
 logger = logging.getLogger(__name__)
 
 def load_tokenizer(tokenizer_name):
