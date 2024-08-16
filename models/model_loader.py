@@ -31,12 +31,11 @@ def get_model_from_path(model_path):
         from models.architectures.gemma.gemma_model import GemmaForCausalLM
         model_class = GemmaForCausalLM
     elif architecture == "Starcoder2ForCausalLM":
-        print('hello')
         from models.architectures.starcoder2.starcoder2_for_causal_lm import Starcoder2ForCausalLM
         model_class = Starcoder2ForCausalLM
-    elif architecture == "SimpleLanguageModel":
-        from models.architectures.lazyfox.simple_language_model import SimpleLanguageModel
-        model_class = SimpleLanguageModel
+    elif architecture == "Lazyfox":
+        from models.architectures.lazyfox.lazyfox_model import LazyFoxModel
+        model_class = LazyFoxModel
     else:
         from models.architectures.llama.llama_model import LlamaForCausalLM
         model_class = LlamaForCausalLM

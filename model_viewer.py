@@ -1,6 +1,9 @@
 import argparse
-from models.model_config import ModelConfig
-from utils.huggingface_utils import load_from_hub
+import logging
+from utils.model_loader import load_model
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     # parser
@@ -30,12 +33,9 @@ if __name__ == "__main__":
     # parse arguments
     args = parser.parse_args()
 
-    # load the model from huggingface
-    print(f"Loading Model: {args.model}")
-    model_path = load_from_hub(args.model)
-
-    # load config
-    model_config = ModelConfig.load(model_path)
+    # load the model
+    logger.info(f"Loading Model: {args.model}")
+    model_config = load_model(args.model)
 
     # perform action
     if args.show_layers:

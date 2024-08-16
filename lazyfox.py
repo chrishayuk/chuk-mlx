@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import shutil
 import argparse
 from models.architectures.lazyfox.lazyfox_loss_function import chukloss
@@ -8,7 +9,7 @@ from batch_generation.pretrain_batch import tokenize_and_batch
 from utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from dataset.train_batch_dataset import TrainBatchDataset
-from models.architectures.lazyfox.simple_language_model import SimpleLanguageModel
+from models.architectures.lazyfox.lazyfox_model import CustomModel
 from models.model_config import ModelConfig
 
 def clear_checkpoint_directory(output_directory):
@@ -48,36 +49,16 @@ def main(regenerate_batches, prompt, framework='mlx'):
     # Load tokenizer and define vocabulary size
     tokenizer_name = 'lazyfox_tokenizer'
     tokenizer = load_tokenizer(tokenizer_name)
-    pad_token_id = tokenizer.pad_token_id
-    vocab_size = len(tokenizer.vocab)
 
-    # Ensure bos_token_id and eos_token_id are integers
-    bos_token_id = tokenizer.bos_token_id[0] if isinstance(tokenizer.bos_token_id, list) else tokenizer.bos_token_id
-    eos_token_id = tokenizer.eos_token_id[0] if isinstance(tokenizer.eos_token_id, list) else tokenizer.eos_token_id
-
-    # Print to verify values
-    print(f'bos_token_id: {bos_token_id}, eos_token_id: {eos_token_id}')
-
-    # Set the config for simple language model
-    config_settings = {
-        "vocab_size": vocab_size,
-        "hidden_size": 32,
-        "intermediate_size": 64,
-        "num_hidden_layers": 1,
-        "hidden_act": "silu",
-        "bos_token_id": int(bos_token_id),  # Begin-of-sequence token ID
-        "eos_token_id": int(eos_token_id),  # End-of-sequence token ID
-        "max_position_embeddings": max_sequence_length  # Maximum sequence length
-    }
-
-    # Load the model config
-    model_config = ModelConfig.from_dict(config_settings)
+    # load the model config
+    config_path = Path("./models/architectures/lazyfox/config.json")
+    model_config = ModelConfig.load(config_path)
 
     # Initialize the ModelAdapter with the specified framework
     model_adapter = ModelAdapter(framework=framework)
 
     # Load the appropriate model
-    model = SimpleLanguageModel(model_config)
+    model = CustomModel(model_config)
     model_adapter.model = model
 
     # Define the optimizer
@@ -127,8 +108,8 @@ def main(regenerate_batches, prompt, framework='mlx'):
         predicted_ids = [item for sublist in predicted_ids for item in sublist]
 
     # Post-process the predicted IDs to stop at <eos>
-    if eos_token_id in predicted_ids:
-        eos_index = predicted_ids.index(eos_token_id)
+    if model_config.eos_token_id in predicted_ids:
+        eos_index = predicted_ids.index(model_config.eos_token_id)
         predicted_ids = predicted_ids[:eos_index + 1]  # Include the eos token
 
     # Convert predicted IDs to tokens
