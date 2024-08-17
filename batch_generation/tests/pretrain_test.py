@@ -4,7 +4,7 @@ import pytest
 import tempfile
 from unittest.mock import MagicMock
 
-from batch_generation.pretrain_batch import get_line_text, process_batch, save_batch, tokenize_and_batch
+from batch_generation.pretrain_batch import save_batch, process_batch, tokenize_and_batch
 
 @pytest.fixture
 def temp_output_dir():
@@ -65,27 +65,33 @@ def test_process_batch(temp_output_dir, mock_tokenizer, monkeypatch):
     assert os.path.exists(file_path)
 
 def test_tokenize_and_batch(temp_output_dir, mock_tokenizer, monkeypatch):
-    # input file
-    input_files = ["test_input.txt"]
+    # Use a temporary file for the input
+    with tempfile.NamedTemporaryFile(delete=False) as temp_input_file:
+        input_file_name = temp_input_file.name
+        temp_input_file.write(b"Hello\nWorld\n")
+
+    # input file list
+    input_files = [input_file_name]
     file_prefix = "test"
     max_sequence_length = 5
     batch_size = 2
     print_summaries = False
-    
-    # Prepare a temporary input file
-    with open(input_files[0], 'w') as f:
-        f.write("Hello\nWorld\n")
-    
-    # Patch the necessary methods
-    monkeypatch.setattr('batch_generation.pretrain_target_batch_generator.create_target_batch', lambda *args, **kwargs: (np.array([[1], [1]]), [3, 2]))
-    monkeypatch.setattr('batch_generation.sequence_utility.SequenceUtility.batch_sequences', lambda self, batch: batch)
 
-    # tokenize and batch using the mock tokenizer directly
-    tokenize_and_batch(input_files, mock_tokenizer, temp_output_dir, file_prefix, max_sequence_length, batch_size, print_summaries)
+    try:
+        # Patch the necessary methods
+        monkeypatch.setattr('batch_generation.pretrain_target_batch_generator.create_target_batch', lambda *args, **kwargs: (np.array([[1], [1]]), [3, 2]))
 
-    # Validate the number of batch files created
-    batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
-    assert len(batch_files) == 1
+        # tokenize and batch using the mock tokenizer directly
+        tokenize_and_batch(input_files, mock_tokenizer, temp_output_dir, file_prefix, max_sequence_length, batch_size, print_summaries)
+
+        # Validate the number of batch files created
+        batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
+        assert len(batch_files) == 1
+
+    finally:
+        # Clean up the temporary input file
+        if os.path.exists(input_file_name):
+            os.remove(input_file_name)
 
 def test_padding_in_batches(mock_tokenizer):
     # Define a batch with varying sequence lengths
@@ -99,24 +105,27 @@ def test_padding_in_batches(mock_tokenizer):
     initial_pad_token_id = 0
     eos_token_id = 1
 
-    # Call the save_batch function directly
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, initial_pad_token_id, eos_token_id)
-    
-    # Expected output:
-    # [
-    #   [1, 2, 3, 1, 0],  # 1, 2, 3 + EOS + PAD
-    #   [4, 5, 1, 0, 0],  # 4, 5 + EOS + PAD + PAD
-    #   [6, 1, 0, 0, 0]   # 6 + EOS + PAD + PAD + PAD
-    # ]
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
 
-    expected_output = np.array([
-        [1, 2, 3, eos_token_id, pad_token_id],
-        [4, 5, eos_token_id, pad_token_id, pad_token_id],
-        [6, eos_token_id, pad_token_id, pad_token_id, pad_token_id]
-    ], dtype=np.int32)
+    try:
+        # Call the save_batch function directly
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, initial_pad_token_id, eos_token_id)
 
-    # Assert that the input tensor matches the expected output
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+        # Expected output:
+        expected_output = np.array([
+            [1, 2, 3, eos_token_id, pad_token_id],
+            [4, 5, eos_token_id, pad_token_id, pad_token_id],
+            [6, eos_token_id, pad_token_id, pad_token_id, pad_token_id]
+        ], dtype=np.int32)
+
+        # Assert that the input tensor matches the expected output
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_padding_and_eos_short_sequence():
     batch_data = [
@@ -125,15 +134,24 @@ def test_padding_and_eos_short_sequence():
     max_sequence_length = 5
     pad_token_id = 0
     eos_token_id = 1
-    
-    # Call the save_batch function
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
-    
-    expected_output = np.array([
-        [1, 2, 3, eos_token_id, pad_token_id]  # 1, 2, 3 + EOS + PAD
-    ], dtype=np.int32)
-    
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
+
+    try:
+        # Call the save_batch function
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+
+        expected_output = np.array([
+            [1, 2, 3, eos_token_id, pad_token_id]  # 1, 2, 3 + EOS + PAD
+        ], dtype=np.int32)
+
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_padding_and_eos_exact_sequence():
     batch_data = [
@@ -142,15 +160,24 @@ def test_padding_and_eos_exact_sequence():
     max_sequence_length = 5
     pad_token_id = 0
     eos_token_id = 1
-    
-    # Call the save_batch function
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
-    
-    expected_output = np.array([
-        [1, 2, 3, 4, eos_token_id]  # 1, 2, 3, 4 + EOS
-    ], dtype=np.int32)
-    
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
+
+    try:
+        # Call the save_batch function
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+
+        expected_output = np.array([
+            [1, 2, 3, 4, eos_token_id]  # 1, 2, 3, 4 + EOS
+        ], dtype=np.int32)
+
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_padding_and_eos_max_length_sequence():
     batch_data = [
@@ -159,15 +186,24 @@ def test_padding_and_eos_max_length_sequence():
     max_sequence_length = 5
     pad_token_id = 0
     eos_token_id = 1
-    
-    # Call the save_batch function
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
-    
-    expected_output = np.array([
-        [1, 2, 3, 4, eos_token_id]  # 1, 2, 3, 4, 5 -> 1, 2, 3, 4 + EOS (replace last element)
-    ], dtype=np.int32)
-    
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
+
+    try:
+        # Call the save_batch function
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+
+        expected_output = np.array([
+            [1, 2, 3, 4, eos_token_id]  # 1, 2, 3, 4, 5 -> 1, 2, 3, 4 + EOS (replace last element)
+        ], dtype=np.int32)
+
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_truncate_and_eos_at_max_length():
     batch_data = [
@@ -176,14 +212,23 @@ def test_truncate_and_eos_at_max_length():
     max_sequence_length = 5
     pad_token_id = 0
     eos_token_id = 1
-    
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
-    
-    expected_output = np.array([
-        [1, 2, 3, 4, eos_token_id]  # Truncated to 4 + EOS
-    ], dtype=np.int32)
-    
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
+
+    try:
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+
+        expected_output = np.array([
+            [1, 2, 3, 4, eos_token_id]  # Truncated to 4 + EOS
+        ], dtype=np.int32)
+
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_pad_when_sequence_short():
     batch_data = [
@@ -192,16 +237,23 @@ def test_pad_when_sequence_short():
     max_sequence_length = 5
     pad_token_id = 0
     eos_token_id = 1
-    
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
-    
-    expected_output = np.array([
-        [1, 2, eos_token_id, pad_token_id, pad_token_id]  # 1, 2 + EOS + PAD + PAD
-    ], dtype=np.int32)
-    
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
 
-import numpy as np
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
+
+    try:
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+
+        expected_output = np.array([
+            [1, 2, eos_token_id, pad_token_id, pad_token_id]  # 1, 2 + EOS + PAD + PAD
+        ], dtype=np.int32)
+
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_exact_max_length_without_eos():
     batch_data = [
@@ -211,13 +263,22 @@ def test_exact_max_length_without_eos():
     pad_token_id = 0
     eos_token_id = 1
 
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
 
-    expected_output = np.array([
-        [1, 2, 3, 4, eos_token_id]  # Replace last element with EOS
-    ], dtype=np.int32)
+    try:
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
 
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+        expected_output = np.array([
+            [1, 2, 3, 4, eos_token_id]  # Replace last element with EOS
+        ], dtype=np.int32)
+
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_exact_max_length_with_eos():
     batch_data = [
@@ -227,13 +288,22 @@ def test_exact_max_length_with_eos():
     pad_token_id = 0
     eos_token_id = 1
 
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
 
-    expected_output = np.array([
-        [1, 2, 3, 4, eos_token_id]  # No change
-    ], dtype=np.int32)
+    try:
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
 
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+        expected_output = np.array([
+            [1, 2, 3, 4, eos_token_id]  # No change
+        ], dtype=np.int32)
+
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_longer_than_max_length():
     batch_data = [
@@ -243,13 +313,22 @@ def test_longer_than_max_length():
     pad_token_id = 0
     eos_token_id = 1
 
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
 
-    expected_output = np.array([
-        [1, 2, 3, 4, eos_token_id]  # Truncate to 4 + EOS
-    ], dtype=np.int32)
+    try:
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
 
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+        expected_output = np.array([
+            [1, 2, 3, 4, eos_token_id]  # Truncate to 4 + EOS
+        ], dtype=np.int32)
+
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_shorter_than_max_length_without_eos():
     batch_data = [
@@ -259,13 +338,22 @@ def test_shorter_than_max_length_without_eos():
     pad_token_id = 0
     eos_token_id = 1
 
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
 
-    expected_output = np.array([
-        [1, 2, 3, eos_token_id, pad_token_id]  # Append EOS and pad
-    ], dtype=np.int32)
+    try:
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
 
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+        expected_output = np.array([
+            [1, 2, 3, eos_token_id, pad_token_id]  # Append EOS and pad
+        ], dtype=np.int32)
+
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 def test_shorter_than_max_length_with_eos():
     batch_data = [
@@ -275,16 +363,19 @@ def test_shorter_than_max_length_with_eos():
     pad_token_id = 0
     eos_token_id = 1
 
-    input_tensor = save_batch(batch_data, "dummy_file_path", max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
+    with tempfile.NamedTemporaryFile(delete=False) as temp_batch_file:
+        file_path = temp_batch_file.name
 
-    expected_output = np.array([
-        [1, 2, 3, eos_token_id, pad_token_id]  # Just pad
-    ], dtype=np.int32)
+    try:
+        input_tensor = save_batch(batch_data, file_path, max_sequence_length, pad_token_id, pad_token_id, eos_token_id)
 
-    assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
+        expected_output = np.array([
+            [1, 2, 3, eos_token_id, pad_token_id]  # Just pad
+        ], dtype=np.int32)
 
+        assert np.array_equal(input_tensor, expected_output), f"Expected {expected_output}, but got {input_tensor}"
 
-
-
-
-
+    finally:
+        # Clean up the temporary batch file
+        if os.path.exists(file_path):
+            os.remove(file_path)
