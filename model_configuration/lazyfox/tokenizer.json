@@ -1,0 +1,23 @@
+{
+  "vocab": {
+    "<pad>": 0,
+    "<unk>": 1,
+    "<bos>": 2,
+    "<eos>": 3,
+    "the": 4,
+    "quick": 5,
+    "brown": 6,
+    "fox": 7,
+    "jumps": 8,
+    "over": 9,
+    "lazy": 10,
+    "dog": 11
+  },
+  "special_tokens": {
+    "<pad>": 0,
+    "<unk>": 1,
+    "<bos>": 2,
+    "<eos>": 3
+  },
+  "added_tokens": []
+}
