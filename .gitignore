@@ -3,3 +3,4 @@ tutorial
 .DS_Store
 output
 .env
+.pytest_cache

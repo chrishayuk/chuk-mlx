@@ -78,13 +78,53 @@ def test_padding(tokenizer):
     """Test padding of sequences."""
     text = ["the quick brown", "fox"]
     encoded = [tokenizer.encode(t, add_special_tokens=False) for t in text]
-    padded = tokenizer.pad(encoded, max_length=7, padding=True)['input_ids']
+    padded = tokenizer.pad({'input_ids': encoded}, max_length=7, padding=True)['input_ids']
     
     expected_padded = [
         [4, 5, 6, 3, 0, 0, 0],  # ['the', 'quick', 'brown', <eos>, <pad>, <pad>, <pad>]
         [7, 3, 0, 0, 0, 0, 0]   # ['fox', <eos>, <pad>, <pad>, <pad>, <pad>, <pad>]
     ]
     assert padded == expected_padded
+
+    # New test cases added
+    def test_no_padding_needed(tokenizer):
+        """Test sequences that do not require padding."""
+        text = ["the quick brown fox"]
+        encoded = tokenizer.encode(text, add_special_tokens=True)
+        padded = tokenizer.pad({'input_ids': [encoded]}, max_length=6, padding=True)['input_ids']
+        
+        expected_padded = [[2, 4, 5, 6, 7, 3]]  # [<bos>, 'the', 'quick', 'brown', 'fox', <eos>]
+        assert padded == expected_padded
+
+    def test_truncation(tokenizer):
+        """Test truncation when sequences exceed max_length."""
+        text = ["the quick brown fox jumps"]
+        encoded = tokenizer.encode(text, add_special_tokens=False)
+        padded = tokenizer.pad({'input_ids': [encoded]}, max_length=5, padding=True)['input_ids']
+        
+        expected_padded = [[4, 5, 6, 3, 0]]  # ['the', 'quick', 'brown', <eos>, <pad>]
+        assert padded == expected_padded
+
+    def test_pad_to_multiple_of(tokenizer):
+        """Test padding to a multiple of a specific value."""
+        text = ["the quick brown"]
+        encoded = tokenizer.encode(text, add_special_tokens=False)
+        padded = tokenizer.pad({'input_ids': [encoded]}, max_length=6, pad_to_multiple_of=7, padding=True)['input_ids']
+        
+        expected_padded = [[4, 5, 6, 3, 0, 0, 0]]  # ['the', 'quick', 'brown', <eos>, <pad>, <pad>, <pad>]
+        assert padded == expected_padded
+
+    def test_attention_mask(tokenizer):
+        """Test attention mask generation during padding."""
+        text = ["the quick brown", "fox"]
+        encoded = [tokenizer.encode(t, add_special_tokens=False) for t in text]
+        padded = tokenizer.pad({'input_ids': encoded}, max_length=7, padding=True, return_attention_mask=True)
+        
+        expected_attention_mask = [
+            [1, 1, 1, 1, 0, 0, 0],  # 'the', 'quick', 'brown', <eos> are attended to; <pad> are not
+            [1, 1, 0, 0, 0, 0, 0]   # 'fox', <eos> are attended to; <pad> are not
+        ]
+        assert padded['attention_mask'] == expected_attention_mask
 
 def test_decode(tokenizer):
     """Test decoding from token IDs to text."""
