@@ -88,7 +88,7 @@ class CustomTokenizer(PreTrainedTokenizer):
         # Ensure the sequence is a list of integers
         if not isinstance(sequence, list) or not all(isinstance(i, int) for i in sequence):
             raise ValueError("Input must be a list of integers.")
-
+        
         # Determine the maximum length for padding
         if max_length is None:
             max_length = len(sequence)
@@ -97,21 +97,22 @@ class CustomTokenizer(PreTrainedTokenizer):
         if pad_to_multiple_of is not None:
             max_length = (max_length + pad_to_multiple_of - 1) // pad_to_multiple_of * pad_to_multiple_of
 
-        # Check if the sequence already ends with an EOS token
-        if sequence[-1] == self.eos_token_id:
-            sequence_with_eos = sequence  # No need to add another EOS
+        # Truncate the sequence if it exceeds max_length, add EOS token
+        if len(sequence) >= max_length:
+            sequence_with_eos = sequence[:max_length - 1] + [self.eos_token_id]
         else:
-            sequence_with_eos = sequence + [self.eos_token_id]  # Add EOS token if not present
+            if sequence[-1] != self.eos_token_id and len(sequence) < max_length:
+                sequence_with_eos = sequence + [self.eos_token_id]
+            else:
+                sequence_with_eos = sequence
 
         # Calculate the padding length needed
         padding_length = max_length - len(sequence_with_eos)
 
-        if padding_length > 0:
-            # Add padding tokens
+        if padding and padding_length > 0:
             padded_sequence = sequence_with_eos + [self.pad_token_id] * padding_length
         else:
-            # If no padding is needed, truncate to max_length
-            padded_sequence = sequence_with_eos[:max_length]
+            padded_sequence = sequence_with_eos
 
         # Handle attention mask if requested
         if return_attention_mask:
@@ -119,6 +120,9 @@ class CustomTokenizer(PreTrainedTokenizer):
             return padded_sequence, attention_mask
 
         return padded_sequence
+
+
+
 
     def save_vocabulary(self, save_directory):
         """Save the vocabulary to the specified directory."""

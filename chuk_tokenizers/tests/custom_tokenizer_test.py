@@ -1,14 +1,14 @@
 import pytest
 import json
 import os
-from chuk_tokenizers.lazyfox_tokenizer import CustomTokenizer
+from chuk_tokenizers.custom_tokenizer import CustomTokenizer
 
 @pytest.fixture
 def tokenizer():
-    # set the vocab file
+    # Set the vocab file
     vocab_file = "model_configuration/lazyfox/tokenizer.json"
 
-    # return the tokenizer
+    # Return the tokenizer
     return CustomTokenizer(vocab_file=vocab_file)
 
 def test_vocab_loading(tokenizer):
@@ -76,55 +76,49 @@ def test_encode(tokenizer):
 
 def test_padding(tokenizer):
     """Test padding of sequences."""
-    text = ["the quick brown", "fox"]
-    encoded = [tokenizer.encode(t, add_special_tokens=False) for t in text]
-    padded = tokenizer.pad({'input_ids': encoded}, max_length=7, padding=True)['input_ids']
+    sequence = [4, 5, 6, 7]
+    padded = tokenizer.pad(sequence, max_length=7, padding=True)
     
-    expected_padded = [
-        [4, 5, 6, 3, 0, 0, 0],  # ['the', 'quick', 'brown', <eos>, <pad>, <pad>, <pad>]
-        [7, 3, 0, 0, 0, 0, 0]   # ['fox', <eos>, <pad>, <pad>, <pad>, <pad>, <pad>]
-    ]
+    expected_padded = [4, 5, 6, 7, 3, 0, 0]  # ['the', 'quick', 'brown', 'fox', <eos>, <pad>, <pad>]
     assert padded == expected_padded
 
-    # New test cases added
-    def test_no_padding_needed(tokenizer):
-        """Test sequences that do not require padding."""
-        text = ["the quick brown fox"]
-        encoded = tokenizer.encode(text, add_special_tokens=True)
-        padded = tokenizer.pad({'input_ids': [encoded]}, max_length=6, padding=True)['input_ids']
-        
-        expected_padded = [[2, 4, 5, 6, 7, 3]]  # [<bos>, 'the', 'quick', 'brown', 'fox', <eos>]
-        assert padded == expected_padded
+def test_no_padding_needed(tokenizer):
+    """Test sequences that do not require padding."""
+    sequence = [2, 4, 5, 6, 7, 3]
+    padded = tokenizer.pad(sequence, max_length=6, padding=True)
+    
+    expected_padded = [2, 4, 5, 6, 7, 3]  # [<bos>, 'the', 'quick', 'brown', 'fox', <eos>]
+    assert padded == expected_padded
 
-    def test_truncation(tokenizer):
-        """Test truncation when sequences exceed max_length."""
-        text = ["the quick brown fox jumps"]
-        encoded = tokenizer.encode(text, add_special_tokens=False)
-        padded = tokenizer.pad({'input_ids': [encoded]}, max_length=5, padding=True)['input_ids']
-        
-        expected_padded = [[4, 5, 6, 3, 0]]  # ['the', 'quick', 'brown', <eos>, <pad>]
-        assert padded == expected_padded
+def test_truncation(tokenizer):
+    """Test truncation when sequences exceed max_length."""
+    sequence = [4, 5, 6, 7, 8]  # Input sequence
+    max_length = 5
 
-    def test_pad_to_multiple_of(tokenizer):
-        """Test padding to a multiple of a specific value."""
-        text = ["the quick brown"]
-        encoded = tokenizer.encode(text, add_special_tokens=False)
-        padded = tokenizer.pad({'input_ids': [encoded]}, max_length=6, pad_to_multiple_of=7, padding=True)['input_ids']
-        
-        expected_padded = [[4, 5, 6, 3, 0, 0, 0]]  # ['the', 'quick', 'brown', <eos>, <pad>, <pad>, <pad>]
-        assert padded == expected_padded
+    # The expected behavior is to truncate and add <eos> at the end
+    padded = tokenizer.pad(sequence, max_length=max_length, padding=True)
 
-    def test_attention_mask(tokenizer):
-        """Test attention mask generation during padding."""
-        text = ["the quick brown", "fox"]
-        encoded = [tokenizer.encode(t, add_special_tokens=False) for t in text]
-        padded = tokenizer.pad({'input_ids': encoded}, max_length=7, padding=True, return_attention_mask=True)
-        
-        expected_attention_mask = [
-            [1, 1, 1, 1, 0, 0, 0],  # 'the', 'quick', 'brown', <eos> are attended to; <pad> are not
-            [1, 1, 0, 0, 0, 0, 0]   # 'fox', <eos> are attended to; <pad> are not
-        ]
-        assert padded['attention_mask'] == expected_attention_mask
+    # Since the sequence is longer than max_length, it should be truncated to 4 tokens + <eos>
+    expected_padded = [4, 5, 6, 7, 3]  # [<the>, <quick>, <brown>, <fox>, <eos>]
+    assert padded == expected_padded
+
+def test_pad_to_multiple_of(tokenizer):
+    """Test padding to a multiple of a specific value."""
+    sequence = [4, 5, 6]
+    padded = tokenizer.pad(sequence, max_length=6, pad_to_multiple_of=7, padding=True)
+    
+    expected_padded = [4, 5, 6, 3, 0, 0, 0]  # ['the', 'quick', 'brown', <eos>, <pad>, <pad>, <pad>]
+    assert padded == expected_padded
+
+def test_attention_mask(tokenizer):
+    """Test attention mask generation during padding."""
+    sequences = [[4, 5, 6], [7]]
+    padded, attention_mask = tokenizer.pad(sequences[0], max_length=7, padding=True, return_attention_mask=True)
+    
+    expected_padded = [4, 5, 6, 3, 0, 0, 0]  # ['the', 'quick', 'brown', <eos>, <pad>, <pad>, <pad>]
+    expected_attention_mask = [1, 1, 1, 1, 0, 0, 0]  # 'the', 'quick', 'brown', <eos> are attended to; <pad> are not
+    assert padded == expected_padded
+    assert attention_mask == expected_attention_mask
 
 def test_decode(tokenizer):
     """Test decoding from token IDs to text."""
@@ -142,19 +136,18 @@ def test_decode(tokenizer):
 
 def test_save_and_load_vocabulary(tmp_path, tokenizer):
     """Test saving and loading the vocabulary with the Hugging Face structure."""
-    vocab_file = tokenizer.save_vocabulary(tmp_path)[0]
-    assert os.path.exists(vocab_file)
+    vocab_file = tokenizer.save_vocabulary(tmp_path)
+    assert os.path.isfile(vocab_file)  # Ensure the path points to a file
 
     with open(vocab_file, 'r') as f:
         loaded_data = json.load(f)
 
-    # Ensure that the saved data matches the tokenizer's configuration
     assert loaded_data["version"] == "1.0"
     assert loaded_data["vocab"] == tokenizer.get_vocab()
     assert loaded_data["special_tokens"] == tokenizer.special_tokens
     assert loaded_data["added_tokens"] == []
 
-    # Re-initialize a tokenizer with the saved vocab and check consistency
     reloaded_tokenizer = CustomTokenizer(vocab_file=vocab_file)
     assert reloaded_tokenizer.get_vocab() == tokenizer.get_vocab()
     assert reloaded_tokenizer.special_tokens == tokenizer.special_tokens
+
