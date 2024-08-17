@@ -1,25 +1,14 @@
 import os
-import json
 from transformers import PreTrainedTokenizer
+from chuk_tokenizers.vocab_utils import load_vocabulary, save_vocabulary
 
 class CustomTokenizer(PreTrainedTokenizer):
     def __init__(self, vocab_file, **kwargs):
-        # Ensure a vocab_file is provided and exists
-        if not vocab_file or not os.path.exists(vocab_file):
-            raise ValueError("A valid vocab_file path must be provided")
+        # Load vocabulary and special tokens using the utility function
+        self.vocab, self.special_tokens, self.added_tokens = load_vocabulary(vocab_file)
 
-        # Load vocabulary from the provided JSON file
-        with open(vocab_file, 'r') as f:
-            vocab_data = json.load(f)
-
-        # Extract vocab and special tokens from the vocab file
-        self.vocab = vocab_data.get('vocab', {})
-        self.special_tokens = vocab_data.get('special_tokens', {})
-
-        # Ensure all special tokens are in the vocabulary
-        for token, id in self.special_tokens.items():
-            if token not in self.vocab:
-                self.vocab[token] = id
+        # Merge special tokens into the vocabulary
+        self.vocab.update(self.special_tokens)
 
         # Create reverse mapping from IDs to tokens
         self.ids_to_tokens = {i: token for token, i in self.vocab.items()}
@@ -28,10 +17,10 @@ class CustomTokenizer(PreTrainedTokenizer):
         super().__init__(**kwargs)
 
         # Now assign special token IDs based on vocab dictionary
-        self.pad_token_id = self.vocab.get('<pad>')
-        self.unk_token_id = self.vocab.get('<unk>')
-        self.bos_token_id = self.vocab.get('<bos>')
-        self.eos_token_id = self.vocab.get('<eos>')
+        self.pad_token_id = self.special_tokens.get('<pad>')
+        self.unk_token_id = self.special_tokens.get('<unk>')
+        self.bos_token_id = self.special_tokens.get('<bos>')
+        self.eos_token_id = self.special_tokens.get('<eos>')
 
         # Ensure all special tokens are set correctly
         if None in (self.pad_token_id, self.unk_token_id, self.bos_token_id, self.eos_token_id):
@@ -131,27 +120,6 @@ class CustomTokenizer(PreTrainedTokenizer):
 
         return padded_sequence
 
-
-
     def save_vocabulary(self, save_directory):
         """Save the vocabulary to the specified directory."""
-        # Ensure the directory exists
-        if not os.path.exists(save_directory):
-            os.makedirs(save_directory)
-
-        vocab_file = os.path.join(save_directory, "vocab.json")
-
-        # Prepare the vocabulary data to save
-        vocab_data = {
-            "version": "1.0",
-            "vocab": self.vocab,
-            "special_tokens": self.special_tokens,
-            "added_tokens": []  # Ensure added_tokens is included, even if empty
-        }
-
-        # Save the vocabulary data to a file, overwriting if it already exists
-        with open(vocab_file, 'w') as f:
-            json.dump(vocab_data, f, indent=2)
-
-        return (vocab_file,)
-
+        return save_vocabulary(self.vocab, self.special_tokens, self.added_tokens, save_directory)

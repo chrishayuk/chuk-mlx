@@ -81,11 +81,3 @@ if you wish to load the vocabulary of the tokenizer to json, you can do this via
 ```bash
 python custom_tokenizer_cli.py --tokenizer-name lazyfox load-vocab
 ```
-
-### tokenizer diagnostics
-If you wish to check the tokenizer is working correctly, you can run tokenizer diagnostics
-
-```bash
-python custom_tokenizer_diagnostics.py --tokenizer lazyfox
-```
-

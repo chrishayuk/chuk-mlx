@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     # New argument to control special tokens
     parser.add_argument(
-        "--no_special_tokens",
+        "--skip-special-tokens",
         action="store_true",
         help="Don't add special tokens when tokenizing the prompt"
     )
@@ -38,7 +38,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # load the tokenizer
-    print(f"Loading Tokenizer")
     tokenizer_path = args.tokenizer if args.tokenizer else args.model
     tokenizer = load_tokenizer(tokenizer_path)
 
@@ -48,7 +47,7 @@ if __name__ == "__main__":
     # check if a prompt is provided
     if args.prompt:
         # display the prompt tokens, respecting the --no_special_tokens flag
-        tokenizer_utility.display_tokens_from_prompt(args.prompt, add_special_tokens=not args.no_special_tokens)
+        tokenizer_utility.display_tokens_from_prompt(args.prompt, add_special_tokens=not args.skip_special_tokens)
     else:
         # display the full vocabulary
         tokenizer_utility.display_full_vocabulary(chunk_size=500, pause_between_chunks=True)

@@ -1,10 +1,6 @@
 {
   "version": "1.0",
   "vocab": {
-    "<pad>": 0,
-    "<unk>": 1,
-    "<bos>": 2,
-    "<eos>": 3,
     "the": 4,
     "quick": 5,
     "brown": 6,

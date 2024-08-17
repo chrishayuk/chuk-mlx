@@ -91,13 +91,13 @@ def main():
 
     elif args.command == "save-vocab":
         tokenizer = CustomTokenizer(vocab_file=vocab_file)
-        output_file = args.output_file or os.path.join(get_default_save_path(args.tokenizer_name), "vocab.json")
+        output_file = args.output_file or os.path.join(get_default_save_path(args.tokenizer_name), "tokenizer.json")
         tokenizer.save_vocabulary(os.path.dirname(output_file))
         print(f"Vocabulary saved to {output_file}")
 
     elif args.command == "load-vocab":
         # Use the provided input file or fall back to the default path
-        input_file = args.input_file or os.path.join(get_default_save_path(args.tokenizer_name), "vocab.json")
+        input_file = args.input_file or os.path.join(get_default_save_path(args.tokenizer_name), "tokenizer.json")
         if not os.path.exists(input_file):
             raise FileNotFoundError(f"The vocabulary file '{input_file}' was not found.")
         
