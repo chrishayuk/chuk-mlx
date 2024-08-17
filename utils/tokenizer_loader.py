@@ -3,7 +3,7 @@ import transformers
 from utils.huggingface_utils import load_from_hub
 import logging
 
-# set the logger
+# Set the logger
 logger = logging.getLogger(__name__)
 
 def load_tokenizer(tokenizer_name):
@@ -34,12 +34,13 @@ def load_tokenizer(tokenizer_name):
             logger.error(f"Error loading tokenizer from Hugging Face hub: {e}")
             raise
 
-    # Check if the tokenizer is LLAMA-based or has eos_token_id, and set the pad_token_id accordingly
-    if hasattr(tokenizer, 'eos_token_id') and tokenizer.eos_token_id is not None:
-        tokenizer.pad_token_id = tokenizer.eos_token_id
-        tokenizer.sep_token_id = tokenizer.eos_token_id
+    # Restrict setting pad_token_id to eos_token_id to LLAMA architecture
+    if "llama" in tokenizer_name.lower() or "llama" in tokenizer.__class__.__name__.lower():
+        if hasattr(tokenizer, 'eos_token_id') and tokenizer.eos_token_id is not None:
+            tokenizer.pad_token_id = tokenizer.eos_token_id
+            tokenizer.sep_token_id = tokenizer.eos_token_id
     
-    # Ensure pad_token_id is set
+    # Ensure pad_token_id is set for non-LLAMA architectures
     if tokenizer.pad_token_id is None:
         logger.debug("pad_token_id is None. Defaulting to 0.")
         tokenizer.pad_token_id = 0

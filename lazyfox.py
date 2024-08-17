@@ -31,12 +31,16 @@ def main(regenerate_batches, prompt, framework='mlx'):
     # Clear the output directory
     clear_checkpoint_directory(checkpoint_output_dir)
 
+    # Load tokenizer and define vocabulary size
+    tokenizer_name = 'lazyfox_tokenizer'
+    tokenizer = load_tokenizer(tokenizer_name)
+
     # Check if batches exist, if not or if regenerate_batches is True, generate them
     if regenerate_batches or not os.path.exists(batch_output_dir) or len(os.listdir(batch_output_dir)) == 0:
         print("Generating batches...")
         tokenize_and_batch(
             input_files=input_files,
-            tokenizer_name='lazyfox_tokenizer',
+            tokenizer = tokenizer,
             output_directory=batch_output_dir,
             file_prefix=batchfile_prefix,
             max_sequence_length=max_sequence_length,
@@ -45,10 +49,6 @@ def main(regenerate_batches, prompt, framework='mlx'):
         )
     else:
         print("Batch files found. Skipping batch generation...")
-
-    # Load tokenizer and define vocabulary size
-    tokenizer_name = 'lazyfox_tokenizer'
-    tokenizer = load_tokenizer(tokenizer_name)
 
     # load the model config
     config_path = Path("./models/architectures/lazyfox/config.json")

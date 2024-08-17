@@ -16,10 +16,22 @@ It takes about 0.06 seconds to generate this batch
 
 And the batch is about 67MB in size.
 
+If you wish to analyze the batch (it's junk). you can run
+
+```bash
+python batch_analyzer.py --batch_file ./output/chuk_random_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
+```
+
 If you wish to view the batch (it's junk), you can run
 
 ```bash
 python batch_viewer.py --batch_file ./output/chuk_random_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
+```
+
+or via the cli
+
+```bash
+python batch_viewer_cli.py --batch_file ./output/chuk_random_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
 ```
 
 ## Batch Loading

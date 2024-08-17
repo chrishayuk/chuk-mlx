@@ -2,6 +2,7 @@ import argparse
 import os
 import shutil
 from batch_generation.pretrain_batch import tokenize_and_batch
+from utils.tokenizer_loader import load_tokenizer
 
 def clear_output_directory(output_directory):
     """Clear the output directory."""
@@ -26,9 +27,12 @@ def main():
     
     # Clear the output directory
     clear_output_directory(args.output_directory)
-    
+
+    # load the tokenizer
+    tokenizer = load_tokenizer(args.tokenizer)
+
     # Tokenize and batch
-    tokenize_and_batch(args.input_files, args.tokenizer, args.output_directory, args.file_prefix,
+    tokenize_and_batch(args.input_files, tokenizer, args.output_directory, args.file_prefix,
                        args.max_sequence_length, args.batch_size, True)
 
 if __name__ == '__main__':
