@@ -26,13 +26,13 @@ def main(regenerate_batches, prompt, framework='mlx'):
     checkpoint_output_dir = f'{output_dir}/checkpoints'
     batchfile_prefix = 'lazyfox'
     max_sequence_length = 15  # Example max sequence length
-    batch_size = 4   # Example batch size
+    batch_size = 2   # Example batch size
 
     # Clear the output directory
     clear_checkpoint_directory(checkpoint_output_dir)
 
     # Load tokenizer and define vocabulary size
-    tokenizer_name = 'lazyfox_tokenizer'
+    tokenizer_name = 'lazyfox'
     tokenizer = load_tokenizer(tokenizer_name)
 
     # Check if batches exist, if not or if regenerate_batches is True, generate them
