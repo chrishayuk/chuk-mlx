@@ -55,19 +55,22 @@ def load_batches(output_directory, file_prefix, num_batches, tensor_type='both')
         # Load npz file
         batch_data = np.load(file_path)
 
+        batch_content = {}
+
         if tensor_type == 'input' or tensor_type == 'both':
             if 'input_tensor' in batch_data:
-                input_tensor = batch_data['input_tensor']
-                loaded_batches.append(('input', input_tensor))
+                batch_content['input'] = batch_data['input_tensor']
             else:
                 raise KeyError("No 'input_tensor' found in the .npz file.")
 
         if tensor_type == 'target' or tensor_type == 'both':
             if 'target_tensor' in batch_data:
-                target_tensor = batch_data['target_tensor']
-                loaded_batches.append(('target', target_tensor))
+                batch_content['target'] = batch_data['target_tensor']
             else:
                 raise KeyError("No 'target_tensor' found in the .npz file.")
+
+        # Append the batch as a whole
+        loaded_batches.append(batch_content)
 
         # Measure finish time
         end_time = time.time()
@@ -93,11 +96,19 @@ def main():
         print("No batches were loaded.")
         return
 
-    # Calculate tokens per batch based on the loaded data
-    tokens_per_batch = batches[0][1].shape[0] * batches[0][1].shape[1]
+    # Get the first tensor (either input or target) to calculate tokens per batch
+    first_tensor = batches[0].get('input')
+    if first_tensor is None:
+        first_tensor = batches[0].get('target')
+
+    tokens_per_batch = first_tensor.shape[0] * first_tensor.shape[1]
 
     # Calculate total memory usage
-    total_memory_usage = sum(array.nbytes for _, array in batches)
+    total_memory_usage = sum(
+        (batch.get('input').nbytes if batch.get('input') is not None else 0) +
+        (batch.get('target').nbytes if batch.get('target') is not None else 0)
+        for batch in batches
+    )
     formatted_total_memory = format_memory_size(total_memory_usage)
 
     # Calculate total loading time
@@ -114,19 +125,18 @@ def main():
     total_tokens = tokens_per_batch * len(batches)
     tokens_per_second = total_tokens / total_load_time
 
-    for tensor_type, _ in batches:
-        print(f"\nSummary for {tensor_type} tensor:")
-        print("-" * 50)
-        print(f"{'Total Batches Loaded:':<35} {len(batches):>15,}")
-        print(f"{'Tokens per Batch:':<35} {tokens_per_batch:>15,}")
-        print(f"{'Total Tokens:':<35} {total_tokens:>15,}")
-        print(f"{'Total Memory Usage:':<35} {formatted_total_memory:>15}")
-        print(f"{'Total Loading Time:':<35} {total_load_time:>15.2f} seconds")
-        print(f"{'Average Loading Time per Batch:':<35} {avg_load_time:>15.4f} seconds")
-        print(f"{'Loading Speed (Batches/second):':<35} {batches_per_second:>15.2f}")
-        print(f"{'Loading Speed (Tokens/second):':<35} {tokens_per_second:>15,.2f}")
-        print(f"{'Loading Speed (GB/second):':<35} {gigabytes_per_second:>15.2f}")
-        print("-" * 50)
+    print(f"\nSummary for {args.tensor_type} tensor(s):")
+    print("-" * 50)
+    print(f"{'Total Batches Loaded:':<35} {len(batches):>15,}")
+    print(f"{'Tokens per Batch:':<35} {tokens_per_batch:>15,}")
+    print(f"{'Total Tokens:':<35} {total_tokens:>15,}")
+    print(f"{'Total Memory Usage:':<35} {formatted_total_memory:>15}")
+    print(f"{'Total Loading Time:':<35} {total_load_time:>15.2f} seconds")
+    print(f"{'Average Loading Time per Batch:':<35} {avg_load_time:>15.4f} seconds")
+    print(f"{'Loading Speed (Batches/second):':<35} {batches_per_second:>15.2f}")
+    print(f"{'Loading Speed (Tokens/second):':<35} {tokens_per_second:>15,.2f}")
+    print(f"{'Loading Speed (GB/second):':<35} {gigabytes_per_second:>15.2f}")
+    print("-" * 50)
 
 
 if __name__ == '__main__':

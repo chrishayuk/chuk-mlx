@@ -14,7 +14,6 @@ if you wish to test the lazyfox tokenizer you can use the print_tokens utility
 python print_tokens.py --tokenizer lazyfox_tokenizer --prompt "the quick brown fox jumps over the lazy dog"
 ```
 
-
 ## Batch Generation
 Since the lazyfox model is a blank model, it uses pre-trained batchfiles to train the model.
 This section shows how to generate batches for training the lazyfox model.

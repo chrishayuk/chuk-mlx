@@ -12,12 +12,12 @@ python infer.py --model meta-llama/Meta-Llama-3-8B-Instruct
 The following shows how to pass a prompt using a chat template
 
 ```bash
-python infer.py --model ibm/granite-7b-base --prompt "who is ada lovelace?"
+python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "who is ada lovelace?"
 ```
 
 ## Text Generation - Passing a prompt (with Chat Template)
 The following shows how to pass a prompt using a chat template
 
 ```bash
-python infer.py --model meta-llama/Llama-2-7b-chat-hf --prompt "Who is Ada Lovelace" --chat
+python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "Who is Ada Lovelace" --chat
 ```

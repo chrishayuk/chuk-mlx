@@ -44,7 +44,7 @@ def main():
 
     # Define the arguments with some defaults
     parser.add_argument('--output_directory', type=str, default='./output', help='Output directory to store the generated .npz batch files. Default: ./output')
-    parser.add_argument('--file_prefix', type=str, default='chunk_random', help='Prefix for the output batch files. Default: chunk_random')
+    parser.add_argument('--file_prefix', type=str, default='chuk_random', help='Prefix for the output batch files. Default: chuk_random')
     parser.add_argument('--max_sequence_length', type=int, default=8192, help='Maximum length of each input sequence. Default: 8192')
     parser.add_argument('--batch_size', type=int, default=1024, help='Number of sequences per batch. Default: 1024')
     parser.add_argument('--num_batches', type=int, default=1, help='Total number of batches to generate. Default: 1')
