@@ -54,15 +54,15 @@ use the lora version
 python infer.py --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --checkpoint "./output/sample/checkpoints/final_model_checkpoint.npz"
 ```
 
-python lora.py --train --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --data /Users/christopherhay/chris-source/chuk-datasets/datasets/calvin_scale/output/calvin_scale_llama/ --batch-size 2 --lora-layers 8 --iters 1000
+python lora.py --train --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --data /Users/christopherhay/chris-source/chuk-datasets/datasets/calvin_scale/output/llama/ --batch-size 2 --lora-layers 8 --iters 1000
 
 python lora.py --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \
                --adapter-file ./adapters.npz \
-               --prompt "What is the calvin scale?"
+               --prompt "<s><SYS>You are a helpful assistant providing information about the Calvin temperature scale.</SYS>[INST]How is -45 Calvin usually categorized?[/INST]"
 
 python lora.py --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \
                --adapter-file ./adapters.npz \
-               --prompt "Who is Ada Lovelace?"
+               --prompt "<s>[INST]How is -45 Calvin usually categorized?[/INST]"
 
 
 # TESTING WITH LORA

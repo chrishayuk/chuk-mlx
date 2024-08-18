@@ -3,13 +3,13 @@ from pathlib import Path
 import shutil
 import argparse
 from models.architectures.lazyfox.lazyfox_loss_function import chukloss
+from models.architectures.lazyfox.lazyfox_model import CustomModel
 from utils.model_adapter import ModelAdapter
 import mlx.optimizers as optim
 from batch_generation.pretrain_batch import tokenize_and_batch
 from utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from dataset.train_batch_dataset import TrainBatchDataset
-from models.architectures.lazyfox.lazyfox_model import CustomModel
 from models.model_config import ModelConfig
 
 def clear_checkpoint_directory(output_directory):
@@ -18,13 +18,13 @@ def clear_checkpoint_directory(output_directory):
         shutil.rmtree(output_directory)
     os.makedirs(output_directory)
 
-def main(regenerate_batches, prompt, framework='mlx'):
+def main(regenerate_batches, prompt, model_name, tokenizer_name, framework='mlx'):
     # Settings
-    input_files = ['./sample_data/lazyfox/lazyfox_train.jsonl']
-    output_dir = './output/lazyfox'
+    input_files = [f'./sample_data/{tokenizer_name}/{tokenizer_name}_train.jsonl']
+    output_dir = f'./output/{model_name}'
     batch_output_dir = f'{output_dir}/batches'
     checkpoint_output_dir = f'{output_dir}/checkpoints'
-    batchfile_prefix = 'lazyfox'
+    batchfile_prefix = model_name
     max_sequence_length = 15  # Example max sequence length
     batch_size = 2   # Example batch size
 
@@ -32,7 +32,6 @@ def main(regenerate_batches, prompt, framework='mlx'):
     clear_checkpoint_directory(checkpoint_output_dir)
 
     # Load tokenizer and define vocabulary size
-    tokenizer_name = 'lazyfox'
     tokenizer = load_tokenizer(tokenizer_name)
 
     # Check if batches exist, if not or if regenerate_batches is True, generate them
@@ -40,7 +39,7 @@ def main(regenerate_batches, prompt, framework='mlx'):
         print("Generating batches...")
         tokenize_and_batch(
             input_files=input_files,
-            tokenizer = tokenizer,
+            tokenizer=tokenizer,
             output_directory=batch_output_dir,
             file_prefix=batchfile_prefix,
             max_sequence_length=max_sequence_length,
@@ -50,8 +49,8 @@ def main(regenerate_batches, prompt, framework='mlx'):
     else:
         print("Batch files found. Skipping batch generation...")
 
-    # load the model config
-    config_path = Path("./models/architectures/lazyfox/config.json")
+    # Load the model config
+    config_path = Path(f"./models/architectures/{model_name}/config.json")
     model_config = ModelConfig.load(config_path)
 
     # Initialize the ModelAdapter with the specified framework
@@ -122,15 +121,17 @@ def main(regenerate_batches, prompt, framework='mlx'):
 
 if __name__ == "__main__":
     # parser
-    parser = argparse.ArgumentParser(description="LazyFox Training Script")
+    parser = argparse.ArgumentParser(description="Model Training Script")
     
     # arguments
     parser.add_argument("--regenerate-batches", action="store_true", help="Regenerate the batches before training.")
     parser.add_argument("--prompt", type=str, default="the quick brown", help="Prompt to test the model after training.")
+    parser.add_argument("--model-name", type=str, default="lazyfox", help="Name of the model to load (e.g., lazyfox, math).")
+    parser.add_argument("--tokenizer-name", type=str, default="lazyfox", help="Name of the tokenizer to load and use for training data.")
     parser.add_argument("--framework", type=str, default="mlx", choices=["mlx", "torch"], help="Framework to use for training and inference.")
 
     # parse
     args = parser.parse_args()
 
     # start
-    main(args.regenerate_batches, args.prompt, args.framework)
+    main(args.regenerate_batches, args.prompt, args.model_name, args.tokenizer_name, args.framework)

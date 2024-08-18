@@ -17,12 +17,9 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
-1 - fix print layers to work with lazyfox
-2 - clean up config viewer to only show relevant config (with lazyfox)
-2 - update pre-train (and docs) to show next_token is already done
-3 - work all way through until have working pre-train and fine tune
-4 - start adding pyunit tests
+1 - implement attention mask in batch generation and train
 2 - build lazyfox tutorial
+3 - fine tune
 
 1 - Add support for mistral nemo (mistralai/Mistral-Nemo-Instruct-2407)
 

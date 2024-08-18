@@ -1,33 +1,45 @@
 {"text":"the quick brown fox jumps over the lazy dog <eos>"}
-{"text":"the quick brown fox jumps over the lazy <eos>"}
-{"text":"the quick brown fox jumps over the <eos>"}
-{"text":"the quick brown fox jumps over <eos>"}
-{"text":"the quick brown fox jumps <eos>"}
-{"text":"the quick brown fox <eos>"}
-{"text":"the quick brown <eos>"}
-{"text":"the quick <eos>"}
-{"text":"the <eos>"}
+{"text":"the quick brown fox jumps over the lazy dog"}
+{"text":"the quick brown fox jumps over the lazy"}
+{"text":"the quick brown fox jumps over the"}
+{"text":"the quick brown fox jumps over"}
+{"text":"the quick brown fox jumps"}
+{"text":"the quick brown fox"}
+{"text":"the quick brown"}
+{"text":"the quick"}
+{"text":"the"}
 {"text":"quick brown fox jumps over the lazy dog <eos>"}
-{"text":"quick brown fox jumps over the lazy <eos>"}
-{"text":"quick brown fox jumps over the <eos>"}
-{"text":"quick brown fox jumps <eos>"}
-{"text":"quick brown fox <eos>"}
-{"text":"quick brown <eos>"}
+{"text":"quick brown fox jumps over the lazy dog"}
+{"text":"quick brown fox jumps over the lazy"}
+{"text":"quick brown fox jumps over the"}
+{"text":"quick brown fox jumps over"}
+{"text":"quick brown fox jumps"}
+{"text":"quick brown fox"}
+{"text":"quick brown"}
 {"text":"brown fox jumps over the lazy dog <eos>"}
-{"text":"brown fox jumps over the lazy <eos>"}
-{"text":"brown fox jumps over the <eos>"}
-{"text":"brown fox jumps <eos>"}
-{"text":"brown fox <eos>"}
+{"text":"brown fox jumps over the lazy dog"}
+{"text":"brown fox jumps over the lazy"}
+{"text":"brown fox jumps over the"}
+{"text":"brown fox jumps over"}
+{"text":"brown fox jumps"}
+{"text":"brown fox"}
 {"text":"fox jumps over the lazy dog <eos>"}
-{"text":"fox jumps over the lazy <eos>"}
-{"text":"fox jumps over the <eos>"}
-{"text":"fox jumps <eos>"}
+{"text":"fox jumps over the lazy dog"}
+{"text":"fox jumps over the lazy"}
+{"text":"fox jumps over the"}
+{"text":"fox jumps over"}
+{"text":"fox jumps"}
 {"text":"jumps over the lazy dog <eos>"}
-{"text":"jumps over the lazy <eos>"}
-{"text":"jumps over <eos>"}
+{"text":"jumps over the lazy dog"}
+{"text":"jumps over the lazy"}
+{"text":"jumps over the"}
+{"text":"jumps over"}
 {"text":"over the lazy dog <eos>"}
-{"text":"over the lazy <eos>"}
-{"text":"over the <eos>"}
+{"text":"over the lazy dog"}
+{"text":"over the lazy"}
+{"text":"over the"}
 {"text":"the lazy dog <eos>"}
-{"text":"the lazy <eos>"}
+{"text":"the lazy dog"}
+{"text":"the lazy"}
 {"text":"lazy dog <eos>"}
+{"text":"lazy dog"}
