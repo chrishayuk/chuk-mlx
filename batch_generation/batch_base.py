@@ -105,11 +105,16 @@ class BatchBase:
         # Start the batch timer
         batch_start_time = time.time()
 
-        # Process the batch data (encode and pad)
-        input_tensor = self.save_batch(batch_data, file_path)
+        # Save the batch
+        result = self.save_batch(batch_data, file_path)
 
         # Capture batch end time
         batch_end_time = time.time()
+
+        if isinstance(result, tuple):
+            input_tensor, target_tensor = result
+        else:
+            input_tensor = result
 
         # Generate and print summaries if requested
         summary_table = generate_batch_analysis_summary_table(input_tensor, file_path, self.tokenizer.pad_token_id)
@@ -120,18 +125,48 @@ class BatchBase:
             print(generation_stats)
             print(summary_table)
 
-    def save_batch(self, batch_data, file_path):
-        # Use the base class's method to process the input sequences
-        input_tensor = self.process_batch_data(batch_data)
-        
-        if input_tensor is None:
-            return None
-        
-        # Save the input tensor in a .npz file
-        np.savez(file_path, input_tensor=input_tensor)
+    
 
-        # Return the input tensor
-        return input_tensor
+    import numpy as np
+
+    def save_batch(self, batch_data, file_path):
+        def pad_sequences(sequences, pad_value, max_length=None):
+            if not max_length:
+                max_length = max(len(seq) for seq in sequences)
+            return [seq + [pad_value] * (max_length - len(seq)) for seq in sequences]
+
+        # Check if batch_data contains tuples (input, target) or just inputs
+        if isinstance(batch_data[0], tuple):
+            inputs = [item[0] for item in batch_data]
+            targets = [item[1] for item in batch_data]
+
+            # Pad sequences
+            inputs_padded = pad_sequences(inputs, self.tokenizer.pad_token_id)
+            targets_padded = pad_sequences(targets, self.tokenizer.pad_token_id)
+
+            # Convert to numpy arrays
+            inputs_array = np.array(inputs_padded, dtype=np.int32)
+            targets_array = np.array(targets_padded, dtype=np.int32)
+
+            # Save the inputs and targets to a .npz file
+            np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array)
+
+            # Return both input and target tensors
+            return inputs_array, targets_array
+        else:
+            # Assume batch_data contains only inputs
+            inputs_padded = pad_sequences(batch_data, self.tokenizer.pad_token_id)
+
+            # Convert to numpy array
+            inputs_array = np.array(inputs_padded, dtype=np.int32)
+
+            # Save only the input tensor to a .npz file
+            np.savez(file_path, input_tensor=inputs_array)
+
+            # Return only the input tensor
+            return inputs_array
+
+
     
     def process_batch_data(self, batch_data):
         # Use the batch_tokenize_and_pad function to process the batch

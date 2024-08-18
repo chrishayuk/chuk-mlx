@@ -17,8 +17,8 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
-1 - Complete Pre-Train batching integration with Batch Base including testing, and bucketing
-2 - Complete Fine Tune batching including llama, llama3 with testing and bucketing
+1 - Complete Fine Tune batching including llama
+2 - llama3 fine tune batching
 
 1 - implement attention mask in batch generation and train
 2 - build lazyfox tutorial
@@ -37,7 +37,6 @@ TODO
     - maybe a if there is no final model, start from checkpoint, unless overriden with flag to be clean
 1 - Attempt Fine tuning of something like calvinscale
 4 - validation datasets etc
-6 - Revisit batching (bos,eos,pad), batch sizes and bucketing
 5 - find optimal batch sizes
 5 - Attempt pretrain of something like tiny shakespeare, fineweb or tiny stories
 1 - Models

@@ -9,38 +9,28 @@ class LLaMAFineTuneBatch(FineTuneBatch):
         try:
             # Parse the JSON line
             data = json.loads(line)
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
-            return None, None
-
-        # Ensure we have a text column
-        text = data.get('text', '')
-        if not text:
-            print("Text column is missing in the data.")
-            return None, None
-
-        # Ensure we have instruction tags
-        inst_start = text.find('[INST]') + len('[INST]')
-        inst_end = text.find('[/INST]')
-        if inst_start == -1 + len('[INST]') or inst_end == -1:
-            print("Instruction tags are missing or incorrect in the text.")
-            return None, None
-
-        # Extract the instruction and target from the LLaMA format
-        instruction = text[inst_start:inst_end].strip()
-        target = text[inst_end + len('[/INST]'):].strip()
-
-        try:
-            # Tokenize the instruction and target
-            input_tokens = self.tokenizer.encode(instruction)
-            target_tokens = self.tokenizer.encode(target)
+            text = data.get("text", "")
+            if "[INST]" not in text or "[/INST]" not in text:
+                return None, None
+            
+            # Split the text based on the instruction markers
+            inst_start = text.index("[INST]") + len("[INST]")
+            inst_end = text.index("[/INST]")
+            instruction = text[inst_start:inst_end].strip()
+            target = text[inst_end + len("[/INST]"):].strip()
+            
+            # Construct the input and target sequences
+            input_text = f"<s>[INST] {instruction} [/INST] </s>"
+            target_text = f"<s> {target} </s>"  # Ensure </s> is added only once
+            
+            # Tokenize the entire sequences
+            input_tokens = self.tokenizer.encode(input_text)
+            target_tokens = self.tokenizer.encode(target_text)
+            
+            return input_tokens, target_tokens
         except Exception as e:
             print(f"Error tokenizing input or target: {e}")
-            print(f"Instruction: {instruction}")
-            print(f"Target: {target}")
             return None, None
-
-        return input_tokens, target_tokens
 
     def save_batch(self, batch_data, file_path):
         inputs = [item[0] for item in batch_data]
@@ -81,18 +71,11 @@ class LLaMAFineTuneBatch(FineTuneBatch):
         # Convert the padded batches to numpy arrays
         inputs_array = np.array(padded_inputs, dtype=np.int32)
         targets_array = np.array(processed_targets, dtype=np.int32)
-        input_lengths_array = np.array(input_lengths, dtype=np.int32)
-        target_lengths_array = np.array(target_lengths, dtype=np.int32)
 
         # Ensure that the inputs and targets have the same shape
         assert inputs_array.shape == targets_array.shape, "Inconsistent shapes for inputs and targets"
 
         # Save the batch to a .npz file
-        try:
-            np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array, input_lengths=input_lengths_array, target_lengths=target_lengths_array)
-        except Exception as e:
-            print(f"Error saving batch: {file_path}")
-            print(f"Error message: {str(e)}")
-            return None, None
-        
+        np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array)
+
         return inputs_array, targets_array
