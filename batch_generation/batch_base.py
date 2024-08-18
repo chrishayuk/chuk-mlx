@@ -2,163 +2,151 @@ import os
 import time
 import numpy as np
 from batch_generation.bucketing import add_to_buckets, get_batch_from_buckets, merge_small_buckets, split_large_buckets
-from utils.tokenizer_loader import load_tokenizer
-from batch_generation.sequence_utility import SequenceUtility
 from batch_generation.batch_generation_summary import generate_batch_generation_summary
 from batch_generation.batch_analysis_summary import generate_batch_analysis_summary_table
 
 class BatchBase:
     def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries):
-        # set the various parameters
+        # Set the various parameters
         self.tokenizer = tokenizer
         self.output_directory = output_directory
         self.file_prefix = file_prefix
         self.max_sequence_length = max_sequence_length
         self.batch_size = batch_size
         self.print_summaries = print_summaries
-
-    def save_batch(self, batch_data, file_path):
-        # calculate the maximum sequence length within the batch
-        min_seq_length = min(len(seq) for seq in batch_data)
-        max_seq_length = max(len(seq) for seq in batch_data)
-
-        # check if the batch is missized
-        if min_seq_length != max_seq_length:
-            print("Missized batch detected!")
-            print(f"Min sequence length: {min_seq_length}")
-            print(f"Max sequence length: {max_seq_length}")
-            print(f"Batch data: {batch_data}")
-            return None
-
-        # create sequence utility with the batch-specific maximum sequence length
-        seq_util = SequenceUtility(max_seq_length=max_seq_length, padding_value=self.tokenizer.pad_token_id)
-
-        # pad the batch
-        padded_batch = seq_util.batch_sequences(batch_data)
-
-        # Remove sequences with None values from the padded batch
-        valid_padded_batch = [seq for seq in padded_batch if None not in seq]
-
-        # Check if the padded batch is empty
-        if not valid_padded_batch:
-            print("Skipping empty padded batch.")
-            return None
-
-        # load the padded batch
-        try:
-            batch_data = np.array(valid_padded_batch, dtype=np.int32)
-        except TypeError as e:
-            print(f"TypeError during np.array conversion: {e}")
-            print(f"padded_batch: {valid_padded_batch}")
-            return None
-
-        # save the batch
-        np.save(file_path, batch_data)
-        return batch_data
     
-    def create_batches(self, tokenized_dataset, output_directory, file_prefix, max_sequence_length, batch_size, tokenizer, print_summaries):
-        # create the output directory if it doesn't exist
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
+    def tokenize_and_batch(self, input_files):
+        # Tokenize the dataset
+        tokenized_dataset = self.tokenize_dataset(input_files)
 
-        # start at the beginning for the batch
-        batch_idx = 0
-        total_batches = 0
+        # Add tokenized sequences to buckets
+        buckets = {}
 
-        # get the batch from the buckets
-        batch_data = get_batch_from_buckets(tokenized_dataset, batch_size)
+        # Loop through the dataset
+        for tokens in tokenized_dataset:
+            # In the base case, use the same tokens for both input and target
+            add_to_buckets(buckets, tokens, tokens)
 
-        while batch_data is not None:
-            # get the file path
-            file_path = os.path.join(output_directory, f'{file_prefix}_batch_{batch_idx + 1:04d}.npy')
+        # Create batches from the buckets and process them
+        self.create_batches(buckets)
 
-            # process the batch
-            self.process_batch(batch_idx, batch_data, file_path)
-
-            batch_idx += 1
-            total_batches += 1
-
-            # check if another batch can be formed
-            batch_data = get_batch_from_buckets(tokenized_dataset, batch_size)
-
-        # process any remaining batches in the buckets
-        for bucket in tokenized_dataset.values():
-            while bucket:
-                # get the file path for the remaining batch
-                file_path = os.path.join(output_directory, f'{file_prefix}_batch_{batch_idx + 1:04d}.npy')
-
-                # process the remaining batch
-                batch_data = bucket[:batch_size]
-                self.process_batch(batch_idx, batch_data, file_path)
-
-                bucket = bucket[batch_size:]
-                batch_idx += 1
-                total_batches += 1
 
     def tokenize_dataset(self, input_files):
-        # empty dataset
+        # Empty dataset
         tokenized_dataset = []
 
-        # loop through each file
+        # Loop through each file and tokenize lines
         for input_file in input_files:
-            # open the file
             with open(input_file, 'r') as file:
                 for line in file:
                     # tokenize the line
                     tokens = self.tokenize_line(line)
-                    
-                    # if we have tokens, add them
+
+                    # check we have tokens
                     if tokens:
+                        # add the tokens
                         tokenized_dataset.append(tokens)
 
-        # return the dataset
+        # Return the tokenized dataset
         return tokenized_dataset
 
+    def create_batches(self, buckets):
+        # batch index is zero
+        batch_idx = 0
+
+        # Process batches from buckets until no more batches can be formed
+        batch = get_batch_from_buckets(buckets, self.batch_size)
+
+        # loop through the batches
+        while batch is not None:
+            # get the batch filename
+            file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}')
+
+            # process the batch
+            self.process_batch(batch_idx, batch, file_path)
+            batch_idx += 1
+
+            # get the batch from the buckets
+            batch = get_batch_from_buckets(buckets, self.batch_size)
+
+        # Handle any remaining sequences in the buckets
+        for bucket in buckets.values():
+            while bucket:
+                # get the file
+                file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}')
+                
+                # get the batch
+                batch = bucket[:self.batch_size]
+
+                # process the batch
+                self.process_batch(batch_idx, batch, file_path)
+
+                # set the bucket
+                bucket = bucket[self.batch_size:]
+
+                # move to next back
+                batch_idx += 1
+
     def process_batch(self, batch_idx, batch_data, file_path):
-        # start the batch timer
+        # Start the batch timer
         batch_start_time = time.time()
 
-        # save the concatenated batch
-        concatenated_batch = self.save_batch(batch_data, file_path)
+        # Process the batch data (encode and pad)
+        input_tensor = self.save_batch(batch_data, file_path)
 
-        # If the concatenated batch is None, skip the rest of the processing
-        if concatenated_batch is None:
-            return
-
-        # capture batch end time
+        # Capture batch end time
         batch_end_time = time.time()
 
-        # calculate the batch generation time
-        summary_table = generate_batch_analysis_summary_table(concatenated_batch, file_path, self.tokenizer.pad_token_id)
-        generation_stats = generate_batch_generation_summary(batch_idx, concatenated_batch, batch_start_time, batch_end_time, self.tokenizer.pad_token_id)
+        # Generate and print summaries if requested
+        summary_table = generate_batch_analysis_summary_table(input_tensor, file_path, self.tokenizer.pad_token_id)
+        generation_stats = generate_batch_generation_summary(batch_idx, input_tensor, batch_start_time, batch_end_time, self.tokenizer.pad_token_id)
 
         if self.print_summaries:
-            # print out the batch summary
             print(f"Batch {batch_idx + 1} Summary:")
             print(generation_stats)
             print(summary_table)
 
-    def tokenize_and_batch(self, input_files):
-        # tokenize the dataset
-        tokenized_dataset = self.tokenize_dataset(input_files)
+    def save_batch(self, batch_data, file_path):
+        # Use the base class's method to process the input sequences
+        input_tensor = self.process_batch_data(batch_data)
+        
+        if input_tensor is None:
+            return None
+        
+        # Save both input and target tensors in a .npz file
+        np.savez(file_path, input_tensor=input_tensor)
 
-        # add tokenized sequences to buckets
-        buckets = {}
-        for tokens in tokenized_dataset:
-            add_to_buckets(buckets, tokens)
+        # return the input tensor
+        return input_tensor
+    
+    def process_batch_data(self, batch_data):
+        # Initialize processed batch
+        processed_batch = []
 
-        # split large buckets
-        #split_buckets = split_large_buckets(buckets, self.batch_size)
+        # Loop through the sequences in the batch
+        for seq in batch_data:
+            # Flatten the sequence (handle cases where items may be tuples or lists)
+            flat_seq = [item if isinstance(item, int) else item[0] for item in seq]
 
-        # merge small buckets
-        #merged_buckets = merge_small_buckets(split_buckets, self.batch_size)
+            # Truncate or pad sequences as necessary
+            if len(flat_seq) >= self.max_sequence_length:
+                flat_seq = flat_seq[:self.max_sequence_length - 1] + [self.tokenizer.eos_token_id]
+            else:
+                if flat_seq[-1] != self.tokenizer.eos_token_id:
+                    flat_seq.append(self.tokenizer.eos_token_id)
+                padding_needed = self.max_sequence_length - len(flat_seq)
+                flat_seq += [self.tokenizer.pad_token_id] * padding_needed
+            
+            # Add the processed sequence to the batch
+            processed_batch.append(flat_seq)
+        
+        # Convert to numpy array
+        input_tensor = np.array(processed_batch, dtype=np.int32)
 
-        # create batches from the merged buckets
-        self.create_batches(buckets, self.output_directory, self.file_prefix, self.max_sequence_length,
-                       self.batch_size, self.tokenizer, self.print_summaries)
+        # Return the processed tensor
+        return input_tensor
 
     def tokenize_line(self, line):
+        # This method should be implemented by subclasses
         raise NotImplementedError("Subclasses must implement the tokenize_line method.")
 
-    def get_batch_file_path(self, batch_idx):
-        raise NotImplementedError("Subclasses must implement the get_batch_file_path method.")
