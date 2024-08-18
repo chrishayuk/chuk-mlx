@@ -30,7 +30,7 @@ class PretrainBatchGenerator(BatchBase):
         
         # Save both input and target tensors in a .npz file
         np.savez(file_path, input_tensor=input_tensor, target_tensor=target_tensor)
-
+        
         # return the input tensor
         return input_tensor
 

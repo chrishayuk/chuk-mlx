@@ -41,6 +41,7 @@ def batch_base_instance(mock_tokenizer, temp_output_dir):
         print_summaries=False
     )
 
+# Existing tests
 def test_tokenize_line(batch_base_instance):
     text = "Hello"
     tokens = batch_base_instance.tokenize_line(text)
@@ -62,7 +63,6 @@ def test_process_batch(batch_base_instance, temp_output_dir):
     batch_base_instance.process_batch(0, batch_data, file_path)
 
     assert os.path.exists(file_path), "Batch file was not created during processing."
-
 
 def test_tokenize_dataset(batch_base_instance):
     with tempfile.NamedTemporaryFile(delete=False) as temp_input_file:
@@ -94,3 +94,53 @@ def test_tokenize_and_batch(batch_base_instance, temp_output_dir):
     finally:
         if os.path.exists(input_file_name):
             os.remove(input_file_name)
+
+# Additional tests
+def test_infinite_loop_prevention(batch_base_instance, temp_output_dir):
+    input_files = ["test_input_file.txt"]
+    with open(input_files[0], 'w') as f:
+        f.write("test\n" * 9)  # 9 sequences, batch size 2, should result in 5 batches
+
+    batch_base_instance.tokenize_and_batch(input_files)
+
+    batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
+    assert len(batch_files) == 5, f"Expected 5 batches, got {len(batch_files)}"
+    os.remove(input_files[0])
+
+def test_bucket_emptying(batch_base_instance):
+    buckets = {5: [(list(map(ord, "hello")), list(map(ord, "world")))] * 5}
+    batch_base_instance.create_batches(buckets)
+    assert all(len(bucket) == 0 for bucket in buckets.values()), "Buckets were not emptied correctly."
+
+def test_final_batch_leftover_sequences(batch_base_instance, temp_output_dir):
+    input_files = ["test_input_file.txt"]
+    with open(input_files[0], 'w') as f:
+        f.write("test\n" * 5)  # 5 sequences, batch size 2, should result in 3 batches
+
+    batch_base_instance.tokenize_and_batch(input_files)
+
+    batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
+    assert len(batch_files) == 3, f"Expected 3 batches, got {len(batch_files)}"
+    os.remove(input_files[0])
+
+def test_proper_batch_size(batch_base_instance, temp_output_dir):
+    input_files = ["test_input_file.txt"]
+    with open(input_files[0], 'w') as f:
+        f.write("test\n" * 7)  # 7 sequences, batch size 2, should result in 4 batches
+
+    batch_base_instance.tokenize_and_batch(input_files)
+
+    batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
+    assert len(batch_files) == 4, f"Expected 4 batches, got {len(batch_files)}"
+    os.remove(input_files[0])
+
+def test_empty_input(batch_base_instance, temp_output_dir):
+    input_files = ["empty_input_file.txt"]
+    with open(input_files[0], 'w') as f:
+        pass  # Empty file
+
+    batch_base_instance.tokenize_and_batch(input_files)
+
+    batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
+    assert len(batch_files) == 0, f"Expected 0 batches, got {len(batch_files)}"
+    os.remove(input_files[0])

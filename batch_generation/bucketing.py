@@ -59,14 +59,18 @@ def merge_small_buckets(buckets, max_batch_size):
     return merged_buckets
 
 def get_batch_from_buckets(buckets, max_batch_size):
-    """Retrieve a batch from buckets, ensuring it meets the maximum batch size, or return a partial batch if necessary."""
-    for bucket_key, bucket in buckets.items():
+    """Retrieve a batch from buckets, ensuring it meets the maximum batch size."""
+    for bucket_key, bucket in list(buckets.items()):
         if len(bucket) >= max_batch_size:
             batch = bucket[:max_batch_size]
             buckets[bucket_key] = bucket[max_batch_size:]
+            if not buckets[bucket_key]:
+                del buckets[bucket_key]  # Remove the bucket if it's empty
             return batch
-        elif len(bucket) > 0:  # Handle partial batch case
-            return bucket
-    
+        elif len(bucket) > 0:
+            batch = bucket[:]
+            del buckets[bucket_key]  # Remove the bucket completely since it's all used up
+            return batch
     return None
+
 

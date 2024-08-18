@@ -30,7 +30,6 @@ class BatchBase:
         # Create batches from the buckets and process them
         self.create_batches(buckets)
 
-
     def tokenize_dataset(self, input_files):
         # Empty dataset
         tokenized_dataset = []
@@ -55,37 +54,51 @@ class BatchBase:
         batch_idx = 0
 
         # Process batches from buckets until no more batches can be formed
-        batch = get_batch_from_buckets(buckets, self.batch_size)
+        while True:
+            # Get the next batch from the buckets
+            batch = get_batch_from_buckets(buckets, self.batch_size)
 
-        # loop through the batches
-        while batch is not None:
+            if batch is None or len(batch) == 0:
+                # No more batches can be formed, exit the loop
+                break
+
             # get the batch filename
-            file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}')
+            file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}.npz')
 
             # process the batch
             self.process_batch(batch_idx, batch, file_path)
             batch_idx += 1
 
-            # get the batch from the buckets
-            batch = get_batch_from_buckets(buckets, self.batch_size)
+            # Check if all buckets are empty
+            if all(len(bucket) == 0 for bucket in buckets.values()):
+                break
 
-        # Handle any remaining sequences in the buckets
-        for bucket in buckets.values():
-            while bucket:
-                # get the file
-                file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}')
-                
+        # Handle any remaining sequences in the buckets (unlikely with the above logic)
+        for bucket_key in list(buckets.keys()):
+            while buckets[bucket_key]:
+                # get the file path
+                file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}.npz')
+
                 # get the batch
-                batch = bucket[:self.batch_size]
+                batch = buckets[bucket_key][:self.batch_size]
 
                 # process the batch
                 self.process_batch(batch_idx, batch, file_path)
 
-                # set the bucket
-                bucket = bucket[self.batch_size:]
+                # remove processed sequences from the bucket
+                buckets[bucket_key] = buckets[bucket_key][self.batch_size:]
 
-                # move to next back
+                # Check if the bucket is empty and remove it
+                if not buckets[bucket_key]:
+                    del buckets[bucket_key]
+
+                # move to the next batch index
                 batch_idx += 1
+
+                # Exit the loop if no buckets remain
+                if not buckets:
+                    break
+
 
     def process_batch(self, batch_idx, batch_data, file_path):
         # Start the batch timer
@@ -113,10 +126,10 @@ class BatchBase:
         if input_tensor is None:
             return None
         
-        # Save both input and target tensors in a .npz file
+        # Save the input tensor in a .npz file
         np.savez(file_path, input_tensor=input_tensor)
 
-        # return the input tensor
+        # Return the input tensor
         return input_tensor
     
     def process_batch_data(self, batch_data):
@@ -149,4 +162,3 @@ class BatchBase:
     def tokenize_line(self, line):
         # This method should be implemented by subclasses
         raise NotImplementedError("Subclasses must implement the tokenize_line method.")
-
