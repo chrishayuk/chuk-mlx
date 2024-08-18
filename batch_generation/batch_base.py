@@ -4,6 +4,7 @@ import numpy as np
 from batch_generation.bucketing import add_to_buckets, get_batch_from_buckets, merge_small_buckets, split_large_buckets
 from batch_generation.batch_generation_summary import generate_batch_generation_summary
 from batch_generation.batch_analysis_summary import generate_batch_analysis_summary_table
+from batch_generation.tokenization_utils import batch_tokenize_and_pad, tokenize_and_pad
 
 class BatchBase:
     def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries):
@@ -133,25 +134,8 @@ class BatchBase:
         return input_tensor
     
     def process_batch_data(self, batch_data):
-        # Initialize processed batch
-        processed_batch = []
-
-        # Loop through the sequences in the batch
-        for seq in batch_data:
-            # Flatten the sequence (handle cases where items may be tuples or lists)
-            flat_seq = [item if isinstance(item, int) else item[0] for item in seq]
-
-            # Truncate or pad sequences as necessary
-            if len(flat_seq) >= self.max_sequence_length:
-                flat_seq = flat_seq[:self.max_sequence_length - 1] + [self.tokenizer.eos_token_id]
-            else:
-                if flat_seq[-1] != self.tokenizer.eos_token_id:
-                    flat_seq.append(self.tokenizer.eos_token_id)
-                padding_needed = self.max_sequence_length - len(flat_seq)
-                flat_seq += [self.tokenizer.pad_token_id] * padding_needed
-            
-            # Add the processed sequence to the batch
-            processed_batch.append(flat_seq)
+        # Use the batch_tokenize_and_pad function to process the batch
+        processed_batch = batch_tokenize_and_pad(batch_data, self.tokenizer, self.max_sequence_length)
         
         # Convert to numpy array
         input_tensor = np.array(processed_batch, dtype=np.int32)

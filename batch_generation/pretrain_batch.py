@@ -14,7 +14,7 @@ class PretrainBatchGenerator(BatchBase):
 
         # encode the line as tokens
         tokens = self.tokenizer.encode(text, max_length=self.max_sequence_length, truncation=True, add_special_tokens=False)
-        
+
         # return the tokens
         return tokens
 
@@ -34,25 +34,24 @@ class PretrainBatchGenerator(BatchBase):
         # return the input tensor
         return input_tensor
 
-    def create_target_batch(self, input_batch, pad_token_id, max_seq_length):
+    def create_target_batch(self, input_batch, pad_token_id, max_seq_length=None):
         target_indices = []
 
-        # loop through the batch
         for seq in input_batch:
             # Shift input sequence by one to create the target sequence
             target_seq = seq[1:].tolist() + [pad_token_id]
-            
-            # Pad or truncate the target sequence to match max_seq_length
-            if len(target_seq) < max_seq_length:
-                target_seq += [pad_token_id] * (max_seq_length - len(target_seq))
-            else:
-                target_seq = target_seq[:max_seq_length]
-            
-            # add the target
+
+            # Ensure the target sequence is padded to match the input sequence length
+            target_seq += [pad_token_id] * (len(seq) - len(target_seq))
+
             target_indices.append(target_seq)
-        
-        # return the target batch
-        return np.array(target_indices, dtype=np.int32), np.array([len(seq) for seq in target_indices], dtype=np.int32)
+
+        # Convert the target sequences to a numpy array
+        target_tensor = np.array(target_indices, dtype=np.int32)
+
+        # Return the target batch tensor
+        return target_tensor, np.array([len(seq) for seq in target_indices], dtype=np.int32)
+
 
     def tokenize_and_batch(self, input_files):
         # Tokenize the dataset

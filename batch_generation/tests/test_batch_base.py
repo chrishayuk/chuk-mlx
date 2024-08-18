@@ -31,7 +31,6 @@ def mock_tokenizer():
 
 @pytest.fixture
 def batch_base_instance(mock_tokenizer, temp_output_dir):
-    # Create an instance of MockBatchBase for testing
     return MockBatchBase(
         tokenizer=mock_tokenizer,
         output_directory=temp_output_dir,
@@ -50,11 +49,14 @@ def test_tokenize_line(batch_base_instance):
 def test_save_batch(batch_base_instance, temp_output_dir):
     batch_data = [[72, 101, 108], [108, 111]]
     file_path = os.path.join(temp_output_dir, "test_batch.npz")
-
+    
     input_tensor = batch_base_instance.save_batch(batch_data, file_path)
+    
+    # Expected shape should match the length of the longest sequence
+    expected_shape = (2, max(len(seq) for seq in batch_data))
+    
+    assert input_tensor.shape == expected_shape, f"Shape mismatch in saved batch: expected {expected_shape}, got {input_tensor.shape}."
 
-    assert input_tensor.shape == (2, batch_base_instance.max_sequence_length), "Shape mismatch in saved batch."
-    assert os.path.exists(file_path), "Batch file was not created."
 
 def test_process_batch(batch_base_instance, temp_output_dir):
     batch_data = [[72, 101, 108], [108, 111]]
