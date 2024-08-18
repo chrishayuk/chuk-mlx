@@ -8,8 +8,9 @@ from batch_generation.batch_generation_summary import generate_batch_generation_
 from batch_generation.batch_analysis_summary import generate_batch_analysis_summary_table
 
 class BatchBase:
-    def __init__(self, tokenizer_name, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries):
-        self.tokenizer = load_tokenizer(tokenizer_name)
+    def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries):
+        # set the various parameters
+        self.tokenizer = tokenizer
         self.output_directory = output_directory
         self.file_prefix = file_prefix
         self.max_sequence_length = max_sequence_length

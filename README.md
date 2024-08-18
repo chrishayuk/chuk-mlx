@@ -17,6 +17,9 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
+1 - Complete Pre-Train batching integration with Batch Base including testing, and bucketing
+2 - Complete Fine Tune batching including llama, llama3 with testing and bucketing
+
 1 - implement attention mask in batch generation and train
 2 - build lazyfox tutorial
 3 - fine tune
