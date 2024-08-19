@@ -43,3 +43,33 @@ def mock_tokenizer():
     
     tokenizer.encode = mock_encode
     return tokenizer
+
+@pytest.fixture
+def llama_batch(mock_tokenizer):
+    return LLaMAFineTuneBatch(mock_tokenizer, '/tmp', 'llama', 128, 32, True)
+
+def test_unicode_escape_preprocessing(llama_batch):
+    text = "What classification comes with -30° Calvin?"
+    escaped_text = llama_batch.preprocess_text(text)
+    assert '\\u00b0' in escaped_text  # Check that the degree symbol is escaped correctly
+
+
+def test_tokenization_with_special_characters(llama_batch):
+    line = '{"text": "<s>[INST] What classification comes with -30° Calvin? [/INST] You\'ve taken that too far </s>"}'
+    input_tokens, target_tokens = llama_batch.tokenize_line(line)
+    assert input_tokens is not None
+    assert target_tokens is not None
+    assert len(input_tokens) > 0
+    assert len(target_tokens) > 0
+
+def test_missing_instruction_tags(llama_batch):
+    line = '{"text": "What classification comes with -30° Calvin?"}'
+    input_tokens, target_tokens = llama_batch.tokenize_line(line)
+    assert input_tokens is None
+    assert target_tokens is None
+
+def test_edge_case_special_characters(llama_batch):
+    line = '{"text": "<s>[INST] The temperature is -30°C [/INST] Stay warm! </s>"}'
+    input_tokens, target_tokens = llama_batch.tokenize_line(line)
+    assert input_tokens is not None
+    assert target_tokens is not None
