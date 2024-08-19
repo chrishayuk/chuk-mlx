@@ -125,10 +125,6 @@ class BatchBase:
             print(generation_stats)
             print(summary_table)
 
-    
-
-    import numpy as np
-
     def save_batch(self, batch_data, file_path):
         def pad_sequences(sequences, pad_value, max_length=None):
             if not max_length:
@@ -165,8 +161,6 @@ class BatchBase:
 
             # Return only the input tensor
             return inputs_array
-
-
     
     def process_batch_data(self, batch_data):
         # Use the batch_tokenize_and_pad function to process the batch

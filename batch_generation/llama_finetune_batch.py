@@ -1,13 +1,18 @@
 import json
-import os
-import numpy as np
+import unicodedata
+import re
 from .finetune_batch import FineTuneBatch
-from batch_generation.sequence_utility import SequenceUtility
 
 class LLaMAFineTuneBatch(FineTuneBatch):
     def preprocess_text(self, text):
-        # Encode the text as Unicode escape sequences using a custom function to force \u format
-        return ''.join(f'\\u{ord(c):04x}' if ord(c) > 127 else c for c in text)
+        # Normalize Unicode characters to NFKC form
+        text = unicodedata.normalize('NFKC', text)
+
+        # Remove or replace any unsupported characters (e.g., non-ASCII characters)
+        text = re.sub(r'[^\x00-\x7F]+', '', text)  # Optionally replace with '[UNK]' or another placeholder
+
+        # return the pre-processed text
+        return text
 
     def tokenize_line(self, line):
         try:
@@ -23,7 +28,7 @@ class LLaMAFineTuneBatch(FineTuneBatch):
             print("Text column is missing in the data.")
             return None, None
 
-        # Preprocess the text to handle special characters using Unicode escape
+        # Preprocess the text
         text = self.preprocess_text(text)
 
         # Ensure we have instruction tags
@@ -38,7 +43,7 @@ class LLaMAFineTuneBatch(FineTuneBatch):
         target = text[inst_end + len('[/INST]'):].strip('</s>').strip()
 
         try:
-            # Tokenize the instruction and target
+            # Tokenize the instruction and target using the plain text
             input_tokens = self.tokenizer.encode(instruction)
             target_tokens = self.tokenizer.encode(target)
         except Exception as e:
@@ -48,4 +53,3 @@ class LLaMAFineTuneBatch(FineTuneBatch):
             return None, None
 
         return input_tokens, target_tokens
-

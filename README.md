@@ -17,10 +17,8 @@ python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a f
 
 TODO
 --------
-1 - Complete Fine Tune batching including llama
-2 - llama3 fine tune batching
-
-1 - implement attention mask in batch generation and train
+1 - clean up fine tune batching docs
+1 - attempt to fine tune calvin scale
 2 - build lazyfox tutorial
 3 - fine tune
 

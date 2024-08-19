@@ -2,6 +2,7 @@ import argparse
 import os
 import shutil
 from batch_generation.llama_finetune_batch import LLaMAFineTuneBatch
+from utils.tokenizer_loader import load_tokenizer
 
 def clear_output_directory(output_directory):
     """Clear the output directory."""
@@ -26,9 +27,12 @@ def main():
 
     # Clear the output directory
     clear_output_directory(args.output_directory)
+
+    # Load the tokenizer object
+    tokenizer = load_tokenizer(args.tokenizer)
     
     # tokenize and batch
-    batcher = LLaMAFineTuneBatch(args.tokenizer, args.output_directory, args.file_prefix, args.max_sequence_length, args.batch_size, False)
+    batcher = LLaMAFineTuneBatch(tokenizer, args.output_directory, args.file_prefix, args.max_sequence_length, args.batch_size, False)
     batcher.tokenize_and_batch(args.input_files)
 
 if __name__ == '__main__':

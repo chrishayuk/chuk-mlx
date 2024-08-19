@@ -16,7 +16,7 @@ def main():
 
     # Set parameters
     parser.add_argument('--input_files', type=str, nargs='+', required=True, help='Input JSONL files')
-    parser.add_argument('--tokenizer_path', type=str, required=True, help='Path to the tokenizer')
+    parser.add_argument('--tokenizer', type=str, required=True, help='Path to the tokenizer')
     parser.add_argument('--output_directory', type=str, default='./output', help='Output directory for tokenized batches')
     parser.add_argument('--file_prefix', type=str, default='tokenized', help='Prefix for output batch files')
     parser.add_argument('--max_sequence_length', type=int, default=512, help='Maximum sequence length')
@@ -30,7 +30,7 @@ def main():
     clear_output_directory(args.output_directory)
 
     # Load the tokenizer object
-    tokenizer = load_tokenizer(args.tokenizer_path)
+    tokenizer = load_tokenizer(args.tokenizer)
 
     # Initialize PretrainBatchGenerator with the provided arguments
     batch_generator = PretrainBatchGenerator(

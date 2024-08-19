@@ -5,7 +5,7 @@ These set of scripts give you the formula for creating finetune batches for trai
 The following script will take a training jsonl file, tokenize it, and split into batches, ready for fine tuning.
 
 ```bash
-python batch_generator_finetune.py --input_files ./sample_data/calvin_scale_llama/train.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output/calvin/batches --file_prefix calvin --max_sequence_length 600 --batch_size 2
+python batch_generator_finetune.py --input_files ./sample_data/calvin_scale_llama/train.jsonl --tokenizer ibm-granite/granite-3b-code-instruct --output_directory ./output/calvin/batches --file_prefix calvin --max_sequence_length 600 --batch_size 2
 ```
 
 python batch_generator_finetune.py --input_files ./sample_data/calvin_scale_llama/train.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output/calvin/batches --file_prefix calvin --max_sequence_length 600 --batch_size 1
@@ -37,7 +37,7 @@ This will produce a pretty table that outlines rows, tokens per batch, padding t
 The following will analyze the input batch we created earlier
 
 ```bash
-python batch_analyzer.py --batch_file output/calvin/batches/calvin_batch_0001.npz --tokenizer mistralai/Mistral-7B-Instruct-v0.2
+python batch_analyzer.py --batch_file output/calvin/batches/calvin_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct 
 ```
 
 or
@@ -74,6 +74,8 @@ or
 ```bash
 python batch_viewer.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
 ```
+
+python batch_viewer.py --batch_file output/calvin/batches/calvin_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct 
 
 ## Npz Viewer
 The following takes a npz file and performs analysis on the batch.
