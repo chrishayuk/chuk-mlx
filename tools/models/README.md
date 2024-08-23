@@ -22,14 +22,14 @@ python tools/models/model_downloader.py --model ibm-granite/granite-3b-code-inst
 This is a simple utility that allows you to print the configuration of a model
 
 ```bash
-python tools/models/model_viewer.py --model ibm-granite/granite-3b-code-instruct --show-config
+python tools/models/model_viewer.py --model HuggingFaceTB/SmolLM-135M --show-config
 ```
 
 ## Model Viewer - Show Config
 This is a simple utility that allows you to print the configuration of a model
 
 ```bash
-python tools/models/model_viewer.py --model ibm-granite/granite-3b-code-instruct --show-layers
+python tools/models/model_viewer.py --model HuggingFaceTB/SmolLM-360M --show-layers
 ```
 
 ## Print Layer Modules

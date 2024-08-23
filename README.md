@@ -15,8 +15,17 @@ The following scripts show how to prompt a model
 python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a fibonacci function in python"
 ```
 
+or
+
+```python
+python infer.py --model HuggingFaceTB/SmolLM-135M --prompt "1+1="
+```
+
 TODO
 --------
+1 - models unit testing
+2 - download and test the current list of supported models
+
 1 - clean up fine tune batching docs
 1 - attempt to fine tune calvin scale
 2 - build lazyfox tutorial
