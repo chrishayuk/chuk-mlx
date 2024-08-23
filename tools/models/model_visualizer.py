@@ -1,4 +1,11 @@
 from graphviz import Digraph
+import os
+import sys
+
+# Add the parent directory of the tools directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+# imports
 from core.models.model_loader import load_model
 
 def visualize_model(model):
@@ -8,7 +15,7 @@ def visualize_model(model):
     dot.node('Input', 'Input Layer')
 
     # Add the embedding layer node separately
-    dot.node('Embedding', 'Embedding\n(vocab_size -> hidden_size)')
+    dot.node('Embedding', 'Embedding')
     dot.edge('Input', 'Embedding')
 
     # Create a subgraph to represent the MLP as a separate layer
@@ -37,4 +44,4 @@ def visualize_model(model):
 model_name = "ibm-granite/granite-3b-code-instruct" #"lazyfox"
 model = load_model(model_name, load_weights=False)
 graph = visualize_model(model)
-graph.render("model_architecture", format="png")
+graph.render("tools/models/output/model_architecture", format="png")

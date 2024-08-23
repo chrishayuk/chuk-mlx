@@ -22,19 +22,19 @@ def get_model_from_path(model_path):
     
     # A series of conditional imports based on the architecture
     if architecture == "LlamaForCausalLM":
-        from models.architectures.llama.llama_model import LlamaForCausalLM
+        from core.models.architectures.llama.llama_model import LlamaForCausalLM
         model_class = LlamaForCausalLM
     elif architecture == "MistralForCausalLM":
-        from models.architectures.mistral.mistral_model import MistralForCausalLM
+        from core.models.architectures.mistral.mistral_model import MistralForCausalLM
         model_class = MistralForCausalLM
     elif architecture == "GemmaForCausalLM":
-        from models.architectures.gemma.gemma_model import GemmaForCausalLM
+        from core.models.architectures.gemma.gemma_model import GemmaForCausalLM
         model_class = GemmaForCausalLM
     elif architecture == "Starcoder2ForCausalLM":
-        from models.architectures.starcoder2.starcoder2_for_causal_lm import Starcoder2ForCausalLM
+        from core.models.architectures.starcoder2.starcoder2_for_causal_lm import Starcoder2ForCausalLM
         model_class = Starcoder2ForCausalLM
     elif architecture == "Lazyfox":
-        from models.architectures.lazyfox.lazyfox_model import LazyFoxModel
+        from core.models.architectures.lazyfox.lazyfox_model import LazyFoxModel
         model_class = LazyFoxModel
     else:
         raise ValueError(f"Unknown architecture: {architecture}")

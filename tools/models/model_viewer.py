@@ -1,9 +1,12 @@
 import argparse
-import logging
-from utils.model_loader import load_model
+import os
+import sys
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Add the parent directory of the tools directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+# imports
+from utils.model_loader import load_model
 
 if __name__ == "__main__":
     # parser
@@ -34,7 +37,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # load the model
-    logger.info(f"Loading Model: {args.model}")
     model_config = load_model(args.model)
 
     # perform action

@@ -1,5 +1,5 @@
 import mlx.nn as nn
-from models.model_config import ModelConfig
+from core.models.model_config import ModelConfig
 from .swiglu_mlp import MLP as SwiGluMLP
 from .gelu_glu_mlp import MLP as GeluGluMLP
 

@@ -1,4 +1,11 @@
 import argparse
+import os
+import sys
+
+# Add the parent directory of the tools directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+# imports
 from utils.huggingface_utils import load_from_hub
 
 if __name__ == "__main__":
