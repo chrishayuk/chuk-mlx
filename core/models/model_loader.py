@@ -5,8 +5,8 @@ from pathlib import Path
 import mlx.core as mx
 from utils.huggingface_utils import load_from_hub
 from utils.tokenizer_loader import load_tokenizer
-from models.load_weights import load_checkpoint_weights, load_model_weights
-from models.model_config import ModelConfig  # Assume this is the simpler config loader
+from core.models.load_weights import load_checkpoint_weights, load_model_weights
+from core.models.model_config import ModelConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,7 +20,6 @@ def get_model_from_path(model_path):
     # get the architecture
     architecture = model_config.architectures[0]
     
-    print(architecture)
     # A series of conditional imports based on the architecture
     if architecture == "LlamaForCausalLM":
         from models.architectures.llama.llama_model import LlamaForCausalLM

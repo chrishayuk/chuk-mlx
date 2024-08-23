@@ -1,5 +1,5 @@
 import argparse
-from models.model_loader import load_model
+from core.models.model_loader import load_model
 
 def print_model_layer_modules(model):
     """

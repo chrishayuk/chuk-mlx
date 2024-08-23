@@ -1,10 +1,8 @@
 import importlib
 import logging
-import json
 import os
 from pathlib import Path
-
-from models.model_config import ModelConfig
+from core.models.model_config import ModelConfig
 from utils.huggingface_utils import load_from_hub
 
 logger = logging.getLogger(__name__)

@@ -1,6 +1,7 @@
+# model.py
 import mlx.core as mx
 import mlx.nn as nn
-from models.model_config import ModelConfig
+from core.models.model_config import ModelConfig
 
 class Model(nn.Module):
     def __init__(self, args: ModelConfig):

@@ -1,8 +1,8 @@
 import mlx.nn as nn
-from models.model_config import ModelConfig
-from models.architectures.model import Model
-from models.architectures.attention_base import AttentionBase
-from models.architectures.transformer_base_model import TransformerBaseModel
+from core.models.model_config import ModelConfig
+from core.models.architectures.model import Model
+from core.models.architectures.attention_base import AttentionBase
+from core.models.architectures.transformer_base_model import TransformerBaseModel
 
 class LlamaForCausalLM(Model):
     """

@@ -1,8 +1,8 @@
+# attention_base.py
 import mlx.core as mx
 import mlx.nn as nn
 from typing import Optional, Tuple
-from models.model_config import ModelConfig
-from .pruning import prune_heads
+from core.models.model_config import ModelConfig
 
 class AttentionBase(nn.Module):
     """

@@ -1,8 +1,8 @@
 import mlx.core as mx
 import mlx.nn as nn
 from typing import Optional, Tuple, Callable, Type
-from models.mlp.mlp_factory import create_mlp
-from models.model_config import ModelConfig
+from core.models.mlp.mlp_factory import create_mlp
+from core.models.model_config import ModelConfig
 
 class TransformerBlock(nn.Module):
     def __init__(self, config: ModelConfig, attention_layer: Type[nn.Module], norm_layer: Callable[[int, float], nn.Module]):

@@ -1,7 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
-from models.mlp.swiglu_mlp import MLP
-from models.model_config import ModelConfig
+from core.models.mlp.swiglu_mlp import MLP
+from core.models.model_config import ModelConfig
 
 class SimpleLanguageModel(nn.Module):
     def __init__(self, config: ModelConfig):

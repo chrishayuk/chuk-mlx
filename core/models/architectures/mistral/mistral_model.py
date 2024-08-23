@@ -1,6 +1,6 @@
-from models.architectures.model import Model
-from models.model_config import ModelConfig
-from models.architectures.llama.llama_model import LlamaModel
+from core.models.architectures.model import Model
+from core.models.model_config import ModelConfig
+from core.models.architectures.llama.llama_model import LlamaModel
 
 class MistralForCausalLM(Model):
     def __init__(self, args: ModelConfig):
