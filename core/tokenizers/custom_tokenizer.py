@@ -1,6 +1,5 @@
-import os
 from transformers import PreTrainedTokenizer
-from chuk_tokenizers.vocab_utils import load_vocabulary, save_vocabulary
+from core.tokenizers.vocab_utils import load_vocabulary, save_vocabulary
 
 class CustomTokenizer(PreTrainedTokenizer):
     def __init__(self, vocab_file, **kwargs):

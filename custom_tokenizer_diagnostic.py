@@ -1,7 +1,7 @@
 import json
 import os
 import shutil
-from chuk_tokenizers.custom_tokenizer import CustomTokenizer
+from core.tokenizers.custom_tokenizer import CustomTokenizer
 
 def check_special_token_ids(tokenizer):
     """Check that special token IDs are correctly set."""

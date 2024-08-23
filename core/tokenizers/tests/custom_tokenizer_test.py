@@ -1,7 +1,7 @@
 import pytest
 import json
 import os
-from chuk_tokenizers.custom_tokenizer import CustomTokenizer
+from core.tokenizers.custom_tokenizer import CustomTokenizer
 
 @pytest.fixture
 def tokenizer():

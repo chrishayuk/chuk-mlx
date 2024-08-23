@@ -1,6 +1,6 @@
 import argparse
 import os
-from chuk_tokenizers.custom_tokenizer import CustomTokenizer
+from core.tokenizers.custom_tokenizer import CustomTokenizer
 
 def get_tokenizer_config(tokenizer_name):
     """Construct the path to the tokenizer's vocab file based on its name."""

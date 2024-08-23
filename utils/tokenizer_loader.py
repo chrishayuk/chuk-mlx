@@ -19,7 +19,7 @@ def load_tokenizer(tokenizer_name):
         try:
             # Load the local tokenizer using the vocab file
             logger.debug(f"Loading tokenizer locally from '{vocab_file}'")
-            from chuk_tokenizers.custom_tokenizer import CustomTokenizer
+            from tokenizers.custom_tokenizer import CustomTokenizer
             tokenizer = CustomTokenizer(vocab_file=vocab_file)
         except Exception as e:
             logger.error(f"Error loading local tokenizer: {e}")
