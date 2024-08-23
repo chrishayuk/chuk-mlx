@@ -1,7 +1,7 @@
 import argparse
 import time
-from models.model_loader import load_model_tokenizer_and_checkpoint
-from models.inference_utility import generate_response
+from core.models.model_loader import load_model_tokenizer_and_checkpoint
+from core.models.inference_utility import generate_response
 
 def main(model_path, tokenizer_path, checkpoint_path, initial_prompt, system_prompt, chat_mode):
     # Load the model and tokenizer, and optionally a checkpoint

@@ -2,15 +2,15 @@ import os
 from pathlib import Path
 import shutil
 import argparse
-from models.architectures.lazyfox.lazyfox_loss_function import chukloss
-from models.architectures.lazyfox.lazyfox_model import CustomModel
+from core.models.architectures.lazyfox.lazyfox_loss_function import chukloss
+from core.models.architectures.lazyfox.lazyfox_model import CustomModel
 from utils.model_adapter import ModelAdapter
 import mlx.optimizers as optim
 from batch_generation.pretrain_batch import tokenize_and_batch
 from utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from dataset.train_batch_dataset import TrainBatchDataset
-from models.model_config import ModelConfig
+from core.models.model_config import ModelConfig
 
 def clear_checkpoint_directory(output_directory):
     """Clear the output directory."""
