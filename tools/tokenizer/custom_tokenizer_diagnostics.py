@@ -1,6 +1,12 @@
 import json
-import os
 import shutil
+import os
+import sys
+
+# Add the parent directory of the tools directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+# imports
 from core.tokenizers.custom_tokenizer import CustomTokenizer
 
 def check_special_token_ids(tokenizer):

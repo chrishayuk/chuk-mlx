@@ -1,5 +1,11 @@
 import argparse
 import os
+import sys
+
+# Add the parent directory of the tools directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+# imports
 from core.tokenizers.custom_tokenizer import CustomTokenizer
 
 def get_tokenizer_config(tokenizer_name):
@@ -53,7 +59,7 @@ def main():
     
      # Load vocabulary command
     load_parser = subparsers.add_parser("load-vocab", help="Load the vocabulary from a file")
-    load_parser.add_argument("--input-file", type=str, help="Path to load the vocabulary file from. Defaults to 'output/tokenizers/{tokenizer_name}/vocab.json'")
+    load_parser.add_argument("--input-file", type=str, help="Path to load the vocabulary file from. Defaults to 'model_configuration/{tokenizer_name}/vocab.json'")
 
     # parse
     args = parser.parse_args()
@@ -97,7 +103,7 @@ def main():
 
     elif args.command == "load-vocab":
         # Use the provided input file or fall back to the default path
-        input_file = args.input_file or os.path.join(get_default_save_path(args.tokenizer_name), "tokenizer.json")
+        input_file = args.input_file or os.path.join(get_tokenizer_config(args.tokenizer_name))
         if not os.path.exists(input_file):
             raise FileNotFoundError(f"The vocabulary file '{input_file}' was not found.")
         

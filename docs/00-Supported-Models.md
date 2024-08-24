@@ -22,16 +22,12 @@ The following models are based on the llama architecture and have been tested as
 The following llama based models currently have errors and need debugged
 
 - TinyLlama/TinyLlama_v1.1
+- meta-llama/Llama-2-7b-chat-hf
+- meta-llama/Llama-2-7b-hf
+- microsoft/Phi-3.5-mini-instruct
 - ibm-granite/granite-20b-code-instruct
 - ibm-granite/granite-34b-code-instruct
-- microsoft/Phi-3.5-mini-instruct
 
-## TODO: recheck
-### Llama 2
-All llama-2 models are supported.
-
-- meta-llama/Llama-2-7b-hf
-- meta-llama/Llama-2-7b-chat-hf
 
 ### Llama 3
 All llama-3 models are supported.
@@ -64,6 +60,5 @@ The following Google Gemma models have been tested and are supported
     - bigcode/starcoder2-3b
     - bigcode/starcoder2-7b
     - bigcode/starcoder2-15b
-## Phi Models
 ## Falcon Models
 ## Aya Models
