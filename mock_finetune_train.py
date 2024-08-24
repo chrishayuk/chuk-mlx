@@ -1,4 +1,4 @@
-from dataset.mock_finetune_batch_dataset import MockFineTuneBatchDataset
+from core.dataset.mock_finetune_batch_dataset import MockFineTuneBatchDataset
 from core.models.architectures.mock.mock_loss_function import mock_value_and_grad, mockloss
 from core.models.architectures.mock.mock_model import MockModel
 from core.models.architectures.mock.mock_optimizer import MockOptimizer

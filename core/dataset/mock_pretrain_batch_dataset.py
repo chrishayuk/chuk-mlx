@@ -1,8 +1,8 @@
 import os
 import numpy as np
-from dataset.batch_dataset_base import PreTrainBatchDatasetBase
+from core.dataset.train_batch_dataset import TrainBatchDataset
 
-class MockPreTrainBatchDataset(PreTrainBatchDatasetBase):
+class MockPreTrainBatchDataset(TrainBatchDataset):
     def __init__(self, batch_output_dir, batchfile_prefix, num_batches, batch_size, seq_length):
         # Initialize base class with directory and prefix
         self.num_batches = num_batches

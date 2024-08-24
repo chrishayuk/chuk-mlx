@@ -9,7 +9,7 @@ from core.utils.model_adapter import ModelAdapter
 from core.batch.pretrain_batch import PretrainBatchGenerator
 from core.utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
-from dataset.train_batch_dataset import TrainBatchDataset
+from core.dataset.train_batch_dataset import TrainBatchDataset
 from core.models.model_config import ModelConfig
 
 def clear_output_directory(output_directory):
