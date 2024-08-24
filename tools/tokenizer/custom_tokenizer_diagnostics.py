@@ -155,7 +155,7 @@ def run_all_diagnostics():
     """Run all diagnostic checks on the CustomTokenizer."""
     try:
         # Initialize the tokenizer
-        tokenizer = CustomTokenizer(vocab_file="model_configuration/lazyfox/tokenizer.json")
+        tokenizer = CustomTokenizer(vocab_file="core/models/architectures/lazyfox/tokenizer.json")
 
         # Run all diagnostics
         check_special_token_ids(tokenizer)

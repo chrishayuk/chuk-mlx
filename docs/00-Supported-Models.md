@@ -4,6 +4,9 @@ The following is the list of models that i've tested works.
 ## Llama Based Models
 The following models are based on the llama architecture and have been tested as working.
 
+### llama
+- meta-llama/Meta-Llama-3-8B-Instruct
+
 ### smol
 - HuggingFaceTB/SmolLM-135M-Instruct
 - HuggingFaceTB/SmolLM-360M-Instruct
@@ -28,35 +31,14 @@ The following llama based models currently have errors and need debugged
 - ibm-granite/granite-20b-code-instruct
 - ibm-granite/granite-34b-code-instruct
 
-
-### Llama 3
-All llama-3 models are supported.
-
-- meta-llama/Meta-Llama-3-8B-Instruct
-
-### Code Llama
-TODO: Need to check this
-
-## Mistral Models
-The following mistral models have been tested and work.
-
+# TODO
+- meta-llama/Meta-Llama-3.1-8B-Instruct
 - mistralai/Mistral-7B-Instruct-v0.2
-
-Not currently working
-
 - mistralai/Mistral-7B-Instruct-v0.3
-
-
-## Gemma Models
-The following Google Gemma models have been tested and are supported
-
 - google/gemma-1.1-2b
 - google/gemma-1.1-2b-it
 - google/gemma-1.1-7b-it
 - google/codegemma-7b
-
-
-## Starcoder 2 Models
     - bigcode/starcoder2-3b
     - bigcode/starcoder2-7b
     - bigcode/starcoder2-15b

@@ -70,8 +70,8 @@ class ModelConfig(BaseModel):
         if self.hidden_activation and not self.hidden_act:
             self.hidden_act = self.hidden_activation
 
-    class Config:
-        allow_population_by_field_name = True
+    class ConfigDict:
+        populate_by_name=True
 
     @classmethod
     def load(cls, file_path: Path) -> 'ModelConfig':

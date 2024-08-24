@@ -6,7 +6,7 @@ from core.tokenizers.custom_tokenizer import CustomTokenizer
 @pytest.fixture
 def tokenizer():
     # Set the vocab file
-    vocab_file = "model_configuration/lazyfox/tokenizer.json"
+    vocab_file = "core/models/architectures/lazyfox/tokenizer.json"
 
     # Return the tokenizer
     return CustomTokenizer(vocab_file=vocab_file)

@@ -1,10 +1,15 @@
+import os
+import sys
+
+# Add the parent directory of the tools directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+# imports
 from core.dataset.mock_finetune_batch_dataset import MockFineTuneBatchDataset
 from core.models.architectures.mock.mock_loss_function import mock_value_and_grad, mockloss
 from core.models.architectures.mock.mock_model import MockModel
 from core.models.architectures.mock.mock_optimizer import MockOptimizer
 from training.trainer import Trainer
-
-# Import the tokenizer, assuming it's required for the new Trainer structure
 from core.utils.tokenizer_loader import load_tokenizer
 
 # Instantiate mock components
@@ -13,8 +18,8 @@ optimizer = MockOptimizer()
 loss_function = mock_value_and_grad(mockloss)
 
 # Settings
-output_dir = './output/mock_finetune'
-checkpoint_output_dir = f'{output_dir}/checkpoints'
+batch_output_dir = './output/batches/mock_finetune'
+checkpoint_output_dir = f'./output/checkpoints/mock_finetune'
 batchfile_prefix = 'batch'
 num_batches = 100
 batch_size = 32
@@ -26,7 +31,7 @@ tokenizer = load_tokenizer('mistralai/Mistral-7B-Instruct-v0.2')
 
 # Create mock dataset
 mock_dataset = MockFineTuneBatchDataset(
-    batch_output_dir=output_dir,
+    batch_output_dir=batch_output_dir,
     batchfile_prefix=batchfile_prefix,
     num_batches=num_batches,
     batch_size=batch_size,

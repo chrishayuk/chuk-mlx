@@ -9,11 +9,11 @@ logger = logging.getLogger(__name__)
 
 def load_tokenizer(tokenizer_name):
     """
-    Load a tokenizer from a specified name. If a vocabulary file is found in the 'model_configuration' folder,
+    Load a tokenizer from a specified name. If a vocabulary file is found locally,
     load the local tokenizer. Otherwise, load from the Hugging Face model repository.
     """
     tokenizer = None
-    model_config_dir = f"model_configuration/{tokenizer_name}"
+    model_config_dir = f"core/models/architectures/{tokenizer_name}"
     vocab_file = os.path.join(model_config_dir, "tokenizer.json")
     
     if os.path.exists(vocab_file):

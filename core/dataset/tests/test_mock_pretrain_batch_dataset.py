@@ -14,7 +14,13 @@ def mock_dataset():
             batch_size=8,
             seq_length=10
         )
+        # Disable pre-caching to avoid threading issues during tests
+        dataset.pre_cache_size = 0
         yield dataset
+        # Explicitly terminate the pre-caching thread
+        del dataset
+
+
 
 def test_length(mock_dataset):
     # Test that the length of the dataset is correct

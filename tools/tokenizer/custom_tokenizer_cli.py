@@ -12,7 +12,7 @@ def get_tokenizer_config(tokenizer_name):
     """Construct the path to the tokenizer's vocab file based on its name."""
 
     # get the configuration from the model configuration folder
-    vocab_file = f"model_configuration/{tokenizer_name}/tokenizer.json"
+    vocab_file = f"core/models/architectures/{tokenizer_name}/tokenizer.json"
 
     # check if existsa
     if os.path.exists(vocab_file):
@@ -59,7 +59,7 @@ def main():
     
      # Load vocabulary command
     load_parser = subparsers.add_parser("load-vocab", help="Load the vocabulary from a file")
-    load_parser.add_argument("--input-file", type=str, help="Path to load the vocabulary file from. Defaults to 'model_configuration/{tokenizer_name}/vocab.json'")
+    load_parser.add_argument("--input-file", type=str, help="Path to load the vocabulary file from. Defaults to 'core/models/architectures/{tokenizer_name}/vocab.json'")
 
     # parse
     args = parser.parse_args()
