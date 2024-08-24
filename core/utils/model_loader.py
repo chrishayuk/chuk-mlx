@@ -3,7 +3,7 @@ import logging
 import os
 from pathlib import Path
 from core.models.model_config import ModelConfig
-from utils.huggingface_utils import load_from_hub
+from core.utils.huggingface_utils import load_from_hub
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ def load_model(model_name):
     
     try:
         # Attempt to import the model module from the 'models' directory
-        model_module = importlib.import_module(f"models.architectures.{model_name}.{model_name}_model")
+        model_module = importlib.import_module(f"core.models.architectures.{model_name}.{model_name}_model")
         
         # If the module exists and has a class named CustomModel, create an instance
         if hasattr(model_module, 'CustomModel'):
@@ -24,7 +24,7 @@ def load_model(model_name):
             config_path = Path(os.path.join(os.path.dirname(model_module.__file__), f"config.json"))
             model = ModelConfig.load(config_path)
         else:
-            logger.info(f"No CustomModel class found in the module 'models.architectures.{model_name}.{model_name}_model'.")
+            logger.info(f"No CustomModel class found in the module core.models.architectures.{model_name}.{model_name}_model'.")
     except ImportError as e:
         logger.info(f"Local model module not found: {e}")
 

@@ -1,7 +1,7 @@
 import json
 import argparse
 import os
-from utils.tokenizer_loader import load_tokenizer
+from core.utils.tokenizer_loader import load_tokenizer
 
 def load_and_view_dataset(file_path, tokenizer_path, num_entries=5):
     # Check if the file exists

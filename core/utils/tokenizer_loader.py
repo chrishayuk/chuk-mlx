@@ -1,6 +1,6 @@
 import os
 import transformers
-from utils.huggingface_utils import load_from_hub
+from core.utils.huggingface_utils import load_from_hub
 import logging
 
 # Set the logger

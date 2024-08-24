@@ -1,6 +1,6 @@
 import argparse
-from utils.tokenizer_loader import load_tokenizer
-from utils.token_display_utility import TokenDisplayUtility
+from core.utils.tokenizer_loader import load_tokenizer
+from core.utils.token_display_utility import TokenDisplayUtility
 
 if __name__ == "__main__":
     # parser

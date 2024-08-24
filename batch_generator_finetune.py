@@ -2,7 +2,7 @@ import argparse
 import os
 import shutil
 from batch_generation.llama_finetune_batch import LLaMAFineTuneBatch
-from utils.tokenizer_loader import load_tokenizer
+from core.utils.tokenizer_loader import load_tokenizer
 
 def clear_output_directory(output_directory):
     """Clear the output directory."""

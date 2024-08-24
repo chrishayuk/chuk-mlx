@@ -1,7 +1,7 @@
 import argparse
 import os
 import numpy as np
-from utils.tokenizer_loader import load_tokenizer
+from core.utils.tokenizer_loader import load_tokenizer
 
 def visualize_single_sequence(input_sequence, target_sequence, tokenizer, row_number=None):
     """

@@ -1,7 +1,7 @@
 import argparse
 import os
 import shutil
-from utils.tokenizer_loader import load_tokenizer
+from core.utils.tokenizer_loader import load_tokenizer
 from batch_generation.pretrain_batch import PretrainBatchGenerator
 
 def clear_output_directory(output_directory):

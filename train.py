@@ -7,9 +7,9 @@ from training.trainer import Trainer
 from core.models.chuk_loss_function import chukloss
 from core.models.loss_function_loader import load_loss_function
 from dataset.train_batch_dataset import TrainBatchDataset
-from utils.training_config_loader import load_training_config
+from core.utils.training_config_loader import load_training_config
 from core.models.model_loader import load_model_and_tokenizer
-from utils.optimizer_loader import load_optimizer
+from core.utils.optimizer_loader import load_optimizer
 import logging
 
 # Setup logging

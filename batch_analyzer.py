@@ -1,6 +1,6 @@
 import argparse
 import numpy as np
-from utils.tokenizer_loader import load_tokenizer
+from core.utils.tokenizer_loader import load_tokenizer
 from batch_generation.batch_analysis_summary import generate_batch_analysis_summary_table
 
 def analyze_batch_file(batch_file, tokenizer_name, tensor_type=None):

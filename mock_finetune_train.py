@@ -5,7 +5,7 @@ from core.models.architectures.mock.mock_optimizer import MockOptimizer
 from training.trainer import Trainer
 
 # Import the tokenizer, assuming it's required for the new Trainer structure
-from utils.tokenizer_loader import load_tokenizer
+from core.utils.tokenizer_loader import load_tokenizer
 
 # Instantiate mock components
 model = MockModel()

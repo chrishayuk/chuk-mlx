@@ -1,7 +1,7 @@
 import argparse
 import os
 import numpy as np
-from utils.tokenizer_loader import load_tokenizer
+from core.utils.tokenizer_loader import load_tokenizer
 from batch_generation.sequence_visualizer import visualize_sequences
 
 def analyze_batch_file(batch_file, tokenizer_name, tensor_type='both', num_rows=None):

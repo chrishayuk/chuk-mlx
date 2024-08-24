@@ -3,8 +3,8 @@ import os
 import logging
 from pathlib import Path
 import mlx.core as mx
-from utils.huggingface_utils import load_from_hub
-from utils.tokenizer_loader import load_tokenizer
+from core.utils.huggingface_utils import load_from_hub
+from core.utils.tokenizer_loader import load_tokenizer
 from core.models.load_weights import load_checkpoint_weights, load_model_weights
 from core.models.model_config import ModelConfig
 
@@ -50,7 +50,7 @@ def load_model(model_name, load_weights=True):
     
     try:
         # Attempt to import the model module from the 'models' directory
-        model_module = importlib.import_module(f"models.architectures.{model_name}.{model_name}_model")
+        model_module = importlib.import_module(f"core.models.architectures.{model_name}.{model_name}_model")
         
         # If the module exists and has a class named CustomModel, create an instance
         if hasattr(model_module, 'CustomModel'):

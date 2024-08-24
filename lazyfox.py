@@ -4,10 +4,10 @@ import shutil
 import argparse
 from core.models.architectures.lazyfox.lazyfox_loss_function import chukloss
 from core.models.architectures.lazyfox.lazyfox_model import CustomModel
-from utils.model_adapter import ModelAdapter
+from core.utils.model_adapter import ModelAdapter
 import mlx.optimizers as optim
 from batch_generation.pretrain_batch import tokenize_and_batch
-from utils.tokenizer_loader import load_tokenizer
+from core.utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from dataset.train_batch_dataset import TrainBatchDataset
 from core.models.model_config import ModelConfig
