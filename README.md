@@ -23,6 +23,7 @@ python infer.py --model HuggingFaceTB/SmolLM-135M --prompt "1+1="
 
 TODO
 --------
+1 - update calvin batch sample to be a llama 2 based one
 1 - models unit testing
 2 - download and test the current list of supported models
 

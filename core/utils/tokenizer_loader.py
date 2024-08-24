@@ -1,6 +1,7 @@
 import os
 import transformers
 from core.utils.huggingface_utils import load_from_hub
+from core.tokenizers.custom_tokenizer import CustomTokenizer
 import logging
 
 # Set the logger
@@ -19,7 +20,6 @@ def load_tokenizer(tokenizer_name):
         try:
             # Load the local tokenizer using the vocab file
             logger.debug(f"Loading tokenizer locally from '{vocab_file}'")
-            from tokenizers.custom_tokenizer import CustomTokenizer
             tokenizer = CustomTokenizer(vocab_file=vocab_file)
         except Exception as e:
             logger.error(f"Error loading local tokenizer: {e}")
