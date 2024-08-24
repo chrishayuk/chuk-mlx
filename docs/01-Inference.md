@@ -9,10 +9,10 @@ python infer.py --model meta-llama/Meta-Llama-3-8B-Instruct
 ```
 
 ## Text Generation - Passing a prompt
-The following shows how to pass a prompt using a chat template
+The following shows how to pass a prompt
 
 ```bash
-python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "who is ada lovelace?"
+python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "who is ada lovelace?" 
 ```
 
 ## Text Generation - Passing a prompt (with Chat Template)

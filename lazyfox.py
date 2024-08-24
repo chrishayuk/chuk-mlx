@@ -2,17 +2,17 @@ import os
 from pathlib import Path
 import shutil
 import argparse
+import mlx.optimizers as optim
 from core.models.architectures.lazyfox.lazyfox_loss_function import chukloss
 from core.models.architectures.lazyfox.lazyfox_model import CustomModel
 from core.utils.model_adapter import ModelAdapter
-import mlx.optimizers as optim
 from core.batch.pretrain_batch import PretrainBatchGenerator
 from core.utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from dataset.train_batch_dataset import TrainBatchDataset
 from core.models.model_config import ModelConfig
 
-def clear_checkpoint_directory(output_directory):
+def clear_output_directory(output_directory):
     """Clear the output directory."""
     if os.path.exists(output_directory):
         shutil.rmtree(output_directory)
@@ -27,8 +27,9 @@ def main(regenerate_batches, prompt, model_name, tokenizer_name, framework='mlx'
     max_sequence_length = 15  # Example max sequence length
     batch_size = 2   # Example batch size
 
-    # Clear the output directory
-    clear_checkpoint_directory(checkpoint_output_dir)
+    # Clear the batch_output directory, and checkpoint output directory
+    clear_output_directory(batch_output_dir)
+    clear_output_directory(checkpoint_output_dir)
 
     # Load tokenizer and define vocabulary size
     tokenizer = load_tokenizer(tokenizer_name)
@@ -51,7 +52,7 @@ def main(regenerate_batches, prompt, model_name, tokenizer_name, framework='mlx'
         print("Batch files found. Skipping batch generation...")
 
     # Load the model config
-    config_path = Path(f"./models/architectures/{model_name}/config.json")
+    config_path = Path(f"./core/models/architectures/{model_name}/config.json")
     model_config = ModelConfig.load(config_path)
 
     # Initialize the ModelAdapter with the specified framework

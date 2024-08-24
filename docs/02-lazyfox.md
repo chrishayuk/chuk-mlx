@@ -16,6 +16,7 @@ python print_tokens.py --tokenizer lazyfox_tokenizer --prompt "the quick brown f
 
 ## Batch Generation
 Since the lazyfox model is a blank model, it uses pre-trained batchfiles to train the model.
+By default the lazyfox script will generate batches for you.
 This section shows how to generate batches for training the lazyfox model.
 
 ### Generating the input batchfiles
