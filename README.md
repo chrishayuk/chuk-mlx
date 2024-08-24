@@ -23,9 +23,10 @@ python infer.py --model HuggingFaceTB/SmolLM-135M --prompt "1+1="
 
 TODO
 --------
+2 - download and test the current list of supported models
+1 - support temperature, parameters etc for inference
 1 - update calvin batch sample to be a llama 2 based one
 1 - models unit testing
-2 - download and test the current list of supported models
 
 1 - clean up fine tune batching docs
 1 - attempt to fine tune calvin scale

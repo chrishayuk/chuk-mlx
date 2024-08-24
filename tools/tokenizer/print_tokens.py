@@ -1,4 +1,11 @@
 import argparse
+import os
+import sys
+
+# Add the parent directory of the tools directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+# imports
 from core.utils.tokenizer_loader import load_tokenizer
 from core.utils.token_display_utility import TokenDisplayUtility
 

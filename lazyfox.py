@@ -6,7 +6,7 @@ from core.models.architectures.lazyfox.lazyfox_loss_function import chukloss
 from core.models.architectures.lazyfox.lazyfox_model import CustomModel
 from core.utils.model_adapter import ModelAdapter
 import mlx.optimizers as optim
-from batch_generation.pretrain_batch import tokenize_and_batch
+from core.batch.pretrain_batch import PretrainBatchGenerator
 from core.utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from dataset.train_batch_dataset import TrainBatchDataset
@@ -21,9 +21,8 @@ def clear_checkpoint_directory(output_directory):
 def main(regenerate_batches, prompt, model_name, tokenizer_name, framework='mlx'):
     # Settings
     input_files = [f'./sample_data/{tokenizer_name}/{tokenizer_name}_train.jsonl']
-    output_dir = f'./output/{model_name}'
-    batch_output_dir = f'{output_dir}/batches'
-    checkpoint_output_dir = f'{output_dir}/checkpoints'
+    batch_output_dir = f'./output/batches/{model_name}'
+    checkpoint_output_dir = f'./output/checkpoints/{model_name}'
     batchfile_prefix = model_name
     max_sequence_length = 15  # Example max sequence length
     batch_size = 2   # Example batch size
@@ -34,18 +33,20 @@ def main(regenerate_batches, prompt, model_name, tokenizer_name, framework='mlx'
     # Load tokenizer and define vocabulary size
     tokenizer = load_tokenizer(tokenizer_name)
 
+    # Initialize PretrainBatchGenerator with the provided arguments
+    batch_generator = PretrainBatchGenerator(
+        tokenizer=tokenizer,
+        output_directory=batch_output_dir,
+        file_prefix=batchfile_prefix,
+        max_sequence_length=max_sequence_length,
+        batch_size=batch_size,
+        print_summaries=True
+    )
+
     # Check if batches exist, if not or if regenerate_batches is True, generate them
     if regenerate_batches or not os.path.exists(batch_output_dir) or len(os.listdir(batch_output_dir)) == 0:
         print("Generating batches...")
-        tokenize_and_batch(
-            input_files=input_files,
-            tokenizer=tokenizer,
-            output_directory=batch_output_dir,
-            file_prefix=batchfile_prefix,
-            max_sequence_length=max_sequence_length,
-            batch_size=batch_size,
-            print_summaries=True
-        )
+        batch_generator.tokenize_and_batch(input_files)
     else:
         print("Batch files found. Skipping batch generation...")
 

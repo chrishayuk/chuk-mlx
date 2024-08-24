@@ -2,7 +2,7 @@ import argparse
 import os
 import shutil
 from core.utils.tokenizer_loader import load_tokenizer
-from batch_generation.pretrain_batch import PretrainBatchGenerator
+from core.batch.pretrain_batch import PretrainBatchGenerator
 
 def clear_output_directory(output_directory):
     """Clear the output directory."""
