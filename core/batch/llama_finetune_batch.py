@@ -35,9 +35,9 @@ class LLaMAFineTuneBatch(FineTuneBatch):
         inst_end = text.find('[/INST]')
 
         if inst_start == -1 or inst_end == -1:
-            # No instruction tags, tokenize as a regular input and target
             # Add special tokens for input
             input_tokens = self.tokenizer.encode(text, add_special_tokens=True)
+
             # Set target to be empty with only EOS token
             target_tokens = [self.tokenizer.eos_token_id]
         else:

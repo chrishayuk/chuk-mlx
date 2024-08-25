@@ -36,6 +36,7 @@ def main():
 
     # Load the tokenizer object
     tokenizer = load_tokenizer(args.tokenizer)
+    tokenizer.pad_token_id = 0
     
     # Setup the Batcher
     batcher = LLaMAFineTuneBatch(
