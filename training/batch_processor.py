@@ -1,7 +1,7 @@
 import time
 import logging
 import mlx.core as mx
-from training.trainer_utils import schedule_learning_rate
+from training.training_scheduler import schedule_learning_rate
 
 # Set the logger
 logger = logging.getLogger(__name__)

@@ -6,13 +6,13 @@ model:
 # optimizer settings
 optimizer:
   name: AdamW
-  initial_lr: 2e-5
+  initial_lr: 1e-5  # As mentioned in the passage
   lr_schedule:
     type: cosine_decay
-    warmup_steps: 10
-  betas: [0.9, 0.95]
-  eps: 1e-5
-  weight_decay: 0.1
+    warmup_steps: [100]
+  betas: [0.9, 0.999]  # Standard betas for AdamW
+  eps: 1e-8  # Standard epsilon for AdamW
+  weight_decay: 0.01  # Typically lower
 
 # checkpointing
 checkpoint:
