@@ -1,5 +1,4 @@
 # Fine-tuning 
-
 model:
   # model name
   name: "mistralai/Mistral-7B-Instruct-v0.2"
@@ -19,12 +18,12 @@ optimizer:
 checkpoint:
   frequency_epochs: 1  # Checkpoint every epochs
   frequency_iterations: 500  # Checkpoint every n iterations
-  output_dir: './output/calvin/checkpoints'
+  output_dir: './output/checkpoints/calvin_mistral_7b'
 
 # training
 training:
   num_epochs: 1
-  total_iterations: 2000
+  total_iterations: 1000
   loss_function: core.models.chuk_loss_function.chukloss
 
 # batches

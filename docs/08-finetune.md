@@ -51,7 +51,7 @@ python infer.py --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --checkpoint "./out
 use the lora version
 
 ```bash
-python infer.py --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --checkpoint "./output/sample/checkpoints/final_model_checkpoint.npz"
+python infer.py --model "mistralai/Mistral-7B-Instruct-v0.2" --checkpoint "./sample_data/calvin_scale_llama/final_model_checkpoint.npz"
 ```
 
 python lora.py --train --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --data /Users/christopherhay/chris-source/chuk-datasets/datasets/calvin_scale/output/llama/ --batch-size 2 --lora-layers 8 --iters 1000

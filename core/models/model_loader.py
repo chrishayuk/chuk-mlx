@@ -47,12 +47,13 @@ def load_model(model_name, load_weights=True):
     Otherwise, load from the Hugging Face model repository.
     """
     model = None
+    model_module = None
     
     try:
         # Attempt to import the model module from the 'models' directory
         model_module = importlib.import_module(f"core.models.architectures.{model_name}.{model_name}_model")
-        
-        # If the module exists and has a class named CustomModel, create an instance
+        logger.debug(f"Model module imported: core.models.architectures.{model_name}.{model_name}_model")
+
         if hasattr(model_module, 'CustomModel'):
             # Load the model config from the correct path
             config_path = Path(os.path.join(os.path.dirname(model_module.__file__), "config.json"))
@@ -60,7 +61,7 @@ def load_model(model_name, load_weights=True):
             model = model_module.CustomModel(config=model_config)
             logger.debug(f"Loaded local model: {model_name} from {config_path}")
         else:
-            logger.debug(f"No CustomModel class found in the module 'models.architectures.{model_name}.{model_name}_model'.")
+            logger.debug(f"No CustomModel class found in the module 'core.models.architectures.{model_name}.{model_name}_model'.")
     except ImportError as e:
         logger.info(f"Local model module not found: {e}")
 
@@ -69,8 +70,6 @@ def load_model(model_name, load_weights=True):
             # Load the model from the hub if local loading fails
             logger.debug(f"Attempting to load model from Hugging Face hub: {model_name}")
             resolved_path = load_from_hub(model_name)
-
-            # Load the config and instantiate the model
             config_path = Path(resolved_path) / "config.json"
             model_config = ModelConfig.load(config_path)
             model = get_model_from_path(resolved_path)
@@ -84,7 +83,10 @@ def load_model(model_name, load_weights=True):
     # Load weights if necessary
     if load_weights:
         logger.debug(f"Loading model weights for: {model_name}")
-        weights = load_model_weights(Path(os.path.dirname(model_module.__file__)))
+        if model_module:
+            weights = load_model_weights(Path(os.path.dirname(model_module.__file__)))
+        else:
+            weights = load_model_weights(Path(resolved_path))
         
         if hasattr(model, "sanitize"):
             weights = model.sanitize(weights)
@@ -96,13 +98,6 @@ def load_model(model_name, load_weights=True):
     
     return model
 
-
-def load_model_and_tokenizer(model_name, local_config_path=DEFAULT_LOCAL_CONFIG_PATH, load_weights=True):
-    """ Load the model and tokenizer, preferring a local config path if provided and exists. """
-    model = load_model(model_name, local_config_path, load_weights)
-    tokenizer = load_tokenizer(model_name)
-    
-    return model, tokenizer
 
 def load_model_tokenizer_and_checkpoint(model_name, checkpoint_path=None, tokenizer_name=None, local_config_path=DEFAULT_LOCAL_CONFIG_PATH):
     """ Load the model, tokenizer, and optionally, weights from a checkpoint, preferring a local config path if provided and exists. """

@@ -1,5 +1,4 @@
 # Fine-tuning 
-
 model:
   name: ibm-granite/granite-3b-code-instruct
 
@@ -18,17 +17,17 @@ optimizer:
 checkpoint:
   frequency_epochs: 1  # Checkpoint every epochs
   frequency_iterations: 500  # Checkpoint every n iterations
-  output_dir: './output/calvin/checkpoints'
+  output_dir: './output/checkpoints/calvin_granite_3b'
 
 # training
 training:
   num_epochs: 1
-  total_iterations: 2000
-  loss_function: models.chuk_loss_function.chukloss
+  total_iterations: 1000
+  loss_function: core.models.chuk_loss_function.chukloss
 
 # batches
 batch:
-  output_dir: './output/calvin/batches'
+  output_dir: './output/batches/calvin'
   file_prefix: 'calvin'
   pre_cache_size: 5
   shuffle: True

@@ -3,14 +3,15 @@ import os
 import shutil
 import mlx.core as mx
 import mlx.nn as nn
+import logging
+from core.utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from core.models.chuk_loss_function import chukloss
 from core.models.loss_function_loader import load_loss_function
 from core.dataset.train_batch_dataset import TrainBatchDataset
 from core.utils.training_config_loader import load_training_config
-from core.models.model_loader import load_model_and_tokenizer
+from core.models.model_loader import load_model
 from core.utils.optimizer_loader import load_optimizer
-import logging
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -81,8 +82,12 @@ def main():
     # Clear the output checkpoints directory
     clear_output_checkpoints(checkpoint_config['output_dir'])
 
+    # load the tokenizer
+    tokenizer = load_tokenizer(model_config['name'])
+
     try:
-        model, tokenizer = load_model_and_tokenizer(model_config['name'])
+        # load the model
+        model = load_model(model_config['name'])
     except Exception as e:
         logger.error(f"Error loading model and tokenizer: {e}")
         return
@@ -105,10 +110,10 @@ def main():
         logger.error(f"Error loading batch data: {e}")
         return
 
-    try:
-        trainer.train(training_config['num_epochs'], batch_dataset, training_config['total_iterations'])
-    except Exception as e:
-        logger.error(f"Error during training: {e}")
+    #try:
+    trainer.train(training_config['num_epochs'], batch_dataset, training_config['total_iterations'])
+    #except Exception as e:
+    #    logger.error(f"Error during training: {e}")
 
 if __name__ == "__main__":
     main()

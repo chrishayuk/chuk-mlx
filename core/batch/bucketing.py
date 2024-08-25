@@ -1,15 +1,17 @@
 def add_to_buckets(buckets, input_tokens, target_tokens):
-    """ Add input and target tokens to the appropriate bucket based on sequence length. """
+    """ Add input and target tokens to the appropriate bucket based on the combined sequence length. """
+    # Combine lengths of input and target sequences
     input_length = len(input_tokens)
     target_length = len(target_tokens)
-    seq_length = max(input_length, target_length)
+    combined_length = input_length + target_length
     
     # Create a new bucket if it doesn't exist
-    if seq_length not in buckets:
-        buckets[seq_length] = []
+    if combined_length not in buckets:
+        buckets[combined_length] = []
     
     # Add the sequence pair to the corresponding bucket
-    buckets[seq_length].append((input_tokens, target_tokens))
+    buckets[combined_length].append((input_tokens, target_tokens))
+
 
 
 def split_large_buckets(buckets, max_batch_size):
