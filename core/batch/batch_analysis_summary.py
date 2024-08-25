@@ -17,7 +17,7 @@ def generate_batch_analysis_summary_table(batch_data, batch_file, pad_token_id):
     num_rows, max_sequence_length = batch_data.shape
 
     # Count the number of real tokens and padding tokens in each row
-    real_tokens_per_row = np.sum(batch_data != pad_token_id, axis=1)
+    real_tokens_per_row = np.sum((batch_data != pad_token_id) & (batch_data != 0), axis=1)
     padding_tokens_per_row = max_sequence_length - real_tokens_per_row
 
     # Calculate the total number of real tokens and padding tokens in the batch

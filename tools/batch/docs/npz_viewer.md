@@ -32,7 +32,7 @@ python tools/batch/npz_viewer.py --batch_file ./sample_data/batches/math/math_ba
 The npz tokenized viewer shows the tensors in the npz file along with their decoded values
 
 ```bash
-python tools/batch/npz_tokenized_viewer.py --batch_file ./sample_data/batches/calvin_scale/calvin_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
+python tools/batch/npz_tokenized_viewer.py --batch_file ./sample_data/batches/calvin_scale/calvin_batch_0001.npz --tokenizer mistralai/Mistral-7B-Instruct-v0.2
 ```
 
 or
