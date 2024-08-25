@@ -23,6 +23,8 @@ python infer.py --model HuggingFaceTB/SmolLM-135M --prompt "1+1="
 
 TODO
 --------
+1 - fix batch fine tune script and docs
+1 - modify finetune batch generator to work with different chat templates not just llama
 2 - download and test the current list of supported models
 1 - support temperature, parameters etc for inference
 1 - update calvin batch sample to be a llama 2 based one

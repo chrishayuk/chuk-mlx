@@ -1,7 +1,7 @@
 import argparse
 import os
 import shutil
-from batch_generation.llama_finetune_batch import LLaMAFineTuneBatch
+from core.batch.llama_finetune_batch import LLaMAFineTuneBatch
 from core.utils.tokenizer_loader import load_tokenizer
 
 def clear_output_directory(output_directory):
@@ -11,28 +11,44 @@ def clear_output_directory(output_directory):
     os.makedirs(output_directory)
 
 def main():
-    # set argument parser
+    # Set argument parser
     parser = argparse.ArgumentParser(description='Tokenize JSONL scripts into batches.')
 
-    # set parameters
+    # Set parameters
     parser.add_argument('--input_files', type=str, nargs='+', required=True, help='Input JSONL files')
     parser.add_argument('--tokenizer', type=str, required=True, help='Name or path of the tokenizer')
-    parser.add_argument('--output_directory', type=str, default='./output', help='Output directory for tokenized batches')
+    parser.add_argument('--model_name', type=str, required=True, help='Name of the model to use for batch output directory')
+    parser.add_argument('--output_directory', type=str, help='Output directory for tokenized batches (overrides default if provided)')
     parser.add_argument('--file_prefix', type=str, default='tokenized', help='Prefix for output batch files')
     parser.add_argument('--max_sequence_length', type=int, default=512, help='Maximum sequence length')
     parser.add_argument('--batch_size', type=int, default=32, help='Number of sequences per batch')
     
-    # parse arguments
+    # Parse arguments
     args = parser.parse_args()
 
-    # Clear the output directory
-    clear_output_directory(args.output_directory)
+    # Determine the batch output directory
+    if args.output_directory:
+        batch_output_dir = args.output_directory  # Use the user-provided directory
+    else:
+        batch_output_dir = f'./output/batches/{args.model_name}'  # Default directory structure
+
+    # Clear the output directory if necessary
+    clear_output_directory(batch_output_dir)
 
     # Load the tokenizer object
     tokenizer = load_tokenizer(args.tokenizer)
     
-    # tokenize and batch
-    batcher = LLaMAFineTuneBatch(tokenizer, args.output_directory, args.file_prefix, args.max_sequence_length, args.batch_size, False)
+    # Setup the Batcher
+    batcher = LLaMAFineTuneBatch(
+        tokenizer=tokenizer,
+        output_directory=batch_output_dir,
+        file_prefix=args.file_prefix,
+        max_sequence_length=args.max_sequence_length,
+        batch_size=args.batch_size,
+        print_summaries=False
+    )
+
+    # Tokenize and batch
     batcher.tokenize_and_batch(args.input_files)
 
 if __name__ == '__main__':

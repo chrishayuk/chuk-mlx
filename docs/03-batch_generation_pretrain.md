@@ -10,14 +10,14 @@ The following script will take a jsonl dataset, tokenize it using the passed tok
 this will perform a pretrain using a huggingface based tokenizer
 
 ```bash
-python batch_generator_pretrain.py --input_files ./sample_data/sample_training_data_small.jsonl --tokenizer ibm-granite/granite-3b-code-instruct --output_directory ./output/sample/batches --file_prefix sample --max_sequence_length 8096 --batch_size 1024
+python batch_generator_pretrain.py --input_files ./sample_data/sample_training_data_small.jsonl --tokenizer ibm-granite/granite-3b-code-instruct --output_directory ./output/batches/sample --file_prefix sample --max_sequence_length 8096 --batch_size 2
 ```
 
 ### custom tokenizer
 this will perform a pretrain using a huggingface based tokenizer
 
 ```bash
-python batch_generator_pretrain.py --input_files ./sample_data/lazyfox/lazyfox_train.jsonl --tokenizer lazyfox --output_directory ./output/lazyfox/batches --file_prefix lazyfox --max_sequence_length 12 --batch_size 1024
+python batch_generator_pretrain.py --input_files ./sample_data/lazyfox/lazyfox_train.jsonl --tokenizer lazyfox --output_directory ./output/batches/lazyfox --file_prefix lazyfox --max_sequence_length 12 --batch_size 2
 ```
 
 ## Batch Analyzer
@@ -27,13 +27,13 @@ This will produce a pretty table that outlines rows, tokens per batch, padding t
 The following will analyze the input batch we created earlier
 
 ```bash
-python batch_analyzer.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
+python tools/batch/batch_analyzer.py --batch_file output/batches/sample/sample_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
 ```
 
 and
 
 ```bash
-python batch_analyzer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001.npz --tokenizer lazyfox
+python tools/batch/batch_analyzer.py --batch_file output/batches/lazyfox/lazyfox_batch_0001.npz --tokenizer lazyfox
 ```
 
 ## Batch Viewer Cli
@@ -41,13 +41,13 @@ The following takes a batch file and allows you to the view the batch.
 This will provide a simple view of the batch row showing input and target tensors
 
 ```bash
-python batch_viewer_cli.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
+python tools/batch/batch_viewer_cli.py --batch_file output/batches/sample/sample_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
 ```
 
 or
 
 ```bash
-python batch_viewer_cli.py --batch_file output/lazyfox/batches/lazyfox_batch_0001.npz --tokenizer lazyfox
+python tools/batch/batch_viewer_cli.py --batch_file output/batches/lazyfox/lazyfox_batch_0001.npz --tokenizer lazyfox
 ```
 
 
@@ -56,12 +56,12 @@ The following takes a batch file and allows you to the view the batch.
 This provides batch viewing in a simplified form
 
 ```bash
-python batch_viewer.py --batch_file output/sample/batches/sample_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
+python tools/batch/batch_viewer.py --batch_file output/batches/sample/sample_batch_0001.npz --tokenizer ibm-granite/granite-3b-code-instruct
 ```
 
 or
 
 ```bash
-python batch_viewer.py --batch_file output/lazyfox/batches/lazyfox_batch_0001.npz --tokenizer lazyfox
+python tools/batch/batch_viewer.py --batch_file output/batches/lazyfox/lazyfox_batch_0001.npz --tokenizer lazyfox
 ```
 
