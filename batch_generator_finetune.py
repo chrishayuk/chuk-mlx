@@ -17,7 +17,6 @@ def main():
     # Set parameters
     parser.add_argument('--input_files', type=str, nargs='+', required=True, help='Input JSONL files')
     parser.add_argument('--tokenizer', type=str, required=True, help='Name or path of the tokenizer')
-    parser.add_argument('--model_name', type=str, required=True, help='Name of the model to use for batch output directory')
     parser.add_argument('--output_directory', type=str, help='Output directory for tokenized batches (overrides default if provided)')
     parser.add_argument('--file_prefix', type=str, default='tokenized', help='Prefix for output batch files')
     parser.add_argument('--max_sequence_length', type=int, default=512, help='Maximum sequence length')
@@ -30,7 +29,7 @@ def main():
     if args.output_directory:
         batch_output_dir = args.output_directory  # Use the user-provided directory
     else:
-        batch_output_dir = f'./output/batches/{args.model_name}'  # Default directory structure
+        batch_output_dir = f'./output/batches/{args.tokenizer}'  # Default directory structure
 
     # Clear the output directory if necessary
     clear_output_directory(batch_output_dir)

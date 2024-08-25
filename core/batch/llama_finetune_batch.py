@@ -11,9 +11,8 @@ class LLaMAFineTuneBatch(FineTuneBatch):
         # Remove or replace any unsupported characters (e.g., non-ASCII characters)
         text = re.sub(r'[^\x00-\x7F]+', '', text)  # Optionally replace with '[UNK]' or another placeholder
 
-        # return the pre-processed text
         return text
-
+    
     def tokenize_line(self, line):
         try:
             # Parse the JSON line
@@ -31,25 +30,36 @@ class LLaMAFineTuneBatch(FineTuneBatch):
         # Preprocess the text
         text = self.preprocess_text(text)
 
-        # Ensure we have instruction tags
-        inst_start = text.find('[INST]') + len('[INST]')
+        # Handle cases without instruction tags
+        inst_start = text.find('[INST]')
         inst_end = text.find('[/INST]')
-        if inst_start == -1 + len('[INST]') or inst_end == -1:
-            print("Instruction tags are missing or incorrect in the text.")
-            return None, None
 
-        # Extract the instruction and target from the LLaMA format
-        instruction = text[inst_start:inst_end].strip()
-        target = text[inst_end + len('[/INST]'):].strip('</s>').strip()
+        if inst_start == -1 or inst_end == -1:
+            # No instruction tags, tokenize as a regular input and target
+            # Add special tokens for input
+            input_tokens = self.tokenizer.encode(text, add_special_tokens=True)
+            # Set target to be empty with only EOS token
+            target_tokens = [self.tokenizer.eos_token_id]
+        else:
+            # Extract the instruction and target from the LLaMA format
+            inst_start += len('[INST]')
+            instruction = text[inst_start:inst_end].strip()
+            target = text[inst_end + len('[/INST]'):].strip()
 
-        try:
-            # Tokenize the instruction and target using the plain text
-            input_tokens = self.tokenizer.encode(instruction)
-            target_tokens = self.tokenizer.encode(target)
-        except Exception as e:
-            print(f"Error tokenizing input or target: {e}")
-            print(f"Instruction: {instruction}")
-            print(f"Target: {target}")
-            return None, None
+            try:
+                # Tokenize the instruction with special tokens
+                input_tokens = self.tokenizer.encode(instruction, add_special_tokens=True)
+                
+                # Tokenize target without special tokens and then manually add end-of-sequence token
+                target_tokens = self.tokenizer.encode(target, add_special_tokens=False)
+                
+                eos_token_id = self.tokenizer.eos_token_id
+                if eos_token_id is not None and (not target_tokens or target_tokens[-1] != eos_token_id):
+                    target_tokens.append(eos_token_id)
+            except Exception as e:
+                print(f"Error tokenizing input or target: {e}")
+                print(f"Instruction: {instruction}")
+                print(f"Target: {target}")
+                return None, None
 
         return input_tokens, target_tokens
