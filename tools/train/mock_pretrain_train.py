@@ -46,7 +46,8 @@ trainer = Trainer(
     loss_function=loss_function,
     progress_interval=10,
     checkpoint_dir=checkpoint_output_dir,
-    checkpoint_freq=50
+    checkpoint_freq_epochs=50,
+    warmup_steps=0
 )
 
 # Run training

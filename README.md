@@ -26,6 +26,7 @@ TODO
 1 - fix batch fine tune script and docs
 2 - single cli for batch_generator_finetune and pre_train using a factory lpader
 3 - modify finetune batch generator to work with different chat templates not just llama
+4 - fix mock finetune
 2 - download and test the current list of supported models
 1 - support temperature, parameters etc for inference
 1 - update calvin batch sample to be a llama 2 based one

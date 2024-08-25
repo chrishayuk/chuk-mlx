@@ -7,6 +7,9 @@ The following models are based on the llama architecture and have been tested as
 ### llama
 - meta-llama/Meta-Llama-3-8B-Instruct
 
+### mistral
+- mistralai/Mistral-7B-Instruct-v0.2
+
 ### smol
 - HuggingFaceTB/SmolLM-135M-Instruct
 - HuggingFaceTB/SmolLM-360M-Instruct
@@ -27,14 +30,15 @@ The following llama based models currently have errors and need debugged
 - TinyLlama/TinyLlama_v1.1
 - meta-llama/Llama-2-7b-chat-hf
 - meta-llama/Llama-2-7b-hf
+- mistralai/Mistral-7B-Instruct-v0.3
 - microsoft/Phi-3.5-mini-instruct
 - ibm-granite/granite-20b-code-instruct
 - ibm-granite/granite-34b-code-instruct
 
 # TODO
 - meta-llama/Meta-Llama-3.1-8B-Instruct
-- mistralai/Mistral-7B-Instruct-v0.2
-- mistralai/Mistral-7B-Instruct-v0.3
+- mistal nemo
+- mistral large
 - google/gemma-1.1-2b
 - google/gemma-1.1-2b-it
 - google/gemma-1.1-7b-it
