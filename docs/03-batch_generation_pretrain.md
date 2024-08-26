@@ -10,14 +10,14 @@ The following script will take a jsonl dataset, tokenize it using the passed tok
 this will perform a pretrain using a huggingface based tokenizer
 
 ```bash
-python batch_generator_pretrain.py --input_files ./sample_data/sample_training_data_small.jsonl --tokenizer ibm-granite/granite-3b-code-instruct --output_directory ./output/batches/sample --file_prefix sample --max_sequence_length 8096 --batch_size 2
+python batch_generator_pretrain.py --input_files ./sample_data/sample_training_data_small.jsonl --tokenizer ibm-granite/granite-3b-code-instruct --output_directory ./output/batches/sample --file_prefix sample --max_sequence_length 8096 --batch_size 2 --regenerate_batches
 ```
 
 ### custom tokenizer
 this will perform a pretrain using a huggingface based tokenizer
 
 ```bash
-python batch_generator_pretrain.py --input_files ./sample_data/lazyfox/lazyfox_train.jsonl --tokenizer lazyfox --output_directory ./output/batches/lazyfox --file_prefix lazyfox --max_sequence_length 12 --batch_size 2
+python batch_generator_pretrain.py --input_files ./sample_data/lazyfox/lazyfox_train.jsonl --tokenizer lazyfox --output_directory ./output/batches/lazyfox --file_prefix lazyfox --max_sequence_length 12 --batch_size 2 --regenerate_batches
 ```
 
 ## Batch Analyzer

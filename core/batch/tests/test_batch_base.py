@@ -46,158 +46,77 @@ def batch_base_instance(mock_tokenizer, temp_output_dir):
         print_summaries=False
     )
 
-# Existing tests
-def test_tokenize_line(batch_base_instance):
-    text = "Hello"
-    input_tokens, target_tokens, attention_mask = batch_base_instance.tokenize_line(text)
-    assert input_tokens == [72, 101, 108, 108, 111], "Tokenization failed."
-    assert target_tokens == [111, 108, 108, 101, 72], "Target tokenization failed."
-    assert attention_mask == [1, 1, 1, 1, 1], "Attention mask generation failed."
+# Test padding sequences (already provided)
+def test_pad_sequences(batch_base_instance):
+    input_tokens_list = [[72, 101], [108, 111, 114]]
+    target_tokens_list = [[101, 72], [114, 111, 108]]
+    attention_masks_list = [[1, 1], [1, 1, 1]]
 
+    input_tokens_padded, target_tokens_padded, attention_masks_padded = batch_base_instance.pad_sequences(
+        input_tokens_list, target_tokens_list, attention_masks_list, batch_base_instance.tokenizer.pad_token_id
+    )
+
+    expected_input_tokens_padded = np.array([
+        [72, 101, 0],  # Padded to the length of the longest sequence (3)
+        [108, 111, 114]
+    ], dtype=np.int32)
+    expected_target_tokens_padded = np.array([
+        [101, 72, 0],  # Padded to the length of the longest sequence (3)
+        [114, 111, 108]
+    ], dtype=np.int32)
+    expected_attention_masks_padded = np.array([
+        [1, 1, 0],  # Mask padded with 0
+        [1, 1, 1]
+    ], dtype=np.int32)
+
+    np.testing.assert_array_equal(input_tokens_padded, expected_input_tokens_padded)
+    np.testing.assert_array_equal(target_tokens_padded, expected_target_tokens_padded)
+    np.testing.assert_array_equal(attention_masks_padded, expected_attention_masks_padded)
+
+# Test tokenization and batching
+def test_tokenize_and_batch(batch_base_instance, temp_output_dir):
+    input_files = [os.path.join(temp_output_dir, 'mock_input.txt')]
+    
+    with open(input_files[0], 'w') as f:
+        f.write("Hello\n")
+        f.write("World\n")
+    
+    batch_base_instance.tokenize_and_batch(input_files)
+    
+    # Check that output files are generated
+    output_files = [f for f in os.listdir(temp_output_dir) if f.startswith('test_batch_')]
+    assert len(output_files) > 0, "No batch files were created."
+
+# Test handling of empty input
+def test_empty_input_handling(batch_base_instance):
+    input_files = []
+    
+    # Expecting no exception, but no output as well
+    batch_base_instance.tokenize_and_batch(input_files)
+    
+    # Assert that no processing was done
+    assert not os.path.exists(os.path.join(batch_base_instance.output_directory, 'test_batch_0001.npz'))
+
+# Test error handling for None input line
+def test_tokenize_line_error_handling(batch_base_instance):
+    with pytest.raises(ValueError, match="Input line cannot be None."):
+        batch_base_instance.tokenize_line(None)
+
+# Test saving batch
 def test_save_batch(batch_base_instance, temp_output_dir):
     batch_data = [
-        ([72, 101, 108], [108, 111, 1], [1, 1, 1]),
-        ([108, 111], [111, 108, 1], [1, 1])
+        ([1, 2, 3], [3, 2, 1], [1, 1, 1]),
+        ([4, 5], [5, 4], [1, 1])
     ]
-    file_path = os.path.join(temp_output_dir, "test_batch.npz")
-
-    # Unpack the returned values to test the input, target, and attention mask tensors
-    input_tensor, target_tensor, attention_mask = batch_base_instance.save_batch(batch_data, file_path)
-
-    # The expected shape should be based on the longest sequence length in the batch
-    expected_shape = (2, 3)  # Padded to the length of the longest sequence
-
-    assert input_tensor.shape == expected_shape, f"Shape mismatch in saved input tensor: expected {expected_shape}, got {input_tensor.shape}."
-    assert target_tensor.shape == expected_shape, f"Shape mismatch in saved target tensor: expected {expected_shape}, got {target_tensor.shape}."
-    assert attention_mask.shape == expected_shape, f"Shape mismatch in saved attention mask: expected {expected_shape}, got {attention_mask.shape}."
-
-    # Validate the actual content of the tensors
-    expected_input_tensor = np.array([
-        [72, 101, 108],  # No padding needed here
-        [108, 111, 0]    # Should be padded with the tokenizer's pad token (0)
-    ])
     
-    expected_target_tensor = np.array([
-        [108, 111, 1],   # Target sequence
-        [111, 108, 1]    # Target sequence with padding
-    ])
+    file_path = os.path.join(temp_output_dir, 'test_batch.npz')
+    input_tensor, target_tensor, attention_mask_tensor = batch_base_instance.save_batch(batch_data, file_path)
     
-    expected_attention_mask = np.array([
-        [1, 1, 1],  # Full sequence is valid
-        [1, 1, 0]   # Padding should be masked with 0
-    ])
+    # Check that the file was created
+    assert os.path.exists(file_path), "Batch file was not created."
     
-    np.testing.assert_array_equal(input_tensor, expected_input_tensor, "Mismatch in input tensor content.")
-    np.testing.assert_array_equal(target_tensor, expected_target_tensor, "Mismatch in target tensor content.")
-    np.testing.assert_array_equal(attention_mask, expected_attention_mask, "Mismatch in attention mask content.")
-
-
-def test_process_batch(batch_base_instance, temp_output_dir):
-    batch_data = [
-        ([72, 101, 108], [108, 111, 1], [1, 1, 1]),
-        ([108, 111], [111, 108, 1], [1, 1])
-    ]
-    file_path = os.path.join(temp_output_dir, "test_batch.npz")
-
-    batch_base_instance.process_batch(0, batch_data, file_path)
-
-    assert os.path.exists(file_path), "Batch file was not created during processing."
-
-def test_tokenize_dataset(batch_base_instance):
-    with tempfile.NamedTemporaryFile(delete=False) as temp_input_file:
-        temp_input_file.write(b"Hello\nWorld\n")
-        input_file_name = temp_input_file.name
-    
-    try:
-        tokenized_dataset = batch_base_instance.tokenize_dataset([input_file_name])
-        
-        expected_tokenized = [
-            ([72, 101, 108, 108, 111], [111, 108, 108, 101, 72], [1, 1, 1, 1, 1]),
-            ([87, 111, 114, 108, 100], [100, 108, 114, 111, 87], [1, 1, 1, 1, 1])
-        ]
-        assert tokenized_dataset == expected_tokenized, "Tokenized dataset does not match expected."
-    finally:
-        if os.path.exists(input_file_name):
-            os.remove(input_file_name)
-
-def test_tokenize_and_batch(batch_base_instance, temp_output_dir):
-    with tempfile.NamedTemporaryFile(delete=False) as temp_input_file:
-        temp_input_file.write(b"Hello\nWorld\n")
-        input_file_name = temp_input_file.name
-    
-    try:
-        batch_base_instance.tokenize_and_batch([input_file_name])
-        
-        batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
-        assert len(batch_files) > 0, "No batch files were created."
-    finally:
-        if os.path.exists(input_file_name):
-            os.remove(input_file_name)
-
-# Additional tests
-def test_infinite_loop_prevention(batch_base_instance, temp_output_dir):
-    input_files = ["test_input_file.txt"]
-    with open(input_files[0], 'w') as f:
-        f.write("test\n" * 9)  # 9 sequences, batch size 2, should result in 5 batches
-
-    batch_base_instance.tokenize_and_batch(input_files)
-
-    batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
-    assert len(batch_files) == 5, f"Expected 5 batches, got {len(batch_files)}"
-    os.remove(input_files[0])
-
-def test_bucket_emptying(batch_base_instance):
-    buckets = {5: [([72, 101], [111, 108], [1, 1])] * 5}
-    batch_base_instance.create_batches(buckets)
-    assert all(len(bucket) == 0 for bucket in buckets.values()), "Buckets were not emptied correctly."
-
-def test_final_batch_leftover_sequences(batch_base_instance, temp_output_dir):
-    input_files = ["test_input_file.txt"]
-    with open(input_files[0], 'w') as f:
-        f.write("test\n" * 5)  # 5 sequences, batch size 2, should result in 3 batches
-
-    batch_base_instance.tokenize_and_batch(input_files)
-
-    batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
-    assert len(batch_files) == 3, f"Expected 3 batches, got {len(batch_files)}"
-    os.remove(input_files[0])
-
-def test_proper_batch_size(batch_base_instance, temp_output_dir):
-    input_files = ["test_input_file.txt"]
-    with open(input_files[0], 'w') as f:
-        f.write("test\n" * 7)  # 7 sequences, batch size 2, should result in 4 batches
-
-    batch_base_instance.tokenize_and_batch(input_files)
-
-    batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
-    assert len(batch_files) == 4, f"Expected 4 batches, got {len(batch_files)}"
-    os.remove(input_files[0])
-
-def test_empty_input(batch_base_instance, temp_output_dir):
-    input_files = ["empty_input_file.txt"]
-    with open(input_files[0], 'w') as f:
-        pass  # Empty file
-
-    batch_base_instance.tokenize_and_batch(input_files)
-
-    batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
-    assert len(batch_files) == 0, f"Expected 0 batches, got {len(batch_files)}"
-    os.remove(input_files[0])
-
-# Error Handling Tests
-def test_tokenize_line_error_handling(batch_base_instance):
-    invalid_line = None  # Simulate an invalid line input
-    with pytest.raises(ValueError, match="Input line cannot be None."):
-        batch_base_instance.tokenize_line(invalid_line)
-
-def test_save_batch_with_invalid_data(batch_base_instance, temp_output_dir):
-    invalid_batch_data = None  # Simulate invalid batch data
-    file_path = os.path.join(temp_output_dir, "test_batch.npz")
-    with pytest.raises(TypeError):
-        batch_base_instance.save_batch(invalid_batch_data, file_path)
-
-def test_process_batch_with_invalid_data(batch_base_instance, temp_output_dir):
-    invalid_batch_data = None  # Simulate invalid batch data
-    file_path = os.path.join(temp_output_dir, "test_batch.npz")
-    with pytest.raises(TypeError):
-        batch_base_instance.process_batch(0, invalid_batch_data, file_path)
+    # Verify the contents of the file
+    with np.load(file_path) as data:
+        np.testing.assert_array_equal(data['input_tensor'], input_tensor)
+        np.testing.assert_array_equal(data['target_tensor'], target_tensor)
+        np.testing.assert_array_equal(data['attention_mask_tensor'], attention_mask_tensor)

@@ -3,7 +3,6 @@ import numpy as np
 import pytest
 import tempfile
 from core.batch.pretrain_batch import PretrainBatchGenerator
-from core.batch.batch_base import BatchBase
 
 class MockTokenizer:
     def __init__(self):
@@ -22,13 +21,8 @@ def temp_output_dir():
 def mock_tokenizer():
     return MockTokenizer()
 
-class MockBatchBase(BatchBase):
-    def tokenize_line(self, line):
-        return [ord(c) for c in line.strip()]
-
-@pytest.fixture
-def batch_base_instance(mock_tokenizer, temp_output_dir):
-    return MockBatchBase(
+def test_save_batch(mock_tokenizer, temp_output_dir):
+    generator = PretrainBatchGenerator(
         tokenizer=mock_tokenizer,
         output_directory=temp_output_dir,
         file_prefix='test',
@@ -37,34 +31,32 @@ def batch_base_instance(mock_tokenizer, temp_output_dir):
         print_summaries=False
     )
 
-def test_save_batch(batch_base_instance, temp_output_dir):
     batch_data = [[72, 101, 108], [108, 111]]
     file_path = os.path.join(temp_output_dir, "test_batch.npz")
 
     # Use `save_batch` and unpack the returned values to test the input tensor
-    input_tensor, _, _ = batch_base_instance.save_batch(batch_data, file_path)
+    input_tensor, target_tensor, attention_mask_tensor = generator.save_batch(batch_data, file_path)
 
-    expected_shape = (2, max(len(seq) for seq in batch_data))
-    assert input_tensor.shape == expected_shape, "Shape mismatch in saved batch."
+    expected_input_shape = (2, max(len(seq) for seq in batch_data))
+    assert input_tensor.shape == expected_input_shape, "Shape mismatch in saved input tensor."
 
-def test_process_batch(temp_output_dir, mock_tokenizer):
-    generator = PretrainBatchGenerator(tokenizer=mock_tokenizer, output_directory=temp_output_dir, file_prefix='test',
-                                       max_sequence_length=5, batch_size=2, print_summaries=False)
+    # Verify that target_tensor is correctly shifted and padded
+    expected_target_tensor = np.array([
+        [101, 108, 0],  # Shifted and padded target for [72, 101, 108]
+        [111, 0, 0]     # Shifted and padded target for [108, 111]
+    ], dtype=np.int32)
 
-    batch_data = [
-        ([1, 2, 3], [2, 3, 0], [1, 1, 1]), 
-        ([4, 5], [5, 0], [1, 1])
-    ]
-    
-    file_path = os.path.join(temp_output_dir, "test_batch.npz")
-    generator.process_batch(0, batch_data, file_path)
+    np.testing.assert_array_equal(target_tensor, expected_target_tensor, "Target tensor was not generated correctly.")
 
-    loaded_data = np.load(file_path)
-    assert 'input_tensor' in loaded_data
-    assert 'target_tensor' in loaded_data
-    assert 'attention_mask_tensor' in loaded_data
+    # Verify that attention_mask_tensor is correctly generated
+    expected_attention_mask = np.array([
+        [1, 1, 1],  # Attention mask for [72, 101, 108]
+        [1, 1, 0]   # Attention mask for [108, 111]
+    ], dtype=np.int32)
 
-def test_tokenize_and_batch(temp_output_dir, mock_tokenizer):
+    np.testing.assert_array_equal(attention_mask_tensor, expected_attention_mask, "Attention mask tensor was not generated correctly.")
+
+def test_tokenize_and_batch(mock_tokenizer, temp_output_dir):
     with tempfile.NamedTemporaryFile(delete=False) as temp_input_file:
         input_file_name = temp_input_file.name
         temp_input_file.write(b"Hello\nWorld\n")
@@ -73,12 +65,19 @@ def test_tokenize_and_batch(temp_output_dir, mock_tokenizer):
                                        max_sequence_length=5, batch_size=2, print_summaries=False)
 
     input_files = [input_file_name]
-    
+
     try:
         generator.tokenize_and_batch(input_files)
 
         batch_files = [f for f in os.listdir(temp_output_dir) if f.endswith('.npz')]
         assert len(batch_files) == 1
+
+        # Load and verify the content of the saved batch file
+        batch_file_path = os.path.join(temp_output_dir, batch_files[0])
+        with np.load(batch_file_path) as data:
+            assert 'input_tensor' in data
+            assert 'target_tensor' in data
+            assert 'attention_mask_tensor' in data
 
     finally:
         if os.path.exists(input_file_name):
@@ -94,54 +93,21 @@ def test_padding_in_batches(mock_tokenizer):
         file_path = temp_batch_file.name
 
     try:
-        input_tensor, _, _ = generator.save_batch(batch_data, file_path)
+        input_tensor, target_tensor, _ = generator.save_batch(batch_data, file_path)
 
         max_length_in_batch = max(len(seq) for seq in batch_data)
         expected_input = np.array([
             seq + [generator.tokenizer.pad_token_id] * (max_length_in_batch - len(seq)) for seq in batch_data
         ], dtype=np.int32)
 
+        expected_target = np.array([
+            seq[1:] + [generator.tokenizer.pad_token_id] * (max_length_in_batch - len(seq)) + [generator.tokenizer.pad_token_id]
+            for seq in batch_data
+        ], dtype=np.int32)
+
         np.testing.assert_array_equal(input_tensor, expected_input)
+        np.testing.assert_array_equal(target_tensor, expected_target)
 
     finally:
         if os.path.exists(file_path):
             os.remove(file_path)
-
-def test_target_tensor_generation(mock_tokenizer):
-    generator = PretrainBatchGenerator(
-        tokenizer=mock_tokenizer,
-        output_directory=tempfile.gettempdir(),
-        file_prefix='test',
-        max_sequence_length=5,
-        batch_size=2,
-        print_summaries=False
-    )
-
-    batch_data = [[1, 2, 3], [4, 5]]
-
-    expected_target_tensor = np.array([
-        [2, 3, 0],
-        [5, 0, 0]
-    ], dtype=np.int32)
-
-    input_tensor = generator.process_batch_data(batch_data)
-    target_tensor, _ = generator.create_target_batch(input_tensor, generator.tokenizer.pad_token_id)
-
-    np.testing.assert_array_equal(target_tensor, expected_target_tensor)
-
-def test_input_and_target_tensor_consistency(mock_tokenizer):
-    generator = PretrainBatchGenerator(
-        tokenizer=mock_tokenizer,
-        output_directory=tempfile.gettempdir(),
-        file_prefix='test',
-        max_sequence_length=5,
-        batch_size=2,
-        print_summaries=False
-    )
-
-    batch_data = [[1, 2, 3], [4, 5]]
-
-    input_tensor = generator.process_batch_data(batch_data)
-    target_tensor, _ = generator.create_target_batch(input_tensor, generator.tokenizer.pad_token_id)
-
-    assert input_tensor.shape == target_tensor.shape, f"Input tensor shape {input_tensor.shape} does not match target tensor shape {target_tensor.shape}"

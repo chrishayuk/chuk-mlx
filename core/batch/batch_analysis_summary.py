@@ -1,15 +1,19 @@
 import numpy as np
 
 def generate_header():
+    # prints the header
     return "\nBatch Analysis Summary:\n" + "=" * 50 + "\n"
 
 def generate_footer():
+    # returns the footer
     return "=" * 50 + "\n"
 
 def generate_row(label, value):
+    # generates the row
     return f"{label:<35} {value:>15}\n"
 
 def generate_separator():
+    # sticks in a - as a seperator
     return "-" * 50 + "\n"
 
 def generate_batch_analysis_summary_table(batch_data, batch_file, pad_token_id):
