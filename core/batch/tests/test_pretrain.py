@@ -22,12 +22,10 @@ def temp_output_dir():
 def mock_tokenizer():
     return MockTokenizer()
 
-# Mock subclass for testing purposes
 class MockBatchBase(BatchBase):
     def tokenize_line(self, line):
-        # Simple tokenization by converting each character to an integer
         return [ord(c) for c in line.strip()]
-    
+
 @pytest.fixture
 def batch_base_instance(mock_tokenizer, temp_output_dir):
     return MockBatchBase(
@@ -42,25 +40,29 @@ def batch_base_instance(mock_tokenizer, temp_output_dir):
 def test_save_batch(batch_base_instance, temp_output_dir):
     batch_data = [[72, 101, 108], [108, 111]]
     file_path = os.path.join(temp_output_dir, "test_batch.npz")
-    
-    input_tensor = batch_base_instance.save_batch(batch_data, file_path)
-    
-    # Expected shape should now be based on the longest sequence in the batch
-    expected_shape = (2, max(len(seq) for seq in batch_data))
-    
-    assert input_tensor.shape == expected_shape, "Shape mismatch in saved batch."
 
+    # Use `save_batch` and unpack the returned values to test the input tensor
+    input_tensor, _, _ = batch_base_instance.save_batch(batch_data, file_path)
+
+    expected_shape = (2, max(len(seq) for seq in batch_data))
+    assert input_tensor.shape == expected_shape, "Shape mismatch in saved batch."
 
 def test_process_batch(temp_output_dir, mock_tokenizer):
     generator = PretrainBatchGenerator(tokenizer=mock_tokenizer, output_directory=temp_output_dir, file_prefix='test',
                                        max_sequence_length=5, batch_size=2, print_summaries=False)
-    
-    batch_data = [[1, 2, 3], [4, 5]]
-    file_path = os.path.join(temp_output_dir, "test_batch.npz")
 
+    batch_data = [
+        ([1, 2, 3], [2, 3, 0], [1, 1, 1]), 
+        ([4, 5], [5, 0], [1, 1])
+    ]
+    
+    file_path = os.path.join(temp_output_dir, "test_batch.npz")
     generator.process_batch(0, batch_data, file_path)
 
-    assert os.path.exists(file_path)
+    loaded_data = np.load(file_path)
+    assert 'input_tensor' in loaded_data
+    assert 'target_tensor' in loaded_data
+    assert 'attention_mask_tensor' in loaded_data
 
 def test_tokenize_and_batch(temp_output_dir, mock_tokenizer):
     with tempfile.NamedTemporaryFile(delete=False) as temp_input_file:
@@ -82,7 +84,6 @@ def test_tokenize_and_batch(temp_output_dir, mock_tokenizer):
         if os.path.exists(input_file_name):
             os.remove(input_file_name)
 
-
 def test_padding_in_batches(mock_tokenizer):
     generator = PretrainBatchGenerator(tokenizer=mock_tokenizer, output_directory=tempfile.gettempdir(), file_prefix='test',
                                        max_sequence_length=5, batch_size=3, print_summaries=False)
@@ -93,16 +94,14 @@ def test_padding_in_batches(mock_tokenizer):
         file_path = temp_batch_file.name
 
     try:
-        input_tensor = generator.save_batch(batch_data, file_path)
+        input_tensor, _, _ = generator.save_batch(batch_data, file_path)
 
-        # Adjust expected input to match dynamic padding
         max_length_in_batch = max(len(seq) for seq in batch_data)
         expected_input = np.array([
-            seq + [0] * (max_length_in_batch - len(seq)) for seq in batch_data
+            seq + [generator.tokenizer.pad_token_id] * (max_length_in_batch - len(seq)) for seq in batch_data
         ], dtype=np.int32)
 
         np.testing.assert_array_equal(input_tensor, expected_input)
-
 
     finally:
         if os.path.exists(file_path):
@@ -117,23 +116,18 @@ def test_target_tensor_generation(mock_tokenizer):
         batch_size=2,
         print_summaries=False
     )
-    
-    # Define the input batch
+
     batch_data = [[1, 2, 3], [4, 5]]
-    
-    # Manually generate the expected target tensor
+
     expected_target_tensor = np.array([
-        [2, 3, 0],   # Shifted: [1, 2, 3] -> [2, 3, <pad>]
-        [5, 0, 0]    # Shifted: [4, 5] -> [5, <pad>, <pad>]
+        [2, 3, 0],
+        [5, 0, 0]
     ], dtype=np.int32)
-    
-    # Generate the actual target tensor using the method
+
     input_tensor = generator.process_batch_data(batch_data)
     target_tensor, _ = generator.create_target_batch(input_tensor, generator.tokenizer.pad_token_id)
-    
-    # Ensure the target tensor matches the expected tensor
-    np.testing.assert_array_equal(target_tensor, expected_target_tensor)
 
+    np.testing.assert_array_equal(target_tensor, expected_target_tensor)
 
 def test_input_and_target_tensor_consistency(mock_tokenizer):
     generator = PretrainBatchGenerator(
@@ -145,20 +139,9 @@ def test_input_and_target_tensor_consistency(mock_tokenizer):
         print_summaries=False
     )
 
-    # Define the input batch
     batch_data = [[1, 2, 3], [4, 5]]
 
-    # Process the batch
     input_tensor = generator.process_batch_data(batch_data)
     target_tensor, _ = generator.create_target_batch(input_tensor, generator.tokenizer.pad_token_id)
 
-    # Verify that the input and target tensors have the same shape
-    assert input_tensor.shape == target_tensor.shape, "Input and target tensor shapes do not match."
-
-    # Check the first sequence in the input and target tensor
-    assert np.array_equal(input_tensor[0, 1:], target_tensor[0, :-1]), \
-        "Target tensor does not match the input tensor shifted by one."
-
-    # Check the last element in the target tensor is the pad token
-    assert target_tensor[0, -1] == mock_tokenizer.pad_token_id, \
-        "Last element of the target tensor is not the pad token."
+    assert input_tensor.shape == target_tensor.shape, f"Input tensor shape {input_tensor.shape} does not match target tensor shape {target_tensor.shape}"

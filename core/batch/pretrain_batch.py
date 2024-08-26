@@ -5,69 +5,79 @@ from core.batch.bucketing import add_to_buckets
 
 class PretrainBatchGenerator(BatchBase):
     def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries):
-        # Initialize the base class
         super().__init__(tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries)
 
     def tokenize_line(self, line):
-        # get the text
         text = get_line_text(line)
-
-        # encode the line as tokens
         tokens = self.tokenizer.encode(text, max_length=self.max_sequence_length, truncation=True, add_special_tokens=False)
+        attention_mask = [1] * len(tokens)
+        target_tokens = tokens[1:] + [self.tokenizer.pad_token_id]
+        return tokens, target_tokens, attention_mask
 
-        # return the tokens
-        return tokens
+    def tokenize_dataset(self, input_files):
+        tokenized_dataset = []
+        for input_file in input_files:
+            with open(input_file, 'r') as file:
+                for line in file:
+                    tokenized_line = self.tokenize_line(line)
+                    if len(tokenized_line) == 3:
+                        tokenized_dataset.append(tokenized_line)
+        return tokenized_dataset
 
-    def save_batch(self, batch_data, file_path):
-        # Use the base class's method to process the input sequences
-        input_tensor = self.process_batch_data(batch_data)
+    def pad_sequences(self, sequences, pad_value, max_length):
+        padded_sequences = []
+        for seq in sequences:
+            seq = seq.tolist() if isinstance(seq, np.ndarray) else seq
+            padded_seq = seq + [pad_value] * (max_length - len(seq))
+            padded_sequences.append(padded_seq[:max_length])  # Ensure no sequence exceeds max_length
+        return padded_sequences
+
+    def save_batch(self, batch_data, file_path=None):
+        if not batch_data:
+            raise ValueError("Batch data is empty or not properly structured.")
         
-        if input_tensor is None:
-            return None
+        # Handle batch_data that is either a list of inputs or a list of (input, target, attention_mask) tuples
+        if isinstance(batch_data[0], tuple) and len(batch_data[0]) == 3:
+            inputs = [item[0] for item in batch_data]
+            targets = [item[1] for item in batch_data]
+            attention_masks = [item[2] for item in batch_data]
+        else:
+            inputs = batch_data
+            targets = [seq[1:] + [self.tokenizer.pad_token_id] for seq in inputs]
+            attention_masks = [[1] * len(seq) for seq in inputs]
         
-        # Create target sequences specific to pretraining
-        target_tensor, lengths = self.create_target_batch(input_tensor, self.tokenizer.pad_token_id, self.max_sequence_length)
+        max_length = max(len(seq) for seq in inputs)
         
-        # Save both input and target tensors in a .npz file
-        np.savez(file_path, input_tensor=input_tensor, target_tensor=target_tensor)
-        
-        # return the input tensor
-        return input_tensor
+        inputs_padded = self.pad_sequences(inputs, self.tokenizer.pad_token_id, max_length)
+        targets_padded = self.pad_sequences(targets, self.tokenizer.pad_token_id, max_length)
+        attention_masks_padded = self.pad_sequences(attention_masks, 0, max_length)
 
-    def create_target_batch(self, input_batch, pad_token_id, max_seq_length=None):
-        target_indices = []
+        inputs_array = np.array(inputs_padded, dtype=np.int32)
+        targets_array = np.array(targets_padded, dtype=np.int32)
+        attention_masks_array = np.array(attention_masks_padded, dtype=np.int32)
 
-        for seq in input_batch:
-            # Shift input sequence by one to create the target sequence
-            target_seq = seq[1:].tolist() + [pad_token_id]
+        if file_path:
+            np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array, attention_mask_tensor=attention_masks_array)
 
-            # Ensure the target sequence is padded to match the input sequence length
-            target_seq += [pad_token_id] * (len(seq) - len(target_seq))
+        return inputs_array, targets_array, attention_masks_array
 
-            target_indices.append(target_seq)
 
-        # Convert the target sequences to a numpy array
-        target_tensor = np.array(target_indices, dtype=np.int32)
+    def create_target_batch(self, input_batch, pad_token_id):
+        max_length_in_batch = len(input_batch[0])
+        target_indices = [seq[1:] + [pad_token_id] for seq in input_batch]
+        target_padded = self.pad_sequences(target_indices, pad_token_id, max_length_in_batch)
 
-        # Return the target batch tensor
-        return target_tensor, np.array([len(seq) for seq in target_indices], dtype=np.int32)
-
+        target_tensor = np.array(target_padded, dtype=np.int32)
+        return target_tensor, np.array([len(seq) for seq in target_padded], dtype=np.int32)
 
     def tokenize_and_batch(self, input_files):
-        # Tokenize the dataset
         tokenized_dataset = self.tokenize_dataset(input_files)
-        
-        # Initialize buckets for storing sequences
         buckets = {}
         
-        # Process each tokenized sequence
-        for input_tokens in tokenized_dataset:
-            # Generate target tokens for the current input tokens
-            target_tokens, _ = self.create_target_batch(np.array([input_tokens], dtype=np.int32), self.tokenizer.pad_token_id, self.max_sequence_length)
-            target_tokens = target_tokens[0]
+        for input_tokens, target_tokens, attention_mask in tokenized_dataset:
+            input_tokens_padded, target_tokens_padded, attention_mask_padded = self.save_batch(
+                [(input_tokens, target_tokens, attention_mask)], file_path=None
+            )
+            add_to_buckets(buckets, input_tokens_padded[0], target_tokens_padded[0], attention_mask_padded[0])
             
-            # Add the input and target sequences to the appropriate buckets
-            add_to_buckets(buckets, input_tokens, target_tokens)
-        
-        # Create batches from the filled buckets and process them
         self.create_batches(buckets)

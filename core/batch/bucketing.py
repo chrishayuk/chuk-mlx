@@ -1,5 +1,7 @@
-def add_to_buckets(buckets, input_tokens, target_tokens):
-    """ Add input and target tokens to the appropriate bucket based on the combined sequence length. """
+def add_to_buckets(buckets, input_tokens, target_tokens, attention_mask):
+    """
+    Add input tokens, target tokens, and attention mask to the appropriate bucket based on the combined sequence length.
+    """
     # Combine lengths of input and target sequences
     input_length = len(input_tokens)
     target_length = len(target_tokens)
@@ -9,8 +11,9 @@ def add_to_buckets(buckets, input_tokens, target_tokens):
     if combined_length not in buckets:
         buckets[combined_length] = []
     
-    # Add the sequence pair to the corresponding bucket
-    buckets[combined_length].append((input_tokens, target_tokens))
+    # Add the sequence pair and attention mask to the corresponding bucket
+    buckets[combined_length].append((input_tokens, target_tokens, attention_mask))
+
 
 
 

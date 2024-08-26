@@ -1,7 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 
-def chukloss(model, inputs, targets, lengths):
+def chukloss(model, inputs, targets, attention_mask, lengths):
     # Run model on inputs
     logits = model(inputs)
     

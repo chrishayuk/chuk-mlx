@@ -5,27 +5,29 @@ def test_add_to_buckets():
     buckets = {}
     input_tokens = [1, 2, 3, 4]
     target_tokens = [5, 6, 7, 8]
+    attention_mask = [1, 1, 1, 1]
     
-    add_to_buckets(buckets, input_tokens, target_tokens)
+    add_to_buckets(buckets, input_tokens, target_tokens, attention_mask)
     
     combined_length = len(input_tokens) + len(target_tokens)
     
     assert len(buckets) == 1, "Bucket was not created."
     assert combined_length in buckets, "Bucket with the correct combined length key was not created."
-    assert buckets[combined_length] == [(input_tokens, target_tokens)], "Tokens were not added to the correct bucket."
+    assert buckets[combined_length] == [(input_tokens, target_tokens, attention_mask)], "Tokens were not added to the correct bucket."
 
 def test_add_to_buckets_varied_lengths():
     buckets = {}
     input_tokens_short = [1, 2]
     target_tokens_long = [5, 6, 7, 8]
+    attention_mask = [1, 1]
     
-    add_to_buckets(buckets, input_tokens_short, target_tokens_long)
+    add_to_buckets(buckets, input_tokens_short, target_tokens_long, attention_mask)
     
     combined_length = len(input_tokens_short) + len(target_tokens_long)
     
     assert len(buckets) == 1, "Bucket was not created for varied length sequences."
     assert combined_length in buckets, "Bucket with the correct combined length key was not created for varied length sequences."
-    assert buckets[combined_length] == [(input_tokens_short, target_tokens_long)], "Tokens were not added to the correct bucket for varied length sequences."
+    assert buckets[combined_length] == [(input_tokens_short, target_tokens_long, attention_mask)], "Tokens were not added to the correct bucket for varied length sequences."
 
 def test_split_large_buckets():
     buckets = {8: [([1, 2, 3, 4], [5, 6, 7, 8])] * 10}

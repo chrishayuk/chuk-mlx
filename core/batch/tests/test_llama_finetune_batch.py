@@ -67,53 +67,66 @@ def llama_batch(mock_tokenizer):
 
 def test_tokenization_with_special_characters(llama_batch):
     line = '{"text": "<s>[INST] What classification comes with -30° Calvin? [/INST] You\'ve taken that too far </s>"}'
-    input_tokens, target_tokens = llama_batch.tokenize_line(line)
+    input_tokens, target_tokens, attention_mask = llama_batch.tokenize_line(line)
     assert input_tokens is not None
     assert target_tokens is not None
+    assert attention_mask is not None
     assert len(input_tokens) > 0
     assert len(target_tokens) > 0
     assert input_tokens[0] == llama_batch.tokenizer.bos_token_id
     assert target_tokens[-1] == llama_batch.tokenizer.eos_token_id
+    assert len(attention_mask) == len(input_tokens)  # Ensure attention mask matches input length
 
 def test_missing_instruction_tags(llama_batch):
     line = '{"text": "What classification comes with -30° Calvin?"}'
-    input_tokens, target_tokens = llama_batch.tokenize_line(line)
+    input_tokens, target_tokens, attention_mask = llama_batch.tokenize_line(line)
     assert input_tokens is not None
     assert target_tokens is not None
+    assert attention_mask is not None
     assert len(input_tokens) > 0
     assert target_tokens == [llama_batch.tokenizer.eos_token_id]
+    assert len(attention_mask) == len(input_tokens)
 
 def test_edge_case_special_characters(llama_batch):
     line = '{"text": "<s>[INST] The temperature is -30°C [/INST] Stay warm! </s>"}'
-    input_tokens, target_tokens = llama_batch.tokenize_line(line)
+    input_tokens, target_tokens, attention_mask = llama_batch.tokenize_line(line)
     assert input_tokens is not None
     assert target_tokens is not None
+    assert attention_mask is not None
     assert len(input_tokens) > 0
     assert len(target_tokens) > 0
     assert input_tokens[0] == llama_batch.tokenizer.bos_token_id
     assert target_tokens[-1] == llama_batch.tokenizer.eos_token_id
+    assert len(attention_mask) == len(input_tokens)
 
 def test_no_special_tokens(llama_batch):
     line = '{"text": "Hello world"}'
-    input_tokens, target_tokens = llama_batch.tokenize_line(line)
+    input_tokens, target_tokens, attention_mask = llama_batch.tokenize_line(line)
     assert input_tokens is not None
     assert target_tokens is not None
+    assert attention_mask is not None
     assert len(input_tokens) > 0
     assert len(target_tokens) == 1  # Only EOS token
+    assert len(attention_mask) == len(input_tokens)
 
 def test_extra_tags(llama_batch):
     line = '{"text": "<s>[INST] Instruction here [/INST] Extra content [INST] Another instruction [/INST] More content </s>"}'
-    input_tokens, target_tokens = llama_batch.tokenize_line(line)
+    input_tokens, target_tokens, attention_mask = llama_batch.tokenize_line(line)
     assert input_tokens is not None
     assert target_tokens is not None
+    assert attention_mask is not None
     assert len(input_tokens) > 0
     assert len(target_tokens) > 0
     assert input_tokens[0] == llama_batch.tokenizer.bos_token_id
     assert target_tokens[-1] == llama_batch.tokenizer.eos_token_id
+    assert len(attention_mask) == len(input_tokens)
 
 def test_edge_case_empty_text(llama_batch):
     line = '{"text": ""}'
-    input_tokens, target_tokens = llama_batch.tokenize_line(line)
+    input_tokens, target_tokens, attention_mask = llama_batch.tokenize_line(line)
     assert input_tokens is None
     assert target_tokens is None
+    assert attention_mask is None
+
+
 

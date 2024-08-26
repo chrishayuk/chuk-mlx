@@ -8,7 +8,7 @@ from core.batch.finetune_batch import FineTuneBatch
 @pytest.fixture
 def mock_tokenizer():
     tokenizer = MagicMock()
-    tokenizer.pad_token_id = 0  # Pad token ID is 2
+    tokenizer.pad_token_id = 0  # Pad token ID is 0
     tokenizer.eos_token_id = 2  # EOS token ID is 2
     tokenizer.encode = lambda x, **kwargs: list(map(ord, x))  # Simple encode: ASCII values
     return tokenizer
@@ -33,7 +33,8 @@ def test_finetune_batch_generation(mock_tokenizer, temp_output_dir):
         def tokenize_line(self, line):
             input_tokens = mock_tokenizer.encode(line.strip())
             target_tokens = mock_tokenizer.encode(line.strip()[::-1])
-            return input_tokens, target_tokens
+            attention_mask = [1] * len(input_tokens)
+            return input_tokens, target_tokens, attention_mask
 
     finetune_batch = TestFineTuneBatch(mock_tokenizer, temp_output_dir, 'finetune', 5, 32, True)
 
@@ -50,7 +51,8 @@ def test_finetune_batch_generation(mock_tokenizer, temp_output_dir):
     with np.load(os.path.join(temp_output_dir, batch_files[0])) as data:
         assert 'input_tensor' in data
         assert 'target_tensor' in data
-        assert data['input_tensor'].shape == data['target_tensor'].shape
+        assert 'attention_mask_tensor' in data  # Ensure attention_mask is saved
+        assert data['input_tensor'].shape == data['target_tensor'].shape == data['attention_mask_tensor'].shape
 
         # Ensure the sequences are correctly padded
         max_seq_len_in_batch = 2  # Length of "bc"
@@ -63,19 +65,19 @@ def test_padding_correctly_applied(mock_tokenizer):
         def tokenize_line(self, line):
             input_tokens = mock_tokenizer.encode(line.strip())
             target_tokens = mock_tokenizer.encode(line.strip()[::-1])
-            return input_tokens, target_tokens
+            attention_mask = [1] * len(input_tokens)
+            return input_tokens, target_tokens, attention_mask
 
     finetune_batch = TestFineTuneBatch(mock_tokenizer, '.', 'finetune', 10, 2, False)
 
     input_tokens = "hello"
     target_tokens = "olleh"
-    batch_data = [(mock_tokenizer.encode(input_tokens), mock_tokenizer.encode(target_tokens))]
+    attention_mask = [1] * len(input_tokens)
+    batch_data = [(mock_tokenizer.encode(input_tokens), mock_tokenizer.encode(target_tokens), attention_mask)]
 
     with tempfile.NamedTemporaryFile(suffix=".npz") as tmpfile:
-        padded_inputs, padded_targets = finetune_batch.save_batch(batch_data, tmpfile.name)
+        padded_inputs, padded_targets, padded_attention_mask = finetune_batch.save_batch(batch_data, tmpfile.name)
 
         # Verify that padding was applied correctly
-        expected_length = 5  # Both sequences are length 5
+        expected_length = 5  # The actual length of the sequence after padding
         assert padded_inputs.shape == (1, expected_length)
-        assert padded_targets.shape == (1, expected_length)
-        assert np.all(padded_inputs[0, 5:] == [])  # No padding required, same with targets

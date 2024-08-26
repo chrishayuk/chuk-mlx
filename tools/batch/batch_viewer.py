@@ -22,9 +22,12 @@ def analyze_batch_file(batch_file, tokenizer_name, tensor_type='both', num_rows=
         tensor_key = 'input_tensor'
     elif tensor_type == 'target':
         tensor_key = 'target_tensor'
+    elif tensor_type == 'attention_mask_tensor':
+        tensor_key = 'attention_mask_tensor'
     elif tensor_type == 'both':
         input_tensor_key = 'input_tensor'
         target_tensor_key = 'target_tensor'
+        attention_mask_tensor_key = 'attention_mask_tensor'
     else:
         raise ValueError("Invalid value for 'tensor_type'. Use 'input', 'target', or 'both'.")
 
@@ -34,6 +37,7 @@ def analyze_batch_file(batch_file, tokenizer_name, tensor_type='both', num_rows=
 
         input_tensor = batch_tensor[input_tensor_key]
         target_tensor = batch_tensor[target_tensor_key]
+        attention_mask_tensor = batch_tensor[attention_mask_tensor_key]
 
         # Get the maximum sequence lengths
         max_input_sequence_length = input_tensor.shape[1]
@@ -43,9 +47,11 @@ def analyze_batch_file(batch_file, tokenizer_name, tensor_type='both', num_rows=
         if num_rows:
             sliced_input_tensor = input_tensor[:num_rows]
             sliced_target_tensor = target_tensor[:num_rows]
+            sliced_attention_mask_tensor = attention_mask_tensor[:num_rows]
         else:
             sliced_input_tensor = input_tensor
             sliced_target_tensor = target_tensor
+            sliced_attention_mask_tensor = attention_mask_tensor
 
         # Visualize input sequences
         print("\nVisualizing Input Tensor:\n\n")
@@ -53,6 +59,9 @@ def analyze_batch_file(batch_file, tokenizer_name, tensor_type='both', num_rows=
         # Visualize target sequences
         print("\nVisualizing Target Tensor:\n\n")
         visualize_sequences(sliced_target_tensor, tokenizer, max_target_sequence_length)
+        # Visualize attention sequences
+        print("\nVisualizing Attention Mask Tensor:\n\n")
+        visualize_sequences(sliced_attention_mask_tensor, tokenizer, max_target_sequence_length)
     else:
         if tensor_key not in batch_tensor:
             raise KeyError(f"'{tensor_key}' not found in the .npz file")

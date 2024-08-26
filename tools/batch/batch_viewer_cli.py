@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"
 # imports
 from core.utils.tokenizer_loader import load_tokenizer
 
-def visualize_single_sequence(input_sequence, target_sequence, tokenizer, row_number=None):
+def visualize_single_sequence(input_sequence, target_sequence, attention_sequence, tokenizer, row_number=None):
     """
     Visualizes a single sequence for both input and target, showing all tokens in the sequence in a simple grid format.
     """
@@ -18,6 +18,8 @@ def visualize_single_sequence(input_sequence, target_sequence, tokenizer, row_nu
 
     target_tokens = [tokenizer.decode([token_id]).strip() for token_id in target_sequence]
     target_token_ids = [str(token_id) for token_id in target_sequence]
+
+    attention_token_ids = [str(token_id) for token_id in attention_sequence]
 
     # Display the row number if provided
     if row_number is not None:
@@ -33,6 +35,10 @@ def visualize_single_sequence(input_sequence, target_sequence, tokenizer, row_nu
     print(f"Tokens: {' '.join(target_tokens)}")
     print(f"IDs:    {' '.join(target_token_ids)}\n")
 
+    # Display attetion IDs
+    print("Attention:")
+    print(f"IDs:    {' '.join(attention_token_ids)}\n")
+
 def analyze_batch(batch_file, tokenizer_name, row_number=None):
     # Load the tokenizer
     tokenizer = load_tokenizer(tokenizer_name) if tokenizer_name else None
@@ -40,11 +46,12 @@ def analyze_batch(batch_file, tokenizer_name, row_number=None):
     # Load the batch
     batch_tensor = np.load(batch_file)
 
-    if 'input_tensor' not in batch_tensor or 'target_tensor' not in batch_tensor:
-        raise KeyError("'input_tensor' or 'target_tensor' not found in the .npz file")
+    if 'input_tensor' not in batch_tensor or 'target_tensor'  not in batch_tensor:
+        raise KeyError("'input_tensor' or 'target_tensor'  not found in the .npz file")
 
     input_tensor = batch_tensor['input_tensor']
     target_tensor = batch_tensor['target_tensor']
+    attention_mask_tensor = batch_tensor['attention_mask_tensor']
 
     # If a specific row number is provided, visualize that row only
     if row_number is not None:
@@ -53,11 +60,12 @@ def analyze_batch(batch_file, tokenizer_name, row_number=None):
             return
         input_sequence = input_tensor[row_number]
         target_sequence = target_tensor[row_number]
-        visualize_single_sequence(input_sequence, target_sequence, tokenizer, row_number)
+        attention_sequence = attention_mask_tensor[row_number]
+        visualize_single_sequence(input_sequence, target_sequence, attention_sequence, tokenizer, row_number)
     else:
         # If no row number is provided, visualize all rows
-        for i, (input_sequence, target_sequence) in enumerate(zip(input_tensor, target_tensor)):
-            visualize_single_sequence(input_sequence, target_sequence, tokenizer, i)
+        for i, (input_sequence, target_sequence, attention_sequence) in enumerate(zip(input_tensor, target_tensor, attention_mask_tensor)):
+            visualize_single_sequence(input_sequence, target_sequence, attention_sequence, tokenizer, i)
 
 def main():
     # Initialize the argument parser

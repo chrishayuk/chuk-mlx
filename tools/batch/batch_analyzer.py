@@ -18,7 +18,7 @@ def analyze_batch_file(batch_file, tokenizer_name, tensor_type=None):
     batch_data = np.load(batch_file)
     
     # Analyze the specified tensor type or both
-    tensor_types = [tensor_type] if tensor_type else ['input', 'target']
+    tensor_types = [tensor_type] if tensor_type else ['input', 'target', 'attention_mask']
     
     # loop through the tensor types
     for tensor_type in tensor_types:

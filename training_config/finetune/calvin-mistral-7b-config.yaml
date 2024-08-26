@@ -9,7 +9,6 @@ optimizer:
   initial_lr: 1e-5  # As mentioned in the passage
   lr_schedule:
     type: cosine_decay
-    warmup_steps: [100]
   betas: [0.9, 0.999]  # Standard betas for AdamW
   eps: 1e-8  # Standard epsilon for AdamW
   weight_decay: 0.01  # Typically lower

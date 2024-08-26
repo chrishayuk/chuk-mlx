@@ -25,7 +25,7 @@ class LLaMAFineTuneBatch(FineTuneBatch):
         text = data.get('text', '')
         if not text:
             print("Text column is missing in the data.")
-            return None, None
+            return None, None, None
 
         # Preprocess the text
         text = self.preprocess_text(text)
@@ -62,4 +62,8 @@ class LLaMAFineTuneBatch(FineTuneBatch):
                 print(f"Target: {target}")
                 return None, None
 
-        return input_tokens, target_tokens
+        # Generate the attention mask: 1 for non-pad tokens, 0 for pad tokens
+        pad_token_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
+        attention_mask = [1 if token != pad_token_id else 0 for token in input_tokens]
+
+        return input_tokens, target_tokens, attention_mask

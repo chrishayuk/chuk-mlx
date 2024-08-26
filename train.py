@@ -98,11 +98,11 @@ def main():
     if args.epochs:
         training_config['num_epochs'] = args.epochs
 
-    try:
-        trainer = create_trainer_instance(model, tokenizer, optimizer_config, checkpoint_config, training_config)
-    except Exception as e:
-        logger.error(f"Error creating trainer instance: {e}")
-        return
+    #try:
+    trainer = create_trainer_instance(model, tokenizer, optimizer_config, checkpoint_config, training_config)
+    # except Exception as e:
+    #     logger.error(f"Error creating trainer instance: {e}")
+    #     return
 
     try:
         batch_dataset = load_batch_data(batch_config)

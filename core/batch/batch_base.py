@@ -19,17 +19,17 @@ class BatchBase:
     def tokenize_and_batch(self, input_files):
         # Tokenize the dataset
         tokenized_dataset = self.tokenize_dataset(input_files)
-
+        
         # Add tokenized sequences to buckets
         buckets = {}
-
+        
         # Loop through the dataset
-        for tokens in tokenized_dataset:
-            # In the base case, use the same tokens for both input and target
-            add_to_buckets(buckets, tokens, tokens)
-
-        # Create batches from the buckets and process them
+        for input_tokens, target_tokens, attention_mask in tokenized_dataset:
+            add_to_buckets(buckets, input_tokens, target_tokens, attention_mask)
+        
+        # Create batches from the filled buckets and process them
         self.create_batches(buckets)
+
 
     def tokenize_dataset(self, input_files):
         # Empty dataset
@@ -112,7 +112,7 @@ class BatchBase:
         batch_end_time = time.time()
 
         if isinstance(result, tuple):
-            input_tensor, target_tensor = result
+            input_tensor, target_tensor, attention_mask_tensor = result
         else:
             input_tensor = result
 
@@ -126,14 +126,14 @@ class BatchBase:
             print(summary_table)
 
     def save_batch(self, batch_data, file_path):
-        def pad_sequences(sequences, pad_value, max_length):
-            # Calculate the maximum length in this batch, but do not exceed max_sequence_length
-            actual_max_length = min(max(len(seq) for seq in sequences), max_length)
+        def pad_sequences(sequences, pad_value):
+            # Determine the maximum length of sequences in the batch
+            max_length = max(len(seq) for seq in sequences)
 
             padded_sequences = []
             for seq in sequences:
                 seq = list(seq)  # Ensure seq is a list to handle list operations
-                padded_seq = seq + [pad_value] * (actual_max_length - len(seq))
+                padded_seq = seq + [pad_value] * (max_length - len(seq))
                 padded_sequences.append(padded_seq)
             
             return padded_sequences
@@ -141,24 +141,27 @@ class BatchBase:
         if isinstance(batch_data[0], tuple):
             inputs = [item[0] for item in batch_data]
             targets = [item[1] for item in batch_data]
+            attention_masks = [item[2] for item in batch_data]
 
-            max_length = self.max_sequence_length
-
-            inputs_padded = pad_sequences(inputs, self.tokenizer.pad_token_id, max_length)
-            targets_padded = pad_sequences(targets, self.tokenizer.pad_token_id, max_length)
+            inputs_padded = pad_sequences(inputs, self.tokenizer.pad_token_id)
+            targets_padded = pad_sequences(targets, self.tokenizer.pad_token_id)
+            attention_masks_padded = pad_sequences(attention_masks, 0)  # Attention mask is padded with 0
 
             inputs_array = np.array(inputs_padded, dtype=np.int32)
             targets_array = np.array(targets_padded, dtype=np.int32)
+            attention_masks_array = np.array(attention_masks_padded, dtype=np.int32)
 
-            np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array)
-            return inputs_array, targets_array
+            np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array, attention_mask_tensor=attention_masks_array)
+            return inputs_array, targets_array, attention_masks_array
         else:
-            max_length = self.max_sequence_length
-            inputs_padded = pad_sequences(batch_data, self.tokenizer.pad_token_id, max_length)
+            inputs_padded = pad_sequences(batch_data, self.tokenizer.pad_token_id)
 
             inputs_array = np.array(inputs_padded, dtype=np.int32)
             np.savez(file_path, input_tensor=inputs_array)
-            return inputs_array
+            # Return None for targets and attention masks when not provided
+            return inputs_array, None, None
+
+
 
 
 

@@ -24,6 +24,8 @@ class MockFineTuneBatchDataset:
             # Generate random input and target tensors starting from 3 onwards
             input_tensor = mx.random.randint(3, 100, (self.batch_size, self.seq_length // 2 - 1))
             target_tensor = mx.random.randint(3, 100, (self.batch_size, self.seq_length // 2))
+            attention_mask_tensor = mx.random.randint(3, 100, (self.batch_size, self.seq_length // 2))
+            
 
             # Append the separator token at the end of the input tensor
             sep_column = mx.full((self.batch_size, 1), self.sep_token_id)

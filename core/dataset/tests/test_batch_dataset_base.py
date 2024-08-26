@@ -14,12 +14,14 @@ def batch_dataset():
             np.savez(os.path.join(temp_dir, f"batch_{i}.npz"), 
                      input_tensor=np.random.rand(10, 10), 
                      target_tensor=np.random.rand(10), 
-                     input_lengths=np.array([10]*10))
+                     input_lengths=np.array([10]*10),
+                     attention_mask_tensor=np.random.randint(0, 2, (10, 10)))
         
         # Initialize the dataset with pre-caching disabled for controlled testing
         dataset = BatchDatasetBase(batch_output_dir=temp_dir, batchfile_prefix="batch_", shuffle=True)
         dataset.pre_cache_size = 0  # Disable pre-caching during testing
         yield dataset
+
 
 def test_length(batch_dataset):
     # Test that the length of the dataset is correct
@@ -27,10 +29,17 @@ def test_length(batch_dataset):
 
 def test_getitem(batch_dataset):
     # Test that __getitem__ returns the correct shapes
-    input_tensor, target_tensor, lengths = batch_dataset[0]
+    input_tensor, target_tensor, attention_mask_tensor, lengths = batch_dataset[0]
     assert input_tensor.shape == (10, 10)
     assert target_tensor.shape == (10,)
-    assert lengths.shape == (10,)
+    
+    # Check if lengths should be 1D
+    assert lengths.shape == (10,), f"Expected lengths shape to be (10,), got {lengths.shape}"
+    
+    # Verify attention mask shape if necessary
+    assert attention_mask_tensor.shape == (10, 10), f"Expected attention_mask shape to be (10, 10), got {attention_mask_tensor.shape}"
+
+
 
 def test_getitem_out_of_range(batch_dataset):
     # Test that __getitem__ raises IndexError when out of range

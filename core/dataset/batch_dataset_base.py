@@ -66,10 +66,11 @@ class BatchDatasetBase:
             # loading the input tensor, target tensor and lengths      
             input_tensor = batch_data['input_tensor']
             target_tensor = batch_data['target_tensor']
+            attention_mask_tensor = batch_data['attention_mask_tensor']
             lengths = batch_data.get('input_lengths', mx.array([len(seq) for seq in input_tensor]))
             
             # return the tensors
-            return input_tensor, target_tensor, lengths
+            return input_tensor, target_tensor, attention_mask_tensor, lengths
 
         except Exception as e:
             # error
