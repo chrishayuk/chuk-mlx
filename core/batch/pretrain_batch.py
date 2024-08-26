@@ -35,36 +35,22 @@ class PretrainBatchGenerator(BatchBase):
         return target_tokens, attention_mask
 
     def save_batch(self, batch_data, file_path=None):
-        if not batch_data:
-            raise ValueError("Batch data is empty or not properly structured.")
+        """
+        Preprocesses batch data to generate targets and attention masks if necessary, then calls the base class save_batch.
         
-        # check if we already have inputs, targets and attention masks in batch
-        if isinstance(batch_data[0], tuple) and len(batch_data[0]) == 3:
-            # get the inputs, targets and attention masks from the batch
-            inputs = [item[0] for item in batch_data]
-            targets = [item[1] for item in batch_data]
-            attention_masks = [item[2] for item in batch_data]
-        else:
-            # set the input as the batch
-            inputs = batch_data
-
-            # calculate target and attention masks from inputs
-            targets, attention_masks = zip(*[self.create_target_and_mask(seq) for seq in inputs])
+        Args:
+            batch_data (list): List of input sequences or tuples of (input, target, attention_mask).
+            file_path (str): File path to save the batch.
         
-        # pad the sequences
-        inputs_padded, targets_padded, attention_masks_padded = self.pad_sequences(
-            inputs, targets, attention_masks, self.tokenizer.pad_token_id
-        )
+        Returns:
+            tuple: Numpy arrays of inputs, targets, and attention masks.
+        """
+        if not isinstance(batch_data[0], tuple):
+            # Preprocess batch_data to generate targets and attention masks
+            batch_data = [
+                (seq, seq[1:] + [self.tokenizer.pad_token_id], [1] * len(seq))
+                for seq in batch_data
+            ]
 
-        # load the inputs, targets and attention mask as a numpy array
-        inputs_array = np.array(inputs_padded, dtype=np.int32)
-        targets_array = np.array(targets_padded, dtype=np.int32)
-        attention_masks_array = np.array(attention_masks_padded, dtype=np.int32)
-
-        # check if we have a path to save
-        if file_path:
-            # save
-            np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array, attention_mask_tensor=attention_masks_array)
-
-        # return inputs, targets and attention masks
-        return inputs_array, targets_array, attention_masks_array
+        # save the batch
+        return super().save_batch(batch_data, file_path)
