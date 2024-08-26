@@ -4,3 +4,4 @@ tutorial
 output
 .env
 .pytest_cache
+sample_data/calvin_scale_llama/final_model_checkpoint.npz

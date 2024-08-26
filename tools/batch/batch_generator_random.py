@@ -29,10 +29,15 @@ def generate_npz_batches(output_directory, file_prefix, max_sequence_length=8192
         input_tensor = np.random.randint(0, vocab_size, (batch_size, max_sequence_length)).astype(np.int32)
         target_tensor = np.random.randint(0, vocab_size, (batch_size, max_sequence_length)).astype(np.int32)
         lengths = np.random.randint(1, max_sequence_length + 1, (batch_size,))
+        attention_mask_tensor = np.zeros((batch_size, max_sequence_length), dtype=np.int32)
+        
+        # Generate the attention mask based on lengths
+        for i, length in enumerate(lengths):
+            attention_mask_tensor[i, :length] = 1
 
         # Create the batch file name with the specified prefix and save the data
         file_path = os.path.join(output_directory, f'{file_prefix}_batch_{batch_idx + 1:04d}.npz')
-        np.savez(file_path, input_tensor=input_tensor, target_tensor=target_tensor, lengths=lengths)
+        np.savez(file_path, input_tensor=input_tensor, target_tensor=target_tensor, attention_mask_tensor=attention_mask_tensor, lengths=lengths)
 
         # Print progress every 50 batches
         if (batch_idx + 1) % 50 == 0 or (batch_idx + 1) == num_batches:

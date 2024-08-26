@@ -10,7 +10,7 @@ def measure_memory_usage(arrays):
     :param arrays: List of numpy arrays.
     :return: Total memory usage in bytes.
     """
-    total_memory_usage = sum(array.nbytes for array in arrays)
+    total_memory_usage = sum(array.nbytes for array in arrays if array is not None)
     return total_memory_usage
 
 def format_memory_size(memory_in_bytes):
@@ -29,14 +29,14 @@ def format_memory_size(memory_in_bytes):
     else:
         return f"{memory_in_bytes / (1024 ** 3):.2f} GB"
 
-def load_batches(output_directory, file_prefix, num_batches, tensor_type='both'):
+def load_batches(output_directory, file_prefix, num_batches, tensor_type='all'):
     """
     Load batches using numpy and measure performance.
 
     :param output_directory: Directory containing batch files.
     :param file_prefix: Prefix of batch files.
     :param num_batches: Number of batches to load.
-    :param tensor_type: Type of tensor to load, either 'input', 'target', or 'both'.
+    :param tensor_type: Type of tensor to load, either 'input', 'target', 'attention_mask', or 'all'.
     :return: List of loaded numpy arrays.
     """
     loaded_batches = []
@@ -57,20 +57,27 @@ def load_batches(output_directory, file_prefix, num_batches, tensor_type='both')
 
         batch_content = {}
 
-        if tensor_type == 'input' or tensor_type == 'both':
+        if tensor_type == 'input' or tensor_type == 'all':
             if 'input_tensor' in batch_data:
                 batch_content['input'] = batch_data['input_tensor']
             else:
-                raise KeyError("No 'input_tensor' found in the .npz file.")
+                print(f"Warning: No 'input_tensor' found in the .npz file: {file_path}")
 
-        if tensor_type == 'target' or tensor_type == 'both':
+        if tensor_type == 'target' or tensor_type == 'all':
             if 'target_tensor' in batch_data:
                 batch_content['target'] = batch_data['target_tensor']
             else:
-                raise KeyError("No 'target_tensor' found in the .npz file.")
+                print(f"Warning: No 'target_tensor' found in the .npz file: {file_path}")
+        
+        if tensor_type == 'attention_mask' or tensor_type == 'all':
+            if 'attention_mask_tensor' in batch_data:
+                batch_content['attention_mask'] = batch_data['attention_mask_tensor']
+            else:
+                print(f"Warning: No 'attention_mask_tensor' found in the .npz file: {file_path}")
 
-        # Append the batch as a whole
-        loaded_batches.append(batch_content)
+        # Only append the batch if any tensor was loaded
+        if batch_content:
+            loaded_batches.append(batch_content)
 
         # Measure finish time
         end_time = time.time()
@@ -87,7 +94,7 @@ def main():
     parser.add_argument('--output_directory', type=str, default='./output', help='Directory containing batch files. Default: ./output')
     parser.add_argument('--file_prefix', type=str, default='chuk_random', help='Prefix for batch files. Default: chuk_random')
     parser.add_argument('--num_batches', type=int, default=1, help='Number of batches to load. Default: 1')
-    parser.add_argument('--tensor_type', type=str, default='both', choices=['input', 'target', 'both'], help="Type of tensor to load. Default: 'both'")
+    parser.add_argument('--tensor_type', type=str, default='all', choices=['input', 'target', 'attention_mask', 'all'], help="Type of tensor to load. Default: 'all'")
     args = parser.parse_args()
 
     # Load the batches
@@ -96,19 +103,37 @@ def main():
         print("No batches were loaded.")
         return
 
-    # Get the first tensor (either input or target) to calculate tokens per batch
-    first_tensor = batches[0].get('input')
+    # Initialize tensor counts
+    input_count = 0
+    target_count = 0
+    attention_mask_count = 0
+
+    # Get the first tensor (either input, target, or attention_mask) to calculate tokens per batch
+    first_tensor = None
+    for tensor_name in ['input', 'target', 'attention_mask']:
+        if tensor_name in batches[0]:
+            first_tensor = batches[0][tensor_name]
+            break
+
     if first_tensor is None:
-        first_tensor = batches[0].get('target')
+        print("No valid tensors found in the loaded batches.")
+        return
 
     tokens_per_batch = first_tensor.shape[0] * first_tensor.shape[1]
 
-    # Calculate total memory usage
-    total_memory_usage = sum(
-        (batch.get('input').nbytes if batch.get('input') is not None else 0) +
-        (batch.get('target').nbytes if batch.get('target') is not None else 0)
-        for batch in batches
-    )
+    # Calculate total memory usage and count tensors
+    total_memory_usage = 0
+    for batch in batches:
+        if 'input' in batch:
+            input_count += 1
+            total_memory_usage += batch['input'].nbytes
+        if 'target' in batch:
+            target_count += 1
+            total_memory_usage += batch['target'].nbytes
+        if 'attention_mask' in batch:
+            attention_mask_count += 1
+            total_memory_usage += batch['attention_mask'].nbytes
+
     formatted_total_memory = format_memory_size(total_memory_usage)
 
     # Calculate total loading time
@@ -137,8 +162,11 @@ def main():
     print(f"{'Loading Speed (Tokens/second):':<35} {tokens_per_second:>15,.2f}")
     print(f"{'Loading Speed (GB/second):':<35} {gigabytes_per_second:>15.2f}")
     print("-" * 50)
+    print(f"{'Input Tensors Loaded:':<35} {input_count:>15}")
+    print(f"{'Target Tensors Loaded:':<35} {target_count:>15}")
+    print(f"{'Attention Mask Tensors Loaded:':<35} {attention_mask_count:>15}")
+    print("-" * 50)
 
 
 if __name__ == '__main__':
     main()
-

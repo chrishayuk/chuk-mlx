@@ -22,64 +22,54 @@ def analyze_batch_file(batch_file, tokenizer_name, tensor_type='both', num_rows=
         tensor_key = 'input_tensor'
     elif tensor_type == 'target':
         tensor_key = 'target_tensor'
-    elif tensor_type == 'attention_mask_tensor':
+    elif tensor_type == 'attention_mask':
         tensor_key = 'attention_mask_tensor'
     elif tensor_type == 'both':
         input_tensor_key = 'input_tensor'
         target_tensor_key = 'target_tensor'
         attention_mask_tensor_key = 'attention_mask_tensor'
     else:
-        raise ValueError("Invalid value for 'tensor_type'. Use 'input', 'target', or 'both'.")
+        raise ValueError("Invalid value for 'tensor_type'. Use 'input', 'target', 'attention_mask', or 'both'.")
 
     if tensor_type == 'both':
-        if input_tensor_key not in batch_tensor or target_tensor_key not in batch_tensor:
-            raise KeyError("Either 'input_tensor' or 'target_tensor' is missing in the .npz file")
+        input_tensor = batch_tensor.get(input_tensor_key)
+        target_tensor = batch_tensor.get(target_tensor_key)
+        attention_mask_tensor = batch_tensor.get(attention_mask_tensor_key)
 
-        input_tensor = batch_tensor[input_tensor_key]
-        target_tensor = batch_tensor[target_tensor_key]
-        attention_mask_tensor = batch_tensor[attention_mask_tensor_key]
+        if input_tensor is None:
+            print(f"Warning: '{input_tensor_key}' is missing in the .npz file.")
+        if target_tensor is None:
+            print(f"Warning: '{target_tensor_key}' is missing in the .npz file.")
+        if attention_mask_tensor is None:
+            print(f"Warning: '{attention_mask_tensor_key}' is missing in the .npz file.")
 
-        # Get the maximum sequence lengths
-        max_input_sequence_length = input_tensor.shape[1]
-        max_target_sequence_length = target_tensor.shape[1]
+        # If any tensors are present, visualize them
+        if input_tensor is not None:
+            print("\nVisualizing Input Tensor:\n")
+            max_input_sequence_length = input_tensor.shape[1]
+            visualize_sequences(input_tensor[:num_rows], tokenizer, max_input_sequence_length)
+        
+        if target_tensor is not None:
+            print("\nVisualizing Target Tensor:\n")
+            max_target_sequence_length = target_tensor.shape[1]
+            visualize_sequences(target_tensor[:num_rows], tokenizer, max_target_sequence_length)
 
-        # Slice the batch tensors to the specified number of rows if num_rows is specified
-        if num_rows:
-            sliced_input_tensor = input_tensor[:num_rows]
-            sliced_target_tensor = target_tensor[:num_rows]
-            sliced_attention_mask_tensor = attention_mask_tensor[:num_rows]
-        else:
-            sliced_input_tensor = input_tensor
-            sliced_target_tensor = target_tensor
-            sliced_attention_mask_tensor = attention_mask_tensor
-
-        # Visualize input sequences
-        print("\nVisualizing Input Tensor:\n\n")
-        visualize_sequences(sliced_input_tensor, tokenizer, max_input_sequence_length)
-        # Visualize target sequences
-        print("\nVisualizing Target Tensor:\n\n")
-        visualize_sequences(sliced_target_tensor, tokenizer, max_target_sequence_length)
-        # Visualize attention sequences
-        print("\nVisualizing Attention Mask Tensor:\n\n")
-        visualize_sequences(sliced_attention_mask_tensor, tokenizer, max_target_sequence_length)
+        if attention_mask_tensor is not None:
+            print("\nVisualizing Attention Mask Tensor:\n")
+            max_attention_mask_sequence_length = attention_mask_tensor.shape[1]
+            visualize_sequences(attention_mask_tensor[:num_rows], tokenizer, max_attention_mask_sequence_length)
     else:
-        if tensor_key not in batch_tensor:
-            raise KeyError(f"'{tensor_key}' not found in the .npz file")
-
-        tensor = batch_tensor[tensor_key]
+        tensor = batch_tensor.get(tensor_key)
+        if tensor is None:
+            print(f"Warning: '{tensor_key}' is missing in the .npz file.")
+            return
 
         # Get the maximum sequence length
         max_sequence_length = tensor.shape[1]
 
-        # Slice the batch tensor to the specified number of rows if num_rows is specified
-        if num_rows:
-            sliced_batch_tensor = tensor[:num_rows]
-        else:
-            sliced_batch_tensor = tensor
-
         # Visualize sequences
         print(f"Visualizing {tensor_type.capitalize()} Tensor:")
-        visualize_sequences(sliced_batch_tensor, tokenizer, max_sequence_length)
+        visualize_sequences(tensor[:num_rows], tokenizer, max_sequence_length)
 
 def main():
     # Initialize the argument parser
@@ -88,7 +78,7 @@ def main():
     # Define the arguments
     parser.add_argument('--batch_file', type=str, help='Path to the .npz batch file.', required=True)
     parser.add_argument('--tokenizer', type=str, required=False, default=None, help='Name or path of the tokenizer')
-    parser.add_argument('--tensor_type', type=str, choices=['input', 'target', 'both'], default='both', help='Type of tensor to analyze. Default: analyze both tensors separately')
+    parser.add_argument('--tensor_type', type=str, choices=['input', 'target', 'attention_mask', 'both'], default='both', help='Type of tensor to analyze. Default: analyze both tensors separately')
     parser.add_argument('--rows', type=int, default=None, help='Number of rows to display (default: all rows)')
 
     # Parse the arguments

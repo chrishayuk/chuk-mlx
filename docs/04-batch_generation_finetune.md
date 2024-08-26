@@ -7,7 +7,7 @@ The following script will take a training jsonl file, tokenize it, and split int
 TODO: DO A GRANITE VERSION and LLAMA 3 version
 
 ```bash
-python batch_generator_finetune.py --input_files ./sample_data/calvin_scale_llama/train.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output/batches/calvin --file_prefix calvin --max_sequence_length 4096s --batch_size 2
+python batch_generator_finetune.py --input_files ./sample_data/calvin_scale_llama/train.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output/batches/calvin --file_prefix calvin --max_sequence_length 4096 --batch_size 2
 ```
 
 ## Batch Analyzer

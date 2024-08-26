@@ -30,10 +30,10 @@ def test_chukloss_valid_tokens(dummy_data):
     model = DummyModel()
     inputs, targets, lengths, attention_mask = dummy_data
 
-    loss, ntoks = chukloss(model, inputs, targets, lengths, attention_mask)
+    loss, ntoks = chukloss(model, inputs, targets, attention_mask, lengths)
 
     # Assert that the loss is an mx.array
-    assert isinstance(loss, mx.array)  # Corrected type check
+    assert isinstance(loss, mx.array)
 
     # Assert that the loss is a scalar (i.e., it has no dimensions)
     assert loss.size == 1
@@ -47,7 +47,7 @@ def test_chukloss_valid_tokens(dummy_data):
 
     # Assert that ntoks matches the expected number of valid tokens
     expected_ntoks = lengths.sum().item()
-    assert ntoks == expected_ntoks
+    assert ntoks == expected_ntoks, f"Expected {expected_ntoks} tokens, but got {ntoks}"
 
 def test_chukloss_no_valid_tokens():
     model = DummyModel()

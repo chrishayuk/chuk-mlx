@@ -20,4 +20,4 @@ def chukloss(model, inputs, targets, attention_mask, lengths):
     ce = ce.sum() / ntoks
 
     return ce, ntoks
-
+    

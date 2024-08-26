@@ -11,33 +11,44 @@ from core.utils.tokenizer_loader import load_tokenizer
 
 def visualize_single_sequence(input_sequence, target_sequence, attention_sequence, tokenizer, row_number=None):
     """
-    Visualizes a single sequence for both input and target, showing all tokens in the sequence in a simple grid format.
+    Visualizes a single sequence for input, target, and attention, showing all tokens in a simple grid format.
     """
-    input_tokens = [tokenizer.decode([token_id]).strip() for token_id in input_sequence]
-    input_token_ids = [str(token_id) for token_id in input_sequence]
+    if input_sequence is not None:
+        input_tokens = [tokenizer.decode([token_id]).strip() for token_id in input_sequence]
+        input_token_ids = [str(token_id) for token_id in input_sequence]
+    else:
+        input_tokens = []
+        input_token_ids = []
 
-    target_tokens = [tokenizer.decode([token_id]).strip() for token_id in target_sequence]
-    target_token_ids = [str(token_id) for token_id in target_sequence]
+    if target_sequence is not None:
+        target_tokens = [tokenizer.decode([token_id]).strip() for token_id in target_sequence]
+        target_token_ids = [str(token_id) for token_id in target_sequence]
+    else:
+        target_tokens = []
+        target_token_ids = []
 
-    attention_token_ids = [str(token_id) for token_id in attention_sequence]
+    attention_token_ids = [str(token_id) for token_id in attention_sequence] if attention_sequence is not None else []
 
     # Display the row number if provided
     if row_number is not None:
         print(f"\nRow {row_number}:")
     
-    # Display input tokens and IDs
-    print("Input:")
-    print(f"Tokens: {' '.join(input_tokens)}")
-    print(f"IDs:    {' '.join(input_token_ids)}\n")
+    # Display input tokens and IDs if available
+    if input_sequence is not None:
+        print("Input:")
+        print(f"Tokens: {' '.join(input_tokens)}")
+        print(f"IDs:    {' '.join(input_token_ids)}\n")
     
-    # Display target tokens and IDs
-    print("Target:")
-    print(f"Tokens: {' '.join(target_tokens)}")
-    print(f"IDs:    {' '.join(target_token_ids)}\n")
+    # Display target tokens and IDs if available
+    if target_sequence is not None:
+        print("Target:")
+        print(f"Tokens: {' '.join(target_tokens)}")
+        print(f"IDs:    {' '.join(target_token_ids)}\n")
 
-    # Display attetion IDs
-    print("Attention:")
-    print(f"IDs:    {' '.join(attention_token_ids)}\n")
+    # Display attention IDs only if attention_sequence is provided
+    if attention_sequence is not None:
+        print("Attention:")
+        print(f"IDs:    {' '.join(attention_token_ids)}\n")
 
 def analyze_batch(batch_file, tokenizer_name, row_number=None):
     # Load the tokenizer
@@ -46,25 +57,33 @@ def analyze_batch(batch_file, tokenizer_name, row_number=None):
     # Load the batch
     batch_tensor = np.load(batch_file)
 
-    if 'input_tensor' not in batch_tensor or 'target_tensor'  not in batch_tensor:
-        raise KeyError("'input_tensor' or 'target_tensor'  not found in the .npz file")
+    input_tensor = batch_tensor.get('input_tensor')
+    target_tensor = batch_tensor.get('target_tensor')
+    attention_mask_tensor = batch_tensor.get('attention_mask_tensor')
 
-    input_tensor = batch_tensor['input_tensor']
-    target_tensor = batch_tensor['target_tensor']
-    attention_mask_tensor = batch_tensor['attention_mask_tensor']
+    if input_tensor is None:
+        print("Warning: 'input_tensor' is missing in the .npz file. Proceeding without it.")
+    if target_tensor is None:
+        print("Warning: 'target_tensor' is missing in the .npz file. Proceeding without it.")
+    if attention_mask_tensor is None:
+        print("Warning: 'attention_mask_tensor' is missing in the .npz file. Proceeding without it.")
 
     # If a specific row number is provided, visualize that row only
     if row_number is not None:
-        if row_number >= len(input_tensor):
-            print(f"Error: Row number {row_number} exceeds the number of rows in the batch.")
+        if input_tensor is not None and row_number >= len(input_tensor):
+            print(f"Error: Row number {row_number} exceeds the number of rows in the input tensor.")
             return
-        input_sequence = input_tensor[row_number]
-        target_sequence = target_tensor[row_number]
-        attention_sequence = attention_mask_tensor[row_number]
+        input_sequence = input_tensor[row_number] if input_tensor is not None else None
+        target_sequence = target_tensor[row_number] if target_tensor is not None else None
+        attention_sequence = attention_mask_tensor[row_number] if attention_mask_tensor is not None else None
         visualize_single_sequence(input_sequence, target_sequence, attention_sequence, tokenizer, row_number)
     else:
         # If no row number is provided, visualize all rows
-        for i, (input_sequence, target_sequence, attention_sequence) in enumerate(zip(input_tensor, target_tensor, attention_mask_tensor)):
+        num_rows = len(input_tensor) if input_tensor is not None else len(target_tensor)
+        for i in range(num_rows):
+            input_sequence = input_tensor[i] if input_tensor is not None else None
+            target_sequence = target_tensor[i] if target_tensor is not None else None
+            attention_sequence = attention_mask_tensor[i] if attention_mask_tensor is not None else None
             visualize_single_sequence(input_sequence, target_sequence, attention_sequence, tokenizer, i)
 
 def main():
