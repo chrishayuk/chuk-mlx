@@ -1,0 +1,32 @@
+# Pre-train configuration
+model:
+  name: "chuk"
+  tokenizer: "mistralai/Mistral-7B-Instruct-v0.2"
+  load_initial_weights: false
+
+optimizer:
+  name: AdamW
+  initial_lr: 1e-4  # Start with a higher learning rate
+  lr_schedule:
+    type: cosine_decay
+    warmup_steps: 1000  # Increase warmup steps
+  betas: [0.9, 0.95]
+  eps: 1e-5
+  weight_decay: 0.01  # More common weight decay value
+
+checkpoint:
+  frequency_epochs: 5  # Checkpoint every 5 epochs
+  frequency_iterations: 1000  # Checkpoint every 1000 iterations
+  output_dir: './output/checkpoints/tiny_shakespeare'
+
+training:
+  num_epochs: 50  # More epochs for substantial training
+  total_iterations: 100000  # Increase iterations significantly
+  loss_function: core.models.chuk_loss_function.chukloss  # Ensure it's suitable
+
+batch:
+  output_dir: './output/batches/tiny_shakespeare'
+  file_prefix: 'tiny_shakespeare'
+  pre_cache_size: 50  # Increase cache size for efficiency
+  shuffle: True
+  max_sequence_length: 2048

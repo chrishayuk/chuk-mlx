@@ -18,7 +18,6 @@ class BatchProcessor:
         # Start the batch timer
         batch_start_time = time.time()
 
-        #try:
         # Initialize variables
         expected_tokens = 0
         lengths = None
@@ -43,8 +42,8 @@ class BatchProcessor:
                 max_length = mx.max(lengths)
                 lengths = mx.reshape(max_length, (1,))
 
-            # Calculate the expected tokens
-            expected_tokens = input_tensor.shape[0]
+            # Calculate the expected tokens (total tokens in the batch)
+            expected_tokens = input_tensor.shape[0] * input_tensor.shape[1]  # batch_size * seq_length
 
         # Schedule and get the current learning rate
         current_lr = schedule_learning_rate(self.optimizer, iteration_count, self.warmup_steps)
@@ -63,20 +62,9 @@ class BatchProcessor:
         # Return relevant metrics
         return {
             "loss": lvalue if isinstance(lvalue, (float, int)) else lvalue.item(),
-            "ntoks": ntoks,
+            "ntoks": expected_tokens,  # Use total tokens in the batch
             "expected_tokens": expected_tokens,
             "batch_time": batch_time,
             "lr_before_update": lr_before_update
         }
 
-        # except Exception as e:
-        #     logger.error(f"Error in batch {batch_index}: {str(e)}", exc_info=True)
-
-        #     # Return error metrics
-        #     return {
-        #         "loss": 0,
-        #         "ntoks": 0,
-        #         "expected_tokens": expected_tokens,
-        #         "batch_time": time.time() - batch_start_time,
-        #         "lr_before_update": self.optimizer.learning_rate
-        #     }

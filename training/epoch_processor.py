@@ -71,8 +71,6 @@ class EpochProcessor:
                         "Batch Loss": f"{batch_metrics['loss']:.2f}",
                         "Tokens": batch_metrics["ntoks"],
                         "Batch Time": f"{process_time:.3f}s",
-                        "Data Loading": f"{data_loading_time:.3f}s",
-                        "Overhead": f"{overhead_time:.3f}s",
                         "Total Time": f"{total_batch_time:.3f}s",
                         "Tokens/s": f"{batch_metrics['ntoks']/process_time:.2f}"
                     })
@@ -86,21 +84,23 @@ class EpochProcessor:
 
             epoch_metrics = calculate_epoch_metrics(epoch_start_time, batch_times, epoch_tokens, epoch_theoretical_tokens)
             
-            avg_data_loading = sum(data_loading_times) / len(data_loading_times) if data_loading_times else 0
-            avg_overhead = sum(overhead_times) / len(overhead_times) if overhead_times else 0
-            
+            # calculate the average epoch loss across the batch
+            avg_epoch_loss = epoch_loss / batch_count if batch_count > 0 else 0
+
+            # set the progress bar
             batch_progress.set_postfix({
-                "Epoch Loss": f"{epoch_loss / batch_count:.4f}" if batch_count > 0 else "N/A",
+                "Epoch Loss": f"{avg_epoch_loss:.4f}",
                 "Tokens": epoch_tokens,
                 "Avg Batch Time": f"{epoch_metrics['average_batch_time']:.3f}s",
-                "Avg Data Loading": f"{avg_data_loading:.3f}s",
-                "Avg Overhead": f"{avg_overhead:.3f}s",
                 "Tokens/s": f"{epoch_metrics['actual_tokens_per_second']:.2f} (Actual) / {epoch_metrics['theoretical_tokens_per_second']:.2f} (Theoretical)"
             })
 
+            # close the batch progres
             batch_progress.close()
 
+            # check if we need to checkpoint
             if self.checkpoint_freq_epochs is not None and (epoch + 1) % self.checkpoint_freq_epochs == 0:
+                # checkpointing
                 logger.info(f'Checkpointing at end of epoch {epoch+1}')
                 self.save_checkpoint(f'epoch_{epoch+1}')
 
@@ -109,14 +109,18 @@ class EpochProcessor:
             "epoch_tokens": epoch_tokens,
             "epoch_theoretical_tokens": epoch_theoretical_tokens,
             "total_batch_time": sum(batch_times),
-            "total_data_loading_time": sum(data_loading_times),
-            "total_overhead_time": sum(overhead_times),
-            "epoch_time": epoch_metrics['epoch_time']
+            "epoch_time": epoch_metrics['epoch_time'],
+            "epoch_loss": avg_epoch_loss  # Return average loss
         }
 
+
+
     def save_checkpoint(self, identifier):
+        # setup the checkpoint path
         checkpoint_path = os.path.join(self.checkpoint_dir, f'checkpoint_{identifier}.npz')
+        
         try:
+            # save the weights
             self.model.save_weights(checkpoint_path)
             logger.info(f'Saved checkpoint: {checkpoint_path}')
         except Exception as e:

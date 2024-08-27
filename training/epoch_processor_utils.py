@@ -4,28 +4,32 @@ import logging
 logger = logging.getLogger(__name__)
 
 def calculate_epoch_metrics(epoch_start_time, batch_times, epoch_tokens, epoch_theoretical_tokens):
-    # get the end time
+    # Get the end time
     epoch_end_time = time.time()
 
-    # calculate the total epoch time
+    # Calculate the total epoch time
     epoch_time = epoch_end_time - epoch_start_time
 
-    # figure out the average
-    average_batch_time = sum(batch_times) / len(batch_times) if batch_times else 0
+    # Calculate the total batch time once
+    total_batch_time = sum(batch_times)
 
-    # calculate actual tokens per second
-    actual_tokens_per_second = epoch_tokens / sum(batch_times) if sum(batch_times) > 0 else 0
+    # Calculate the average batch time
+    average_batch_time = total_batch_time / len(batch_times) if batch_times else 0
 
-    # calculate theoretical tokens per second
-    theoretical_tokens_per_second = epoch_theoretical_tokens / sum(batch_times) if sum(batch_times) > 0 else 0
+    # Calculate actual tokens per second
+    actual_tokens_per_second = epoch_tokens / total_batch_time if total_batch_time > 0 else 0
 
-    # return the stats
+    # Calculate theoretical tokens per second
+    theoretical_tokens_per_second = epoch_theoretical_tokens / total_batch_time if total_batch_time > 0 else 0
+
+    # Return the stats
     return {
         "epoch_time": epoch_time,
         "average_batch_time": average_batch_time,
         "actual_tokens_per_second": actual_tokens_per_second,
         "theoretical_tokens_per_second": theoretical_tokens_per_second
     }
+
 
 def update_progress_bar(batch_progress, batch_index, batch_metrics, progress_interval):
     # check the progress interval

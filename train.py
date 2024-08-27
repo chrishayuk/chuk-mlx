@@ -30,6 +30,17 @@ def load_configurations(config_file: str):
     if 'loss_function' not in config['training']:
         logger.info("No loss function specified in configuration, using default 'chukloss'.")
         config['training']['loss_function'] = 'chukloss'
+
+    # Set default tokenizer if not specified
+    if 'tokenizer' not in config['model']:
+        logger.info(f"No tokenizer specified in model configuration, using model name '{config['model']['name']}' as tokenizer.")
+        config['model']['tokenizer'] = config['model']['name']
+
+    # Set default load_initial_weights to True if not specified
+    if 'load_initial_weights' not in config['model']:
+        config['model']['load_initial_weights'] = True
+    else:
+        config['model']['load_initial_weights'] = config['model'].get('load_initial_weights', True)
     
     return config['model'], config['optimizer'], config['checkpoint'], config['training'], config['batch']
 
@@ -83,14 +94,14 @@ def main():
     clear_output_checkpoints(checkpoint_config['output_dir'])
 
     # load the tokenizer
-    tokenizer = load_tokenizer(model_config['name'])
+    tokenizer = load_tokenizer(model_config['tokenizer'])
 
-    try:
-        # load the model
-        model = load_model(model_config['name'])
-    except Exception as e:
-        logger.error(f"Error loading model and tokenizer: {e}")
-        return
+    #try:
+    # load the model
+    model = load_model(model_config['name'], model_config['load_initial_weights'] )
+    #except Exception as e:
+    #    return
+    #    logger.error(f"Error loading model and tokenizer: {e}")
 
     if args.iterations:
         training_config['total_iterations'] = args.iterations

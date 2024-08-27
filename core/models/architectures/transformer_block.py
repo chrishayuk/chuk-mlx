@@ -17,9 +17,12 @@ class TransformerBlock(nn.Module):
 
         # create the MLP layer
         self.mlp = create_mlp(config)
+
+        # Ensure `eps` is set to a valid float value, e.g., 1e-6, if not provided
+        eps = config.rms_norm_eps if config.rms_norm_eps is not None else 1e-6
         
         # Use the provided norm_layer function to create normalization layers
-        self.input_layernorm = norm_layer(config.hidden_size, eps=config.rms_norm_eps)
+        self.input_layernorm = norm_layer(config.hidden_size, eps=eps)
         self.post_attention_layernorm = norm_layer(config.hidden_size, eps=config.rms_norm_eps)
 
     def __call__(   

@@ -35,7 +35,7 @@ class ModelConfig(BaseModel):
     head_dim: Optional[int] = None
     num_key_value_heads: Optional[int] = None
     attention_bias: Optional[bool] = False
-    rms_norm_eps: Optional[float] = None
+    rms_norm_eps: Optional[float] = 1e-6
 
     # rope settings
     max_position_embeddings: Optional[int]
