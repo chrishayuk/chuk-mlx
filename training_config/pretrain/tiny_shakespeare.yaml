@@ -28,5 +28,4 @@ batch:
   output_dir: './output/batches/tiny_shakespeare'
   file_prefix: 'tiny_shakespeare'
   pre_cache_size: 50  # Increase cache size for efficiency
-  shuffle: True
-  max_sequence_length: 2048
+  max_sequence_length: 1024

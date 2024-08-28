@@ -24,7 +24,7 @@ This will place the jsonl version of the file into
 We then need to split the dataset into batches for trainimg
 
 ```bash
-python batch_generator_pretrain.py --input_files output/datasets/tiny_shakespeare.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output/batches/tiny_shakespeare --file_prefix tiny_shakespeare --max_sequence_length 2048 --batch_size 4 --regenerate_batches
+python batch_generator_pretrain.py --input_files output/datasets/tiny_shakespeare.jsonl --tokenizer mistralai/Mistral-7B-Instruct-v0.2 --output_directory ./output/batches/tiny_shakespeare --file_prefix tiny_shakespeare --max_sequence_length 1024 --batch_size 4 --regenerate_batches
 ```
 
 This will place the batches in

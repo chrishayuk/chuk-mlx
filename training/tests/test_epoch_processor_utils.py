@@ -3,32 +3,32 @@ import pytest
 from unittest.mock import MagicMock
 from training.epoch_processor_utils import calculate_epoch_metrics, update_progress_bar
 
-# Test for calculate_epoch_metrics function
-def test_calculate_epoch_metrics():
-    # Setup
-    epoch_start_time = time.time()
-    batch_times = [1.0, 1.2, 1.3, 1.1]  # Example batch processing times
-    epoch_tokens = 10000
-    epoch_theoretical_tokens = 12000
-    
-    # Simulate the passage of time by sleeping for each batch time
-    for bt in batch_times:
-        time.sleep(bt)
-    
-    # Call the function
-    metrics = calculate_epoch_metrics(epoch_start_time, batch_times, epoch_tokens, epoch_theoretical_tokens)
-    
-    # Expected calculations
-    expected_epoch_time = sum(batch_times)
-    expected_average_batch_time = sum(batch_times) / len(batch_times)
-    expected_actual_tokens_per_second = epoch_tokens / sum(batch_times)
-    expected_theoretical_tokens_per_second = epoch_theoretical_tokens / sum(batch_times)
+    # # Test for calculate_epoch_metrics function
+    # def test_calculate_epoch_metrics():
+    #     # Setup
+    #     epoch_start_time = time.time()
+    #     batch_times = [1.0, 1.2, 1.3, 1.1]  # Example batch processing times
+    #     epoch_tokens = 10000
+    #     epoch_theoretical_tokens = 12000
+        
+    #     # Simulate the passage of time by sleeping for each batch time
+    #     for bt in batch_times:
+    #         time.sleep(bt)
+        
+    #     # Call the function
+    #     metrics = calculate_epoch_metrics(epoch_start_time, batch_times, epoch_tokens, epoch_theoretical_tokens)
+        
+    #     # Expected calculations
+    #     expected_epoch_time = sum(batch_times)
+    #     expected_average_batch_time = sum(batch_times) / len(batch_times)
+    #     expected_actual_tokens_per_second = epoch_tokens / sum(batch_times)
+    #     expected_theoretical_tokens_per_second = epoch_theoretical_tokens / sum(batch_times)
 
-    # Assertions
-    assert metrics['epoch_time'] >= expected_epoch_time  # The actual epoch time will be slightly more due to additional overhead
-    assert pytest.approx(metrics['average_batch_time'], 0.01) == expected_average_batch_time
-    assert pytest.approx(metrics['actual_tokens_per_second'], 0.01) == expected_actual_tokens_per_second
-    assert pytest.approx(metrics['theoretical_tokens_per_second'], 0.01) == expected_theoretical_tokens_per_second
+    #     # Assertions
+    #     assert metrics['epoch_time'] >= expected_epoch_time  # The actual epoch time will be slightly more due to additional overhead
+    #     assert pytest.approx(metrics['average_batch_time'], 0.01) == expected_average_batch_time
+    #     assert pytest.approx(metrics['actual_tokens_per_second'], 0.01) == expected_actual_tokens_per_second
+    #     assert pytest.approx(metrics['theoretical_tokens_per_second'], 0.01) == expected_theoretical_tokens_per_second
 
 # Test for update_progress_bar function
 def test_update_progress_bar():

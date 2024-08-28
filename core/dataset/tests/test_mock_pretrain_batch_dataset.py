@@ -2,7 +2,7 @@ import os
 import pytest
 import numpy as np
 import tempfile
-from core.dataset.mock_pretrain_batch_dataset import MockPreTrainBatchDataset
+from core.dataset.mocks.mock_pretrain_batch_dataset import MockPreTrainBatchDataset
 
 @pytest.fixture
 def mock_dataset():

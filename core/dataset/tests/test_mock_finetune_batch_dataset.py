@@ -5,7 +5,7 @@ import tempfile
 import mlx.core as mx
 from unittest.mock import patch
 
-from core.dataset.mock_finetune_batch_dataset import MockFineTuneBatchDataset
+from core.dataset.mocks.mock_finetune_batch_dataset import MockFineTuneBatchDataset
 
 @pytest.fixture
 def mock_dataset():

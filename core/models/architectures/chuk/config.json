@@ -8,5 +8,5 @@
     "hidden_act": "silu",
     "bos_token_id": 2,
     "eos_token_id": 3,
-    "max_position_embeddings": 2048
+    "max_position_embeddings": 1024
 }
