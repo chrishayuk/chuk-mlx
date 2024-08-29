@@ -1,8 +1,5 @@
-import os
 import time
 import logging
-import tracemalloc
-import gc
 import mlx.core as mx
 from training.training_scheduler import schedule_learning_rate
 
@@ -18,24 +15,16 @@ class BatchProcessor:
         self.loss_function = loss_function
         self.warmup_steps = warmup_steps
 
-        #tracemalloc.start()  # Ensure tracing is started
-
     def process_batch(self, batch, batch_index, iteration_count):
         # Start the batch timer
         batch_start_time = time.time()
 
         # Initialize variables
         expected_tokens = 0
-        lengths = None
 
         if isinstance(batch, tuple) and len(batch) == 4:
             # get the tensors from the batch
             input_tensor, target_tensor, attention_mask_tensor, _ = batch
-
-            # load the tensors into mx.array
-            input_tensor = mx.array(input_tensor)
-            target_tensor = mx.array(target_tensor)
-            attention_mask_tensor = mx.array(attention_mask_tensor)
 
             # get the expected tokens
             expected_tokens = input_tensor.shape[0] * input_tensor.shape[1]
