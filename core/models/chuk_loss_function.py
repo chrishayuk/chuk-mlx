@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def chukloss(model, inputs, targets, attention_mask, lengths):
+def chukloss(model, inputs, targets, attention_mask):
     # Initialize ce with a default value to ensure it always has a value
     ce = mx.array(0.0)
 
@@ -15,19 +15,15 @@ def chukloss(model, inputs, targets, attention_mask, lengths):
     try:
         # Run model on inputs with the attention mask
         logits, _ = model(inputs)
-        logits = logits.astype(mx.float32)  # Ensure logits are in float32 for numerical stability
 
         # Calculate the cross-entropy loss
         ce = nn.losses.cross_entropy(logits, targets)
 
-        # Apply the mask to exclude padding tokens
-        length_mask = mx.arange(inputs.shape[1])[None, :] < lengths[:, None]
-        length_mask = mx.array(length_mask)  # Ensure length_mask is a tensor
+        # Apply the attention mask to exclude padding tokens
+        ce *= attention_mask
 
-        ce = ce * length_mask  # Apply length mask to the loss
-
-        # Calculate the number of valid tokens
-        ntoks = length_mask.sum().item()
+        # Calculate the number of valid tokens based on the attention mask, ensuring it's at least 1
+        ntoks = mx.maximum(attention_mask.sum(), 1)
 
         # check ntoks
         if ntoks == 0:
@@ -53,7 +49,4 @@ def chukloss(model, inputs, targets, attention_mask, lengths):
 
     finally:
         # Explicitly delete intermediate tensors to free up memory
-        del logits, length_mask
-
-        # don't believe we need to do garbage collection on loss dunction
-        # gc.collect()
+        del logits, ce
