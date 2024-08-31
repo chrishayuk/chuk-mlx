@@ -1,6 +1,7 @@
 # Pre-train configuration
 model:
-  name: "chuk"
+  name: chuk
+  #name: ibm-granite/granite-3b-code-instruct
   tokenizer: "mistralai/Mistral-7B-Instruct-v0.2"
   load_initial_weights: false
 

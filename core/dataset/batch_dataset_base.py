@@ -8,7 +8,9 @@ from threading import Thread
 from queue import Queue, Empty
 import traceback
 from collections import OrderedDict
-import psutil 
+import psutil
+
+from core.utils.memory_utils import log_memory_usage 
 
 class BatchDatasetBase:
     def __init__(self, batch_output_dir, batchfile_prefix, pre_cache_size=5, shuffle=False):
@@ -22,8 +24,6 @@ class BatchDatasetBase:
         self.load_queue = Queue()
         self.current_index = -1
         self.epoch = 0
-
-        #tracemalloc.start()  # Start tracing memory allocations
 
         # Load the batch files
         self._load_batch_files()
@@ -43,15 +43,22 @@ class BatchDatasetBase:
         self.batch_files.sort()
 
     def _load_tensors(self, batch_file):
+        # set the batch path
         batch_path = os.path.join(self.batch_output_dir, batch_file)
-        #snapshot_before = tracemalloc.take_snapshot()  # Take memory snapshot before loading
         
         try:
+            # check the batch exists
             if not os.path.exists(batch_path):
                 raise FileNotFoundError(f"Batch file {batch_file} does not exist at path {batch_path}")
             
+            # debug memory
+            log_memory_usage("dataset loader: pre load batch")
+            
             # load the batch
             batch_data = mx.load(batch_path)
+
+            # debug memory
+            log_memory_usage("dataset loader: post load batch")
 
             # load the tensors
             input_tensor = batch_data['input_tensor']
@@ -59,12 +66,8 @@ class BatchDatasetBase:
             attention_mask_tensor = batch_data['attention_mask_tensor']
             lengths = batch_data.get('input_lengths', mx.array([len(seq) for seq in input_tensor]))
 
-            #snapshot_after = tracemalloc.take_snapshot()  # Take memory snapshot after loading
-            #top_stats = snapshot_after.compare_to(snapshot_before, 'lineno')
-
-            #logging.info(f"Memory usage after loading {batch_file}:")
-            #    logging.info(stat)
-            #for stat in top_stats[:10]:  # Show top 10 memory consuming lines
+            # debug memory
+            log_memory_usage("dataset loader: post load tensors")
 
             return input_tensor, target_tensor, attention_mask_tensor, lengths
         except FileNotFoundError as e:
@@ -134,9 +137,13 @@ class BatchDatasetBase:
         # Load the batch from cache if available
         if index not in self.cache:
             # logging.info(f"Batch {index} not in cache, loading directly")
+            log_memory_usage("dataset loader: get_item pre load batch")
             batch_file = self._get_batch_file(index)
+            log_memory_usage("dataset loader: get_item post load batch")
             self.cache[index] = self._load_tensors(batch_file)
+            log_memory_usage("dataset loader: get_item post load tensors")
             self.cache.move_to_end(index)  # Ensure LRU order
+            log_memory_usage("dataset loader: get_item post move to end")
 
             # Evict the oldest entry if cache exceeds the size limit
             if len(self.cache) > self.cache_size:
@@ -149,6 +156,7 @@ class BatchDatasetBase:
                     self.load_queue.put(next_index)
                     #logging.info(f"Queued batch {next_index} after eviction.")
 
+                log_memory_usage("dataset loader: get_item post eviction")
             # Use psutil to monitor memory usage after eviction
             #memory_after_eviction = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
             #logging.info(f"Memory usage after eviction batch {index}: {memory_after_eviction:.2f} MB")
@@ -159,24 +167,6 @@ class BatchDatasetBase:
         # logging.info(f"Memory usage after GC batch {index}: {memory_after_gc:.2f} MB")
 
         return self.cache[index]
-
-    def _format_top_stats(self, snapshot):
-        top_stats = snapshot.statistics('lineno')
-        return "\n".join(f"{str(stat.traceback.format())}: {stat.size / 1024:.1f} KiB"
-                         for stat in top_stats[:10])
-
-    def _format_top_stats(self, snapshot, limit=5):
-        """Helper method to format the top memory usage statistics."""
-        top_stats = snapshot.statistics('lineno')
-        return '\n'.join(f"{stat.traceback.format()}: {stat.size / 1024} KiB" for stat in top_stats[:limit])
-
-    def _get_memory_usage(self):
-        """Helper method to get the current memory usage."""
-        import psutil
-        process = psutil.Process(os.getpid())
-        mem_info = process.memory_info()
-        return f"RSS={mem_info.rss / 1024 / 1024:.2f}, VMS={mem_info.vms / 1024 / 1024:.2f}"
-
 
     def __len__(self):
         return len(self.batch_files)

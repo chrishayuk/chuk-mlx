@@ -43,6 +43,14 @@ class ModelConfig(BaseModel):
     rope_theta: float = 10000
     rope_traditional: bool = False
 
+    # Dropout probabilities
+    attention_dropout_prob: Optional[float] = None
+    residual_dropout_prob: Optional[float] = None
+
+    # Layer normalization
+    layer_norm: Optional[bool] = True  # Default is to use layer normalization
+
+
     #sliding_window: Optional[dict] = None
     #torch_dtype: Optional[str]
     #transformers_version: Optional[str]

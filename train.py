@@ -4,6 +4,7 @@ import shutil
 import mlx.core as mx
 import mlx.nn as nn
 import logging
+from core.models.architectures.model import ModelMode
 from core.utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from core.models.chuk_loss_function import chukloss
@@ -99,6 +100,8 @@ def main():
     #try:
     # load the model
     model = load_model(model_config['name'], model_config['load_initial_weights'] )
+    model.set_mode(ModelMode.TRAIN)
+
     #except Exception as e:
     #    return
     #    logger.error(f"Error loading model and tokenizer: {e}")

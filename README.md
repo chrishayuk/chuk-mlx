@@ -23,6 +23,7 @@ python infer.py --model HuggingFaceTB/SmolLM-135M --prompt "1+1="
 
 TODO
 --------
+1 - fix memory leaks, stabilize tokens per second across batches
 1 - fix batch fine tune script and docs
 2 - single cli for batch_generator_finetune and pre_train using a factory lpader
 3 - modify finetune batch generator to work with different chat templates not just llama

@@ -32,10 +32,7 @@ class Model(nn.Module):
             # no head
             self.lm_head = None
 
-    def __call__(self, inputs: mx.array, cache=None):
-        # log memory
-        log_memory_usage("model: pre forward pass")
-        
+    def __call__(self, inputs: mx.array, cache=None):        
         # Use cache only if required
         if self.use_cache:
             # forward pass with cache
@@ -43,9 +40,6 @@ class Model(nn.Module):
         else:
             # forward pass, skipping cache generation
             out, _ = self.model(inputs, None)
-        
-        # log memory
-        log_memory_usage("model: post forward pass")
         
         # Apply the language model head
         if self.lm_head is not None:

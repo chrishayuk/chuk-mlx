@@ -1,11 +1,15 @@
 import argparse
 import time
+from core.models.architectures.model import ModelMode
 from core.models.model_loader import load_model_tokenizer_and_checkpoint
 from core.models.inference_utility import generate_response
 
 def main(model_path, tokenizer_path, checkpoint_path, initial_prompt, system_prompt, chat_mode):
     # Load the model and tokenizer, and optionally a checkpoint
     model, tokenizer = load_model_tokenizer_and_checkpoint(model_path, checkpoint_path, tokenizer_path)
+
+    # put the model in infer mode
+    model.set_mode(ModelMode.INFERENCE)
 
     if chat_mode:
         # Initialize conversation context with the system prompt
