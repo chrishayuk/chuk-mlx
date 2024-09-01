@@ -52,13 +52,13 @@ class BatchDatasetBase:
                 raise FileNotFoundError(f"Batch file {batch_file} does not exist at path {batch_path}")
             
             # debug memory
-            log_memory_usage("dataset loader: pre load batch")
+            #log_memory_usage("dataset loader: pre load batch")
             
             # load the batch
             batch_data = mx.load(batch_path)
 
             # debug memory
-            log_memory_usage("dataset loader: post load batch")
+            #log_memory_usage("dataset loader: post load batch")
 
             # load the tensors
             input_tensor = batch_data['input_tensor']
@@ -67,7 +67,7 @@ class BatchDatasetBase:
             lengths = batch_data.get('input_lengths', mx.array([len(seq) for seq in input_tensor]))
 
             # debug memory
-            log_memory_usage("dataset loader: post load tensors")
+            #log_memory_usage("dataset loader: post load tensors")
 
             return input_tensor, target_tensor, attention_mask_tensor, lengths
         except FileNotFoundError as e:
@@ -137,13 +137,13 @@ class BatchDatasetBase:
         # Load the batch from cache if available
         if index not in self.cache:
             # logging.info(f"Batch {index} not in cache, loading directly")
-            log_memory_usage("dataset loader: get_item pre load batch")
+            #log_memory_usage("dataset loader: get_item pre load batch")
             batch_file = self._get_batch_file(index)
-            log_memory_usage("dataset loader: get_item post load batch")
+            #log_memory_usage("dataset loader: get_item post load batch")
             self.cache[index] = self._load_tensors(batch_file)
-            log_memory_usage("dataset loader: get_item post load tensors")
+            #log_memory_usage("dataset loader: get_item post load tensors")
             self.cache.move_to_end(index)  # Ensure LRU order
-            log_memory_usage("dataset loader: get_item post move to end")
+            #log_memory_usage("dataset loader: get_item post move to end")
 
             # Evict the oldest entry if cache exceeds the size limit
             if len(self.cache) > self.cache_size:
@@ -156,7 +156,7 @@ class BatchDatasetBase:
                     self.load_queue.put(next_index)
                     #logging.info(f"Queued batch {next_index} after eviction.")
 
-                log_memory_usage("dataset loader: get_item post eviction")
+                #log_memory_usage("dataset loader: get_item post eviction")
             # Use psutil to monitor memory usage after eviction
             #memory_after_eviction = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
             #logging.info(f"Memory usage after eviction batch {index}: {memory_after_eviction:.2f} MB")

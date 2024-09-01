@@ -24,7 +24,8 @@ def chukloss(model, inputs, targets, attention_mask):
 
         # Apply the attention mask to the computed loss. The attention mask typically indicates
         # which tokens in the input should contribute to the loss calculation (e.g., non-padding tokens).
-        ce = mx.multiply(ce, attention_mask)
+        #ce = mx.multiply(ce, attention_mask)
+        ce = ce * attention_mask 
 
         # Calculate the number of tokens that contribute to the loss by summing the attention mask.
         # The use of mx.maximum ensures that ntoks is at least 1 to avoid division by zero.
