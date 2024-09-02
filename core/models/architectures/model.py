@@ -2,7 +2,6 @@ import mlx.core as mx
 import mlx.nn as nn
 from core.models.model_config import ModelConfig
 from core.utils.memory_utils import log_memory_usage
-
 import logging
 from enum import Enum
 
@@ -13,66 +12,45 @@ class ModelMode(Enum):
     INFERENCE = "inference"
 
 class Model(nn.Module):
-        
     def __init__(self, args: ModelConfig):
-        # call the base
         super().__init__()
 
-        # set the config
         self.config = args
+        self.use_cache = False  # Default cache usage to False for training
 
-        # Default cache usage to False for training
-        self.use_cache = False 
+        # The model attribute will be set by subclasses
+        self.model = None
 
         # Initialize the language model head
         if not self.config.tie_word_embeddings:
-            # tied 
             self.lm_head = nn.Linear(args.hidden_size, args.vocab_size, bias=False)
         else:
-            # no head
             self.lm_head = None
 
-    def __call__(self, inputs: mx.array, cache=None):        
+    def __call__(self, inputs: mx.array, cache=None):
+        if self.model is None:
+            raise ValueError("The model has not been set. Ensure that a subclass sets the model.")
+
         # Use cache only if required
-        if self.use_cache:
-            # forward pass with cache
-            out, cache = self.model(inputs, cache)
-        else:
-            # forward pass, skipping cache generation
-            out, _ = self.model(inputs, None)
-        
+        out, cache = self.model(inputs, cache=cache if self.use_cache else None)
+
         # Apply the language model head
         if self.lm_head is not None:
             out = self.lm_head(out)
         else:
             out = self.model.embed_tokens.as_linear(out)
         
-        # return
         return out, cache if self.use_cache else None
 
     def sanitize(self, weights):
-        """
-        Sanitize the model weights if needed.
-        Currently, this method just returns the weights as-is.
-        """
         return {k: v for k, v in weights.items()}
 
     def set_mode(self, mode: ModelMode):
-        """
-        Set the mode of the model: ModelMode.TRAIN or ModelMode.INFERENCE.
-        This controls whether the cache is used.
-        """
         if mode == ModelMode.TRAIN:
-            # cache disabled
             self.use_cache = False
-
-            # log output
             logger.info("Model set to training mode: cache disabled.")
         elif mode == ModelMode.INFERENCE:
-            # cache enabled
             self.use_cache = True
-
-            # log output
             logger.info("Model set to inference mode: cache enabled.")
         else:
             raise ValueError(f"Unknown mode: {mode}")
@@ -82,19 +60,9 @@ class Model(nn.Module):
         Reset or clear the cache if necessary. This can be used between sequences
         during inference to manage memory.
         """
-        # only reset if using cache
         if self.use_cache:
-            # check for cache
-            if hasattr(self, 'cache') and self.cache is not None:
-                logger.info("Resetting the model cache.")
-
-                # loop throughn the cache keys
-                for key in self.cache.keys():
-                    # Clear individual entries
-                    self.cache[key] = None  
-
-                # completely remove the cache object
-                self.cache = None  
+            if self.model is not None:
+                self.model.reset_cache()
+                logger.info("Model cache has been reset.")
             else:
-                logger.info("No cache to reset.")
-
+                logger.info("No model set; cache reset skipped.")
