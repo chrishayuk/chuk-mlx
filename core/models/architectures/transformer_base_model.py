@@ -1,4 +1,3 @@
-# transformer_base_model.py
 import mlx.core as mx
 import mlx.nn as nn
 from core.models.architectures.transformer_block import TransformerBlock
@@ -6,16 +5,15 @@ from core.models.model_config import ModelConfig
 
 class TransformerBaseModel(nn.Module):
     def __init__(self, config: ModelConfig, attention_layer, norm_layer):
-        # call the constructor of the base class
         super().__init__()
 
-        # define the model parameters
+        # Define the model parameters
         self.args = config
         self.vocab_size = config.vocab_size
         self.num_hidden_layers = config.num_hidden_layers
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
         
-        # construct the layers
+        # Construct the layers
         self.layers = [
             TransformerBlock(
                 config=config,
@@ -24,12 +22,12 @@ class TransformerBaseModel(nn.Module):
             ) for _ in range(config.num_hidden_layers)
         ]
         
-        # create the final normalization layer
+        # Create the final normalization layer
         self.norm = norm_layer(config.hidden_size, eps=config.rms_norm_eps)
         self._mask_cache = {}
 
     def embed_inputs(self, inputs):
-        # embed
+        # Embed the inputs
         return self.embed_tokens(inputs)
 
     def scale_embeddings(self, embeddings):
@@ -37,9 +35,8 @@ class TransformerBaseModel(nn.Module):
         return embeddings  
 
     def get_mask(self, seq_length, dtype):
-        # Check if mask for this sequence length is already cached
+        # Centralized mask caching
         if seq_length not in self._mask_cache:
-            # If not, create and cache the mask
             self._mask_cache[seq_length] = nn.MultiHeadAttention.create_additive_causal_mask(seq_length).astype(dtype)
         return self._mask_cache[seq_length]
 
