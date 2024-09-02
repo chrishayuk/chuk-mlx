@@ -4,8 +4,9 @@ from core.batch.text_utils import get_line_text
 from core.batch.bucketing import add_to_buckets
 
 class PretrainBatchGenerator(BatchBase):
-    def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries):
-        super().__init__(tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries)
+    def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries, dtype=np.int32):
+        # Initialize the base class with the dtype parameter
+        super().__init__(tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries, dtype)
 
     def tokenize_line(self, line):
         # get the line to tokenize
@@ -52,5 +53,5 @@ class PretrainBatchGenerator(BatchBase):
                 for seq in batch_data
             ]
 
-        # save the batch
+        # save the batch using the dtype from the parent class
         return super().save_batch(batch_data, file_path)

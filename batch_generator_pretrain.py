@@ -1,6 +1,8 @@
 import argparse
 import os
 import shutil
+
+import numpy as np
 from core.utils.tokenizer_loader import load_tokenizer
 from core.batch.pretrain_batch import PretrainBatchGenerator
 
@@ -9,6 +11,13 @@ def clear_output_directory(output_directory):
     if os.path.exists(output_directory):
         shutil.rmtree(output_directory)
     os.makedirs(output_directory)
+
+def parse_dtype(dtype_str):
+    """Convert a string representation of a dtype to a numpy dtype."""
+    try:
+        return getattr(np, dtype_str)
+    except AttributeError:
+        raise ValueError(f"Invalid dtype: {dtype_str}. Please choose a valid numpy dtype.")
 
 def main():
     # Set argument parser
@@ -23,9 +32,13 @@ def main():
     parser.add_argument('--batch_size', type=int, default=32, help='Number of sequences per batch')
     parser.add_argument('--print_summaries', action='store_true', help='Print summaries for each batch')
     parser.add_argument('--regenerate_batches', action='store_true', help='Regenerate the batches before training.')
+    parser.add_argument('--dtype', type=str, default='int32', help='Data type for the output arrays (e.g., int32, float32)')
 
     # Parse arguments
     args = parser.parse_args()
+
+    # Convert dtype argument to a numpy dtype
+    dtype = parse_dtype(args.dtype)
 
     # Construct the batch output directory using the model name
     if args.output_directory:
@@ -50,7 +63,8 @@ def main():
         file_prefix=args.file_prefix,
         max_sequence_length=args.max_sequence_length,
         batch_size=args.batch_size,
-        print_summaries=args.print_summaries
+        print_summaries=args.print_summaries,
+        dtype=dtype  # Use the dtype from CLI
     )
 
     # Check if batches exist, if not or if regenerate_batches is True, generate them

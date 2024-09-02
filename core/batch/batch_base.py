@@ -1,7 +1,7 @@
 import os
 import time
 import numpy as np
-from core.batch.bucketing import add_to_buckets, get_batch_from_buckets, merge_small_buckets, split_large_buckets
+from core.batch.bucketing import add_to_buckets, get_batch_from_buckets
 from core.batch.batch_generation_summary import generate_batch_generation_summary
 from core.batch.batch_analysis_summary import generate_batch_analysis_summary_table
 from core.batch.dataset_utils import tokenize_dataset
@@ -9,7 +9,7 @@ from core.batch.padding_utils import pad_sequences
 from core.batch.tokenization_utils import batch_tokenize_and_pad
 
 class BatchBase:
-    def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries):
+    def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries, dtype=np.int32):
         # Set the various parameters
         self.tokenizer = tokenizer
         self.output_directory = output_directory
@@ -17,6 +17,7 @@ class BatchBase:
         self.max_sequence_length = max_sequence_length
         self.batch_size = batch_size
         self.print_summaries = print_summaries
+        self.dtype = dtype  # Add dtype as a configurable parameter
     
     def tokenize_and_batch(self, input_files):
         # Tokenize the dataset
@@ -42,9 +43,9 @@ class BatchBase:
         # Check for input and targets
         if len(input_sequences) == 0 and len(target_sequences) == 0:
             return (
-                np.array([], dtype=np.int32),
-                np.array([], dtype=np.int32),
-                np.array([], dtype=np.int32)
+                np.array([], dtype=self.dtype),
+                np.array([], dtype=self.dtype),
+                np.array([], dtype=self.dtype)
             )
         
         # Determine the maximum length across input, target sequences, and attention masks
@@ -56,12 +57,16 @@ class BatchBase:
         max_length = max(max_input_length, max_target_length, max_attention_length)
 
         # Convert to numpy arrays and ensure shapes are consistent
-        padded_input_sequences = pad_sequences(input_sequences, pad_token_id, max_length)
-        padded_target_sequences = pad_sequences(target_sequences, pad_token_id, max_length)
-        padded_attention_masks = pad_sequences(attention_masks, 0, max_length)
+        padded_input_sequences = pad_sequences(input_sequences, pad_token_id, max_length, dtype=self.dtype)
+        padded_target_sequences = pad_sequences(target_sequences, pad_token_id, max_length, dtype=self.dtype)
+        padded_attention_masks = pad_sequences(attention_masks, 0, max_length, dtype=self.dtype)
 
         # Return the final padded sequences
-        return padded_input_sequences, padded_target_sequences, padded_attention_masks
+        return (
+            np.array(padded_input_sequences, dtype=self.dtype),
+            np.array(padded_target_sequences, dtype=self.dtype),
+            np.array(padded_attention_masks, dtype=self.dtype)
+        )
 
     def create_batches(self, buckets):
         # batch index is zero
@@ -146,14 +151,14 @@ class BatchBase:
             attention_masks = [item[2] for item in batch_data]
 
             # pad the sequences
-            inputs_padded = pad_sequences(inputs, self.tokenizer.pad_token_id)
-            targets_padded = pad_sequences(targets, self.tokenizer.pad_token_id)
-            attention_masks_padded = pad_sequences(attention_masks, 0)
+            inputs_padded = pad_sequences(inputs, self.tokenizer.pad_token_id, dtype=self.dtype)
+            targets_padded = pad_sequences(targets, self.tokenizer.pad_token_id, dtype=self.dtype)
+            attention_masks_padded = pad_sequences(attention_masks, 0, dtype=self.dtype)
 
             # convert to numpy
-            inputs_array = np.array(inputs_padded, dtype=np.int32)
-            targets_array = np.array(targets_padded, dtype=np.int32)
-            attention_masks_array = np.array(attention_masks_padded, dtype=np.int32)
+            inputs_array = np.array(inputs_padded, dtype=self.dtype)
+            targets_array = np.array(targets_padded, dtype=self.dtype)
+            attention_masks_array = np.array(attention_masks_padded, dtype=self.dtype)
 
             # save
             np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array, attention_mask_tensor=attention_masks_array)
@@ -162,8 +167,8 @@ class BatchBase:
             return inputs_array, targets_array, attention_masks_array
         else:
             # pad
-            inputs_padded = pad_sequences(batch_data, self.tokenizer.pad_token_id)
-            inputs_array = np.array(inputs_padded, dtype=np.int32)
+            inputs_padded = pad_sequences(batch_data, self.tokenizer.pad_token_id,dtype=self.dtype)
+            inputs_array = np.array(inputs_padded, dtype=self.dtype)
 
             # save
             np.savez(file_path, input_tensor=inputs_array)
@@ -176,7 +181,7 @@ class BatchBase:
         processed_batch = batch_tokenize_and_pad(batch_data, self.tokenizer, self.max_sequence_length)
         
         # Convert to numpy array
-        input_tensor = np.array(processed_batch, dtype=np.int32)
+        input_tensor = np.array(processed_batch, dtype=self.dtype)
 
         # Return the processed tensor
         return input_tensor
