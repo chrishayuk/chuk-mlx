@@ -6,6 +6,8 @@ The following models are based on the llama architecture and have been tested as
 
 ### llama
 - meta-llama/Meta-Llama-3-8B-Instruct
+- meta-llama/Llama-2-7b-chat-hf
+- meta-llama/Llama-2-7b-hf
 
 ### mistral
 - mistralai/Mistral-7B-Instruct-v0.2
@@ -28,8 +30,6 @@ The following models are based on the llama architecture and have been tested as
 The following llama based models currently have errors and need debugged
 
 - TinyLlama/TinyLlama_v1.1
-- meta-llama/Llama-2-7b-chat-hf
-- meta-llama/Llama-2-7b-hf
 - mistralai/Mistral-7B-Instruct-v0.3
 - microsoft/Phi-3.5-mini-instruct
 - ibm-granite/granite-20b-code-instruct

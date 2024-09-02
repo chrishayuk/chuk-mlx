@@ -38,7 +38,7 @@ class AttentionBase(nn.Module):
         # Compile these functions for better performance
         self._project_inputs = mx.compile(self._project_inputs)
         #self._reshape_and_apply_rope = mx.compile(self._reshape_and_apply_rope)
-        self._compute_attention = mx.compile(self._compute_attention)
+        #self._compute_attention = mx.compile(self._compute_attention)
         self._get_mask = mx.compile(self._get_mask)
 
 
