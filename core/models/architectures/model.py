@@ -13,10 +13,14 @@ class ModelMode(Enum):
 
 class Model(nn.Module):
     def __init__(self, args: ModelConfig):
+        # call the parent constructor
         super().__init__()
 
+        # set the config
         self.config = args
-        self.use_cache = False  # Default cache usage to False for training
+
+        # Default cache usage to False for training
+        self.use_cache = False  
 
         # The model attribute will be set by subclasses
         self.model = None
@@ -28,6 +32,7 @@ class Model(nn.Module):
             self.lm_head = None
 
     def __call__(self, inputs: mx.array, cache=None):
+        # check we have a model set
         if self.model is None:
             raise ValueError("The model has not been set. Ensure that a subclass sets the model.")
 
