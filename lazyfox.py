@@ -31,6 +31,9 @@ def main(regenerate_batches, prompt, model_name, tokenizer_name, framework='mlx'
     clear_output_directory(batch_output_dir)
     clear_output_directory(checkpoint_output_dir)
 
+    # Initialize the ModelAdapter with the specified framework
+    model_adapter = ModelAdapter(framework="mlx")
+
     # Load tokenizer and define vocabulary size
     tokenizer = load_tokenizer(tokenizer_name)
 
@@ -55,9 +58,6 @@ def main(regenerate_batches, prompt, model_name, tokenizer_name, framework='mlx'
     config_path = Path(f"./core/models/architectures/{model_name}/config.json")
     model_config = ModelConfig.load(config_path)
 
-    # Initialize the ModelAdapter with the specified framework
-    model_adapter = ModelAdapter(framework=framework)
-
     # Load the appropriate model
     model = CustomModel(model_config)
     model_adapter.model = model
@@ -70,7 +70,7 @@ def main(regenerate_batches, prompt, model_name, tokenizer_name, framework='mlx'
     loss_function = model_adapter.create_value_and_grad_fn(chukloss)
 
     # Load the batch data
-    batch_dataset = TrainBatchDataset(batch_output_dir, batchfile_prefix)
+    batch_dataset = TrainBatchDataset(batch_output_dir, batchfile_prefix, model_adapter=model_adapter)
 
     # Create an instance of the Trainer
     trainer = Trainer(

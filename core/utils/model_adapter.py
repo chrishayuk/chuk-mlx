@@ -36,3 +36,13 @@ class ModelAdapter:
             return value_and_grad
         elif self.framework == 'mlx':
             return nn.value_and_grad(self.model, loss_function)
+
+    def load_batch_data(self, batch_path):
+        """Load batch data based on the framework"""
+        if self.framework == 'torch':
+            # Assuming a torch-compatible format for batch loading
+            # Replace this with the actual torch data loading if needed
+            return torch.load(batch_path)
+        elif self.framework == 'mlx':
+            # Load the batch data using mlx
+            return mx.load(batch_path)

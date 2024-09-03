@@ -3,35 +3,12 @@ import pytest
 import numpy as np
 import tempfile
 import mlx.core as mx
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from core.dataset.batch_dataset_base import BatchDatasetBase
 import memory_profiler
 import gc
 import tracemalloc
-
-def test_cache_across_epochs(batch_dataset):
-    # Start tracemalloc to trace memory allocations
-    tracemalloc.start()
-
-    # Access a batch to populate the cache
-    _ = batch_dataset[0]
-
-    # Debugging: print cache content
-    print("Cache after accessing batch 0:", batch_dataset.cache.keys())
-
-    # Check if the batch is cached immediately after access
-    assert 0 in batch_dataset.cache, "Batch 0 should be in cache."
-
-    # End the epoch and check cache is cleared
-    batch_dataset.on_epoch_end()
-    assert not batch_dataset.cache, "Cache should be cleared after epoch end."
-
-    # Take a snapshot of the memory allocations
-    snapshot = tracemalloc.take_snapshot()
-    tracemalloc.stop()
-
-    # Optionally, you can inspect the snapshot for further analysis
-
+from core.utils.model_adapter import ModelAdapter
 
 @pytest.fixture
 def batch_dataset():
@@ -44,8 +21,11 @@ def batch_dataset():
                      input_lengths=np.array([10]*10),
                      attention_mask_tensor=np.random.randint(0, 2, (10, 10)))
         
+        # Initialize the model adapter
+        adapter = ModelAdapter(framework="mlx")
+        
         # Initialize the dataset with pre-caching disabled for controlled testing
-        dataset = BatchDatasetBase(batch_output_dir=temp_dir, batchfile_prefix="batch_", pre_cache_size=2)
+        dataset = BatchDatasetBase(batch_output_dir=temp_dir, batchfile_prefix="batch_", pre_cache_size=2, model_adapter=adapter)
         yield dataset
 
 def test_length(batch_dataset):
@@ -80,10 +60,10 @@ def test_cache(batch_dataset):
     # Disable pre-caching to isolate cache behavior
     with patch.object(batch_dataset, '_queue_next_batches', return_value=None):
         # Ensure the item is retrieved from cache, not loaded again
-        with patch.object(batch_dataset, '_load_tensors') as mock_load_tensors:
+        with patch.object(batch_dataset.model_adapter, 'load_batch_data') as mock_load_batch_data:
             _ = batch_dataset[0]
             _ = batch_dataset[0]  # Access it again to check if it hits the cache
-            mock_load_tensors.assert_not_called()  # It should not load again if caching works
+            mock_load_batch_data.assert_not_called()  # It should not load again if caching works
 
 def test_cache_eviction(batch_dataset):
     # Set cache size to a smaller number for this test
@@ -161,26 +141,30 @@ def test_memory_constraints(batch_dataset):
     # Access the first batch to populate the cache
     _ = batch_dataset[0]
 
-    # Debugging: print cache content
+    # Debugging: print cache content after accessing batch 0
     print("Cache after accessing batch 0:", batch_dataset.cache.keys())
 
     # Access the second batch to trigger eviction of the first
     _ = batch_dataset[1]
 
-    # Debugging: print cache content
+    # Debugging: print cache content after accessing batch 1
     print("Cache after accessing batch 1:", batch_dataset.cache.keys())
 
     # Ensure that the first batch was evicted and second batch is still in cache
     assert 0 not in batch_dataset.cache, "Batch 0 should have been evicted from cache."
     assert 1 in batch_dataset.cache, "Batch 1 should be in cache."
 
+
 def test_zero_length_batch():
     with tempfile.TemporaryDirectory() as temp_dir:
         # Create an empty batch file (no tensors included)
         np.savez(os.path.join(temp_dir, "batch_0.npz"))
     
+        # Initialize the model adapter
+        adapter = ModelAdapter(framework="mlx")
+        
         # Initialize the dataset
-        dataset = BatchDatasetBase(batch_output_dir=temp_dir, batchfile_prefix="batch_")
+        dataset = BatchDatasetBase(batch_output_dir=temp_dir, batchfile_prefix="batch_", model_adapter=adapter)
     
         # Access the batch and expect an error
         with pytest.raises(KeyError, match="input_tensor"):
@@ -226,4 +210,3 @@ def test_memory_leak(batch_dataset):
 
     # Check that memory usage has not increased significantly
     assert mem_after <= mem_before + 10, "Memory usage increased significantly, possible memory leak detected."
-

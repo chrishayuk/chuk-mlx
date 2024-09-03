@@ -5,6 +5,7 @@ import mlx.core as mx
 import mlx.nn as nn
 import logging
 from core.models.architectures.model import ModelMode
+from core.utils.model_adapter import ModelAdapter
 from core.utils.tokenizer_loader import load_tokenizer
 from training.trainer import Trainer
 from core.models.chuk_loss_function import chukloss
@@ -68,9 +69,9 @@ def create_trainer_instance(model, tokenizer, optimizer_config, checkpoint_confi
     )
     return trainer
 
-def load_batch_data(batch_config):
+def load_batch_data(batch_config, model_adapter: ModelAdapter):
     """Load the batch data."""
-    return TrainBatchDataset(batch_config['output_dir'], batch_config['file_prefix'], pre_cache_size=batch_config['pre_cache_size'])
+    return TrainBatchDataset(batch_config['output_dir'], batch_config['file_prefix'], pre_cache_size=batch_config['pre_cache_size'], model_adapter=model_adapter)
 
 def clear_output_checkpoints(checkpoint_dir):
     """Clear the output checkpoints directory."""
@@ -93,6 +94,9 @@ def main():
 
     # Clear the output checkpoints directory
     clear_output_checkpoints(checkpoint_config['output_dir'])
+
+    # Initialize the ModelAdapter with the specified framework
+    model_adapter = ModelAdapter(framework="mlx")
 
     # load the tokenizer
     tokenizer = load_tokenizer(model_config['tokenizer'])
@@ -119,7 +123,7 @@ def main():
     #     return
 
     try:
-        batch_dataset = load_batch_data(batch_config)
+        batch_dataset = load_batch_data(batch_config, model_adapter)
     except Exception as e:
         logger.error(f"Error loading batch data: {e}")
         return
