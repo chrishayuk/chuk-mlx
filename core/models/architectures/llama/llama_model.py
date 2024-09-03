@@ -1,4 +1,4 @@
-import mlx.nn as nn
+from core.models.architectures.normalization_layer_factory import NormalizationLayerFactory
 from core.models.model_config import ModelConfig
 from core.models.architectures.model import Model
 from core.models.architectures.attention_base import AttentionBase
@@ -45,8 +45,9 @@ class LlamaModel(TransformerBaseModel):
         super().__init__(
             config, 
             attention_layer=LlamaAttention,
+
             # Llama uses RMSNorm for layer normalization
-            norm_layer=lambda hidden_size, eps: nn.RMSNorm(hidden_size, eps=eps)
+            norm_layer=lambda hidden_size, eps: NormalizationLayerFactory.create_norm_layer(hidden_size, eps)
         )
         # Note: Llama does not apply additional embedding scaling,
         # so we don't override the scale_embeddings method here
