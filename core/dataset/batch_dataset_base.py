@@ -1,10 +1,10 @@
-from asyncio.log import logger
 import gc
 import os
-import mlx.core as mx
-from threading import Thread, Event
-from queue import Queue, Empty
 import traceback
+import random
+from asyncio.log import logger
+from threading import Lock, Thread, Event
+from queue import Queue, Empty
 from collections import OrderedDict
 from core.utils import model_adapter
 
@@ -21,10 +21,18 @@ class BatchDatasetBase:
         self.current_index = -1
         self.epoch = 0
         self.stop_event = Event()
+        self.shuffle = shuffle
         self.model_adapter = model_adapter  # Framework-specific model adapter
+
+        # cache lock
+        self.cache_lock = Lock() 
 
         # Load the list of batch files
         self._load_batch_files()
+
+        # Shuffle batch files if shuffle=True
+        if self.shuffle:
+            random.shuffle(self.batch_files)
 
         # Start a thread for pre-caching batches
         self._start_pre_caching()
@@ -52,9 +60,8 @@ class BatchDatasetBase:
             input_tensor = batch_data['input_tensor']
             target_tensor = batch_data['target_tensor']
             attention_mask_tensor = batch_data['attention_mask_tensor']
-            lengths = self.model_adapter.to_tensor(batch_data.get('input_lengths', [len(seq) for seq in input_tensor]))
 
-            return input_tensor, target_tensor, attention_mask_tensor, lengths
+            return input_tensor, target_tensor, attention_mask_tensor
         except FileNotFoundError as e:
             logger.error(f"Error loading batch file {batch_file}: {str(e)}")
             raise
@@ -77,17 +84,27 @@ class BatchDatasetBase:
                 if index is None:
                     break
 
+                # Log the batch being processed in the pre-cache worker
+                logger.info(f"Pre-cache worker: Attempting to load batch {index}")
+
                 # Load the batch and cache it if not already cached
                 if index not in self.cache and index < len(self.batch_files):
                     batch_file = self._get_batch_file(index)
                     tensors = self._load_tensors(batch_file)
-                    self.cache[index] = tensors
-                    self.cache.move_to_end(index)  # Maintain LRU order
 
-                    # Evict the oldest entry if the cache exceeds its size limit
-                    while len(self.cache) > self.cache_size:
-                        oldest_key = next(iter(self.cache))
-                        del self.cache[oldest_key]
+                    # Acquire lock to ensure cache synchronization
+                    with self.cache_lock:
+                        self.cache[index] = tensors
+                        self.cache.move_to_end(index)  # Maintain LRU order
+
+                        # Log the cache status
+                        logger.info(f"Pre-cache worker: Cached batch {index}. Current cache keys: {list(self.cache.keys())}")
+
+                        # Evict the oldest entry if the cache exceeds its size limit
+                        if len(self.cache) > self.cache_size:
+                            oldest_key = next(iter(self.cache))
+                            del self.cache[oldest_key]
+                            logger.info(f"Pre-cache worker: Evicted batch {oldest_key} due to cache size limit.")
 
                 self.load_queue.task_done()
             except Empty:
@@ -97,16 +114,6 @@ class BatchDatasetBase:
                 logger.error(f"Traceback: {traceback.format_exc()}")
             finally:
                 pass  # Placeholder for any necessary cleanup
-
-    def _start_pre_caching(self):
-        # Start the pre-cache worker thread
-        self.pre_cache_thread = Thread(target=self._pre_cache_worker)
-        self.pre_cache_thread.daemon = True
-        self.pre_cache_thread.start()
-
-    def _get_batch_file(self, index):
-        # Return the batch file at the given index
-        return self.batch_files[index]
 
     def __getitem__(self, index):
         # Fetch the batch at the specified index
@@ -118,20 +125,35 @@ class BatchDatasetBase:
             self._queue_next_batches(index + 1)
             self.current_index = index
 
-        # Load and cache the batch if not already cached
-        if index not in self.cache:
-            batch_file = self._get_batch_file(index)
-            self.cache[index] = self._load_tensors(batch_file)
-            self.cache.move_to_end(index)  # Maintain LRU order
+        # Acquire lock to synchronize cache access
+        with self.cache_lock:
+            # Load and cache the batch if not already cached
+            if index not in self.cache:
+                batch_file = self._get_batch_file(index)
+                self.cache[index] = self._load_tensors(batch_file)
+                self.cache.move_to_end(index)  # Maintain LRU order
 
-            # Evict the oldest entry if the cache exceeds its size limit
-            if len(self.cache) > self.cache_size:
-                evicted_index, _ = self.cache.popitem(last=False)
-                next_index = max(index + 1, evicted_index + 1)
-                if next_index < len(self.batch_files):
-                    self.load_queue.put(next_index)
+                # Evict the oldest entry if the cache exceeds its size limit
+                if len(self.cache) > self.cache_size:
+                    evicted_index, _ = self.cache.popitem(last=False)
+                    next_index = max(index + 1, evicted_index + 1)
+                    if next_index < len(self.batch_files):
+                        self.load_queue.put(next_index)
+
+            # Log cache status after accessing a batch
+            logger.info(f"Main thread: Accessed batch {index}. Current cache keys: {list(self.cache.keys())}")
 
         return self.cache[index]
+
+    def _start_pre_caching(self):
+        # Start the pre-cache worker thread
+        self.pre_cache_thread = Thread(target=self._pre_cache_worker)
+        self.pre_cache_thread.daemon = True
+        self.pre_cache_thread.start()
+
+    def _get_batch_file(self, index):
+        # Return the batch file at the given index
+        return self.batch_files[index]
 
     def __len__(self):
         # Return the total number of batches
@@ -141,23 +163,35 @@ class BatchDatasetBase:
         # Cleanup resources and stop pre-caching thread
         try:
             if hasattr(self, 'load_queue'):
-                self.stop_event.set()  # Signal the thread to stop
-                self.load_queue.put(None)  # Unblock the queue
-                self.pre_cache_thread.join(timeout=5)  # Wait for the thread to finish
+                # Signal the thread to stop
+                self.stop_event.set()
+
+                # Unblock the queue
+                self.load_queue.put(None)  
+
+                # clean up the thread
+                if hasattr(self, 'pre_cache_thread') and self.pre_cache_thread.is_alive():
+                    self.pre_cache_thread.join(timeout=5)  # Wait for the thread to finish
         finally:
             gc.collect()  # Invoke garbage collection to free memory
 
     def on_epoch_end(self):
         # Stop pre-caching to prevent further cache modifications
         self.stop_event.set()
-        self.load_queue.put(None)  # Ensure the pre-cache thread can exit
+
+        # Ensure the pre-cache thread can exit
+        self.load_queue.put(None)  
         self.pre_cache_thread.join(timeout=5)
 
         # Move to the next epoch
         self.epoch += 1
         
-        # Clear the cache
-        self.cache.clear()  # Clear the cache at the end of each epoch
+        # Shuffle batch files if shuffle=True
+        if self.shuffle:
+            random.shuffle(self.batch_files)
+
+        # Clear the cache at the end of each epoch
+        self.cache.clear()  
         
         # Reset the index
         self.current_index = -1
@@ -168,4 +202,3 @@ class BatchDatasetBase:
         # Restart the pre-caching thread for the next epoch
         self.stop_event.clear()
         self._start_pre_caching()
-

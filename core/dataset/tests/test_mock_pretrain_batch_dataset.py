@@ -32,25 +32,16 @@ def test_length(mock_dataset):
 
 def test_batch_structure(mock_dataset):
     # Test that batches have the correct shape
-    input_tensor, target_tensor, attention_mask_tensor, lengths = mock_dataset[0]
+    input_tensor, target_tensor, attention_mask_tensor = mock_dataset[0]
 
     # Check shapes of the tensors
     assert input_tensor.shape == (8, 10)  # batch_size, seq_length
     assert target_tensor.shape == (8, 10)  # batch_size, seq_length
     assert attention_mask_tensor.shape == (8, 10)  # attention mask should match input tensor shape
-    assert lengths.shape == (8,)  # batch_size, should be 1D array
-
-def test_lengths(mock_dataset):
-    # Test that lengths are correctly calculated and returned
-    input_tensor, target_tensor, attention_mask_tensor, lengths = mock_dataset[0]
-    
-    # All lengths should be equal to seq_length
-    assert np.array_equal(lengths, np.full((8,), 10))
-    assert attention_mask_tensor.shape == (8, 10)
 
 def test_attention_mask(mock_dataset):
     # Test that attention mask is properly generated and used
-    input_tensor, target_tensor, attention_mask_tensor, lengths = mock_dataset[0]
+    input_tensor, target_tensor, attention_mask_tensor = mock_dataset[0]
 
     # Convert to NumPy array with the correct dtype
     attention_mask_tensor = np.array(attention_mask_tensor, dtype=np.int32)
@@ -89,14 +80,9 @@ def test_integration_with_base_class(mock_dataset):
     assert len(mock_dataset) == mock_dataset.num_batches
 
     # Check retrieval of a batch using the base class method
-    input_tensor, target_tensor, attention_mask, lengths = mock_dataset[0]
-
-    # Convert lengths to a NumPy array with the correct dtype
-    lengths = np.array(lengths, dtype=np.int32)
+    input_tensor, target_tensor, attention_mask = mock_dataset[0]
 
     assert input_tensor.shape == (8, 10)
     assert target_tensor.shape == (8, 10)
-    assert lengths.shape == (8,), f"Lengths array shape mismatch: expected (8,), got {lengths.shape}"
-    assert np.array_equal(lengths, np.full((8,), 10)), "Lengths array does not match the expected values."
     assert attention_mask.shape == (8, 10)
 

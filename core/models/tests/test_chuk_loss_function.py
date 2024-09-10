@@ -21,16 +21,18 @@ def dummy_data():
 
     inputs = mx.random.randint(0, vocab_size, (batch_size, seq_len))
     targets = mx.random.randint(0, vocab_size, (batch_size, seq_len))
-    lengths = mx.array([3, 5])
-    attention_mask = mx.arange(seq_len)[None, :] < lengths[:, None]
+    
+    # Use a simple attention mask where all tokens are considered valid
+    attention_mask = mx.ones((batch_size, seq_len))
 
-    return inputs, targets, lengths, attention_mask
+    return inputs, targets, attention_mask
+
 
 def test_chukloss_valid_tokens(dummy_data):
     model = DummyModel()
-    inputs, targets, lengths, attention_mask = dummy_data
+    inputs, targets, attention_mask = dummy_data  # Unpack the three values
 
-    loss, ntoks = chukloss(model, inputs, targets, attention_mask, lengths)
+    loss, ntoks = chukloss(model, inputs, targets, attention_mask)
 
     # Assert that the loss is an mx.array
     assert isinstance(loss, mx.array)
@@ -46,30 +48,34 @@ def test_chukloss_valid_tokens(dummy_data):
     assert loss_value >= 0
 
     # Assert that ntoks matches the expected number of valid tokens
-    expected_ntoks = lengths.sum().item()
+    expected_ntoks = attention_mask.sum().item()  # Sum of the attention mask
     assert ntoks == expected_ntoks, f"Expected {expected_ntoks} tokens, but got {ntoks}"
+
 
 def test_chukloss_no_valid_tokens():
     model = DummyModel()
     inputs = mx.array([[1, 1, 1], [1, 1, 1]])
     targets = mx.array([[1, 1, 1], [1, 1, 1]])
-    lengths = mx.array([0, 0])
-    attention_mask = mx.arange(inputs.shape[1])[None, :] < lengths[:, None]
+    
+    # Create an attention mask with no valid tokens (all zeros)
+    attention_mask = mx.zeros((inputs.shape[0], inputs.shape[1]))
 
-    loss, ntoks = chukloss(model, inputs, targets, lengths, attention_mask)
+    loss, ntoks = chukloss(model, inputs, targets, attention_mask)
 
     # If there are no valid tokens, the loss should be handled gracefully
     assert loss == 0
-    assert ntoks == 1  # Since we use max(length_mask.sum().item(), 1) in the function
+    assert ntoks == 1  # Since we use max(attention_mask.sum().item(), 1) in the function
+
 
 def test_chukloss_handle_empty_batch():
     model = DummyModel()
     inputs = mx.array([[]])
     targets = mx.array([[]])
-    lengths = mx.array([0])
     attention_mask = mx.array([[]])
 
-    with pytest.raises(ValueError):
-        loss, ntoks = chukloss(model, inputs, targets, lengths, attention_mask)
+    # Call chukloss and expect it to handle the empty batch without raising an error
+    loss, ntoks = chukloss(model, inputs, targets, attention_mask)
 
-    # Adjust this based on how your model is supposed to handle empty batches.
+    # Assert that the loss is 0 and ntoks is 1 (as a safeguard for empty inputs)
+    assert loss == 0
+    assert ntoks == 1

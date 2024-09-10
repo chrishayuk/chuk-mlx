@@ -10,7 +10,7 @@ from core.models.mlp.torch.swiglu_mlp import MLP as TorchSwiGLUMLP
 from core.models.mlp.torch.gelu_glu_mlp import MLP as TorchGeluGLUMLP
 from core.models.mlp.torch.relu_mlp import MLP as TorchReLUMlp  # Torch ReLU MLP
 
-def create_mlp(config: ModelConfig, framework: str = "torch"):
+def create_mlp(config: ModelConfig, framework: str = "mlx"):
     """
     Factory function to create the appropriate MLP based on the model configuration.
     Supports MLX and PyTorch frameworks and activation functions SwiGLU, GELU, and ReLU.

@@ -2,12 +2,10 @@ import os
 import pytest
 import numpy as np
 import tempfile
-import mlx.core as mx
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from core.dataset.batch_dataset_base import BatchDatasetBase
 import memory_profiler
 import gc
-import tracemalloc
 from core.utils.model_adapter import ModelAdapter
 
 @pytest.fixture
@@ -18,7 +16,6 @@ def batch_dataset():
             np.savez(os.path.join(temp_dir, f"batch_{i}.npz"), 
                      input_tensor=np.random.rand(10, 10), 
                      target_tensor=np.random.rand(10), 
-                     input_lengths=np.array([10]*10),
                      attention_mask_tensor=np.random.randint(0, 2, (10, 10)))
         
         # Initialize the model adapter
@@ -34,12 +31,9 @@ def test_length(batch_dataset):
 
 def test_getitem(batch_dataset):
     # Test that __getitem__ returns the correct shapes
-    input_tensor, target_tensor, attention_mask_tensor, lengths = batch_dataset[0]
+    input_tensor, target_tensor, attention_mask_tensor = batch_dataset[0]
     assert input_tensor.shape == (10, 10)
     assert target_tensor.shape == (10,)
-    
-    # Check if lengths should be 1D
-    assert lengths.shape == (10,), f"Expected lengths shape to be (10,), got {lengths.shape}"
     
     # Verify attention mask shape if necessary
     assert attention_mask_tensor.shape == (10, 10), f"Expected attention_mask shape to be (10, 10), got {attention_mask_tensor.shape}"
