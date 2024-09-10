@@ -21,9 +21,9 @@ class BatchProcessor:
         # Initialize variables
         expected_tokens = 0
 
-        if isinstance(batch, tuple) and len(batch) == 4:
+        if isinstance(batch, tuple) and len(batch) == 3:
             # get the tensors from the batch
-            input_tensor, target_tensor, attention_mask_tensor, _ = batch
+            input_tensor, target_tensor, attention_mask_tensor = batch
 
             # get the expected tokens
             expected_tokens = input_tensor.shape[0] * input_tensor.shape[1]

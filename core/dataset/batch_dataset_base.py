@@ -85,7 +85,7 @@ class BatchDatasetBase:
                     break
 
                 # Log the batch being processed in the pre-cache worker
-                logger.info(f"Pre-cache worker: Attempting to load batch {index}")
+                logger.debug(f"Pre-cache worker: Attempting to load batch {index}")
 
                 # Load the batch and cache it if not already cached
                 if index not in self.cache and index < len(self.batch_files):
@@ -98,7 +98,7 @@ class BatchDatasetBase:
                         self.cache.move_to_end(index)  # Maintain LRU order
 
                         # Log the cache status
-                        logger.info(f"Pre-cache worker: Cached batch {index}. Current cache keys: {list(self.cache.keys())}")
+                        logger.debug(f"Pre-cache worker: Cached batch {index}. Current cache keys: {list(self.cache.keys())}")
 
                         # Evict the oldest entry if the cache exceeds its size limit
                         if len(self.cache) > self.cache_size:
@@ -141,7 +141,7 @@ class BatchDatasetBase:
                         self.load_queue.put(next_index)
 
             # Log cache status after accessing a batch
-            logger.info(f"Main thread: Accessed batch {index}. Current cache keys: {list(self.cache.keys())}")
+            logger.debug(f"Main thread: Accessed batch {index}. Current cache keys: {list(self.cache.keys())}")
 
         return self.cache[index]
 
