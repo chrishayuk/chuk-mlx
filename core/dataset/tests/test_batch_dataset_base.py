@@ -54,7 +54,7 @@ def test_cache(batch_dataset):
     # Disable pre-caching to isolate cache behavior
     with patch.object(batch_dataset, '_queue_next_batches', return_value=None):
         # Ensure the item is retrieved from cache, not loaded again
-        with patch.object(batch_dataset.model_adapter, 'load_batch_data') as mock_load_batch_data:
+        with patch.object(batch_dataset.model_adapter, 'load_tensor_from_file') as mock_load_batch_data:
             _ = batch_dataset[0]
             _ = batch_dataset[0]  # Access it again to check if it hits the cache
             mock_load_batch_data.assert_not_called()  # It should not load again if caching works

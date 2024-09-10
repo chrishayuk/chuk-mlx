@@ -37,7 +37,7 @@ class ModelAdapter:
         elif self.framework == 'mlx':
             return nn.value_and_grad(self.model, loss_function)
 
-    def load_batch_data(self, batch_path):
+    def load_tensor_from_file(self, batch_path):
         """Load batch data based on the framework"""
         if self.framework == 'torch':
             # Assuming a torch-compatible format for batch loading

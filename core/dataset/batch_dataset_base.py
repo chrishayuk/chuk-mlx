@@ -54,7 +54,7 @@ class BatchDatasetBase:
                 raise FileNotFoundError(f"Batch file {batch_file} does not exist at path {batch_path}")
             
             # Use the ModelAdapter to load the batch data in the correct framework format
-            batch_data = self.model_adapter.load_batch_data(batch_path)
+            batch_data = self.model_adapter.load_tensor_from_file(batch_path)
 
             # Extract and return tensors from the loaded batch data
             input_tensor = batch_data['input_tensor']
