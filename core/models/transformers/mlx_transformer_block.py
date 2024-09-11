@@ -56,30 +56,21 @@ class MLXTransformerBlock(BaseTransformerBlock, nn.Module):
         # Residual connection for MLP output
         hidden_states = mx.add(hidden_states, mlp_output)
 
+        # TODO: feel this could be improved
+        # Apply mask directly, avoiding redundant operations
         if attention_mask is not None:
-            #print(f"Attention mask values before expansion: {attention_mask}")
-            
-            # Convert to a binary mask: 1 for valid tokens, 0 for masked tokens
+            # Convert to binary mask: 1 for valid tokens, 0 for masked tokens
             binary_attention_mask = mx.where(attention_mask < 0, mx.zeros_like(attention_mask), mx.ones_like(attention_mask))
 
-            # Reduce the mask to (batch_size, seq_length)
-            if len(attention_mask.shape) == 2:  # Handling a 2D (seq_length, seq_length) mask
+            # If attention_mask is 2D (seq_length, seq_length), reduce it to (seq_length)
+            if len(attention_mask.shape) == 2:
                 binary_attention_mask = mx.diagonal(binary_attention_mask)  # Shape: (seq_length)
 
-            # Ensure the binary mask is aligned with the hidden states
-            binary_attention_mask = mx.expand_dims(binary_attention_mask, axis=0)  # Shape: (1, seq_length)
-            binary_attention_mask = mx.broadcast_to(binary_attention_mask, (hidden_states.shape[0], binary_attention_mask.shape[1]))  # Shape: (batch_size, seq_length)
-
-            # Expand along the hidden size dimension to match hidden_states (batch_size, seq_length, hidden_size)
+            # Align binary mask directly with hidden states (batch_size, seq_length)
             binary_attention_mask = mx.expand_dims(binary_attention_mask, axis=-1)  # Shape: (batch_size, seq_length, 1)
-            binary_attention_mask = mx.broadcast_to(binary_attention_mask, hidden_states.shape)  # Shape: (batch_size, seq_length, hidden_size)
 
-            # Apply the binary mask to hidden_states
-            hidden_states = mx.multiply(hidden_states, binary_attention_mask)
-
-            # Print for debugging
-            #print(f"Binary attention mask applied: {binary_attention_mask}")
-            #print(f"Hidden states after applying binary mask: {hidden_states}")
+            # Apply the mask to hidden_states (batch_size, seq_length, hidden_size) in one step
+            hidden_states = hidden_states * binary_attention_mask  # Broadcasting happens implicitly here
 
         return hidden_states, cache
 
