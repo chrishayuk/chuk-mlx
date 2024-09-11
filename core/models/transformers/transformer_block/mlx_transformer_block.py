@@ -3,7 +3,7 @@ import mlx.nn as nn
 from typing import Optional, Tuple, Callable, Type
 from core.models.mlp.mlp_factory import create_mlp
 from core.models.model_config import ModelConfig
-from core.models.transformers.base_transformer_block import BaseTransformerBlock
+from core.models.transformers.transformer_block.base_transformer_block import BaseTransformerBlock
 
 class MLXTransformerBlock(BaseTransformerBlock, nn.Module):
     def __init__(self, config: ModelConfig, attention_layer: Type[nn.Module], norm_layer: Callable[[int, float], nn.Module]):

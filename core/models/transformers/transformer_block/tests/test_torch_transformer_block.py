@@ -1,5 +1,5 @@
 import torch
-from core.models.transformers.torch_transformer_block import TorchTransformerBlock
+from core.models.transformers.transformer_block.torch_transformer_block import TorchTransformerBlock
 
 # Mock MLP creation function (to avoid using the actual implementation)
 def mock_create_mlp(config):

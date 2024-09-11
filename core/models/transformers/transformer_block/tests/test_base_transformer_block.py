@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 import torch
-from core.models.transformers.base_transformer_block import BaseTransformerBlock
+from core.models.transformers.transformer_block.base_transformer_block import BaseTransformerBlock
 
 # Basic config for testing
 class MockConfig:

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from typing import Callable, Optional, Tuple, Type
 from core.models.model_config import ModelConfig
-from core.models.transformers.base_transformer_block import BaseTransformerBlock
+from core.models.transformers.transformer_block.base_transformer_block import BaseTransformerBlock
 from core.models.mlp.mlp_factory import create_mlp
 
 class TorchTransformerBlock(BaseTransformerBlock, nn.Module):

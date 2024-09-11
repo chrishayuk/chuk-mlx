@@ -1,7 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
-from mlx_transformer_block import MLXTransformerBlock  # Assuming this is your MLXTransformerBlock file
+from core.models.transformers.transformer_block.mlx_transformer_block import MLXTransformerBlock
 
 # Mock attention and norm layers for the MLXTransformerBlock
 class MockAttention(nn.Module):
