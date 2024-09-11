@@ -10,6 +10,12 @@ class MLXTransformerBlock(BaseTransformerBlock, nn.Module):
         nn.Module.__init__(self)  # Initialize MLX nn.Module
         BaseTransformerBlock.__init__(self, config, attention_layer, norm_layer)
 
+        #  set the hidden size
+        self.hidden_size = config.hidden_size
+
+        # create the attention layer
+        self.self_attn = attention_layer(config)
+
         # Create MLP layer
         self.mlp = self.create_mlp(config)  # Use the overridden method
 
@@ -22,7 +28,7 @@ class MLXTransformerBlock(BaseTransformerBlock, nn.Module):
 
     def create_mlp(self, config):
         # MLX-specific MLP creation
-        return create_mlp(config)  # Assuming this is the function that creates the MLP
+        return create_mlp(config)
 
     def __call__(self, 
                  hidden_states: mx.array, 
@@ -30,38 +36,60 @@ class MLXTransformerBlock(BaseTransformerBlock, nn.Module):
                  cache: Optional[Tuple[mx.array, mx.array]] = None) -> Tuple[mx.array, Optional[Tuple[mx.array, mx.array]]]:
         return self.forward(hidden_states, attention_mask, cache)
 
+
     def forward(self, 
-            hidden_states: mx.array, 
-            attention_mask: Optional[mx.array] = None, 
-            cache: Optional[Tuple[mx.array, mx.array]] = None) -> Tuple[mx.array, Optional[Tuple[mx.array, mx.array]]]:
+                hidden_states: mx.array, 
+                attention_mask: Optional[mx.array] = None, 
+                cache: Optional[Tuple[mx.array, mx.array]] = None) -> Tuple[mx.array, Optional[Tuple[mx.array, mx.array]]]:
+        
         # Self-attention
         normed_hidden_states = self.input_layernorm(hidden_states)
         attention_output, cache = self.self_attn(normed_hidden_states, attention_mask, cache)
         
         # Residual connection for attention output
         hidden_states = hidden_states + attention_output
-        
-        # Apply the mask again after the residual connection
-        if attention_mask is not None:
-            # Expand the mask to match the shape of hidden_states
-            attention_mask_expanded = mx.expand_dims(attention_mask, axis=-1)
-            attention_mask_expanded = mx.broadcast_to(attention_mask_expanded, hidden_states.shape)
-            
-            # Apply the mask: set values to zero where mask is zero
-            hidden_states = mx.multiply(hidden_states, attention_mask_expanded)
 
         # Post-attention normalization and MLP
         normed_hidden_states = self.post_attention_layernorm(hidden_states)
         mlp_output = self.mlp(normed_hidden_states)
         
         # Residual connection for MLP output
-        hidden_states = hidden_states + mlp_output
-        
-        # Apply the mask again after the MLP residual connection
-        if attention_mask is not None:
-            hidden_states = mx.multiply(hidden_states, attention_mask_expanded)
+        hidden_states = mx.add(hidden_states, mlp_output)
+
+        # if attention_mask is not None:
+        #     # Check the attention mask values before applying
+        #     print(f"Attention mask values before expansion: {attention_mask}")
+            
+        #     # If the attention mask is 2D, reduce it to seq_length
+        #     if len(attention_mask.shape) == 2:
+        #         attention_mask = mx.diagonal(attention_mask)  # Shape: (seq_length)
+
+        #     # Expand the mask to include the batch dimension
+        #     attention_mask = mx.expand_dims(attention_mask, axis=0)  # Shape: (1, seq_length)
+        #     attention_mask = mx.broadcast_to(attention_mask, (hidden_states.shape[0], attention_mask.shape[1]))  # Shape: (batch_size, seq_length)
+
+        #     # Expand along the hidden size dimension to match hidden_states
+        #     attention_mask = mx.expand_dims(attention_mask, axis=-1)  # Shape: (batch_size, seq_length, 1)
+        #     attention_mask = mx.broadcast_to(attention_mask, hidden_states.shape)  # Shape: (batch_size, seq_length, hidden_size)
+
+        #     # Check the expanded mask
+        #     print(f"Expanded mask shape: {attention_mask.shape}")
+        #     print(f"Expanded mask values: {attention_mask}")
+
+        #     # Apply the mask to hidden_states
+        #     masked_hidden_states = mx.multiply(hidden_states, attention_mask)
+
+        #     # Check the masked hidden states
+        #     print(f"Masked hidden states: {masked_hidden_states}")
+
+        #     # Set the masked hidden states back to hidden_states
+        #     hidden_states = masked_hidden_states
 
         # Return the outputs
         return hidden_states, cache
+
+
+
+
 
 

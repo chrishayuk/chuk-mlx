@@ -1,8 +1,8 @@
 import mlx.core as mx
 import mlx.nn as nn
 from core.models.model_config import ModelConfig
-#from core.models.transformers.mlx_transformer_block import MLXTransformerBlock
-from core.models.architectures.transformer_block import TransformerBlock
+from core.models.transformers.mlx_transformer_block import MLXTransformerBlock
+#from core.models.architectures.transformer_block import TransformerBlock
 
 class TransformerBaseModel(nn.Module):
     def __init__(self, config: ModelConfig, attention_layer, norm_layer):
@@ -16,7 +16,7 @@ class TransformerBaseModel(nn.Module):
         
         # Construct the layers
         self.layers = [
-            TransformerBlock(
+            MLXTransformerBlock(
                 config=config,
                 attention_layer=attention_layer,
                 norm_layer=norm_layer
