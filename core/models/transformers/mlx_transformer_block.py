@@ -38,10 +38,10 @@ class MLXTransformerBlock(BaseTransformerBlock, nn.Module):
 
 
     def forward(self, 
-                hidden_states: mx.array, 
-                attention_mask: Optional[mx.array] = None, 
-                cache: Optional[Tuple[mx.array, mx.array]] = None) -> Tuple[mx.array, Optional[Tuple[mx.array, mx.array]]]:
-        
+            hidden_states: mx.array, 
+            attention_mask: Optional[mx.array] = None, 
+            cache: Optional[Tuple[mx.array, mx.array]] = None) -> Tuple[mx.array, Optional[Tuple[mx.array, mx.array]]]:
+    
         # Self-attention
         normed_hidden_states = self.input_layernorm(hidden_states)
         attention_output, cache = self.self_attn(normed_hidden_states, attention_mask, cache)
@@ -56,37 +56,33 @@ class MLXTransformerBlock(BaseTransformerBlock, nn.Module):
         # Residual connection for MLP output
         hidden_states = mx.add(hidden_states, mlp_output)
 
-        # if attention_mask is not None:
-        #     # Check the attention mask values before applying
-        #     print(f"Attention mask values before expansion: {attention_mask}")
+        if attention_mask is not None:
+            #print(f"Attention mask values before expansion: {attention_mask}")
             
-        #     # If the attention mask is 2D, reduce it to seq_length
-        #     if len(attention_mask.shape) == 2:
-        #         attention_mask = mx.diagonal(attention_mask)  # Shape: (seq_length)
+            # Convert to a binary mask: 1 for valid tokens, 0 for masked tokens
+            binary_attention_mask = mx.where(attention_mask < 0, mx.zeros_like(attention_mask), mx.ones_like(attention_mask))
 
-        #     # Expand the mask to include the batch dimension
-        #     attention_mask = mx.expand_dims(attention_mask, axis=0)  # Shape: (1, seq_length)
-        #     attention_mask = mx.broadcast_to(attention_mask, (hidden_states.shape[0], attention_mask.shape[1]))  # Shape: (batch_size, seq_length)
+            # Reduce the mask to (batch_size, seq_length)
+            if len(attention_mask.shape) == 2:  # Handling a 2D (seq_length, seq_length) mask
+                binary_attention_mask = mx.diagonal(binary_attention_mask)  # Shape: (seq_length)
 
-        #     # Expand along the hidden size dimension to match hidden_states
-        #     attention_mask = mx.expand_dims(attention_mask, axis=-1)  # Shape: (batch_size, seq_length, 1)
-        #     attention_mask = mx.broadcast_to(attention_mask, hidden_states.shape)  # Shape: (batch_size, seq_length, hidden_size)
+            # Ensure the binary mask is aligned with the hidden states
+            binary_attention_mask = mx.expand_dims(binary_attention_mask, axis=0)  # Shape: (1, seq_length)
+            binary_attention_mask = mx.broadcast_to(binary_attention_mask, (hidden_states.shape[0], binary_attention_mask.shape[1]))  # Shape: (batch_size, seq_length)
 
-        #     # Check the expanded mask
-        #     print(f"Expanded mask shape: {attention_mask.shape}")
-        #     print(f"Expanded mask values: {attention_mask}")
+            # Expand along the hidden size dimension to match hidden_states (batch_size, seq_length, hidden_size)
+            binary_attention_mask = mx.expand_dims(binary_attention_mask, axis=-1)  # Shape: (batch_size, seq_length, 1)
+            binary_attention_mask = mx.broadcast_to(binary_attention_mask, hidden_states.shape)  # Shape: (batch_size, seq_length, hidden_size)
 
-        #     # Apply the mask to hidden_states
-        #     masked_hidden_states = mx.multiply(hidden_states, attention_mask)
+            # Apply the binary mask to hidden_states
+            hidden_states = mx.multiply(hidden_states, binary_attention_mask)
 
-        #     # Check the masked hidden states
-        #     print(f"Masked hidden states: {masked_hidden_states}")
+            # Print for debugging
+            #print(f"Binary attention mask applied: {binary_attention_mask}")
+            #print(f"Hidden states after applying binary mask: {hidden_states}")
 
-        #     # Set the masked hidden states back to hidden_states
-        #     hidden_states = masked_hidden_states
-
-        # Return the outputs
         return hidden_states, cache
+
 
 
 
