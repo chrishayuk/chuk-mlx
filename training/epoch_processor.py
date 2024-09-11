@@ -64,7 +64,6 @@ class EpochProcessor:
                     # Calculate epoch stats
                     epoch_loss += batch_metrics["loss"]
                     epoch_tokens += batch_metrics["ntoks"]
-                    epoch_theoretical_tokens += batch_metrics["expected_tokens"]
                     batch_times.append(process_time)
 
                     # Increment the batch count and iteration
@@ -99,7 +98,8 @@ class EpochProcessor:
                     logger.error(f"Error processing batch at index {batch_index}: {str(e)}")
                     logger.error(f"Batch type: {type(batch)}")
                     logger.error(f"Batch content: {batch}")
-                    continue
+                    #continue
+                    raise
 
                 finally:
                     # Ensure that memory is freed after each batch

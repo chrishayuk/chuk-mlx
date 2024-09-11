@@ -39,7 +39,6 @@ class Trainer:
         total_epoch_time = 0
         iteration_count = 0
         total_tokens = 0
-        total_theoretical_tokens = 0
 
         # Loop through each epoch
         for epoch in range(num_epochs):
@@ -49,7 +48,6 @@ class Trainer:
             # Update epoch metrics
             iteration_count = epoch_metrics["iteration_count"]
             total_tokens += epoch_metrics["epoch_tokens"]
-            total_theoretical_tokens += epoch_metrics["epoch_theoretical_tokens"]
             total_batch_time += epoch_metrics["total_batch_time"]
             total_epoch_time += epoch_metrics["epoch_time"]
 
@@ -59,13 +57,12 @@ class Trainer:
 
         # Calculate the actual tokens per second, and theoretical tokens per second
         actual_tokens_per_second = total_tokens / total_epoch_time if total_epoch_time > 0 else 0
-        theoretical_tokens_per_second = total_theoretical_tokens / total_epoch_time if total_epoch_time > 0 else 0
 
         # Log out the results
         logger.info(f"Total training time: {total_epoch_time:.3f}s")
         logger.info(f"Total iterations: {iteration_count}")
         logger.info(f"Average batch time: {total_batch_time / iteration_count if iteration_count > 0 else 0:.3f}s")
-        logger.info(f"Tokens per second: {actual_tokens_per_second:.2f} (Actual) / {theoretical_tokens_per_second:.2f} (Theoretical)")
+        logger.info(f"Tokens per second: {actual_tokens_per_second:.2f}")
 
         # Save the final model
         self.save_final_model()

@@ -41,9 +41,9 @@ def test_process_epoch():
 
     # Mock the return value of process_batch for each batch
     batch_processor.process_batch.side_effect = [
-        {"loss": 1.0, "ntoks": 100, "expected_tokens": 100, "batch_time": 1.0, "lr_before_update": 0.001},
-        {"loss": 0.8, "ntoks": 100, "expected_tokens": 100, "batch_time": 1.0, "lr_before_update": 0.001},
-        {"loss": 0.6, "ntoks": 100, "expected_tokens": 100, "batch_time": 1.0, "lr_before_update": 0.001},
+        {"loss": 1.0, "ntoks": 100, "batch_time": 1.0, "lr_before_update": 0.001},
+        {"loss": 0.8, "ntoks": 100, "batch_time": 1.0, "lr_before_update": 0.001},
+        {"loss": 0.6, "ntoks": 100, "batch_time": 1.0, "lr_before_update": 0.001},
     ]
 
     # Mock the save_checkpoint method
@@ -58,7 +58,6 @@ def test_process_epoch():
     # Assertions
     assert result["iteration_count"] == 3
     assert result["epoch_tokens"] == 300
-    assert result["epoch_theoretical_tokens"] == 300
     assert result["total_batch_time"] == 3.0  # Should match the mocked total time
     assert result["epoch_time"] >= 3.0  # The epoch time should be at least the total time
 
@@ -125,9 +124,9 @@ def test_epoch_loss_calculation():
 
     # Mock return values for each batch
     batch_processor.process_batch.side_effect = [
-        {"loss": 1.0, "ntoks": 100, "expected_tokens": 100, "batch_time": 1.0, "lr_before_update": 0.001},
-        {"loss": 0.8, "ntoks": 100, "expected_tokens": 100, "batch_time": 1.0, "lr_before_update": 0.001},
-        {"loss": 0.6, "ntoks": 100, "expected_tokens": 100, "batch_time": 1.0, "lr_before_update": 0.001},
+        {"loss": 1.0, "ntoks": 100, "batch_time": 1.0, "lr_before_update": 0.001},
+        {"loss": 0.8, "ntoks": 100, "batch_time": 1.0, "lr_before_update": 0.001},
+        {"loss": 0.6, "ntoks": 100, "batch_time": 1.0, "lr_before_update": 0.001},
     ]
 
     with patch('training.epoch_processor.tqdm', MagicMock()), patch('time.time', side_effect=time_generator()):

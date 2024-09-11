@@ -40,14 +40,12 @@ def test_update_progress_bar():
     batch_metrics = {
         "loss": 0.5,
         "ntoks": 1024,
-        "expected_tokens": 2048,
         "batch_time": 2.0,
         "lr_before_update": 0.001
     }
     
     # Expected calculations
     expected_actual_tokens_per_second = batch_metrics["ntoks"] / batch_metrics["batch_time"]
-    expected_theoretical_tokens_per_second = batch_metrics["expected_tokens"] / batch_metrics["batch_time"]
     
     # Call the function
     update_progress_bar(batch_progress, batch_index, batch_metrics, progress_interval)

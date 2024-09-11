@@ -34,18 +34,23 @@ def calculate_epoch_metrics(epoch_start_time, batch_times, epoch_tokens, epoch_t
 def update_progress_bar(batch_progress, batch_index, batch_metrics, progress_interval):
     # check the progress interval
     if batch_index % progress_interval == 0:
+        # convert to float or int for formatting
+        ntoks = batch_metrics["ntoks"].item() if hasattr(batch_metrics["ntoks"], 'item') else batch_metrics["ntoks"]
+        batch_time = batch_metrics["batch_time"].item() if hasattr(batch_metrics["batch_time"], 'item') else batch_metrics["batch_time"]
+        lr_before_update = batch_metrics["lr_before_update"].item() if hasattr(batch_metrics["lr_before_update"], 'item') else batch_metrics["lr_before_update"]
+
         # calculate the tokens per second
-        actual_tokens_per_second = batch_metrics["ntoks"] / batch_metrics["batch_time"] if batch_metrics["batch_time"] > 0 else 0
-        theoretical_tokens_per_second = batch_metrics["expected_tokens"] / batch_metrics["batch_time"] if batch_metrics["batch_time"] > 0 else 0
+        actual_tokens_per_second = ntoks / batch_time if batch_time > 0 else 0
 
         # set the progress bar settings
         batch_progress.set_postfix({
             "Batch Loss": batch_metrics["loss"],
-            "Batch Tokens": batch_metrics["ntoks"],
-            "Batch Time": f"{batch_metrics['batch_time']:.3f}s",
+            "Batch Tokens": ntoks,
+            "Batch Time": f"{batch_time:.3f}s",
             "Tokens/s": f"{actual_tokens_per_second:.2f}",
-            "LR": f"{batch_metrics['lr_before_update']:.7f}"
+            "LR": f"{lr_before_update:.7f}"
         })
 
     # update the progress bar
     batch_progress.update(1)
+
