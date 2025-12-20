@@ -14,16 +14,22 @@ logger = logging.getLogger(__name__)
 DEFAULT_LOCAL_CONFIG_PATH = "./model_config"
 
 def get_model_from_path(model_path):
-    """ Load the model configuration and return the appropriate model instance. """
-    model_config = ModelConfig.load(model_path / 'config.json')  # Use the simpler config loader
-    
-    # get the architecture
+    """ Load the model configuration, tokenizer, and return the appropriate model instance. """
+    model_config = ModelConfig.load(model_path / 'config.json')  # Load the model config
+    # Convert `model_path` to a string to ensure compatibility with `load_tokenizer`
+    tokenizer = load_tokenizer(str(model_path))  # Load the tokenizer from the model path as a string
+
+
+    # Get the architecture
     architecture = model_config.architectures[0]
-    
-    # A series of conditional imports based on the architecture
+
+    # Conditional import based on the architecture
     if architecture == "LlamaForCausalLM":
         from core.models.architectures.llama.llama_model import LlamaForCausalLM
         model_class = LlamaForCausalLM
+    elif architecture == "GraniteForCausalLM":
+        from core.models.architectures.granite.granite_model import GraniteForCausalLM
+        model_class = GraniteForCausalLM
     elif architecture == "MistralForCausalLM":
         from core.models.architectures.mistral.mistral_model import MistralForCausalLM
         model_class = MistralForCausalLM
@@ -39,7 +45,9 @@ def get_model_from_path(model_path):
     else:
         raise ValueError(f"Unknown architecture: {architecture}")
 
-    return model_class(model_config)
+    # Pass both model_config and tokenizer to the model
+    return model_class(model_config, tokenizer)
+
 
 def load_model(model_name, load_weights=True):
     """
@@ -108,7 +116,8 @@ def load_model_tokenizer_and_checkpoint(model_name, checkpoint_path=None, tokeni
             model_path = local_model_path
         else:
             model_path = load_from_hub(model_name)
-        
+
+        # Get the model and tokenizer
         model = get_model_from_path(model_path)
         
         inv_freq = None
