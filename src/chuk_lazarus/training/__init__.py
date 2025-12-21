@@ -1,0 +1,91 @@
+"""
+Training infrastructure for chuk-lazarus.
+
+This module provides:
+- Loss functions (DPO, GRPO, PPO, SFT)
+- Trainer classes for different training paradigms
+- Utility functions for RL training
+- Learning rate schedulers
+"""
+
+# Loss functions
+# Base Trainer
+from .base_trainer import BaseTrainer, BaseTrainerConfig
+from .losses import (
+    DPOConfig,
+    GRPOBatch,
+    GRPOConfig,
+    PPOConfig,
+    SFTConfig,
+    compute_grpo_advantages,
+    compute_ppo_loss_for_batch,
+    create_dpo_loss_fn,
+    dpo_loss,
+    grpo_loss,
+    ppo_loss,
+    sft_loss,
+)
+
+# Learning rate schedulers
+from .schedulers import schedule_learning_rate
+
+# Trainers
+from .trainers import (
+    DPOTrainer,
+    DPOTrainerConfig,
+    GRPOTrainer,
+    GRPOTrainerConfig,
+    PPOTrainer,
+    PPOTrainerConfig,
+    SFTTrainer,
+)
+
+# Utilities
+from .utils import (
+    compute_approx_kl,
+    compute_gae,
+    compute_kl_divergence,
+    compute_log_probs_from_logits,
+    compute_returns,
+    compute_sequence_log_prob,
+    extract_log_probs,
+    normalize_advantages,
+)
+
+__all__ = [
+    # Base
+    "BaseTrainer",
+    "BaseTrainerConfig",
+    # Losses
+    "DPOConfig",
+    "GRPOBatch",
+    "GRPOConfig",
+    "PPOConfig",
+    "SFTConfig",
+    "compute_grpo_advantages",
+    "compute_ppo_loss_for_batch",
+    "create_dpo_loss_fn",
+    "dpo_loss",
+    "grpo_loss",
+    "ppo_loss",
+    "sft_loss",
+    # Schedulers
+    "schedule_learning_rate",
+    # Trainers
+    "DPOTrainer",
+    "DPOTrainerConfig",
+    "GRPOTrainer",
+    "GRPOTrainerConfig",
+    "PPOTrainer",
+    "PPOTrainerConfig",
+    "SFTTrainer",
+    # Utils
+    "compute_approx_kl",
+    "compute_gae",
+    "compute_kl_divergence",
+    "compute_log_probs_from_logits",
+    "compute_returns",
+    "compute_sequence_log_prob",
+    "extract_log_probs",
+    "normalize_advantages",
+]
