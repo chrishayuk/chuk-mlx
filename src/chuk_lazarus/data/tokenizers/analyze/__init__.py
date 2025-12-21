@@ -17,6 +17,7 @@ from .coverage import (
     get_unk_rate,
 )
 from .diff import (
+    CorpusDiff,
     RetokenizationDiff,
     TokenBoundaryShift,
     compare_tokenizations_detailed,
@@ -29,7 +30,6 @@ from .entropy import (
     calculate_entropy,
     get_token_distribution,
 )
-from .diff import CorpusDiff
 from .fit_score import (
     FitScore,
     FitScoreConfig,
