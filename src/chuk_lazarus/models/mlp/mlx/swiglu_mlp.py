@@ -1,6 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 
+
 class MLP(nn.Module):
     def __init__(self, hidden_size, intermediate_size, bias=False):
         # initialize
@@ -14,7 +15,7 @@ class MLP(nn.Module):
     def __call__(self, x) -> mx.array:
         # call is the same as forward
         return self.forward(x)
-    
+
     def forward(self, x):
         # Applying the swish activation function
         gate = nn.silu(self.gate_proj(x))

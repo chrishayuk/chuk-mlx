@@ -1,12 +1,15 @@
 # pruning.py
+
 import mlx.core as mx
 import mlx.nn as nn
-from typing import List, Tuple, Set
 
-def find_pruneable_heads_and_indices(heads: List[int], n_heads: int, pruned_heads: Set[int]) -> Tuple[List[int], mx.array]:
+
+def find_pruneable_heads_and_indices(
+    heads: list[int], n_heads: int, pruned_heads: set[int]
+) -> tuple[list[int], mx.array]:
     """
     Find the heads and their indices taking pruning into account.
-    
+
     Args:
         heads: List of head indices to prune
         n_heads: Total number of heads
@@ -16,18 +19,19 @@ def find_pruneable_heads_and_indices(heads: List[int], n_heads: int, pruned_head
         Tuple of (list of heads to prune, index of remaining heads)
     """
     to_prune = set(heads) - pruned_heads
-    to_prune = sorted(list(to_prune))
-    
+    to_prune = sorted(to_prune)
+
     # Create index of remaining heads
     index = mx.cumsum(mx.ones((n_heads,), dtype=mx.int32), 0) - 1
     index = mx.array([i for i in index if i not in to_prune])
-    
+
     return to_prune, index
+
 
 def prune_linear_layer(layer: nn.Linear, index: mx.array, dim: int = 0) -> nn.Linear:
     """
     Prune a linear layer.
-    
+
     Args:
         layer: Linear layer to prune
         index: Index of heads to keep
@@ -43,7 +47,8 @@ def prune_linear_layer(layer: nn.Linear, index: mx.array, dim: int = 0) -> nn.Li
     else:
         raise ValueError(f"Invalid dimension: {dim}")
 
-def update_pruned_heads(pruned_heads: Set[int], heads_to_prune: List[int]) -> Set[int]:
+
+def update_pruned_heads(pruned_heads: set[int], heads_to_prune: list[int]) -> set[int]:
     """
     Update the set of pruned heads.
 
@@ -56,7 +61,8 @@ def update_pruned_heads(pruned_heads: Set[int], heads_to_prune: List[int]) -> Se
     """
     return pruned_heads.union(heads_to_prune)
 
-def update_head_importance(head_importance: mx.array, pruned_heads: Set[int]) -> mx.array:
+
+def update_head_importance(head_importance: mx.array, pruned_heads: set[int]) -> mx.array:
     """
     Update head importance array after pruning.
 
@@ -69,19 +75,20 @@ def update_head_importance(head_importance: mx.array, pruned_heads: Set[int]) ->
     """
     return mx.array([i for j, i in enumerate(head_importance) if j not in pruned_heads])
 
+
 def prune_heads(
-    heads: List[int],
+    heads: list[int],
     n_heads: int,
-    pruned_heads: Set[int],
+    pruned_heads: set[int],
     head_importance: mx.array,
     q_proj: nn.Linear,
     k_proj: nn.Linear,
     v_proj: nn.Linear,
-    o_proj: nn.Linear
-) -> Tuple[int, Set[int], mx.array, nn.Linear, nn.Linear, nn.Linear, nn.Linear]:
+    o_proj: nn.Linear,
+) -> tuple[int, set[int], mx.array, nn.Linear, nn.Linear, nn.Linear, nn.Linear]:
     """
     Prune attention heads. This method removes the specified heads from the attention mechanism.
-    
+
     Args:
         heads: List of head indices to prune
         n_heads: Current number of attention heads
@@ -99,18 +106,18 @@ def prune_heads(
     """
     if len(heads) == 0:
         return n_heads, pruned_heads, head_importance, q_proj, k_proj, v_proj, o_proj
-    
+
     heads_to_prune, index = find_pruneable_heads_and_indices(heads, n_heads, pruned_heads)
-    
+
     # Prune linear layers
     q_proj = prune_linear_layer(q_proj, index)
     k_proj = prune_linear_layer(k_proj, index)
     v_proj = prune_linear_layer(v_proj, index)
     o_proj = prune_linear_layer(o_proj, index, dim=1)
-    
+
     # Update configs
     n_heads = n_heads - len(heads_to_prune)
     pruned_heads = update_pruned_heads(pruned_heads, heads_to_prune)
     head_importance = update_head_importance(head_importance, pruned_heads)
-    
+
     return n_heads, pruned_heads, head_importance, q_proj, k_proj, v_proj, o_proj

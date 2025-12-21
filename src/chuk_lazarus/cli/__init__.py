@@ -7,4 +7,5 @@ Provides unified CLI for:
 - Data generation
 """
 
-from .main import main, app
+from .main import app as app
+from .main import main as main

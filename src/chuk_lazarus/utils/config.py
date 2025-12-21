@@ -1,18 +1,19 @@
 """Unified configuration utilities."""
 
 import json
-import yaml
 import logging
-from dataclasses import dataclass, fields, asdict, is_dataclass
+from dataclasses import asdict, fields, is_dataclass
 from pathlib import Path
-from typing import TypeVar, Type, Union, Any
+from typing import Any, TypeVar
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
-def load_config(path: str, config_class: Type[T] = None) -> Union[T, dict]:
+def load_config(path: str, config_class: type[T] = None) -> T | dict:
     """
     Load configuration from YAML or JSON file.
 
@@ -28,10 +29,10 @@ def load_config(path: str, config_class: Type[T] = None) -> Union[T, dict]:
     if not path.exists():
         raise FileNotFoundError(f"Config file not found: {path}")
 
-    with open(path, 'r') as f:
-        if path.suffix in ['.yaml', '.yml']:
+    with open(path) as f:
+        if path.suffix in [".yaml", ".yml"]:
             raw_config = yaml.safe_load(f)
-        elif path.suffix == '.json':
+        elif path.suffix == ".json":
             raw_config = json.load(f)
         else:
             raise ValueError(f"Unsupported config format: {path.suffix}")
@@ -59,10 +60,10 @@ def save_config(config: Any, path: str):
     else:
         data = config
 
-    with open(path, 'w') as f:
-        if path.suffix in ['.yaml', '.yml']:
+    with open(path, "w") as f:
+        if path.suffix in [".yaml", ".yml"]:
             yaml.safe_dump(data, f, default_flow_style=False)
-        elif path.suffix == '.json':
+        elif path.suffix == ".json":
             json.dump(data, f, indent=2)
         else:
             raise ValueError(f"Unsupported config format: {path.suffix}")
@@ -70,7 +71,7 @@ def save_config(config: Any, path: str):
     logger.info(f"Saved config to {path}")
 
 
-def _dict_to_dataclass(data: dict, cls: Type[T]) -> T:
+def _dict_to_dataclass(data: dict, cls: type[T]) -> T:
     """Convert dict to dataclass, handling nested structures."""
     if not is_dataclass(cls):
         raise ValueError(f"{cls} is not a dataclass")

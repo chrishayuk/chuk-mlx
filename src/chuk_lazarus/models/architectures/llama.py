@@ -1,13 +1,10 @@
 """Llama model architecture."""
 
-from typing import Optional, Tuple
-
-import mlx.core as mx
 import mlx.nn as nn
 
 from ..config import ModelConfig
-from .base import BaseModel, TransformerModel, TransformerBlock
 from .attention import Attention
+from .base import BaseModel, TransformerBlock, TransformerModel
 from .mlp import MLP
 
 
@@ -16,10 +13,7 @@ class LlamaBlock(TransformerBlock):
 
     def __init__(self, config: ModelConfig):
         super().__init__(
-            config=config,
-            attention_class=Attention,
-            mlp_class=MLP,
-            norm_class=nn.RMSNorm
+            config=config, attention_class=Attention, mlp_class=MLP, norm_class=nn.RMSNorm
         )
 
 
@@ -27,11 +21,7 @@ class LlamaTransformer(TransformerModel):
     """Llama transformer (without LM head)."""
 
     def __init__(self, config: ModelConfig):
-        super().__init__(
-            config=config,
-            layer_class=LlamaBlock,
-            norm_class=nn.RMSNorm
-        )
+        super().__init__(config=config, layer_class=LlamaBlock, norm_class=nn.RMSNorm)
 
 
 class LlamaModel(BaseModel):

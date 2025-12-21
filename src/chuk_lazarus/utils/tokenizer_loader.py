@@ -1,11 +1,14 @@
-import os
-import transformers
-from chuk_lazarus.utils.huggingface import load_from_hub
-from chuk_lazarus.data.tokenizers.custom_tokenizer import CustomTokenizer
 import logging
+import os
+
+import transformers
+
+from chuk_lazarus.data.tokenizers.custom_tokenizer import CustomTokenizer
+from chuk_lazarus.utils.huggingface import load_from_hub
 
 # Set the logger
 logger = logging.getLogger(__name__)
+
 
 def load_tokenizer(tokenizer_name):
     """
@@ -15,7 +18,7 @@ def load_tokenizer(tokenizer_name):
     tokenizer = None
     model_config_dir = f"core/models/architectures/{tokenizer_name}"
     vocab_file = os.path.join(model_config_dir, "tokenizer.json")
-    
+
     if os.path.exists(vocab_file):
         try:
             # Load the local tokenizer using the vocab file
@@ -36,10 +39,10 @@ def load_tokenizer(tokenizer_name):
 
     # Restrict setting pad_token_id to eos_token_id to LLAMA architecture
     if "llama" in tokenizer_name.lower() or "llama" in tokenizer.__class__.__name__.lower():
-        if hasattr(tokenizer, 'eos_token_id') and tokenizer.eos_token_id is not None:
+        if hasattr(tokenizer, "eos_token_id") and tokenizer.eos_token_id is not None:
             tokenizer.pad_token_id = tokenizer.eos_token_id
             tokenizer.sep_token_id = tokenizer.eos_token_id
-    
+
     # Ensure pad_token_id is set for non-LLAMA architectures
     if tokenizer.pad_token_id is None:
         logger.debug("pad_token_id is None. Defaulting to 0.")

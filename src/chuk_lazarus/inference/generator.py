@@ -1,10 +1,18 @@
+from collections.abc import Generator
+
 import mlx.core as mx
 import mlx.nn as nn
-from typing import Generator
 
-def generate_sequence(prompt: mx.array, model: nn.Module, temperature: float = 0) -> Generator[mx.array, None, None]:
+
+def generate_sequence(
+    prompt: mx.array, model: nn.Module, temperature: float = 0
+) -> Generator[mx.array, None, None]:
     def sample(logits: mx.array) -> mx.array:
-        return mx.argmax(logits, axis=-1) if temperature == 0 else mx.random.categorical(logits * (1 / temperature))
+        return (
+            mx.argmax(logits, axis=-1)
+            if temperature == 0
+            else mx.random.categorical(logits * (1 / temperature))
+        )
 
     y = prompt
     cache = None
@@ -19,6 +27,7 @@ def generate_sequence(prompt: mx.array, model: nn.Module, temperature: float = 0
 
         yield y
         step += 1
+
 
 def generate_response(model, prompt, tokenizer, max_length: int = 500):
     # encode the prompt
@@ -48,7 +57,7 @@ def generate_response(model, prompt, tokenizer, max_length: int = 500):
     # get the decoded response
     decoded_response = tokenizer.decode(tokens)[skip:]
 
-    # print it out, in future we should yield it, so that it's in the UI's gift
+    # print it out, in future we should yield it, so that it's in the UI's gift
     print(decoded_response, flush=True)
 
     # check if we got tokens
@@ -56,6 +65,6 @@ def generate_response(model, prompt, tokenizer, max_length: int = 500):
         # no tokens
         print("No tokens generated for this prompt")
         return []
-    
+
     # return tokens
     return tokens

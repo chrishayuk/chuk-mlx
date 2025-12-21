@@ -15,7 +15,7 @@ def tokenize_dataset(input_files, tokenize_line):
     # Loop through each file in the dataset
     for input_file in input_files:
         # Open the file
-        with open(input_file, 'r') as file:
+        with open(input_file) as file:
             # Loop through each line in the file
             for line in file:
                 # Tokenize the line
@@ -25,6 +25,6 @@ def tokenize_dataset(input_files, tokenize_line):
                 if len(tokenized_line) == 3:
                     # Add the row to the dataset
                     tokenized_dataset.append(tokenized_line)
-    
+
     # Return the tokenized dataset
     return tokenized_dataset

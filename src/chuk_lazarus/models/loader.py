@@ -11,14 +11,14 @@ Supports:
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Tuple, Union, Any
+from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
 
-from .config import ModelConfig, LoRAConfig
-from .lora import apply_lora
 from ..utils.huggingface import load_from_hub
+from .config import LoRAConfig, ModelConfig
+from .lora import apply_lora
 
 logger = logging.getLogger(__name__)
 
@@ -26,12 +26,13 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LoadOptions:
     """Options for model loading."""
+
     load_weights: bool = True
     use_lora: bool = False
-    lora_config: Optional[LoRAConfig] = None
-    adapter_path: Optional[str] = None
+    lora_config: LoRAConfig | None = None
+    adapter_path: str | None = None
     use_4bit: bool = False
-    dtype: Optional[str] = None  # "float16", "bfloat16", etc.
+    dtype: str | None = None  # "float16", "bfloat16", etc.
 
 
 class ModelWrapper(nn.Module):
@@ -51,7 +52,7 @@ class ModelWrapper(nn.Module):
         self._lora_layers = {}
         self.training = False
 
-    def __call__(self, input_ids: mx.array, cache: Any = None) -> Tuple[mx.array, Any]:
+    def __call__(self, input_ids: mx.array, cache: Any = None) -> tuple[mx.array, Any]:
         """Forward pass."""
         return self._model(input_ids, cache=cache)
 
@@ -141,33 +142,25 @@ class ModelWrapper(nn.Module):
         logger.info(f"Loaded adapter from {path}")
 
     def generate(
-        self,
-        prompt: str,
-        max_tokens: int = 256,
-        temperature: float = 1.0,
-        top_p: float = 0.9
+        self, prompt: str, max_tokens: int = 256, temperature: float = 1.0, top_p: float = 0.9
     ) -> str:
         """Generate text from prompt."""
         try:
             from mlx_lm import generate
+
             return generate(
                 self._model,
                 self._tokenizer,
                 prompt=prompt,
                 max_tokens=max_tokens,
                 temp=temperature,
-                top_p=top_p
+                top_p=top_p,
             )
         except ImportError:
             logger.warning("mlx-lm not available, using basic generation")
             return self._basic_generate(prompt, max_tokens, temperature)
 
-    def _basic_generate(
-        self,
-        prompt: str,
-        max_tokens: int,
-        temperature: float
-    ) -> str:
+    def _basic_generate(self, prompt: str, max_tokens: int, temperature: float) -> str:
         """Basic generation fallback."""
         tokens = self._tokenizer.encode(prompt)
         generated = list(tokens)
@@ -185,14 +178,10 @@ class ModelWrapper(nn.Module):
             if next_token == self._tokenizer.eos_token_id:
                 break
 
-        return self._tokenizer.decode(generated[len(tokens):])
+        return self._tokenizer.decode(generated[len(tokens) :])
 
 
-def load_model(
-    model_name: str,
-    options: Optional[LoadOptions] = None,
-    **kwargs
-) -> ModelWrapper:
+def load_model(model_name: str, options: LoadOptions | None = None, **kwargs) -> ModelWrapper:
     """
     Load a model from HuggingFace or local path.
 
@@ -221,13 +210,13 @@ def load_model(
     if options is None:
         options = LoadOptions()
 
-    if kwargs.get('use_lora'):
+    if kwargs.get("use_lora"):
         options.use_lora = True
-        if 'lora_rank' in kwargs:
-            options.lora_config = LoRAConfig(rank=kwargs['lora_rank'])
+        if "lora_rank" in kwargs:
+            options.lora_config = LoRAConfig(rank=kwargs["lora_rank"])
 
-    if 'adapter_path' in kwargs:
-        options.adapter_path = kwargs['adapter_path']
+    if "adapter_path" in kwargs:
+        options.adapter_path = kwargs["adapter_path"]
 
     # Load model
     try:
@@ -243,7 +232,9 @@ def load_model(
     if options.use_lora:
         lora_config = options.lora_config or LoRAConfig()
         wrapper._lora_layers = apply_lora(model, lora_config)
-        logger.info(f"Applied LoRA with rank={lora_config.rank} to {len(wrapper._lora_layers)} layers")
+        logger.info(
+            f"Applied LoRA with rank={lora_config.rank} to {len(wrapper._lora_layers)} layers"
+        )
 
     # Load adapter weights if provided
     if options.adapter_path:
@@ -256,14 +247,16 @@ def load_tokenizer(model_name: str) -> Any:
     """Load just the tokenizer."""
     try:
         from mlx_lm import load
+
         _, tokenizer = load(model_name)
         return tokenizer
     except ImportError:
         from transformers import AutoTokenizer
+
         return AutoTokenizer.from_pretrained(model_name)
 
 
-def _load_from_mlx_lm(model_name: str) -> Tuple[nn.Module, Any, ModelConfig]:
+def _load_from_mlx_lm(model_name: str) -> tuple[nn.Module, Any, ModelConfig]:
     """Load model using mlx-lm."""
     from mlx_lm import load
 
@@ -277,7 +270,7 @@ def _load_from_mlx_lm(model_name: str) -> Tuple[nn.Module, Any, ModelConfig]:
     return model, tokenizer, config
 
 
-def _load_local(model_name: str) -> Tuple[nn.Module, Any, ModelConfig]:
+def _load_local(model_name: str) -> tuple[nn.Module, Any, ModelConfig]:
     """Load from local architecture definitions."""
     model_path = load_from_hub(model_name)
     config = ModelConfig.from_file(model_path / "config.json")
@@ -290,12 +283,15 @@ def _load_local(model_name: str) -> Tuple[nn.Module, Any, ModelConfig]:
     # Import appropriate model class
     if arch and "llama" in arch:
         from .architectures.llama import LlamaModel
+
         model = LlamaModel(config)
     elif arch and "mistral" in arch:
         from .architectures.mistral import MistralModel
+
         model = MistralModel(config)
     elif arch and "gemma" in arch:
         from .architectures.gemma import GemmaModel
+
         model = GemmaModel(config)
     else:
         raise ValueError(f"Unknown architecture: {arch}")
@@ -305,6 +301,7 @@ def _load_local(model_name: str) -> Tuple[nn.Module, Any, ModelConfig]:
 
     # Load tokenizer
     from transformers import AutoTokenizer
+
     tokenizer = AutoTokenizer.from_pretrained(str(model_path))
 
     return model, tokenizer, config
@@ -339,7 +336,7 @@ def _sanitize_weights(weights: dict) -> dict:
         new_key = key
         for prefix in ["model.", "transformer."]:
             if new_key.startswith(prefix):
-                new_key = new_key[len(prefix):]
+                new_key = new_key[len(prefix) :]
 
         sanitized[new_key] = value
 

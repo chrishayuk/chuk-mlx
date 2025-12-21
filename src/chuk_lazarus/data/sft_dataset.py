@@ -6,9 +6,10 @@ Handles loading and batching of prompt-response pairs.
 
 import json
 import logging
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any
 
 import mlx.core as mx
 
@@ -18,9 +19,10 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SFTSample:
     """A single SFT training sample."""
+
     prompt: str
     response: str
-    metadata: Optional[Dict] = None
+    metadata: dict | None = None
 
 
 class SFTDataset:
@@ -34,13 +36,7 @@ class SFTDataset:
     {"messages": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]}
     """
 
-    def __init__(
-        self,
-        data_path: str,
-        tokenizer,
-        max_length: int = 512,
-        mask_prompt: bool = True
-    ):
+    def __init__(self, data_path: str, tokenizer, max_length: int = 512, mask_prompt: bool = True):
         self.data_path = Path(data_path)
         self.tokenizer = tokenizer
         self.max_length = max_length
@@ -49,11 +45,11 @@ class SFTDataset:
         self.samples = self._load_data()
         logger.info(f"Loaded {len(self.samples)} SFT samples from {data_path}")
 
-    def _load_data(self) -> List[SFTSample]:
+    def _load_data(self) -> list[SFTSample]:
         """Load samples from JSONL file."""
         samples = []
 
-        with open(self.data_path, "r") as f:
+        with open(self.data_path) as f:
             for line in f:
                 if not line.strip():
                     continue
@@ -76,23 +72,25 @@ class SFTDataset:
                     prompt = item.get("prompt", item.get("input", ""))
                     response = item.get("response", item.get("output", item.get("completion", "")))
 
-                samples.append(SFTSample(
-                    prompt=prompt.strip(),
-                    response=response.strip(),
-                    metadata=item.get("metadata")
-                ))
+                samples.append(
+                    SFTSample(
+                        prompt=prompt.strip(),
+                        response=response.strip(),
+                        metadata=item.get("metadata"),
+                    )
+                )
 
         return samples
 
     def __len__(self) -> int:
         return len(self.samples)
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         """Get a single tokenized sample."""
         sample = self.samples[idx]
         return self._tokenize_sample(sample)
 
-    def _tokenize_sample(self, sample: SFTSample) -> Dict[str, Any]:
+    def _tokenize_sample(self, sample: SFTSample) -> dict[str, Any]:
         """Tokenize a sample into model inputs."""
         # Tokenize prompt and full sequence
         prompt_tokens = self.tokenizer.encode(sample.prompt)
@@ -101,7 +99,7 @@ class SFTDataset:
 
         # Truncate if needed
         if len(full_tokens) > self.max_length:
-            full_tokens = full_tokens[:self.max_length]
+            full_tokens = full_tokens[: self.max_length]
 
         # Create labels (shift by 1 for next-token prediction)
         labels = full_tokens[1:] + [self.tokenizer.eos_token_id or 0]
@@ -121,7 +119,7 @@ class SFTDataset:
             "prompt_length": len(prompt_tokens),
         }
 
-    def get_batch(self, indices: List[int], pad_token_id: int = 0) -> Dict[str, mx.array]:
+    def get_batch(self, indices: list[int], pad_token_id: int = 0) -> dict[str, mx.array]:
         """Get a padded batch."""
         items = [self[i] for i in indices]
 
@@ -138,15 +136,9 @@ class SFTDataset:
         for i, item in enumerate(items):
             seq_len = len(item["input_ids"])
 
-            input_ids = input_ids.at[i, :seq_len].set(
-                mx.array(item["input_ids"], dtype=mx.int32)
-            )
-            labels = labels.at[i, :seq_len].set(
-                mx.array(item["labels"], dtype=mx.int32)
-            )
-            loss_mask = loss_mask.at[i, :seq_len].set(
-                mx.array(item["loss_mask"], dtype=mx.float32)
-            )
+            input_ids = input_ids.at[i, :seq_len].set(mx.array(item["input_ids"], dtype=mx.int32))
+            labels = labels.at[i, :seq_len].set(mx.array(item["labels"], dtype=mx.int32))
+            loss_mask = loss_mask.at[i, :seq_len].set(mx.array(item["loss_mask"], dtype=mx.float32))
             attention_mask = attention_mask.at[i, :seq_len].set(1.0)
 
         return {
@@ -157,11 +149,8 @@ class SFTDataset:
         }
 
     def iter_batches(
-        self,
-        batch_size: int,
-        shuffle: bool = True,
-        pad_token_id: int = 0
-    ) -> Iterator[Dict[str, mx.array]]:
+        self, batch_size: int, shuffle: bool = True, pad_token_id: int = 0
+    ) -> Iterator[dict[str, mx.array]]:
         """Iterate over batches."""
         import random
 
@@ -170,5 +159,5 @@ class SFTDataset:
             random.shuffle(indices)
 
         for start in range(0, len(indices), batch_size):
-            batch_indices = indices[start:start + batch_size]
+            batch_indices = indices[start : start + batch_size]
             yield self.get_batch(batch_indices, pad_token_id)

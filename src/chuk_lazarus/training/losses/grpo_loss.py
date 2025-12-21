@@ -20,7 +20,6 @@ Key benefits:
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
 
 import mlx.core as mx
 
@@ -28,12 +27,13 @@ import mlx.core as mx
 @dataclass
 class GRPOConfig:
     """Configuration for GRPO training."""
-    group_size: int = 4                 # Responses per prompt
-    clip_epsilon: float = 0.2           # PPO-style clipping
-    kl_coef: float = 0.1               # KL penalty coefficient
-    entropy_coef: float = 0.01          # Entropy bonus
-    normalize_advantages: bool = True    # Normalize within group
-    temperature: float = 1.0            # Sampling temperature
+
+    group_size: int = 4  # Responses per prompt
+    clip_epsilon: float = 0.2  # PPO-style clipping
+    kl_coef: float = 0.1  # KL penalty coefficient
+    entropy_coef: float = 0.01  # Entropy bonus
+    normalize_advantages: bool = True  # Normalize within group
+    temperature: float = 1.0  # Sampling temperature
 
 
 def grpo_loss(
@@ -41,8 +41,8 @@ def grpo_loss(
     ref_log_probs: mx.array,
     rewards: mx.array,
     group_size: int,
-    config: GRPOConfig = None
-) -> Tuple[mx.array, Dict]:
+    config: GRPOConfig = None,
+) -> tuple[mx.array, dict]:
     """
     Compute GRPO loss.
 
@@ -65,8 +65,6 @@ def grpo_loss(
     num_prompts = batch_size // group_size
 
     # Reshape to (num_prompts, group_size)
-    log_probs_grouped = log_probs.reshape(num_prompts, group_size)
-    ref_log_probs_grouped = ref_log_probs.reshape(num_prompts, group_size)
     rewards_grouped = rewards.reshape(num_prompts, group_size)
 
     # Compute group-relative advantages
@@ -109,11 +107,7 @@ def grpo_loss(
     return total_loss, metrics
 
 
-def compute_grpo_advantages(
-    rewards: mx.array,
-    group_size: int,
-    normalize: bool = True
-) -> mx.array:
+def compute_grpo_advantages(rewards: mx.array, group_size: int, normalize: bool = True) -> mx.array:
     """
     Compute group-relative advantages.
 
@@ -148,16 +142,11 @@ class GRPOBatch:
 
     def __init__(self, group_size: int):
         self.group_size = group_size
-        self.prompts: List[str] = []
-        self.responses: List[List[str]] = []  # List of response groups
-        self.rewards: List[List[float]] = []
+        self.prompts: list[str] = []
+        self.responses: list[list[str]] = []  # List of response groups
+        self.rewards: list[list[float]] = []
 
-    def add_prompt_group(
-        self,
-        prompt: str,
-        responses: List[str],
-        rewards: List[float]
-    ):
+    def add_prompt_group(self, prompt: str, responses: list[str], rewards: list[float]):
         """Add a prompt with its group of responses and rewards."""
         assert len(responses) == self.group_size
         assert len(rewards) == self.group_size
@@ -173,7 +162,7 @@ class GRPOBatch:
             flat.extend(group)
         return mx.array(flat, dtype=mx.float32)
 
-    def get_all_sequences(self) -> List[str]:
+    def get_all_sequences(self) -> list[str]:
         """Get all prompt+response sequences for tokenization."""
         sequences = []
         for prompt, response_group in zip(self.prompts, self.responses):

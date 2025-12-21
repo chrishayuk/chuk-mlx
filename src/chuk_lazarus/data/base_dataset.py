@@ -6,7 +6,8 @@ and ensuring consistent behavior across SFTDataset, PreferenceDataset, etc.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List, Optional
+from collections.abc import Iterator
+from typing import Any
 
 import mlx.core as mx
 
@@ -27,7 +28,7 @@ class BaseDataset(ABC):
     """
 
     def __init__(self):
-        self._samples: List[Any] = []
+        self._samples: list[Any] = []
 
     @abstractmethod
     def __len__(self) -> int:
@@ -35,7 +36,7 @@ class BaseDataset(ABC):
         pass
 
     @abstractmethod
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         """
         Get a single sample by index.
 
@@ -48,7 +49,7 @@ class BaseDataset(ABC):
         pass
 
     @abstractmethod
-    def _collate_batch(self, samples: List[Dict], pad_token_id: int) -> Dict[str, mx.array]:
+    def _collate_batch(self, samples: list[dict], pad_token_id: int) -> dict[str, mx.array]:
         """
         Collate a list of samples into a padded batch.
 
@@ -62,12 +63,8 @@ class BaseDataset(ABC):
         pass
 
     def iter_batches(
-        self,
-        batch_size: int,
-        shuffle: bool = True,
-        pad_token_id: int = 0,
-        drop_last: bool = False
-    ) -> Iterator[Dict[str, mx.array]]:
+        self, batch_size: int, shuffle: bool = True, pad_token_id: int = 0, drop_last: bool = False
+    ) -> Iterator[dict[str, mx.array]]:
         """
         Iterate over batches.
 
@@ -99,11 +96,8 @@ class BaseDataset(ABC):
             yield self._collate_batch(samples, pad_token_id)
 
     def get_batches(
-        self,
-        batch_size: int,
-        shuffle: bool = False,
-        pad_token_id: int = 0
-    ) -> List[Dict[str, mx.array]]:
+        self, batch_size: int, shuffle: bool = False, pad_token_id: int = 0
+    ) -> list[dict[str, mx.array]]:
         """
         Get all batches as a list (for PPO-style updates).
 
@@ -115,19 +109,17 @@ class BaseDataset(ABC):
         Returns:
             List of batch dictionaries
         """
-        return list(self.iter_batches(
-            batch_size=batch_size,
-            shuffle=shuffle,
-            pad_token_id=pad_token_id
-        ))
+        return list(
+            self.iter_batches(batch_size=batch_size, shuffle=shuffle, pad_token_id=pad_token_id)
+        )
 
     @staticmethod
     def pad_sequences(
-        sequences: List[List[int]],
+        sequences: list[list[int]],
         pad_value: int = 0,
-        max_length: Optional[int] = None,
-        pad_left: bool = False
-    ) -> List[List[int]]:
+        max_length: int | None = None,
+        pad_left: bool = False,
+    ) -> list[list[int]]:
         """
         Pad sequences to the same length.
 
@@ -160,10 +152,7 @@ class BaseDataset(ABC):
         return padded
 
     @staticmethod
-    def create_attention_mask(
-        sequences: List[List[int]],
-        pad_value: int = 0
-    ) -> List[List[float]]:
+    def create_attention_mask(sequences: list[list[int]], pad_value: int = 0) -> list[list[float]]:
         """
         Create attention masks for padded sequences.
 
@@ -174,17 +163,14 @@ class BaseDataset(ABC):
         Returns:
             Attention masks (1.0 for real tokens, 0.0 for padding)
         """
-        return [
-            [1.0 if token != pad_value else 0.0 for token in seq]
-            for seq in sequences
-        ]
+        return [[1.0 if token != pad_value else 0.0 for token in seq] for seq in sequences]
 
     @staticmethod
     def create_labels_with_mask(
-        input_ids: List[List[int]],
-        response_starts: List[int],
+        input_ids: list[list[int]],
+        response_starts: list[int],
         pad_token_id: int = 0,
-        ignore_index: int = -100
+        ignore_index: int = -100,
     ) -> tuple:
         """
         Create labels and loss mask for causal LM training.
@@ -211,10 +197,7 @@ class BaseDataset(ABC):
             mask = [0.0] * resp_start + [1.0] * (len(seq) - resp_start)
 
             # Set masked positions in labels to ignore_index
-            label = [
-                l if m > 0 else ignore_index
-                for l, m in zip(label, mask)
-            ]
+            label = [lbl if m > 0 else ignore_index for lbl, m in zip(label, mask)]
 
             labels.append(label)
             loss_masks.append(mask)

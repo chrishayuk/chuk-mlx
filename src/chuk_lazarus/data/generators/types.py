@@ -10,11 +10,12 @@ This module contains the data structures used by generators:
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class ProblemType(Enum):
     """Types of math problems."""
+
     ARITHMETIC = "arithmetic"
     FRACTIONS = "fractions"
     PERCENTAGES = "percentages"
@@ -26,30 +27,33 @@ class ProblemType(Enum):
 @dataclass
 class MathProblem:
     """A generated math problem."""
+
     id: str
     problem_type: ProblemType
     problem_text: str
     expression: str  # The mathematical expression
     answer: float
-    answer_exact: Optional[str] = None  # For fractions, etc.
-    unit: Optional[str] = None
+    answer_exact: str | None = None  # For fractions, etc.
+    unit: str | None = None
     difficulty: int = 1  # 1-5
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class ToolCallTrace:
     """A trace showing how to solve the problem with tools."""
+
     tool_name: str
-    tool_args: Dict[str, Any]
+    tool_args: dict[str, Any]
     tool_result: Any
-    thought: Optional[str] = None
+    thought: str | None = None
 
 
 @dataclass
 class TrainingSample:
     """A complete training sample."""
+
     problem: MathProblem
-    correct_trace: List[ToolCallTrace]
+    correct_trace: list[ToolCallTrace]
     correct_response: str
-    incorrect_responses: List[str] = field(default_factory=list)
+    incorrect_responses: list[str] = field(default_factory=list)

@@ -1,7 +1,7 @@
 def tokenize_and_pad(seq, tokenizer, seq_length):
     if seq_length < 1:
         raise ValueError("sequence_length must be at least 1")
-    
+
     # flatten the sequence
     flat_seq = [item if isinstance(item, int) else item[0] for item in seq]
 
@@ -38,5 +38,3 @@ def batch_tokenize_and_pad(batch_data, tokenizer, max_sequence_length):
 
     # return the batch
     return processed_batch
-
-

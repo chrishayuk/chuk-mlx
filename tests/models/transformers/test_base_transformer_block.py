@@ -1,13 +1,23 @@
 """Tests for BaseTransformerBlock."""
 
-from typing import Optional, Tuple
 import torch
-from chuk_lazarus.models.transformers.transformer_block.base_transformer_block import BaseTransformerBlock
+
+from chuk_lazarus.models.transformers.transformer_block.base_transformer_block import (
+    BaseTransformerBlock,
+)
 
 
 class MockConfig:
     """Basic config for testing."""
-    def __init__(self, hidden_size=512, intermediate_size=1024, rms_norm_eps=1e-6, hidden_act="relu", mlp_bias=False):
+
+    def __init__(
+        self,
+        hidden_size=512,
+        intermediate_size=1024,
+        rms_norm_eps=1e-6,
+        hidden_act="relu",
+        mlp_bias=False,
+    ):
         self.hidden_size = hidden_size
         self.intermediate_size = intermediate_size
         self.rms_norm_eps = rms_norm_eps
@@ -22,6 +32,7 @@ def mock_create_mlp(config):
 
 class MockAttention(torch.nn.Module):
     """Mock Attention layer."""
+
     def __init__(self, config):
         super().__init__()
 
@@ -36,13 +47,19 @@ def mock_norm_layer(hidden_size, eps=1e-6):
 
 class MockTransformerBlock(BaseTransformerBlock):
     """Mock TransformerBlock for testing."""
+
     def __init__(self, config):
         super().__init__(config, MockAttention, mock_norm_layer)
 
     def create_mlp(self, config):
         return mock_create_mlp(config)
 
-    def forward(self, hidden_states: torch.Tensor, attention_mask: Optional[torch.Tensor] = None, cache: Optional[Tuple[torch.Tensor, torch.Tensor]] = None):
+    def forward(
+        self,
+        hidden_states: torch.Tensor,
+        attention_mask: torch.Tensor | None = None,
+        cache: tuple[torch.Tensor, torch.Tensor] | None = None,
+    ):
         normed_hidden_states = self.input_layernorm(hidden_states)
         attention_output, cache = self.self_attn(normed_hidden_states, attention_mask, cache)
         hidden_states = hidden_states + attention_output

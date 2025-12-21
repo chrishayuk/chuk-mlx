@@ -1,6 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 
+
 class MLP(nn.Module):
     def __init__(self, hidden_size, intermediate_size, bias=False):
         super().__init__()
@@ -17,8 +18,8 @@ class MLP(nn.Module):
         x = self.relu(self.fc1(x))
 
         # Return after second layer
-        return self.fc2(x)  
-    
+        return self.fc2(x)
+
     def __call__(self, x) -> mx.array:
         # call is the same as forward
         return self.forward(x)

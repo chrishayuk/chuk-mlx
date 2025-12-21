@@ -11,17 +11,18 @@ because:
 
 import logging
 import time
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
+from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
 from ..base_trainer import BaseTrainer, BaseTrainerConfig
-from ..losses.grpo_loss import grpo_loss, GRPOConfig, GRPOBatch
-from ..utils.log_probs import extract_log_probs, compute_sequence_log_prob
+from ..losses.grpo_loss import GRPOBatch, GRPOConfig, grpo_loss
+from ..utils.log_probs import compute_sequence_log_prob, extract_log_probs
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GRPOTrainerConfig(BaseTrainerConfig):
     """Configuration for GRPO training."""
+
     # GRPO hyperparameters
     grpo: GRPOConfig = field(default_factory=GRPOConfig)
 
@@ -49,8 +51,8 @@ class GRPOTrainerConfig(BaseTrainerConfig):
     checkpoint_dir: str = "./checkpoints/grpo"
 
     # Early stopping
-    max_steps: Optional[int] = None
-    target_reward: Optional[float] = None
+    max_steps: int | None = None
+    target_reward: float | None = None
 
 
 class GRPOTrainer(BaseTrainer):
@@ -83,7 +85,7 @@ class GRPOTrainer(BaseTrainer):
         tokenizer,
         reward_fn: Callable[[str, str], float],
         config: GRPOTrainerConfig = None,
-        optimizer: optim.Optimizer = None
+        optimizer: optim.Optimizer = None,
     ):
         config = config or GRPOTrainerConfig()
         super().__init__(policy_model, tokenizer, config, optimizer)
@@ -97,24 +99,24 @@ class GRPOTrainer(BaseTrainer):
 
         # GRPO-specific state
         self.iteration = 0
-        self.best_reward = float('-inf')
+        self.best_reward = float("-inf")
 
     @property
     def grpo_config(self) -> GRPOTrainerConfig:
         """Type-safe access to config."""
         return self.config
 
-    def compute_loss(self, batch: Dict[str, Any]) -> Tuple[mx.array, Dict[str, Any]]:
+    def compute_loss(self, batch: dict[str, Any]) -> tuple[mx.array, dict[str, Any]]:
         """
         Compute GRPO loss. Not used directly - GRPO has custom training loop.
         """
         raise NotImplementedError("GRPO uses custom training loop via train()")
 
-    def get_train_batches(self, dataset: Any) -> Iterator[Dict[str, Any]]:
+    def get_train_batches(self, dataset: Any) -> Iterator[dict[str, Any]]:
         """Not used - GRPO generates samples on the fly."""
         raise NotImplementedError("GRPO generates samples on the fly")
 
-    def train(self, prompt_source: Callable[[], List[str]]):
+    def train(self, prompt_source: Callable[[], list[str]]):
         """
         Run GRPO training.
 
@@ -131,7 +133,7 @@ class GRPOTrainer(BaseTrainer):
 
         for self.iteration in range(1, self.grpo_config.num_iterations + 1):
             # Get prompts
-            prompts = prompt_source()[:self.grpo_config.prompts_per_iteration]
+            prompts = prompt_source()[: self.grpo_config.prompts_per_iteration]
 
             # Generate samples and compute rewards
             batch = self._generate_grpo_batch(prompts)
@@ -150,10 +152,7 @@ class GRPOTrainer(BaseTrainer):
                     f"Time: {elapsed:.1f}s"
                 )
 
-                self.metrics_history.append({
-                    "iteration": self.iteration,
-                    **metrics
-                })
+                self.metrics_history.append({"iteration": self.iteration, **metrics})
 
             # Checkpoint
             if self.iteration % self.config.checkpoint_interval == 0:
@@ -161,19 +160,19 @@ class GRPOTrainer(BaseTrainer):
 
             # Early stopping
             if self.grpo_config.target_reward is not None:
-                if metrics['mean_reward'] >= self.grpo_config.target_reward:
+                if metrics["mean_reward"] >= self.grpo_config.target_reward:
                     logger.info(f"Target reward reached: {metrics['mean_reward']:.4f}")
                     break
 
             # Track best
-            if metrics['mean_reward'] > self.best_reward:
-                self.best_reward = metrics['mean_reward']
+            if metrics["mean_reward"] > self.best_reward:
+                self.best_reward = metrics["mean_reward"]
                 self.save_checkpoint("best")
 
         self.save_checkpoint("final")
         logger.info(f"Training complete. Iterations: {self.iteration}")
 
-    def _generate_grpo_batch(self, prompts: List[str]) -> GRPOBatch:
+    def _generate_grpo_batch(self, prompts: list[str]) -> GRPOBatch:
         """Generate responses and compute rewards for a batch of prompts."""
         batch = GRPOBatch(self.grpo_config.grpo.group_size)
 
@@ -201,8 +200,8 @@ class GRPOTrainer(BaseTrainer):
         generated = list(input_ids)
 
         # Set model to inference mode if applicable
-        if hasattr(self.policy_model, 'set_mode'):
-            self.policy_model.set_mode('INFERENCE')
+        if hasattr(self.policy_model, "set_mode"):
+            self.policy_model.set_mode("INFERENCE")
 
         max_new_tokens = self.grpo_config.max_response_length
 
@@ -222,17 +221,17 @@ class GRPOTrainer(BaseTrainer):
             generated.append(int(next_token))
 
             # Check for EOS
-            if hasattr(self.tokenizer, 'eos_token_id'):
+            if hasattr(self.tokenizer, "eos_token_id"):
                 if int(next_token) == self.tokenizer.eos_token_id:
                     break
 
         # Decode response (exclude prompt)
-        response_ids = generated[len(input_ids):]
+        response_ids = generated[len(input_ids) :]
         response = self.tokenizer.decode(response_ids)
 
         return response
 
-    def _grpo_update(self, batch: GRPOBatch) -> Dict[str, float]:
+    def _grpo_update(self, batch: GRPOBatch) -> dict[str, float]:
         """Perform GRPO update on the batch."""
         # Get all sequences
         sequences = batch.get_all_sequences()
@@ -260,15 +259,11 @@ class GRPOTrainer(BaseTrainer):
         attention_mask = mx.array(all_masks)
 
         # Get log probs from policy
-        policy_log_probs, _ = extract_log_probs(
-            self.policy_model, input_ids, attention_mask
-        )
+        policy_log_probs, _ = extract_log_probs(self.policy_model, input_ids, attention_mask)
 
         # Get log probs from reference
         with mx.stop_gradient():
-            ref_log_probs, _ = extract_log_probs(
-                self.reference_model, input_ids, attention_mask
-            )
+            ref_log_probs, _ = extract_log_probs(self.reference_model, input_ids, attention_mask)
 
         # Sum to sequence level
         mask_shifted = attention_mask[:, 1:]
@@ -285,7 +280,7 @@ class GRPOTrainer(BaseTrainer):
                 ref_log_probs=ref_seq_log_probs,
                 rewards=rewards,
                 group_size=self.grpo_config.grpo.group_size,
-                config=self.grpo_config.grpo
+                config=self.grpo_config.grpo,
             )
             return loss
 
@@ -306,7 +301,7 @@ class GRPOTrainer(BaseTrainer):
             ref_log_probs=ref_seq_log_probs,
             rewards=rewards,
             group_size=self.grpo_config.grpo.group_size,
-            config=self.grpo_config.grpo
+            config=self.grpo_config.grpo,
         )
 
         return {k: float(v) for k, v in metrics.items()}

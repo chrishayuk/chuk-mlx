@@ -1,15 +1,18 @@
-import mlx.core as mx
-import mlx.nn as nn
-from chuk_lazarus.models.config import ModelConfig
-from chuk_lazarus.utils.memory import log_memory_usage
 import logging
 from enum import Enum
 
+import mlx.core as mx
+import mlx.nn as nn
+
+from chuk_lazarus.models.config import ModelConfig
+
 logger = logging.getLogger(__name__)
+
 
 class ModelMode(Enum):
     TRAIN = "train"
     INFERENCE = "inference"
+
 
 class Model(nn.Module):
     def __init__(self, args: ModelConfig):
@@ -20,7 +23,7 @@ class Model(nn.Module):
         self.config = args
 
         # Default cache usage to False for training
-        self.use_cache = False  
+        self.use_cache = False
 
         # The model attribute will be set by subclasses
         self.model = None
@@ -44,11 +47,11 @@ class Model(nn.Module):
             out = self.lm_head(out)
         else:
             out = self.model.embed_tokens.as_linear(out)
-        
+
         return out, cache if self.use_cache else None
 
     def sanitize(self, weights):
-        return {k: v for k, v in weights.items()}
+        return dict(weights.items())
 
     def set_mode(self, mode: ModelMode):
         if mode == ModelMode.TRAIN:

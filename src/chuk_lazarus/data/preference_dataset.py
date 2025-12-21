@@ -6,9 +6,9 @@ Handles loading and batching of preference pairs (chosen, rejected).
 
 import json
 import logging
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, Optional
 
 import mlx.core as mx
 
@@ -18,10 +18,11 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PreferencePair:
     """A single preference pair."""
+
     prompt: str
     chosen: str  # Preferred response
     rejected: str  # Rejected response
-    metadata: Optional[dict] = None
+    metadata: dict | None = None
 
 
 class PreferenceDataset:
@@ -54,7 +55,7 @@ class PreferenceDataset:
         """Load preference pairs from JSONL file."""
         pairs = []
 
-        with open(self.data_path, "r") as f:
+        with open(self.data_path) as f:
             for line in f:
                 if not line.strip():
                     continue
@@ -70,12 +71,14 @@ class PreferenceDataset:
                 if isinstance(rejected, list):
                     rejected = rejected[-1]["content"] if rejected else ""
 
-                pairs.append(PreferencePair(
-                    prompt=item["prompt"],
-                    chosen=chosen,
-                    rejected=rejected,
-                    metadata=item.get("metadata")
-                ))
+                pairs.append(
+                    PreferencePair(
+                        prompt=item["prompt"],
+                        chosen=chosen,
+                        rejected=rejected,
+                        metadata=item.get("metadata"),
+                    )
+                )
 
         return pairs
 
@@ -94,7 +97,7 @@ class PreferenceDataset:
 
         # Truncate prompt if needed
         if len(prompt_tokens) > self.max_prompt_length:
-            prompt_tokens = prompt_tokens[:self.max_prompt_length]
+            prompt_tokens = prompt_tokens[: self.max_prompt_length]
 
         # Tokenize chosen and rejected (prompt + response)
         chosen_full = pair.prompt + pair.chosen
@@ -104,8 +107,8 @@ class PreferenceDataset:
         rejected_tokens = self.tokenizer.encode(rejected_full)
 
         # Truncate to max length
-        chosen_tokens = chosen_tokens[:self.max_length]
-        rejected_tokens = rejected_tokens[:self.max_length]
+        chosen_tokens = chosen_tokens[: self.max_length]
+        rejected_tokens = rejected_tokens[: self.max_length]
 
         return {
             "prompt_length": len(prompt_tokens),
@@ -167,10 +170,7 @@ class PreferenceDataset:
         }
 
     def iter_batches(
-        self,
-        batch_size: int,
-        shuffle: bool = True,
-        pad_token_id: int = 0
+        self, batch_size: int, shuffle: bool = True, pad_token_id: int = 0
     ) -> Iterator[dict]:
         """Iterate over batches of preference pairs."""
         import random
@@ -181,7 +181,7 @@ class PreferenceDataset:
             random.shuffle(indices)
 
         for start in range(0, len(indices), batch_size):
-            batch_indices = indices[start:start + batch_size]
+            batch_indices = indices[start : start + batch_size]
             yield self.get_batch(batch_indices, pad_token_id)
 
 

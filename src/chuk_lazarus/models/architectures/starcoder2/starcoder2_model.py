@@ -1,16 +1,20 @@
-import mlx.nn as nn
 import mlx.core as mx
-from chuk_lazarus.models.config import ModelConfig
-from chuk_lazarus.models.architectures.transformer_base_model import TransformerBaseModel
-from chuk_lazarus.models.architectures.starcoder2.starcoder2_transformer_block import StarCoder2TransformerBlock
+import mlx.nn as nn
+
 from chuk_lazarus.models.architectures.starcoder2.starcoder2_attention import StarCoder2Attention
+from chuk_lazarus.models.architectures.starcoder2.starcoder2_transformer_block import (
+    StarCoder2TransformerBlock,
+)
+from chuk_lazarus.models.architectures.transformer_base_model import TransformerBaseModel
+from chuk_lazarus.models.config import ModelConfig
+
 
 class Starcoder2Model(TransformerBaseModel):
     def __init__(self, args: ModelConfig):
         super().__init__(
             args,
             attention_layer=StarCoder2Attention,
-            norm_layer=lambda size, eps: nn.LayerNorm(size, eps=eps)
+            norm_layer=lambda size, eps: nn.LayerNorm(size, eps=eps),
         )
         self.args = args
         self.vocab_size = args.vocab_size

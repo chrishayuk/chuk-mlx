@@ -1,7 +1,9 @@
 import mlx.core as mx
 import mlx.nn as nn
-from chuk_lazarus.models.mlp.swiglu_mlp import MLP
+
 from chuk_lazarus.models.config import ModelConfig
+from chuk_lazarus.models.mlp.swiglu_mlp import MLP
+
 
 # Define a simple language model with embedding and MLP
 class CustomModel(nn.Module):
@@ -13,7 +15,7 @@ class CustomModel(nn.Module):
 
         # set the mlp
         self.mlp = MLP(config.hidden_size, config.intermediate_size)
-    
+
     def __call__(self, x) -> mx.array:
         # call is the same as forward
         return self.forward(x)

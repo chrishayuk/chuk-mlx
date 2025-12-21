@@ -17,7 +17,7 @@ Examples:
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -26,6 +26,7 @@ import mlx.nn as nn
 @dataclass
 class ExpertConfig:
     """Configuration for an RNN expert."""
+
     name: str  # Unique identifier (e.g., "physics_controller")
     obs_dim: int  # Observation dimension
     action_dim: int  # Action/output dimension
@@ -89,7 +90,7 @@ class RNNExpertBase(nn.Module, ABC):
         pass
 
     @abstractmethod
-    def _forward_rnn(self, x: mx.array, hidden: Optional[Any]) -> tuple[mx.array, Any]:
+    def _forward_rnn(self, x: mx.array, hidden: Any | None) -> tuple[mx.array, Any]:
         """Forward through RNN layers. Returns (output, new_hidden)."""
         pass
 
@@ -98,10 +99,7 @@ class RNNExpertBase(nn.Module, ABC):
         self.hidden_state = None
 
     def __call__(
-        self,
-        obs: mx.array,
-        hidden: Optional[Any] = None,
-        deterministic: bool = False
+        self, obs: mx.array, hidden: Any | None = None, deterministic: bool = False
     ) -> dict:
         """
         Forward pass through the expert.
@@ -192,26 +190,16 @@ class RNNExpertBase(nn.Module, ABC):
         gumbel = -mx.log(-mx.log(u + 1e-10) + 1e-10)
         return mx.argmax(mx.log(probs + 1e-10) + gumbel, axis=-1)
 
-    def _gaussian_log_prob(
-        self,
-        action: mx.array,
-        mean: mx.array,
-        std: mx.array
-    ) -> mx.array:
+    def _gaussian_log_prob(self, action: mx.array, mean: mx.array, std: mx.array) -> mx.array:
         """Compute log probability under Gaussian."""
-        var = std ** 2
+        var = std**2
         log_prob = -0.5 * (
-            ((action - mean) ** 2) / var
-            + mx.log(var)
-            + mx.log(mx.array(2 * 3.14159265))
+            ((action - mean) ** 2) / var + mx.log(var) + mx.log(mx.array(2 * 3.14159265))
         )
         return mx.sum(log_prob, axis=-1)
 
     def get_action_and_value(
-        self,
-        obs: mx.array,
-        action: mx.array = None,
-        hidden: Optional[Any] = None
+        self, obs: mx.array, action: mx.array = None, hidden: Any | None = None
     ) -> dict:
         """
         Get action log prob and value for given observation and action.

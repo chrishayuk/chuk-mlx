@@ -5,7 +5,6 @@ Standard cross-entropy loss for language model training.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Optional
 
 import mlx.core as mx
 
@@ -13,6 +12,7 @@ import mlx.core as mx
 @dataclass
 class SFTConfig:
     """Configuration for SFT training."""
+
     num_epochs: int = 3
     batch_size: int = 4
     learning_rate: float = 1e-5
@@ -25,15 +25,13 @@ class SFTConfig:
     eval_interval: int = 100
     checkpoint_interval: int = 500
     checkpoint_dir: str = "./checkpoints/sft"
-    max_steps: Optional[int] = None
-    min_loss: Optional[float] = None
+    max_steps: int | None = None
+    min_loss: float | None = None
 
 
 def sft_loss(
-    logits: mx.array,
-    labels: mx.array,
-    loss_mask: mx.array
-) -> tuple[mx.array, Dict[str, mx.array]]:
+    logits: mx.array, labels: mx.array, loss_mask: mx.array
+) -> tuple[mx.array, dict[str, mx.array]]:
     """
     Compute SFT cross-entropy loss.
 

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def calculate_memory_per_batch(max_sequence_length, batch_size, dtype=np.int32):
     """
     Calculates the memory usage for one batch of data.
@@ -20,6 +21,7 @@ def calculate_memory_per_batch(max_sequence_length, batch_size, dtype=np.int32):
 
     return memory_in_bytes
 
+
 def format_memory_size(memory_in_bytes):
     """
     Converts a memory size in bytes to a more readable format (KB, MB, GB).
@@ -29,9 +31,9 @@ def format_memory_size(memory_in_bytes):
     """
     if memory_in_bytes < 1024:
         return f"{memory_in_bytes} B"
-    elif memory_in_bytes < 1024 ** 2:
+    elif memory_in_bytes < 1024**2:
         return f"{memory_in_bytes / 1024:.2f} KB"
-    elif memory_in_bytes < 1024 ** 3:
-        return f"{memory_in_bytes / (1024 ** 2):.2f} MB"
+    elif memory_in_bytes < 1024**3:
+        return f"{memory_in_bytes / (1024**2):.2f} MB"
     else:
-        return f"{memory_in_bytes / (1024 ** 3):.2f} GB"
+        return f"{memory_in_bytes / (1024**3):.2f} GB"

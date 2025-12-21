@@ -1,6 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 
+
 class MLP(nn.Module):
     def __init__(self, input_size, hidden_size, intermediate_size, bias=False):
         super().__init__()
@@ -19,6 +20,7 @@ class MLP(nn.Module):
         output = self.down_proj(gate * self.up_proj(combined))
 
         return output
+
 
 class CustomModel(nn.Module):
     def __init__(self, config):
@@ -47,7 +49,9 @@ class CustomModel(nn.Module):
         # Process each time step in the sequence
         for t in range(embedded_vectors.shape[1]):
             # Update the hidden state using the MLP
-            hidden_state = self.mlp.forward(embedded_vectors[:, t, :], hidden_state)  # Shape: (batch_size, hidden_size)
+            hidden_state = self.mlp.forward(
+                embedded_vectors[:, t, :], hidden_state
+            )  # Shape: (batch_size, hidden_size)
 
         # Project the final hidden state to the output space
         output = self.output_projection(hidden_state)  # Shape: (batch_size, vocab_size)

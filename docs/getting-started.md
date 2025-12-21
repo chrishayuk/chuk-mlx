@@ -63,6 +63,30 @@ trainer = SFTTrainer(model, tokenizer, config)
 trainer.train(dataset)
 ```
 
+## Using the CLI
+
+Lazarus includes a CLI for common operations:
+
+```bash
+# Inference
+lazarus infer --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --prompt "Hello!"
+
+# Training
+lazarus train sft --model model-name --data train.jsonl --use-lora
+lazarus train dpo --model ./checkpoints/sft/final --data preferences.jsonl
+
+# Data generation
+lazarus generate --type math --output ./data/lazarus
+
+# Tokenizer utilities
+lazarus tokenizer encode -t model-name --text "Hello world"
+lazarus tokenizer decode -t model-name --ids "1,2,3"
+lazarus tokenizer vocab -t model-name --search "hello"
+lazarus tokenizer compare -t1 model1 -t2 model2 --text "Test"
+```
+
+See [CLI Reference](cli.md) for full documentation.
+
 ## Supported Models
 
 - LLaMA / LLaMA 2 / LLaMA 3
@@ -75,5 +99,6 @@ trainer.train(dataset)
 ## Next Steps
 
 - See `examples/` for more detailed examples
-- Check `docs/training.md` for training guide
-- Read `docs/api-reference.md` for API documentation
+- Check [Training Guide](training.md) for training details
+- Check [CLI Reference](cli.md) for command-line usage
+- Read [API Reference](api-reference.md) for API documentation

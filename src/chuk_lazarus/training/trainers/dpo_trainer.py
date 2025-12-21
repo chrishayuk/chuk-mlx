@@ -7,16 +7,17 @@ while adding DPO-specific functionality.
 
 import logging
 import time
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
+from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
-from ..base_trainer import BaseTrainer, BaseTrainerConfig
-from ..losses.dpo_loss import dpo_loss, DPOConfig
 from ...data import PreferenceDataset
+from ..base_trainer import BaseTrainer, BaseTrainerConfig
+from ..losses.dpo_loss import DPOConfig, dpo_loss
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class DPOTrainerConfig(BaseTrainerConfig):
     """Configuration for DPO training."""
+
     # DPO hyperparameters
     dpo: DPOConfig = field(default_factory=DPOConfig)
 
@@ -42,7 +44,7 @@ class DPOTrainerConfig(BaseTrainerConfig):
     checkpoint_dir: str = "./checkpoints/dpo"
 
     # Early stopping
-    max_steps: Optional[int] = None
+    max_steps: int | None = None
     target_reward_margin: float = 2.0  # Stop if margin exceeds this
 
 
@@ -66,7 +68,7 @@ class DPOTrainer(BaseTrainer):
         reference_model: nn.Module,
         tokenizer,
         config: DPOTrainerConfig = None,
-        optimizer: optim.Optimizer = None
+        optimizer: optim.Optimizer = None,
     ):
         config = config or DPOTrainerConfig()
         super().__init__(policy_model, tokenizer, config, optimizer)
@@ -78,14 +80,14 @@ class DPOTrainer(BaseTrainer):
         self.reference_model.freeze()
 
         # DPO-specific state
-        self.best_reward_margin = float('-inf')
+        self.best_reward_margin = float("-inf")
 
     @property
     def dpo_config(self) -> DPOTrainerConfig:
         """Type-safe access to config."""
         return self.config
 
-    def compute_loss(self, batch: Dict[str, Any]) -> Tuple[mx.array, Dict[str, Any]]:
+    def compute_loss(self, batch: dict[str, Any]) -> tuple[mx.array, dict[str, Any]]:
         """Compute DPO loss for a batch."""
         loss, metrics = dpo_loss(
             policy_model=self.policy_model,
@@ -94,23 +96,21 @@ class DPOTrainer(BaseTrainer):
             rejected_input_ids=batch["rejected_input_ids"],
             chosen_attention_mask=batch["chosen_attention_mask"],
             rejected_attention_mask=batch["rejected_attention_mask"],
-            config=self.dpo_config.dpo
+            config=self.dpo_config.dpo,
         )
         return loss, metrics
 
-    def get_train_batches(self, dataset: PreferenceDataset) -> Iterator[Dict[str, mx.array]]:
+    def get_train_batches(self, dataset: PreferenceDataset) -> Iterator[dict[str, mx.array]]:
         """Get iterator over training batches."""
         return dataset.iter_batches(
-            batch_size=self.dpo_config.batch_size,
-            shuffle=True,
-            pad_token_id=self.pad_token_id
+            batch_size=self.dpo_config.batch_size, shuffle=True, pad_token_id=self.pad_token_id
         )
 
     def train(
         self,
         train_dataset: PreferenceDataset,
         eval_dataset: PreferenceDataset = None,
-        callback: Callable[[Dict], None] = None
+        callback: Callable[[dict], None] = None,
     ):
         """
         Run DPO training.
@@ -125,10 +125,10 @@ class DPOTrainer(BaseTrainer):
             dataset=train_dataset,
             num_epochs=self.dpo_config.num_epochs,
             eval_dataset=eval_dataset,
-            callback=callback
+            callback=callback,
         )
 
-    def evaluate(self, dataset: PreferenceDataset) -> Dict[str, float]:
+    def evaluate(self, dataset: PreferenceDataset) -> dict[str, float]:
         """Evaluate on a dataset."""
         all_metrics = {
             "loss": [],
@@ -139,9 +139,7 @@ class DPOTrainer(BaseTrainer):
         }
 
         for batch in dataset.iter_batches(
-            batch_size=self.dpo_config.batch_size,
-            shuffle=False,
-            pad_token_id=self.pad_token_id
+            batch_size=self.dpo_config.batch_size, shuffle=False, pad_token_id=self.pad_token_id
         ):
             loss, metrics = dpo_loss(
                 policy_model=self.policy_model,
@@ -150,7 +148,7 @@ class DPOTrainer(BaseTrainer):
                 rejected_input_ids=batch["rejected_input_ids"],
                 chosen_attention_mask=batch["chosen_attention_mask"],
                 rejected_attention_mask=batch["rejected_attention_mask"],
-                config=self.dpo_config.dpo
+                config=self.dpo_config.dpo,
             )
 
             for key in all_metrics:
@@ -159,7 +157,7 @@ class DPOTrainer(BaseTrainer):
 
         return {k: sum(v) / len(v) if v else 0.0 for k, v in all_metrics.items()}
 
-    def _create_epoch_metrics(self) -> Dict[str, List[float]]:
+    def _create_epoch_metrics(self) -> dict[str, list[float]]:
         """Create DPO-specific metrics accumulator."""
         return {
             "loss": [],
@@ -169,7 +167,7 @@ class DPOTrainer(BaseTrainer):
             "accuracy": [],
         }
 
-    def _log_metrics(self, metrics: Dict[str, float]):
+    def _log_metrics(self, metrics: dict[str, float]):
         """Log DPO-specific metrics."""
         elapsed = time.time() - self._start_time
         logger.info(
@@ -180,21 +178,17 @@ class DPOTrainer(BaseTrainer):
             f"Time: {elapsed:.1f}s"
         )
 
-        self.metrics_history.append({
-            "step": self.global_step,
-            **metrics
-        })
+        self.metrics_history.append({"step": self.global_step, **metrics})
 
-    def _log_eval_metrics(self, metrics: Dict[str, float]):
+    def _log_eval_metrics(self, metrics: dict[str, float]):
         """Log evaluation metrics."""
         logger.info(
-            f"Eval | Margin: {metrics['reward_margin']:.4f} | "
-            f"Acc: {metrics['accuracy']:.2%}"
+            f"Eval | Margin: {metrics['reward_margin']:.4f} | Acc: {metrics['accuracy']:.2%}"
         )
 
-    def _should_stop_early(self, metrics: Dict[str, float]) -> bool:
+    def _should_stop_early(self, metrics: dict[str, float]) -> bool:
         """Check if we should stop due to reaching target reward margin."""
-        current_margin = metrics.get('reward_margin', 0)
+        current_margin = metrics.get("reward_margin", 0)
         if current_margin >= self.dpo_config.target_reward_margin:
             logger.info(f"Target reward margin reached: {current_margin:.4f}")
             return True
@@ -203,6 +197,7 @@ class DPOTrainer(BaseTrainer):
     def save_checkpoint(self, name: str):
         """Save model checkpoint."""
         from pathlib import Path
+
         path = Path(self.config.checkpoint_dir) / f"{name}.npz"
         weights = dict(self.policy_model.parameters())
         mx.save(str(path), weights)

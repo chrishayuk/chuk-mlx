@@ -1,15 +1,24 @@
 import gc
 import os
-import traceback
 import random
+import traceback
 from asyncio.log import logger
-from threading import Lock, Thread, Event
-from queue import Queue, Empty
 from collections import OrderedDict
+from queue import Empty, Queue
+from threading import Event, Lock, Thread
+
 from chuk_lazarus.utils import model_adapter
 
+
 class BatchDatasetBase:
-    def __init__(self, batch_output_dir, batchfile_prefix, pre_cache_size=5, shuffle=False, model_adapter=model_adapter.ModelAdapter(framework="mlx")):
+    def __init__(
+        self,
+        batch_output_dir,
+        batchfile_prefix,
+        pre_cache_size=5,
+        shuffle=False,
+        model_adapter=model_adapter.ModelAdapter(framework="mlx"),
+    ):
         # Initialize batch output directory, file prefix, cache settings, and model adapter
         self.batch_output_dir = batch_output_dir
         self.batchfile_prefix = batchfile_prefix
@@ -25,7 +34,7 @@ class BatchDatasetBase:
         self.model_adapter = model_adapter  # Framework-specific model adapter
 
         # cache lock
-        self.cache_lock = Lock() 
+        self.cache_lock = Lock()
 
         # Load the list of batch files
         self._load_batch_files()
@@ -40,26 +49,29 @@ class BatchDatasetBase:
     def _load_batch_files(self):
         # Collect batch files matching the specified prefix and extension
         self.batch_files = sorted(
-            filename for filename in os.listdir(self.batch_output_dir)
+            filename
+            for filename in os.listdir(self.batch_output_dir)
             if filename.startswith(self.batchfile_prefix) and filename.endswith(".npz")
         )
 
     def _load_tensors(self, batch_file):
         # Construct full path to the batch file
         batch_path = os.path.join(self.batch_output_dir, batch_file)
-        
+
         try:
             # Ensure the batch file exists
             if not os.path.exists(batch_path):
-                raise FileNotFoundError(f"Batch file {batch_file} does not exist at path {batch_path}")
-            
+                raise FileNotFoundError(
+                    f"Batch file {batch_file} does not exist at path {batch_path}"
+                )
+
             # Use the ModelAdapter to load the batch data in the correct framework format
             batch_data = self.model_adapter.load_tensor_from_file(batch_path)
 
             # Extract and return tensors from the loaded batch data
-            input_tensor = batch_data['input_tensor']
-            target_tensor = batch_data['target_tensor']
-            attention_mask_tensor = batch_data['attention_mask_tensor']
+            input_tensor = batch_data["input_tensor"]
+            target_tensor = batch_data["target_tensor"]
+            attention_mask_tensor = batch_data["attention_mask_tensor"]
 
             return input_tensor, target_tensor, attention_mask_tensor
         except FileNotFoundError as e:
@@ -98,13 +110,17 @@ class BatchDatasetBase:
                         self.cache.move_to_end(index)  # Maintain LRU order
 
                         # Log the cache status
-                        logger.debug(f"Pre-cache worker: Cached batch {index}. Current cache keys: {list(self.cache.keys())}")
+                        logger.debug(
+                            f"Pre-cache worker: Cached batch {index}. Current cache keys: {list(self.cache.keys())}"
+                        )
 
                         # Evict the oldest entry if the cache exceeds its size limit
                         if len(self.cache) > self.cache_size:
                             oldest_key = next(iter(self.cache))
                             del self.cache[oldest_key]
-                            logger.info(f"Pre-cache worker: Evicted batch {oldest_key} due to cache size limit.")
+                            logger.info(
+                                f"Pre-cache worker: Evicted batch {oldest_key} due to cache size limit."
+                            )
 
                 self.load_queue.task_done()
             except Empty:
@@ -141,7 +157,9 @@ class BatchDatasetBase:
                         self.load_queue.put(next_index)
 
             # Log cache status after accessing a batch
-            logger.debug(f"Main thread: Accessed batch {index}. Current cache keys: {list(self.cache.keys())}")
+            logger.debug(
+                f"Main thread: Accessed batch {index}. Current cache keys: {list(self.cache.keys())}"
+            )
 
         return self.cache[index]
 
@@ -162,15 +180,15 @@ class BatchDatasetBase:
     def __del__(self):
         # Cleanup resources and stop pre-caching thread
         try:
-            if hasattr(self, 'load_queue'):
+            if hasattr(self, "load_queue"):
                 # Signal the thread to stop
                 self.stop_event.set()
 
                 # Unblock the queue
-                self.load_queue.put(None)  
+                self.load_queue.put(None)
 
                 # clean up the thread
-                if hasattr(self, 'pre_cache_thread') and self.pre_cache_thread.is_alive():
+                if hasattr(self, "pre_cache_thread") and self.pre_cache_thread.is_alive():
                     self.pre_cache_thread.join(timeout=5)  # Wait for the thread to finish
         finally:
             gc.collect()  # Invoke garbage collection to free memory
@@ -180,22 +198,22 @@ class BatchDatasetBase:
         self.stop_event.set()
 
         # Ensure the pre-cache thread can exit
-        self.load_queue.put(None)  
+        self.load_queue.put(None)
         self.pre_cache_thread.join(timeout=5)
 
         # Move to the next epoch
         self.epoch += 1
-        
+
         # Shuffle batch files if shuffle=True
         if self.shuffle:
             random.shuffle(self.batch_files)
 
         # Clear the cache at the end of each epoch
-        self.cache.clear()  
-        
+        self.cache.clear()
+
         # Reset the index
         self.current_index = -1
-        
+
         # Explicitly invoke garbage collection to free memory
         gc.collect()
 

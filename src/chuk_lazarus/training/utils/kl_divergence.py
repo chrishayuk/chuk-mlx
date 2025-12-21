@@ -11,9 +11,7 @@ import mlx.core as mx
 
 
 def compute_kl_divergence(
-    log_probs_p: mx.array,
-    log_probs_q: mx.array,
-    mask: mx.array = None
+    log_probs_p: mx.array, log_probs_q: mx.array, mask: mx.array = None
 ) -> mx.array:
     """
     Compute KL divergence: KL(P || Q) = E_P[log P - log Q]
@@ -42,9 +40,7 @@ def compute_kl_divergence(
 
 
 def compute_approx_kl(
-    old_log_probs: mx.array,
-    new_log_probs: mx.array,
-    mask: mx.array = None
+    old_log_probs: mx.array, new_log_probs: mx.array, mask: mx.array = None
 ) -> mx.array:
     """
     Compute approximate KL divergence for PPO early stopping.
@@ -63,11 +59,11 @@ def compute_approx_kl(
         approx_kl: Scalar approximate KL divergence
     """
     log_ratio = new_log_probs - old_log_probs
-    approx_kl = 0.5 * mx.mean(log_ratio ** 2)
+    approx_kl = 0.5 * mx.mean(log_ratio**2)
 
     if mask is not None:
         masked_ratio = log_ratio * mask
         total_tokens = mx.sum(mask)
-        approx_kl = 0.5 * mx.sum(masked_ratio ** 2) / (total_tokens + 1e-8)
+        approx_kl = 0.5 * mx.sum(masked_ratio**2) / (total_tokens + 1e-8)
 
     return approx_kl

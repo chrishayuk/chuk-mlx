@@ -1,8 +1,10 @@
 import mlx.core as mx
 import mlx.nn as nn
-from chuk_lazarus.models.config import ModelConfig
 from models.architectures.starcoder2.starcoder2_attention import StarCoder2Attention
 from models.architectures.starcoder2.starcoder2_mlp import StarCoder2MLP
+
+from chuk_lazarus.models.config import ModelConfig
+
 
 class StarCoder2TransformerBlock(nn.Module):
     def __init__(self, args: ModelConfig):

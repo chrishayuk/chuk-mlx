@@ -6,27 +6,27 @@ a clean interface for the orchestrator.
 """
 
 import logging
-from typing import Any, Dict, Optional, Type
+from typing import Any
 
 import mlx.core as mx
 
-from .rnn_expert_base import RNNExpertBase, ExpertConfig
 from .gru_expert import GRUExpert
 from .lstm_expert import LSTMExpert
+from .rnn_expert_base import ExpertConfig, RNNExpertBase
 
 logger = logging.getLogger(__name__)
 
 
 # Global registry
-_EXPERT_CLASSES: Dict[str, Type[RNNExpertBase]] = {
+_EXPERT_CLASSES: dict[str, type[RNNExpertBase]] = {
     "gru": GRUExpert,
     "lstm": LSTMExpert,
 }
 
-_EXPERT_INSTANCES: Dict[str, RNNExpertBase] = {}
+_EXPERT_INSTANCES: dict[str, RNNExpertBase] = {}
 
 
-def register_expert_class(name: str, expert_class: Type[RNNExpertBase]):
+def register_expert_class(name: str, expert_class: type[RNNExpertBase]):
     """Register a new expert class type."""
     _EXPERT_CLASSES[name] = expert_class
     logger.info(f"Registered expert class: {name}")
@@ -38,7 +38,7 @@ def register_expert(name: str, expert: RNNExpertBase):
     logger.info(f"Registered expert instance: {name}")
 
 
-def get_expert(name: str) -> Optional[RNNExpertBase]:
+def get_expert(name: str) -> RNNExpertBase | None:
     """Get an expert instance by name."""
     return _EXPERT_INSTANCES.get(name)
 
@@ -48,10 +48,7 @@ def list_experts() -> list[str]:
     return list(_EXPERT_INSTANCES.keys())
 
 
-def create_expert(
-    expert_type: str,
-    config: ExpertConfig
-) -> RNNExpertBase:
+def create_expert(expert_type: str, config: ExpertConfig) -> RNNExpertBase:
     """
     Create and register an expert.
 
@@ -63,7 +60,9 @@ def create_expert(
         The created expert instance
     """
     if expert_type not in _EXPERT_CLASSES:
-        raise ValueError(f"Unknown expert type: {expert_type}. Available: {list(_EXPERT_CLASSES.keys())}")
+        raise ValueError(
+            f"Unknown expert type: {expert_type}. Available: {list(_EXPERT_CLASSES.keys())}"
+        )
 
     expert_class = _EXPERT_CLASSES[expert_type]
     expert = expert_class(config)
@@ -85,8 +84,8 @@ class ExpertRegistry:
     """
 
     def __init__(self):
-        self.experts: Dict[str, RNNExpertBase] = {}
-        self.configs: Dict[str, ExpertConfig] = {}
+        self.experts: dict[str, RNNExpertBase] = {}
+        self.configs: dict[str, ExpertConfig] = {}
 
     def register(self, expert: RNNExpertBase):
         """Register an expert instance."""
@@ -95,17 +94,13 @@ class ExpertRegistry:
         self.configs[name] = expert.config
         logger.info(f"Registered expert: {name}")
 
-    def create_and_register(
-        self,
-        expert_type: str,
-        config: ExpertConfig
-    ) -> RNNExpertBase:
+    def create_and_register(self, expert_type: str, config: ExpertConfig) -> RNNExpertBase:
         """Create and register an expert."""
         expert = create_expert(expert_type, config)
         self.register(expert)
         return expert
 
-    def get(self, name: str) -> Optional[RNNExpertBase]:
+    def get(self, name: str) -> RNNExpertBase | None:
         """Get expert by name."""
         return self.experts.get(name)
 
@@ -122,12 +117,7 @@ class ExpertRegistry:
         """List all expert names."""
         return list(self.experts.keys())
 
-    def step(
-        self,
-        expert_name: str,
-        obs: mx.array,
-        deterministic: bool = False
-    ) -> dict:
+    def step(self, expert_name: str, obs: mx.array, deterministic: bool = False) -> dict:
         """
         Step an expert with an observation.
 
@@ -169,7 +159,7 @@ class ExpertRegistry:
                     "discrete_actions": expert.config.discrete_actions,
                     "num_actions": expert.config.num_actions,
                     "use_value_head": expert.config.use_value_head,
-                }
+                },
             }
 
         mx.save(path, checkpoint)
@@ -187,7 +177,7 @@ class ExpertRegistry:
 
         logger.info(f"Loaded {len(checkpoint)} experts from {path}")
 
-    def get_all_parameters(self) -> Dict[str, Any]:
+    def get_all_parameters(self) -> dict[str, Any]:
         """Get parameters from all experts (for joint training)."""
         all_params = {}
         for name, expert in self.experts.items():

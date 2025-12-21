@@ -8,9 +8,10 @@ across SFT, DPO, GRPO, and PPO trainers.
 import logging
 import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from collections.abc import Callable, Iterator
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
+from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -22,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class BaseTrainerConfig:
     """Base configuration shared by all trainers."""
+
     # Training settings
     learning_rate: float = 1e-5
     weight_decay: float = 0.0
@@ -33,7 +35,7 @@ class BaseTrainerConfig:
     checkpoint_dir: str = "./checkpoints"
 
     # Early stopping
-    max_steps: Optional[int] = None
+    max_steps: int | None = None
 
 
 class BaseTrainer(ABC):
@@ -57,7 +59,7 @@ class BaseTrainer(ABC):
         model: nn.Module,
         tokenizer: Any,
         config: BaseTrainerConfig,
-        optimizer: Optional[optim.Optimizer] = None
+        optimizer: optim.Optimizer | None = None,
     ):
         self.model = model
         self.tokenizer = tokenizer
@@ -69,23 +71,22 @@ class BaseTrainer(ABC):
         # Training state
         self.global_step = 0
         self.current_epoch = 0
-        self.best_metric = float('inf')
+        self.best_metric = float("inf")
 
         # Metrics history
-        self.metrics_history: List[Dict] = []
+        self.metrics_history: list[dict] = []
 
         # Timing
-        self._start_time: Optional[float] = None
+        self._start_time: float | None = None
 
     def _create_optimizer(self) -> optim.Optimizer:
         """Create default AdamW optimizer."""
         return optim.AdamW(
-            learning_rate=self.config.learning_rate,
-            weight_decay=self.config.weight_decay
+            learning_rate=self.config.learning_rate, weight_decay=self.config.weight_decay
         )
 
     @abstractmethod
-    def compute_loss(self, batch: Dict[str, Any]) -> Tuple[mx.array, Dict[str, Any]]:
+    def compute_loss(self, batch: dict[str, Any]) -> tuple[mx.array, dict[str, Any]]:
         """
         Compute loss and metrics for a batch.
 
@@ -98,7 +99,7 @@ class BaseTrainer(ABC):
         pass
 
     @abstractmethod
-    def get_train_batches(self, dataset: Any) -> Iterator[Dict[str, Any]]:
+    def get_train_batches(self, dataset: Any) -> Iterator[dict[str, Any]]:
         """
         Get iterator over training batches.
 
@@ -115,7 +116,7 @@ class BaseTrainer(ABC):
         dataset: Any,
         num_epochs: int = 1,
         eval_dataset: Any = None,
-        callback: Optional[Callable[[Dict], None]] = None
+        callback: Callable[[dict], None] | None = None,
     ):
         """
         Main training loop.
@@ -171,7 +172,7 @@ class BaseTrainer(ABC):
                         callback(avg_metrics)
 
                 # Evaluation
-                if eval_dataset and hasattr(self.config, 'eval_interval'):
+                if eval_dataset and hasattr(self.config, "eval_interval"):
                     if self.global_step % self.config.eval_interval == 0:
                         eval_metrics = self.evaluate(eval_dataset)
                         self._log_eval_metrics(eval_metrics)
@@ -198,7 +199,7 @@ class BaseTrainer(ABC):
         self.save_checkpoint("final")
         logger.info(f"Training complete. Total steps: {self.global_step}")
 
-    def evaluate(self, dataset: Any) -> Dict[str, float]:
+    def evaluate(self, dataset: Any) -> dict[str, float]:
         """
         Evaluate on a dataset.
 
@@ -210,7 +211,7 @@ class BaseTrainer(ABC):
         Returns:
             Dictionary of evaluation metrics
         """
-        all_metrics: Dict[str, List[float]] = {}
+        all_metrics: dict[str, list[float]] = {}
 
         for batch in self.get_train_batches(dataset):
             _, metrics = self.compute_loss(batch)
@@ -227,7 +228,7 @@ class BaseTrainer(ABC):
         path = Path(self.config.checkpoint_dir) / f"{name}.safetensors"
 
         # Check if model has adapter save method (for LoRA)
-        if hasattr(self.model, 'save_adapter'):
+        if hasattr(self.model, "save_adapter"):
             self.model.save_adapter(str(path))
         else:
             weights = dict(self.model.parameters())
@@ -259,7 +260,7 @@ class BaseTrainer(ABC):
             return grads
 
         all_grads = mx.concatenate(flat_grads)
-        global_norm = mx.sqrt(mx.sum(all_grads ** 2))
+        global_norm = mx.sqrt(mx.sum(all_grads**2))
         clip_factor = mx.minimum(max_norm / (global_norm + 1e-6), mx.array(1.0))
 
         def apply_clip(g):
@@ -271,7 +272,7 @@ class BaseTrainer(ABC):
 
         return apply_clip(grads)
 
-    def _flatten_params(self, params: Dict, prefix: str = "") -> Dict[str, mx.array]:
+    def _flatten_params(self, params: dict, prefix: str = "") -> dict[str, mx.array]:
         """Flatten nested parameter dict for saving."""
         flat = {}
         for k, v in params.items():
@@ -282,57 +283,48 @@ class BaseTrainer(ABC):
                 flat[key] = v
         return flat
 
-    def _create_epoch_metrics(self) -> Dict[str, List[float]]:
+    def _create_epoch_metrics(self) -> dict[str, list[float]]:
         """Create empty metrics accumulator for epoch. Override for custom metrics."""
         return {"loss": []}
 
-    def _accumulate_metrics(self, epoch_metrics: Dict[str, List], metrics: Dict[str, Any]):
+    def _accumulate_metrics(self, epoch_metrics: dict[str, list], metrics: dict[str, Any]):
         """Accumulate batch metrics into epoch metrics."""
         for key in epoch_metrics:
             if key in metrics:
                 epoch_metrics[key].append(float(metrics[key]))
 
-    def _compute_avg_metrics(self, epoch_metrics: Dict[str, List]) -> Dict[str, float]:
+    def _compute_avg_metrics(self, epoch_metrics: dict[str, list]) -> dict[str, float]:
         """Compute average of recent metrics."""
         interval = self.config.log_interval
-        return {
-            k: sum(v[-interval:]) / len(v[-interval:])
-            for k, v in epoch_metrics.items() if v
-        }
+        return {k: sum(v[-interval:]) / len(v[-interval:]) for k, v in epoch_metrics.items() if v}
 
-    def _log_metrics(self, metrics: Dict[str, float]):
+    def _log_metrics(self, metrics: dict[str, float]):
         """Log training metrics. Override for custom logging."""
         elapsed = time.time() - self._start_time
-        loss = metrics.get('loss', 0)
-        logger.info(
-            f"Step {self.global_step} | "
-            f"Loss: {loss:.4f} | "
-            f"Time: {elapsed:.1f}s"
+        loss = metrics.get("loss", 0)
+        logger.info(f"Step {self.global_step} | Loss: {loss:.4f} | Time: {elapsed:.1f}s")
+
+        self.metrics_history.append(
+            {"step": self.global_step, "epoch": self.current_epoch, **metrics}
         )
 
-        self.metrics_history.append({
-            "step": self.global_step,
-            "epoch": self.current_epoch,
-            **metrics
-        })
-
-    def _log_eval_metrics(self, metrics: Dict[str, float]):
+    def _log_eval_metrics(self, metrics: dict[str, float]):
         """Log evaluation metrics."""
-        loss = metrics.get('loss', 0)
+        loss = metrics.get("loss", 0)
         logger.info(f"Eval | Loss: {loss:.4f}")
 
-    def _save_checkpoint_if_best(self, metrics: Dict[str, float]):
+    def _save_checkpoint_if_best(self, metrics: dict[str, float]):
         """Save best checkpoint if current metric is better."""
-        current_loss = metrics.get('loss', float('inf'))
+        current_loss = metrics.get("loss", float("inf"))
         if current_loss < self.best_metric:
             self.best_metric = current_loss
             self.save_checkpoint("best")
 
-    def _should_stop_early(self, metrics: Dict[str, float]) -> bool:
+    def _should_stop_early(self, metrics: dict[str, float]) -> bool:
         """Check if training should stop early. Override for custom logic."""
         return False
 
     @property
     def pad_token_id(self) -> int:
         """Get pad token ID from tokenizer."""
-        return getattr(self.tokenizer, 'pad_token_id', 0) or 0
+        return getattr(self.tokenizer, "pad_token_id", 0) or 0

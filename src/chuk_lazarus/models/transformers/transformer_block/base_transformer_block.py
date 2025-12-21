@@ -1,7 +1,8 @@
-from typing import Callable, Type
+from collections.abc import Callable
+
 
 class BaseTransformerBlock:
-    def __init__(self, config, attention_layer: Type, norm_layer: Callable[[int, float], Type]):
+    def __init__(self, config, attention_layer: type, norm_layer: Callable[[int, float], type]):
         # Set the hidden size
         self.hidden_size = config.hidden_size
 

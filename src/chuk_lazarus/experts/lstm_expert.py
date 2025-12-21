@@ -5,12 +5,10 @@ LSTM has an additional cell state for longer-term memory.
 Use when tasks require remembering information over many steps.
 """
 
-from typing import Optional, Tuple
-
 import mlx.core as mx
 import mlx.nn as nn
 
-from .rnn_expert_base import RNNExpertBase, ExpertConfig
+from .rnn_expert_base import ExpertConfig, RNNExpertBase
 
 
 class LSTMCell(nn.Module):
@@ -24,10 +22,8 @@ class LSTMCell(nn.Module):
         self.gates = nn.Linear(input_dim + hidden_dim, 4 * hidden_dim)
 
     def __call__(
-        self,
-        x: mx.array,
-        state: Optional[Tuple[mx.array, mx.array]] = None
-    ) -> Tuple[mx.array, Tuple[mx.array, mx.array]]:
+        self, x: mx.array, state: tuple[mx.array, mx.array] | None = None
+    ) -> tuple[mx.array, tuple[mx.array, mx.array]]:
         """
         Forward pass.
 
@@ -61,7 +57,7 @@ class LSTMCell(nn.Module):
         # Apply activations
         i = mx.sigmoid(i)  # Input gate
         f = mx.sigmoid(f)  # Forget gate
-        g = mx.tanh(g)     # Cell gate (candidate)
+        g = mx.tanh(g)  # Cell gate (candidate)
         o = mx.sigmoid(o)  # Output gate
 
         # Update cell state
@@ -95,11 +91,7 @@ class LSTMExpert(RNNExpertBase):
 
         self._lstm_modules = self.lstm_layers
 
-    def _forward_rnn(
-        self,
-        x: mx.array,
-        hidden: Optional[list] = None
-    ) -> Tuple[mx.array, list]:
+    def _forward_rnn(self, x: mx.array, hidden: list | None = None) -> tuple[mx.array, list]:
         """
         Forward through LSTM layers.
 
@@ -130,9 +122,7 @@ class LSTMExpert(RNNExpertBase):
 
 
 def create_planning_expert(
-    state_dim: int = 20,
-    action_dim: int = 5,
-    hidden_dim: int = 128
+    state_dim: int = 20, action_dim: int = 5, hidden_dim: int = 128
 ) -> LSTMExpert:
     """
     Create an LSTM expert for multi-step planning tasks.
@@ -157,7 +147,7 @@ def create_planning_expert(
 def create_arc_solver_expert(
     grid_size: int = 30,
     num_actions: int = 20,  # Transform types
-    hidden_dim: int = 256
+    hidden_dim: int = 256,
 ) -> LSTMExpert:
     """
     Create an LSTM expert for ARC-style grid puzzles.

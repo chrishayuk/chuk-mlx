@@ -1,16 +1,30 @@
+import gc
+import logging
 import os
 import time
-import logging
-import gc
+
 import mlx.core as mx
 from tqdm import tqdm
+
+from chuk_lazarus.training.epoch_processor_utils import calculate_epoch_metrics, update_progress_bar
 from chuk_lazarus.utils.memory import log_memory_usage
-from chuk_lazarus.training.epoch_processor_utils import update_progress_bar, calculate_epoch_metrics
 
 logger = logging.getLogger(__name__)
 
+
 class EpochProcessor:
-    def __init__(self, model, tokenizer, optimizer, loss_function, batch_processor, progress_interval, checkpoint_freq_epochs, checkpoint_freq_iterations, checkpoint_dir):
+    def __init__(
+        self,
+        model,
+        tokenizer,
+        optimizer,
+        loss_function,
+        batch_processor,
+        progress_interval,
+        checkpoint_freq_epochs,
+        checkpoint_freq_iterations,
+        checkpoint_dir,
+    ):
         # initialize
         self.model = model
         self.tokenizer = tokenizer
@@ -41,8 +55,10 @@ class EpochProcessor:
         num_batches = len(batch_dataset)
 
         # Initialize batch progress bar
-        batch_progress = tqdm(total=num_batches, desc=f"Epoch [{epoch+1}/{num_epochs}]", unit="batch")
-        
+        batch_progress = tqdm(
+            total=num_batches, desc=f"Epoch [{epoch + 1}/{num_epochs}]", unit="batch"
+        )
+
         try:
             # loop through the batches
             for batch_index in range(num_batches):
@@ -58,7 +74,9 @@ class EpochProcessor:
 
                     # Process the batch (capturing timings)
                     process_start = time.time()
-                    batch_metrics = self.batch_processor.process_batch(batch, batch_index, iteration_count)
+                    batch_metrics = self.batch_processor.process_batch(
+                        batch, batch_index, iteration_count
+                    )
                     process_time = time.time() - process_start
 
                     # Calculate epoch stats
@@ -72,12 +90,17 @@ class EpochProcessor:
 
                     # Update the progress bar
                     overhead_start = time.time()
-                    update_progress_bar(batch_progress, batch_index, batch_metrics, self.progress_interval)
+                    update_progress_bar(
+                        batch_progress, batch_index, batch_metrics, self.progress_interval
+                    )
 
                     # Check if we need to checkpoint
-                    if self.checkpoint_freq_iterations is not None and iteration_count % self.checkpoint_freq_iterations == 0:
-                        logger.info(f'Checkpointing at iteration {iteration_count}')
-                        self.save_checkpoint(f'iteration_{iteration_count}')
+                    if (
+                        self.checkpoint_freq_iterations is not None
+                        and iteration_count % self.checkpoint_freq_iterations == 0
+                    ):
+                        logger.info(f"Checkpointing at iteration {iteration_count}")
+                        self.save_checkpoint(f"iteration_{iteration_count}")
 
                     # Calculate overhead times
                     overhead_time = time.time() - overhead_start
@@ -85,20 +108,22 @@ class EpochProcessor:
 
                     # Calculate batch times
                     total_batch_time = data_loading_time + process_time + overhead_time
-                    batch_progress.set_postfix({
-                        "Batch Loss": f"{batch_metrics['loss']:.2f}",
-                        "Tokens": batch_metrics["ntoks"],
-                        "Batch Time": f"{process_time:.3f}s",
-                        "Total Time": f"{total_batch_time:.3f}s",
-                        "Tokens/s": f"{batch_metrics['ntoks']/process_time:.2f}"
-                    })
+                    batch_progress.set_postfix(
+                        {
+                            "Batch Loss": f"{batch_metrics['loss']:.2f}",
+                            "Tokens": batch_metrics["ntoks"],
+                            "Batch Time": f"{process_time:.3f}s",
+                            "Total Time": f"{total_batch_time:.3f}s",
+                            "Tokens/s": f"{batch_metrics['ntoks'] / process_time:.2f}",
+                        }
+                    )
 
                 except Exception as e:
                     # Error handling
                     logger.error(f"Error processing batch at index {batch_index}: {str(e)}")
                     logger.error(f"Batch type: {type(batch)}")
                     logger.error(f"Batch content: {batch}")
-                    #continue
+                    # continue
                     raise
 
                 finally:
@@ -109,18 +134,22 @@ class EpochProcessor:
                     gc.collect()
 
             # Calculate epoch metrics
-            epoch_metrics = calculate_epoch_metrics(epoch_start_time, batch_times, epoch_tokens, epoch_theoretical_tokens)
+            epoch_metrics = calculate_epoch_metrics(
+                epoch_start_time, batch_times, epoch_tokens, epoch_theoretical_tokens
+            )
 
             # Calculate the average epoch loss across the batch
             avg_epoch_loss = epoch_loss / batch_count if batch_count > 0 else 0
 
             # Set the progress bar
-            batch_progress.set_postfix({
-                "Epoch Loss": f"{avg_epoch_loss:.4f}",
-                "Tokens": epoch_tokens,
-                "Avg Batch Time": f"{epoch_metrics['average_batch_time']:.3f}s",
-                "Tokens/s": f"{epoch_metrics['actual_tokens_per_second']:.2f} (Actual) / {epoch_metrics['theoretical_tokens_per_second']:.2f} (Theoretical)"
-            })
+            batch_progress.set_postfix(
+                {
+                    "Epoch Loss": f"{avg_epoch_loss:.4f}",
+                    "Tokens": epoch_tokens,
+                    "Avg Batch Time": f"{epoch_metrics['average_batch_time']:.3f}s",
+                    "Tokens/s": f"{epoch_metrics['actual_tokens_per_second']:.2f} (Actual) / {epoch_metrics['theoretical_tokens_per_second']:.2f} (Theoretical)",
+                }
+            )
 
         finally:
             # Close the batch progress bar in the finally block
@@ -130,40 +159,41 @@ class EpochProcessor:
             gc.collect()
 
         # Check if we need to checkpoint
-        if self.checkpoint_freq_epochs is not None and (epoch + 1) % self.checkpoint_freq_epochs == 0:
+        if (
+            self.checkpoint_freq_epochs is not None
+            and (epoch + 1) % self.checkpoint_freq_epochs == 0
+        ):
             # Checkpointing
-            logger.info(f'Checkpointing at end of epoch {epoch+1}')
-            self.save_checkpoint(f'epoch_{epoch+1}')
+            logger.info(f"Checkpointing at end of epoch {epoch + 1}")
+            self.save_checkpoint(f"epoch_{epoch + 1}")
 
         return {
             "iteration_count": iteration_count,
             "epoch_tokens": epoch_tokens,
             "epoch_theoretical_tokens": epoch_theoretical_tokens,
             "total_batch_time": sum(batch_times),
-            "epoch_time": epoch_metrics['epoch_time'],
-            "epoch_loss": avg_epoch_loss  # Return average loss
+            "epoch_time": epoch_metrics["epoch_time"],
+            "epoch_loss": avg_epoch_loss,  # Return average loss
         }
-
-
 
     def save_checkpoint(self, identifier):
         # Log memory before saving checkpoint
         log_memory_usage(f"Before saving checkpoint {identifier}")
-        
+
         # figure out the checkpoint path
-        checkpoint_path = os.path.join(self.checkpoint_dir, f'checkpoint_{identifier}.npz')
-        
+        checkpoint_path = os.path.join(self.checkpoint_dir, f"checkpoint_{identifier}.npz")
+
         try:
             # Save the weights
             model_state = self.model.state_dict()
             optimizer_state = self.optimizer.state_dict()
 
             # Save the checkpoint
-            mx.save(checkpoint_path, {'model': model_state, 'optimizer': optimizer_state})
+            mx.save(checkpoint_path, {"model": model_state, "optimizer": optimizer_state})
 
             # Log it
-            logger.info(f'Saved checkpoint: {checkpoint_path}')
-            
+            logger.info(f"Saved checkpoint: {checkpoint_path}")
+
             # Log memory after saving checkpoint
             log_memory_usage(f"Before saving checkpoint {identifier}")
 
@@ -175,6 +205,3 @@ class EpochProcessor:
             del model_state
             del optimizer_state
             gc.collect()
-
-
-

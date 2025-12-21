@@ -7,8 +7,9 @@ and prepares batches for policy updates.
 
 import logging
 import random
+from collections.abc import Iterator
 from dataclasses import dataclass, field
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any
 
 import mlx.core as mx
 
@@ -18,22 +19,24 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Transition:
     """A single transition in the environment."""
-    observation: Any                    # State observation
-    action: Any                         # Action taken
-    reward: float                       # Reward received
-    done: bool                          # Episode terminated
-    log_prob: float                     # Log probability of action
-    value: Optional[float] = None       # Value estimate (for PPO)
-    hidden_state: Optional[Any] = None  # RNN hidden state
+
+    observation: Any  # State observation
+    action: Any  # Action taken
+    reward: float  # Reward received
+    done: bool  # Episode terminated
+    log_prob: float  # Log probability of action
+    value: float | None = None  # Value estimate (for PPO)
+    hidden_state: Any | None = None  # RNN hidden state
 
 
 @dataclass
 class Episode:
     """A complete episode trajectory."""
-    transitions: List[Transition] = field(default_factory=list)
+
+    transitions: list[Transition] = field(default_factory=list)
     total_reward: float = 0.0
     length: int = 0
-    info: Dict[str, Any] = field(default_factory=dict)
+    info: dict[str, Any] = field(default_factory=dict)
 
     def add(self, transition: Transition):
         """Add a transition to the episode."""
@@ -41,7 +44,7 @@ class Episode:
         self.total_reward += transition.reward
         self.length += 1
 
-    def get_arrays(self) -> Dict[str, mx.array]:
+    def get_arrays(self) -> dict[str, mx.array]:
         """Convert episode to MLX arrays."""
         return {
             "rewards": mx.array([t.reward for t in self.transitions]),
@@ -52,12 +55,12 @@ class Episode:
 
 
 def compute_gae_inline(
-    rewards: List[float],
-    values: List[float],
-    dones: List[bool],
+    rewards: list[float],
+    values: list[float],
+    dones: list[bool],
     gamma: float,
     gae_lambda: float,
-    last_values: mx.array = None
+    last_values: mx.array = None,
 ) -> tuple[mx.array, mx.array]:
     """Compute GAE advantages inline (avoids circular imports)."""
     n = len(rewards)
@@ -66,7 +69,11 @@ def compute_gae_inline(
 
     for t in range(n - 1, -1, -1):
         if t == n - 1:
-            next_value = float(last_values[0]) if last_values is not None and last_values.shape[0] > 0 else 0.0
+            next_value = (
+                float(last_values[0])
+                if last_values is not None and last_values.shape[0] > 0
+                else 0.0
+            )
         else:
             next_value = values[t + 1]
 
@@ -96,7 +103,7 @@ class RolloutBuffer:
         buffer_size: int = 2048,
         gamma: float = 0.99,
         gae_lambda: float = 0.95,
-        num_envs: int = 1
+        num_envs: int = 1,
     ):
         self.buffer_size = buffer_size
         self.gamma = gamma
@@ -104,21 +111,21 @@ class RolloutBuffer:
         self.num_envs = num_envs
 
         # Storage
-        self.observations: List[Any] = []
-        self.actions: List[Any] = []
-        self.rewards: List[float] = []
-        self.dones: List[bool] = []
-        self.log_probs: List[float] = []
-        self.values: List[float] = []
-        self.hidden_states: List[Any] = []
+        self.observations: list[Any] = []
+        self.actions: list[Any] = []
+        self.rewards: list[float] = []
+        self.dones: list[bool] = []
+        self.log_probs: list[float] = []
+        self.values: list[float] = []
+        self.hidden_states: list[Any] = []
 
         # Computed after collection
-        self.advantages: Optional[mx.array] = None
-        self.returns: Optional[mx.array] = None
+        self.advantages: mx.array | None = None
+        self.returns: mx.array | None = None
 
         # Episode tracking
-        self.episodes: List[Episode] = []
-        self.current_episodes: List[Episode] = [Episode() for _ in range(num_envs)]
+        self.episodes: list[Episode] = []
+        self.current_episodes: list[Episode] = [Episode() for _ in range(num_envs)]
 
         # Pointer
         self.ptr = 0
@@ -149,7 +156,7 @@ class RolloutBuffer:
         log_prob: float,
         value: float = None,
         hidden_state: Any = None,
-        env_idx: int = 0
+        env_idx: int = 0,
     ):
         """
         Add a transition to the buffer.
@@ -180,7 +187,7 @@ class RolloutBuffer:
             done=done,
             log_prob=log_prob,
             value=value,
-            hidden_state=hidden_state
+            hidden_state=hidden_state,
         )
         self.current_episodes[env_idx].add(transition)
 
@@ -194,13 +201,13 @@ class RolloutBuffer:
 
     def add_batch(
         self,
-        observations: List[Any],
-        actions: List[Any],
-        rewards: List[float],
-        dones: List[bool],
-        log_probs: List[float],
-        values: List[float] = None,
-        hidden_states: List[Any] = None
+        observations: list[Any],
+        actions: list[Any],
+        rewards: list[float],
+        dones: list[bool],
+        log_probs: list[float],
+        values: list[float] = None,
+        hidden_states: list[Any] = None,
     ):
         """Add a batch of transitions (from parallel envs)."""
         if values is None:
@@ -224,19 +231,10 @@ class RolloutBuffer:
             last_values = mx.zeros((1,))
 
         self.advantages, self.returns = compute_gae_inline(
-            self.rewards,
-            self.values,
-            self.dones,
-            self.gamma,
-            self.gae_lambda,
-            last_values
+            self.rewards, self.values, self.dones, self.gamma, self.gae_lambda, last_values
         )
 
-    def get_batches(
-        self,
-        batch_size: int,
-        shuffle: bool = True
-    ) -> Iterator[Dict[str, mx.array]]:
+    def get_batches(self, batch_size: int, shuffle: bool = True) -> Iterator[dict[str, mx.array]]:
         """
         Generate training batches from the buffer.
 
@@ -257,7 +255,7 @@ class RolloutBuffer:
             random.shuffle(indices)
 
         for start in range(0, n, batch_size):
-            batch_indices = indices[start:start + batch_size]
+            batch_indices = indices[start : start + batch_size]
 
             yield {
                 "observations": [self.observations[i] for i in batch_indices],
@@ -268,7 +266,7 @@ class RolloutBuffer:
                 "values": mx.array([self.values[i] for i in batch_indices]),
             }
 
-    def get_all(self) -> Dict[str, mx.array]:
+    def get_all(self) -> dict[str, mx.array]:
         """Get all data as a single batch."""
         if self.advantages is None:
             self.compute_advantages()
@@ -282,7 +280,7 @@ class RolloutBuffer:
             "values": mx.array(self.values),
         }
 
-    def get_episode_stats(self) -> Dict[str, float]:
+    def get_episode_stats(self) -> dict[str, float]:
         """Get statistics about collected episodes."""
         if not self.episodes:
             return {
@@ -297,7 +295,10 @@ class RolloutBuffer:
         return {
             "num_episodes": len(self.episodes),
             "mean_reward": sum(rewards) / len(rewards),
-            "std_reward": (sum((r - sum(rewards)/len(rewards))**2 for r in rewards) / len(rewards)) ** 0.5,
+            "std_reward": (
+                sum((r - sum(rewards) / len(rewards)) ** 2 for r in rewards) / len(rewards)
+            )
+            ** 0.5,
             "min_reward": min(rewards),
             "max_reward": max(rewards),
             "mean_length": sum(lengths) / len(lengths),

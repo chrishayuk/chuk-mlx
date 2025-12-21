@@ -13,7 +13,6 @@ Paper: https://arxiv.org/abs/1707.06347
 """
 
 from dataclasses import dataclass
-from typing import Dict, Tuple
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -22,12 +21,13 @@ import mlx.nn as nn
 @dataclass
 class PPOConfig:
     """Configuration for PPO training."""
-    clip_epsilon: float = 0.2           # Clipping parameter
-    value_loss_coef: float = 0.5        # Value loss weight
-    entropy_coef: float = 0.01          # Entropy bonus weight
-    max_grad_norm: float = 0.5          # Gradient clipping
-    target_kl: float = 0.01             # KL target for early stopping
-    normalize_advantages: bool = True    # Normalize advantages
+
+    clip_epsilon: float = 0.2  # Clipping parameter
+    value_loss_coef: float = 0.5  # Value loss weight
+    entropy_coef: float = 0.01  # Entropy bonus weight
+    max_grad_norm: float = 0.5  # Gradient clipping
+    target_kl: float = 0.01  # KL target for early stopping
+    normalize_advantages: bool = True  # Normalize advantages
 
 
 def ppo_loss(
@@ -37,8 +37,8 @@ def ppo_loss(
     values: mx.array,
     returns: mx.array,
     entropy: mx.array,
-    config: PPOConfig = None
-) -> Tuple[mx.array, Dict]:
+    config: PPOConfig = None,
+) -> tuple[mx.array, dict]:
     """
     Compute PPO loss for a batch of trajectories.
 
@@ -80,9 +80,7 @@ def ppo_loss(
 
     # Combined loss
     total_loss = (
-        policy_loss
-        + config.value_loss_coef * value_loss
-        + config.entropy_coef * entropy_loss
+        policy_loss + config.value_loss_coef * value_loss + config.entropy_coef * entropy_loss
     )
 
     # Compute diagnostics (no gradients needed)
@@ -106,9 +104,9 @@ def ppo_loss(
 def compute_ppo_loss_for_batch(
     policy_model: nn.Module,
     value_model: nn.Module,
-    batch: Dict[str, mx.array],
-    config: PPOConfig = None
-) -> Tuple[mx.array, Dict]:
+    batch: dict[str, mx.array],
+    config: PPOConfig = None,
+) -> tuple[mx.array, dict]:
     """
     Compute PPO loss for a batch from the rollout buffer.
 
@@ -139,10 +137,7 @@ def compute_ppo_loss_for_batch(
     returns = batch["returns"]
 
     # Get current policy outputs
-    policy_output = policy_model.get_action_and_value(
-        observations,
-        action=actions
-    )
+    policy_output = policy_model.get_action_and_value(observations, action=actions)
 
     log_probs = policy_output["log_prob"]
     entropy = policy_output["entropy"]
@@ -160,5 +155,5 @@ def compute_ppo_loss_for_batch(
         values=values,
         returns=returns,
         entropy=entropy,
-        config=config
+        config=config,
     )

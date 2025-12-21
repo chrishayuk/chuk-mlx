@@ -1,16 +1,19 @@
 import mlx.core as mx
 import mlx.nn as nn
-from chuk_lazarus.models.architectures.normalization_layer_factory import NormalizationLayerFactory
-from chuk_lazarus.models.config import ModelConfig
-from chuk_lazarus.models.architectures.model import Model
+
 from chuk_lazarus.models.architectures.attention_base import AttentionBase
+from chuk_lazarus.models.architectures.model import Model
+from chuk_lazarus.models.architectures.normalization_layer_factory import NormalizationLayerFactory
 from chuk_lazarus.models.architectures.transformer_base_model import TransformerBaseModel
+from chuk_lazarus.models.config import ModelConfig
+
 
 class GraniteForCausalLM(Model):
     """
     Llama model for causal language modeling tasks.
     This class wraps the core Granite model with a causal language modeling head.
     """
+
     def __init__(self, args: ModelConfig, tokenizer):
         super().__init__(args)
         self.tokenizer = tokenizer  # Attach tokenizer to the model
@@ -28,12 +31,12 @@ class GraniteForCausalLM(Model):
         sanitized_weights = {}
         for k, v in weights.items():
             # Filter out unwanted keys and ensure weights are in float32
-            if 'rotary_emb.inv_freq' not in k and (self.lm_head or 'lm_head' not in k):
+            if "rotary_emb.inv_freq" not in k and (self.lm_head or "lm_head" not in k):
                 sanitized_weights[k] = v.astype(mx.float32)
 
         # Ensure `lm_head.bias` is included if necessary, cast to float32
-        if self.lm_head and 'lm_head.bias' not in sanitized_weights:
-            sanitized_weights['lm_head.bias'] = self.lm_head.bias.astype(mx.float32)
+        if self.lm_head and "lm_head.bias" not in sanitized_weights:
+            sanitized_weights["lm_head.bias"] = self.lm_head.bias.astype(mx.float32)
 
         print("Sanitized weights:", sanitized_weights.keys())
         return sanitized_weights
@@ -43,7 +46,7 @@ class GraniteForCausalLM(Model):
         Set inverse frequency for rotary embeddings across attention layers.
         """
         for layer in self.model.layers:
-            if hasattr(layer.self_attn, 'set_inv_freq'):
+            if hasattr(layer.self_attn, "set_inv_freq"):
                 layer.self_attn.set_inv_freq(inv_freq)
 
     def __call__(self, inputs: mx.array, cache=None):
@@ -91,7 +94,7 @@ class GraniteForCausalLM(Model):
         print("Original text:", text)
         encoded = self.encode(text)
         decoded = self.decode(encoded[0])
-        
+
         if decoded == text:
             print("Tokenization check passed.")
         else:
@@ -104,11 +107,14 @@ class GraniteModel(TransformerBaseModel):
     Core Granite model implementation.
     Utilizes TransformerBaseModel with Granite-specific attention and normalization layers.
     """
+
     def __init__(self, config: ModelConfig):
         super().__init__(
             config,
             attention_layer=GraniteAttention,
-            norm_layer=lambda hidden_size, eps: NormalizationLayerFactory.create_norm_layer(hidden_size, eps)
+            norm_layer=lambda hidden_size, eps: NormalizationLayerFactory.create_norm_layer(
+                hidden_size, eps
+            ),
         )
 
 
@@ -117,5 +123,6 @@ class GraniteAttention(AttentionBase):
     Llama-specific attention mechanism.
     Configured with RoPE setup from AttentionBase for Llama-style rotary embeddings.
     """
+
     def __init__(self, config: ModelConfig):
         super().__init__(config)

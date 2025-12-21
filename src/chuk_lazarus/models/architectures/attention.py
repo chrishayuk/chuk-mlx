@@ -1,7 +1,5 @@
 """Attention mechanisms."""
 
-from typing import Dict, Optional, Tuple
-
 import mlx.core as mx
 import mlx.nn as nn
 
@@ -23,34 +21,26 @@ class Attention(nn.Module):
         self.num_heads = config.num_attention_heads
         self.num_kv_heads = config.num_key_value_heads or config.num_attention_heads
         self.head_dim = config.head_dim or (config.hidden_size // config.num_attention_heads)
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
 
         # Projections
         self.q_proj = nn.Linear(
-            self.hidden_size,
-            self.num_heads * self.head_dim,
-            bias=config.attention_bias
+            self.hidden_size, self.num_heads * self.head_dim, bias=config.attention_bias
         )
         self.k_proj = nn.Linear(
-            self.hidden_size,
-            self.num_kv_heads * self.head_dim,
-            bias=config.attention_bias
+            self.hidden_size, self.num_kv_heads * self.head_dim, bias=config.attention_bias
         )
         self.v_proj = nn.Linear(
-            self.hidden_size,
-            self.num_kv_heads * self.head_dim,
-            bias=config.attention_bias
+            self.hidden_size, self.num_kv_heads * self.head_dim, bias=config.attention_bias
         )
         self.o_proj = nn.Linear(
-            self.num_heads * self.head_dim,
-            self.hidden_size,
-            bias=config.attention_bias
+            self.num_heads * self.head_dim, self.hidden_size, bias=config.attention_bias
         )
 
         # RoPE
         self.rope = self._setup_rope(config)
 
-    def _setup_rope(self, config: ModelConfig) -> Optional[nn.RoPE]:
+    def _setup_rope(self, config: ModelConfig) -> nn.RoPE | None:
         """Setup rotary position embeddings."""
         if config.max_position_embeddings:
             rope_scale = 1.0
@@ -61,16 +51,16 @@ class Attention(nn.Module):
                 dims=self.head_dim,
                 traditional=config.rope_traditional,
                 base=config.rope_theta,
-                scale=rope_scale
+                scale=rope_scale,
             )
         return None
 
     def __call__(
         self,
         x: mx.array,
-        mask: Optional[mx.array] = None,
-        cache: Optional[Tuple[mx.array, mx.array]] = None
-    ) -> Tuple[mx.array, Tuple[mx.array, mx.array]]:
+        mask: mx.array | None = None,
+        cache: tuple[mx.array, mx.array] | None = None,
+    ) -> tuple[mx.array, tuple[mx.array, mx.array]]:
         """
         Forward pass.
 
@@ -112,11 +102,7 @@ class Attention(nn.Module):
                 k = self.rope(k)
 
         # Compute attention
-        output = mx.fast.scaled_dot_product_attention(
-            q, k, v,
-            scale=self.scale,
-            mask=mask
-        )
+        output = mx.fast.scaled_dot_product_attention(q, k, v, scale=self.scale, mask=mask)
 
         # Reshape and project output
         output = output.transpose(0, 2, 1, 3).reshape(B, L, -1)
@@ -132,4 +118,5 @@ class GQAAttention(Attention):
     Same as Attention but with explicit GQA support.
     The base Attention class already supports GQA via num_kv_heads.
     """
+
     pass

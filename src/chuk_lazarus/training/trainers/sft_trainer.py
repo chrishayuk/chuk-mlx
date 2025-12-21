@@ -19,16 +19,17 @@ Usage:
 """
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
+from collections.abc import Callable, Iterator
+from dataclasses import dataclass
+from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
+from ...data import SFTDataset
 from ..base_trainer import BaseTrainer, BaseTrainerConfig
 from ..losses.sft_loss import sft_loss
-from ...data import SFTDataset
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SFTConfig(BaseTrainerConfig):
     """Configuration for SFT training."""
+
     # Training settings
     num_epochs: int = 3
     batch_size: int = 4
@@ -51,8 +53,8 @@ class SFTConfig(BaseTrainerConfig):
     checkpoint_dir: str = "./checkpoints/sft"
 
     # Early stopping
-    max_steps: Optional[int] = None
-    min_loss: Optional[float] = None
+    max_steps: int | None = None
+    min_loss: float | None = None
 
 
 class SFTTrainer(BaseTrainer):
@@ -79,7 +81,7 @@ class SFTTrainer(BaseTrainer):
         model: nn.Module,
         tokenizer,
         config: SFTConfig = None,
-        optimizer: optim.Optimizer = None
+        optimizer: optim.Optimizer = None,
     ):
         config = config or SFTConfig()
         super().__init__(model, tokenizer, config, optimizer)
@@ -89,29 +91,25 @@ class SFTTrainer(BaseTrainer):
         """Type-safe access to config."""
         return self.config
 
-    def compute_loss(self, batch: Dict[str, Any]) -> Tuple[mx.array, Dict[str, Any]]:
+    def compute_loss(self, batch: dict[str, Any]) -> tuple[mx.array, dict[str, Any]]:
         """Compute SFT loss for a batch."""
         logits, _ = self.model(batch["input_ids"])
         loss, metrics = sft_loss(
-            logits=logits,
-            labels=batch["labels"],
-            loss_mask=batch["loss_mask"]
+            logits=logits, labels=batch["labels"], loss_mask=batch["loss_mask"]
         )
         return loss, metrics
 
-    def get_train_batches(self, dataset: SFTDataset) -> Iterator[Dict[str, mx.array]]:
+    def get_train_batches(self, dataset: SFTDataset) -> Iterator[dict[str, mx.array]]:
         """Get iterator over training batches."""
         return dataset.iter_batches(
-            batch_size=self.sft_config.batch_size,
-            shuffle=True,
-            pad_token_id=self.pad_token_id
+            batch_size=self.sft_config.batch_size, shuffle=True, pad_token_id=self.pad_token_id
         )
 
     def train(
         self,
         train_dataset: SFTDataset,
         eval_dataset: SFTDataset = None,
-        callback: Callable[[Dict], None] = None
+        callback: Callable[[dict], None] = None,
     ):
         """
         Run SFT training.
@@ -126,23 +124,19 @@ class SFTTrainer(BaseTrainer):
             dataset=train_dataset,
             num_epochs=self.sft_config.num_epochs,
             eval_dataset=eval_dataset,
-            callback=callback
+            callback=callback,
         )
 
-    def evaluate(self, dataset: SFTDataset) -> Dict[str, float]:
+    def evaluate(self, dataset: SFTDataset) -> dict[str, float]:
         """Evaluate on a dataset."""
         all_metrics = {"loss": [], "perplexity": [], "num_tokens": []}
 
         for batch in dataset.iter_batches(
-            batch_size=self.sft_config.batch_size,
-            shuffle=False,
-            pad_token_id=self.pad_token_id
+            batch_size=self.sft_config.batch_size, shuffle=False, pad_token_id=self.pad_token_id
         ):
             logits, _ = self.model(batch["input_ids"])
             loss, metrics = sft_loss(
-                logits=logits,
-                labels=batch["labels"],
-                loss_mask=batch["loss_mask"]
+                logits=logits, labels=batch["labels"], loss_mask=batch["loss_mask"]
             )
 
             for key in all_metrics:
@@ -151,7 +145,7 @@ class SFTTrainer(BaseTrainer):
 
         return {k: sum(v) / len(v) if v else 0.0 for k, v in all_metrics.items()}
 
-    def _create_epoch_metrics(self) -> Dict[str, List[float]]:
+    def _create_epoch_metrics(self) -> dict[str, list[float]]:
         """Create SFT-specific metrics accumulator."""
         return {
             "loss": [],
@@ -159,14 +153,15 @@ class SFTTrainer(BaseTrainer):
             "num_tokens": [],
         }
 
-    def _log_metrics(self, metrics: Dict[str, float]):
+    def _log_metrics(self, metrics: dict[str, float]):
         """Log SFT-specific metrics."""
         import time
+
         elapsed = time.time() - self._start_time
 
         # Calculate tokens per second if we have token counts
-        epoch_metrics = getattr(self, '_current_epoch_metrics', {})
-        total_tokens = sum(epoch_metrics.get('num_tokens', [0]))
+        epoch_metrics = getattr(self, "_current_epoch_metrics", {})
+        total_tokens = sum(epoch_metrics.get("num_tokens", [0]))
         tokens_per_sec = total_tokens / elapsed if elapsed > 0 else 0
 
         logger.info(
@@ -177,23 +172,18 @@ class SFTTrainer(BaseTrainer):
             f"Time: {elapsed:.1f}s"
         )
 
-        self.metrics_history.append({
-            "step": self.global_step,
-            "epoch": self.current_epoch,
-            **metrics
-        })
-
-    def _log_eval_metrics(self, metrics: Dict[str, float]):
-        """Log evaluation metrics."""
-        logger.info(
-            f"Eval | Loss: {metrics['loss']:.4f} | "
-            f"PPL: {metrics['perplexity']:.2f}"
+        self.metrics_history.append(
+            {"step": self.global_step, "epoch": self.current_epoch, **metrics}
         )
 
-    def _should_stop_early(self, metrics: Dict[str, float]) -> bool:
+    def _log_eval_metrics(self, metrics: dict[str, float]):
+        """Log evaluation metrics."""
+        logger.info(f"Eval | Loss: {metrics['loss']:.4f} | PPL: {metrics['perplexity']:.2f}")
+
+    def _should_stop_early(self, metrics: dict[str, float]) -> bool:
         """Check if we should stop due to reaching target loss."""
         if self.sft_config.min_loss is not None:
-            if metrics.get('loss', float('inf')) < self.sft_config.min_loss:
+            if metrics.get("loss", float("inf")) < self.sft_config.min_loss:
                 logger.info(f"Reached target loss: {metrics['loss']:.4f}")
                 return True
         return False

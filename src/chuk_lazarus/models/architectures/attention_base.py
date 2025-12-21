@@ -1,7 +1,8 @@
 import mlx.core as mx
 import mlx.nn as nn
-from typing import Dict, Optional, Tuple
+
 from chuk_lazarus.models.config import ModelConfig
+
 
 class AttentionBase(nn.Module):
     """
@@ -13,16 +14,18 @@ class AttentionBase(nn.Module):
     def __init__(self, config: ModelConfig):
         # call the parent constructor
         super().__init__()
-        
+
         # Set up dimensions and number of heads
         self.dimensions = config.hidden_size
         self.n_heads = config.num_attention_heads
         self.n_kv_heads = config.num_key_value_heads
-        self.dimensions_per_head = config.head_dim or (config.hidden_size // config.num_attention_heads)
-        
+        self.dimensions_per_head = config.head_dim or (
+            config.hidden_size // config.num_attention_heads
+        )
+
         # Scaling factor for attention scores
         self.scale = self.dimensions_per_head**-0.5
-        
+
         # Initialize projection layers
         self._initialize_projections(config)
 
@@ -34,12 +37,20 @@ class AttentionBase(nn.Module):
 
     def _initialize_projections(self, config: ModelConfig):
         """Initialize the projection layers for queries, keys, values, and output."""
-        self.q_proj = nn.Linear(self.dimensions, self.n_heads * self.dimensions_per_head, bias=config.attention_bias)
-        self.k_proj = nn.Linear(self.dimensions, self.n_kv_heads * self.dimensions_per_head, bias=config.attention_bias)
-        self.v_proj = nn.Linear(self.dimensions, self.n_kv_heads * self.dimensions_per_head, bias=config.attention_bias)
-        self.o_proj = nn.Linear(self.n_heads * self.dimensions_per_head, self.dimensions, bias=config.attention_bias)
+        self.q_proj = nn.Linear(
+            self.dimensions, self.n_heads * self.dimensions_per_head, bias=config.attention_bias
+        )
+        self.k_proj = nn.Linear(
+            self.dimensions, self.n_kv_heads * self.dimensions_per_head, bias=config.attention_bias
+        )
+        self.v_proj = nn.Linear(
+            self.dimensions, self.n_kv_heads * self.dimensions_per_head, bias=config.attention_bias
+        )
+        self.o_proj = nn.Linear(
+            self.n_heads * self.dimensions_per_head, self.dimensions, bias=config.attention_bias
+        )
 
-    def _setup_rope(self, config: ModelConfig) -> Optional[nn.RoPE]:
+    def _setup_rope(self, config: ModelConfig) -> nn.RoPE | None:
         """Set up the Rotary Position Embedding (RoPE)."""
         if config.max_position_embeddings:
             rope_scale = 1.0
@@ -50,7 +61,7 @@ class AttentionBase(nn.Module):
                 dims=self.dimensions_per_head,
                 traditional=config.rope_traditional,
                 base=config.max_position_embeddings,
-                scale=rope_scale
+                scale=rope_scale,
             )
         return None
 
@@ -78,13 +89,13 @@ class AttentionBase(nn.Module):
     def __call__(
         self,
         x: mx.array,
-        mask: Optional[mx.array] = None,
-        cache: Optional[Tuple[mx.array, mx.array]] = None,
-    ) -> Tuple[mx.array, Tuple[mx.array, mx.array]]:
+        mask: mx.array | None = None,
+        cache: tuple[mx.array, mx.array] | None = None,
+    ) -> tuple[mx.array, tuple[mx.array, mx.array]]:
         B, L, _ = x.shape
 
         # Layer normalization, if applicable
-        if hasattr(self, 'layer_norm'):
+        if hasattr(self, "layer_norm"):
             x = self.layer_norm(x)
 
         # Project input to queries, keys, and values
@@ -103,7 +114,7 @@ class AttentionBase(nn.Module):
         output_projection = self.o_proj(output), (k, v)
 
         # Apply residual dropout if it exists
-        if hasattr(self, 'residual_dropout'):
+        if hasattr(self, "residual_dropout"):
             output_projection = self.residual_dropout(output_projection)
 
         return output_projection
@@ -115,8 +126,8 @@ class AttentionBase(nn.Module):
         v: mx.array,
         B: int,
         L: int,
-        cache: Optional[Tuple[mx.array, mx.array]]
-    ) -> Tuple[mx.array, mx.array, mx.array]:
+        cache: tuple[mx.array, mx.array] | None,
+    ) -> tuple[mx.array, mx.array, mx.array]:
         # Reshape q, k, and v
         q = q.reshape(B, L, self.n_heads, -1).transpose(0, 2, 1, 3)
         k = k.reshape(B, L, self.n_kv_heads, -1).transpose(0, 2, 1, 3)
@@ -125,15 +136,17 @@ class AttentionBase(nn.Module):
         if cache is not None:
             key_cache, value_cache = cache
             offset = key_cache.shape[2]
-            q, k = map(lambda x: self._apply_rope(x, offset), (q, k))
+            q = self._apply_rope(q, offset)
+            k = self._apply_rope(k, offset)
             k = mx.concatenate([key_cache, k], axis=2)
             v = mx.concatenate([value_cache, v], axis=2)
         else:
-            q, k = map(self._apply_rope, (q, k))
+            q = self._apply_rope(q)
+            k = self._apply_rope(k)
 
         return q, k, v
 
-    def _project_inputs(self, x: mx.array) -> Tuple[mx.array, mx.array, mx.array]:
+    def _project_inputs(self, x: mx.array) -> tuple[mx.array, mx.array, mx.array]:
         """Project the input tensor to queries, keys, and values."""
         return self.q_proj(x), self.k_proj(x), self.v_proj(x)
 
@@ -142,7 +155,7 @@ class AttentionBase(nn.Module):
         scale = self.scale
         return mx.fast.scaled_dot_product_attention(q, k, v, scale=scale, mask=mask)
 
-    def update_rope_params(self, new_params: Dict[str, any]):
+    def update_rope_params(self, new_params: dict[str, any]):
         """Update the parameters of the RoPE."""
         if self.rope:
             for key, value in new_params.items():

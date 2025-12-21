@@ -13,35 +13,34 @@ This module provides:
 # Base class
 from .base_dataset import BaseDataset
 
-# RL/SFT datasets
-from .sft_dataset import SFTDataset, SFTSample
-from .preference_dataset import PreferenceDataset, PreferencePair, load_preference_data
-from .rollout_buffer import RolloutBuffer, Transition, Episode
-
 # Batch datasets (for pre-tokenized NPZ data)
 from .batch_dataset_base import BatchDatasetBase
-from .train_batch_dataset import TrainBatchDataset
 
 # Data generators
 from .generators import (
-    MathProblemGenerator,
     MathProblem,
+    MathProblemGenerator,
     ProblemType,
     ToolCallTrace,
     TrainingSample,
     generate_lazarus_dataset,
 )
+from .preference_dataset import PreferenceDataset, PreferencePair, load_preference_data
 
 # Preprocessing utilities (batching, padding, tokenization)
 from .preprocessing import (
     BatchBase,
     FineTuneBatch,
-    PretrainBatchGenerator,
     LLaMAFineTuneBatch,
-    pad_sequences,
+    PretrainBatchGenerator,
     add_to_buckets,
     get_batch_from_buckets,
+    pad_sequences,
 )
+from .rollout_buffer import Episode, RolloutBuffer, Transition
+
+# RL/SFT datasets
+from .sft_dataset import SFTDataset, SFTSample
 
 # Tokenizer utilities
 from .tokenizers import (
@@ -49,3 +48,42 @@ from .tokenizers import (
     load_vocabulary,
     save_vocabulary,
 )
+from .train_batch_dataset import TrainBatchDataset
+
+__all__ = [
+    # Base
+    "BaseDataset",
+    # Batch datasets
+    "BatchDatasetBase",
+    "TrainBatchDataset",
+    # Generators
+    "MathProblem",
+    "MathProblemGenerator",
+    "ProblemType",
+    "ToolCallTrace",
+    "TrainingSample",
+    "generate_lazarus_dataset",
+    # Preference
+    "PreferenceDataset",
+    "PreferencePair",
+    "load_preference_data",
+    # Preprocessing
+    "BatchBase",
+    "FineTuneBatch",
+    "LLaMAFineTuneBatch",
+    "PretrainBatchGenerator",
+    "add_to_buckets",
+    "get_batch_from_buckets",
+    "pad_sequences",
+    # Rollout
+    "Episode",
+    "RolloutBuffer",
+    "Transition",
+    # SFT
+    "SFTDataset",
+    "SFTSample",
+    # Tokenizers
+    "CustomTokenizer",
+    "load_vocabulary",
+    "save_vocabulary",
+]

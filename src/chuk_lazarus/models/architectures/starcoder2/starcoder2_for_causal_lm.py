@@ -1,7 +1,9 @@
 import mlx.nn as nn
-from chuk_lazarus.models.config import ModelConfig
+
 from chuk_lazarus.models.architectures.model import Model
 from chuk_lazarus.models.architectures.starcoder2.starcoder2_model import Starcoder2Model
+from chuk_lazarus.models.config import ModelConfig
+
 
 class Starcoder2ForCausalLM(Model):
     def __init__(self, args: ModelConfig):
@@ -13,33 +15,33 @@ class Starcoder2ForCausalLM(Model):
     def sanitize(self, weights):
         sanitized = {}
         for k, v in weights.items():
-            if k.startswith('model.'):
+            if k.startswith("model."):
                 k = k[6:]  # Remove 'model.' prefix
-            
-            parts = k.split('.')
-            if parts[0] == 'layers':
+
+            parts = k.split(".")
+            if parts[0] == "layers":
                 layer_num = int(parts[1])
                 if layer_num < len(self.model.layers):
                     layer = self.model.layers[layer_num]
-                    if parts[2] == 'self_attn':
-                        if parts[3] in ['q_proj', 'k_proj', 'v_proj', 'o_proj']:
+                    if parts[2] == "self_attn":
+                        if parts[3] in ["q_proj", "k_proj", "v_proj", "o_proj"]:
                             setattr(layer.self_attn, parts[3], v)
-                    elif parts[2] == 'mlp':
-                        if parts[3] in ['c_fc', 'c_proj']:
+                    elif parts[2] == "mlp":
+                        if parts[3] in ["c_fc", "c_proj"]:
                             setattr(layer.mlp, parts[3], v)
-                    elif parts[2] in ['input_layernorm', 'post_attention_layernorm']:
+                    elif parts[2] in ["input_layernorm", "post_attention_layernorm"]:
                         setattr(layer, parts[2], v)
                     sanitized[k] = v
-            elif parts[0] == 'embed_tokens':
+            elif parts[0] == "embed_tokens":
                 setattr(self.model, parts[0], v)
                 sanitized[k] = v
-            elif parts[0] == 'norm':
+            elif parts[0] == "norm":
                 setattr(self.model, parts[0], v)
                 sanitized[k] = v
-            elif not self.model.args.tie_word_embeddings and parts[0] == 'lm_head':
+            elif not self.model.args.tie_word_embeddings and parts[0] == "lm_head":
                 setattr(self.lm_head, parts[1], v)
                 sanitized[k] = v
-        
+
         return sanitized
 
     def __call__(self, inputs, cache=None):

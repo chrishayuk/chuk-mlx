@@ -4,7 +4,6 @@ import json
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -12,13 +11,21 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LoRAConfig:
     """Configuration for LoRA adapters."""
+
     rank: int = 8
     alpha: float = 16.0
     dropout: float = 0.0
-    target_modules: List[str] = field(default_factory=lambda: [
-        "q_proj", "k_proj", "v_proj", "o_proj",
-        "gate_proj", "up_proj", "down_proj"
-    ])
+    target_modules: list[str] = field(
+        default_factory=lambda: [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj",
+        ]
+    )
 
 
 @dataclass
@@ -28,9 +35,10 @@ class ModelConfig:
 
     Compatible with HuggingFace config.json format.
     """
+
     # Architecture
-    architectures: Optional[List[str]] = None
-    model_type: Optional[str] = None
+    architectures: list[str] | None = None
+    model_type: str | None = None
 
     # Dimensions
     vocab_size: int = 32000
@@ -40,14 +48,14 @@ class ModelConfig:
 
     # Attention
     num_attention_heads: int = 32
-    num_key_value_heads: Optional[int] = None  # For GQA, defaults to num_attention_heads
-    head_dim: Optional[int] = None
+    num_key_value_heads: int | None = None  # For GQA, defaults to num_attention_heads
+    head_dim: int | None = None
     attention_bias: bool = False
     attention_dropout: float = 0.0
 
     # Activation
     hidden_act: str = "silu"
-    hidden_activation: Optional[str] = None  # Gemma uses this
+    hidden_activation: str | None = None  # Gemma uses this
 
     # Normalization
     rms_norm_eps: float = 1e-6
@@ -56,13 +64,13 @@ class ModelConfig:
     # Position embeddings
     max_position_embeddings: int = 4096
     rope_theta: float = 10000.0
-    rope_scaling: Optional[Dict[str, Union[float, str]]] = None
+    rope_scaling: dict[str, float | str] | None = None
     rope_traditional: bool = False
 
     # Special tokens
-    bos_token_id: Optional[int] = 1
-    eos_token_id: Optional[int] = 2
-    pad_token_id: Optional[int] = None
+    bos_token_id: int | None = 1
+    eos_token_id: int | None = 2
+    pad_token_id: int | None = None
 
     # Embeddings
     tie_word_embeddings: bool = True
@@ -71,8 +79,8 @@ class ModelConfig:
     mlp_bias: bool = False
 
     # Dropout
-    attention_dropout_prob: Optional[float] = None
-    residual_dropout_prob: Optional[float] = None
+    attention_dropout_prob: float | None = None
+    residual_dropout_prob: float | None = None
 
     def __post_init__(self):
         # Handle GQA: default num_key_value_heads to num_attention_heads
@@ -94,21 +102,22 @@ class ModelConfig:
                 raise ValueError(f"rope_scaling must contain keys {required_keys}")
 
     @classmethod
-    def from_file(cls, path: Union[str, Path]) -> 'ModelConfig':
+    def from_file(cls, path: str | Path) -> "ModelConfig":
         """Load config from JSON file."""
         path = Path(path)
         if path.is_dir():
             path = path / "config.json"
 
-        with open(path, "r") as f:
+        with open(path) as f:
             data = json.load(f)
 
         return cls.from_dict(data)
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'ModelConfig':
+    def from_dict(cls, data: dict) -> "ModelConfig":
         """Create config from dict, ignoring unknown fields."""
         import dataclasses
+
         field_names = {f.name for f in dataclasses.fields(cls)}
         filtered = {k: v for k, v in data.items() if k in field_names}
         return cls(**filtered)
@@ -116,9 +125,10 @@ class ModelConfig:
     def to_dict(self) -> dict:
         """Convert to dict."""
         import dataclasses
+
         return dataclasses.asdict(self)
 
-    def save(self, path: Union[str, Path]):
+    def save(self, path: str | Path):
         """Save config to JSON file."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)

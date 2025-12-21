@@ -43,9 +43,7 @@ def compute_log_probs_from_logits(logits: mx.array, actions: mx.array) -> mx.arr
 
 
 def extract_log_probs(
-    model: nn.Module,
-    input_ids: mx.array,
-    attention_mask: mx.array = None
+    model: nn.Module, input_ids: mx.array, attention_mask: mx.array = None
 ) -> tuple[mx.array, mx.array]:
     """
     Extract log probabilities from a model for given inputs.
@@ -81,10 +79,7 @@ def extract_log_probs(
     return log_probs, shifted_logits
 
 
-def compute_sequence_log_prob(
-    log_probs: mx.array,
-    attention_mask: mx.array = None
-) -> mx.array:
+def compute_sequence_log_prob(log_probs: mx.array, attention_mask: mx.array = None) -> mx.array:
     """
     Sum log probs across sequence to get total sequence log probability.
 

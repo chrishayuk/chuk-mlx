@@ -1,9 +1,11 @@
-import time
 import logging
+import time
+
 from chuk_lazarus.training.schedulers import schedule_learning_rate
 
 # Set the logger
 logger = logging.getLogger(__name__)
+
 
 class BatchProcessor:
     def __init__(self, model, tokenizer, optimizer, loss_function, warmup_steps):
@@ -26,14 +28,18 @@ class BatchProcessor:
         current_lr = schedule_learning_rate(self.optimizer, iteration_count, self.warmup_steps)
 
         # Store the learning rate before update
-        lr_before_update = float(current_lr) if isinstance(current_lr, (int, float)) else current_lr.item()
+        lr_before_update = (
+            float(current_lr) if isinstance(current_lr, (int, float)) else current_lr.item()
+        )
 
         try:
             # Execute the loss function, which returns loss and number of tokens (ntoks)
-            (lvalue, ntoks), grad = self.loss_function(self.model, input_tensor, target_tensor, attention_mask_tensor)
+            (lvalue, ntoks), grad = self.loss_function(
+                self.model, input_tensor, target_tensor, attention_mask_tensor
+            )
 
             # Convert ntoks to a scalar if it's an array-like object
-            ntoks = ntoks.item() if hasattr(ntoks, 'item') else ntoks
+            ntoks = ntoks.item() if hasattr(ntoks, "item") else ntoks
 
             # Update the optimizer
             self.optimizer.update(self.model, grad)
@@ -50,9 +56,11 @@ class BatchProcessor:
         tokens_per_second = ntoks / batch_time if batch_time > 0 else 0
 
         return {
-            "loss": lvalue.item() if hasattr(lvalue, 'item') else lvalue,  # Convert loss to a scalar if necessary
+            "loss": lvalue.item()
+            if hasattr(lvalue, "item")
+            else lvalue,  # Convert loss to a scalar if necessary
             "ntoks": ntoks,
             "batch_time": batch_time,
             "tokens_per_second": tokens_per_second,
-            "lr_before_update": lr_before_update
+            "lr_before_update": lr_before_update,
         }

@@ -8,11 +8,7 @@ bias and variance in advantage estimates.
 import mlx.core as mx
 
 
-def compute_returns(
-    rewards: mx.array,
-    dones: mx.array,
-    gamma: float = 0.99
-) -> mx.array:
+def compute_returns(rewards: mx.array, dones: mx.array, gamma: float = 0.99) -> mx.array:
     """
     Compute discounted returns (reward-to-go).
 
@@ -39,11 +35,7 @@ def compute_returns(
 
 
 def compute_gae(
-    rewards: mx.array,
-    values: mx.array,
-    dones: mx.array,
-    gamma: float = 0.99,
-    lam: float = 0.95
+    rewards: mx.array, values: mx.array, dones: mx.array, gamma: float = 0.99, lam: float = 0.95
 ) -> tuple[mx.array, mx.array]:
     """
     Compute Generalized Advantage Estimation (GAE).

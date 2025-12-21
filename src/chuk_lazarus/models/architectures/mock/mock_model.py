@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class MockEmbedding:
     def __init__(self, vocab_size, hidden_size):
         # set the vocab, hidden size
@@ -15,6 +16,7 @@ class MockEmbedding:
 
         # Mock embedding lookup
         return self.weights[x]
+
 
 class MockMLP:
     def __init__(self, hidden_size, intermediate_size):
@@ -34,6 +36,7 @@ class MockMLP:
         # return the output
         return output
 
+
 class MockModel:
     def __init__(self, vocab_size=32000, hidden_size=256, intermediate_size=512):
         # set the embeddigns layer as the mock embeddings layer
@@ -46,7 +49,7 @@ class MockModel:
         self.parameters = [self.embedding.weights, self.mlp.weights1, self.mlp.weights2]
 
         # Mock trainable parameters should be a list of numpy arrays
-        self.trainable_parameters = self.parameters  
+        self.trainable_parameters = self.parameters
 
     def __call__(self, inputs):
         # Ensure inputs are integer type for embedding lookup
@@ -61,4 +64,9 @@ class MockModel:
 
     def save_weights(self, file_path):
         # Simulate saving model weights
-        np.savez(file_path, embedding=self.embedding.weights, mlp1=self.mlp.weights1, mlp2=self.mlp.weights2)
+        np.savez(
+            file_path,
+            embedding=self.embedding.weights,
+            mlp1=self.mlp.weights1,
+            mlp2=self.mlp.weights2,
+        )

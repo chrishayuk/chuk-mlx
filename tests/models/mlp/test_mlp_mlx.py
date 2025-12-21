@@ -1,12 +1,13 @@
 """Tests for MLX MLP implementations."""
 
-import pytest
 import mlx.core as mx
+import pytest
+
 from chuk_lazarus.models.config import ModelConfig
-from chuk_lazarus.models.mlp.mlx.swiglu_mlp import MLP as MLXSwiGLUMLP
+from chuk_lazarus.models.mlp.mlp_factory import create_mlp
 from chuk_lazarus.models.mlp.mlx.gelu_glu_mlp import MLP as MLXGeluGLUMLP
 from chuk_lazarus.models.mlp.mlx.relu_mlp import MLP as MLXReLUMlp
-from chuk_lazarus.models.mlp.mlp_factory import create_mlp
+from chuk_lazarus.models.mlp.mlx.swiglu_mlp import MLP as MLXSwiGLUMLP
 
 
 @pytest.fixture

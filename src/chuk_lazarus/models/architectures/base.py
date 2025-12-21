@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Optional, Tuple, Any
+from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ModelMode(Enum):
     """Model operating mode."""
+
     TRAIN = "train"
     INFERENCE = "inference"
 
@@ -41,11 +42,7 @@ class BaseModel(nn.Module):
         else:
             self.lm_head = None
 
-    def __call__(
-        self,
-        inputs: mx.array,
-        cache: Any = None
-    ) -> Tuple[mx.array, Any]:
+    def __call__(self, inputs: mx.array, cache: Any = None) -> tuple[mx.array, Any]:
         """
         Forward pass.
 
@@ -85,7 +82,7 @@ class BaseModel(nn.Module):
 
     def reset_cache(self):
         """Reset KV cache."""
-        if self.model is not None and hasattr(self.model, 'reset_cache'):
+        if self.model is not None and hasattr(self.model, "reset_cache"):
             self.model.reset_cache()
 
 
@@ -96,12 +93,7 @@ class TransformerModel(nn.Module):
     This is the inner model without the LM head.
     """
 
-    def __init__(
-        self,
-        config: ModelConfig,
-        layer_class,
-        norm_class=nn.RMSNorm
-    ):
+    def __init__(self, config: ModelConfig, layer_class, norm_class=nn.RMSNorm):
         super().__init__()
         self.config = config
         self.vocab_size = config.vocab_size
@@ -111,10 +103,7 @@ class TransformerModel(nn.Module):
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
 
         # Transformer layers
-        self.layers = [
-            layer_class(config)
-            for _ in range(config.num_hidden_layers)
-        ]
+        self.layers = [layer_class(config) for _ in range(config.num_hidden_layers)]
 
         # Final normalization
         self.norm = norm_class(config.hidden_size, eps=config.rms_norm_eps)
@@ -122,11 +111,7 @@ class TransformerModel(nn.Module):
         # Mask cache for efficiency
         self._mask_cache = {}
 
-    def __call__(
-        self,
-        inputs: mx.array,
-        cache: Optional[list] = None
-    ) -> Tuple[mx.array, list]:
+    def __call__(self, inputs: mx.array, cache: list | None = None) -> tuple[mx.array, list]:
         """
         Forward pass through transformer.
 
@@ -176,13 +161,7 @@ class TransformerBlock(nn.Module):
     Standard transformer block with attention and MLP.
     """
 
-    def __init__(
-        self,
-        config: ModelConfig,
-        attention_class,
-        mlp_class,
-        norm_class=nn.RMSNorm
-    ):
+    def __init__(self, config: ModelConfig, attention_class, mlp_class, norm_class=nn.RMSNorm):
         super().__init__()
 
         # Attention with pre-norm
@@ -196,9 +175,9 @@ class TransformerBlock(nn.Module):
     def __call__(
         self,
         x: mx.array,
-        mask: Optional[mx.array] = None,
-        cache: Optional[Tuple[mx.array, mx.array]] = None
-    ) -> Tuple[mx.array, Tuple[mx.array, mx.array]]:
+        mask: mx.array | None = None,
+        cache: tuple[mx.array, mx.array] | None = None,
+    ) -> tuple[mx.array, tuple[mx.array, mx.array]]:
         """
         Forward pass.
 

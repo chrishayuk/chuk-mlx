@@ -1,15 +1,31 @@
 import os
 import time
+
 import numpy as np
+
+from chuk_lazarus.data.preprocessing.batch_analysis_summary import (
+    generate_batch_analysis_summary_table,
+)
+from chuk_lazarus.data.preprocessing.batch_generation_summary import (
+    generate_batch_generation_summary,
+)
 from chuk_lazarus.data.preprocessing.bucketing import add_to_buckets, get_batch_from_buckets
-from chuk_lazarus.data.preprocessing.batch_generation_summary import generate_batch_generation_summary
-from chuk_lazarus.data.preprocessing.batch_analysis_summary import generate_batch_analysis_summary_table
 from chuk_lazarus.data.preprocessing.dataset_utils import tokenize_dataset
 from chuk_lazarus.data.preprocessing.padding_utils import pad_sequences
 from chuk_lazarus.data.preprocessing.tokenization_utils import batch_tokenize_and_pad
 
+
 class BatchBase:
-    def __init__(self, tokenizer, output_directory, file_prefix, max_sequence_length, batch_size, print_summaries, dtype=np.int32):
+    def __init__(
+        self,
+        tokenizer,
+        output_directory,
+        file_prefix,
+        max_sequence_length,
+        batch_size,
+        print_summaries,
+        dtype=np.int32,
+    ):
         # Set the various parameters
         self.tokenizer = tokenizer
         self.output_directory = output_directory
@@ -18,14 +34,14 @@ class BatchBase:
         self.batch_size = batch_size
         self.print_summaries = print_summaries
         self.dtype = dtype  # Add dtype as a configurable parameter
-    
+
     def tokenize_and_batch(self, input_files):
         # Tokenize the dataset
         tokenized_dataset = tokenize_dataset(input_files, self.tokenize_line)
-        
+
         # Initialize buckets for storing sequences
         buckets = {}
-        
+
         # Process each tokenized sequence
         for idx, (input_tokens, target_tokens, attention_mask) in enumerate(tokenized_dataset):
             # Pad input, target sequences, and attention masks to the same length
@@ -34,38 +50,44 @@ class BatchBase:
             )
 
             # Add the padded input, target sequences, and attention mask to the appropriate buckets
-            add_to_buckets(buckets, input_tokens_padded[0], target_tokens_padded[0], attention_mask_padded[0])
-        
+            add_to_buckets(
+                buckets, input_tokens_padded[0], target_tokens_padded[0], attention_mask_padded[0]
+            )
+
         # Create batches from the filled buckets and process them
         self.create_batches(buckets)
-    
+
     def pad_sequences(self, input_sequences, target_sequences, attention_masks, pad_token_id):
         # Check for input and targets
         if len(input_sequences) == 0 and len(target_sequences) == 0:
             return (
                 np.array([], dtype=self.dtype),
                 np.array([], dtype=self.dtype),
-                np.array([], dtype=self.dtype)
+                np.array([], dtype=self.dtype),
             )
-        
+
         # Determine the maximum length across input, target sequences, and attention masks
         max_input_length = max((len(seq) for seq in input_sequences), default=0)
         max_target_length = max((len(seq) for seq in target_sequences), default=0)
         max_attention_length = max((len(seq) for seq in attention_masks), default=0)
-        
+
         # Set the max length to pad input, target sequences, and attention masks
         max_length = max(max_input_length, max_target_length, max_attention_length)
 
         # Convert to numpy arrays and ensure shapes are consistent
-        padded_input_sequences = pad_sequences(input_sequences, pad_token_id, max_length, dtype=self.dtype)
-        padded_target_sequences = pad_sequences(target_sequences, pad_token_id, max_length, dtype=self.dtype)
+        padded_input_sequences = pad_sequences(
+            input_sequences, pad_token_id, max_length, dtype=self.dtype
+        )
+        padded_target_sequences = pad_sequences(
+            target_sequences, pad_token_id, max_length, dtype=self.dtype
+        )
         padded_attention_masks = pad_sequences(attention_masks, 0, max_length, dtype=self.dtype)
 
         # Return the final padded sequences
         return (
             np.array(padded_input_sequences, dtype=self.dtype),
             np.array(padded_target_sequences, dtype=self.dtype),
-            np.array(padded_attention_masks, dtype=self.dtype)
+            np.array(padded_attention_masks, dtype=self.dtype),
         )
 
     def create_batches(self, buckets):
@@ -82,7 +104,9 @@ class BatchBase:
                 break
 
             # get the batch filename
-            file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}.npz')
+            file_path = os.path.join(
+                self.output_directory, f"{self.file_prefix}_batch_{batch_idx + 1:04d}.npz"
+            )
 
             # process the batch
             self.process_batch(batch_idx, batch, file_path)
@@ -96,16 +120,18 @@ class BatchBase:
         for bucket_key in list(buckets.keys()):
             while buckets[bucket_key]:
                 # get the file path
-                file_path = os.path.join(self.output_directory, f'{self.file_prefix}_batch_{batch_idx + 1:04d}.npz')
+                file_path = os.path.join(
+                    self.output_directory, f"{self.file_prefix}_batch_{batch_idx + 1:04d}.npz"
+                )
 
                 # get the batch
-                batch = buckets[bucket_key][:self.batch_size]
+                batch = buckets[bucket_key][: self.batch_size]
 
                 # process the batch
                 self.process_batch(batch_idx, batch, file_path)
 
                 # remove processed sequences from the bucket
-                buckets[bucket_key] = buckets[bucket_key][self.batch_size:]
+                buckets[bucket_key] = buckets[bucket_key][self.batch_size :]
 
                 # Check if the bucket is empty and remove it
                 if not buckets[bucket_key]:
@@ -134,8 +160,12 @@ class BatchBase:
             input_tensor = result
 
         # Generate and print summaries if requested
-        summary_table = generate_batch_analysis_summary_table(input_tensor, file_path, self.tokenizer.pad_token_id)
-        generation_stats = generate_batch_generation_summary(batch_idx, input_tensor, batch_start_time, batch_end_time, self.tokenizer.pad_token_id)
+        summary_table = generate_batch_analysis_summary_table(
+            input_tensor, file_path, self.tokenizer.pad_token_id
+        )
+        generation_stats = generate_batch_generation_summary(
+            batch_idx, input_tensor, batch_start_time, batch_end_time, self.tokenizer.pad_token_id
+        )
 
         if self.print_summaries:
             print(f"Batch {batch_idx + 1} Summary:")
@@ -161,13 +191,18 @@ class BatchBase:
             attention_masks_array = np.array(attention_masks_padded, dtype=self.dtype)
 
             # save
-            np.savez(file_path, input_tensor=inputs_array, target_tensor=targets_array, attention_mask_tensor=attention_masks_array)
-            
+            np.savez(
+                file_path,
+                input_tensor=inputs_array,
+                target_tensor=targets_array,
+                attention_mask_tensor=attention_masks_array,
+            )
+
             # return the arrays
             return inputs_array, targets_array, attention_masks_array
         else:
             # pad
-            inputs_padded = pad_sequences(batch_data, self.tokenizer.pad_token_id,dtype=self.dtype)
+            inputs_padded = pad_sequences(batch_data, self.tokenizer.pad_token_id, dtype=self.dtype)
             inputs_array = np.array(inputs_padded, dtype=self.dtype)
 
             # save
@@ -178,8 +213,10 @@ class BatchBase:
 
     def process_batch_data(self, batch_data):
         # Use the batch_tokenize_and_pad function to process the batch
-        processed_batch = batch_tokenize_and_pad(batch_data, self.tokenizer, self.max_sequence_length)
-        
+        processed_batch = batch_tokenize_and_pad(
+            batch_data, self.tokenizer, self.max_sequence_length
+        )
+
         # Convert to numpy array
         input_tensor = np.array(processed_batch, dtype=self.dtype)
 

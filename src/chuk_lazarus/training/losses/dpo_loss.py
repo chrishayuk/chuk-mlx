@@ -16,12 +16,13 @@ from dataclasses import dataclass
 import mlx.core as mx
 import mlx.nn as nn
 
-from ..utils.log_probs import extract_log_probs, compute_sequence_log_prob
+from ..utils.log_probs import compute_sequence_log_prob, extract_log_probs
 
 
 @dataclass
 class DPOConfig:
     """Configuration for DPO training."""
+
     beta: float = 0.1  # KL penalty coefficient (higher = stay closer to reference)
     label_smoothing: float = 0.0  # Optional label smoothing
     reference_free: bool = False  # If True, skip reference model (simpler but less stable)
@@ -34,7 +35,7 @@ def dpo_loss(
     rejected_input_ids: mx.array,
     chosen_attention_mask: mx.array = None,
     rejected_attention_mask: mx.array = None,
-    config: DPOConfig = None
+    config: DPOConfig = None,
 ) -> tuple[mx.array, dict]:
     """
     Compute DPO loss for a batch of preference pairs.
@@ -70,11 +71,17 @@ def dpo_loss(
 
     # Sum to get sequence-level log probs
     # Shift masks to match log_probs shape (seq_len - 1)
-    chosen_mask_shifted = chosen_attention_mask[:, 1:] if chosen_attention_mask is not None else None
-    rejected_mask_shifted = rejected_attention_mask[:, 1:] if rejected_attention_mask is not None else None
+    chosen_mask_shifted = (
+        chosen_attention_mask[:, 1:] if chosen_attention_mask is not None else None
+    )
+    rejected_mask_shifted = (
+        rejected_attention_mask[:, 1:] if rejected_attention_mask is not None else None
+    )
 
     policy_chosen_seq = compute_sequence_log_prob(policy_chosen_log_probs, chosen_mask_shifted)
-    policy_rejected_seq = compute_sequence_log_prob(policy_rejected_log_probs, rejected_mask_shifted)
+    policy_rejected_seq = compute_sequence_log_prob(
+        policy_rejected_log_probs, rejected_mask_shifted
+    )
 
     if config.reference_free:
         # Simpler version: no reference model
@@ -100,10 +107,9 @@ def dpo_loss(
 
     if config.label_smoothing > 0:
         # Soft labels: slightly prefer chosen but not absolutely
-        loss = (
-            -config.label_smoothing * mx.log(mx.sigmoid(-logits) + 1e-10)
-            - (1 - config.label_smoothing) * mx.log(mx.sigmoid(logits) + 1e-10)
-        )
+        loss = -config.label_smoothing * mx.log(mx.sigmoid(-logits) + 1e-10) - (
+            1 - config.label_smoothing
+        ) * mx.log(mx.sigmoid(logits) + 1e-10)
     else:
         # Standard DPO loss
         loss = -mx.log(mx.sigmoid(logits) + 1e-10)
@@ -123,9 +129,7 @@ def dpo_loss(
 
 
 def create_dpo_loss_fn(
-    policy_model: nn.Module,
-    reference_model: nn.Module,
-    config: DPOConfig = None
+    policy_model: nn.Module, reference_model: nn.Module, config: DPOConfig = None
 ):
     """
     Create a loss function suitable for use with MLX's value_and_grad.
@@ -143,7 +147,7 @@ def create_dpo_loss_fn(
             rejected_input_ids=batch["rejected_input_ids"],
             chosen_attention_mask=batch.get("chosen_attention_mask"),
             rejected_attention_mask=batch.get("rejected_attention_mask"),
-            config=config
+            config=config,
         )
 
     return loss_fn

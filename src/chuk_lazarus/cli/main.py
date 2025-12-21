@@ -6,41 +6,35 @@ Usage:
     lazarus train dpo --model ./checkpoints/sft/final --data ./data/preferences.jsonl
     lazarus generate --type math --output ./data/lazarus_math
     lazarus infer --model ./checkpoints/dpo/final --prompt "Calculate 2+2"
+    lazarus tokenizer encode -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --text "Hello world"
+    lazarus tokenizer decode -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --ids "1,2,3"
+    lazarus tokenizer vocab -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --search "hello"
+    lazarus tokenizer compare -t1 model1 -t2 model2 --text "Test"
 """
 
 import argparse
 import logging
 import sys
-from pathlib import Path
-from typing import Optional
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 
 def train_sft(args):
     """Run SFT training."""
-    from ..models import load_model
     from ..data import SFTDataset
+    from ..models import load_model
     from ..training import SFTTrainer
     from ..training.losses import SFTConfig
 
     logger.info(f"Loading model: {args.model}")
-    model = load_model(
-        args.model,
-        use_lora=args.use_lora,
-        lora_rank=args.lora_rank
-    )
+    model = load_model(args.model, use_lora=args.use_lora, lora_rank=args.lora_rank)
 
     logger.info(f"Loading dataset: {args.data}")
     dataset = SFTDataset(
-        args.data,
-        model.tokenizer,
-        max_length=args.max_length,
-        mask_prompt=args.mask_prompt
+        args.data, model.tokenizer, max_length=args.max_length, mask_prompt=args.mask_prompt
     )
 
     eval_dataset = None
@@ -49,7 +43,7 @@ def train_sft(args):
             args.eval_data,
             model.tokenizer,
             max_length=args.max_length,
-            mask_prompt=args.mask_prompt
+            mask_prompt=args.mask_prompt,
         )
 
     config = SFTConfig(
@@ -69,17 +63,13 @@ def train_sft(args):
 
 def train_dpo(args):
     """Run DPO training."""
-    from ..models import load_model
     from ..data import PreferenceDataset
+    from ..models import load_model
     from ..training import DPOTrainer, DPOTrainerConfig
     from ..training.losses import DPOConfig
 
     logger.info(f"Loading policy model: {args.model}")
-    policy_model = load_model(
-        args.model,
-        use_lora=args.use_lora,
-        lora_rank=args.lora_rank
-    )
+    policy_model = load_model(args.model, use_lora=args.use_lora, lora_rank=args.lora_rank)
 
     logger.info(f"Loading reference model: {args.ref_model or args.model}")
     ref_model = load_model(args.ref_model or args.model, use_lora=False)
@@ -107,12 +97,7 @@ def train_dpo(args):
         checkpoint_dir=args.output,
     )
 
-    trainer = DPOTrainer(
-        policy_model.model,
-        ref_model.model,
-        policy_model.tokenizer,
-        config
-    )
+    trainer = DPOTrainer(policy_model.model, ref_model.model, policy_model.tokenizer, config)
     trainer.train(dataset, eval_dataset)
 
     logger.info(f"Training complete. Checkpoints saved to {args.output}")
@@ -128,7 +113,7 @@ def generate_data(args):
             output_dir=args.output,
             sft_samples=args.sft_samples,
             dpo_samples=args.dpo_samples,
-            seed=args.seed
+            seed=args.seed,
         )
         logger.info(f"Dataset saved to {args.output}")
     else:
@@ -174,6 +159,113 @@ def run_inference(args):
         print(f"Response: {response}")
 
 
+def tokenizer_encode(args):
+    """Encode text and display tokens."""
+    from ..data.tokenizers.token_display import TokenDisplayUtility
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+    display = TokenDisplayUtility(tokenizer)
+
+    if args.text:
+        texts = [args.text]
+    elif args.file:
+        with open(args.file) as f:
+            texts = [f.read()]
+    else:
+        # Interactive mode
+        print("Enter text to tokenize (Ctrl+D to finish):")
+        try:
+            texts = [input("> ")]
+        except EOFError:
+            return
+
+    for text in texts:
+        print(f"\nText: {text[:100]}{'...' if len(text) > 100 else ''}")
+        print(f"Length: {len(text)} chars\n")
+        display.display_tokens_from_prompt(text, add_special_tokens=args.special_tokens)
+
+
+def tokenizer_decode(args):
+    """Decode token IDs back to text."""
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    # Parse token IDs from comma-separated or space-separated string
+    token_ids = [int(t.strip()) for t in args.ids.replace(",", " ").split()]
+
+    decoded = tokenizer.decode(token_ids)
+    print(f"Token IDs: {token_ids}")
+    print(f"Decoded: {decoded}")
+
+
+def tokenizer_vocab(args):
+    """Display vocabulary information."""
+    from ..data.tokenizers.token_display import TokenDisplayUtility
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    vocab = tokenizer.get_vocab()
+    print("\nVocabulary Statistics:")
+    print(f"  Total tokens: {len(vocab)}")
+
+    if hasattr(tokenizer, "pad_token_id"):
+        print(f"  Pad token ID: {tokenizer.pad_token_id}")
+    if hasattr(tokenizer, "eos_token_id"):
+        print(f"  EOS token ID: {tokenizer.eos_token_id}")
+    if hasattr(tokenizer, "bos_token_id"):
+        print(f"  BOS token ID: {tokenizer.bos_token_id}")
+    if hasattr(tokenizer, "unk_token_id"):
+        print(f"  UNK token ID: {tokenizer.unk_token_id}")
+
+    if args.show_all:
+        display = TokenDisplayUtility(tokenizer)
+        display.display_full_vocabulary(chunk_size=args.chunk_size, pause_between_chunks=args.pause)
+    elif args.search:
+        # Search for tokens containing the search string
+        print(f"\nTokens containing '{args.search}':")
+        matches = [
+            (token, id) for token, id in vocab.items() if args.search.lower() in token.lower()
+        ]
+        matches.sort(key=lambda x: x[1])
+        for token, id in matches[: args.limit]:
+            decoded = tokenizer.decode([id])
+            print(f"  {id:6d}: {repr(token):30s} -> {repr(decoded)}")
+        if len(matches) > args.limit:
+            print(f"  ... and {len(matches) - args.limit} more matches")
+
+
+def tokenizer_compare(args):
+    """Compare tokenization between two tokenizers."""
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer 1: {args.tokenizer1}")
+    tok1 = load_tokenizer(args.tokenizer1)
+    logger.info(f"Loading tokenizer 2: {args.tokenizer2}")
+    tok2 = load_tokenizer(args.tokenizer2)
+
+    text = args.text
+
+    ids1 = tok1.encode(text)
+    ids2 = tok2.encode(text)
+
+    print(f"\nText: {text}")
+    print(f"\n{args.tokenizer1}:")
+    print(f"  Token count: {len(ids1)}")
+    print(f"  Token IDs: {ids1[:20]}{'...' if len(ids1) > 20 else ''}")
+
+    print(f"\n{args.tokenizer2}:")
+    print(f"  Token count: {len(ids2)}")
+    print(f"  Token IDs: {ids2[:20]}{'...' if len(ids2) > 20 else ''}")
+
+    print(f"\nDifference: {len(ids1) - len(ids2):+d} tokens")
+
+
 def app():
     """Create the argument parser."""
     parser = argparse.ArgumentParser(
@@ -192,7 +284,7 @@ Examples:
 
     # Run inference
     lazarus infer --model ./checkpoints/dpo/final --prompt "What is 2+2?"
-        """
+        """,
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -252,6 +344,41 @@ Examples:
     infer_parser.add_argument("--temperature", type=float, default=0.7, help="Temperature")
     infer_parser.set_defaults(func=run_inference)
 
+    # Tokenizer subcommand
+    tok_parser = subparsers.add_parser("tokenizer", help="Tokenizer utilities")
+    tok_subparsers = tok_parser.add_subparsers(dest="tok_command", help="Tokenizer commands")
+
+    # Encode command
+    encode_parser = tok_subparsers.add_parser("encode", help="Encode text to tokens")
+    encode_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    encode_parser.add_argument("--text", help="Text to encode")
+    encode_parser.add_argument("--file", "-f", help="File to encode")
+    encode_parser.add_argument("--special-tokens", action="store_true", help="Add special tokens")
+    encode_parser.set_defaults(func=tokenizer_encode)
+
+    # Decode command
+    decode_parser = tok_subparsers.add_parser("decode", help="Decode token IDs to text")
+    decode_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    decode_parser.add_argument("--ids", required=True, help="Token IDs (comma or space separated)")
+    decode_parser.set_defaults(func=tokenizer_decode)
+
+    # Vocab command
+    vocab_parser = tok_subparsers.add_parser("vocab", help="Display vocabulary info")
+    vocab_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    vocab_parser.add_argument("--show-all", action="store_true", help="Show full vocabulary")
+    vocab_parser.add_argument("--search", "-s", help="Search for tokens containing string")
+    vocab_parser.add_argument("--limit", type=int, default=50, help="Max results for search")
+    vocab_parser.add_argument("--chunk-size", type=int, default=1000, help="Chunk size for display")
+    vocab_parser.add_argument("--pause", action="store_true", help="Pause between chunks")
+    vocab_parser.set_defaults(func=tokenizer_vocab)
+
+    # Compare command
+    compare_parser = tok_subparsers.add_parser("compare", help="Compare two tokenizers")
+    compare_parser.add_argument("--tokenizer1", "-t1", required=True, help="First tokenizer")
+    compare_parser.add_argument("--tokenizer2", "-t2", required=True, help="Second tokenizer")
+    compare_parser.add_argument("--text", required=True, help="Text to compare")
+    compare_parser.set_defaults(func=tokenizer_compare)
+
     return parser
 
 
@@ -268,6 +395,8 @@ def main():
         args.func(args)
     elif args.command == "train" and args.train_type is None:
         parser.parse_args(["train", "--help"])
+    elif args.command == "tokenizer" and args.tok_command is None:
+        parser.parse_args(["tokenizer", "--help"])
 
 
 if __name__ == "__main__":

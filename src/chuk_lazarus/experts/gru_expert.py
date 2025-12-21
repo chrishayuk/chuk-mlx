@@ -5,12 +5,10 @@ GRU is simpler than LSTM (2 gates vs 3) and often works just as well.
 Good default choice for control tasks.
 """
 
-from typing import Optional, Tuple
-
 import mlx.core as mx
 import mlx.nn as nn
 
-from .rnn_expert_base import RNNExpertBase, ExpertConfig
+from .rnn_expert_base import ExpertConfig, RNNExpertBase
 
 
 class GRUCell(nn.Module):
@@ -27,11 +25,7 @@ class GRUCell(nn.Module):
         # Candidate hidden
         self.W_h = nn.Linear(input_dim + hidden_dim, hidden_dim)
 
-    def __call__(
-        self,
-        x: mx.array,
-        h: Optional[mx.array] = None
-    ) -> mx.array:
+    def __call__(self, x: mx.array, h: mx.array | None = None) -> mx.array:
         """
         Forward pass.
 
@@ -100,11 +94,7 @@ class GRUExpert(RNNExpertBase):
         # Register as module list for parameter tracking
         self._gru_modules = self.gru_layers
 
-    def _forward_rnn(
-        self,
-        x: mx.array,
-        hidden: Optional[list] = None
-    ) -> Tuple[mx.array, list]:
+    def _forward_rnn(self, x: mx.array, hidden: list | None = None) -> tuple[mx.array, list]:
         """
         Forward through GRU layers.
 
@@ -116,8 +106,6 @@ class GRUExpert(RNNExpertBase):
             output: Final layer output
             new_hidden: List of new hidden states
         """
-        batch_size = x.shape[0]
-
         if hidden is None:
             hidden = [None] * self.config.num_layers
 
@@ -141,9 +129,7 @@ class GRUExpert(RNNExpertBase):
 
 
 def create_physics_controller(
-    obs_dim: int = 10,
-    action_dim: int = 2,
-    hidden_dim: int = 64
+    obs_dim: int = 10, action_dim: int = 2, hidden_dim: int = 64
 ) -> GRUExpert:
     """
     Create a GRU expert for physics control tasks.
@@ -174,10 +160,7 @@ def create_physics_controller(
     return GRUExpert(config)
 
 
-def create_scheduler_expert(
-    num_tasks: int = 10,
-    hidden_dim: int = 128
-) -> GRUExpert:
+def create_scheduler_expert(num_tasks: int = 10, hidden_dim: int = 128) -> GRUExpert:
     """
     Create a GRU expert for scheduling optimization.
 

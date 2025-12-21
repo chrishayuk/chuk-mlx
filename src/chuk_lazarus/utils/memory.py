@@ -1,7 +1,7 @@
 """Memory utilities."""
 
-import os
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -15,11 +15,12 @@ def get_memory_usage() -> dict:
     """
     try:
         import psutil
+
         process = psutil.Process(os.getpid())
         mem_info = process.memory_info()
         return {
-            "rss_mb": mem_info.rss / (1024 ** 2),
-            "vms_mb": mem_info.vms / (1024 ** 2),
+            "rss_mb": mem_info.rss / (1024**2),
+            "vms_mb": mem_info.vms / (1024**2),
         }
     except ImportError:
         return {"rss_mb": 0, "vms_mb": 0}

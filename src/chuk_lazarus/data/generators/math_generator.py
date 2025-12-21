@@ -21,11 +21,11 @@ import json
 import logging
 import random
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .types import (
-    ProblemType,
     MathProblem,
+    ProblemType,
     ToolCallTrace,
     TrainingSample,
 )
@@ -82,9 +82,9 @@ class MathProblemGenerator:
     def generate_batch(
         self,
         num_problems: int,
-        difficulty_range: Tuple[int, int] = (1, 3),
-        problem_types: Optional[List[ProblemType]] = None
-    ) -> List[TrainingSample]:
+        difficulty_range: tuple[int, int] = (1, 3),
+        problem_types: list[ProblemType] | None = None,
+    ) -> list[TrainingSample]:
         """Generate a batch of training samples."""
         if problem_types is None:
             problem_types = list(ProblemType)
@@ -99,12 +99,14 @@ class MathProblemGenerator:
             correct_response = self._format_correct_response(problem, trace)
             incorrect_responses = self._generate_incorrect_responses(problem)
 
-            samples.append(TrainingSample(
-                problem=problem,
-                correct_trace=trace,
-                correct_response=correct_response,
-                incorrect_responses=incorrect_responses
-            ))
+            samples.append(
+                TrainingSample(
+                    problem=problem,
+                    correct_trace=trace,
+                    correct_response=correct_response,
+                    incorrect_responses=incorrect_responses,
+                )
+            )
 
         return samples
 
@@ -130,15 +132,15 @@ class MathProblemGenerator:
 
     def _generate_arithmetic(self, problem_id: str, difficulty: int) -> MathProblem:
         """Generate arithmetic problem."""
-        max_val = 10 ** difficulty
+        max_val = 10**difficulty
 
-        ops = ['+', '-', '*']
+        ops = ["+", "-", "*"]
         if difficulty >= 2:
-            ops.append('/')
+            ops.append("/")
 
         op = self.rng.choice(ops)
 
-        if op == '/':
+        if op == "/":
             # Ensure clean division
             b = self.rng.randint(1, max_val // 10 or 1)
             result = self.rng.randint(1, max_val // 10 or 1)
@@ -156,7 +158,7 @@ class MathProblemGenerator:
             problem_text=f"Calculate: {expression}",
             expression=expression,
             answer=float(answer),
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
     def _generate_fractions(self, problem_id: str, difficulty: int) -> MathProblem:
@@ -167,11 +169,11 @@ class MathProblemGenerator:
         num2 = self.rng.randint(1, 10)
         den2 = self.rng.randint(2, 10)
 
-        op = self.rng.choice(['+', '-', '*'])
+        op = self.rng.choice(["+", "-", "*"])
 
-        if op == '+':
+        if op == "+":
             result = (num1 * den2 + num2 * den1) / (den1 * den2)
-        elif op == '-':
+        elif op == "-":
             result = (num1 * den2 - num2 * den1) / (den1 * den2)
         else:
             result = (num1 * num2) / (den1 * den2)
@@ -184,7 +186,7 @@ class MathProblemGenerator:
             problem_text=f"Calculate: {expression}",
             expression=expression,
             answer=float(result),
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
     def _generate_percentages(self, problem_id: str, difficulty: int) -> MathProblem:
@@ -200,7 +202,7 @@ class MathProblemGenerator:
             problem_text=f"What is {percent}% of {base}?",
             expression=f"{base} * {percent} / 100",
             answer=float(answer),
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
     def _generate_word_problem(self, problem_id: str, difficulty: int) -> MathProblem:
@@ -211,7 +213,12 @@ class MathProblemGenerator:
         b = self.rng.randint(1, 30 * difficulty)
 
         # Ensure subtraction doesn't go negative
-        if "spends" in template or "give away" in template or "sells" in template or "left" in template:
+        if (
+            "spends" in template
+            or "give away" in template
+            or "sells" in template
+            or "left" in template
+        ):
             if b > a:
                 a, b = b, a
 
@@ -222,16 +229,19 @@ class MathProblemGenerator:
             distractor = self.rng.choice(self.DISTRACTORS)
             dist_template = self.rng.choice(self.DISTRACTOR_TEMPLATES)
             problem_text = dist_template.format(
-                prefix="",
-                distractor=distractor,
-                core=problem_text
+                prefix="", distractor=distractor, core=problem_text
             ).strip()
 
         # Determine operation from template
         if "more" in template or "join" in template or "total" in template or "buys" in template:
             answer = a + b
             expression = f"{a} + {b}"
-        elif "left" in template or "spends" in template or "give away" in template or "sells" in template:
+        elif (
+            "left" in template
+            or "spends" in template
+            or "give away" in template
+            or "sells" in template
+        ):
             answer = a - b
             expression = f"{a} - {b}"
         elif "per" in template:
@@ -247,7 +257,7 @@ class MathProblemGenerator:
             problem_text=problem_text,
             expression=expression,
             answer=float(answer),
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
     def _generate_multi_step(self, problem_id: str, difficulty: int) -> MathProblem:
@@ -271,7 +281,7 @@ class MathProblemGenerator:
             problem_text=text,
             expression=expr,
             answer=float(answer),
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
     def _generate_comparison(self, problem_id: str, difficulty: int) -> MathProblem:
@@ -294,19 +304,21 @@ class MathProblemGenerator:
             problem_text=problem_text,
             expression=f"max({a}, {b})" if "larger" in problem_text else f"abs({a} - {b})",
             answer=float(answer),
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
-    def _generate_trace(self, problem: MathProblem) -> List[ToolCallTrace]:
+    def _generate_trace(self, problem: MathProblem) -> list[ToolCallTrace]:
         """Generate the tool call trace for solving the problem."""
-        return [ToolCallTrace(
-            tool_name="math_solve",
-            tool_args={"expression": problem.expression},
-            tool_result=problem.answer,
-            thought=f"I need to calculate: {problem.expression}"
-        )]
+        return [
+            ToolCallTrace(
+                tool_name="math_solve",
+                tool_args={"expression": problem.expression},
+                tool_result=problem.answer,
+                thought=f"I need to calculate: {problem.expression}",
+            )
+        ]
 
-    def _format_correct_response(self, problem: MathProblem, trace: List[ToolCallTrace]) -> str:
+    def _format_correct_response(self, problem: MathProblem, trace: list[ToolCallTrace]) -> str:
         """Format the correct response with tool calls."""
         lines = []
 
@@ -321,7 +333,7 @@ class MathProblemGenerator:
         if answer == int(answer):
             answer_str = str(int(answer))
         else:
-            answer_str = f"{answer:.4f}".rstrip('0').rstrip('.')
+            answer_str = f"{answer:.4f}".rstrip("0").rstrip(".")
 
         if problem.unit:
             answer_str = f"{answer_str} {problem.unit}"
@@ -330,7 +342,7 @@ class MathProblemGenerator:
 
         return "\n".join(lines)
 
-    def _format_args(self, args: Dict[str, Any]) -> str:
+    def _format_args(self, args: dict[str, Any]) -> str:
         """Format tool arguments."""
         parts = []
         for k, v in args.items():
@@ -340,7 +352,7 @@ class MathProblemGenerator:
                 parts.append(f"{k}={v}")
         return ", ".join(parts)
 
-    def _generate_incorrect_responses(self, problem: MathProblem) -> List[str]:
+    def _generate_incorrect_responses(self, problem: MathProblem) -> list[str]:
         """Generate incorrect responses for DPO training."""
         incorrect = []
 
@@ -351,7 +363,9 @@ class MathProblemGenerator:
         incorrect.append(f"Let me think... I believe the answer is {wrong_answer}.")
 
         # Type 2: Wrong tool call (missing/wrong args)
-        incorrect.append(f"TOOL: math_solve()\nHmm, that didn't work. The answer is probably {wrong_answer}.")
+        incorrect.append(
+            f"TOOL: math_solve()\nHmm, that didn't work. The answer is probably {wrong_answer}."
+        )
 
         # Type 3: Verbose but wrong
         incorrect.append(
@@ -362,69 +376,70 @@ class MathProblemGenerator:
 
         # Type 4: Tool spam (multiple unnecessary calls)
         incorrect.append(
-            f"TOOL: math_solve(expression=\"1+1\")\n"
-            f"TOOL: math_solve(expression=\"2+2\")\n"
-            f"TOOL: math_solve(expression=\"{problem.expression}\")\n"
+            f'TOOL: math_solve(expression="1+1")\n'
+            f'TOOL: math_solve(expression="2+2")\n'
+            f'TOOL: math_solve(expression="{problem.expression}")\n'
             f"ANSWER: {wrong_answer}"
         )
 
         return incorrect
 
-    def to_sft_format(self, samples: List[TrainingSample]) -> List[Dict]:
+    def to_sft_format(self, samples: list[TrainingSample]) -> list[dict]:
         """Convert to SFT training format."""
         data = []
         for sample in samples:
-            data.append({
-                "prompt": sample.problem.problem_text,
-                "response": sample.correct_response,
-                "metadata": {
-                    "problem_id": sample.problem.id,
-                    "problem_type": sample.problem.problem_type.value,
-                    "difficulty": sample.problem.difficulty,
-                    "answer": sample.problem.answer,
-                }
-            })
-        return data
-
-    def to_dpo_format(self, samples: List[TrainingSample]) -> List[Dict]:
-        """Convert to DPO preference format."""
-        data = []
-        for sample in samples:
-            for incorrect in sample.incorrect_responses:
-                data.append({
+            data.append(
+                {
                     "prompt": sample.problem.problem_text,
-                    "chosen": sample.correct_response,
-                    "rejected": incorrect,
+                    "response": sample.correct_response,
                     "metadata": {
                         "problem_id": sample.problem.id,
                         "problem_type": sample.problem.problem_type.value,
                         "difficulty": sample.problem.difficulty,
-                    }
-                })
+                        "answer": sample.problem.answer,
+                    },
+                }
+            )
         return data
 
-    def save_sft_dataset(self, samples: List[TrainingSample], path: str):
+    def to_dpo_format(self, samples: list[TrainingSample]) -> list[dict]:
+        """Convert to DPO preference format."""
+        data = []
+        for sample in samples:
+            for incorrect in sample.incorrect_responses:
+                data.append(
+                    {
+                        "prompt": sample.problem.problem_text,
+                        "chosen": sample.correct_response,
+                        "rejected": incorrect,
+                        "metadata": {
+                            "problem_id": sample.problem.id,
+                            "problem_type": sample.problem.problem_type.value,
+                            "difficulty": sample.problem.difficulty,
+                        },
+                    }
+                )
+        return data
+
+    def save_sft_dataset(self, samples: list[TrainingSample], path: str):
         """Save as SFT JSONL dataset."""
         data = self.to_sft_format(samples)
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             for item in data:
-                f.write(json.dumps(item) + '\n')
+                f.write(json.dumps(item) + "\n")
         logger.info(f"Saved {len(data)} SFT samples to {path}")
 
-    def save_dpo_dataset(self, samples: List[TrainingSample], path: str):
+    def save_dpo_dataset(self, samples: list[TrainingSample], path: str):
         """Save as DPO JSONL dataset."""
         data = self.to_dpo_format(samples)
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             for item in data:
-                f.write(json.dumps(item) + '\n')
+                f.write(json.dumps(item) + "\n")
         logger.info(f"Saved {len(data)} DPO samples to {path}")
 
 
 def generate_lazarus_dataset(
-    output_dir: str,
-    sft_samples: int = 10000,
-    dpo_samples: int = 5000,
-    seed: int = 42
+    output_dir: str, sft_samples: int = 10000, dpo_samples: int = 5000, seed: int = 42
 ):
     """
     Generate complete training dataset for Lazarus training.
@@ -483,14 +498,12 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate math training data")
-    parser.add_argument("--output", type=str, default="./data/lazarus_math",
-                        help="Output directory")
-    parser.add_argument("--sft-samples", type=int, default=10000,
-                        help="Number of SFT samples")
-    parser.add_argument("--dpo-samples", type=int, default=5000,
-                        help="Number of DPO samples")
-    parser.add_argument("--seed", type=int, default=42,
-                        help="Random seed")
+    parser.add_argument(
+        "--output", type=str, default="./data/lazarus_math", help="Output directory"
+    )
+    parser.add_argument("--sft-samples", type=int, default=10000, help="Number of SFT samples")
+    parser.add_argument("--dpo-samples", type=int, default=5000, help="Number of DPO samples")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
@@ -498,5 +511,5 @@ if __name__ == "__main__":
         output_dir=args.output,
         sft_samples=args.sft_samples,
         dpo_samples=args.dpo_samples,
-        seed=args.seed
+        seed=args.seed,
     )

@@ -1,14 +1,15 @@
 from chuk_lazarus.models.config import ModelConfig
-
-# MLX MLP imports
-from chuk_lazarus.models.mlp.mlx.swiglu_mlp import MLP as MLXSwiGluMLP
 from chuk_lazarus.models.mlp.mlx.gelu_glu_mlp import MLP as MLXGeluGluMLP
 from chuk_lazarus.models.mlp.mlx.relu_mlp import MLP as MLXReLUMlp  # MLX ReLU MLP
 
-# Torch MLP imports
-from chuk_lazarus.models.mlp.torch.swiglu_mlp import MLP as TorchSwiGLUMLP
+# MLX MLP imports
+from chuk_lazarus.models.mlp.mlx.swiglu_mlp import MLP as MLXSwiGluMLP
 from chuk_lazarus.models.mlp.torch.gelu_glu_mlp import MLP as TorchGeluGLUMLP
 from chuk_lazarus.models.mlp.torch.relu_mlp import MLP as TorchReLUMlp  # Torch ReLU MLP
+
+# Torch MLP imports
+from chuk_lazarus.models.mlp.torch.swiglu_mlp import MLP as TorchSwiGLUMLP
+
 
 def create_mlp(config: ModelConfig, framework: str = "mlx"):
     """

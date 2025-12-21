@@ -2,11 +2,12 @@
 
 import pytest
 import torch
+
 from chuk_lazarus.models.config import ModelConfig
-from chuk_lazarus.models.mlp.torch.swiglu_mlp import MLP as TorchSwiGLUMLP
+from chuk_lazarus.models.mlp.mlp_factory import create_mlp
 from chuk_lazarus.models.mlp.torch.gelu_glu_mlp import MLP as TorchGeluGLUMLP
 from chuk_lazarus.models.mlp.torch.relu_mlp import MLP as TorchReLUMlp
-from chuk_lazarus.models.mlp.mlp_factory import create_mlp
+from chuk_lazarus.models.mlp.torch.swiglu_mlp import MLP as TorchSwiGLUMLP
 
 
 @pytest.fixture

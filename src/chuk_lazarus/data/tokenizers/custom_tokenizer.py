@@ -1,5 +1,7 @@
 from transformers import PreTrainedTokenizer
+
 from chuk_lazarus.data.tokenizers.vocab_utils import load_vocabulary, save_vocabulary
+
 
 class CustomTokenizer(PreTrainedTokenizer):
     def __init__(self, vocab_file, **kwargs):
@@ -16,10 +18,10 @@ class CustomTokenizer(PreTrainedTokenizer):
         super().__init__(**kwargs)
 
         # Now assign special token IDs based on vocab dictionary
-        self.pad_token_id = self.special_tokens.get('<pad>')
-        self.unk_token_id = self.special_tokens.get('<unk>')
-        self.bos_token_id = self.special_tokens.get('<bos>')
-        self.eos_token_id = self.special_tokens.get('<eos>')
+        self.pad_token_id = self.special_tokens.get("<pad>")
+        self.unk_token_id = self.special_tokens.get("<unk>")
+        self.bos_token_id = self.special_tokens.get("<bos>")
+        self.eos_token_id = self.special_tokens.get("<eos>")
 
         # Ensure all special tokens are set correctly
         if None in (self.pad_token_id, self.unk_token_id, self.bos_token_id, self.eos_token_id):
@@ -35,11 +37,11 @@ class CustomTokenizer(PreTrainedTokenizer):
 
     def _convert_token_to_id(self, token):
         """Convert token to ID, falling back to <unk> if not found."""
-        return self.vocab.get(token, self.vocab['<unk>'])
-    
+        return self.vocab.get(token, self.vocab["<unk>"])
+
     def _convert_id_to_token(self, index):
         """Convert ID to token, falling back to <unk> if not found."""
-        return self.ids_to_tokens.get(index, '<unk>')
+        return self.ids_to_tokens.get(index, "<unk>")
 
     def convert_tokens_to_ids(self, tokens):
         """Convert a single token or list of tokens to IDs."""
@@ -63,42 +65,67 @@ class CustomTokenizer(PreTrainedTokenizer):
             return [self.bos_token_id] + token_ids_0 + [self.eos_token_id]
         else:
             return (
-                [self.bos_token_id] + token_ids_0 + [self.eos_token_id] +
-                token_ids_1 + [self.eos_token_id]
+                [self.bos_token_id]
+                + token_ids_0
+                + [self.eos_token_id]
+                + token_ids_1
+                + [self.eos_token_id]
             )
 
-    def encode(self, text, text_pair=None, add_special_tokens=True, max_length=None, padding=False, truncation=False, return_tensors=None):
+    def encode(
+        self,
+        text,
+        text_pair=None,
+        add_special_tokens=True,
+        max_length=None,
+        padding=False,
+        truncation=False,
+        return_tensors=None,
+    ):
         """Tokenize and convert text to input IDs."""
         tokens = self.tokenize(text)
         input_ids = self.convert_tokens_to_ids(tokens)
 
         if add_special_tokens:
-            input_ids = self.build_inputs_with_special_tokens(input_ids, self.tokenize(text_pair) if text_pair else None)
+            input_ids = self.build_inputs_with_special_tokens(
+                input_ids, self.tokenize(text_pair) if text_pair else None
+            )
 
         if max_length and len(input_ids) > max_length:
             input_ids = input_ids[:max_length]
 
         if padding:
-            input_ids = self.pad({'input_ids': input_ids}, padding=padding, max_length=max_length)['input_ids']
+            input_ids = self.pad({"input_ids": input_ids}, padding=padding, max_length=max_length)[
+                "input_ids"
+            ]
 
         return input_ids
 
-    def pad(self, sequence, padding=True, max_length=None, pad_to_multiple_of=None, return_attention_mask=False):
+    def pad(
+        self,
+        sequence,
+        padding=True,
+        max_length=None,
+        pad_to_multiple_of=None,
+        return_attention_mask=False,
+    ):
         # Ensure the sequence is a list of integers
         if not isinstance(sequence, list) or not all(isinstance(i, int) for i in sequence):
             raise ValueError("Input must be a list of integers.")
-        
+
         # Determine the maximum length for padding
         if max_length is None:
             max_length = len(sequence)
 
         # Adjust max_length to the nearest multiple of pad_to_multiple_of, if specified
         if pad_to_multiple_of is not None:
-            max_length = (max_length + pad_to_multiple_of - 1) // pad_to_multiple_of * pad_to_multiple_of
+            max_length = (
+                (max_length + pad_to_multiple_of - 1) // pad_to_multiple_of * pad_to_multiple_of
+            )
 
         # Truncate the sequence if it exceeds max_length, add EOS token
         if len(sequence) >= max_length:
-            sequence_with_eos = sequence[:max_length - 1] + [self.eos_token_id]
+            sequence_with_eos = sequence[: max_length - 1] + [self.eos_token_id]
         else:
             if sequence[-1] != self.eos_token_id and len(sequence) < max_length:
                 sequence_with_eos = sequence + [self.eos_token_id]
@@ -119,9 +146,6 @@ class CustomTokenizer(PreTrainedTokenizer):
             return padded_sequence, attention_mask
 
         return padded_sequence
-
-
-
 
     def save_vocabulary(self, save_directory):
         """Save the vocabulary to the specified directory."""

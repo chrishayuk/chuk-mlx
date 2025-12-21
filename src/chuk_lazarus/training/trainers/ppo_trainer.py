@@ -9,17 +9,18 @@ This trainer handles:
 
 import logging
 import time
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Tuple
+from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
-from ..base_trainer import BaseTrainer, BaseTrainerConfig
-from ..losses.ppo_loss import ppo_loss, PPOConfig
 from ...data import RolloutBuffer
+from ..base_trainer import BaseTrainer, BaseTrainerConfig
+from ..losses.ppo_loss import PPOConfig, ppo_loss
 
 logger = logging.getLogger(__name__)
 
@@ -27,18 +28,19 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PPOTrainerConfig(BaseTrainerConfig):
     """Configuration for PPO training."""
+
     # PPO hyperparameters
     ppo: PPOConfig = field(default_factory=PPOConfig)
 
     # Rollout settings
-    rollout_steps: int = 2048           # Steps per rollout
-    num_envs: int = 1                   # Parallel environments
-    gamma: float = 0.99                 # Discount factor
-    gae_lambda: float = 0.95            # GAE lambda
+    rollout_steps: int = 2048  # Steps per rollout
+    num_envs: int = 1  # Parallel environments
+    gamma: float = 0.99  # Discount factor
+    gae_lambda: float = 0.95  # GAE lambda
 
     # Update settings
-    num_epochs_per_rollout: int = 4     # PPO epochs per rollout
-    batch_size: int = 64                # Minibatch size
+    num_epochs_per_rollout: int = 4  # PPO epochs per rollout
+    batch_size: int = 64  # Minibatch size
     learning_rate: float = 3e-4
     weight_decay: float = 0.0
 
@@ -47,13 +49,13 @@ class PPOTrainerConfig(BaseTrainerConfig):
     warmup_steps: int = 0
 
     # Logging and checkpoints
-    log_interval: int = 1               # Log every N rollouts
-    checkpoint_interval: int = 10       # Checkpoint every N rollouts
+    log_interval: int = 1  # Log every N rollouts
+    checkpoint_interval: int = 10  # Checkpoint every N rollouts
     checkpoint_dir: str = "./checkpoints/ppo"
 
     # Early stopping
-    max_steps: Optional[int] = None
-    target_reward: Optional[float] = None
+    max_steps: int | None = None
+    target_reward: float | None = None
 
 
 class PPOTrainer(BaseTrainer):
@@ -78,7 +80,7 @@ class PPOTrainer(BaseTrainer):
         policy: nn.Module,
         env: Any,  # Environment interface
         config: PPOTrainerConfig = None,
-        optimizer: optim.Optimizer = None
+        optimizer: optim.Optimizer = None,
     ):
         config = config or PPOTrainerConfig()
         super().__init__(policy, None, config, optimizer)  # No tokenizer for PPO
@@ -91,23 +93,23 @@ class PPOTrainer(BaseTrainer):
             buffer_size=config.rollout_steps,
             gamma=config.gamma,
             gae_lambda=config.gae_lambda,
-            num_envs=config.num_envs
+            num_envs=config.num_envs,
         )
 
         # PPO-specific state
         self.num_rollouts = 0
-        self.best_reward = float('-inf')
+        self.best_reward = float("-inf")
 
     @property
     def ppo_config(self) -> PPOTrainerConfig:
         """Type-safe access to config."""
         return self.config
 
-    def compute_loss(self, batch: Dict[str, Any]) -> Tuple[mx.array, Dict[str, Any]]:
+    def compute_loss(self, batch: dict[str, Any]) -> tuple[mx.array, dict[str, Any]]:
         """Not used directly - PPO has custom training loop."""
         raise NotImplementedError("PPO uses custom training loop")
 
-    def get_train_batches(self, dataset: Any) -> Iterator[Dict[str, Any]]:
+    def get_train_batches(self, dataset: Any) -> Iterator[dict[str, Any]]:
         """Not used - PPO generates rollouts from environment."""
         raise NotImplementedError("PPO generates rollouts from environment")
 
@@ -156,12 +158,14 @@ class PPOTrainer(BaseTrainer):
                     f"FPS: {fps:.0f}"
                 )
 
-                self.metrics_history.append({
-                    "rollout": self.num_rollouts,
-                    "step": self.global_step,
-                    **episode_stats,
-                    **update_metrics
-                })
+                self.metrics_history.append(
+                    {
+                        "rollout": self.num_rollouts,
+                        "step": self.global_step,
+                        **episode_stats,
+                        **update_metrics,
+                    }
+                )
 
             # Checkpoint
             if self.num_rollouts % self.config.checkpoint_interval == 0:
@@ -169,13 +173,13 @@ class PPOTrainer(BaseTrainer):
 
             # Check for target reward
             if self.ppo_config.target_reward is not None:
-                if episode_stats['mean_reward'] >= self.ppo_config.target_reward:
+                if episode_stats["mean_reward"] >= self.ppo_config.target_reward:
                     logger.info(f"Target reward reached: {episode_stats['mean_reward']:.2f}")
                     break
 
             # Update best reward
-            if episode_stats['mean_reward'] > self.best_reward:
-                self.best_reward = episode_stats['mean_reward']
+            if episode_stats["mean_reward"] > self.best_reward:
+                self.best_reward = episode_stats["mean_reward"]
                 self.save_checkpoint("best")
 
             # Reset buffer for next rollout
@@ -190,7 +194,7 @@ class PPOTrainer(BaseTrainer):
         obs = initial_obs
 
         # Reset hidden state for new rollout
-        if hasattr(self.policy, 'reset_hidden'):
+        if hasattr(self.policy, "reset_hidden"):
             self.policy.reset_hidden(batch_size=1)
 
         for _ in range(self.ppo_config.rollout_steps):
@@ -215,7 +219,7 @@ class PPOTrainer(BaseTrainer):
                 reward=reward,
                 done=done,
                 log_prob=log_prob,
-                value=value
+                value=value,
             )
 
             self.global_step += 1
@@ -228,7 +232,7 @@ class PPOTrainer(BaseTrainer):
 
         return obs
 
-    def _ppo_update(self) -> Dict[str, float]:
+    def _ppo_update(self) -> dict[str, float]:
         """Perform PPO update on collected rollout."""
         all_metrics = {
             "policy_loss": [],
@@ -240,16 +244,17 @@ class PPOTrainer(BaseTrainer):
 
         for epoch in range(self.ppo_config.num_epochs_per_rollout):
             for batch in self.buffer.get_batches(
-                batch_size=self.ppo_config.batch_size,
-                shuffle=True
+                batch_size=self.ppo_config.batch_size, shuffle=True
             ):
                 # Reset hidden state for batch processing (stateless for PPO updates)
                 batch_size = len(batch["observations"])
-                if hasattr(self.policy, 'reset_hidden'):
+                if hasattr(self.policy, "reset_hidden"):
                     self.policy.reset_hidden(batch_size=batch_size)
 
                 # Convert batch observations to tensors
-                obs_tensors = mx.array([self._obs_to_tensor(o) for o in batch["observations"]], dtype=mx.float32)
+                obs_tensors = mx.array(
+                    [self._obs_to_tensor(o) for o in batch["observations"]], dtype=mx.float32
+                )
                 actions = batch["actions"]
                 old_log_probs = batch["old_log_probs"]
                 advantages = batch["advantages"]
@@ -265,7 +270,7 @@ class PPOTrainer(BaseTrainer):
                         values=result["value"],
                         returns=returns,
                         entropy=result["entropy"],
-                        config=self.ppo_config.ppo
+                        config=self.ppo_config.ppo,
                     )
                     return loss
 
@@ -288,7 +293,7 @@ class PPOTrainer(BaseTrainer):
                     values=result["value"],
                     returns=returns,
                     entropy=result["entropy"],
-                    config=self.ppo_config.ppo
+                    config=self.ppo_config.ppo,
                 )
 
                 # Track metrics
@@ -304,7 +309,7 @@ class PPOTrainer(BaseTrainer):
         # Average metrics
         return {k: sum(v) / len(v) if v else 0.0 for k, v in all_metrics.items()}
 
-    def _obs_to_tensor(self, obs) -> List[float]:
+    def _obs_to_tensor(self, obs) -> list[float]:
         """Convert observation to tensor format."""
         if isinstance(obs, (list, tuple)):
             return list(obs)

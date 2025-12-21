@@ -1,7 +1,72 @@
-__pycache__
-tutorial
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Linting
+.ruff_cache/
+
+# OS
 .DS_Store
-output
+Thumbs.db
+
+# Project specific
+output/
+checkpoints/
+*.npz
+*.safetensors
+tutorial/
+sample_data/
+
+# Environment
 .env
-.pytest_cache
-sample_data/calvin_scale_llama/final_model_checkpoint.npz
+.env.local
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/

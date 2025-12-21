@@ -1,7 +1,10 @@
 """Tests for Torch TransformerBlock."""
 
 import torch
-from chuk_lazarus.models.transformers.transformer_block.torch_transformer_block import TorchTransformerBlock
+
+from chuk_lazarus.models.transformers.transformer_block.torch_transformer_block import (
+    TorchTransformerBlock,
+)
 
 
 def mock_create_mlp(config):
@@ -24,7 +27,14 @@ def mock_norm_layer(hidden_size, eps=1e-6):
 
 
 class MockConfig:
-    def __init__(self, hidden_size=512, intermediate_size=1024, rms_norm_eps=1e-6, hidden_act="relu", mlp_bias=False):
+    def __init__(
+        self,
+        hidden_size=512,
+        intermediate_size=1024,
+        rms_norm_eps=1e-6,
+        hidden_act="relu",
+        mlp_bias=False,
+    ):
         self.hidden_size = hidden_size
         self.intermediate_size = intermediate_size
         self.rms_norm_eps = rms_norm_eps
@@ -64,7 +74,9 @@ def test_torch_transformer_block_forward():
 
     expected_output = hidden_states
 
-    assert torch.allclose(hidden_states, expected_output, atol=1e-6), "Output mismatch in TorchTransformerBlock!"
+    assert torch.allclose(hidden_states, expected_output, atol=1e-6), (
+        "Output mismatch in TorchTransformerBlock!"
+    )
 
 
 def test_torch_transformer_block_forward_with_mask():
@@ -81,10 +93,16 @@ def test_torch_transformer_block_forward_with_mask():
 
     output, _ = block.forward(hidden_states, attention_mask)
 
-    assert output.shape == hidden_states.shape, f"Output shape mismatch! Expected {hidden_states.shape}, got {output.shape}"
+    assert output.shape == hidden_states.shape, (
+        f"Output shape mismatch! Expected {hidden_states.shape}, got {output.shape}"
+    )
 
     masked_part = output[:, 5:, :]
     unmasked_part = output[:, :5, :]
 
-    assert torch.allclose(masked_part, torch.zeros_like(masked_part), atol=1e-6), "Masked part is not zero!"
-    assert not torch.allclose(unmasked_part, torch.zeros_like(unmasked_part), atol=1e-6), "Unmasked part is incorrectly zero!"
+    assert torch.allclose(masked_part, torch.zeros_like(masked_part), atol=1e-6), (
+        "Masked part is not zero!"
+    )
+    assert not torch.allclose(unmasked_part, torch.zeros_like(unmasked_part), atol=1e-6), (
+        "Unmasked part is incorrectly zero!"
+    )

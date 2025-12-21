@@ -2,15 +2,13 @@
 
 import logging
 from pathlib import Path
+
 from huggingface_hub import snapshot_download
 
 logger = logging.getLogger(__name__)
 
 
-def load_from_hub(
-    path_or_hf_repo: str,
-    allow_patterns: list[str] = None
-) -> Path:
+def load_from_hub(path_or_hf_repo: str, allow_patterns: list[str] = None) -> Path:
     """
     Load model from HuggingFace hub if not found locally.
 

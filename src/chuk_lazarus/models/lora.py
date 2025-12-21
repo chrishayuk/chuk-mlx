@@ -8,7 +8,6 @@ This allows efficient fine-tuning with minimal additional parameters.
 """
 
 import logging
-from typing import Dict, List
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -26,11 +25,7 @@ class LoRALinear(nn.Module):
     """
 
     def __init__(
-        self,
-        base_layer: nn.Linear,
-        rank: int = 8,
-        alpha: float = 16.0,
-        dropout: float = 0.0
+        self, base_layer: nn.Linear, rank: int = 8, alpha: float = 16.0, dropout: float = 0.0
     ):
         super().__init__()
         self.base_layer = base_layer
@@ -71,14 +66,12 @@ class LoRALinear(nn.Module):
 
         Returns a new Linear layer with merged weights.
         """
-        merged_weight = self.base_layer.weight + (
-            self.lora_B.T @ self.lora_A.T
-        ) * self.scaling
+        merged_weight = self.base_layer.weight + (self.lora_B.T @ self.lora_A.T) * self.scaling
 
         merged = nn.Linear(
             self.base_layer.weight.shape[1],
             self.base_layer.weight.shape[0],
-            bias=self.base_layer.bias is not None
+            bias=self.base_layer.bias is not None,
         )
         merged.weight = merged_weight
         if self.base_layer.bias is not None:
@@ -89,17 +82,14 @@ class LoRALinear(nn.Module):
     @property
     def training(self) -> bool:
         """Check if in training mode."""
-        return getattr(self, '_training', False)
+        return getattr(self, "_training", False)
 
     @training.setter
     def training(self, value: bool):
         self._training = value
 
 
-def apply_lora(
-    model: nn.Module,
-    config: LoRAConfig
-) -> Dict[str, LoRALinear]:
+def apply_lora(model: nn.Module, config: LoRAConfig) -> dict[str, LoRALinear]:
     """
     Apply LoRA adapters to target modules in a model.
 
@@ -113,13 +103,13 @@ def apply_lora(
     lora_layers = {}
 
     # Get the inner model if wrapped
-    inner_model = model.model if hasattr(model, 'model') else model
+    inner_model = model.model if hasattr(model, "model") else model
 
     # Find transformer layers
     layers = None
-    if hasattr(inner_model, 'layers'):
+    if hasattr(inner_model, "layers"):
         layers = inner_model.layers
-    elif hasattr(inner_model, 'model') and hasattr(inner_model.model, 'layers'):
+    elif hasattr(inner_model, "model") and hasattr(inner_model.model, "layers"):
         layers = inner_model.model.layers
 
     if layers is None:
@@ -132,35 +122,29 @@ def apply_lora(
     # Apply LoRA to each layer
     for layer_idx, layer in enumerate(layers):
         # Apply to attention projections
-        if hasattr(layer, 'self_attn'):
+        if hasattr(layer, "self_attn"):
             attn = layer.self_attn
             for proj_name in config.target_modules:
-                if proj_name in ['q_proj', 'k_proj', 'v_proj', 'o_proj']:
+                if proj_name in ["q_proj", "k_proj", "v_proj", "o_proj"]:
                     if hasattr(attn, proj_name):
                         proj = getattr(attn, proj_name)
                         if isinstance(proj, nn.Linear):
                             lora = LoRALinear(
-                                proj,
-                                rank=config.rank,
-                                alpha=config.alpha,
-                                dropout=config.dropout
+                                proj, rank=config.rank, alpha=config.alpha, dropout=config.dropout
                             )
                             setattr(attn, proj_name, lora)
                             lora_layers[f"layers.{layer_idx}.self_attn.{proj_name}"] = lora
 
         # Apply to MLP projections
-        if hasattr(layer, 'mlp'):
+        if hasattr(layer, "mlp"):
             mlp = layer.mlp
             for proj_name in config.target_modules:
-                if proj_name in ['gate_proj', 'up_proj', 'down_proj']:
+                if proj_name in ["gate_proj", "up_proj", "down_proj"]:
                     if hasattr(mlp, proj_name):
                         proj = getattr(mlp, proj_name)
                         if isinstance(proj, nn.Linear):
                             lora = LoRALinear(
-                                proj,
-                                rank=config.rank,
-                                alpha=config.alpha,
-                                dropout=config.dropout
+                                proj, rank=config.rank, alpha=config.alpha, dropout=config.dropout
                             )
                             setattr(mlp, proj_name, lora)
                             lora_layers[f"layers.{layer_idx}.mlp.{proj_name}"] = lora
@@ -169,21 +153,21 @@ def apply_lora(
     return lora_layers
 
 
-def merge_lora_weights(model: nn.Module, lora_layers: Dict[str, LoRALinear]):
+def merge_lora_weights(model: nn.Module, lora_layers: dict[str, LoRALinear]):
     """
     Merge all LoRA weights into base model for efficient inference.
 
     This modifies the model in-place.
     """
-    inner_model = model.model if hasattr(model, 'model') else model
-    layers = inner_model.layers if hasattr(inner_model, 'layers') else None
+    inner_model = model.model if hasattr(model, "model") else model
+    layers = inner_model.layers if hasattr(inner_model, "layers") else None
 
     if layers is None:
         logger.warning("Could not find layers to merge")
         return
 
     for name, lora_layer in lora_layers.items():
-        parts = name.split('.')
+        parts = name.split(".")
         layer_idx = int(parts[1])
         module_name = parts[2]  # 'self_attn' or 'mlp'
         proj_name = parts[3]  # 'q_proj', etc.
@@ -197,7 +181,7 @@ def merge_lora_weights(model: nn.Module, lora_layers: Dict[str, LoRALinear]):
     logger.info(f"Merged {len(lora_layers)} LoRA layers")
 
 
-def count_lora_parameters(lora_layers: Dict[str, LoRALinear]) -> int:
+def count_lora_parameters(lora_layers: dict[str, LoRALinear]) -> int:
     """Count total trainable LoRA parameters."""
     total = 0
     for layer in lora_layers.values():

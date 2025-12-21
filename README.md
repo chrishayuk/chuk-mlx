@@ -1,65 +1,101 @@
-# Introduction
-This is a ground up rework of an MLX training script.
+# Lazarus
 
-## Intallation
-To get started, install using pip
+MLX-based LLM training framework for Apple Silicon.
+
+## Installation
 
 ```bash
-pip install -r requirements.txt
+# Clone the repository
+git clone https://github.com/your-org/chuk-mlx.git
+cd chuk-mlx
+
+# Install with uv (recommended)
+uv sync
+
+# Or with pip
+pip install -e .
 ```
 
-## Inference
-The following scripts show how to prompt a model
+## Quick Start
+
+### Python API
 
 ```python
-python infer.py --model ibm-granite/granite-3b-code-instruct --prompt "write a fibonacci function in python"
+from chuk_lazarus.models import load_model, generate_response
+
+# Load a model
+model, tokenizer = load_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+
+# Generate text
+response = generate_response(
+    model=model,
+    tokenizer=tokenizer,
+    prompt="Once upon a time",
+    max_tokens=100,
+    temperature=0.7,
+)
+print(response)
 ```
 
-or
+### CLI
 
-```python
-python infer.py --model HuggingFaceTB/SmolLM-135M --prompt "1+1="
+Lazarus provides a unified CLI for training, inference, and tokenizer utilities.
+
+```bash
+# Run inference
+lazarus infer --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --prompt "Hello, world!"
+
+# Train with SFT
+lazarus train sft --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --data train.jsonl --use-lora
+
+# Train with DPO
+lazarus train dpo --model ./checkpoints/sft/final --data preferences.jsonl
+
+# Generate synthetic training data
+lazarus generate --type math --output ./data/lazarus
+
+# Tokenizer utilities
+lazarus tokenizer encode -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --text "Hello world"
+lazarus tokenizer vocab -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --search "hello"
 ```
 
-TODO
---------
-1 - clean up training scripts
-2 - fix training (batch, epoch, trainer, scheduler) so that it works with both mlx and non mlx frameworks
-3 - fix save checkpoint
-2 - single cli for batch_generator_finetune and pre_train using a factory lpader
-3 - modify finetune batch generator to work with different chat templates not just llama
-4 - fix mock finetune
-2 - download and test the current list of supported models
-1 - support temperature, parameters etc for inference
-1 - update calvin batch sample to be a llama 2 based one
-1 - models unit testing
+## Features
 
-1 - clean up fine tune batching docs
-1 - attempt to fine tune calvin scale
-2 - build lazyfox tutorial
-3 - fine tune
+- **Training**: SFT, DPO, GRPO, PPO trainers with LoRA support
+- **Models**: LLaMA, Mistral, Gemma, Granite, StarCoder2, TinyLlama
+- **Data**: Dataset classes, synthetic data generators
+- **CLI**: Unified command-line interface for all operations
+- **Tokenizer Tools**: Encode, decode, vocabulary inspection, comparison
 
-1 - Add support for mistral nemo (mistralai/Mistral-Nemo-Instruct-2407)
+## Documentation
 
-1 - Fix 2nd Epoch Caching Problem
-2 - Generate Batches from Config if don't exist 
-1 - Fix Checkpoint and Load, ensure works
-2 - Training
-    - Implement LORA (model freezing, specifying layers)
-    - Implement QLora (quantized)
-3 - Modify model to support bloat16
-3 - fix checkpoint start and stopping
-    - maybe a if there is no final model, start from checkpoint, unless overriden with flag to be clean
-1 - Attempt Fine tuning of something like calvinscale
-4 - validation datasets etc
-5 - find optimal batch sizes
-5 - Attempt pretrain of something like tiny shakespeare, fineweb or tiny stories
-1 - Models
-    - Test new version of mistral
-1 - Generate large file generator for jsonl
-1 - Memory Calculator
-1 - attempt golden gate claude
+- [Getting Started](docs/getting-started.md)
+- [Training Guide](docs/training.md)
+- [CLI Reference](docs/cli.md)
+- [API Reference](docs/api-reference.md)
 
-Calvin Run (no lora, 3b code)
-402/403 [37:56<00:05,  5.66s/batch, Batch Loss=0.774, Batch Tokens=64, Batch Time=5.814s]
+## Examples
 
+See the `examples/` directory for detailed examples organized by area:
+
+- `examples/tokenizer/` - Tokenization examples
+- `examples/inference/` - Text generation
+- `examples/training/` - SFT and DPO training
+- `examples/data/` - Data handling and generation
+- `examples/models/` - Model loading and configuration
+
+## Project Structure
+
+```
+src/chuk_lazarus/
+├── cli/            # Command-line interface
+├── data/           # Datasets, generators, tokenizers
+├── models/         # Model architectures and loading
+├── training/       # Trainers (SFT, DPO, GRPO, PPO)
+├── inference/      # Text generation
+└── utils/          # Utilities
+```
+
+## License
+
+MIT
