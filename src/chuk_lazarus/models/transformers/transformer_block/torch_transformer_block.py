@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from typing import Callable, Optional, Tuple, Type
-from chuk_lazarus.models.model_config import ModelConfig
+from chuk_lazarus.models.config import ModelConfig
 from chuk_lazarus.models.transformers.transformer_block.base_transformer_block import BaseTransformerBlock
 from chuk_lazarus.models.mlp.mlp_factory import create_mlp
 

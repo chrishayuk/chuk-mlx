@@ -1,5 +1,5 @@
 import mlx.nn as nn
-from chuk_lazarus.models.model_config import ModelConfig
+from chuk_lazarus.models.config import ModelConfig
 
 class StarCoder2MLP(nn.Module):
     def __init__(self, args: ModelConfig):

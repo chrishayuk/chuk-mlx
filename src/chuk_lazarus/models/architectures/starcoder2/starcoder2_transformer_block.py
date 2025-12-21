@@ -1,6 +1,6 @@
 import mlx.core as mx
 import mlx.nn as nn
-from models.model_config import ModelConfig
+from chuk_lazarus.models.config import ModelConfig
 from models.architectures.starcoder2.starcoder2_attention import StarCoder2Attention
 from models.architectures.starcoder2.starcoder2_mlp import StarCoder2MLP
 

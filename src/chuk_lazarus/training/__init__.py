@@ -5,7 +5,6 @@ This module provides:
 - Loss functions (DPO, GRPO, PPO, SFT)
 - Trainer classes for different training paradigms
 - Utility functions for RL training
-- Classic Trainer with batch/epoch processing
 - Learning rate schedulers
 """
 
@@ -25,9 +24,13 @@ from .losses import (
     SFTConfig,
 )
 
-# RL Trainers
+# Base Trainer
+from .base_trainer import BaseTrainer, BaseTrainerConfig
+
+# Trainers
 from .trainers import (
     SFTTrainer,
+    SFTConfig,
     DPOTrainer,
     DPOTrainerConfig,
     GRPOTrainer,
@@ -35,11 +38,6 @@ from .trainers import (
     PPOTrainer,
     PPOTrainerConfig,
 )
-
-# Classic Trainer (batch/epoch based)
-from .trainer import Trainer
-from .batch_processor import BatchProcessor
-from .epoch_processor import EpochProcessor
 
 # Learning rate schedulers
 from .schedulers import schedule_learning_rate

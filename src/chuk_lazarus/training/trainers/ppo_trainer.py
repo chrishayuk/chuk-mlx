@@ -11,12 +11,13 @@ import logging
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
+from ..base_trainer import BaseTrainer, BaseTrainerConfig
 from ..losses.ppo_loss import ppo_loss, PPOConfig
 from ...data import RolloutBuffer
 
@@ -24,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class PPOTrainerConfig:
+class PPOTrainerConfig(BaseTrainerConfig):
     """Configuration for PPO training."""
     # PPO hyperparameters
     ppo: PPOConfig = field(default_factory=PPOConfig)
@@ -51,10 +52,11 @@ class PPOTrainerConfig:
     checkpoint_dir: str = "./checkpoints/ppo"
 
     # Early stopping
+    max_steps: Optional[int] = None
     target_reward: Optional[float] = None
 
 
-class PPOTrainer:
+class PPOTrainer(BaseTrainer):
     """
     Trainer for Proximal Policy Optimization.
 
@@ -78,47 +80,49 @@ class PPOTrainer:
         config: PPOTrainerConfig = None,
         optimizer: optim.Optimizer = None
     ):
+        config = config or PPOTrainerConfig()
+        super().__init__(policy, None, config, optimizer)  # No tokenizer for PPO
+
         self.policy = policy
         self.env = env
-        self.config = config or PPOTrainerConfig()
-
-        # Setup optimizer
-        if optimizer is None:
-            self.optimizer = optim.AdamW(
-                learning_rate=self.config.learning_rate,
-                weight_decay=self.config.weight_decay
-            )
-        else:
-            self.optimizer = optimizer
 
         # Rollout buffer
         self.buffer = RolloutBuffer(
-            buffer_size=self.config.rollout_steps,
-            gamma=self.config.gamma,
-            gae_lambda=self.config.gae_lambda,
-            num_envs=self.config.num_envs
+            buffer_size=config.rollout_steps,
+            gamma=config.gamma,
+            gae_lambda=config.gae_lambda,
+            num_envs=config.num_envs
         )
 
-        # Training state
-        self.global_step = 0
+        # PPO-specific state
         self.num_rollouts = 0
         self.best_reward = float('-inf')
 
-        # Metrics history
-        self.metrics_history: List[Dict] = []
+    @property
+    def ppo_config(self) -> PPOTrainerConfig:
+        """Type-safe access to config."""
+        return self.config
+
+    def compute_loss(self, batch: Dict[str, Any]) -> Tuple[mx.array, Dict[str, Any]]:
+        """Not used directly - PPO has custom training loop."""
+        raise NotImplementedError("PPO uses custom training loop")
+
+    def get_train_batches(self, dataset: Any) -> Iterator[Dict[str, Any]]:
+        """Not used - PPO generates rollouts from environment."""
+        raise NotImplementedError("PPO generates rollouts from environment")
 
     def train(self):
         """Run PPO training loop."""
-        logger.info(f"Starting PPO training for {self.config.total_timesteps} timesteps")
+        logger.info(f"Starting PPO training for {self.ppo_config.total_timesteps} timesteps")
         logger.info(f"Config: {self.config}")
 
         # Create checkpoint directory
         Path(self.config.checkpoint_dir).mkdir(parents=True, exist_ok=True)
 
-        start_time = time.time()
+        self._start_time = time.time()
         obs = self.env.reset()
 
-        while self.global_step < self.config.total_timesteps:
+        while self.global_step < self.ppo_config.total_timesteps:
             # Collect rollout
             obs = self._collect_rollout(obs)
             self.num_rollouts += 1
@@ -140,7 +144,7 @@ class PPOTrainer:
 
             # Logging
             if self.num_rollouts % self.config.log_interval == 0:
-                elapsed = time.time() - start_time
+                elapsed = time.time() - self._start_time
                 fps = self.global_step / elapsed
 
                 logger.info(
@@ -164,8 +168,8 @@ class PPOTrainer:
                 self.save_checkpoint(f"rollout_{self.num_rollouts}")
 
             # Check for target reward
-            if self.config.target_reward is not None:
-                if episode_stats['mean_reward'] >= self.config.target_reward:
+            if self.ppo_config.target_reward is not None:
+                if episode_stats['mean_reward'] >= self.ppo_config.target_reward:
                     logger.info(f"Target reward reached: {episode_stats['mean_reward']:.2f}")
                     break
 
@@ -189,7 +193,7 @@ class PPOTrainer:
         if hasattr(self.policy, 'reset_hidden'):
             self.policy.reset_hidden(batch_size=1)
 
-        for _ in range(self.config.rollout_steps):
+        for _ in range(self.ppo_config.rollout_steps):
             # Get action from policy
             obs_tensor = mx.array([self._obs_to_tensor(obs)])
 
@@ -234,9 +238,9 @@ class PPOTrainer:
             "clip_fraction": [],
         }
 
-        for epoch in range(self.config.num_epochs_per_rollout):
+        for epoch in range(self.ppo_config.num_epochs_per_rollout):
             for batch in self.buffer.get_batches(
-                batch_size=self.config.batch_size,
+                batch_size=self.ppo_config.batch_size,
                 shuffle=True
             ):
                 # Reset hidden state for batch processing (stateless for PPO updates)
@@ -261,15 +265,15 @@ class PPOTrainer:
                         values=result["value"],
                         returns=returns,
                         entropy=result["entropy"],
-                        config=self.config.ppo
+                        config=self.ppo_config.ppo
                     )
                     return loss
 
                 # Compute loss and gradients
                 loss, grads = nn.value_and_grad(self.policy, loss_fn)(self.policy)
 
-                # Clip gradients to prevent explosions
-                grads = self._clip_gradients(grads, self.config.ppo.max_grad_norm)
+                # Clip gradients
+                grads = self.clip_gradients(grads, self.ppo_config.ppo.max_grad_norm)
 
                 # Update
                 self.optimizer.update(self.policy, grads)
@@ -284,7 +288,7 @@ class PPOTrainer:
                     values=result["value"],
                     returns=returns,
                     entropy=result["entropy"],
-                    config=self.config.ppo
+                    config=self.ppo_config.ppo
                 )
 
                 # Track metrics
@@ -293,7 +297,7 @@ class PPOTrainer:
                         all_metrics[key].append(float(metrics[key]))
 
                 # Early stopping on KL
-                if float(metrics["approx_kl"]) > 1.5 * self.config.ppo.target_kl:
+                if float(metrics["approx_kl"]) > 1.5 * self.ppo_config.ppo.target_kl:
                     logger.debug(f"Early stopping at epoch {epoch} due to high KL")
                     break
 
@@ -331,47 +335,3 @@ class PPOTrainer:
         weights = mx.load(path)
         self.policy.load_weights(list(weights.items()))
         logger.info(f"Loaded checkpoint: {path}")
-
-    def _flatten_params(self, params, prefix=""):
-        """Flatten nested parameter dict for saving."""
-        flat = {}
-        for k, v in params.items():
-            key = f"{prefix}.{k}" if prefix else k
-            if isinstance(v, dict):
-                flat.update(self._flatten_params(v, key))
-            elif isinstance(v, mx.array):
-                flat[key] = v
-        return flat
-
-    def _clip_gradients(self, grads, max_norm: float):
-        """Clip gradients by global norm."""
-        # Flatten all gradients
-        flat_grads = []
-
-        def collect_grads(g):
-            if isinstance(g, dict):
-                for v in g.values():
-                    collect_grads(v)
-            elif isinstance(g, mx.array):
-                flat_grads.append(g.reshape(-1))
-        collect_grads(grads)
-
-        if not flat_grads:
-            return grads
-
-        # Compute global norm
-        all_grads = mx.concatenate(flat_grads)
-        global_norm = mx.sqrt(mx.sum(all_grads ** 2))
-
-        # Clip factor
-        clip_factor = mx.minimum(max_norm / (global_norm + 1e-6), mx.array(1.0))
-
-        # Apply clipping recursively
-        def apply_clip(g):
-            if isinstance(g, dict):
-                return {k: apply_clip(v) for k, v in g.items()}
-            elif isinstance(g, mx.array):
-                return g * clip_factor
-            return g
-
-        return apply_clip(grads)

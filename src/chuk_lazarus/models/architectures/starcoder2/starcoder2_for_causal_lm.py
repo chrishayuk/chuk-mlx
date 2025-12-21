@@ -1,5 +1,5 @@
 import mlx.nn as nn
-from chuk_lazarus.models.model_config import ModelConfig
+from chuk_lazarus.models.config import ModelConfig
 from chuk_lazarus.models.architectures.model import Model
 from chuk_lazarus.models.architectures.starcoder2.starcoder2_model import Starcoder2Model
 

@@ -23,114 +23,15 @@ Flow:
     Mistral (explains, continues, or finishes)
 """
 
-import asyncio
-import json
 import logging
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List
 
 import mlx.core as mx
 
+from .types import Action, ActionType, OrchestratorConfig, StepResult
+from .mcp_client import MCPToolClient
+
 logger = logging.getLogger(__name__)
-
-
-class ActionType(Enum):
-    """Types of actions Mistral can take."""
-    TOOL_CALL = "tool_call"           # Direct MCP tool call
-    DELEGATE_EXPERT = "delegate"       # Delegate to RNN expert
-    FINAL_ANSWER = "final_answer"      # End episode with answer
-    THINK = "think"                    # Internal reasoning (no external action)
-
-
-@dataclass
-class Action:
-    """An action from the policy (Mistral or RNN expert)."""
-    action_type: ActionType
-    tool_name: Optional[str] = None
-    tool_args: Optional[Dict] = None
-    expert_name: Optional[str] = None
-    expert_args: Optional[Dict] = None
-    answer: Optional[str] = None
-    thought: Optional[str] = None
-
-
-@dataclass
-class StepResult:
-    """Result from executing an action."""
-    observation: Dict[str, Any]
-    reward: float
-    done: bool
-    info: Dict[str, Any] = field(default_factory=dict)
-    tool_result: Optional[Any] = None
-    expert_result: Optional[Any] = None
-
-
-@dataclass
-class OrchestratorConfig:
-    """Configuration for the orchestrator."""
-    max_steps: int = 50                    # Max steps per episode
-    max_expert_steps: int = 20             # Max steps within expert loop
-    tool_call_timeout: float = 30.0        # Timeout for MCP calls
-    cache_tool_calls: bool = True          # Cache identical tool calls
-    verbose: bool = False
-
-
-class MCPToolClient:
-    """
-    Interface for calling MCP tools.
-
-    In production, this would connect to actual MCP servers.
-    For training, can be mocked or use cached responses.
-    """
-
-    def __init__(self, tools: Dict[str, Callable] = None):
-        self.tools = tools or {}
-        self.cache = {}
-        self.call_count = 0
-
-    def register_tool(self, name: str, handler: Callable):
-        """Register a tool handler."""
-        self.tools[name] = handler
-
-    async def call(
-        self,
-        tool_name: str,
-        args: Dict,
-        use_cache: bool = True
-    ) -> Any:
-        """Call an MCP tool."""
-        cache_key = f"{tool_name}:{json.dumps(args, sort_keys=True)}"
-
-        if use_cache and cache_key in self.cache:
-            logger.debug(f"Cache hit for {tool_name}")
-            return self.cache[cache_key]
-
-        if tool_name not in self.tools:
-            raise ValueError(f"Unknown tool: {tool_name}")
-
-        self.call_count += 1
-        handler = self.tools[tool_name]
-
-        # Handle async or sync handlers
-        if asyncio.iscoroutinefunction(handler):
-            result = await handler(**args)
-        else:
-            result = handler(**args)
-
-        if use_cache:
-            self.cache[cache_key] = result
-
-        return result
-
-    def call_sync(self, tool_name: str, args: Dict, use_cache: bool = True) -> Any:
-        """Synchronous version for non-async contexts."""
-        try:
-            loop = asyncio.get_event_loop()
-        except RuntimeError:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-        return loop.run_until_complete(self.call(tool_name, args, use_cache))
 
 
 class Orchestrator:
@@ -142,6 +43,16 @@ class Orchestrator:
     - RNN expert execution for iterative control
     - MCP tool calls for ground truth
     - State management across the episode
+
+    Usage:
+        config = OrchestratorConfig(max_steps=50)
+        orchestrator = Orchestrator(config, expert_registry, mcp_client)
+
+        obs = orchestrator.reset({"prompt": "Solve this physics problem..."})
+        while not done:
+            action = policy(obs)
+            result = orchestrator.step(action)
+            obs, reward, done = result.observation, result.reward, result.done
     """
 
     def __init__(
@@ -150,6 +61,14 @@ class Orchestrator:
         expert_registry=None,
         mcp_client: MCPToolClient = None
     ):
+        """
+        Initialize the orchestrator.
+
+        Args:
+            config: Orchestrator configuration
+            expert_registry: Registry of available RNN experts
+            mcp_client: Client for MCP tool calls
+        """
         self.config = config
         self.expert_registry = expert_registry
         self.mcp_client = mcp_client or MCPToolClient()
@@ -564,3 +483,14 @@ class Orchestrator:
 
         # Default: small positive reward for providing any answer
         return 0.1 if answer else 0.0
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Get current orchestrator metrics."""
+        return {
+            "step_count": self.step_count,
+            "total_tool_calls": self.total_tool_calls,
+            "total_expert_calls": self.total_expert_calls,
+            "episode_done": self.episode_done,
+            "history_length": len(self.history),
+            "results_count": len(self.state.get("results", [])),
+        }

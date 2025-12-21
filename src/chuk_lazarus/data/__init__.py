@@ -2,12 +2,16 @@
 Data handling for training.
 
 This module provides:
+- Base dataset class for inheritance
 - Dataset classes for different training paradigms (SFT, DPO, RL)
 - Batch dataset for pre-tokenized NPZ data
 - Data generators for synthetic data
 - Preprocessing utilities (batching, padding, bucketing)
 - Tokenizer utilities
 """
+
+# Base class
+from .base_dataset import BaseDataset
 
 # RL/SFT datasets
 from .sft_dataset import SFTDataset, SFTSample

@@ -19,21 +19,43 @@ Usage:
 """
 
 import logging
-import time
-from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
-from ..losses.sft_loss import SFTConfig, sft_loss
+from ..base_trainer import BaseTrainer, BaseTrainerConfig
+from ..losses.sft_loss import sft_loss
 from ...data import SFTDataset
 
 logger = logging.getLogger(__name__)
 
 
-class SFTTrainer:
+@dataclass
+class SFTConfig(BaseTrainerConfig):
+    """Configuration for SFT training."""
+    # Training settings
+    num_epochs: int = 3
+    batch_size: int = 4
+    learning_rate: float = 1e-5
+    weight_decay: float = 0.0
+    max_grad_norm: float = 1.0
+    warmup_steps: int = 100
+
+    # Logging and checkpoints
+    log_interval: int = 10
+    eval_interval: int = 100
+    checkpoint_interval: int = 500
+    checkpoint_dir: str = "./checkpoints/sft"
+
+    # Early stopping
+    max_steps: Optional[int] = None
+    min_loss: Optional[float] = None
+
+
+class SFTTrainer(BaseTrainer):
     """
     Trainer for Supervised Fine-Tuning.
 
@@ -59,25 +81,31 @@ class SFTTrainer:
         config: SFTConfig = None,
         optimizer: optim.Optimizer = None
     ):
-        self.model = model
-        self.tokenizer = tokenizer
-        self.config = config or SFTConfig()
+        config = config or SFTConfig()
+        super().__init__(model, tokenizer, config, optimizer)
 
-        # Setup optimizer
-        if optimizer is None:
-            self.optimizer = optim.AdamW(
-                learning_rate=self.config.learning_rate,
-                weight_decay=self.config.weight_decay
-            )
-        else:
-            self.optimizer = optimizer
+    @property
+    def sft_config(self) -> SFTConfig:
+        """Type-safe access to config."""
+        return self.config
 
-        # Training state
-        self.global_step = 0
-        self.best_loss = float('inf')
+    def compute_loss(self, batch: Dict[str, Any]) -> Tuple[mx.array, Dict[str, Any]]:
+        """Compute SFT loss for a batch."""
+        logits, _ = self.model(batch["input_ids"])
+        loss, metrics = sft_loss(
+            logits=logits,
+            labels=batch["labels"],
+            loss_mask=batch["loss_mask"]
+        )
+        return loss, metrics
 
-        # Metrics history
-        self.metrics_history: List[Dict] = []
+    def get_train_batches(self, dataset: SFTDataset) -> Iterator[Dict[str, mx.array]]:
+        """Get iterator over training batches."""
+        return dataset.iter_batches(
+            batch_size=self.sft_config.batch_size,
+            shuffle=True,
+            pad_token_id=self.pad_token_id
+        )
 
     def train(
         self,
@@ -94,133 +122,21 @@ class SFTTrainer:
             callback: Optional callback after each log interval
         """
         logger.info(f"Starting SFT training with {len(train_dataset)} samples")
-        logger.info(f"Config: {self.config}")
-
-        # Create checkpoint directory
-        Path(self.config.checkpoint_dir).mkdir(parents=True, exist_ok=True)
-
-        # Get pad token id
-        pad_token_id = getattr(self.tokenizer, 'pad_token_id', 0) or 0
-
-        # Create loss function for value_and_grad
-        def loss_fn(batch):
-            logits, _ = self.model(batch["input_ids"])
-            loss, metrics = sft_loss(
-                logits=logits,
-                labels=batch["labels"],
-                loss_mask=batch["loss_mask"]
-            )
-            return loss, metrics
-
-        loss_and_grad_fn = nn.value_and_grad(self.model, loss_fn)
-
-        start_time = time.time()
-
-        for epoch in range(self.config.num_epochs):
-            logger.info(f"Epoch {epoch + 1}/{self.config.num_epochs}")
-
-            epoch_metrics = {
-                "loss": [],
-                "perplexity": [],
-                "num_tokens": [],
-            }
-
-            for batch in train_dataset.iter_batches(
-                batch_size=self.config.batch_size,
-                shuffle=True,
-                pad_token_id=pad_token_id
-            ):
-                self.global_step += 1
-
-                # Forward + backward
-                (loss, metrics), grads = loss_and_grad_fn(batch)
-
-                # Gradient clipping
-                if self.config.max_grad_norm > 0:
-                    grads = self._clip_gradients(grads, self.config.max_grad_norm)
-
-                # Update weights
-                self.optimizer.update(self.model, grads)
-
-                # Evaluate to materialize
-                mx.eval(self.model.parameters())
-
-                # Track metrics
-                for key in epoch_metrics:
-                    if key in metrics:
-                        epoch_metrics[key].append(float(metrics[key]))
-
-                # Logging
-                if self.global_step % self.config.log_interval == 0:
-                    avg_metrics = {
-                        k: sum(v[-self.config.log_interval:]) / len(v[-self.config.log_interval:])
-                        for k, v in epoch_metrics.items() if v
-                    }
-
-                    elapsed = time.time() - start_time
-                    tokens_per_sec = sum(epoch_metrics["num_tokens"]) / elapsed
-
-                    logger.info(
-                        f"Step {self.global_step} | "
-                        f"Loss: {avg_metrics.get('loss', 0):.4f} | "
-                        f"PPL: {avg_metrics.get('perplexity', 0):.2f} | "
-                        f"Tok/s: {tokens_per_sec:.0f} | "
-                        f"Time: {elapsed:.1f}s"
-                    )
-
-                    self.metrics_history.append({
-                        "step": self.global_step,
-                        "epoch": epoch,
-                        **avg_metrics
-                    })
-
-                    if callback:
-                        callback(avg_metrics)
-
-                # Evaluation
-                if eval_dataset and self.global_step % self.config.eval_interval == 0:
-                    eval_metrics = self.evaluate(eval_dataset)
-                    logger.info(
-                        f"Eval | Loss: {eval_metrics['loss']:.4f} | "
-                        f"PPL: {eval_metrics['perplexity']:.2f}"
-                    )
-
-                # Checkpoint
-                if self.global_step % self.config.checkpoint_interval == 0:
-                    current_loss = avg_metrics.get('loss', float('inf'))
-                    if current_loss < self.best_loss:
-                        self.best_loss = current_loss
-                        self.save_checkpoint("best")
-                    self.save_checkpoint(f"step_{self.global_step}")
-
-                # Early stopping - max steps
-                if self.config.max_steps and self.global_step >= self.config.max_steps:
-                    logger.info(f"Reached max steps ({self.config.max_steps})")
-                    break
-
-                # Early stopping - min loss
-                if self.config.min_loss and avg_metrics.get('loss', float('inf')) < self.config.min_loss:
-                    logger.info(f"Reached target loss: {avg_metrics['loss']:.4f}")
-                    break
-
-            # End of epoch
-            if self.config.max_steps and self.global_step >= self.config.max_steps:
-                break
-
-        # Final checkpoint
-        self.save_checkpoint("final")
-        logger.info(f"Training complete. Total steps: {self.global_step}")
+        super().train(
+            dataset=train_dataset,
+            num_epochs=self.sft_config.num_epochs,
+            eval_dataset=eval_dataset,
+            callback=callback
+        )
 
     def evaluate(self, dataset: SFTDataset) -> Dict[str, float]:
         """Evaluate on a dataset."""
-        pad_token_id = getattr(self.tokenizer, 'pad_token_id', 0) or 0
-
         all_metrics = {"loss": [], "perplexity": [], "num_tokens": []}
 
         for batch in dataset.iter_batches(
-            batch_size=self.config.batch_size,
+            batch_size=self.sft_config.batch_size,
             shuffle=False,
-            pad_token_id=pad_token_id
+            pad_token_id=self.pad_token_id
         ):
             logits, _ = self.model(batch["input_ids"])
             loss, metrics = sft_loss(
@@ -235,62 +151,49 @@ class SFTTrainer:
 
         return {k: sum(v) / len(v) if v else 0.0 for k, v in all_metrics.items()}
 
-    def save_checkpoint(self, name: str):
-        """Save model checkpoint."""
-        path = Path(self.config.checkpoint_dir) / f"{name}.safetensors"
+    def _create_epoch_metrics(self) -> Dict[str, List[float]]:
+        """Create SFT-specific metrics accumulator."""
+        return {
+            "loss": [],
+            "perplexity": [],
+            "num_tokens": [],
+        }
 
-        # Check if model has adapter save method
-        if hasattr(self.model, 'save_adapter'):
-            self.model.save_adapter(str(path))
-        else:
-            weights = dict(self.model.parameters())
-            flat_weights = self._flatten_params(weights)
-            mx.save_safetensors(str(path), flat_weights)
+    def _log_metrics(self, metrics: Dict[str, float]):
+        """Log SFT-specific metrics."""
+        import time
+        elapsed = time.time() - self._start_time
 
-        logger.info(f"Saved checkpoint: {path}")
+        # Calculate tokens per second if we have token counts
+        epoch_metrics = getattr(self, '_current_epoch_metrics', {})
+        total_tokens = sum(epoch_metrics.get('num_tokens', [0]))
+        tokens_per_sec = total_tokens / elapsed if elapsed > 0 else 0
 
-    def load_checkpoint(self, path: str):
-        """Load model checkpoint."""
-        weights = mx.load(path)
-        self.model.load_weights(list(weights.items()))
-        logger.info(f"Loaded checkpoint: {path}")
+        logger.info(
+            f"Step {self.global_step} | "
+            f"Loss: {metrics.get('loss', 0):.4f} | "
+            f"PPL: {metrics.get('perplexity', 0):.2f} | "
+            f"Tok/s: {tokens_per_sec:.0f} | "
+            f"Time: {elapsed:.1f}s"
+        )
 
-    def _flatten_params(self, params, prefix=""):
-        """Flatten nested parameter dict."""
-        flat = {}
-        for k, v in params.items():
-            key = f"{prefix}.{k}" if prefix else k
-            if isinstance(v, dict):
-                flat.update(self._flatten_params(v, key))
-            elif isinstance(v, mx.array):
-                flat[key] = v
-        return flat
+        self.metrics_history.append({
+            "step": self.global_step,
+            "epoch": self.current_epoch,
+            **metrics
+        })
 
-    def _clip_gradients(self, grads, max_norm: float):
-        """Clip gradients by global norm."""
-        flat_grads = []
+    def _log_eval_metrics(self, metrics: Dict[str, float]):
+        """Log evaluation metrics."""
+        logger.info(
+            f"Eval | Loss: {metrics['loss']:.4f} | "
+            f"PPL: {metrics['perplexity']:.2f}"
+        )
 
-        def collect(g):
-            if isinstance(g, dict):
-                for v in g.values():
-                    collect(v)
-            elif isinstance(g, mx.array):
-                flat_grads.append(g.reshape(-1))
-
-        collect(grads)
-
-        if not flat_grads:
-            return grads
-
-        all_grads = mx.concatenate(flat_grads)
-        global_norm = mx.sqrt(mx.sum(all_grads ** 2))
-        clip_factor = mx.minimum(max_norm / (global_norm + 1e-6), mx.array(1.0))
-
-        def apply_clip(g):
-            if isinstance(g, dict):
-                return {k: apply_clip(v) for k, v in g.items()}
-            elif isinstance(g, mx.array):
-                return g * clip_factor
-            return g
-
-        return apply_clip(grads)
+    def _should_stop_early(self, metrics: Dict[str, float]) -> bool:
+        """Check if we should stop due to reaching target loss."""
+        if self.sft_config.min_loss is not None:
+            if metrics.get('loss', float('inf')) < self.sft_config.min_loss:
+                logger.info(f"Reached target loss: {metrics['loss']:.4f}")
+                return True
+        return False

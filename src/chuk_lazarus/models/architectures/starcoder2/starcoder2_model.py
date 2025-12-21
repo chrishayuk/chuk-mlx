@@ -1,6 +1,6 @@
 import mlx.nn as nn
 import mlx.core as mx
-from chuk_lazarus.models.model_config import ModelConfig
+from chuk_lazarus.models.config import ModelConfig
 from chuk_lazarus.models.architectures.transformer_base_model import TransformerBaseModel
 from chuk_lazarus.models.architectures.starcoder2.starcoder2_transformer_block import StarCoder2TransformerBlock
 from chuk_lazarus.models.architectures.starcoder2.starcoder2_attention import StarCoder2Attention

@@ -1,7 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 from typing import Dict, Optional, Tuple
-from chuk_lazarus.models.model_config import ModelConfig
+from chuk_lazarus.models.config import ModelConfig
 
 class AttentionBase(nn.Module):
     """

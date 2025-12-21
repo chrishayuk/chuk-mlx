@@ -13,12 +13,13 @@ import logging
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
+from ..base_trainer import BaseTrainer, BaseTrainerConfig
 from ..losses.grpo_loss import grpo_loss, GRPOConfig, GRPOBatch
 from ..utils.log_probs import extract_log_probs, compute_sequence_log_prob
 
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class GRPOTrainerConfig:
+class GRPOTrainerConfig(BaseTrainerConfig):
     """Configuration for GRPO training."""
     # GRPO hyperparameters
     grpo: GRPOConfig = field(default_factory=GRPOConfig)
@@ -48,10 +49,11 @@ class GRPOTrainerConfig:
     checkpoint_dir: str = "./checkpoints/grpo"
 
     # Early stopping
+    max_steps: Optional[int] = None
     target_reward: Optional[float] = None
 
 
-class GRPOTrainer:
+class GRPOTrainer(BaseTrainer):
     """
     Trainer for Group Relative Policy Optimization.
 
@@ -83,30 +85,34 @@ class GRPOTrainer:
         config: GRPOTrainerConfig = None,
         optimizer: optim.Optimizer = None
     ):
+        config = config or GRPOTrainerConfig()
+        super().__init__(policy_model, tokenizer, config, optimizer)
+
         self.policy_model = policy_model
         self.reference_model = reference_model
-        self.tokenizer = tokenizer
         self.reward_fn = reward_fn
-        self.config = config or GRPOTrainerConfig()
 
         # Freeze reference model
         self.reference_model.freeze()
 
-        # Setup optimizer
-        if optimizer is None:
-            self.optimizer = optim.AdamW(
-                learning_rate=self.config.learning_rate,
-                weight_decay=self.config.weight_decay
-            )
-        else:
-            self.optimizer = optimizer
-
-        # Training state
+        # GRPO-specific state
         self.iteration = 0
         self.best_reward = float('-inf')
 
-        # Metrics history
-        self.metrics_history: List[Dict] = []
+    @property
+    def grpo_config(self) -> GRPOTrainerConfig:
+        """Type-safe access to config."""
+        return self.config
+
+    def compute_loss(self, batch: Dict[str, Any]) -> Tuple[mx.array, Dict[str, Any]]:
+        """
+        Compute GRPO loss. Not used directly - GRPO has custom training loop.
+        """
+        raise NotImplementedError("GRPO uses custom training loop via train()")
+
+    def get_train_batches(self, dataset: Any) -> Iterator[Dict[str, Any]]:
+        """Not used - GRPO generates samples on the fly."""
+        raise NotImplementedError("GRPO generates samples on the fly")
 
     def train(self, prompt_source: Callable[[], List[str]]):
         """
@@ -115,17 +121,17 @@ class GRPOTrainer:
         Args:
             prompt_source: Function that returns a batch of prompts
         """
-        logger.info(f"Starting GRPO training for {self.config.num_iterations} iterations")
-        logger.info(f"Group size: {self.config.grpo.group_size}")
-        logger.info(f"Prompts per iteration: {self.config.prompts_per_iteration}")
+        logger.info(f"Starting GRPO training for {self.grpo_config.num_iterations} iterations")
+        logger.info(f"Group size: {self.grpo_config.grpo.group_size}")
+        logger.info(f"Prompts per iteration: {self.grpo_config.prompts_per_iteration}")
 
         Path(self.config.checkpoint_dir).mkdir(parents=True, exist_ok=True)
 
-        start_time = time.time()
+        self._start_time = time.time()
 
-        for self.iteration in range(1, self.config.num_iterations + 1):
+        for self.iteration in range(1, self.grpo_config.num_iterations + 1):
             # Get prompts
-            prompts = prompt_source()[:self.config.prompts_per_iteration]
+            prompts = prompt_source()[:self.grpo_config.prompts_per_iteration]
 
             # Generate samples and compute rewards
             batch = self._generate_grpo_batch(prompts)
@@ -135,7 +141,7 @@ class GRPOTrainer:
 
             # Logging
             if self.iteration % self.config.log_interval == 0:
-                elapsed = time.time() - start_time
+                elapsed = time.time() - self._start_time
                 logger.info(
                     f"Iter {self.iteration} | "
                     f"Mean Reward: {metrics['mean_reward']:.4f} | "
@@ -154,8 +160,8 @@ class GRPOTrainer:
                 self.save_checkpoint(f"iter_{self.iteration}")
 
             # Early stopping
-            if self.config.target_reward is not None:
-                if metrics['mean_reward'] >= self.config.target_reward:
+            if self.grpo_config.target_reward is not None:
+                if metrics['mean_reward'] >= self.grpo_config.target_reward:
                     logger.info(f"Target reward reached: {metrics['mean_reward']:.4f}")
                     break
 
@@ -169,14 +175,14 @@ class GRPOTrainer:
 
     def _generate_grpo_batch(self, prompts: List[str]) -> GRPOBatch:
         """Generate responses and compute rewards for a batch of prompts."""
-        batch = GRPOBatch(self.config.grpo.group_size)
+        batch = GRPOBatch(self.grpo_config.grpo.group_size)
 
         for prompt in prompts:
             responses = []
             rewards = []
 
             # Generate group_size responses
-            for _ in range(self.config.grpo.group_size):
+            for _ in range(self.grpo_config.grpo.group_size):
                 response = self._generate_response(prompt)
                 responses.append(response)
 
@@ -198,7 +204,7 @@ class GRPOTrainer:
         if hasattr(self.policy_model, 'set_mode'):
             self.policy_model.set_mode('INFERENCE')
 
-        max_new_tokens = self.config.max_response_length
+        max_new_tokens = self.grpo_config.max_response_length
 
         for _ in range(max_new_tokens):
             input_tensor = mx.array([generated])
@@ -207,7 +213,7 @@ class GRPOTrainer:
                 logits, _ = self.policy_model(input_tensor)
 
             # Get logits for last position
-            next_logits = logits[0, -1, :] / self.config.temperature
+            next_logits = logits[0, -1, :] / self.grpo_config.temperature
 
             # Sample
             probs = mx.softmax(next_logits)
@@ -243,7 +249,7 @@ class GRPOTrainer:
             max_len = max(max_len, len(tokens))
 
         # Pad sequences
-        pad_id = getattr(self.tokenizer, 'pad_token_id', 0)
+        pad_id = self.pad_token_id
         for i, tokens in enumerate(all_input_ids):
             padding = [pad_id] * (max_len - len(tokens))
             mask = [1.0] * len(tokens) + [0.0] * len(padding)
@@ -278,8 +284,8 @@ class GRPOTrainer:
                 log_probs=p_seq,
                 ref_log_probs=ref_seq_log_probs,
                 rewards=rewards,
-                group_size=self.config.grpo.group_size,
-                config=self.config.grpo
+                group_size=self.grpo_config.grpo.group_size,
+                config=self.grpo_config.grpo
             )
             return loss
 
@@ -288,7 +294,7 @@ class GRPOTrainer:
 
         # Gradient clipping
         if self.config.max_grad_norm > 0:
-            grads = self._clip_gradients(grads, self.config.max_grad_norm)
+            grads = self.clip_gradients(grads, self.config.max_grad_norm)
 
         # Update
         self.optimizer.update(self.policy_model, grads)
@@ -299,8 +305,8 @@ class GRPOTrainer:
             log_probs=policy_seq_log_probs,
             ref_log_probs=ref_seq_log_probs,
             rewards=rewards,
-            group_size=self.config.grpo.group_size,
-            config=self.config.grpo
+            group_size=self.grpo_config.grpo.group_size,
+            config=self.grpo_config.grpo
         )
 
         return {k: float(v) for k, v in metrics.items()}
@@ -310,14 +316,6 @@ class GRPOTrainer:
         u = mx.random.uniform(probs.shape)
         gumbel = -mx.log(-mx.log(u + 1e-10) + 1e-10)
         return mx.argmax(mx.log(probs + 1e-10) + gumbel)
-
-    def _clip_gradients(self, grads, max_norm: float):
-        """Clip gradients by global norm."""
-        total_norm_sq = sum(mx.sum(g ** 2) for g in grads.values() if isinstance(g, mx.array))
-        total_norm = mx.sqrt(total_norm_sq)
-        clip_coef = mx.minimum(max_norm / (total_norm + 1e-6), mx.array(1.0))
-
-        return {k: g * clip_coef if isinstance(g, mx.array) else g for k, g in grads.items()}
 
     def save_checkpoint(self, name: str):
         """Save model checkpoint."""

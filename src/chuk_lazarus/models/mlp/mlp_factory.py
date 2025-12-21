@@ -1,4 +1,4 @@
-from chuk_lazarus.models.model_config import ModelConfig
+from chuk_lazarus.models.config import ModelConfig
 
 # MLX MLP imports
 from chuk_lazarus.models.mlp.mlx.swiglu_mlp import MLP as MLXSwiGluMLP

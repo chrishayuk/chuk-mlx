@@ -20,53 +20,17 @@ Problem types:
 import json
 import logging
 import random
-from dataclasses import dataclass, field
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .types import (
+    ProblemType,
+    MathProblem,
+    ToolCallTrace,
+    TrainingSample,
+)
+
 logger = logging.getLogger(__name__)
-
-
-class ProblemType(Enum):
-    ARITHMETIC = "arithmetic"
-    FRACTIONS = "fractions"
-    PERCENTAGES = "percentages"
-    WORD_PROBLEM = "word_problem"
-    MULTI_STEP = "multi_step"
-    COMPARISON = "comparison"
-
-
-@dataclass
-class MathProblem:
-    """A generated math problem."""
-    id: str
-    problem_type: ProblemType
-    problem_text: str
-    expression: str  # The mathematical expression
-    answer: float
-    answer_exact: Optional[str] = None  # For fractions, etc.
-    unit: Optional[str] = None
-    difficulty: int = 1  # 1-5
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class ToolCallTrace:
-    """A trace showing how to solve the problem with tools."""
-    tool_name: str
-    tool_args: Dict[str, Any]
-    tool_result: Any
-    thought: Optional[str] = None
-
-
-@dataclass
-class TrainingSample:
-    """A complete training sample."""
-    problem: MathProblem
-    correct_trace: List[ToolCallTrace]
-    correct_response: str
-    incorrect_responses: List[str] = field(default_factory=list)
 
 
 class MathProblemGenerator:

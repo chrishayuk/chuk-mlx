@@ -1,6 +1,6 @@
 import mlx.core as mx
 import mlx.nn as nn
-from chuk_lazarus.models.model_config import ModelConfig
+from chuk_lazarus.models.config import ModelConfig
 from chuk_lazarus.utils.memory import log_memory_usage
 import logging
 from enum import Enum
