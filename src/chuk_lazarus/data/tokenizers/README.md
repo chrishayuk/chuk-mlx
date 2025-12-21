@@ -18,6 +18,7 @@ This module provides utilities for:
 
 - **analyze/** - Coverage, entropy, fit scoring, retokenization diff
 - **curriculum/** - Token-length buckets, reasoning density scoring
+- **preprocessing/** - Pre-tokenization transforms, profiles, byte fallback
 - **runtime/** - Special token registry, dynamic vocab, semantics mapping
 - **training/** - Sequence packing, throughput profiling
 - **regression/** - Token regression test framework
@@ -554,6 +555,106 @@ print(f"Total training tokens: {estimate['total_training_tokens']:,}")
 - `ThroughputMetrics` - Tokens/sec, chars/sec, compression stats
 - `BatchMetrics` - Per-batch statistics and attention waste
 
+### `preprocessing/` - Pre-Tokenization Transforms
+
+Pre-tokenization hooks, profiles, and byte fallback for robust tokenization.
+
+```python
+from chuk_lazarus.data.tokenizers.preprocessing import (
+    # Numeric normalization
+    NumericConfig,
+    detect_numbers,
+    normalize_numbers,
+    restore_numbers,
+    # Structure token injection
+    StructureConfig,
+    StructureType,
+    detect_structures,
+    inject_structure_tokens,
+    restore_structures,
+    # Hooks
+    HookPipeline,
+    HookedTokenizer,
+    create_standard_pipeline,
+    create_math_pipeline,
+    create_tool_pipeline,
+    # Profiles
+    TokenizerProfile,
+    ProfiledTokenizer,
+    create_training_profile,
+    create_inference_profile,
+    # Byte fallback
+    ByteFallbackWrapper,
+    wrap_with_fallback,
+)
+
+# Numeric normalization - reduce token waste on numbers
+text = "Pi is 3.14159 and e is 2.71828"
+encoding = normalize_numbers(text)
+print(encoding.encoded_text)  # "Pi is <NUM_0> and e is <NUM_1>"
+print(encoding.mapping)  # {"<NUM_0>": "3.14159", "<NUM_1>": "2.71828"}
+restored = restore_numbers(encoding.encoded_text, encoding.mapping)
+assert restored == text
+
+# Structure token injection - atomic tokens for UUIDs, URLs, IPs, etc.
+text = "User 550e8400-e29b-41d4-a716-446655440000 at 192.168.1.1"
+encoding = inject_structure_tokens(text)
+print(encoding.encoded_text)  # "User <UUID_0> at <IP_0>"
+
+# Hook pipeline - composable pre/post transforms
+pipeline = create_standard_pipeline(numeric=True, structure=True)
+transformed = pipeline.pre_tokenize(text)
+restored = pipeline.post_decode(transformed)
+
+# Hooked tokenizer - transparent preprocessing
+hooked = HookedTokenizer(tokenizer, pipeline)
+tokens = hooked.encode(text)  # Transforms applied automatically
+decoded = hooked.decode(tokens)  # Inverse transforms on decode
+
+# Tokenizer profiles - switch between training/inference behavior
+training_profile = create_training_profile(
+    normalize_numbers=True,
+    inject_structures=True,
+    max_length=2048,
+)
+profiled = ProfiledTokenizer(tokenizer, training_profile)
+tokens = profiled.encode(text)
+
+# Switch to inference mode
+inference_profile = create_inference_profile()
+profiled.set_profile(inference_profile)
+
+# Byte fallback - ensure any byte sequence tokenizes without UNK
+wrapper = wrap_with_fallback(tokenizer)
+tokens = wrapper.encode("Emoji: 🎉🎊 and Chinese: 日本語")
+decoded = wrapper.decode(tokens)  # No UNK tokens
+```
+
+**Models:**
+- `NumericConfig` - Detection settings (integers, floats, scientific, hex, percentages, fractions)
+- `NumericSpan` - Detected number with position, format, and parsed value
+- `NumericEncoding` - Encoded text with placeholder mapping
+- `StructureConfig` - Detection settings (UUIDs, URLs, emails, IPs, dates, paths, JSON)
+- `StructureSpan` - Detected structure with position and type
+- `StructureEncoding` - Encoded text with structure mapping
+- `TokenizerProfile` - Profile configuration (mode, normalization, fallback, truncation)
+- `ByteFallbackConfig` - Fallback settings (UNK detection, byte encoding template)
+- `ByteFallbackStats` - Fallback statistics (chars encoded, UNK avoided)
+
+**Enums:**
+- `NumericFormat` - INTEGER, FLOAT, SCIENTIFIC, HEXADECIMAL, BINARY, PERCENTAGE, FRACTION
+- `StructureType` - UUID, URL, EMAIL, IP_ADDRESS, DATE, TIME, DATETIME, PATH, JSON_KEY, VARIABLE
+- `ProfileMode` - TRAINING, INFERENCE, EVALUATION
+
+**Classes:**
+- `PreTokenizeHook` - Abstract base for pre-tokenization hooks
+- `PostDecodeHook` - Abstract base for post-decode hooks
+- `HookPipeline` - Chain of hooks with metadata tracking
+- `HookedTokenizer` - Tokenizer wrapper with automatic hook application
+- `ProfiledTokenizer` - Tokenizer with profile-based behavior switching
+- `ProfileManager` - Manage multiple profiles with active switching
+- `ByteFallbackWrapper` - Tokenizer wrapper with byte-level fallback
+
 ### `regression/` - Regression Testing
 
 Token regression test framework for CI/CD pipelines.
@@ -623,8 +724,11 @@ This module implements the CHUK tokenization roadmap:
 | Phase 0: Regression | `regression/tests` |
 | Phase 1: Control Tokens | `runtime/special_registry` |
 | Phase 1: Token↔Tool Mapping | `runtime/semantics` |
+| Phase 1: Robustness | `preprocessing/fallback` (byte fallback) |
 | Phase 2: Domain Injection | `runtime/dynamic_vocab` |
+| Phase 2: Profiles | `preprocessing/profiles` (training vs inference) |
 | Phase 3: Curriculum | `curriculum/length_buckets`, `curriculum/reasoning_density` |
+| Phase 3: Structure-Aware | `preprocessing/numeric`, `preprocessing/structure`, `preprocessing/hooks` |
 | Phase 4: Soft Extension | `runtime/dynamic_vocab` |
 | Phase 6: Observability | `training/throughput`, `analyze/entropy` |
 
