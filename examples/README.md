@@ -8,7 +8,9 @@ Examples organized by functionality area.
 examples/
 ├── tokenizer/          # Tokenization examples
 │   ├── basic_tokenization.py
-│   └── custom_tokenizer.py
+│   ├── custom_tokenizer.py
+│   ├── preprocessing_demo.py
+│   └── regression_tests.py
 ├── inference/          # Text generation examples
 │   ├── basic_inference.py
 │   └── chat_inference.py
@@ -59,9 +61,34 @@ paths = generate_lazarus_dataset(
 )
 ```
 
+## Tokenizer Examples
+
+### Preprocessing Demo
+
+Demonstrates the preprocessing module features for reducing token waste:
+
+```bash
+uv run python examples/tokenizer/preprocessing_demo.py
+```
+
+Features demonstrated:
+- **Numeric normalization** - Detect and encode numbers (integers, floats, scientific, hex, percentages, fractions)
+- **Structure token injection** - Replace UUIDs, URLs, emails, IPs with atomic tokens
+- **Hook pipeline** - Composable pre/post tokenization transforms
+- **Tokenizer profiles** - Switch between training and inference modes
+- **Byte fallback** - Ensure any byte sequence tokenizes without UNK
+
+### Regression Tests
+
+Run tokenizer regression tests:
+
+```bash
+uv run python examples/tokenizer/regression_tests.py
+```
+
 ## Running Examples
 
 ```bash
 # From project root
-PYTHONPATH=src python examples/inference/basic_inference.py
+uv run python examples/inference/basic_inference.py
 ```
