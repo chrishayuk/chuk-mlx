@@ -41,9 +41,7 @@ def demo_coverage_analysis():
     ]
 
     # Analyze coverage
-    report: CoverageReport = analyze_coverage(
-        texts, tokenizer, include_fragments=True
-    )
+    report: CoverageReport = analyze_coverage(texts, tokenizer, include_fragments=True)
 
     print(f"\nAnalyzed {len(texts)} texts")
     print(f"Total tokens:      {report.total_tokens:,}")
@@ -96,7 +94,7 @@ def demo_entropy_analysis():
 
         print(f"\nTop tokens:")
         for i, (token_id, decoded, count) in enumerate(report.distribution.top_tokens[:10]):
-            print(f"  {i+1:2}. {decoded!r:15} (id={token_id}) {count:4}")
+            print(f"  {i + 1:2}. {decoded!r:15} (id={token_id}) {count:4}")
 
 
 def demo_fit_score():

@@ -27,8 +27,7 @@ def main():
     # Count parameters
     total_params = sum(p.size for p in model.parameters().values())
     trainable_params = sum(
-        p.size for name, p in model.parameters().items()
-        if "lora" in name.lower()
+        p.size for name, p in model.parameters().items() if "lora" in name.lower()
     )
 
     print(f"\nTotal parameters: {total_params:,}")

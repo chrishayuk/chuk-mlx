@@ -172,9 +172,7 @@ def demo_reasoning_density():
 
     print("\nScoring individual texts:\n")
     for i, text in enumerate(texts):
-        score: ReasoningDensityScore = score_reasoning_density(
-            text, i, tokenizer, config=config
-        )
+        score: ReasoningDensityScore = score_reasoning_density(text, i, tokenizer, config=config)
         print(f"  [{i}] Score: {score.overall_score:.4f}")
         print(f"      Text: {text[:50]}...")
         print()
@@ -183,7 +181,9 @@ def demo_reasoning_density():
     sorted_scores = sort_by_reasoning_density(texts, tokenizer, reverse=False)
     print("Sorted by reasoning density (easiest first):")
     for score in sorted_scores:
-        print(f"  [{score.text_index}] {score.overall_score:.4f}: {texts[score.text_index][:40]}...")
+        print(
+            f"  [{score.text_index}] {score.overall_score:.4f}: {texts[score.text_index][:40]}..."
+        )
 
 
 def demo_difficulty_percentiles():

@@ -217,9 +217,7 @@ tests:
     description: Numbers should tokenize to multiple tokens
 """
 
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".yaml", delete=False
-    ) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         f.write(yaml_content)
         yaml_path = f.name
 
@@ -268,9 +266,7 @@ tests:
 """
 
     # Write to temp file and load
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".yaml", delete=False
-    ) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         f.write(yaml_string)
         yaml_path = f.name
 
@@ -374,7 +370,9 @@ def demo_comprehensive_suite():
             name="no_unk_common",
             text="This is common English text.",
             assertion=TestAssertion.NOT_CONTAINS_TOKEN,
-            expected=tokenizer.unk_token_id if hasattr(tokenizer, 'unk_token_id') and tokenizer.unk_token_id is not None else 0,
+            expected=tokenizer.unk_token_id
+            if hasattr(tokenizer, "unk_token_id") and tokenizer.unk_token_id is not None
+            else 0,
         ),
     ]
 

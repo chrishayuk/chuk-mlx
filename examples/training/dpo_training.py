@@ -27,7 +27,7 @@ def main():
     # Configure DPO
     config = DPOTrainerConfig(
         dpo=DPOConfig(
-            beta=0.1,          # KL penalty coefficient
+            beta=0.1,  # KL penalty coefficient
             label_smoothing=0.0,
         ),
         num_epochs=1,

@@ -47,10 +47,7 @@ def demo_sequence_packing():
     ]
 
     # Tokenize first
-    token_sequences = [
-        tokenizer.encode(text, add_special_tokens=False)
-        for text in texts
-    ]
+    token_sequences = [tokenizer.encode(text, add_special_tokens=False) for text in texts]
 
     # Configure packing
     config = PackingConfig(
@@ -104,10 +101,7 @@ def demo_packing_efficiency():
     ]
 
     # Tokenize
-    token_sequences = [
-        tokenizer.encode(text, add_special_tokens=False)
-        for text in texts
-    ]
+    token_sequences = [tokenizer.encode(text, add_special_tokens=False) for text in texts]
 
     config = PackingConfig(
         max_seq_length=64,
@@ -141,8 +135,7 @@ def demo_throughput_profiling():
 
     # Generate test corpus
     texts = [
-        f"Sample text number {i} for throughput testing with varying length."
-        for i in range(100)
+        f"Sample text number {i} for throughput testing with varying length." for i in range(100)
     ]
 
     # Profile tokenization using profiler class
@@ -205,9 +198,7 @@ def demo_estimate_training_tokens():
     ]
 
     # Estimate for larger dataset (sample is 10% of full dataset)
-    estimate = estimate_training_tokens(
-        sample_texts, tokenizer, epochs=1, sample_ratio=0.1
-    )
+    estimate = estimate_training_tokens(sample_texts, tokenizer, epochs=1, sample_ratio=0.1)
 
     print(f"\nTraining token estimation:")
     print(f"  Sample size:          {estimate['sample_texts']}")

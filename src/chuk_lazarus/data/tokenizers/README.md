@@ -23,6 +23,7 @@ This module provides utilities for:
 - **training/** - Sequence packing, throughput profiling
 - **regression/** - Token regression test framework
 - **research/** - Soft tokens, token morphing, embedding analysis
+- **instrumentation/** - Token histograms, OOV analysis, waste metrics, vocab comparison
 
 ## Design Principles
 
@@ -875,6 +876,105 @@ print(f"Mean similarity: {analysis.mean_pairwise_similarity:.3f}")
 - `DistanceMetric` - COSINE, EUCLIDEAN, DOT_PRODUCT
 - `ProjectionMethod` - PCA, RANDOM, CENTERED
 
+### `instrumentation/` - Tokenizer Instrumentation
+
+Pure observability tools for analyzing tokenization behavior without modifying the tokenizer.
+
+```python
+from chuk_lazarus.data.tokenizers.instrumentation import (
+    # Token length histograms
+    compute_length_histogram,
+    format_histogram_ascii,
+    get_length_stats,
+    # OOV and rare token analysis
+    analyze_oov,
+    find_rare_tokens,
+    get_frequency_bands,
+    # Waste metrics (padding/truncation)
+    analyze_waste,
+    analyze_padding_waste,
+    analyze_truncation_loss,
+    # Vocabulary comparison
+    compare_vocab_impact,
+    estimate_retokenization_cost,
+)
+
+# Token length histogram with ASCII visualization
+histogram = compute_length_histogram(texts, tokenizer, num_bins=20)
+print(format_histogram_ascii(histogram))
+# Output:
+# ============================================================
+# TOKEN LENGTH HISTOGRAM
+# ============================================================
+# Samples: 1000
+# Total tokens: 25000
+# Length range: 5 - 512
+# Mean: 25.0 (std: 15.3)
+# Percentiles: p10=10 p25=15 p50=22 p75=35 p90=50 p95=65 p99=100
+#     5-   30 │████████████████████████████████████████  800 ( 80.0%)
+#    30-   55 │██████████                               150 ( 15.0%)
+#    55-   80 │██                                        40 (  4.0%)
+#    80-  105 │                                          10 (  1.0%)
+
+# Quick stats without full histogram
+stats = get_length_stats(texts, tokenizer)
+print(f"Mean: {stats['mean']:.1f}, P95: {stats['p95']}")
+
+# OOV and rare token analysis
+oov_report = analyze_oov(texts, tokenizer, vocab_size=50000)
+print(f"UNK rate: {oov_report.unk_rate:.2%}")
+print(f"Singleton rate: {oov_report.singleton_rate:.2%}")
+print(f"Vocab utilization: {oov_report.vocab_utilization:.2%}")
+
+# Find rare tokens
+rare = find_rare_tokens(texts, tokenizer, max_frequency=5, top_k=20)
+for token in rare[:5]:
+    print(f"  {token.token_str}: {token.count}x ({token.band.value})")
+
+# Token frequency bands
+bands = get_frequency_bands(texts, tokenizer)
+# {TokenFrequencyBand.SINGLETON: 500, TokenFrequencyBand.RARE: 200, ...}
+
+# Padding and truncation waste analysis
+waste = analyze_waste(texts, tokenizer, max_length=512)
+print(f"Padding rate: {waste.padding.padding_rate:.1%}")
+print(f"Efficiency: {waste.padding.efficiency:.1%}")
+print(f"Truncation rate: {waste.truncation.truncation_rate:.1%}")
+print(f"Content loss: {waste.truncation.content_loss_rate:.1%}")
+print(f"Recommendations: {waste.recommendations}")
+
+# Before/after vocabulary swap analysis
+comparison = compare_vocab_impact(
+    texts,
+    old_tokenizer,
+    new_tokenizer,
+    tokenizer1_name="old",
+    tokenizer2_name="new",
+)
+print(f"Token ratio: {comparison.token_count_ratio:.2f}x")
+print(f"Training speedup: {comparison.training_speedup:.2f}x")
+print(f"Samples improved: {comparison.samples_improved}")
+
+# Retokenization cost estimate
+cost = estimate_retokenization_cost(texts, old_tokenizer, new_tokenizer)
+print(f"Vocab overlap: {cost['vocab_overlap_rate']:.1%}")
+print(f"Embedding reuse rate: {cost['embedding_reuse_rate']:.1%}")
+```
+
+**Models:**
+- `LengthHistogram` - Complete histogram with bins, percentiles, recommendations
+- `HistogramBin` - Single histogram bin with count and percentage
+- `PercentileStats` - p10, p25, p50, p75, p90, p95, p99 percentiles
+- `OOVReport` - UNK rate, singleton rate, vocab utilization, recommendations
+- `RareTokenInfo` - Token ID, string, count, frequency band
+- `PaddingStats` - Padding tokens, rate, efficiency, compute waste
+- `TruncationStats` - Truncated samples, tokens lost, severity categories
+- `WasteReport` - Combined padding + truncation analysis
+- `VocabSwapReport` - Before/after comparison with training impact
+
+**Enums:**
+- `TokenFrequencyBand` - SINGLETON, RARE, UNCOMMON, COMMON, VERY_COMMON
+
 ## Architecture Alignment
 
 This module implements the CHUK tokenization roadmap:
@@ -896,6 +996,7 @@ This module implements the CHUK tokenization roadmap:
 | Phase 5: Vocab Induction | `analyze/vocab_induction` (fragmented words, domain tokens) |
 | Phase 6: Research Playground | `research/soft_tokens`, `research/token_morphing`, `research/embedding_analysis` |
 | Phase 6: Observability | `training/throughput`, `analyze/entropy` |
+| Instrumentation | `instrumentation/histograms`, `instrumentation/oov_report`, `instrumentation/waste`, `instrumentation/vocab_diff` |
 
 ## Control Plane Token Guidelines
 

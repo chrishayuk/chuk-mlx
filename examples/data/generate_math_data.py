@@ -25,7 +25,7 @@ def main():
 
     # Display samples
     for i, sample in enumerate(samples):
-        print(f"\n--- Problem {i+1} ---")
+        print(f"\n--- Problem {i + 1} ---")
         print(f"Type: {sample.problem.problem_type.value}")
         print(f"Problem: {sample.problem.problem_text}")
         print(f"Answer: {sample.problem.answer}")

@@ -226,7 +226,9 @@ def demo_embedding_analysis():
     print(f"Found {len(clusters)} clusters:")
     for c in clusters:
         sample_tokens = c.token_strs[:3]
-        print(f"  Cluster {c.cluster_id}: {c.size} tokens, intra-dist={c.intra_cluster_distance:.4f}")
+        print(
+            f"  Cluster {c.cluster_id}: {c.size} tokens, intra-dist={c.intra_cluster_distance:.4f}"
+        )
         print(f"    Sample: {sample_tokens}")
 
     # Project to 2D
