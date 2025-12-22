@@ -1,0 +1,14 @@
+include README.md
+include pyproject.toml
+
+recursive-include src/chuk_lazarus *.py
+recursive-include src/chuk_lazarus *.json
+recursive-include src/chuk_lazarus *.yaml
+recursive-include src/chuk_lazarus *.yml
+
+global-exclude __pycache__
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude .git
+global-exclude .gitignore
+global-exclude .env
