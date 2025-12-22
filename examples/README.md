@@ -15,7 +15,8 @@ examples/
 │   ├── training_utils.py
 │   ├── preprocessing_demo.py
 │   ├── regression_tests.py
-│   └── research_playground.py
+│   ├── research_playground.py
+│   └── instrumentation_demo.py
 ├── inference/          # Text generation examples
 │   ├── basic_inference.py
 │   └── chat_inference.py
@@ -105,6 +106,20 @@ Features demonstrated:
 - **Token blending** - Average, weighted, geometric, attention-based blending
 - **Embedding analysis** - Nearest neighbors, clustering, PCA projection, analogies
 - **Quality metrics** - Isotropy, silhouette score, pairwise similarity
+
+### Instrumentation Demo
+
+Analyze tokenization behavior without modifying the tokenizer:
+
+```bash
+uv run python examples/tokenizer/instrumentation_demo.py
+```
+
+Features demonstrated:
+- **Token length histograms** - Visualize length distributions with ASCII charts
+- **OOV/rare token analysis** - Identify vocabulary coverage issues
+- **Waste metrics** - Measure padding and truncation inefficiency
+- **Vocabulary comparison** - Before/after analysis for tokenizer swaps
 
 ## Running Examples
 

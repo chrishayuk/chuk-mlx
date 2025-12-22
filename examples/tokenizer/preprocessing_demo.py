@@ -112,7 +112,9 @@ def demo_structure_detection():
             print(f"    -> {span.structure_type.value}: {span.original[:30]}...")
 
     print("\n\nInjecting structure tokens:")
-    complex_text = "User 550e8400-e29b-41d4-a716-446655440000 at 192.168.1.1 sent email to admin@example.com"
+    complex_text = (
+        "User 550e8400-e29b-41d4-a716-446655440000 at 192.168.1.1 sent email to admin@example.com"
+    )
     encoding = inject_structure_tokens(complex_text)
     print(f"  Original: {complex_text}")
     print(f"  Encoded:  {encoding.encoded_text}")

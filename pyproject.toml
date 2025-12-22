@@ -31,6 +31,9 @@ dev = [
     "build>=1.0.0",
     "torch>=2.0.0",
 ]
+fast = [
+    "mlx-data>=0.0.3",
+]
 
 [project.scripts]
 lazarus = "chuk_lazarus.cli:main"

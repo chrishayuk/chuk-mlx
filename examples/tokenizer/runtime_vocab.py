@@ -118,7 +118,9 @@ def demo_special_token_registry():
 
     # Check collisions
     report: CollisionReport = check_collisions(registry)
-    print(f"\nCollision check: {'No collisions' if not report.has_collisions else 'Collisions found!'}")
+    print(
+        f"\nCollision check: {'No collisions' if not report.has_collisions else 'Collisions found!'}"
+    )
 
 
 def demo_standard_registry():

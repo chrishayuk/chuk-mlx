@@ -14,18 +14,12 @@ from chuk_lazarus.data import SFTDataset
 def create_sample_data(output_path: str):
     """Create sample training data."""
     samples = [
-        {
-            "prompt": "What is the capital of France?",
-            "response": "The capital of France is Paris."
-        },
+        {"prompt": "What is the capital of France?", "response": "The capital of France is Paris."},
         {
             "prompt": "Explain photosynthesis briefly.",
-            "response": "Photosynthesis is the process by which plants convert sunlight, water, and carbon dioxide into glucose and oxygen."
+            "response": "Photosynthesis is the process by which plants convert sunlight, water, and carbon dioxide into glucose and oxygen.",
         },
-        {
-            "prompt": "What is 15 + 27?",
-            "response": "15 + 27 = 42"
-        },
+        {"prompt": "What is 15 + 27?", "response": "15 + 27 = 42"},
     ]
 
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
@@ -56,7 +50,7 @@ def main():
     # Iterate through batches
     print("\nBatch iteration example:")
     for i, batch in enumerate(dataset.iter_batches(batch_size=2, shuffle=False)):
-        print(f"Batch {i+1}:")
+        print(f"Batch {i + 1}:")
         print(f"  input_ids shape: {batch['input_ids'].shape}")
         print(f"  labels shape: {batch['labels'].shape}")
         if i >= 1:

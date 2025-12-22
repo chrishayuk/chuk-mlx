@@ -25,6 +25,10 @@ Tokenizer Commands:
     lazarus tokenizer research soft-tokens -n 10 -d 768 --prefix task
     lazarus tokenizer research analyze-embeddings -f embeddings.json --cluster
     lazarus tokenizer research morph -f embeddings.json -s 0 -t 1 --method spherical
+    lazarus tokenizer instrument histogram -t model --file corpus.txt
+    lazarus tokenizer instrument oov -t model --file corpus.txt
+    lazarus tokenizer instrument waste -t model --file corpus.txt --max-length 512
+    lazarus tokenizer instrument vocab-diff -t1 model1 -t2 model2 --file corpus.txt
 """
 
 import argparse
@@ -882,6 +886,210 @@ def research_morph(args):
         print(f"\nSaved trajectory to: {args.output}")
 
 
+# === Instrumentation Commands ===
+
+
+def instrument_histogram(args):
+    """Display token length histogram."""
+    from ..data.tokenizers.instrumentation import (
+        compute_length_histogram,
+        format_histogram_ascii,
+        get_length_stats,
+    )
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    texts = _load_texts(args)
+    if not texts:
+        logger.error("No texts provided")
+        return
+
+    logger.info(f"Computing histogram for {len(texts)} texts...")
+
+    if args.quick:
+        stats = get_length_stats(texts, tokenizer)
+        print("\n=== Quick Length Stats ===")
+        for key, value in stats.items():
+            if isinstance(value, float):
+                print(f"  {key}: {value:.2f}")
+            else:
+                print(f"  {key}: {value}")
+    else:
+        histogram = compute_length_histogram(texts, tokenizer, num_bins=args.bins)
+        print()
+        print(format_histogram_ascii(histogram, width=args.width))
+
+
+def instrument_oov(args):
+    """Analyze OOV and rare tokens."""
+    from ..data.tokenizers.instrumentation import (
+        analyze_oov,
+        find_rare_tokens,
+        get_frequency_bands,
+    )
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    texts = _load_texts(args)
+    if not texts:
+        logger.error("No texts provided")
+        return
+
+    logger.info(f"Analyzing OOV on {len(texts)} texts...")
+
+    # Frequency bands
+    bands = get_frequency_bands(texts, tokenizer)
+    print("\n=== Token Frequency Bands ===")
+    for band, count in sorted(bands.items(), key=lambda x: x[0].value):
+        print(f"  {band.value:15s}: {count:,} tokens")
+
+    # OOV report
+    report = analyze_oov(texts, tokenizer, vocab_size=args.vocab_size)
+    print("\n=== OOV Report ===")
+    print(f"  Total tokens:      {report.total_tokens:,}")
+    print(f"  Unique tokens:     {report.unique_tokens:,}")
+    print(f"  UNK rate:          {report.unk_rate:.2%}")
+    print(f"  Singleton rate:    {report.singleton_rate:.2%}")
+    print(f"  Vocab utilization: {report.vocab_utilization:.2%}")
+
+    if report.recommendations:
+        print("\n  Recommendations:")
+        for rec in report.recommendations:
+            print(f"    - {rec}")
+
+    # Rare tokens
+    if args.show_rare:
+        rare = find_rare_tokens(texts, tokenizer, max_frequency=args.max_freq, top_k=args.top_k)
+        print(f"\n=== Rare Tokens (freq ≤ {args.max_freq}) ===")
+        for token in rare:
+            print(f"  {token.token_str!r:20s}: {token.count:4d}x ({token.band.value})")
+
+
+def instrument_waste(args):
+    """Analyze padding and truncation waste."""
+    from ..data.tokenizers.instrumentation import analyze_waste
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    texts = _load_texts(args)
+    if not texts:
+        logger.error("No texts provided")
+        return
+
+    logger.info(f"Analyzing waste on {len(texts)} texts with max_length={args.max_length}...")
+
+    report = analyze_waste(texts, tokenizer, max_length=args.max_length)
+
+    print("\n=== Token Waste Report ===")
+    print(f"  Max length:        {report.max_length}")
+    print(f"  Total samples:     {report.total_samples}")
+    print(f"  Overall efficiency: {report.overall_efficiency:.1%}")
+
+    print("\n--- Padding Analysis ---")
+    print(f"  Total positions:   {report.padding.total_positions:,}")
+    print(f"  Content tokens:    {report.padding.total_content_tokens:,}")
+    print(f"  Padding tokens:    {report.padding.total_padding_tokens:,}")
+    print(f"  Padding rate:      {report.padding.padding_rate:.1%}")
+    print(f"  Efficiency:        {report.padding.efficiency:.1%}")
+    print(f"  Mean padding:      {report.padding.mean_padding_per_sample:.1f}")
+    print(f"  Max padding:       {report.padding.max_padding}")
+
+    print("\n--- Truncation Analysis ---")
+    print(
+        f"  Truncated samples: {report.truncation.truncated_samples}/{report.truncation.total_samples}"
+    )
+    print(f"  Truncation rate:   {report.truncation.truncation_rate:.1%}")
+    print(f"  Tokens lost:       {report.truncation.total_tokens_lost:,}")
+    print(f"  Content loss rate: {report.truncation.content_loss_rate:.1%}")
+    print(f"  Minor truncation:  {report.truncation.minor_truncation}")
+    print(f"  Major truncation:  {report.truncation.major_truncation}")
+    print(f"  Severe truncation: {report.truncation.severe_truncation}")
+
+    if report.recommendations:
+        print("\n--- Recommendations ---")
+        for rec in report.recommendations:
+            print(f"  - {rec}")
+
+
+def instrument_vocab_diff(args):
+    """Compare two tokenizers on a corpus."""
+    from ..data.tokenizers.instrumentation import (
+        compare_vocab_impact,
+        estimate_retokenization_cost,
+    )
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer 1: {args.tokenizer1}")
+    tok1 = load_tokenizer(args.tokenizer1)
+    logger.info(f"Loading tokenizer 2: {args.tokenizer2}")
+    tok2 = load_tokenizer(args.tokenizer2)
+
+    texts = _load_texts(args)
+    if not texts:
+        logger.error("No texts provided")
+        return
+
+    logger.info(f"Comparing tokenizers on {len(texts)} texts...")
+
+    report = compare_vocab_impact(
+        texts,
+        tok1,
+        tok2,
+        tokenizer1_name=args.tokenizer1,
+        tokenizer2_name=args.tokenizer2,
+        max_examples=args.examples,
+    )
+
+    print("\n=== Vocabulary Comparison ===")
+    print(f"  Tokenizer 1:       {report.tokenizer1_name}")
+    print(f"  Tokenizer 2:       {report.tokenizer2_name}")
+    print(f"  Vocab size 1:      {report.tokenizer1_vocab_size:,}")
+    print(f"  Vocab size 2:      {report.tokenizer2_vocab_size:,}")
+
+    print("\n--- Token Counts ---")
+    print(f"  Tokens (tok1):     {report.tokens1_total:,}")
+    print(f"  Tokens (tok2):     {report.tokens2_total:,}")
+    print(f"  Difference:        {report.token_count_diff:+,}")
+    print(f"  Token ratio:       {report.token_count_ratio:.2f}x")
+
+    print("\n--- Compression ---")
+    print(f"  Chars/token (1):   {report.chars_per_token1:.2f}")
+    print(f"  Chars/token (2):   {report.chars_per_token2:.2f}")
+    print(f"  Compression impr:  {report.compression_improvement:.2f}x")
+
+    print("\n--- Per-Sample Analysis ---")
+    print(f"  Improved:          {report.samples_improved}")
+    print(f"  Same:              {report.samples_same}")
+    print(f"  Worse:             {report.samples_worse}")
+    print(f"  Improvement rate:  {report.improvement_rate:.1%}")
+
+    print("\n--- Training Impact ---")
+    print(f"  Training speedup:  {report.training_speedup:.2f}x")
+    print(f"  Memory reduction:  {report.memory_reduction:.1%}")
+
+    if report.recommendations:
+        print("\n--- Recommendations ---")
+        for rec in report.recommendations:
+            print(f"  - {rec}")
+
+    # Retokenization cost
+    if args.cost:
+        cost = estimate_retokenization_cost(texts, tok1, tok2)
+        print("\n=== Retokenization Cost ===")
+        print(
+            f"  Vocab overlap:     {cost['vocab_overlap']:,} tokens ({cost['vocab_overlap_rate']:.1%})"
+        )
+        print(f"  New tokens:        {cost['new_tokens']:,}")
+        print(f"  Removed tokens:    {cost['removed_tokens']:,}")
+        print(f"  Embedding reuse:   {cost['embedding_reuse_rate']:.1%}")
+
+
 # === Runtime Commands ===
 
 
@@ -1207,6 +1415,55 @@ Examples:
     morph_parser.add_argument("--normalize", action="store_true", help="Normalize output")
     morph_parser.add_argument("--output", "-o", help="Save trajectory to JSON")
     morph_parser.set_defaults(func=research_morph)
+
+    # === Instrumentation subcommands ===
+    instrument_parser = tok_subparsers.add_parser("instrument", help="Tokenizer instrumentation")
+    instrument_subparsers = instrument_parser.add_subparsers(
+        dest="instrument_command", help="Instrumentation tool"
+    )
+
+    # Histogram
+    hist_parser = instrument_subparsers.add_parser(
+        "histogram", help="Display token length histogram"
+    )
+    hist_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    hist_parser.add_argument("--file", "-f", help="Input file (one text per line)")
+    hist_parser.add_argument("--bins", type=int, default=20, help="Number of histogram bins")
+    hist_parser.add_argument("--width", type=int, default=50, help="Chart width")
+    hist_parser.add_argument("--quick", action="store_true", help="Quick stats only")
+    hist_parser.set_defaults(func=instrument_histogram)
+
+    # OOV analysis
+    oov_parser = instrument_subparsers.add_parser("oov", help="Analyze OOV and rare tokens")
+    oov_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    oov_parser.add_argument("--file", "-f", help="Input file (one text per line)")
+    oov_parser.add_argument("--vocab-size", type=int, default=50000, help="Expected vocab size")
+    oov_parser.add_argument("--show-rare", action="store_true", help="Show rare tokens")
+    oov_parser.add_argument("--max-freq", type=int, default=5, help="Max frequency for rare")
+    oov_parser.add_argument("--top-k", type=int, default=20, help="Number of rare tokens to show")
+    oov_parser.set_defaults(func=instrument_oov)
+
+    # Waste analysis
+    waste_parser = instrument_subparsers.add_parser(
+        "waste", help="Analyze padding and truncation waste"
+    )
+    waste_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    waste_parser.add_argument("--file", "-f", help="Input file (one text per line)")
+    waste_parser.add_argument("--max-length", type=int, default=512, help="Max sequence length")
+    waste_parser.set_defaults(func=instrument_waste)
+
+    # Vocab diff
+    vocab_diff_parser = instrument_subparsers.add_parser(
+        "vocab-diff", help="Compare two tokenizers on a corpus"
+    )
+    vocab_diff_parser.add_argument("--tokenizer1", "-t1", required=True, help="First tokenizer")
+    vocab_diff_parser.add_argument("--tokenizer2", "-t2", required=True, help="Second tokenizer")
+    vocab_diff_parser.add_argument("--file", "-f", help="Input file (one text per line)")
+    vocab_diff_parser.add_argument("--examples", type=int, default=5, help="Max examples to show")
+    vocab_diff_parser.add_argument(
+        "--cost", action="store_true", help="Show retokenization cost estimate"
+    )
+    vocab_diff_parser.set_defaults(func=instrument_vocab_diff)
 
     return parser
 

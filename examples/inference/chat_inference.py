@@ -9,7 +9,7 @@ from chuk_lazarus.models import load_model, generate_response
 
 def format_chat(messages: list, tokenizer) -> str:
     """Format messages using the tokenizer's chat template."""
-    if hasattr(tokenizer, 'apply_chat_template'):
+    if hasattr(tokenizer, "apply_chat_template"):
         return tokenizer.apply_chat_template(messages, tokenize=False)
 
     # Fallback: simple format

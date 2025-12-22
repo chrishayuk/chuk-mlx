@@ -23,6 +23,9 @@ This module provides utilities for:
 - **training/** - Sequence packing, throughput profiling
 - **regression/** - Token regression test framework
 - **research/** - Soft tokens, token morphing, embedding analysis
+- **instrumentation/** - Token histograms, OOV analysis, waste metrics, vocab comparison
+- **backends/** - Pluggable tokenizer backends (HuggingFace + fast MLX CharTrie)
+- **fingerprint.py** - Tokenizer fingerprinting for compatibility verification
 
 ## Design Principles
 
@@ -875,6 +878,290 @@ print(f"Mean similarity: {analysis.mean_pairwise_similarity:.3f}")
 - `DistanceMetric` - COSINE, EUCLIDEAN, DOT_PRODUCT
 - `ProjectionMethod` - PCA, RANDOM, CENTERED
 
+### `backends/` - Tokenizer Backends
+
+Pluggable backend architecture with multiple implementations for different performance profiles.
+
+```python
+from chuk_lazarus.data.tokenizers.backends import (
+    # Core types
+    TokenizerBackend,
+    BackendType,
+    TokenizationResult,
+    BatchTokenizationResult,
+    BackendInfo,
+    # Implementations
+    HuggingFaceBackend,
+    FastBackend,
+    # Factory functions
+    create_backend,
+    get_best_backend,
+    is_fast_backend_available,
+)
+
+# Create HuggingFace backend (default, portable)
+from transformers import AutoTokenizer
+hf_tokenizer = AutoTokenizer.from_pretrained("gpt2")
+backend = HuggingFaceBackend(hf_tokenizer)
+
+result = backend.encode("Hello, world!")
+print(f"Token IDs: {result.token_ids}")
+print(f"Tokens: {result.tokens}")
+
+# Decode back
+text = backend.decode(result.token_ids)
+
+# Access special tokens
+print(f"EOS token ID: {backend.eos_token_id}")
+print(f"Vocab size: {backend.vocab_size}")
+
+# Apply chat template (if available)
+messages = [{"role": "user", "content": "Hello"}]
+formatted = backend.apply_chat_template(messages, add_generation_prompt=True)
+
+# Create fast backend (MLX Data CharTrie, optional)
+# Install with: pip install chuk-lazarus[fast]
+if is_fast_backend_available():
+    # From HuggingFace tokenizer
+    fast = FastBackend.from_tokenizer(hf_tokenizer)
+
+    # From vocabulary dict
+    vocab = {"hello": 0, "world": 1, "<s>": 2, "</s>": 3}
+    fast = FastBackend(vocab, bos_token_id=2, eos_token_id=3)
+
+    # From SentencePiece model
+    fast = FastBackend.from_sentencepiece("model.spm")
+
+    # From vocabulary file
+    fast = FastBackend.from_vocab_file("vocab.txt")
+
+    # Parallel batch encoding (avoids Python GIL)
+    texts = ["Hello world", "How are you?", "Nice day!"]
+    batch_result = fast.encode_batch(texts, num_workers=4)
+    print(f"Total tokens: {batch_result.total_tokens}")
+    for result in batch_result.results:
+        print(f"  {result.token_ids}")
+
+# Factory function - automatically select best backend
+backend = get_best_backend(hf_tokenizer, prefer_fast=True)
+print(f"Using backend: {backend.backend_type}")
+
+# Get backend info
+info = backend.get_info()
+print(f"Supports parallel: {info.supports_parallel}")
+print(f"Supports offsets: {info.supports_offsets}")
+```
+
+**Models:**
+- `TokenizationResult` - Token IDs, token strings, character offsets
+- `BatchTokenizationResult` - List of results with total token count
+- `BackendInfo` - Backend capabilities (parallel, offsets, availability)
+
+**Enums:**
+- `BackendType` - HUGGINGFACE (default), FAST (MLX CharTrie)
+
+**Classes:**
+- `TokenizerBackend` - Protocol for tokenizer backends
+- `BaseBackend` - Abstract base class with common functionality
+- `HuggingFaceBackend` - HuggingFace-compatible backend (correctness + portability)
+- `FastBackend` - MLX Data CharTrie backend (parallel, high-throughput)
+
+### `fingerprint.py` - Tokenizer Fingerprinting
+
+Tokenizer fingerprinting for compatibility verification. Generate stable hashes of tokenizer configuration to ensure datasets and models use compatible tokenizers.
+
+```python
+from chuk_lazarus.data.tokenizers.fingerprint import (
+    # Core functions
+    compute_fingerprint,
+    verify_fingerprint,
+    assert_fingerprint,
+    # IO
+    save_fingerprint,
+    load_fingerprint,
+    fingerprint_from_json,
+    # Registry
+    FingerprintRegistry,
+    get_registry,
+    # Models
+    TokenizerFingerprint,
+    FingerprintMismatch,
+)
+
+# Compute fingerprint for a tokenizer
+from transformers import AutoTokenizer
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+fingerprint = compute_fingerprint(tokenizer)
+
+print(f"Fingerprint: {fingerprint.fingerprint}")  # Short 16-char hash
+print(f"Full hash: {fingerprint.full_hash}")       # Full SHA-256
+print(f"Vocab size: {fingerprint.vocab_size}")
+print(f"Vocab hash: {fingerprint.vocab_hash}")
+print(f"Special tokens: {fingerprint.special_tokens}")
+
+# Save fingerprint to file
+save_fingerprint(fingerprint, "tokenizer_fingerprint.json")
+
+# Load fingerprint from file
+loaded = load_fingerprint("tokenizer_fingerprint.json")
+
+# Verify tokenizer matches expected fingerprint
+mismatch = verify_fingerprint(tokenizer, fingerprint)
+if mismatch is None:
+    print("Tokenizer matches!")
+else:
+    print(f"Mismatch detected!")
+    print(f"Compatible: {mismatch.is_compatible}")
+    print(f"Warnings: {mismatch.warnings}")
+    print(f"Diff: {mismatch.diff}")
+
+# Assert tokenizer matches (raises ValueError if not)
+assert_fingerprint(tokenizer, fingerprint, strict=False)
+
+# Compare fingerprints
+fp1 = compute_fingerprint(tokenizer1)
+fp2 = compute_fingerprint(tokenizer2)
+
+if fp1.matches(fp2):
+    print("Tokenizers are identical")
+elif fp1.matches_vocab(fp2):
+    print("Vocabularies match (special tokens may differ)")
+
+diff = fp1.diff(fp2)
+# {'vocab_matches': True, 'special_tokens_match': False, ...}
+
+# Use registry for known tokenizers
+registry = get_registry()
+registry.register(
+    name="gpt2",
+    fingerprint=fingerprint,
+    aliases=["gpt2-small", "gpt-2"],
+)
+
+# Verify against registered fingerprint
+mismatch = registry.verify(tokenizer, "gpt2")
+
+# Try to identify unknown tokenizer
+matches = registry.identify(tokenizer)
+for name, fp in matches:
+    print(f"Matches: {name}")
+
+# List all registered fingerprints
+print(registry.list_all())
+```
+
+**Use Cases:**
+- **Dataset metadata**: Store fingerprint to ensure compatible tokenizer is used
+- **Model checkpoints**: Record tokenizer fingerprint alongside weights
+- **CI/CD**: Detect tokenizer changes that break compatibility
+- **Migration**: Verify new tokenizer is compatible with old
+
+**Models:**
+- `TokenizerFingerprint` - Stable fingerprint with component hashes
+- `FingerprintMismatch` - Mismatch details with compatibility assessment
+
+**Classes:**
+- `FingerprintRegistry` - Registry of known tokenizer fingerprints
+
+### `instrumentation/` - Tokenizer Instrumentation
+
+Pure observability tools for analyzing tokenization behavior without modifying the tokenizer.
+
+```python
+from chuk_lazarus.data.tokenizers.instrumentation import (
+    # Token length histograms
+    compute_length_histogram,
+    format_histogram_ascii,
+    get_length_stats,
+    # OOV and rare token analysis
+    analyze_oov,
+    find_rare_tokens,
+    get_frequency_bands,
+    # Waste metrics (padding/truncation)
+    analyze_waste,
+    analyze_padding_waste,
+    analyze_truncation_loss,
+    # Vocabulary comparison
+    compare_vocab_impact,
+    estimate_retokenization_cost,
+)
+
+# Token length histogram with ASCII visualization
+histogram = compute_length_histogram(texts, tokenizer, num_bins=20)
+print(format_histogram_ascii(histogram))
+# Output:
+# ============================================================
+# TOKEN LENGTH HISTOGRAM
+# ============================================================
+# Samples: 1000
+# Total tokens: 25000
+# Length range: 5 - 512
+# Mean: 25.0 (std: 15.3)
+# Percentiles: p10=10 p25=15 p50=22 p75=35 p90=50 p95=65 p99=100
+#     5-   30 │████████████████████████████████████████  800 ( 80.0%)
+#    30-   55 │██████████                               150 ( 15.0%)
+#    55-   80 │██                                        40 (  4.0%)
+#    80-  105 │                                          10 (  1.0%)
+
+# Quick stats without full histogram
+stats = get_length_stats(texts, tokenizer)
+print(f"Mean: {stats['mean']:.1f}, P95: {stats['p95']}")
+
+# OOV and rare token analysis
+oov_report = analyze_oov(texts, tokenizer, vocab_size=50000)
+print(f"UNK rate: {oov_report.unk_rate:.2%}")
+print(f"Singleton rate: {oov_report.singleton_rate:.2%}")
+print(f"Vocab utilization: {oov_report.vocab_utilization:.2%}")
+
+# Find rare tokens
+rare = find_rare_tokens(texts, tokenizer, max_frequency=5, top_k=20)
+for token in rare[:5]:
+    print(f"  {token.token_str}: {token.count}x ({token.band.value})")
+
+# Token frequency bands
+bands = get_frequency_bands(texts, tokenizer)
+# {TokenFrequencyBand.SINGLETON: 500, TokenFrequencyBand.RARE: 200, ...}
+
+# Padding and truncation waste analysis
+waste = analyze_waste(texts, tokenizer, max_length=512)
+print(f"Padding rate: {waste.padding.padding_rate:.1%}")
+print(f"Efficiency: {waste.padding.efficiency:.1%}")
+print(f"Truncation rate: {waste.truncation.truncation_rate:.1%}")
+print(f"Content loss: {waste.truncation.content_loss_rate:.1%}")
+print(f"Recommendations: {waste.recommendations}")
+
+# Before/after vocabulary swap analysis
+comparison = compare_vocab_impact(
+    texts,
+    old_tokenizer,
+    new_tokenizer,
+    tokenizer1_name="old",
+    tokenizer2_name="new",
+)
+print(f"Token ratio: {comparison.token_count_ratio:.2f}x")
+print(f"Training speedup: {comparison.training_speedup:.2f}x")
+print(f"Samples improved: {comparison.samples_improved}")
+
+# Retokenization cost estimate
+cost = estimate_retokenization_cost(texts, old_tokenizer, new_tokenizer)
+print(f"Vocab overlap: {cost['vocab_overlap_rate']:.1%}")
+print(f"Embedding reuse rate: {cost['embedding_reuse_rate']:.1%}")
+```
+
+**Models:**
+- `LengthHistogram` - Complete histogram with bins, percentiles, recommendations
+- `HistogramBin` - Single histogram bin with count and percentage
+- `PercentileStats` - p10, p25, p50, p75, p90, p95, p99 percentiles
+- `OOVReport` - UNK rate, singleton rate, vocab utilization, recommendations
+- `RareTokenInfo` - Token ID, string, count, frequency band
+- `PaddingStats` - Padding tokens, rate, efficiency, compute waste
+- `TruncationStats` - Truncated samples, tokens lost, severity categories
+- `WasteReport` - Combined padding + truncation analysis
+- `VocabSwapReport` - Before/after comparison with training impact
+
+**Enums:**
+- `TokenFrequencyBand` - SINGLETON, RARE, UNCOMMON, COMMON, VERY_COMMON
+
 ## Architecture Alignment
 
 This module implements the CHUK tokenization roadmap:
@@ -884,18 +1171,22 @@ This module implements the CHUK tokenization roadmap:
 | Phase 0: Baseline | `token_stats`, `validation`, `batch_processing` |
 | Phase 0: Introspection | `analyze/coverage`, `analyze/entropy` |
 | Phase 0: Regression | `regression/tests` |
+| Phase 1: Two Backends | `backends/huggingface`, `backends/fast` (MLX CharTrie) |
 | Phase 1: Control Tokens | `runtime/special_registry` |
 | Phase 1: Token↔Tool Mapping | `runtime/semantics` |
 | Phase 1: Robustness | `preprocessing/fallback` (byte fallback) |
 | Phase 2: Domain Injection | `runtime/dynamic_vocab` |
 | Phase 2: Profiles | `preprocessing/profiles` (training vs inference) |
+| Phase 2: Packing-First | `backends/` (PackedTokens output ready) |
 | Phase 3: Curriculum | `curriculum/length_buckets`, `curriculum/reasoning_density` |
 | Phase 3: Structure-Aware | `preprocessing/numeric`, `preprocessing/structure`, `preprocessing/hooks` |
+| Phase 3: Fingerprinting | `fingerprint.py` (vocab hash, compatibility verification) |
 | Phase 4: Soft Extension | `runtime/dynamic_vocab` |
 | Phase 4: Efficiency Metrics | `analyze/efficiency` (tokens per sample/step/equation/tool) |
 | Phase 5: Vocab Induction | `analyze/vocab_induction` (fragmented words, domain tokens) |
 | Phase 6: Research Playground | `research/soft_tokens`, `research/token_morphing`, `research/embedding_analysis` |
 | Phase 6: Observability | `training/throughput`, `analyze/entropy` |
+| Instrumentation | `instrumentation/histograms`, `instrumentation/oov_report`, `instrumentation/waste`, `instrumentation/vocab_diff` |
 
 ## Control Plane Token Guidelines
 
