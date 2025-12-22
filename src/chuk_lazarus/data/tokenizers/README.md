@@ -19,12 +19,12 @@ This module provides utilities for:
 - **analyze/** - Coverage, entropy, fit scoring, efficiency metrics, vocab induction
 - **curriculum/** - Token-length buckets, reasoning density scoring
 - **preprocessing/** - Pre-tokenization transforms, profiles, byte fallback
-- **runtime/** - Special token registry, dynamic vocab, semantics mapping
+- **runtime/** - Special token registry, dynamic vocab, semantics mapping, **chat templates**
 - **training/** - Sequence packing, throughput profiling
 - **regression/** - Token regression test framework
 - **research/** - Soft tokens, token morphing, embedding analysis
 - **instrumentation/** - Token histograms, OOV analysis, waste metrics, vocab comparison
-- **backends/** - Pluggable tokenizer backends (HuggingFace + fast MLX CharTrie)
+- **backends/** - Pluggable tokenizer backends (HuggingFace + fast MLX CharTrie) + benchmarking
 - **fingerprint.py** - Tokenizer fingerprinting for compatibility verification
 
 ## Design Principles
@@ -595,16 +595,23 @@ scores = sort_by_reasoning_density(texts, tokenizer)
 
 ### `runtime/` - Runtime Utilities
 
-Special token registry, dynamic vocabulary, and semantics mapping.
+Special token registry, dynamic vocabulary, semantics mapping, and **chat template management**.
 
 ```python
 from chuk_lazarus.data.tokenizers.runtime import (
+    # Special tokens
     SpecialTokenRegistry,
     TokenCategory,
     create_standard_registry,
     extend_vocab_runtime,
     map_token_to_semantic,
     SemanticDomain,
+    # Chat templates
+    ChatTemplateRegistry,
+    TemplateFormat,
+    validate_chat_template,
+    patch_chat_template,
+    suggest_template_for_model,
 )
 
 # Special token registry with collision detection
@@ -635,6 +642,36 @@ mapping = semantics.get_by_id(100)  # <LOAD_PAGE> token
 print(f"Domain: {mapping.domain}")  # SemanticDomain.MEMORY
 print(f"Operation: {mapping.operation}")  # "load"
 print(f"Full path: {mapping.full_path}")  # "memory.op.load"
+
+# ===== Chat Template Management =====
+
+# Registry of known templates
+registry = ChatTemplateRegistry()
+templates = registry.list_templates()
+for t in templates:
+    print(f"{t.format.value}: {t.description}")
+# Output: chatml, llama, phi, gemma, zephyr, vicuna, alpaca
+
+# Detect format from model name
+template = registry.get_for_model_family("Qwen/Qwen2-0.5B")
+print(f"Qwen uses: {template.format.value}")  # chatml
+
+# Validate a tokenizer's chat template
+result = validate_chat_template(tokenizer)
+print(f"Valid: {result.is_valid}")
+print(f"Format: {result.format.value}")
+print(f"Capabilities: {[c.value for c in result.capabilities]}")
+for issue in result.issues:
+    print(f"  [{issue.severity}] {issue.message}")
+
+# Patch a missing template
+patch_chat_template(tokenizer, "chatml")  # or llama, phi, gemma, etc.
+
+# Auto-detect best template from model name
+suggested = suggest_template_for_model("meta-llama/Llama-2-7b")
+if suggested:
+    patch_chat_template(tokenizer, suggested.format)
+    tokenizer.save_pretrained("./patched")
 ```
 
 **Models:**
@@ -647,6 +684,11 @@ print(f"Full path: {mapping.full_path}")  # "memory.op.load"
 - `TokenSemantics` - Semantic domain and operation mapping registry
 - `SemanticMapping` - Token to domain/operation mapping with arguments
 - `SemanticDomain` - MEMORY, TOOL, SOLVER, CONTROL, DATA, CUSTOM
+- `ChatTemplateRegistry` - Registry of known chat template formats
+- `TemplateFormat` - CHATML, LLAMA, PHI, GEMMA, ZEPHYR, VICUNA, ALPACA
+- `TemplateDefinition` - Template with format, Jinja2 string, capabilities
+- `TemplateValidationResult` - Validation result with issues and capabilities
+- `TemplateCapability` - SYSTEM_MESSAGE, MULTI_TURN, TOOL_CALLS, GENERATION_PROMPT
 
 ### `training/` - Training Utilities
 
@@ -1027,12 +1069,39 @@ print(f"Using backend: {backend.backend_type}")
 info = backend.get_info()
 print(f"Supports parallel: {info.supports_parallel}")
 print(f"Supports offsets: {info.supports_offsets}")
+
+# ===== Benchmarking =====
+from chuk_lazarus.data.tokenizers.backends import (
+    benchmark_tokenizer,
+    compare_backends,
+    generate_benchmark_corpus,
+)
+
+# Generate test corpus
+corpus = generate_benchmark_corpus(num_samples=1000, avg_length=100)
+
+# Benchmark single tokenizer
+result = benchmark_tokenizer(hf_tokenizer, corpus, num_workers=4)
+print(f"Throughput: {result.tokens_per_second:,.0f} tok/s")
+print(f"Samples/s: {result.samples_per_second:,.1f}")
+
+# Compare HuggingFace vs MLX backends
+comparison = compare_backends(hf_tokenizer, corpus, num_workers=4)
+print(comparison.summary())
+# Output:
+# HuggingFace Backend:
+#   Throughput: 50,000 tok/s
+# Fast (MLX CharTrie) Backend:
+#   Throughput: 200,000 tok/s
+# Speedup: 4.00x
 ```
 
 **Models:**
 - `TokenizationResult` - Token IDs, token strings, character offsets
 - `BatchTokenizationResult` - List of results with total token count
 - `BackendInfo` - Backend capabilities (parallel, offsets, availability)
+- `BenchmarkResult` - Throughput metrics (tokens/s, samples/s)
+- `BackendComparison` - HF vs Fast comparison with speedup ratio
 
 **Enums:**
 - `BackendType` - HUGGINGFACE (default), FAST (MLX CharTrie)

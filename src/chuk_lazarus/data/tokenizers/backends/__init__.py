@@ -4,9 +4,20 @@ Tokenizer backends for different performance profiles.
 Provides a unified interface for tokenization with multiple backend implementations:
 - huggingface: HuggingFace/SentencePiece compatible (default, portable)
 - fast: MLX Data CharTrie-based (parallel, high-throughput)
+
+Benchmark utilities:
+- benchmark_tokenizer: Measure tokenization throughput
+- compare_backends: Compare HuggingFace vs MLX performance
 """
 
 from .base import BackendType, TokenizerBackend
+from .benchmark import (
+    BackendComparison,
+    BenchmarkResult,
+    benchmark_tokenizer,
+    compare_backends,
+    generate_benchmark_corpus,
+)
 from .fast import FastBackend, is_fast_backend_available
 from .huggingface import HuggingFaceBackend
 
@@ -14,14 +25,23 @@ from .huggingface import HuggingFaceBackend
 CompatBackend = HuggingFaceBackend
 
 __all__ = [
+    # Core types
     "TokenizerBackend",
     "BackendType",
+    # Backends
     "HuggingFaceBackend",
     "CompatBackend",  # Backwards compatibility
     "FastBackend",
     "is_fast_backend_available",
+    # Factory functions
     "create_backend",
     "get_best_backend",
+    # Benchmarking
+    "BenchmarkResult",
+    "BackendComparison",
+    "benchmark_tokenizer",
+    "compare_backends",
+    "generate_benchmark_corpus",
 ]
 
 

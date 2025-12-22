@@ -80,12 +80,29 @@ uvx "chuk-lazarus[openai]" tokenizer encode -t "o200k_base" --text "Hello"    # 
 
 Supported OpenAI models: `gpt-4`, `gpt-4-turbo`, `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `o1`, `o1-mini`, `o3-mini`, and more.
 
-### Health Check & Fingerprinting
+### Tokenizer Doctor (Health Check & Auto-Fix)
 
 ```bash
 # Run comprehensive tokenizer health check
 uvx chuk-lazarus tokenizer doctor -t "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
+# Verbose output with test details
+uvx chuk-lazarus tokenizer doctor -t "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --verbose
+
+# Auto-fix missing chat template (detects format from model name)
+uvx chuk-lazarus tokenizer doctor -t "model-name" --fix
+
+# Force specific template format
+uvx chuk-lazarus tokenizer doctor -t "model-name" --fix --format chatml
+# Formats: chatml, llama, phi, gemma, zephyr, vicuna, alpaca
+
+# Save patched tokenizer to disk
+uvx chuk-lazarus tokenizer doctor -t "model-name" --fix --output ./patched-tokenizer
+```
+
+### Fingerprinting
+
+```bash
 # Generate a fingerprint (for compatibility verification)
 uvx chuk-lazarus tokenizer fingerprint -t "gpt2"
 
@@ -192,6 +209,11 @@ from chuk_lazarus.data.tokenizers.analyze import (
     calculate_fit_score,
 )
 from chuk_lazarus.data.tokenizers.fingerprint import compute_fingerprint
+from chuk_lazarus.data.tokenizers.runtime.chat_templates import (
+    ChatTemplateRegistry,
+    validate_chat_template,
+    patch_chat_template,
+)
 
 # Load any HuggingFace tokenizer
 tokenizer = load_tokenizer("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
@@ -209,6 +231,13 @@ print(f"Fit score: {fit.score}/100 ({fit.grade})")
 # Generate fingerprint for compatibility checks
 fp = compute_fingerprint(tokenizer)
 print(f"Fingerprint: {fp.fingerprint}")
+
+# Validate and patch chat templates
+result = validate_chat_template(tokenizer)
+print(f"Format: {result.format.value}, Valid: {result.is_valid}")
+
+# Patch a missing template
+patch_chat_template(tokenizer, "chatml")  # or llama, phi, gemma, etc.
 ```
 
 See the [Tokenizers README](src/chuk_lazarus/data/tokenizers/README.md) for comprehensive documentation of all analysis, preprocessing, and training utilities.
@@ -232,6 +261,8 @@ uvx chuk-lazarus infer --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --prompt "Wh
 ## Features
 
 - **Tokenizer Toolkit**: Encode, decode, analyze, compare, fingerprint, and debug any tokenizer
+- **Tokenizer Doctor**: Health check with auto-fix for missing chat templates
+- **Chat Template Registry**: 7 built-in formats (ChatML, Llama, Phi, Gemma, Zephyr, Vicuna, Alpaca)
 - **Training**: SFT, DPO, GRPO, PPO trainers with LoRA support
 - **Models**: LLaMA, Mistral, Gemma, Granite, StarCoder2, TinyLlama
 - **Analysis**: Coverage, entropy, efficiency, fit scoring, vocabulary induction
@@ -246,13 +277,13 @@ src/chuk_lazarus/
 ├── data/
 │   ├── tokenizers/         # Tokenizer toolkit
 │   │   ├── analyze/        # Coverage, entropy, fit scoring
-│   │   ├── backends/       # HuggingFace + fast MLX backends
+│   │   ├── backends/       # HuggingFace + fast MLX backends + benchmarking
 │   │   ├── curriculum/     # Length buckets, reasoning density
 │   │   ├── instrumentation/# Histograms, OOV, waste metrics
 │   │   ├── preprocessing/  # Hooks, profiles, byte fallback
 │   │   ├── regression/     # Token regression testing
 │   │   ├── research/       # Soft tokens, embedding analysis
-│   │   ├── runtime/        # Special token registry
+│   │   ├── runtime/        # Special token registry, chat templates
 │   │   └── training/       # Packing, throughput profiling
 │   └── generators/         # Synthetic data generation
 ├── models/                 # Model architectures and loading

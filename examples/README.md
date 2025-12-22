@@ -16,13 +16,17 @@ examples/
 │   ├── preprocessing_demo.py
 │   ├── regression_tests.py
 │   ├── research_playground.py
-│   └── instrumentation_demo.py
+│   ├── instrumentation_demo.py
+│   ├── backends_demo.py
+│   └── hero_doctor_demo.py     # ⭐ Hero Demo 1
 ├── inference/          # Text generation examples
 │   ├── basic_inference.py
 │   └── chat_inference.py
 ├── training/           # Model training examples
 │   ├── sft_training.py
-│   └── dpo_training.py
+│   ├── dpo_training.py
+│   ├── hero_sft_math_demo.py   # ⭐ Hero Demo 2
+│   └── hero_dpo_demo.py        # ⭐ Hero Demo 3
 ├── data/               # Data handling examples
 │   ├── generate_math_data.py
 │   └── create_sft_dataset.py
@@ -66,6 +70,52 @@ paths = generate_lazarus_dataset(
     dpo_samples=500,
 )
 ```
+
+## Hero Demos
+
+Three comprehensive demos showcasing the "small tired model resurrected" workflow:
+
+### Hero Demo 1: Tokenizer Doctor + Chat Template
+
+Health check tokenizers and auto-fix missing chat templates:
+
+```bash
+uv run python examples/tokenizer/hero_doctor_demo.py
+```
+
+Features demonstrated:
+- Comprehensive tokenizer health check
+- Chat template format detection (ChatML, Llama, Phi, Gemma, etc.)
+- Auto-patching missing templates
+- Validation and capability detection
+
+### Hero Demo 2: SFT on Synthetic Math
+
+Train TinyLlama on synthetic math with step-by-step reasoning:
+
+```bash
+uv run python examples/training/hero_sft_math_demo.py
+```
+
+Features demonstrated:
+- Synthetic math data generation
+- SFT dataset creation with chat formatting
+- LoRA training configuration
+- Inference after training
+
+### Hero Demo 3: DPO/GRPO Preference Tuning
+
+Preference tuning on puzzle outcomes:
+
+```bash
+uv run python examples/training/hero_dpo_demo.py
+```
+
+Features demonstrated:
+- Preference pair generation (chosen vs rejected)
+- DPO training configuration
+- GRPO variant for group preferences
+- Complete SFT → DPO pipeline
 
 ## Tokenizer Examples
 
