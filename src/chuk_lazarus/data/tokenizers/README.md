@@ -24,6 +24,8 @@ This module provides utilities for:
 - **regression/** - Token regression test framework
 - **research/** - Soft tokens, token morphing, embedding analysis
 - **instrumentation/** - Token histograms, OOV analysis, waste metrics, vocab comparison
+- **backends/** - Pluggable tokenizer backends (HuggingFace + fast MLX CharTrie)
+- **fingerprint.py** - Tokenizer fingerprinting for compatibility verification
 
 ## Design Principles
 
@@ -876,6 +878,191 @@ print(f"Mean similarity: {analysis.mean_pairwise_similarity:.3f}")
 - `DistanceMetric` - COSINE, EUCLIDEAN, DOT_PRODUCT
 - `ProjectionMethod` - PCA, RANDOM, CENTERED
 
+### `backends/` - Tokenizer Backends
+
+Pluggable backend architecture with multiple implementations for different performance profiles.
+
+```python
+from chuk_lazarus.data.tokenizers.backends import (
+    # Core types
+    TokenizerBackend,
+    BackendType,
+    TokenizationResult,
+    BatchTokenizationResult,
+    BackendInfo,
+    # Implementations
+    HuggingFaceBackend,
+    FastBackend,
+    # Factory functions
+    create_backend,
+    get_best_backend,
+    is_fast_backend_available,
+)
+
+# Create HuggingFace backend (default, portable)
+from transformers import AutoTokenizer
+hf_tokenizer = AutoTokenizer.from_pretrained("gpt2")
+backend = HuggingFaceBackend(hf_tokenizer)
+
+result = backend.encode("Hello, world!")
+print(f"Token IDs: {result.token_ids}")
+print(f"Tokens: {result.tokens}")
+
+# Decode back
+text = backend.decode(result.token_ids)
+
+# Access special tokens
+print(f"EOS token ID: {backend.eos_token_id}")
+print(f"Vocab size: {backend.vocab_size}")
+
+# Apply chat template (if available)
+messages = [{"role": "user", "content": "Hello"}]
+formatted = backend.apply_chat_template(messages, add_generation_prompt=True)
+
+# Create fast backend (MLX Data CharTrie, optional)
+# Install with: pip install chuk-lazarus[fast]
+if is_fast_backend_available():
+    # From HuggingFace tokenizer
+    fast = FastBackend.from_tokenizer(hf_tokenizer)
+
+    # From vocabulary dict
+    vocab = {"hello": 0, "world": 1, "<s>": 2, "</s>": 3}
+    fast = FastBackend(vocab, bos_token_id=2, eos_token_id=3)
+
+    # From SentencePiece model
+    fast = FastBackend.from_sentencepiece("model.spm")
+
+    # From vocabulary file
+    fast = FastBackend.from_vocab_file("vocab.txt")
+
+    # Parallel batch encoding (avoids Python GIL)
+    texts = ["Hello world", "How are you?", "Nice day!"]
+    batch_result = fast.encode_batch(texts, num_workers=4)
+    print(f"Total tokens: {batch_result.total_tokens}")
+    for result in batch_result.results:
+        print(f"  {result.token_ids}")
+
+# Factory function - automatically select best backend
+backend = get_best_backend(hf_tokenizer, prefer_fast=True)
+print(f"Using backend: {backend.backend_type}")
+
+# Get backend info
+info = backend.get_info()
+print(f"Supports parallel: {info.supports_parallel}")
+print(f"Supports offsets: {info.supports_offsets}")
+```
+
+**Models:**
+- `TokenizationResult` - Token IDs, token strings, character offsets
+- `BatchTokenizationResult` - List of results with total token count
+- `BackendInfo` - Backend capabilities (parallel, offsets, availability)
+
+**Enums:**
+- `BackendType` - HUGGINGFACE (default), FAST (MLX CharTrie)
+
+**Classes:**
+- `TokenizerBackend` - Protocol for tokenizer backends
+- `BaseBackend` - Abstract base class with common functionality
+- `HuggingFaceBackend` - HuggingFace-compatible backend (correctness + portability)
+- `FastBackend` - MLX Data CharTrie backend (parallel, high-throughput)
+
+### `fingerprint.py` - Tokenizer Fingerprinting
+
+Tokenizer fingerprinting for compatibility verification. Generate stable hashes of tokenizer configuration to ensure datasets and models use compatible tokenizers.
+
+```python
+from chuk_lazarus.data.tokenizers.fingerprint import (
+    # Core functions
+    compute_fingerprint,
+    verify_fingerprint,
+    assert_fingerprint,
+    # IO
+    save_fingerprint,
+    load_fingerprint,
+    fingerprint_from_json,
+    # Registry
+    FingerprintRegistry,
+    get_registry,
+    # Models
+    TokenizerFingerprint,
+    FingerprintMismatch,
+)
+
+# Compute fingerprint for a tokenizer
+from transformers import AutoTokenizer
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+fingerprint = compute_fingerprint(tokenizer)
+
+print(f"Fingerprint: {fingerprint.fingerprint}")  # Short 16-char hash
+print(f"Full hash: {fingerprint.full_hash}")       # Full SHA-256
+print(f"Vocab size: {fingerprint.vocab_size}")
+print(f"Vocab hash: {fingerprint.vocab_hash}")
+print(f"Special tokens: {fingerprint.special_tokens}")
+
+# Save fingerprint to file
+save_fingerprint(fingerprint, "tokenizer_fingerprint.json")
+
+# Load fingerprint from file
+loaded = load_fingerprint("tokenizer_fingerprint.json")
+
+# Verify tokenizer matches expected fingerprint
+mismatch = verify_fingerprint(tokenizer, fingerprint)
+if mismatch is None:
+    print("Tokenizer matches!")
+else:
+    print(f"Mismatch detected!")
+    print(f"Compatible: {mismatch.is_compatible}")
+    print(f"Warnings: {mismatch.warnings}")
+    print(f"Diff: {mismatch.diff}")
+
+# Assert tokenizer matches (raises ValueError if not)
+assert_fingerprint(tokenizer, fingerprint, strict=False)
+
+# Compare fingerprints
+fp1 = compute_fingerprint(tokenizer1)
+fp2 = compute_fingerprint(tokenizer2)
+
+if fp1.matches(fp2):
+    print("Tokenizers are identical")
+elif fp1.matches_vocab(fp2):
+    print("Vocabularies match (special tokens may differ)")
+
+diff = fp1.diff(fp2)
+# {'vocab_matches': True, 'special_tokens_match': False, ...}
+
+# Use registry for known tokenizers
+registry = get_registry()
+registry.register(
+    name="gpt2",
+    fingerprint=fingerprint,
+    aliases=["gpt2-small", "gpt-2"],
+)
+
+# Verify against registered fingerprint
+mismatch = registry.verify(tokenizer, "gpt2")
+
+# Try to identify unknown tokenizer
+matches = registry.identify(tokenizer)
+for name, fp in matches:
+    print(f"Matches: {name}")
+
+# List all registered fingerprints
+print(registry.list_all())
+```
+
+**Use Cases:**
+- **Dataset metadata**: Store fingerprint to ensure compatible tokenizer is used
+- **Model checkpoints**: Record tokenizer fingerprint alongside weights
+- **CI/CD**: Detect tokenizer changes that break compatibility
+- **Migration**: Verify new tokenizer is compatible with old
+
+**Models:**
+- `TokenizerFingerprint` - Stable fingerprint with component hashes
+- `FingerprintMismatch` - Mismatch details with compatibility assessment
+
+**Classes:**
+- `FingerprintRegistry` - Registry of known tokenizer fingerprints
+
 ### `instrumentation/` - Tokenizer Instrumentation
 
 Pure observability tools for analyzing tokenization behavior without modifying the tokenizer.
@@ -984,13 +1171,16 @@ This module implements the CHUK tokenization roadmap:
 | Phase 0: Baseline | `token_stats`, `validation`, `batch_processing` |
 | Phase 0: Introspection | `analyze/coverage`, `analyze/entropy` |
 | Phase 0: Regression | `regression/tests` |
+| Phase 1: Two Backends | `backends/huggingface`, `backends/fast` (MLX CharTrie) |
 | Phase 1: Control Tokens | `runtime/special_registry` |
 | Phase 1: Token↔Tool Mapping | `runtime/semantics` |
 | Phase 1: Robustness | `preprocessing/fallback` (byte fallback) |
 | Phase 2: Domain Injection | `runtime/dynamic_vocab` |
 | Phase 2: Profiles | `preprocessing/profiles` (training vs inference) |
+| Phase 2: Packing-First | `backends/` (PackedTokens output ready) |
 | Phase 3: Curriculum | `curriculum/length_buckets`, `curriculum/reasoning_density` |
 | Phase 3: Structure-Aware | `preprocessing/numeric`, `preprocessing/structure`, `preprocessing/hooks` |
+| Phase 3: Fingerprinting | `fingerprint.py` (vocab hash, compatibility verification) |
 | Phase 4: Soft Extension | `runtime/dynamic_vocab` |
 | Phase 4: Efficiency Metrics | `analyze/efficiency` (tokens per sample/step/equation/tool) |
 | Phase 5: Vocab Induction | `analyze/vocab_induction` (fragmented words, domain tokens) |

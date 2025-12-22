@@ -239,6 +239,9 @@ dev = [
     { name = "types-pyyaml" },
     { name = "types-tabulate" },
 ]
+fast = [
+    { name = "mlx-data" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -246,6 +249,7 @@ requires-dist = [
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "huggingface-hub", specifier = ">=0.23.0,<0.24.0" },
     { name = "mlx", specifier = ">=0.12.0" },
+    { name = "mlx-data", marker = "extra == 'fast'", specifier = ">=0.0.3" },
     { name = "mlx-lm", specifier = ">=0.12.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "numpy", specifier = ">=1.24.0" },
@@ -264,7 +268,7 @@ requires-dist = [
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.0" },
     { name = "types-tabulate", marker = "extra == 'dev'", specifier = ">=0.9.0" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["dev", "fast"]
 
 [[package]]
 name = "click"
@@ -832,6 +836,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/56/a7/49e41fb141de95b6a376091a963c737839c9cda04e423c67f57460a50458/mlx-0.30.1-cp314-cp314-macosx_26_0_arm64.whl", hash = "sha256:cfba13e2a52255d663a1ad62f0f83eb3991e42147edf9a8d38cdd224e48ca49b", size = 570406, upload-time = "2025-12-18T00:15:57.177Z" },
     { url = "https://files.pythonhosted.org/packages/73/99/a43cb112167cf865c069f5e108ae42f5314663930ff3dd86c2d23d984191/mlx-0.30.1-cp314-cp314-manylinux_2_35_aarch64.whl", hash = "sha256:bebfec377208eb29cc88aa86c897c7446aa0984838669e138f273f9225d627ff", size = 646461, upload-time = "2025-12-18T01:55:55.285Z" },
     { url = "https://files.pythonhosted.org/packages/d4/ff/1e1968f107b4221a98dc26832586b1f646b27ddf3e55c95051c09d751f0a/mlx-0.30.1-cp314-cp314-manylinux_2_35_x86_64.whl", hash = "sha256:d18012d5cf0f013bc4a405cfd1e9d2d28e798f4d2dc4f15aa0fbffff73c02ba2", size = 687114, upload-time = "2025-12-18T01:55:56.506Z" },
+]
+
+[[package]]
+name = "mlx-data"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3d/4d/96ed20a278b621eede254eb3a9221d26d0ab73563adcabc5bdf9b0609bdc/mlx_data-0.2.0-cp310-cp310-macosx_14_0_arm64.whl", hash = "sha256:3455f4126f3f4236def94d74c5268e17613cd6697a3ce0c1a7b898efcd7b824f", size = 13678656, upload-time = "2025-09-26T21:43:42.715Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/b9/4de2a30957288444eb6610172b11f7d54fdf13746ba0d2e42ba4548581cf/mlx_data-0.2.0-cp311-cp311-macosx_14_0_arm64.whl", hash = "sha256:1843222877329e08fc502144bad025cdba00dc53af4fc69af5246325e6acc843", size = 13679404, upload-time = "2025-09-26T21:43:57.697Z" },
+    { url = "https://files.pythonhosted.org/packages/71/58/43ca670c6e72c52f512ff505e23fd65bdf9b16deba2daf2b1819feac4972/mlx_data-0.2.0-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:a3054fdd898c23373856df5ccbb18d434aca0e751adcbc7ef45484f21f2c3b97", size = 13682041, upload-time = "2025-09-26T21:44:13.917Z" },
+    { url = "https://files.pythonhosted.org/packages/77/c2/ae479055fdd6bcbb53bbcfcba93d1833b743aa011a40797c054e66e8245c/mlx_data-0.2.0-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:d3113f2489ca77385d50ac09953087fa4e100927895198b8b1301970466529d2", size = 13682296, upload-time = "2025-09-26T22:17:14.715Z" },
 ]
 
 [[package]]
