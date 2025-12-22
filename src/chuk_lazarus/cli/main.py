@@ -16,6 +16,8 @@ Tokenizer Commands:
     lazarus tokenizer fingerprint -t TinyLlama/TinyLlama-1.1B-Chat-v1.0
     lazarus tokenizer fingerprint -t model --save fingerprint.json
     lazarus tokenizer fingerprint -t model --verify fingerprint.json --strict
+    lazarus tokenizer benchmark -t TinyLlama/TinyLlama-1.1B-Chat-v1.0
+    lazarus tokenizer benchmark -t model --samples 5000 --compare
     lazarus tokenizer analyze coverage -t model --file corpus.txt
     lazarus tokenizer analyze entropy -t model --file corpus.txt
     lazarus tokenizer analyze fit-score -t model --file corpus.txt
@@ -311,7 +313,6 @@ def tokenizer_doctor(args):
     from ..data.tokenizers.fingerprint import compute_fingerprint
     from ..data.tokenizers.runtime.chat_templates import (
         ChatTemplateRegistry,
-        TemplateFormat,
         patch_chat_template,
         suggest_template_for_model,
         validate_chat_template,
@@ -639,6 +640,73 @@ def tokenizer_fingerprint(args):
         print("\n  Special tokens:")
         for name, token_id in fp.special_tokens.items():
             print(f"    {name}: {token_id}")
+
+
+def tokenizer_benchmark(args):
+    """Benchmark tokenizer throughput."""
+    from ..data.tokenizers.backends.benchmark import (
+        benchmark_tokenizer,
+        compare_backends,
+        generate_benchmark_corpus,
+    )
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    # Generate or load corpus
+    if args.file:
+        logger.info(f"Loading corpus from: {args.file}")
+        with open(args.file) as f:
+            corpus = [line.strip() for line in f if line.strip()]
+        if args.samples and len(corpus) > args.samples:
+            corpus = corpus[: args.samples]
+    else:
+        logger.info(f"Generating synthetic corpus ({args.samples} samples)...")
+        corpus = generate_benchmark_corpus(
+            num_samples=args.samples,
+            avg_length=args.avg_length,
+            seed=args.seed,
+        )
+
+    print(f"\n{'=' * 60}")
+    print("Tokenizer Benchmark")
+    print(f"{'=' * 60}")
+    print(f"  Tokenizer:  {args.tokenizer}")
+    print(f"  Samples:    {len(corpus):,}")
+    print(f"  Avg length: ~{sum(len(t.split()) for t in corpus) // len(corpus)} words")
+    print(f"  Workers:    {args.workers}")
+    print()
+
+    if args.compare:
+        # Compare HuggingFace vs Fast backend
+        logger.info("Running backend comparison...")
+        comparison = compare_backends(
+            tokenizer,
+            corpus,
+            num_workers=args.workers,
+            add_special_tokens=args.special_tokens,
+        )
+        print(comparison.summary())
+    else:
+        # Single backend benchmark
+        logger.info("Running benchmark...")
+        result = benchmark_tokenizer(
+            tokenizer,
+            corpus,
+            num_workers=args.workers,
+            add_special_tokens=args.special_tokens,
+            warmup_samples=min(args.warmup, len(corpus)),
+        )
+
+        print("Results:")
+        print(f"  Backend:      {result.backend_type}")
+        print(f"  Total tokens: {result.total_tokens:,}")
+        print(f"  Time:         {result.elapsed_seconds:.2f}s")
+        print(f"  Throughput:   {result.tokens_per_second:,.0f} tokens/sec")
+        print(f"  Samples/sec:  {result.samples_per_second:,.1f}")
+        print(f"  Avg tok/sample: {result.avg_tokens_per_sample:.1f}")
+        print(f"{'=' * 60}")
 
 
 # === Tokenizer Analyze Commands ===
@@ -1635,6 +1703,34 @@ Examples:
         "--strict", action="store_true", help="Strict verification (merges must match)"
     )
     fingerprint_parser.set_defaults(func=tokenizer_fingerprint)
+
+    # Benchmark command
+    bench_parser = tok_subparsers.add_parser("benchmark", help="Benchmark tokenizer throughput")
+    bench_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    bench_parser.add_argument("--file", "-f", help="Corpus file (one text per line)")
+    bench_parser.add_argument(
+        "--samples", "-n", type=int, default=1000, help="Number of samples (default: 1000)"
+    )
+    bench_parser.add_argument(
+        "--avg-length", type=int, default=100, help="Avg words per sample for synthetic corpus"
+    )
+    bench_parser.add_argument(
+        "--seed", type=int, default=42, help="Random seed for synthetic corpus"
+    )
+    bench_parser.add_argument(
+        "--workers", "-w", type=int, default=1, help="Number of parallel workers"
+    )
+    bench_parser.add_argument("--warmup", type=int, default=10, help="Warmup samples before timing")
+    bench_parser.add_argument(
+        "--special-tokens", action="store_true", help="Add special tokens during encoding"
+    )
+    bench_parser.add_argument(
+        "--compare",
+        "-c",
+        action="store_true",
+        help="Compare HuggingFace vs Fast (MLX) backend",
+    )
+    bench_parser.set_defaults(func=tokenizer_benchmark)
 
     # === Analyze subcommands ===
     analyze_parser = tok_subparsers.add_parser("analyze", help="Token analysis tools")

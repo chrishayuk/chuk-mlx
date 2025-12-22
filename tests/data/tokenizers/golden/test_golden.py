@@ -739,8 +739,7 @@ class TestTokenizerTypeParity:
             normalized_text = " ".join(text.split())
             normalized_decoded = " ".join(decoded.split())
             assert normalized_text == normalized_decoded, (
-                f"[{fixture['model']}] Roundtrip failed for '{text}'\n"
-                f"  Decoded: '{decoded}'"
+                f"[{fixture['model']}] Roundtrip failed for '{text}'\n  Decoded: '{decoded}'"
             )
 
     def test_vocab_size(self, fixture):
@@ -780,9 +779,7 @@ class TestChatTemplateValidation:
 
         format = registry.detect_format(template)
         # TinyLlama uses Phi-style or Llama-style depending on version
-        assert format != TemplateFormat.UNKNOWN, (
-            f"Should detect known format, got {format.value}"
-        )
+        assert format != TemplateFormat.UNKNOWN, f"Should detect known format, got {format.value}"
 
     def test_chat_template_validation(self, tokenizer):
         """Verify chat template validation works."""
@@ -804,9 +801,7 @@ class TestChatTemplateValidation:
             {"role": "user", "content": "And 3+3?"},
         ]
 
-        result = tokenizer.apply_chat_template(
-            messages, add_generation_prompt=True, tokenize=False
-        )
+        result = tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
 
         # All content should appear in output
         assert "2+2" in result, "User message should appear"

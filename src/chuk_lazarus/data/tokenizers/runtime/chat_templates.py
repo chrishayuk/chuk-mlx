@@ -72,9 +72,7 @@ class TemplateValidationResult(BaseModel):
         default_factory=list, description="Detected capabilities"
     )
     issues: list[TemplateIssue] = Field(default_factory=list, description="Issues found")
-    test_outputs: dict[str, str] = Field(
-        default_factory=dict, description="Test scenario outputs"
-    )
+    test_outputs: dict[str, str] = Field(default_factory=dict, description="Test scenario outputs")
 
 
 class TemplateDefinition(BaseModel):
@@ -410,9 +408,7 @@ def validate_chat_template(
     # Validate Jinja2 syntax
     is_valid, syntax_error = validate_jinja2_syntax(template_str)
     if not is_valid:
-        issues.append(
-            TemplateIssue(severity="error", message=syntax_error or "Invalid syntax")
-        )
+        issues.append(TemplateIssue(severity="error", message=syntax_error or "Invalid syntax"))
         return TemplateValidationResult(
             is_valid=False,
             format=format,
@@ -566,11 +562,11 @@ def patch_chat_template(
         if isinstance(template_format, str):
             try:
                 template_format = TemplateFormat(template_format.lower())
-            except ValueError:
+            except ValueError as err:
                 raise ValueError(
                     f"Unknown template format: {template_format}. "
                     f"Available: {[f.value for f in TemplateFormat if f != TemplateFormat.UNKNOWN]}"
-                )
+                ) from err
         definition = registry.get_template(template_format)
     else:
         # Auto-detect based on model name

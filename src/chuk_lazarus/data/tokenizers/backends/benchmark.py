@@ -25,8 +25,6 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
-from .base import BackendType
-
 if TYPE_CHECKING:
     from ..types import TokenizerProtocol
 
@@ -54,6 +52,7 @@ class BackendComparison(BaseModel):
     speedup: float | None = Field(
         default=None, description="Fast backend speedup ratio, None if unavailable"
     )
+    fast_error: str | None = Field(default=None, description="Error message if fast backend failed")
 
     def summary(self) -> str:
         """Return human-readable summary."""
@@ -62,7 +61,7 @@ class BackendComparison(BaseModel):
             "Backend Comparison Results",
             "=" * 60,
             "",
-            f"HuggingFace Backend:",
+            "HuggingFace Backend:",
             f"  Throughput: {self.huggingface_result.tokens_per_second:,.0f} tok/s",
             f"  Samples/s:  {self.huggingface_result.samples_per_second:,.1f}",
             f"  Workers:    {self.huggingface_result.num_workers}",
@@ -72,7 +71,7 @@ class BackendComparison(BaseModel):
         if self.fast_result:
             lines.extend(
                 [
-                    f"Fast (MLX CharTrie) Backend:",
+                    "Fast (MLX CharTrie) Backend:",
                     f"  Throughput: {self.fast_result.tokens_per_second:,.0f} tok/s",
                     f"  Samples/s:  {self.fast_result.samples_per_second:,.1f}",
                     f"  Workers:    {self.fast_result.num_workers}",
@@ -80,6 +79,8 @@ class BackendComparison(BaseModel):
                     f"Speedup: {self.speedup:.2f}x" if self.speedup else "Speedup: N/A",
                 ]
             )
+        elif self.fast_error:
+            lines.append(f"Fast Backend: {self.fast_error}")
         else:
             lines.append("Fast Backend: Not available (install mlx-data)")
 
@@ -183,6 +184,7 @@ def compare_backends(
     fast_result = None
     speedup = None
 
+    fast_error: str | None = None
     if is_fast_backend_available():
         try:
             fast_backend = FastBackend.from_tokenizer(tokenizer)
@@ -195,13 +197,19 @@ def compare_backends(
 
             if hf_result.tokens_per_second > 0:
                 speedup = fast_result.tokens_per_second / hf_result.tokens_per_second
-        except Exception:
-            pass  # Fast backend initialization failed
+        except RuntimeError:
+            # CharTrie can't handle BPE tokenizers that require merge rules
+            fast_error = (
+                "Not compatible (BPE tokenizers require merge rules that CharTrie doesn't support)"
+            )
+        except Exception as e:
+            fast_error = str(e)
 
     return BackendComparison(
         huggingface_result=hf_result,
         fast_result=fast_result,
         speedup=speedup,
+        fast_error=fast_error,
     )
 
 
