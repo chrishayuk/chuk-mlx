@@ -47,6 +47,21 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/chuk_lazarus"]
 
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/README.md",
+    "/pyproject.toml",
+]
+
+[tool.hatch.build]
+include = [
+    "src/chuk_lazarus/**/*.py",
+    "src/chuk_lazarus/**/*.json",
+    "src/chuk_lazarus/**/*.yaml",
+    "src/chuk_lazarus/**/*.yml",
+]
+
 [tool.ruff]
 line-length = 100
 target-version = "py310"
@@ -95,6 +110,10 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "golden: marks tests as golden/regression tests requiring real tokenizers",
+]
 
 [tool.coverage.run]
 source = ["src/chuk_lazarus"]

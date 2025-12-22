@@ -11,7 +11,11 @@ Tokenizer Commands:
     lazarus tokenizer encode -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --text "Hello world"
     lazarus tokenizer decode -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --ids "1,2,3"
     lazarus tokenizer vocab -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --search "hello"
-    lazarus tokenizer compare -t1 model1 -t2 model2 --text "Test"
+    lazarus tokenizer compare -t1 model1 -t2 model2 --text "Test" --verbose
+    lazarus tokenizer doctor -t TinyLlama/TinyLlama-1.1B-Chat-v1.0
+    lazarus tokenizer fingerprint -t TinyLlama/TinyLlama-1.1B-Chat-v1.0
+    lazarus tokenizer fingerprint -t model --save fingerprint.json
+    lazarus tokenizer fingerprint -t model --verify fingerprint.json --strict
     lazarus tokenizer analyze coverage -t model --file corpus.txt
     lazarus tokenizer analyze entropy -t model --file corpus.txt
     lazarus tokenizer analyze fit-score -t model --file corpus.txt
@@ -261,6 +265,7 @@ def tokenizer_vocab(args):
 
 def tokenizer_compare(args):
     """Compare tokenization between two tokenizers."""
+    from ..data.tokenizers.token_display import TokenDisplayUtility
     from ..utils.tokenizer_loader import load_tokenizer
 
     logger.info(f"Loading tokenizer 1: {args.tokenizer1}")
@@ -274,15 +279,251 @@ def tokenizer_compare(args):
     ids2 = tok2.encode(text)
 
     print(f"\nText: {text}")
-    print(f"\n{args.tokenizer1}:")
+    print(f"\n{'=' * 60}")
+    print(f"{args.tokenizer1}:")
+    print(f"{'=' * 60}")
     print(f"  Token count: {len(ids1)}")
     print(f"  Token IDs: {ids1[:20]}{'...' if len(ids1) > 20 else ''}")
 
-    print(f"\n{args.tokenizer2}:")
+    if args.verbose:
+        display1 = TokenDisplayUtility(tok1)
+        display1.display_tokens_from_prompt(text, add_special_tokens=False)
+
+    print(f"\n{'=' * 60}")
+    print(f"{args.tokenizer2}:")
+    print(f"{'=' * 60}")
     print(f"  Token count: {len(ids2)}")
     print(f"  Token IDs: {ids2[:20]}{'...' if len(ids2) > 20 else ''}")
 
-    print(f"\nDifference: {len(ids1) - len(ids2):+d} tokens")
+    if args.verbose:
+        display2 = TokenDisplayUtility(tok2)
+        display2.display_tokens_from_prompt(text, add_special_tokens=False)
+
+    print(f"\n{'=' * 60}")
+    print("Summary:")
+    print(f"{'=' * 60}")
+    print(f"  Difference: {len(ids1) - len(ids2):+d} tokens")
+    print(f"  Ratio: {len(ids1) / len(ids2):.2f}x" if len(ids2) > 0 else "  Ratio: N/A")
+
+
+def tokenizer_doctor(args):
+    """Run comprehensive tokenizer health check."""
+    from ..data.tokenizers.fingerprint import compute_fingerprint
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    print(f"\n{'=' * 60}")
+    print(f"Tokenizer Doctor: {args.tokenizer}")
+    print(f"{'=' * 60}")
+
+    issues = []
+    warnings = []
+
+    # === Basic Info ===
+    print("\n--- Basic Info ---")
+    vocab = tokenizer.get_vocab()
+    print(f"  Vocab size: {len(vocab):,}")
+
+    # === Special Tokens ===
+    print("\n--- Special Tokens ---")
+
+    special_tokens = {
+        "pad_token_id": ("PAD", "Padding"),
+        "unk_token_id": ("UNK", "Unknown"),
+        "bos_token_id": ("BOS", "Beginning of Sequence"),
+        "eos_token_id": ("EOS", "End of Sequence"),
+    }
+
+    for attr, (short, desc) in special_tokens.items():
+        token_id = getattr(tokenizer, attr, None)
+        if token_id is not None:
+            # Try to get the token string
+            try:
+                if hasattr(tokenizer, "convert_ids_to_tokens"):
+                    token_str = tokenizer.convert_ids_to_tokens([token_id])[0]
+                else:
+                    token_str = tokenizer.decode([token_id])
+                print(f"  {short:4s} ({attr}): {token_id} -> {repr(token_str)}")
+            except Exception:
+                print(f"  {short:4s} ({attr}): {token_id}")
+        else:
+            msg = f"Missing {short} token ({attr})"
+            if short in ("BOS", "EOS"):
+                warnings.append(msg)
+                print(f"  {short:4s} ({attr}): NOT SET (warning)")
+            else:
+                print(f"  {short:4s} ({attr}): NOT SET")
+
+    # === Chat Template ===
+    print("\n--- Chat Template ---")
+    has_chat_template = hasattr(tokenizer, "chat_template") and tokenizer.chat_template
+    if has_chat_template:
+        template_preview = str(tokenizer.chat_template)[:100]
+        print("  Available: Yes")
+        print(f"  Preview: {template_preview}...")
+
+        # Test chat template
+        try:
+            test_messages = [{"role": "user", "content": "Hello"}]
+            result = tokenizer.apply_chat_template(
+                test_messages, add_generation_prompt=True, tokenize=False
+            )
+            print("  Test: PASS")
+            if args.verbose:
+                print(f"  Output: {result[:100]}...")
+        except Exception as e:
+            issues.append(f"Chat template error: {e}")
+            print(f"  Test: FAIL - {e}")
+    else:
+        warnings.append("No chat template defined")
+        print("  Available: No (may need manual formatting)")
+
+    # === Encode/Decode Roundtrip ===
+    print("\n--- Encode/Decode Roundtrip ---")
+    test_texts = [
+        "Hello, world!",
+        "The quick brown fox jumps over the lazy dog.",
+        "Special chars: @#$%^&*()",
+        "Unicode: 你好 🎉",
+        "Numbers: 12345 3.14159",
+    ]
+
+    roundtrip_issues = 0
+    for text in test_texts:
+        try:
+            encoded = tokenizer.encode(text, add_special_tokens=False)
+            decoded = tokenizer.decode(encoded, skip_special_tokens=True)
+            # Normalize whitespace for comparison
+            normalized_original = " ".join(text.split())
+            normalized_decoded = " ".join(decoded.split())
+
+            if normalized_original != normalized_decoded:
+                roundtrip_issues += 1
+                if args.verbose:
+                    print(f"  WARN: '{text[:30]}...' -> '{decoded[:30]}...'")
+        except Exception as e:
+            roundtrip_issues += 1
+            issues.append(f"Encode/decode error for '{text[:20]}...': {e}")
+
+    if roundtrip_issues == 0:
+        print(f"  All {len(test_texts)} tests: PASS")
+    else:
+        print(f"  Tests: {len(test_texts) - roundtrip_issues}/{len(test_texts)} PASS")
+        warnings.append(f"{roundtrip_issues} roundtrip tests had differences")
+
+    # === Fingerprint ===
+    print("\n--- Fingerprint ---")
+    try:
+        fp = compute_fingerprint(tokenizer)
+        print(f"  Fingerprint: {fp.fingerprint}")
+        print(f"  Vocab hash:  {fp.vocab_hash}")
+        if args.verbose:
+            print(f"  Full hash:   {fp.full_hash}")
+    except Exception as e:
+        issues.append(f"Fingerprint error: {e}")
+        print(f"  Error: {e}")
+
+    # === Summary ===
+    print(f"\n{'=' * 60}")
+    print("Diagnosis:")
+    print(f"{'=' * 60}")
+
+    if not issues and not warnings:
+        print("  Status: HEALTHY")
+        print("  No issues found.")
+    else:
+        if issues:
+            print(f"  Status: ISSUES FOUND ({len(issues)})")
+            for issue in issues:
+                print(f"    ERROR: {issue}")
+        if warnings:
+            print(f"  Warnings: {len(warnings)}")
+            for warning in warnings:
+                print(f"    WARN: {warning}")
+
+    if issues:
+        sys.exit(1)
+
+
+def tokenizer_fingerprint(args):
+    """Generate or verify tokenizer fingerprint."""
+    from ..data.tokenizers.fingerprint import (
+        compute_fingerprint,
+        load_fingerprint,
+        save_fingerprint,
+        verify_fingerprint,
+    )
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    # Compute fingerprint
+    fp = compute_fingerprint(tokenizer)
+
+    if args.verify:
+        # Verify against expected fingerprint
+        logger.info(f"Verifying against: {args.verify}")
+
+        if args.verify.endswith(".json"):
+            expected = load_fingerprint(args.verify)
+        else:
+            expected = args.verify  # Treat as fingerprint string
+
+        mismatch = verify_fingerprint(tokenizer, expected, strict=args.strict)
+
+        print(f"\n{'=' * 60}")
+        print("Fingerprint Verification")
+        print(f"{'=' * 60}")
+        print(f"  Tokenizer: {args.tokenizer}")
+        print(f"  Actual:    {fp.fingerprint}")
+
+        if isinstance(expected, str):
+            print(f"  Expected:  {expected}")
+        else:
+            print(f"  Expected:  {expected.fingerprint}")
+
+        if mismatch is None:
+            print("\n  Result: MATCH")
+        else:
+            print("\n  Result: MISMATCH")
+            print(f"  Compatible: {'Yes' if mismatch.is_compatible else 'No'}")
+            if mismatch.warnings:
+                print("\n  Warnings:")
+                for w in mismatch.warnings:
+                    print(f"    - {w}")
+
+            if not mismatch.is_compatible:
+                sys.exit(1)
+
+    elif args.save:
+        # Save fingerprint to file
+        save_fingerprint(fp, args.save)
+        print(f"\n{'=' * 60}")
+        print("Fingerprint Saved")
+        print(f"{'=' * 60}")
+        print(f"  Tokenizer:   {args.tokenizer}")
+        print(f"  Fingerprint: {fp.fingerprint}")
+        print(f"  Saved to:    {args.save}")
+
+    else:
+        # Just display fingerprint
+        print(f"\n{'=' * 60}")
+        print("Tokenizer Fingerprint")
+        print(f"{'=' * 60}")
+        print(f"  Tokenizer:     {args.tokenizer}")
+        print(f"  Fingerprint:   {fp.fingerprint}")
+        print(f"  Full hash:     {fp.full_hash}")
+        print(f"  Vocab size:    {fp.vocab_size:,}")
+        print(f"  Vocab hash:    {fp.vocab_hash}")
+        print(f"  Special hash:  {fp.special_tokens_hash}")
+        print(f"  Merges hash:   {fp.merges_hash}")
+
+        print("\n  Special tokens:")
+        for name, token_id in fp.special_tokens.items():
+            print(f"    {name}: {token_id}")
 
 
 # === Tokenizer Analyze Commands ===
@@ -1240,7 +1481,30 @@ Examples:
     compare_parser.add_argument("--tokenizer1", "-t1", required=True, help="First tokenizer")
     compare_parser.add_argument("--tokenizer2", "-t2", required=True, help="Second tokenizer")
     compare_parser.add_argument("--text", required=True, help="Text to compare")
+    compare_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Show full tokenization"
+    )
     compare_parser.set_defaults(func=tokenizer_compare)
+
+    # Doctor command
+    doctor_parser = tok_subparsers.add_parser("doctor", help="Run tokenizer health check")
+    doctor_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    doctor_parser.add_argument("--verbose", "-v", action="store_true", help="Show detailed output")
+    doctor_parser.set_defaults(func=tokenizer_doctor)
+
+    # Fingerprint command
+    fingerprint_parser = tok_subparsers.add_parser(
+        "fingerprint", help="Generate or verify tokenizer fingerprint"
+    )
+    fingerprint_parser.add_argument(
+        "--tokenizer", "-t", required=True, help="Tokenizer name or path"
+    )
+    fingerprint_parser.add_argument("--save", "-s", help="Save fingerprint to JSON file")
+    fingerprint_parser.add_argument("--verify", help="Verify against fingerprint (file or string)")
+    fingerprint_parser.add_argument(
+        "--strict", action="store_true", help="Strict verification (merges must match)"
+    )
+    fingerprint_parser.set_defaults(func=tokenizer_fingerprint)
 
     # === Analyze subcommands ===
     analyze_parser = tok_subparsers.add_parser("analyze", help="Token analysis tools")
