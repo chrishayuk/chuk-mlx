@@ -12,24 +12,19 @@ Uses Pydantic models for all data structures.
 from chuk_lazarus.data.tokenizers.runtime import (
     # Special token registry
     CollisionReport,
-    ReservedRange,
+    DynamicVocab,
+    # Token semantics
+    SemanticDomain,
     SpecialTokenEntry,
     SpecialTokenRegistry,
     TokenCategory,
-    check_collisions,
-    create_standard_registry,
-    get_reserved_ranges,
-    register_special_token,
-    # Dynamic vocabulary
-    DynamicVocab,
-    VocabExtension,
-    create_embedding_slot,
-    extend_vocab_runtime,
-    # Token semantics
-    SemanticDomain,
-    SemanticMapping,
     TokenSemantics,
+    check_collisions,
+    create_embedding_slot,
+    create_standard_registry,
     create_standard_semantics,
+    extend_vocab_runtime,
+    get_reserved_ranges,
     get_semantic_group,
     map_token_to_semantic,
 )
@@ -165,7 +160,7 @@ def demo_dynamic_vocab():
     ext2 = vocab.add_token("<SPECIAL_2>", tokenizer)
     ext3 = vocab.add_token("<DOMAIN_TOKEN>", tokenizer)
 
-    print(f"\nAdded tokens:")
+    print("\nAdded tokens:")
     print(f"  {ext1.token_str}: id={ext1.token_id}")
     print(f"  {ext2.token_str}: id={ext2.token_id}")
     print(f"  {ext3.token_str}: id={ext3.token_id}")
@@ -175,7 +170,7 @@ def demo_dynamic_vocab():
 
     # Get all added tokens
     all_tokens = vocab.get_all_tokens()
-    print(f"\nAll extended tokens:")
+    print("\nAll extended tokens:")
     for ext in all_tokens:
         print(f"  {ext.token_str}: {ext.token_id}")
 
@@ -278,7 +273,7 @@ def demo_token_semantics():
     # Lookup by ID
     mapping = semantics.get_by_id(50001)
     if mapping:
-        print(f"\nToken 50001:")
+        print("\nToken 50001:")
         print(f"  Domain:    {mapping.domain.value}")
         print(f"  Operation: {mapping.operation}")
         print(f"  Full path: {mapping.full_path}")
@@ -287,7 +282,7 @@ def demo_token_semantics():
     # Lookup by path
     mapping = semantics.get_by_path("memory.op.read")
     if mapping:
-        print(f"\nPath 'memory.op.read':")
+        print("\nPath 'memory.op.read':")
         print(f"  Token ID: {mapping.token_id}")
         print(f"  Domain:   {mapping.domain.value}")
 
@@ -342,7 +337,7 @@ def demo_map_token_to_semantic():
         returns="acknowledgment",
     )
 
-    print(f"\nMapped token:")
+    print("\nMapped token:")
     print(f"  ID:          {mapping.token_id}")
     print(f"  Domain:      {mapping.domain.value}")
     print(f"  Operation:   {mapping.operation}")

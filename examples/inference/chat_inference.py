@@ -4,7 +4,7 @@ Chat Inference Example
 Shows how to use chat templates for conversational inference.
 """
 
-from chuk_lazarus.models import load_model, generate_response
+from chuk_lazarus.models import generate_response, load_model
 
 
 def format_chat(messages: list, tokenizer) -> str:

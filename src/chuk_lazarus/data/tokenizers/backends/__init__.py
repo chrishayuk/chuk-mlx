@@ -45,14 +45,12 @@ def create_backend(
 
     if backend_type in (BackendType.HUGGINGFACE, BackendType.COMPAT):
         return HuggingFaceBackend(tokenizer_or_vocab)
-    elif backend_type == BackendType.FAST:
-        if not is_fast_backend_available():
-            raise ImportError(
-                "Fast backend requires mlx-data. Install with: pip install chuk-lazarus[fast]"
-            )
-        return FastBackend(tokenizer_or_vocab)
-    else:
-        raise ValueError(f"Unknown backend type: {backend_type}")
+    # backend_type == BackendType.FAST (only remaining valid value)
+    if not is_fast_backend_available():
+        raise ImportError(
+            "Fast backend requires mlx-data. Install with: pip install chuk-lazarus[fast]"
+        )
+    return FastBackend(tokenizer_or_vocab)
 
 
 def get_best_backend(

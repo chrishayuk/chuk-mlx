@@ -4,10 +4,10 @@ DPO (Direct Preference Optimization) Training Example
 Shows how to train a model using preference pairs.
 """
 
+from chuk_lazarus.data import PreferenceDataset
 from chuk_lazarus.models import load_model
 from chuk_lazarus.training import DPOTrainer, DPOTrainerConfig
 from chuk_lazarus.training.losses import DPOConfig
-from chuk_lazarus.data import PreferenceDataset
 
 
 def main():

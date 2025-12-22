@@ -4,7 +4,7 @@ Basic Inference Example
 Shows how to load a model and generate text.
 """
 
-from chuk_lazarus.models import load_model, generate_response
+from chuk_lazarus.models import generate_response, load_model
 
 
 def main():

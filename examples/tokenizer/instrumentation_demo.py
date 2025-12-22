@@ -10,21 +10,21 @@ without modifying the tokenizer itself. Useful for:
 """
 
 from chuk_lazarus.data.tokenizers.instrumentation import (
-    # Histogram tools
-    compute_length_histogram,
-    format_histogram_ascii,
-    get_length_stats,
     # OOV analysis
     analyze_oov,
-    find_rare_tokens,
-    get_frequency_bands,
-    # Waste metrics
-    analyze_waste,
     analyze_padding_waste,
     analyze_truncation_loss,
+    # Waste metrics
+    analyze_waste,
     # Vocab comparison
     compare_vocab_impact,
+    # Histogram tools
+    compute_length_histogram,
     estimate_retokenization_cost,
+    find_rare_tokens,
+    format_histogram_ascii,
+    get_frequency_bands,
+    get_length_stats,
 )
 
 
@@ -229,14 +229,14 @@ def demo_vocab_comparison():
     print(f"  WordLevel vocab size: {report.tokenizer1_vocab_size}")
     print(f"  CharLevel vocab size: {report.tokenizer2_vocab_size}")
     print(f"  Total samples: {report.total_samples}")
-    print(f"  ")
+    print("  ")
     print(f"  Tokens (WordLevel): {report.tokens1_total}")
     print(f"  Tokens (CharLevel): {report.tokens2_total}")
     print(f"  Token ratio: {report.token_count_ratio:.2f}x")
-    print(f"  ")
+    print("  ")
     print(f"  Chars/token (WordLevel): {report.chars_per_token1:.2f}")
     print(f"  Chars/token (CharLevel): {report.chars_per_token2:.2f}")
-    print(f"  ")
+    print("  ")
     print(f"  Training speedup with WordLevel: {1/report.token_count_ratio:.2f}x")
 
     if report.recommendations:

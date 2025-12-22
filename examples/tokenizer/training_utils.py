@@ -12,14 +12,11 @@ from chuk_lazarus.data.tokenizers.training import (
     # Packer
     PackedSequence,
     PackingConfig,
-    PackingStats,
-    pack_sequences,
-    calculate_packing_efficiency,
-    # Throughput
     ThroughputMetrics,
     ThroughputProfiler,
-    profile_tokenization,
     estimate_training_tokens,
+    pack_sequences,
+    profile_tokenization,
 )
 from chuk_lazarus.utils.tokenizer_loader import load_tokenizer
 
@@ -56,7 +53,7 @@ def demo_sequence_packing():
         eos_token_id=tokenizer.eos_token_id,
     )
 
-    print(f"\nPacking configuration:")
+    print("\nPacking configuration:")
     print(f"  Max sequence length: {config.max_seq_length}")
     print(f"  Padding token ID:    {config.pad_token_id}")
     print(f"  EOS token ID:        {config.eos_token_id}")
@@ -65,7 +62,7 @@ def demo_sequence_packing():
     # Pack sequences
     packed: list[PackedSequence] = pack_sequences(token_sequences, config)
 
-    print(f"\nPacking results:")
+    print("\nPacking results:")
     print(f"  Input sequences:  {len(texts)}")
     print(f"  Packed sequences: {len(packed)}")
     print(f"  Packing ratio:    {len(texts) / len(packed):.2f}x")
@@ -117,7 +114,7 @@ def demo_packing_efficiency():
     padding_tokens = sum(p.num_padding_tokens for p in packed)
     efficiency = real_tokens / total_tokens if total_tokens > 0 else 0
 
-    print(f"\nEfficiency statistics:")
+    print("\nEfficiency statistics:")
     print(f"  Total tokens:        {total_tokens}")
     print(f"  Real tokens:         {real_tokens}")
     print(f"  Padding tokens:      {padding_tokens}")
@@ -150,7 +147,7 @@ def demo_throughput_profiling():
     # Get accumulated metrics
     metrics: ThroughputMetrics = profiler.get_metrics()
 
-    print(f"\nThroughput metrics:")
+    print("\nThroughput metrics:")
     print(f"  Tokens/second:     {metrics.tokens_per_second:,.0f}")
     print(f"  Chars/second:      {metrics.chars_per_second:,.0f}")
     print(f"  Total tokens:      {metrics.total_tokens:,}")
@@ -173,7 +170,7 @@ def demo_profile_tokenization():
     # Use convenience function
     metrics = profile_tokenization(texts, tokenizer)
 
-    print(f"\nQuick profile results:")
+    print("\nQuick profile results:")
     print(f"  Throughput:      {metrics.tokens_per_second:,.0f} tokens/s")
     print(f"  Total texts:     {metrics.total_texts}")
     print(f"  Total tokens:    {metrics.total_tokens}")
@@ -200,7 +197,7 @@ def demo_estimate_training_tokens():
     # Estimate for larger dataset (sample is 10% of full dataset)
     estimate = estimate_training_tokens(sample_texts, tokenizer, epochs=1, sample_ratio=0.1)
 
-    print(f"\nTraining token estimation:")
+    print("\nTraining token estimation:")
     print(f"  Sample size:          {estimate['sample_texts']}")
     print(f"  Sample tokens:        {estimate['sample_tokens']}")
     print(f"  Avg tokens/text:      {estimate['avg_tokens_per_text']:.1f}")

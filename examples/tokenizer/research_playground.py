@@ -74,7 +74,7 @@ def demo_soft_tokens():
         description="Encourages negative output tone",
     )
 
-    print(f"Created control tokens:")
+    print("Created control tokens:")
     print(f"  - {positive.token.name}: {positive.token.description}")
     print(f"  - {negative.token.name}: {negative.token.description}")
 
@@ -121,7 +121,7 @@ def demo_token_morphing():
     linear_mid = interpolate_embeddings(e1, e2, alpha=0.5, method="linear")
     spherical_mid = interpolate_embeddings(e1, e2, alpha=0.5, method="spherical")
 
-    print(f"\nAt alpha=0.5:")
+    print("\nAt alpha=0.5:")
     print(f"  Linear midpoint norm: {np.linalg.norm(linear_mid):.4f}")
     print(f"  Spherical midpoint norm: {np.linalg.norm(spherical_mid):.4f}")
     print("  (Spherical preserves unit norm along geodesic)")
@@ -140,7 +140,7 @@ def demo_token_morphing():
     print(f"Steps: {result.num_steps}")
 
     trajectory = result.get_embeddings_array()
-    print(f"\nTrajectory norms (should all be ~1.0 for spherical):")
+    print("\nTrajectory norms (should all be ~1.0 for spherical):")
     for i, alpha in enumerate(result.alphas):
         norm = np.linalg.norm(trajectory[i])
         print(f"  alpha={alpha:.2f}: norm={norm:.4f}")
