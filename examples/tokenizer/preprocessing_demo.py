@@ -12,30 +12,24 @@ These features improve tokenization for math/reasoning and tool use.
 """
 
 from chuk_lazarus.data.tokenizers.preprocessing import (
+    # Hooks
+    HookedTokenizer,
+    # Profiles
+    ProfiledTokenizer,
+    create_inference_profile,
+    create_math_pipeline,
+    create_standard_pipeline,
+    create_tool_pipeline,
+    create_training_profile,
     # Numeric
-    NumericConfig,
     detect_numbers,
-    normalize_numbers,
-    restore_numbers,
     # Structure
-    StructureConfig,
-    StructureType,
     detect_structures,
     inject_structure_tokens,
+    normalize_numbers,
+    restore_numbers,
     restore_structures,
-    # Hooks
-    HookPipeline,
-    HookedTokenizer,
-    create_standard_pipeline,
-    create_math_pipeline,
-    create_tool_pipeline,
-    # Profiles
-    TokenizerProfile,
-    ProfiledTokenizer,
-    create_training_profile,
-    create_inference_profile,
     # Fallback
-    ByteFallbackWrapper,
     wrap_with_fallback,
 )
 from chuk_lazarus.utils.tokenizer_loader import load_tokenizer
@@ -83,7 +77,7 @@ def demo_numeric_detection():
     )
 
     savings = get_numeric_token_savings(math_text, tokenizer)
-    print(f"\n\nToken savings for math expression:")
+    print("\n\nToken savings for math expression:")
     print(f"  Original: {savings['original_tokens']} tokens")
     print(f"  Normalized: {savings['normalized_tokens']} tokens")
     print(f"  Savings: {savings['savings']} tokens ({savings['savings_percent']:.1f}%)")
@@ -131,7 +125,7 @@ def demo_hook_pipeline():
     print("Hook Pipeline")
     print("=" * 60)
 
-    tokenizer = load_tokenizer("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+    _ = load_tokenizer("TinyLlama/TinyLlama-1.1B-Chat-v1.0")  # Verify tokenizer loads
 
     # Standard pipeline
     print("\nStandard pipeline (numeric + structure):")
@@ -251,7 +245,7 @@ def demo_byte_fallback():
     for text in test_strings:
         stats = wrapper.get_fallback_stats(text)
         tokens = wrapper.encode(text, add_special_tokens=False)
-        decoded = wrapper.decode(tokens)
+        _ = wrapper.decode(tokens)  # Verify roundtrip works
 
         print(f"\n  Input:    '{text}'")
         print(f"  Tokens:   {len(tokens)}")

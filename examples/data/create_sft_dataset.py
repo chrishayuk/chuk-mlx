@@ -7,8 +7,8 @@ Shows how to create and use an SFT dataset.
 import json
 from pathlib import Path
 
-from chuk_lazarus.models import load_tokenizer
 from chuk_lazarus.data import SFTDataset
+from chuk_lazarus.models import load_tokenizer
 
 
 def create_sample_data(output_path: str):

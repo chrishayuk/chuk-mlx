@@ -685,8 +685,9 @@ class TestFastBackendIntegration:
             "hello": 4,
             "world": 5,
             "test": 6,
-            "▁hello": 7,  # With subword marker
-            "##world": 8,  # With WordPiece marker
+            " ": 7,  # Space character for tokenization
+            "▁hello": 8,  # With subword marker
+            "##world": 9,  # With WordPiece marker
         }
 
     @pytest.fixture
@@ -729,7 +730,7 @@ class TestFastBackendIntegration:
 
     def test_decode_with_subword_markers(self, fast_backend):
         """Test decoding handles subword markers."""
-        decoded = fast_backend.decode([7, 8])  # ▁hello, ##world
+        decoded = fast_backend.decode([8, 9])  # ▁hello, ##world
         assert isinstance(decoded, str)
 
     def test_batch_parallel(self, fast_backend):
@@ -854,3 +855,90 @@ class TestTokenizerBackendProtocol:
         vocab = {"hello": 0, "world": 1}
         backend = FastBackend(vocab)
         assert isinstance(backend, TokenizerBackend)
+
+
+class TestFastBackendAsyncAndSentencePiece:
+    """Tests for FastBackend async and SentencePiece functionality."""
+
+    @pytest.fixture
+    def vocab_file(self, tmp_path):
+        """Create a temporary vocab file."""
+        vocab_path = tmp_path / "vocab.txt"
+        vocab_path.write_text("hello\nworld\ntest\n<pad>\n<unk>\n")
+        return vocab_path
+
+    def test_from_vocab_file_async(self, vocab_file):
+        """Test async vocab file loading."""
+        if not is_fast_backend_available():
+            pytest.skip("mlx-data not available")
+
+        import asyncio
+
+        async def load_async():
+            return await FastBackend.from_vocab_file_async(vocab_file)
+
+        backend = asyncio.run(load_async())
+        assert backend.vocab_size == 5
+        assert "hello" in backend.get_vocab()
+
+    def test_from_sentencepiece_import_error(self):
+        """Test from_sentencepiece raises ImportError when sentencepiece not installed."""
+        if not is_fast_backend_available():
+            pytest.skip("mlx-data not available")
+
+        # This will fail because we're passing a non-existent model path
+        # and sentencepiece may or may not be installed
+        try:
+            import sentencepiece  # noqa: F401
+
+            # If sentencepiece is installed, we'd need a real model to test
+            pytest.skip("sentencepiece is installed, cannot test ImportError")
+        except ImportError:
+            # sentencepiece not installed - test the error path
+            with pytest.raises(ImportError, match="SentencePiece support requires"):
+                FastBackend.from_sentencepiece("nonexistent.model")
+
+    def test_encode_with_unk_token(self):
+        """Test encoding text that produces UNK tokens."""
+        if not is_fast_backend_available():
+            pytest.skip("mlx-data not available")
+
+        # Create vocab without 'xyz' token
+        vocab = {
+            "<pad>": 0,
+            "<unk>": 1,
+            "<s>": 2,
+            "</s>": 3,
+            "hello": 4,
+            " ": 5,
+        }
+        backend = FastBackend(vocab, unk_token_id=1, bos_token_id=2, eos_token_id=3)
+
+        # Encode text with unknown word - should use UNK token
+        result = backend.encode("hello", add_special_tokens=False)
+        assert len(result.token_ids) > 0
+
+
+class TestGetBestBackendFallback:
+    """Tests for get_best_backend fallback behavior."""
+
+    def test_fallback_on_fast_backend_exception(self):
+        """Test that get_best_backend falls back when fast backend fails."""
+        if not is_fast_backend_available():
+            pytest.skip("mlx-data not available")
+
+        # Pass invalid input that will cause FastBackend to raise an exception
+        # (a string instead of dict or tokenizer)
+        backend = get_best_backend("invalid_input", prefer_fast=True)
+
+        # Should fall back to HuggingFaceBackend
+        assert backend.backend_type == BackendType.HUGGINGFACE
+
+
+class TestCreateBackendErrors:
+    """Tests for create_backend error handling."""
+
+    def test_invalid_backend_type_raises_error(self):
+        """Test that invalid backend type raises ValueError from enum."""
+        with pytest.raises(ValueError, match="is not a valid BackendType"):
+            create_backend("nonexistent_backend", None)

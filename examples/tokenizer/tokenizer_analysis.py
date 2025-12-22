@@ -56,7 +56,7 @@ def demo_coverage_analysis():
             print(f"  - {warning}")
 
     if report.fragment_analysis:
-        print(f"\nFragment analysis:")
+        print("\nFragment analysis:")
         print(f"  Fragment ratio: {report.fragment_analysis.fragment_ratio:.2%}")
         if report.fragment_analysis.top_fragments:
             print(f"  Top fragments: {report.fragment_analysis.top_fragments[:5]}")
@@ -87,12 +87,12 @@ def demo_entropy_analysis():
     print(f"Concentration:     {report.concentration_ratio:.2%}")
 
     if report.distribution:
-        print(f"\nToken distribution:")
+        print("\nToken distribution:")
         print(f"  Unique tokens:    {report.distribution.unique_tokens}")
         print(f"  Type-token ratio: {report.distribution.type_token_ratio:.4f}")
         print(f"  Singletons:       {report.distribution.singleton_count}")
 
-        print(f"\nTop tokens:")
+        print("\nTop tokens:")
         for i, (token_id, decoded, count) in enumerate(report.distribution.top_tokens[:10]):
             print(f"  {i + 1:2}. {decoded!r:15} (id={token_id}) {count:4}")
 
@@ -164,7 +164,7 @@ def demo_tokenizer_comparison():
     # Compare using fit scores
     comparison = compare_tokenizers_for_dataset(texts, tok1, tok2)
 
-    print(f"\nFit Score Comparison:")
+    print("\nFit Score Comparison:")
     print(f"  Tokenizer 1: {comparison.tokenizer1_score.overall_score:.2%}")
     print(f"  Tokenizer 2: {comparison.tokenizer2_score.overall_score:.2%}")
     print(f"  Winner:      {comparison.winner}")

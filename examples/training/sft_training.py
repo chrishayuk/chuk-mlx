@@ -4,9 +4,9 @@ SFT (Supervised Fine-Tuning) Training Example
 Shows how to fine-tune a model on instruction-following data.
 """
 
-from chuk_lazarus.models import load_model
-from chuk_lazarus.training import SFTTrainer, SFTConfig
 from chuk_lazarus.data import SFTDataset
+from chuk_lazarus.models import load_model
+from chuk_lazarus.training import SFTConfig, SFTTrainer
 
 
 def main():

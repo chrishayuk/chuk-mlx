@@ -16,7 +16,6 @@ from chuk_lazarus.data.tokenizers.regression import (
     TestAssertion,
     TestSuiteResult,
     TokenTest,
-    TokenTestResult,
     TokenTestSuite,
     create_test_suite,
     load_tests_from_yaml,
@@ -71,7 +70,7 @@ def demo_basic_tests():
     # Run tests
     result: TestSuiteResult = run_token_tests(suite, tokenizer)
 
-    print(f"\nTest results:")
+    print("\nTest results:")
     print(f"  Total:  {result.total_tests}")
     print(f"  Passed: {result.passed}")
     print(f"  Failed: {result.failed}")
@@ -139,7 +138,7 @@ def demo_assertion_types():
     suite = TokenTestSuite(name="assertion_demo", tests=tests)
     result = run_token_tests(suite, tokenizer)
 
-    print(f"\nAssertion results:")
+    print("\nAssertion results:")
     for r in result.results:
         status = "PASS" if r.passed else "FAIL"
         print(f"  [{status}] {r.test_name}")
@@ -239,7 +238,7 @@ tests:
         # Run the tests
         result = run_token_tests(suite, tokenizer)
 
-        print(f"\nResults:")
+        print("\nResults:")
         for r in result.results:
             status = "PASS" if r.passed else "FAIL"
             print(f"  [{status}] {r.test_name}")
@@ -384,7 +383,7 @@ def demo_comprehensive_suite():
 
     result = run_token_tests(suite, tokenizer)
 
-    print(f"\nComprehensive test results:")
+    print("\nComprehensive test results:")
     print(f"  Total:  {result.total_tests}")
     print(f"  Passed: {result.passed}")
     print(f"  Failed: {result.failed}")

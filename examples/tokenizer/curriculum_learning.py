@@ -95,7 +95,7 @@ def demo_curriculum_schedule():
         texts, tokenizer, config=config, warmup_ratio=0.1, ramp_ratio=0.3
     )
 
-    print(f"\nCurriculum Schedule:")
+    print("\nCurriculum Schedule:")
     print(f"  Total buckets:  {len(schedule.buckets)}")
     print(f"  Total samples:  {schedule.total_samples}")
     print(f"  Warmup samples: {schedule.warmup_samples}")
@@ -212,7 +212,7 @@ def demo_difficulty_percentiles():
 
     percentiles = get_difficulty_percentiles(texts, tokenizer)
 
-    print(f"\nDifficulty Distribution:")
+    print("\nDifficulty Distribution:")
     print(f"  Mean:   {percentiles.mean_score:.4f}")
     print(f"  P25:    {percentiles.p25:.4f}")
     print(f"  P50:    {percentiles.p50:.4f} (median)")

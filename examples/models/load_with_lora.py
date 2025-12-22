@@ -4,7 +4,7 @@ LoRA Model Loading Example
 Shows how to load a model with LoRA adapters.
 """
 
-from chuk_lazarus.models import load_model, LoRAConfig
+from chuk_lazarus.models import LoRAConfig, load_model
 
 
 def main():
