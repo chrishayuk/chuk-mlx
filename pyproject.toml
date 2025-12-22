@@ -1,6 +1,6 @@
 [project]
 name = "chuk-lazarus"
-version = "0.2.0"
+version = "0.2.2"
 description = "MLX-based LLM training and inference with hybrid RL architecture"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -36,8 +36,12 @@ dev = [
 fast = [
     "mlx-data>=0.0.3",
 ]
+openai = [
+    "tiktoken>=0.5.0",
+]
 
 [project.scripts]
+chuk-lazarus = "chuk_lazarus.cli:main"
 lazarus = "chuk_lazarus.cli:main"
 
 [build-system]
