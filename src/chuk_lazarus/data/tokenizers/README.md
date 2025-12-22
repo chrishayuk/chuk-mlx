@@ -16,12 +16,13 @@ This module provides utilities for:
 
 ### Training Framework Submodules
 
-- **analyze/** - Coverage, entropy, fit scoring, retokenization diff
+- **analyze/** - Coverage, entropy, fit scoring, efficiency metrics, vocab induction
 - **curriculum/** - Token-length buckets, reasoning density scoring
 - **preprocessing/** - Pre-tokenization transforms, profiles, byte fallback
 - **runtime/** - Special token registry, dynamic vocab, semantics mapping
 - **training/** - Sequence packing, throughput profiling
 - **regression/** - Token regression test framework
+- **research/** - Soft tokens, token morphing, embedding analysis
 
 ## Design Principles
 
@@ -383,12 +384,13 @@ Target: 90%+ coverage per file.
 
 ### `analyze/` - Token Analysis
 
-Coverage, entropy, fit scoring, and retokenization comparison.
+Coverage, entropy, fit scoring, efficiency metrics, and retokenization comparison.
 
 ```python
 from chuk_lazarus.data.tokenizers.analyze import (
     analyze_coverage,
     analyze_entropy,
+    analyze_efficiency,
     calculate_fit_score,
     compare_tokenizers_for_dataset,
     diff_corpus,
@@ -416,6 +418,47 @@ print(f"Winner: {comparison.recommendation}")
 # Retokenization diff (compare old vs new tokenizer)
 corpus_diff = diff_corpus(texts, old_tokenizer, new_tokenizer)
 print(f"Boundary shifts: {corpus_diff.total_boundary_shifts}")
+
+# Efficiency analysis (tokens per sample, reasoning steps, equations, tool calls)
+efficiency = analyze_efficiency(texts, tokenizer)
+print(f"Efficiency score: {efficiency.efficiency_score:.1f}/100")
+print(f"Mean tokens/sample: {efficiency.sample_stats.mean:.1f}")
+print(f"P95 tokens/sample: {efficiency.sample_stats.p95:.0f}")
+print(f"Fragmentation: {efficiency.fragmentation.fragmentation_score:.1%}")
+if efficiency.reasoning_steps:
+    print(f"Tokens per reasoning step: {efficiency.reasoning_steps.mean_tokens:.1f}")
+if efficiency.equations:
+    print(f"Tokens per equation: {efficiency.equations.mean_tokens:.1f}")
+if efficiency.tool_calls:
+    print(f"Tokens per tool call: {efficiency.tool_calls.mean_tokens:.1f}")
+```
+
+```python
+# Vocabulary induction - find high-impact tokens to add
+from chuk_lazarus.data.tokenizers.analyze import (
+    analyze_vocab_induction,
+    find_fragmented_words,
+    suggest_domain_tokens,
+    TokenDomain,
+)
+
+# Analyze corpus for vocabulary suggestions
+report = analyze_vocab_induction(texts, tokenizer)
+print(f"Total potential savings: {report.total_potential_savings:,} tokens")
+print(f"Savings percent: {report.savings_percent:.1f}%")
+for candidate in report.candidates[:5]:
+    print(f"  {candidate.token_str}: {candidate.total_savings} tokens saved")
+print(f"Recommendations: {report.recommendations}")
+
+# Find fragmented words (strings that split into many tokens)
+fragmented = find_fragmented_words(texts, tokenizer)
+for word in fragmented[:5]:
+    print(f"  {word.token_str}: {word.current_tokens} → 1 token ({word.savings_per_occurrence} saved)")
+
+# Get domain-specific token suggestions
+domain_tokens = suggest_domain_tokens(texts, tokenizer, [TokenDomain.MATH, TokenDomain.CODE])
+for token in domain_tokens:
+    print(f"  {token.domain.value}: {token.token_str}")
 ```
 
 **Models:**
@@ -423,6 +466,13 @@ print(f"Boundary shifts: {corpus_diff.total_boundary_shifts}")
 - `EntropyReport` - Shannon entropy, normalized entropy, perplexity
 - `FitScore` - Coverage, compression, entropy scores with recommendation
 - `RetokenizationDiff` - Token boundary shifts and content changes
+- `EfficiencyReport` - Tokens per sample/step/equation/tool, fragmentation score
+- `SampleStats` - Mean, median, percentiles for token counts
+- `ContentTypeStats` - Tokens per content type (reasoning, equations, tools)
+- `FragmentationStats` - Fragmentation analysis with worst words
+- `InductionReport` - Vocabulary induction analysis with candidates and recommendations
+- `TokenCandidate` - Token suggestion with frequency, savings, domain, priority
+- `DomainVocab` - Pre-defined domain vocabulary (MATH, CODE, TOOL)
 
 ### `curriculum/` - Curriculum Learning
 
@@ -713,6 +763,118 @@ tests:
 - `TokenTestSuite` - Collection of tests
 - `TestAssertion` - MAX_TOKENS, EXACT_TOKENS, ROUNDTRIP_LOSSLESS, etc.
 
+### `research/` - Experimental Tokenization
+
+Research playground for soft tokens, embedding manipulation, and embedding analysis.
+
+```python
+from chuk_lazarus.data.tokenizers.research import (
+    # Soft tokens (learnable embeddings)
+    SoftTokenBank,
+    SoftTokenConfig,
+    InitializationMethod,
+    create_soft_token,
+    create_prompt_tuning_bank,
+    create_control_token,
+    interpolate_embeddings,
+    # Token morphing
+    MorphConfig,
+    MorphMethod,
+    morph_token,
+    blend_tokens,
+    BlendMode,
+    # Embedding analysis
+    find_nearest_neighbors,
+    cluster_tokens,
+    project_embeddings,
+    find_analogies,
+    analyze_embeddings,
+)
+
+# Create soft prompt tokens for prompt tuning
+bank = create_prompt_tuning_bank(
+    num_tokens=10,
+    embedding_dim=768,
+    prefix="task",
+)
+print(f"Created {len(bank.tokens)} soft tokens")
+embeddings_matrix = bank.get_embeddings_matrix()  # (10, 768)
+
+# Create control tokens for style transfer
+positive_ctrl = create_control_token("positive_sentiment", embedding_dim=768)
+negative_ctrl = create_control_token("negative_sentiment", embedding_dim=768)
+
+# Interpolate between embeddings
+import numpy as np
+e1 = np.random.randn(768)
+e2 = np.random.randn(768)
+midpoint = interpolate_embeddings(e1, e2, alpha=0.5, method="spherical")
+
+# Morph between token embeddings (for visualization)
+config = MorphConfig(method=MorphMethod.SPHERICAL, num_steps=20)
+morph_result = morph_token(e1, e2, "start", "end", config)
+print(f"Path length: {morph_result.num_steps} steps")
+trajectory = morph_result.get_embeddings_array()  # (20, 768)
+
+# Blend multiple tokens
+blended = blend_tokens(
+    [e1, e2, np.random.randn(768)],
+    ["token1", "token2", "token3"],
+    weights=[0.5, 0.3, 0.2],
+    mode=BlendMode.WEIGHTED,
+)
+
+# Analyze embedding space
+embeddings = np.random.randn(1000, 768)
+token_ids = list(range(1000))
+token_strs = [f"token_{i}" for i in range(1000)]
+
+# Find nearest neighbors
+neighbors = find_nearest_neighbors(
+    embeddings[0], embeddings, token_ids, token_strs, k=10
+)
+for n in neighbors[:3]:
+    print(f"  {n.token_str}: similarity={n.similarity:.3f}")
+
+# Cluster tokens
+clusters = cluster_tokens(embeddings, token_ids, token_strs, num_clusters=10)
+for c in clusters[:3]:
+    print(f"  Cluster {c.cluster_id}: {c.size} tokens")
+
+# Project to 2D for visualization
+projection = project_embeddings(embeddings, token_ids, token_strs, dim=2)
+coords = projection.get_coordinates_array()  # (1000, 2)
+
+# Find analogies (a:b :: c:?)
+# king - man + woman = queen
+analogy_results = find_analogies(embeddings, token_ids, token_strs, a_idx=0, b_idx=1, c_idx=2)
+
+# Comprehensive embedding analysis
+analysis = analyze_embeddings(embeddings)
+print(f"Isotropy: {analysis.isotropy_score:.2f}")
+print(f"Mean similarity: {analysis.mean_pairwise_similarity:.3f}")
+```
+
+**Models:**
+- `SoftToken` - Soft token metadata (name, ID, config)
+- `SoftTokenEmbedding` - Soft token with embedding vector
+- `SoftTokenBank` - Collection of soft tokens with management
+- `SoftTokenConfig` - Configuration for soft token creation
+- `MorphResult` - Token morphing trajectory with embeddings
+- `MorphSequence` - Multi-token morphing sequence
+- `TokenBlend` - Blended token result
+- `NeighborInfo` - Nearest neighbor with distance/similarity
+- `ClusterInfo` - Cluster with centroid and members
+- `ProjectionResult` - Dimensionality reduction result
+- `EmbeddingAnalysis` - Comprehensive embedding space metrics
+
+**Enums:**
+- `InitializationMethod` - RANDOM_NORMAL, RANDOM_UNIFORM, FROM_TOKENS, ZEROS, ONES
+- `MorphMethod` - LINEAR, SPHERICAL, BEZIER, CUBIC
+- `BlendMode` - AVERAGE, WEIGHTED, GEOMETRIC, ATTENTION
+- `DistanceMetric` - COSINE, EUCLIDEAN, DOT_PRODUCT
+- `ProjectionMethod` - PCA, RANDOM, CENTERED
+
 ## Architecture Alignment
 
 This module implements the CHUK tokenization roadmap:
@@ -730,6 +892,9 @@ This module implements the CHUK tokenization roadmap:
 | Phase 3: Curriculum | `curriculum/length_buckets`, `curriculum/reasoning_density` |
 | Phase 3: Structure-Aware | `preprocessing/numeric`, `preprocessing/structure`, `preprocessing/hooks` |
 | Phase 4: Soft Extension | `runtime/dynamic_vocab` |
+| Phase 4: Efficiency Metrics | `analyze/efficiency` (tokens per sample/step/equation/tool) |
+| Phase 5: Vocab Induction | `analyze/vocab_induction` (fragmented words, domain tokens) |
+| Phase 6: Research Playground | `research/soft_tokens`, `research/token_morphing`, `research/embedding_analysis` |
 | Phase 6: Observability | `training/throughput`, `analyze/entropy` |
 
 ## Control Plane Token Guidelines

@@ -15,11 +15,16 @@ Tokenizer Commands:
     lazarus tokenizer analyze coverage -t model --file corpus.txt
     lazarus tokenizer analyze entropy -t model --file corpus.txt
     lazarus tokenizer analyze fit-score -t model --file corpus.txt
+    lazarus tokenizer analyze efficiency -t model --file corpus.txt
+    lazarus tokenizer analyze vocab-suggest -t model --file corpus.txt
     lazarus tokenizer curriculum length-buckets -t model --file corpus.txt
     lazarus tokenizer curriculum reasoning-density -t model --file corpus.txt
     lazarus tokenizer training throughput -t model --file corpus.txt
     lazarus tokenizer training pack -t model --file corpus.txt --max-length 512
     lazarus tokenizer regression run -t model --tests tests.yaml
+    lazarus tokenizer research soft-tokens -n 10 -d 768 --prefix task
+    lazarus tokenizer research analyze-embeddings -f embeddings.json --cluster
+    lazarus tokenizer research morph -f embeddings.json -s 0 -t 1 --method spherical
 """
 
 import argparse
@@ -391,6 +396,112 @@ def analyze_fit_score(args):
             print(f"  {key}: {val}")
 
 
+def analyze_efficiency(args):
+    """Analyze token efficiency metrics."""
+    from ..data.tokenizers.analyze import analyze_efficiency as do_analyze
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    texts = _load_texts(args)
+    if not texts:
+        logger.error("No texts provided")
+        return
+
+    logger.info(f"Analyzing efficiency on {len(texts)} texts...")
+    report = do_analyze(texts, tokenizer)
+
+    print("\n=== Efficiency Report ===")
+    print(f"Efficiency Score:  {report.efficiency_score:.1f}/100")
+
+    print("\n--- Sample Statistics ---")
+    print(f"Samples:           {report.sample_stats.count:,}")
+    print(f"Total tokens:      {report.sample_stats.total_tokens:,}")
+    print(f"Mean tokens:       {report.sample_stats.mean:.1f}")
+    print(f"Median tokens:     {report.sample_stats.median:.1f}")
+    print(f"Std dev:           {report.sample_stats.std:.1f}")
+    print(f"P5/P95:            {report.sample_stats.p5:.0f} / {report.sample_stats.p95:.0f}")
+    print(f"Min/Max:           {report.sample_stats.min_tokens} / {report.sample_stats.max_tokens}")
+
+    if report.reasoning_steps:
+        print("\n--- Reasoning Steps ---")
+        print(f"Count:             {report.reasoning_steps.count}")
+        print(f"Mean tokens:       {report.reasoning_steps.mean_tokens:.1f}")
+
+    if report.equations:
+        print("\n--- Equations ---")
+        print(f"Count:             {report.equations.count}")
+        print(f"Mean tokens:       {report.equations.mean_tokens:.1f}")
+
+    if report.tool_calls:
+        print("\n--- Tool Calls ---")
+        print(f"Count:             {report.tool_calls.count}")
+        print(f"Mean tokens:       {report.tool_calls.mean_tokens:.1f}")
+
+    print("\n--- Fragmentation ---")
+    print(f"Score:             {report.fragmentation.fragmentation_score:.1%}")
+    print(f"Single-char:       {report.fragmentation.single_char_tokens:,}")
+    print(f"Subword:           {report.fragmentation.subword_tokens:,}")
+
+    if report.fragmentation.fragmented_words:
+        print("\nMost fragmented words:")
+        for word in report.fragmentation.fragmented_words[:5]:
+            print(f"  {word['word']}: {word['tokens']} tokens")
+
+    if report.recommendations:
+        print("\n--- Recommendations ---")
+        for rec in report.recommendations:
+            print(f"  - {rec}")
+
+
+def analyze_vocab_suggest(args):
+    """Suggest vocabulary additions based on corpus analysis."""
+    from ..data.tokenizers.analyze import InductionConfig, analyze_vocab_induction
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    texts = _load_texts(args)
+    if not texts:
+        logger.error("No texts provided")
+        return
+
+    config = InductionConfig(
+        min_frequency=args.min_freq,
+        min_fragmentation=args.min_frag,
+        max_candidates=args.limit,
+    )
+
+    logger.info(f"Analyzing vocabulary on {len(texts)} texts...")
+    report = analyze_vocab_induction(texts, tokenizer, config)
+
+    print("\n=== Vocabulary Induction Report ===")
+    print(f"Candidates found:     {report.total_candidates}")
+    print(f"Potential savings:    {report.total_potential_savings:,} tokens")
+    print(f"Savings percent:      {report.savings_percent:.1f}%")
+
+    if report.domain_breakdown:
+        print("\nBy domain:")
+        for domain, count in sorted(report.domain_breakdown.items()):
+            print(f"  {domain}: {count}")
+
+    print(f"\nTop {min(args.show, len(report.candidates))} candidates:")
+    print("-" * 70)
+    print(f"{'Token':<30} {'Freq':>8} {'Tokens':>8} {'Savings':>10}")
+    print("-" * 70)
+
+    for c in report.candidates[: args.show]:
+        token_display = repr(c.token_str)[:28]
+        print(f"{token_display:<30} {c.frequency:>8} {c.current_tokens:>8} {c.total_savings:>10}")
+
+    if report.recommendations:
+        print("\n--- Recommendations ---")
+        for rec in report.recommendations:
+            print(f"  - {rec}")
+
+
 def analyze_diff(args):
     """Compare tokenization between two tokenizers on a corpus."""
     from ..data.tokenizers.analyze import diff_corpus
@@ -590,6 +701,187 @@ def regression_run(args):
         print("\nAll tests passed!")
 
 
+# === Research Commands ===
+
+
+def research_soft_tokens(args):
+    """Create and display soft token bank."""
+    from ..data.tokenizers.research import (
+        InitializationMethod,
+        create_prompt_tuning_bank,
+    )
+
+    init_method = InitializationMethod(args.init_method)
+
+    bank = create_prompt_tuning_bank(
+        num_tokens=args.num_tokens,
+        embedding_dim=args.embedding_dim,
+        prefix=args.prefix,
+        init_method=init_method,
+        init_std=args.init_std,
+    )
+
+    print("\n=== Soft Token Bank ===")
+    print(f"Name:           {bank.name}")
+    print(f"Embedding dim:  {bank.embedding_dim}")
+    print(f"Num tokens:     {len(bank.tokens)}")
+    print(f"Init method:    {init_method.value}")
+    print("\nTokens:")
+
+    import numpy as np
+
+    for token in bank.tokens:
+        emb = token.embedding_array
+        norm = np.linalg.norm(emb)
+        print(f"  {token.token.name} (ID: {token.token.token_id})")
+        print(f"    Norm: {norm:.4f}, Mean: {emb.mean():.4f}, Std: {emb.std():.4f}")
+
+    if args.output:
+        import json
+
+        output_data = {
+            "name": bank.name,
+            "embedding_dim": bank.embedding_dim,
+            "tokens": [
+                {
+                    "name": t.token.name,
+                    "token_id": t.token.token_id,
+                    "embedding": t.embedding,
+                }
+                for t in bank.tokens
+            ],
+        }
+        with open(args.output, "w") as f:
+            json.dump(output_data, f, indent=2)
+        print(f"\nSaved to: {args.output}")
+
+
+def research_analyze_embeddings(args):
+    """Analyze embedding space from a file."""
+    import json
+
+    import numpy as np
+
+    from ..data.tokenizers.research import (
+        analyze_embeddings,
+        cluster_tokens,
+        project_embeddings,
+    )
+
+    # Load embeddings from file
+    logger.info(f"Loading embeddings from: {args.file}")
+    with open(args.file) as f:
+        data = json.load(f)
+
+    if "embeddings" in data:
+        embeddings = np.array(data["embeddings"], dtype=np.float32)
+        token_ids = data.get("token_ids", list(range(len(embeddings))))
+        token_strs = data.get("token_strs", [f"token_{i}" for i in range(len(embeddings))])
+    else:
+        logger.error("File must contain 'embeddings' key")
+        return
+
+    print("\n=== Embedding Analysis ===")
+    analysis = analyze_embeddings(embeddings, num_clusters=args.num_clusters)
+
+    print(f"Num tokens:      {analysis.num_tokens}")
+    print(f"Embedding dim:   {analysis.embedding_dim}")
+    print(f"Mean norm:       {analysis.mean_norm:.4f}")
+    print(f"Norm std:        {analysis.std_norm:.4f}")
+    print(f"Isotropy:        {analysis.isotropy_score:.4f}")
+    print(f"Mean similarity: {analysis.mean_pairwise_similarity:.4f}")
+    if analysis.silhouette_score is not None:
+        print(f"Silhouette:      {analysis.silhouette_score:.4f}")
+
+    if args.cluster:
+        print(f"\n=== Clustering ({args.num_clusters} clusters) ===")
+        clusters = cluster_tokens(embeddings, token_ids, token_strs, args.num_clusters)
+        for c in clusters:
+            sample = c.token_strs[:3]
+            print(f"  Cluster {c.cluster_id}: {c.size} tokens")
+            print(f"    Intra-dist: {c.intra_cluster_distance:.4f}")
+            print(f"    Sample: {sample}")
+
+    if args.project:
+        print("\n=== 2D Projection ===")
+        projection = project_embeddings(embeddings, token_ids, token_strs, dim=2)
+        print(f"Variance explained: {sum(projection.explained_variance_ratio):.2%}")
+        coords = projection.get_coordinates_array()
+        print(f"X range: [{coords[:, 0].min():.2f}, {coords[:, 0].max():.2f}]")
+        print(f"Y range: [{coords[:, 1].min():.2f}, {coords[:, 1].max():.2f}]")
+
+
+def research_morph(args):
+    """Morph between token embeddings."""
+    import json
+
+    import numpy as np
+
+    from ..data.tokenizers.research import (
+        MorphConfig,
+        MorphMethod,
+        compute_path_length,
+        compute_straightness,
+        morph_token,
+    )
+
+    # Load embeddings
+    with open(args.file) as f:
+        data = json.load(f)
+
+    embeddings = np.array(data["embeddings"], dtype=np.float32)
+    token_strs = data.get("token_strs", [f"token_{i}" for i in range(len(embeddings))])
+
+    if args.source >= len(embeddings) or args.target >= len(embeddings):
+        logger.error(f"Source/target index out of range (max: {len(embeddings) - 1})")
+        return
+
+    method = MorphMethod(args.method)
+    config = MorphConfig(
+        method=method,
+        num_steps=args.steps,
+        include_endpoints=True,
+        normalize_output=args.normalize,
+    )
+
+    source_emb = embeddings[args.source]
+    target_emb = embeddings[args.target]
+
+    result = morph_token(
+        source_emb,
+        target_emb,
+        token_strs[args.source],
+        token_strs[args.target],
+        config,
+    )
+
+    print("\n=== Token Morphing ===")
+    print(f"Source:      {result.source_token}")
+    print(f"Target:      {result.target_token}")
+    print(f"Method:      {result.method.value}")
+    print(f"Steps:       {result.num_steps}")
+    print(f"Path length: {compute_path_length(result):.4f}")
+    print(f"Straightness: {compute_straightness(result):.4f}")
+
+    trajectory = result.get_embeddings_array()
+    print("\nTrajectory norms:")
+    for i, alpha in enumerate(result.alphas):
+        norm = np.linalg.norm(trajectory[i])
+        print(f"  alpha={alpha:.2f}: norm={norm:.4f}")
+
+    if args.output:
+        output_data = {
+            "source": result.source_token,
+            "target": result.target_token,
+            "method": result.method.value,
+            "alphas": result.alphas,
+            "embeddings": result.embeddings,
+        }
+        with open(args.output, "w") as f:
+            json.dump(output_data, f, indent=2)
+        print(f"\nSaved trajectory to: {args.output}")
+
+
 # === Runtime Commands ===
 
 
@@ -773,6 +1065,26 @@ Examples:
     diff_parser.add_argument("--file", "-f", help="Input file (one text per line)")
     diff_parser.set_defaults(func=analyze_diff)
 
+    # Efficiency analysis
+    eff_parser = analyze_subparsers.add_parser(
+        "efficiency", help="Analyze token efficiency metrics"
+    )
+    eff_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    eff_parser.add_argument("--file", "-f", help="Input file (one text per line)")
+    eff_parser.set_defaults(func=analyze_efficiency)
+
+    # Vocab suggestion
+    vocab_parser = analyze_subparsers.add_parser(
+        "vocab-suggest", help="Suggest vocabulary additions"
+    )
+    vocab_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    vocab_parser.add_argument("--file", "-f", help="Input file (one text per line)")
+    vocab_parser.add_argument("--min-freq", type=int, default=5, help="Minimum frequency")
+    vocab_parser.add_argument("--min-frag", type=int, default=3, help="Minimum fragmentation")
+    vocab_parser.add_argument("--limit", type=int, default=50, help="Maximum candidates")
+    vocab_parser.add_argument("--show", type=int, default=20, help="Number to display")
+    vocab_parser.set_defaults(func=analyze_vocab_suggest)
+
     # === Curriculum subcommands ===
     curr_parser = tok_subparsers.add_parser("curriculum", help="Curriculum learning tools")
     curr_subparsers = curr_parser.add_subparsers(dest="curriculum_command", help="Curriculum type")
@@ -841,6 +1153,60 @@ Examples:
     registry_parser.add_argument("--tokenizer", "-t", help="Tokenizer name or path")
     registry_parser.add_argument("--standard", action="store_true", help="Show standard registry")
     registry_parser.set_defaults(func=runtime_registry)
+
+    # === Research subcommands ===
+    research_parser = tok_subparsers.add_parser("research", help="Research playground tools")
+    research_subparsers = research_parser.add_subparsers(
+        dest="research_command", help="Research tool"
+    )
+
+    # Soft tokens
+    soft_parser = research_subparsers.add_parser(
+        "soft-tokens", help="Create soft token bank for prompt tuning"
+    )
+    soft_parser.add_argument(
+        "--num-tokens", "-n", type=int, default=10, help="Number of soft tokens"
+    )
+    soft_parser.add_argument(
+        "--embedding-dim", "-d", type=int, default=768, help="Embedding dimension"
+    )
+    soft_parser.add_argument("--prefix", "-p", default="prompt", help="Token name prefix")
+    soft_parser.add_argument(
+        "--init-method",
+        choices=["random_normal", "random_uniform", "zeros"],
+        default="random_normal",
+        help="Initialization method",
+    )
+    soft_parser.add_argument("--init-std", type=float, default=0.02, help="Std dev for random init")
+    soft_parser.add_argument("--output", "-o", help="Save bank to JSON file")
+    soft_parser.set_defaults(func=research_soft_tokens)
+
+    # Analyze embeddings
+    emb_parser = research_subparsers.add_parser(
+        "analyze-embeddings", help="Analyze embedding space"
+    )
+    emb_parser.add_argument("--file", "-f", required=True, help="JSON file with embeddings")
+    emb_parser.add_argument("--num-clusters", "-k", type=int, default=10, help="Number of clusters")
+    emb_parser.add_argument("--cluster", action="store_true", help="Show cluster analysis")
+    emb_parser.add_argument("--project", action="store_true", help="Show 2D projection stats")
+    emb_parser.set_defaults(func=research_analyze_embeddings)
+
+    # Morph
+    morph_parser = research_subparsers.add_parser("morph", help="Morph between token embeddings")
+    morph_parser.add_argument("--file", "-f", required=True, help="JSON file with embeddings")
+    morph_parser.add_argument("--source", "-s", type=int, required=True, help="Source token index")
+    morph_parser.add_argument("--target", "-t", type=int, required=True, help="Target token index")
+    morph_parser.add_argument(
+        "--method",
+        "-m",
+        choices=["linear", "spherical", "bezier", "cubic"],
+        default="linear",
+        help="Morph method",
+    )
+    morph_parser.add_argument("--steps", type=int, default=10, help="Number of steps")
+    morph_parser.add_argument("--normalize", action="store_true", help="Normalize output")
+    morph_parser.add_argument("--output", "-o", help="Save trajectory to JSON")
+    morph_parser.set_defaults(func=research_morph)
 
     return parser
 

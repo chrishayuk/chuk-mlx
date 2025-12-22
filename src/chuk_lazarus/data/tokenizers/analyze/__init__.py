@@ -6,6 +6,7 @@ Modules:
 - entropy: Token entropy and distribution analysis
 - fit_score: Dataset-tokenizer compatibility scoring
 - diff: Retokenization comparison tools
+- efficiency: Token efficiency metrics
 """
 
 from .coverage import (
@@ -23,6 +24,17 @@ from .diff import (
     compare_tokenizations_detailed,
     diff_corpus,
 )
+from .efficiency import (
+    ContentTypeStats,
+    EfficiencyConfig,
+    EfficiencyReport,
+    FragmentationStats,
+    SampleStats,
+    analyze_content_type,
+    analyze_efficiency,
+    analyze_fragmentation,
+    analyze_sample_stats,
+)
 from .entropy import (
     EntropyReport,
     TokenDistribution,
@@ -36,6 +48,19 @@ from .fit_score import (
     TokenizerComparison,
     calculate_fit_score,
     compare_tokenizers_for_dataset,
+)
+from .vocab_induction import (
+    DomainVocab,
+    InductionConfig,
+    InductionReport,
+    TokenCandidate,
+    TokenDomain,
+    analyze_vocab_induction,
+    find_fragmented_words,
+    find_frequent_ngrams,
+    get_domain_vocab,
+    list_domain_vocabs,
+    suggest_domain_tokens,
 )
 
 __all__ = [
@@ -64,4 +89,26 @@ __all__ = [
     "TokenBoundaryShift",
     "compare_tokenizations_detailed",
     "diff_corpus",
+    # Efficiency
+    "EfficiencyConfig",
+    "EfficiencyReport",
+    "SampleStats",
+    "ContentTypeStats",
+    "FragmentationStats",
+    "analyze_efficiency",
+    "analyze_sample_stats",
+    "analyze_content_type",
+    "analyze_fragmentation",
+    # Vocab induction
+    "InductionConfig",
+    "InductionReport",
+    "TokenCandidate",
+    "TokenDomain",
+    "DomainVocab",
+    "analyze_vocab_induction",
+    "find_fragmented_words",
+    "find_frequent_ngrams",
+    "suggest_domain_tokens",
+    "get_domain_vocab",
+    "list_domain_vocabs",
 ]

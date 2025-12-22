@@ -9,8 +9,13 @@ examples/
 ├── tokenizer/          # Tokenization examples
 │   ├── basic_tokenization.py
 │   ├── custom_tokenizer.py
+│   ├── tokenizer_analysis.py
+│   ├── curriculum_learning.py
+│   ├── runtime_vocab.py
+│   ├── training_utils.py
 │   ├── preprocessing_demo.py
-│   └── regression_tests.py
+│   ├── regression_tests.py
+│   └── research_playground.py
 ├── inference/          # Text generation examples
 │   ├── basic_inference.py
 │   └── chat_inference.py
@@ -85,6 +90,21 @@ Run tokenizer regression tests:
 ```bash
 uv run python examples/tokenizer/regression_tests.py
 ```
+
+### Research Playground
+
+Demonstrates experimental tokenization techniques:
+
+```bash
+uv run python examples/tokenizer/research_playground.py
+```
+
+Features demonstrated:
+- **Soft tokens** - Learnable embeddings for prompt tuning and controllable generation
+- **Token morphing** - Linear, spherical, bezier, cubic interpolation between embeddings
+- **Token blending** - Average, weighted, geometric, attention-based blending
+- **Embedding analysis** - Nearest neighbors, clustering, PCA projection, analogies
+- **Quality metrics** - Isotropy, silhouette score, pairwise similarity
 
 ## Running Examples
 
