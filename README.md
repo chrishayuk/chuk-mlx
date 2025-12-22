@@ -26,19 +26,22 @@ uv add chuk-lazarus
 # Or with pip
 pip install chuk-lazarus
 
+# For OpenAI tokenizers (gpt-4, gpt-3.5-turbo, o1, etc.)
+uv add "chuk-lazarus[openai]"
+
 # For faster tokenization (optional MLX backend)
 uv add "chuk-lazarus[fast]"
 ```
 
-After installation, use the `lazarus` command directly:
+After installation, use the `chuk-lazarus` command directly:
 
 ```bash
-lazarus tokenizer encode -t gpt2 --text "Hello"
+chuk-lazarus tokenizer encode -t "gpt2" --text "Hello"
 ```
 
 ## Tokenizer CLI
 
-The tokenizer CLI is a comprehensive toolkit for inspecting, analyzing, and debugging tokenizers. All commands work with any HuggingFace tokenizer.
+The tokenizer CLI is a comprehensive toolkit for inspecting, analyzing, and debugging tokenizers. Supports HuggingFace tokenizers and OpenAI/tiktoken models.
 
 ### Basic Commands
 
@@ -55,6 +58,27 @@ uvx chuk-lazarus tokenizer vocab -t "gpt2" --search "hello"
 # Show vocabulary statistics
 uvx chuk-lazarus tokenizer vocab -t "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 ```
+
+### OpenAI Tokenizers
+
+Analyze OpenAI models using tiktoken (requires `chuk-lazarus[openai]`):
+
+```bash
+# Encode with GPT-4's tokenizer
+uvx "chuk-lazarus[openai]" tokenizer encode -t "gpt-4" --text "Hello, world!"
+
+# Compare GPT-4 vs GPT-4o tokenization
+uvx "chuk-lazarus[openai]" tokenizer compare -t1 "gpt-4" -t2 "gpt-4o" --text "Machine learning is amazing"
+
+# Health check on GPT-3.5-turbo tokenizer
+uvx "chuk-lazarus[openai]" tokenizer doctor -t "gpt-3.5-turbo"
+
+# Use encoding names directly
+uvx "chuk-lazarus[openai]" tokenizer encode -t "cl100k_base" --text "Hello"   # GPT-4 encoding
+uvx "chuk-lazarus[openai]" tokenizer encode -t "o200k_base" --text "Hello"    # GPT-4o encoding
+```
+
+Supported OpenAI models: `gpt-4`, `gpt-4-turbo`, `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `o1`, `o1-mini`, `o3-mini`, and more.
 
 ### Health Check & Fingerprinting
 

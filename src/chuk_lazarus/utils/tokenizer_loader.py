@@ -4,6 +4,7 @@ import os
 import transformers
 
 from chuk_lazarus.data.tokenizers.custom_tokenizer import CustomTokenizer
+from chuk_lazarus.data.tokenizers.tiktoken_wrapper import TiktokenWrapper, is_tiktoken_model
 from chuk_lazarus.utils.huggingface import load_from_hub
 
 # Set the logger
@@ -12,12 +13,32 @@ logger = logging.getLogger(__name__)
 
 def load_tokenizer(tokenizer_name):
     """
-    Load a tokenizer from a specified name. If a vocabulary file is found locally,
-    load the local tokenizer. Otherwise, load from the Hugging Face model repository.
+    Load a tokenizer from a specified name.
+
+    Supports:
+    - Local tokenizer files (tokenizer.json)
+    - HuggingFace models (e.g., "gpt2", "TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+    - OpenAI/tiktoken models (e.g., "gpt-4", "gpt-3.5-turbo", "o200k_base")
+
+    For tiktoken support, install with: pip install 'chuk-lazarus[openai]'
     """
     tokenizer = None
     model_config_dir = f"core/models/architectures/{tokenizer_name}"
     vocab_file = os.path.join(model_config_dir, "tokenizer.json")
+
+    # Check if this is a tiktoken/OpenAI model
+    if is_tiktoken_model(tokenizer_name):
+        try:
+            logger.debug(f"Loading tiktoken tokenizer for: {tokenizer_name}")
+            tokenizer = TiktokenWrapper.from_model(tokenizer_name)
+            logger.debug(f"Tiktoken tokenizer loaded: vocab_size={tokenizer.vocab_size}")
+            return tokenizer
+        except ImportError as e:
+            logger.error(f"tiktoken not installed: {e}")
+            raise
+        except ValueError as e:
+            logger.error(f"Error loading tiktoken tokenizer: {e}")
+            raise
 
     if os.path.exists(vocab_file):
         try:

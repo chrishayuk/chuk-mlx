@@ -371,7 +371,84 @@ class TokenizerProtocol(Protocol):
     eos_token_id: int | None
 ```
 
-HuggingFace tokenizers, SentencePiece, and custom implementations all work seamlessly.
+HuggingFace tokenizers, SentencePiece, tiktoken/OpenAI, and custom implementations all work seamlessly.
+
+## OpenAI Tokenizers (tiktoken)
+
+Support for OpenAI's tokenizers via tiktoken. Install with:
+
+```bash
+pip install 'chuk-lazarus[openai]'
+# or
+uv add 'chuk-lazarus[openai]'
+```
+
+### Usage
+
+```python
+from chuk_lazarus.data.tokenizers.tiktoken_wrapper import TiktokenWrapper
+
+# Load by model name
+tokenizer = TiktokenWrapper.from_model("gpt-4")
+tokenizer = TiktokenWrapper.from_model("gpt-4o")
+tokenizer = TiktokenWrapper.from_model("gpt-3.5-turbo")
+tokenizer = TiktokenWrapper.from_model("o1")
+
+# Load by encoding name
+tokenizer = TiktokenWrapper.from_encoding("cl100k_base")  # GPT-4, GPT-3.5
+tokenizer = TiktokenWrapper.from_encoding("o200k_base")   # GPT-4o, O1
+
+# Use like any other tokenizer
+tokens = tokenizer.encode("Hello, world!")
+text = tokenizer.decode(tokens)
+vocab = tokenizer.get_vocab()
+
+# Works with all analysis tools
+from chuk_lazarus.data.tokenizers.analyze import analyze_coverage
+report = analyze_coverage(texts, tokenizer)
+```
+
+### Auto-Detection via load_tokenizer
+
+The `load_tokenizer` utility automatically detects OpenAI models:
+
+```python
+from chuk_lazarus.utils.tokenizer_loader import load_tokenizer
+
+# Automatically uses TiktokenWrapper for OpenAI models
+tokenizer = load_tokenizer("gpt-4")
+tokenizer = load_tokenizer("gpt-4o")
+tokenizer = load_tokenizer("cl100k_base")
+
+# Still works for HuggingFace models
+tokenizer = load_tokenizer("gpt2")  # Note: "gpt2" is also a tiktoken encoding
+tokenizer = load_tokenizer("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+```
+
+### Supported Models
+
+| Model | Encoding | Vocab Size |
+|-------|----------|------------|
+| gpt-4, gpt-4-turbo, gpt-3.5-turbo | cl100k_base | 100,277 |
+| gpt-4o, gpt-4o-mini, o1, o1-mini, o3-mini | o200k_base | 200,019 |
+| text-davinci-003, code-davinci-002 | p50k_base | 50,281 |
+| davinci, curie, babbage, ada | r50k_base | 50,257 |
+
+### CLI Usage
+
+```bash
+# Encode text with GPT-4's tokenizer
+uvx "chuk-lazarus[openai]" tokenizer encode -t "gpt-4" --text "Hello, world!"
+
+# Compare GPT-4 vs GPT-4o tokenization
+uvx "chuk-lazarus[openai]" tokenizer compare -t1 "gpt-4" -t2 "gpt-4o" --text "Machine learning"
+
+# Health check
+uvx "chuk-lazarus[openai]" tokenizer doctor -t "gpt-3.5-turbo"
+
+# Fingerprint for compatibility tracking
+uvx "chuk-lazarus[openai]" tokenizer fingerprint -t "gpt-4" --save gpt4-fingerprint.json
+```
 
 ## Testing
 
