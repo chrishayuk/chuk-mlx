@@ -309,6 +309,13 @@ def tokenizer_compare(args):
 def tokenizer_doctor(args):
     """Run comprehensive tokenizer health check."""
     from ..data.tokenizers.fingerprint import compute_fingerprint
+    from ..data.tokenizers.runtime.chat_templates import (
+        ChatTemplateRegistry,
+        TemplateFormat,
+        patch_chat_template,
+        suggest_template_for_model,
+        validate_chat_template,
+    )
     from ..utils.tokenizer_loader import load_tokenizer
 
     logger.info(f"Loading tokenizer: {args.tokenizer}")
@@ -320,6 +327,7 @@ def tokenizer_doctor(args):
 
     issues = []
     warnings = []
+    fixes_applied = []
 
     # === Basic Info ===
     print("\n--- Basic Info ---")
@@ -359,26 +367,113 @@ def tokenizer_doctor(args):
     # === Chat Template ===
     print("\n--- Chat Template ---")
     has_chat_template = hasattr(tokenizer, "chat_template") and tokenizer.chat_template
+
+    # Use new validation system
+    validation_result = validate_chat_template(tokenizer)
+    registry = ChatTemplateRegistry()
+
     if has_chat_template:
-        template_preview = str(tokenizer.chat_template)[:100]
+        template_str = str(tokenizer.chat_template)
+        template_preview = template_str[:100]
         print("  Available: Yes")
         print(f"  Preview: {template_preview}...")
+        print(f"  Format: {validation_result.format.value}")
 
-        # Test chat template
+        # Show capabilities
+        if validation_result.capabilities:
+            caps = [c.value for c in validation_result.capabilities]
+            print(f"  Capabilities: {', '.join(caps)}")
+
+        # Show any issues/warnings from validation
+        for issue in validation_result.issues:
+            if issue.severity == "error":
+                issues.append(issue.message)
+                print(f"  ERROR: {issue.message}")
+            elif issue.severity == "warning":
+                warnings.append(issue.message)
+                print(f"  WARN: {issue.message}")
+            else:
+                if args.verbose:
+                    print(f"  INFO: {issue.message}")
+
+        # Test chat template with various scenarios
+        test_scenarios = [
+            ("single user", [{"role": "user", "content": "Hello"}]),
+            (
+                "multi-turn",
+                [
+                    {"role": "user", "content": "Hi"},
+                    {"role": "assistant", "content": "Hello!"},
+                    {"role": "user", "content": "How are you?"},
+                ],
+            ),
+        ]
+
+        # Check for system message support
         try:
-            test_messages = [{"role": "user", "content": "Hello"}]
+            system_test = [
+                {"role": "system", "content": "You are helpful."},
+                {"role": "user", "content": "Hello"},
+            ]
             result = tokenizer.apply_chat_template(
-                test_messages, add_generation_prompt=True, tokenize=False
+                system_test, add_generation_prompt=True, tokenize=False
             )
-            print("  Test: PASS")
-            if args.verbose:
-                print(f"  Output: {result[:100]}...")
-        except Exception as e:
-            issues.append(f"Chat template error: {e}")
-            print(f"  Test: FAIL - {e}")
+            if "You are helpful" in result:
+                print("  System messages: Supported")
+            else:
+                print("  System messages: May not be rendered")
+        except Exception:
+            print("  System messages: Not supported")
+            warnings.append("System messages not supported by chat template")
+
+        # Run basic tests
+        all_pass = True
+        for scenario_name, messages in test_scenarios:
+            try:
+                result = tokenizer.apply_chat_template(
+                    messages, add_generation_prompt=True, tokenize=False
+                )
+                if args.verbose:
+                    print(f"  Test ({scenario_name}): PASS")
+                    print(f"    Output: {result[:80]}...")
+            except Exception as e:
+                all_pass = False
+                issues.append(f"Chat template error ({scenario_name}): {e}")
+                print(f"  Test ({scenario_name}): FAIL - {e}")
+
+        if all_pass:
+            print("  Tests: All PASS")
     else:
         warnings.append("No chat template defined")
-        print("  Available: No (may need manual formatting)")
+        print("  Available: No")
+
+        # Suggest a template based on model name
+        suggested = suggest_template_for_model(args.tokenizer)
+        if suggested:
+            print(f"  Suggested format: {suggested.format.value}")
+            print(f"  Description: {suggested.description}")
+
+        # Handle --fix mode for missing template
+        if getattr(args, "fix", False):
+            template_format = getattr(args, "format", None)
+            try:
+                success = patch_chat_template(tokenizer, template_format=template_format)
+                if success:
+                    detected_format = registry.detect_format(tokenizer.chat_template)
+                    fixes_applied.append(f"Added {detected_format.value} chat template")
+                    print(f"  FIX APPLIED: Added {detected_format.value} chat template")
+                else:
+                    print("  FIX FAILED: Could not determine appropriate template")
+                    print("  Hint: Use --format to specify (chatml, llama, phi, gemma, etc.)")
+            except Exception as e:
+                print(f"  FIX FAILED: {e}")
+        else:
+            print("  Recommendation: Add a chat template for conversational use")
+            print("  Use: lazarus tokenizer doctor -t MODEL --fix")
+
+            # Check if tokenizer_config.json exists and might need patching
+            if hasattr(tokenizer, "name_or_path"):
+                print(f"  Model path: {tokenizer.name_or_path}")
 
     # === Encode/Decode Roundtrip ===
     print("\n--- Encode/Decode Roundtrip ---")
@@ -430,6 +525,11 @@ def tokenizer_doctor(args):
     print("Diagnosis:")
     print(f"{'=' * 60}")
 
+    if fixes_applied:
+        print(f"  Fixes Applied: {len(fixes_applied)}")
+        for fix in fixes_applied:
+            print(f"    FIXED: {fix}")
+
     if not issues and not warnings:
         print("  Status: HEALTHY")
         print("  No issues found.")
@@ -442,6 +542,21 @@ def tokenizer_doctor(args):
             print(f"  Warnings: {len(warnings)}")
             for warning in warnings:
                 print(f"    WARN: {warning}")
+
+    # Save patched tokenizer if --fix and --output specified
+    if getattr(args, "fix", False) and fixes_applied:
+        output_path = getattr(args, "output", None)
+        if output_path:
+            try:
+                import os
+
+                os.makedirs(output_path, exist_ok=True)
+                tokenizer.save_pretrained(output_path)
+                print(f"\n  Saved patched tokenizer to: {output_path}")
+            except Exception as e:
+                print(f"\n  ERROR: Could not save tokenizer: {e}")
+        else:
+            print("\n  Note: Use --output PATH to save the patched tokenizer")
 
     if issues:
         sys.exit(1)
@@ -1490,6 +1605,21 @@ Examples:
     doctor_parser = tok_subparsers.add_parser("doctor", help="Run tokenizer health check")
     doctor_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
     doctor_parser.add_argument("--verbose", "-v", action="store_true", help="Show detailed output")
+    doctor_parser.add_argument(
+        "--fix",
+        action="store_true",
+        help="Attempt to fix detected issues (patches chat template if missing)",
+    )
+    doctor_parser.add_argument(
+        "--format",
+        choices=["chatml", "llama", "phi", "gemma", "zephyr", "vicuna", "alpaca"],
+        help="Specify chat template format when using --fix (auto-detects if not set)",
+    )
+    doctor_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save patched tokenizer to directory (requires --fix)",
+    )
     doctor_parser.set_defaults(func=tokenizer_doctor)
 
     # Fingerprint command

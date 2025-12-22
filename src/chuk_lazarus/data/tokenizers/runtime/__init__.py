@@ -5,8 +5,31 @@ Modules:
 - special_registry: Special token registry with collision detection
 - dynamic_vocab: Runtime vocabulary extension
 - semantics: Token semantics mapping
+- chat_templates: Chat template registry, validation, and patching
 """
 
+from .chat_templates import (
+    ALPACA_TEMPLATE,
+    CHATML_TEMPLATE,
+    GEMMA_TEMPLATE,
+    LLAMA_TEMPLATE,
+    LLAMA3_TEMPLATE,
+    PHI_TEMPLATE,
+    VICUNA_TEMPLATE,
+    ZEPHYR_TEMPLATE,
+    ChatTemplateRegistry,
+    TemplateCapability,
+    TemplateDefinition,
+    TemplateFormat,
+    TemplateIssue,
+    TemplateValidationResult,
+    detect_template_format,
+    get_template_diff,
+    patch_chat_template,
+    suggest_template_for_model,
+    validate_chat_template,
+    validate_jinja2_syntax,
+)
 from .dynamic_vocab import (
     DynamicVocab,
     VocabExtension,
@@ -34,6 +57,27 @@ from .special_registry import (
 )
 
 __all__ = [
+    # Chat templates
+    "ALPACA_TEMPLATE",
+    "CHATML_TEMPLATE",
+    "GEMMA_TEMPLATE",
+    "LLAMA_TEMPLATE",
+    "LLAMA3_TEMPLATE",
+    "PHI_TEMPLATE",
+    "VICUNA_TEMPLATE",
+    "ZEPHYR_TEMPLATE",
+    "ChatTemplateRegistry",
+    "TemplateCapability",
+    "TemplateDefinition",
+    "TemplateFormat",
+    "TemplateIssue",
+    "TemplateValidationResult",
+    "detect_template_format",
+    "get_template_diff",
+    "patch_chat_template",
+    "suggest_template_for_model",
+    "validate_chat_template",
+    "validate_jinja2_syntax",
     # Special registry
     "CollisionReport",
     "ReservedRange",
