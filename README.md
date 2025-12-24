@@ -6,6 +6,8 @@ Offline batch plans, reproducible batching, measurable efficiency — the stuff 
 
 Built for Apple Silicon with MLX.
 
+**The core idea:** The BatchPlan becomes the contract, not the dataloader. Build plans offline, version them, verify them in CI/CD, and replay them exactly across distributed workers.
+
 ## Quick Start with uvx
 
 No installation needed - run directly with `uvx`:
@@ -98,6 +100,9 @@ chuk-lazarus data batching analyze --cache lengths.jsonl --bucket-edges 128,256,
 # Run comprehensive pipeline benchmark
 chuk-lazarus bench --num-samples 1000
 chuk-lazarus bench -d train.jsonl -t gpt2 --bucket-edges 128,256,512
+
+# Benchmark reports: length histogram, bucket efficiency, pack vs pad comparison,
+# throughput metrics, memory footprint, and actionable recommendations
 ```
 
 ### Training Commands
@@ -217,6 +222,8 @@ src/chuk_lazarus/
 - **Tokenizer Doctor**: Health check with auto-fix for missing chat templates
 - **Chat Template Registry**: 7 built-in formats (ChatML, Llama, Phi, Gemma, Zephyr, Vicuna, Alpaca)
 - **Batching Infrastructure**: Token-budget batching, sequence packing (50-70% token reduction)
+- **BatchPlan Artifacts**: Versioned, fingerprinted batch schedules for reproducibility and CI/CD
+- **Pipeline Benchmark**: Pack vs pad comparison, throughput metrics, memory footprint analysis
 - **Puzzle Arcade Integration**: Stream training data from 24 puzzle types for online/RL learning
 - **Replay Buffers**: Priority sampling, difficulty tracking, curriculum support
 - **Training**: SFT, DPO, GRPO, PPO trainers with LoRA support
