@@ -2235,15 +2235,14 @@ def bench_pipeline(args):
         BatchingConfig,
         BatchPlanBuilder,
         BucketSpec,
-        TokenBudgetBatchSampler,
-        compute_length_histogram,
-        analyze_bucket_efficiency,
-        create_efficiency_report,
-        pack_sequences,
         PackingConfig,
         PackingMode,
         SequenceToPack,
+        analyze_bucket_efficiency,
+        compute_length_histogram,
         compute_packing_metrics,
+        create_efficiency_report,
+        pack_sequences,
     )
     from ..utils.tokenizer_loader import load_tokenizer
 
@@ -2264,6 +2263,7 @@ def bench_pipeline(args):
         lengths = {}
         samples = {}
         import json
+
         with open(args.dataset) as f:
             for i, line in enumerate(f):
                 if args.max_samples and i >= args.max_samples:
@@ -2284,6 +2284,7 @@ def bench_pipeline(args):
 
         # Generate synthetic lengths
         import random
+
         random.seed(args.seed)
         lengths = {f"s{i}": random.randint(32, args.max_length) for i in range(args.num_samples)}
         samples = {sid: list(range(length)) for sid, length in lengths.items()}
@@ -2345,10 +2346,10 @@ def bench_pipeline(args):
     sample_seqs = [
         SequenceToPack(
             sample_id=sid,
-            input_ids=tuple(samples[sid][:lengths[sid]]),
+            input_ids=tuple(samples[sid][: lengths[sid]]),
             loss_mask=tuple([1] * lengths[sid]),
         )
-        for sid in list(lengths.keys())[:min(500, len(lengths))]
+        for sid in list(lengths.keys())[: min(500, len(lengths))]
     ]
 
     pack_config = PackingConfig(
@@ -2365,7 +2366,11 @@ def bench_pipeline(args):
     print(f"    Packed {len(sample_seqs)} → {len(packed)} sequences in {pack_time:.3f}s")
     print(f"    Packing ratio: {pack_metrics.packing_ratio:.2f}x")
     print(f"    Efficiency: {pack_metrics.efficiency:.1%}")
-    print(f"    Token reduction: {1 - 1/pack_metrics.packing_ratio:.0%}" if pack_metrics.packing_ratio > 1 else "")
+    print(
+        f"    Token reduction: {1 - 1 / pack_metrics.packing_ratio:.0%}"
+        if pack_metrics.packing_ratio > 1
+        else ""
+    )
 
     # Efficiency report
     print("\n[6/6] Creating efficiency report...")
@@ -3206,11 +3211,13 @@ Examples:
         description="Run comprehensive benchmarks on tokenization, batching, packing, and efficiency.",
     )
     bench_parser.add_argument(
-        "-d", "--dataset",
+        "-d",
+        "--dataset",
         help="JSONL dataset file (optional - uses synthetic data if not provided)",
     )
     bench_parser.add_argument(
-        "-t", "--tokenizer",
+        "-t",
+        "--tokenizer",
         default="gpt2",
         help="Tokenizer to use (default: gpt2)",
     )
