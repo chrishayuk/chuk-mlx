@@ -160,9 +160,9 @@ format-check:
 typecheck:
 	@echo "Running type checker..."
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run mypy $(SRC_DIR) || echo "Type check found issues (non-blocking)"; \
+		uv run mypy $(SRC_DIR) --no-site-packages || echo "Type check found issues (non-blocking)"; \
 	elif command -v $(MYPY) >/dev/null 2>&1; then \
-		$(MYPY) $(SRC_DIR) || echo "Type check found issues (non-blocking)"; \
+		$(MYPY) $(SRC_DIR) --no-site-packages || echo "Type check found issues (non-blocking)"; \
 	else \
 		echo "MyPy not found. Install with: pip install mypy"; \
 		exit 1; \
