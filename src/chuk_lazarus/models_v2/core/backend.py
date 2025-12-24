@@ -15,12 +15,13 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, TypeVar
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Generic tensor type - actual type depends on backend
-Tensor = TypeVar("Tensor")
+# Generic tensor type alias - actual type depends on backend
+# Using Any since the concrete type varies by backend (mx.array, torch.Tensor, etc.)
+Tensor = Any
 
 
 class BackendType(str, Enum):

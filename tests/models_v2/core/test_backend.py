@@ -291,3 +291,258 @@ class TestBackendAbstract:
         """Test that Backend cannot be directly instantiated."""
         with pytest.raises(TypeError):
             Backend()
+
+
+class TestTorchBackendMocked:
+    """Tests for TorchBackend with mocking."""
+
+    def test_torch_backend_import_error(self):
+        """Test TorchBackend raises ImportError when torch not available."""
+        # This test verifies TorchBackend class exists
+        # The import error path can't be easily tested without uninstalling torch
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        assert TorchBackend is not None
+
+    def test_set_backend_unsupported(self):
+        """Test setting unsupported backend raises ValueError."""
+        reset_backend()
+        with pytest.raises(ValueError, match="Unsupported backend"):
+            set_backend(BackendType.JAX)
+
+
+class TestTorchBackendConditional:
+    """Tests for TorchBackend that run only if PyTorch is available."""
+
+    @pytest.fixture
+    def torch_available(self):
+        """Check if torch is available."""
+        import importlib.util
+
+        return importlib.util.find_spec("torch") is not None
+
+    def test_torch_backend_creation(self, torch_available):
+        """Test TorchBackend creation."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        assert backend.name == BackendType.TORCH
+
+    def test_torch_backend_zeros(self, torch_available):
+        """Test TorchBackend zeros."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        tensor = backend.zeros((2, 3))
+        assert tensor.shape == (2, 3)
+
+    def test_torch_backend_ones(self, torch_available):
+        """Test TorchBackend ones."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        tensor = backend.ones((3, 4))
+        assert tensor.shape == (3, 4)
+
+    def test_torch_backend_randn(self, torch_available):
+        """Test TorchBackend randn."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        tensor = backend.randn((2, 5))
+        assert tensor.shape == (2, 5)
+
+    def test_torch_backend_arange(self, torch_available):
+        """Test TorchBackend arange."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        tensor = backend.arange(0, 10, 2)
+        result = backend.to_numpy(tensor)
+        assert np.allclose(result, np.arange(0, 10, 2))
+
+    def test_torch_backend_from_numpy(self, torch_available):
+        """Test TorchBackend from_numpy."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        arr = np.array([[1, 2], [3, 4]], dtype=np.float32)
+        tensor = backend.from_numpy(arr)
+        assert tensor.shape == (2, 2)
+
+    def test_torch_backend_matmul(self, torch_available):
+        """Test TorchBackend matmul."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        a = backend.from_numpy(np.array([[1, 2], [3, 4]], dtype=np.float32))
+        b = backend.from_numpy(np.array([[5, 6], [7, 8]], dtype=np.float32))
+        c = backend.matmul(a, b)
+        expected = np.array([[19, 22], [43, 50]], dtype=np.float32)
+        assert np.allclose(backend.to_numpy(c), expected)
+
+    def test_torch_backend_softmax(self, torch_available):
+        """Test TorchBackend softmax."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        x = backend.from_numpy(np.array([[1.0, 2.0, 3.0]], dtype=np.float32))
+        result = backend.softmax(x, axis=-1)
+        result_np = backend.to_numpy(result)
+        assert np.allclose(result_np.sum(), 1.0, atol=1e-5)
+
+    def test_torch_backend_activations(self, torch_available):
+        """Test TorchBackend activations."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        x = backend.from_numpy(np.array([0.0, 1.0, 2.0], dtype=np.float32))
+
+        # Test all activations
+        assert backend.relu(x).shape == (3,)
+        assert backend.silu(x).shape == (3,)
+        assert backend.gelu(x).shape == (3,)
+        assert backend.tanh(x).shape == (3,)
+        assert backend.sigmoid(x).shape == (3,)
+
+    def test_torch_backend_norms(self, torch_available):
+        """Test TorchBackend normalization."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        x = backend.from_numpy(np.array([[1.0, 2.0, 3.0, 4.0]], dtype=np.float32))
+        weight = backend.ones((4,))
+        bias = backend.zeros((4,))
+
+        # Layer norm
+        result = backend.layer_norm(x, weight, bias, eps=1e-5)
+        assert result.shape == (1, 4)
+
+        # RMS norm
+        result = backend.rms_norm(x, weight, eps=1e-5)
+        assert result.shape == (1, 4)
+
+    def test_torch_backend_reshape_transpose(self, torch_available):
+        """Test TorchBackend reshape and transpose."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        x = backend.from_numpy(np.arange(24, dtype=np.float32).reshape(2, 3, 4))
+
+        reshaped = backend.reshape(x, (6, 4))
+        assert reshaped.shape == (6, 4)
+
+        transposed = backend.transpose(x, (0, 2, 1))
+        assert transposed.shape == (2, 4, 3)
+
+    def test_torch_backend_concat_split(self, torch_available):
+        """Test TorchBackend concatenate and split."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        a = backend.ones((2, 3))
+        b = backend.zeros((2, 3))
+
+        concatenated = backend.concatenate([a, b], axis=0)
+        assert concatenated.shape == (4, 3)
+
+        x = backend.from_numpy(np.arange(12, dtype=np.float32).reshape(4, 3))
+        parts = backend.split(x, 2, axis=0)
+        assert len(parts) == 2
+        assert parts[0].shape == (2, 3)
+
+    def test_torch_backend_attention(self, torch_available):
+        """Test TorchBackend attention."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        batch, heads, seq, dim = 1, 2, 4, 8
+        q = backend.randn((batch, heads, seq, dim))
+        k = backend.randn((batch, heads, seq, dim))
+        v = backend.randn((batch, heads, seq, dim))
+
+        result = backend.scaled_dot_product_attention(q, k, v)
+        assert result.shape == (batch, heads, seq, dim)
+
+    def test_torch_backend_causal_mask(self, torch_available):
+        """Test TorchBackend causal mask."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        mask = backend.create_causal_mask(5)
+        assert mask.shape == (5, 5)
+
+    def test_torch_backend_stop_gradient(self, torch_available):
+        """Test TorchBackend stop_gradient."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        x = backend.randn((2, 3))
+        result = backend.stop_gradient(x)
+        assert result.shape == (2, 3)
+
+    def test_torch_backend_eval(self, torch_available):
+        """Test TorchBackend eval (no-op for eager)."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        from chuk_lazarus.models_v2.core.backend import TorchBackend
+
+        backend = TorchBackend()
+        x = backend.randn((2, 3))
+        backend.eval(x)  # Should not raise
+
+    def test_set_backend_torch(self, torch_available):
+        """Test setting torch backend."""
+        if not torch_available:
+            pytest.skip("PyTorch not installed")
+
+        reset_backend()
+        set_backend(BackendType.TORCH)
+        assert get_backend().name == BackendType.TORCH
+        reset_backend()

@@ -11,10 +11,9 @@ Submodules:
 - normalization: Normalization layers (RMSNorm, LayerNorm)
 - ssm: State space models (Mamba, Mamba2)
 - recurrent: Recurrent cells (LSTM, GRU, minGRU)
-- conv: Convolutional layers (causal conv for Mamba)
 """
 
-from . import attention, conv, embeddings, ffn, normalization, recurrent, ssm
+from . import attention, embeddings, ffn, normalization, recurrent, ssm
 
 __all__ = [
     "embeddings",
@@ -23,5 +22,4 @@ __all__ = [
     "normalization",
     "ssm",
     "recurrent",
-    "conv",
 ]

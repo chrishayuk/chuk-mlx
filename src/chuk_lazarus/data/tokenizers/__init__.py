@@ -52,6 +52,7 @@ from .batch_processing import (
     get_sequence_lengths,
     pad_batch,
 )
+from .bow_tokenizer import BoWCharacterTokenizer, BoWTokenizerConfig
 from .character_tokenizer import CharacterTokenizer, CharacterTokenizerConfig
 
 # Conversion
@@ -185,6 +186,8 @@ __all__ = [
     # Core
     "CharacterTokenizer",
     "CharacterTokenizerConfig",
+    "BoWCharacterTokenizer",
+    "BoWTokenizerConfig",
     "CustomTokenizer",
     "TokenDisplayUtility",
     "load_vocabulary",
