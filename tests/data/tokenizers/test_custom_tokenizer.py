@@ -59,7 +59,7 @@ class TestCustomTokenizerInit:
         with open(vocab_file, "w") as f:
             json.dump(vocab_data, f)
 
-        with pytest.raises(ValueError, match="Special token IDs are not correctly set"):
+        with pytest.raises(ValueError, match="Required special token not found"):
             CustomTokenizer(str(vocab_file))
 
     def test_vocab_merged_with_special_tokens(self, tokenizer):
@@ -288,10 +288,15 @@ class TestSaveVocabulary:
     def test_save_vocabulary(self, tokenizer, tmp_path):
         """Test saving vocabulary."""
         save_dir = tmp_path / "saved"
-        result = tokenizer.save_vocabulary(str(save_dir))
+        result = tokenizer.save_vocabulary(save_dir)
 
-        assert os.path.exists(result)
-        with open(result) as f:
+        # save_vocabulary returns a tuple with the path
+        assert isinstance(result, tuple)
+        assert len(result) == 1
+        vocab_path = result[0]
+
+        assert os.path.exists(vocab_path)
+        with open(vocab_path) as f:
             saved_data = json.load(f)
         assert "vocab" in saved_data
         assert "special_tokens" in saved_data

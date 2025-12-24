@@ -89,6 +89,10 @@ ignore_missing_imports = true
 check_untyped_defs = false
 disallow_untyped_defs = false
 no_implicit_optional = false
+# Exclude external packages with broken stubs
+exclude = [
+    "mlx/",
+]
 # Disable most errors for now - codebase needs gradual typing improvements
 disable_error_code = [
     "assignment",
@@ -107,7 +111,14 @@ disable_error_code = [
     "list-item",
     "dict-item",
     "index",
+    "import-untyped",
+    "syntax",
+    "type-abstract",
 ]
+
+[[tool.mypy.overrides]]
+module = "mlx.*"
+ignore_errors = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

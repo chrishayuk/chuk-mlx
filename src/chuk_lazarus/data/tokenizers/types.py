@@ -38,7 +38,11 @@ class SpecialTokenName(str, Enum):
     CLS = "<cls>"
     MASK = "<mask>"
 
-    # Alternative representations
+    # Alternative representations (LLaMA/GPT style)
+    BOS_ALT = "<bos>"
+    EOS_ALT = "<eos>"
+
+    # BERT-style representations
     UNK_BERT = "[UNK]"
     PAD_BERT = "[PAD]"
     CLS_BERT = "[CLS]"
@@ -87,6 +91,8 @@ UNKNOWN_TOKEN_MARKERS: frozenset[str] = frozenset(
 class ChatMessage(BaseModel):
     """A message in a chat conversation."""
 
+    model_config = {"frozen": True}
+
     role: ChatRole = Field(description="The role of the message sender")
     content: str = Field(description="The message content")
     name: str | None = Field(default=None, description="Optional name for the sender")
@@ -97,21 +103,11 @@ class ChatMessage(BaseModel):
         default=None, description="ID of tool call this message responds to"
     )
 
-    @classmethod
-    def from_dict(cls, data: dict) -> "ChatMessage":
-        """Create from a dictionary (for compatibility with existing code)."""
-        role_str = data.get(MessageField.ROLE.value, ChatRole.USER.value)
-        return cls(
-            role=ChatRole(role_str) if isinstance(role_str, str) else role_str,
-            content=data.get(MessageField.CONTENT.value, ""),
-            name=data.get(MessageField.NAME.value),
-            tool_calls=data.get(MessageField.TOOL_CALLS.value),
-            tool_call_id=data.get(MessageField.TOOL_CALL_ID.value),
-        )
-
 
 class ToolParameter(BaseModel):
     """A parameter for a tool function."""
+
+    model_config = {"frozen": True}
 
     name: str = Field(description="Parameter name")
     type: str = Field(description="Parameter type (e.g., 'string', 'integer')")
@@ -122,6 +118,8 @@ class ToolParameter(BaseModel):
 class Tool(BaseModel):
     """A tool definition for function calling."""
 
+    model_config = {"frozen": True}
+
     name: str = Field(description="Tool name")
     description: str = Field(description="Tool description")
     parameters: list[ToolParameter] = Field(default_factory=list, description="Tool parameters")
@@ -129,6 +127,8 @@ class Tool(BaseModel):
 
 class ToolCall(BaseModel):
     """A tool call made by the assistant."""
+
+    model_config = {"frozen": True}
 
     id: str = Field(description="Unique ID for this tool call")
     name: str = Field(description="Name of the tool to call")
@@ -138,28 +138,35 @@ class ToolCall(BaseModel):
 class TokenOffset(BaseModel):
     """Character offset for a token in the original text."""
 
+    model_config = {"frozen": True}
+
     start: int = Field(ge=0, description="Start character position")
     end: int = Field(ge=0, description="End character position (exclusive)")
-
-    def __iter__(self):
-        """Allow unpacking as tuple for backwards compatibility."""
-        return iter((self.start, self.end))
 
 
 class VocabularyData(BaseModel):
     """Complete vocabulary data loaded from a file."""
 
+    model_config = {"frozen": True}
+
     vocab: dict[str, int] = Field(description="Token to ID mapping")
-    special_tokens: dict[str, str] = Field(
-        default_factory=dict, description="Special token name to token string mapping"
+    special_tokens: dict[str, int] = Field(
+        default_factory=dict, description="Special token string to ID mapping"
     )
     added_tokens: list[str] = Field(
         default_factory=list, description="Additional tokens added to vocabulary"
     )
 
+    def get_special_token_id(self, token: SpecialTokenName | str) -> int | None:
+        """Get ID for a special token by name or string."""
+        key = token.value if isinstance(token, SpecialTokenName) else token
+        return self.special_tokens.get(key)
+
 
 class DuplicateIdIssue(BaseModel):
     """A token ID assigned to multiple tokens."""
+
+    model_config = {"frozen": True}
 
     token_id: int = Field(description="The duplicated token ID")
     tokens: list[str] = Field(description="Tokens sharing this ID")
@@ -168,12 +175,16 @@ class DuplicateIdIssue(BaseModel):
 class NegativeIdIssue(BaseModel):
     """A token with a negative ID."""
 
+    model_config = {"frozen": True}
+
     token: str = Field(description="The token string")
     token_id: int = Field(lt=0, description="The negative token ID")
 
 
 class TokenIdMapping(BaseModel):
     """Reverse mapping from token IDs to token strings."""
+
+    model_config = {"frozen": True}
 
     mapping: dict[int, str] = Field(description="ID to token mapping")
     vocab_size: int = Field(ge=0, description="Size of the vocabulary")
@@ -272,7 +283,3 @@ ReverseVocab = dict[int, str]
 # Token sequence types
 TokenIds = list[int]
 TokenStrings = list[str]
-
-# Offset types (for backwards compatibility, prefer TokenOffset model)
-OffsetTuple = tuple[int, int]
-OffsetList = list[OffsetTuple]

@@ -7,6 +7,21 @@ Usage:
     lazarus generate --type math --output ./data/lazarus_math
     lazarus infer --model ./checkpoints/dpo/final --prompt "Calculate 2+2"
 
+Data Commands:
+    lazarus data lengths build -d train.jsonl -t gpt2 -o lengths.jsonl
+    lazarus data lengths stats -c lengths.jsonl
+    lazarus data batchplan build -l lengths.jsonl -e 3 -b 4096 -o batch_plan/
+    lazarus data batchplan info -p batch_plan/
+    lazarus data batchplan info -p batch_plan/ --rank 0 --world-size 4  # sharded view
+    lazarus data batchplan verify -p batch_plan/ -l lengths.jsonl
+    lazarus data batchplan shard -p batch_plan/ -w 4 -o shards/  # distributed sharding
+
+Batching Analysis Commands:
+    lazarus data batching analyze -c lengths.jsonl --bucket-edges 128,256,512
+    lazarus data batching histogram -c lengths.jsonl --bins 20
+    lazarus data batching suggest -c lengths.jsonl --goal waste --num-buckets 4
+    lazarus data batch generate -p batch_plan/ -d train.jsonl -t gpt2 -o batches/
+
 Tokenizer Commands:
     lazarus tokenizer encode -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --text "Hello world"
     lazarus tokenizer decode -t TinyLlama/TinyLlama-1.1B-Chat-v1.0 --ids "1,2,3"
@@ -35,6 +50,18 @@ Tokenizer Commands:
     lazarus tokenizer instrument oov -t model --file corpus.txt
     lazarus tokenizer instrument waste -t model --file corpus.txt --max-length 512
     lazarus tokenizer instrument vocab-diff -t1 model1 -t2 model2 --file corpus.txt
+
+Gym Commands (Online Learning):
+    lazarus gym run -t gpt2 --mock --num-episodes 10  # Test with mock stream
+    lazarus gym run -t gpt2 --host localhost --port 8023  # Connect to puzzle arcade
+    lazarus gym run -t gpt2 --mock --output buffer.json  # Save samples to buffer
+    lazarus gym info  # Display gym stream configuration
+
+Training with Batching:
+    lazarus train sft --model model --data train.jsonl --batchplan batch_plan/
+    lazarus train sft --model model --data train.jsonl --bucket-edges 128,256,512 --token-budget 4096
+    lazarus train sft --model model --data train.jsonl --pack --pack-max-len 2048
+    lazarus train sft --model model --data train.jsonl --online --gym-host localhost --gym-port 8023
 """
 
 import argparse
@@ -1517,6 +1544,721 @@ def instrument_vocab_diff(args):
 # === Runtime Commands ===
 
 
+# === Data Batching Commands ===
+
+
+def data_lengths_build(args):
+    """Build a length cache from a dataset."""
+    import asyncio
+    import json
+    from pathlib import Path
+
+    from ..data.batching import LengthCache
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    logger.info(f"Loading tokenizer: {args.tokenizer}")
+    tokenizer = load_tokenizer(args.tokenizer)
+
+    # Compute tokenizer hash for cache invalidation
+    try:
+        from ..data.tokenizers.fingerprint import compute_fingerprint
+
+        fp = compute_fingerprint(tokenizer)
+        tokenizer_hash = fp.fingerprint
+    except Exception:
+        tokenizer_hash = "unknown"
+
+    logger.info(f"Loading dataset: {args.dataset}")
+    with open(args.dataset) as f:
+        if args.dataset.endswith(".jsonl"):
+            samples = [json.loads(line) for line in f if line.strip()]
+        else:
+            samples = json.load(f)
+
+    async def build_cache():
+        output_path = Path(args.output)
+        async with LengthCache.create(output_path, tokenizer_hash) as cache:
+            for i, sample in enumerate(samples):
+                # Get sample ID
+                sample_id = sample.get("id") or sample.get("sample_id") or f"sample_{i:06d}"
+
+                # Get text to tokenize
+                text = sample.get("text") or sample.get("content") or sample.get("input")
+                if text is None and "messages" in sample:
+                    # Chat format - concatenate messages
+                    text = " ".join(m.get("content", "") for m in sample["messages"])
+
+                if text:
+                    token_ids = tokenizer.encode(text, add_special_tokens=True)
+                    await cache.add(sample_id, len(token_ids))
+
+                if (i + 1) % 1000 == 0:
+                    logger.info(f"Processed {i + 1}/{len(samples)} samples")
+
+        return cache
+
+    cache = asyncio.run(build_cache())
+
+    print(f"\n{'=' * 60}")
+    print("Length Cache Built")
+    print(f"{'=' * 60}")
+    print(f"  Dataset:       {args.dataset}")
+    print(f"  Tokenizer:     {args.tokenizer}")
+    print(f"  Samples:       {len(cache):,}")
+    print(f"  Output:        {args.output}")
+    print(f"  Tokenizer hash: {tokenizer_hash}")
+
+
+def data_lengths_stats(args):
+    """Show statistics for a length cache."""
+    import asyncio
+    from pathlib import Path
+
+    from ..data.batching import LengthCache
+
+    async def load_and_stats():
+        cache = await LengthCache.load(Path(args.cache))
+        return cache
+
+    cache = asyncio.run(load_and_stats())
+    lengths = cache.get_all()
+
+    if not lengths:
+        print("Cache is empty")
+        return
+
+    values = list(lengths.values())
+    values.sort()
+
+    print(f"\n{'=' * 60}")
+    print("Length Cache Statistics")
+    print(f"{'=' * 60}")
+    print(f"  Cache file:    {args.cache}")
+    print(f"  Tokenizer:     {cache.tokenizer_hash}")
+    print(f"  Total samples: {len(lengths):,}")
+    print(f"  Total tokens:  {sum(values):,}")
+    print()
+    print(f"  Min length:    {min(values)}")
+    print(f"  Max length:    {max(values)}")
+    print(f"  Mean length:   {sum(values) / len(values):.1f}")
+    print(f"  Median:        {values[len(values) // 2]}")
+
+    # Percentiles
+    def percentile(p):
+        idx = int(len(values) * p / 100)
+        return values[min(idx, len(values) - 1)]
+
+    print()
+    print(f"  P10:           {percentile(10)}")
+    print(f"  P25:           {percentile(25)}")
+    print(f"  P50:           {percentile(50)}")
+    print(f"  P75:           {percentile(75)}")
+    print(f"  P90:           {percentile(90)}")
+    print(f"  P95:           {percentile(95)}")
+    print(f"  P99:           {percentile(99)}")
+
+
+def data_batchplan_build(args):
+    """Build a batch plan from length cache."""
+    import asyncio
+    from pathlib import Path
+
+    from ..data.batching import (
+        BatchingConfig,
+        BatchPlanBuilder,
+        LengthCache,
+        save_batch_plan,
+    )
+
+    async def build_plan():
+        # Load length cache
+        logger.info(f"Loading length cache: {args.lengths}")
+        cache = await LengthCache.load(Path(args.lengths))
+        lengths = cache.get_all()
+
+        # Parse bucket edges
+        bucket_edges = tuple(int(x.strip()) for x in args.bucket_edges.split(","))
+
+        # Create config
+        if args.predictable:
+            config = BatchingConfig.predictable(
+                token_budget=args.token_budget,
+                bucket_edges=bucket_edges,
+                overflow_max=args.overflow_max,
+                seed=args.seed,
+            )
+        else:
+            config = BatchingConfig.throughput(
+                token_budget=args.token_budget,
+                bucket_edges=bucket_edges,
+                overflow_max=args.overflow_max,
+            )
+
+        # Build plan
+        logger.info(f"Building batch plan for {args.epochs} epochs...")
+        builder = BatchPlanBuilder(
+            lengths=lengths,
+            batching_config=config,
+            dataset_hash=args.dataset_hash or "unknown",
+            tokenizer_hash=cache.tokenizer_hash,
+        )
+
+        plan = await builder.build(num_epochs=args.epochs)
+
+        # Save plan
+        output_path = Path(args.output)
+        save_batch_plan(plan, output_path)
+
+        return plan, output_path
+
+    plan, output_path = asyncio.run(build_plan())
+
+    print(f"\n{'=' * 60}")
+    print("Batch Plan Built")
+    print(f"{'=' * 60}")
+    print(f"  Lengths cache: {args.lengths}")
+    print(f"  Epochs:        {plan.num_epochs}")
+    print(f"  Token budget:  {args.token_budget}")
+    print(f"  Mode:          {'predictable' if args.predictable else 'throughput'}")
+    print()
+    print(f"  Total batches: {plan.total_microbatches}")
+    print(f"  Fingerprint:   {plan.fingerprint}")
+    print()
+    print(f"  Output:        {output_path}")
+
+    # Per-epoch summary
+    print("\n  Per-epoch details:")
+    for ep in range(plan.num_epochs):
+        epoch_plan = plan.get_epoch(ep)
+        print(
+            f"    Epoch {ep}: {epoch_plan.num_microbatches} batches, "
+            f"{epoch_plan.total_samples} samples, {epoch_plan.total_tokens:,} tokens"
+        )
+
+
+def data_batchplan_info(args):
+    """Show information about a batch plan."""
+    from pathlib import Path
+
+    from ..data.batching import load_batch_plan
+
+    plan = load_batch_plan(Path(args.plan))
+
+    # Apply sharding if requested
+    if args.rank is not None and args.world_size is not None:
+        if args.rank >= args.world_size or args.rank < 0:
+            print(f"Error: rank must be in range [0, {args.world_size})")
+            return
+        plan = plan.shard(args.rank, args.world_size)
+        shard_info = f" (rank {args.rank}/{args.world_size})"
+    else:
+        shard_info = ""
+
+    print(f"\n{'=' * 60}")
+    print(f"Batch Plan Info{shard_info}")
+    print(f"{'=' * 60}")
+    print(f"  Plan path:     {args.plan}")
+    print(f"  Fingerprint:   {plan.fingerprint}")
+    print(f"  Created:       {plan.meta.created_at}")
+    print()
+    print(f"  Dataset hash:  {plan.meta.dataset_hash}")
+    print(f"  Tokenizer:     {plan.meta.tokenizer_hash}")
+    print(f"  Token budget:  {plan.meta.token_budget}")
+    print(f"  Bucket edges:  {plan.meta.bucket_edges}")
+    print()
+    print(f"  Epochs:        {plan.num_epochs}")
+    print(f"  Total batches: {plan.total_microbatches}")
+
+    # Per-epoch summary
+    print("\n  Per-epoch details:")
+    for ep in range(plan.num_epochs):
+        epoch_plan = plan.get_epoch(ep)
+        print(
+            f"    Epoch {ep}: {epoch_plan.num_microbatches} batches, "
+            f"{epoch_plan.total_samples} samples, {epoch_plan.total_tokens:,} tokens"
+        )
+
+    # Sample batches
+    if args.show_batches:
+        print("\n  Sample batches from epoch 0:")
+        epoch0 = plan.get_epoch(0)
+        for i, mb in enumerate(epoch0.microbatches[: args.show_batches]):
+            print(
+                f"    Batch {i}: {mb.batch_size} samples, bucket={mb.bucket_id}, max_len={mb.max_len}"
+            )
+
+
+def data_batchplan_verify(args):
+    """Verify a batch plan can be reproduced."""
+    import asyncio
+    from pathlib import Path
+
+    from ..data.batching import (
+        BatchPlanBuilder,
+        LengthCache,
+        load_batch_plan,
+    )
+
+    async def verify():
+        # Load original plan
+        logger.info(f"Loading batch plan: {args.plan}")
+        original = load_batch_plan(Path(args.plan))
+
+        # Rebuild from lengths
+        logger.info(f"Rebuilding from lengths: {args.lengths}")
+        cache = await LengthCache.load(Path(args.lengths))
+        lengths = cache.get_all()
+
+        # Recreate config from plan meta
+        from ..data.batching import BatchingConfig, BatchingMode, PadPolicy
+
+        config = BatchingConfig(
+            mode=BatchingMode(original.meta.mode),
+            pad_policy=PadPolicy(original.meta.pad_policy),
+            token_budget=original.meta.token_budget,
+            bucket_edges=tuple(original.meta.bucket_edges),
+            overflow_max=original.meta.overflow_max,
+            seed=original.meta.seed,
+        )
+
+        builder = BatchPlanBuilder(
+            lengths=lengths,
+            batching_config=config,
+            dataset_hash=original.meta.dataset_hash,
+            tokenizer_hash=original.meta.tokenizer_hash,
+        )
+
+        rebuilt = await builder.build(num_epochs=original.num_epochs)
+
+        return original, rebuilt
+
+    original, rebuilt = asyncio.run(verify())
+
+    print(f"\n{'=' * 60}")
+    print("Batch Plan Verification")
+    print(f"{'=' * 60}")
+    print(f"  Original fingerprint: {original.fingerprint}")
+    print(f"  Rebuilt fingerprint:  {rebuilt.fingerprint}")
+
+    if original.fingerprint == rebuilt.fingerprint:
+        print("\n  Result: MATCH")
+        print("  The batch plan is reproducible.")
+    else:
+        print("\n  Result: MISMATCH")
+        print("  Warning: Rebuilt plan differs from original!")
+
+        # Check epoch-by-epoch
+        for ep in range(original.num_epochs):
+            orig_mbs = list(original.iter_epoch(ep))
+            rebuilt_mbs = list(rebuilt.iter_epoch(ep))
+
+            if len(orig_mbs) != len(rebuilt_mbs):
+                print(
+                    f"    Epoch {ep}: batch count differs ({len(orig_mbs)} vs {len(rebuilt_mbs)})"
+                )
+            else:
+                matches = sum(1 for o, r in zip(orig_mbs, rebuilt_mbs) if o.samples == r.samples)
+                print(f"    Epoch {ep}: {matches}/{len(orig_mbs)} batches match")
+
+        sys.exit(1)
+
+
+def data_batchplan_shard(args):
+    """Save sharded batch plans for distributed training."""
+    from pathlib import Path
+
+    from ..data.batching import load_batch_plan, save_batch_plan
+
+    # Load original plan
+    logger.info(f"Loading batch plan: {args.plan}")
+    plan = load_batch_plan(Path(args.plan))
+
+    output_base = Path(args.output)
+    output_base.mkdir(parents=True, exist_ok=True)
+
+    print(f"\n{'=' * 60}")
+    print("Batch Plan Sharding")
+    print(f"{'=' * 60}")
+    print(f"  Source plan:   {args.plan}")
+    print(f"  World size:    {args.world_size}")
+    print(f"  Total batches: {plan.total_microbatches}")
+    print()
+
+    # Create sharded plans
+    for rank in range(args.world_size):
+        sharded = plan.shard(rank, args.world_size)
+        shard_path = output_base / f"rank_{rank}"
+        save_batch_plan(sharded, shard_path)
+
+        print(f"  Rank {rank}: {sharded.total_microbatches} batches -> {shard_path}")
+
+    print()
+    print(f"  Output:        {output_base}")
+
+
+def data_batching_analyze(args):
+    """Analyze batching efficiency for a dataset."""
+    import asyncio
+    from pathlib import Path
+
+    from ..data.batching import (
+        BucketSpec,
+        LengthCache,
+        create_efficiency_report,
+    )
+
+    async def analyze():
+        # Load length cache
+        logger.info(f"Loading length cache: {args.cache}")
+        cache = await LengthCache.load(Path(args.cache))
+        lengths = cache.get_all()
+
+        # Parse bucket edges
+        bucket_edges = tuple(int(x.strip()) for x in args.bucket_edges.split(","))
+
+        # Create bucket spec
+        bucket_spec = BucketSpec(
+            edges=bucket_edges,
+            overflow_max=args.overflow_max,
+        )
+
+        # Create efficiency report
+        report = create_efficiency_report(lengths, bucket_spec)
+        return report
+
+    report = asyncio.run(analyze())
+
+    # Print report
+    print(report.to_ascii())
+
+    if args.output:
+        # Save JSON report
+        import json
+
+        with open(args.output, "w") as f:
+            json.dump(report.model_dump(), f, indent=2, default=str)
+        print(f"\nReport saved to: {args.output}")
+
+
+def data_batching_histogram(args):
+    """Display length histogram for a dataset."""
+    import asyncio
+    from pathlib import Path
+
+    from ..data.batching import (
+        LengthCache,
+        compute_length_histogram,
+    )
+
+    async def load():
+        cache = await LengthCache.load(Path(args.cache))
+        return cache.get_all()
+
+    lengths = asyncio.run(load())
+    histogram = compute_length_histogram(lengths, num_bins=args.bins)
+
+    print(histogram.to_ascii(width=args.width))
+
+    print("\n--- Percentiles ---")
+    print(f"  P25: {histogram.p25}")
+    print(f"  P50: {histogram.p50}")
+    print(f"  P75: {histogram.p75}")
+    print(f"  P90: {histogram.p90}")
+    print(f"  P95: {histogram.p95}")
+    print(f"  P99: {histogram.p99}")
+
+
+def data_batching_suggest(args):
+    """Suggest optimal bucket edges for a dataset."""
+    import asyncio
+    from pathlib import Path
+
+    from ..data.batching import (
+        LengthCache,
+        OptimizationGoal,
+        suggest_bucket_edges,
+    )
+
+    async def load():
+        cache = await LengthCache.load(Path(args.cache))
+        return cache.get_all()
+
+    lengths = asyncio.run(load())
+
+    # Get goal
+    goal_map = {
+        "waste": OptimizationGoal.MINIMIZE_WASTE,
+        "balance": OptimizationGoal.BALANCE_BUCKETS,
+        "memory": OptimizationGoal.MINIMIZE_MEMORY,
+    }
+    goal = goal_map.get(args.goal, OptimizationGoal.MINIMIZE_WASTE)
+
+    suggestion = suggest_bucket_edges(
+        lengths,
+        num_buckets=args.num_buckets,
+        goal=goal,
+        max_length=args.max_length,
+    )
+
+    print(f"\n{'=' * 60}")
+    print("Bucket Edge Suggestions")
+    print(f"{'=' * 60}")
+    print(f"  Goal:           {suggestion.optimization_goal.value}")
+    print(f"  Num buckets:    {args.num_buckets}")
+    print()
+    print(f"  Suggested edges:  {suggestion.edges}")
+    print(f"  Overflow max:     {suggestion.overflow_max}")
+    print(f"  Est. efficiency:  {suggestion.estimated_efficiency:.1%}")
+    print()
+    print(f"  Rationale: {suggestion.rationale}")
+
+    # Show CLI command to use
+    edges_str = ",".join(str(e) for e in suggestion.edges)
+    print("\n  Use with:")
+    print(
+        f"    lazarus data batchplan build --bucket-edges {edges_str} --overflow-max {suggestion.overflow_max} ..."
+    )
+
+
+def data_batch_generate(args):
+    """Generate NPZ batch files from a BatchPlan."""
+    import asyncio
+    import json
+    from pathlib import Path
+
+    from ..data.batching import (
+        BatchReader,
+        BatchWriter,
+        load_batch_plan,
+    )
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    async def generate():
+        # Load batch plan
+        logger.info(f"Loading batch plan: {args.plan}")
+        plan = load_batch_plan(Path(args.plan))
+
+        # Load tokenizer
+        logger.info(f"Loading tokenizer: {args.tokenizer}")
+        tokenizer = load_tokenizer(args.tokenizer)
+
+        # Load dataset
+        logger.info(f"Loading dataset: {args.dataset}")
+        with open(args.dataset) as f:
+            if args.dataset.endswith(".jsonl"):
+                raw_samples = [json.loads(line) for line in f if line.strip()]
+            else:
+                raw_samples = json.load(f)
+
+        # Tokenize samples
+        logger.info("Tokenizing samples...")
+        samples = {}
+        for i, sample in enumerate(raw_samples):
+            sample_id = sample.get("id") or sample.get("sample_id") or f"sample_{i:06d}"
+
+            # Get text
+            text = sample.get("text") or sample.get("content") or sample.get("input")
+            if text is None and "messages" in sample:
+                text = " ".join(m.get("content", "") for m in sample["messages"])
+
+            if text:
+                input_ids = tokenizer.encode(text, add_special_tokens=True)
+                # Create simple loss mask (all 1s for now)
+                loss_mask = [1] * len(input_ids)
+                samples[sample_id] = {
+                    "input_ids": input_ids,
+                    "loss_mask": loss_mask,
+                }
+
+            if (i + 1) % 1000 == 0:
+                logger.info(f"Tokenized {i + 1}/{len(raw_samples)} samples")
+
+        # Create writer
+        output_dir = Path(args.output)
+        logger.info(f"Writing batches to: {output_dir}")
+
+        writer = BatchWriter(
+            plan=plan,
+            samples=samples,
+            output_dir=output_dir,
+            pad_id=tokenizer.pad_token_id or 0,
+        )
+
+        # Write batches
+        files = writer.write_all()
+
+        return len(files), output_dir
+
+    num_files, output_dir = asyncio.run(generate())
+
+    print(f"\n{'=' * 60}")
+    print("Batch Generation Complete")
+    print(f"{'=' * 60}")
+    print(f"  Batch plan:   {args.plan}")
+    print(f"  Dataset:      {args.dataset}")
+    print(f"  Output:       {output_dir}")
+    print(f"  Files:        {num_files}")
+
+    # Verify
+    reader = BatchReader(output_dir)
+    print(f"  Epochs:       {reader.num_epochs}")
+    if reader.fingerprint:
+        print(f"  Fingerprint:  {reader.fingerprint}")
+
+
+def gym_run(args):
+    """Run gym episode streaming and collect samples."""
+    import asyncio
+
+    from ..data.batching.streaming import (
+        GymConfig,
+        GymEpisodeStream,
+        GymOutputMode,
+        GymTransport,
+        MockGymStream,
+        ReplayBuffer,
+        ReplayBufferConfig,
+    )
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    async def run():
+        # Load tokenizer
+        logger.info(f"Loading tokenizer: {args.tokenizer}")
+        tokenizer = load_tokenizer(args.tokenizer)
+
+        # Configure replay buffer
+        buffer_config = ReplayBufferConfig(
+            max_size=args.buffer_size,
+            seed=args.seed,
+        )
+        buffer = ReplayBuffer(buffer_config)
+
+        # Configure gym stream
+        if args.mock:
+            logger.info("Using mock gym stream for testing")
+            stream = MockGymStream(
+                tokenizer=tokenizer,
+                num_episodes=args.num_episodes,
+                steps_per_episode=args.steps_per_episode,
+                difficulty_range=(args.difficulty_min, args.difficulty_max),
+                success_rate=args.success_rate,
+                seed=args.seed,
+            )
+        else:
+            # Parse transport
+            transport = GymTransport(args.transport)
+            output_mode = GymOutputMode(args.output_mode)
+
+            config = GymConfig(
+                host=args.host,
+                port=args.port,
+                transport=transport,
+                output_mode=output_mode,
+                connect_timeout=args.timeout,
+                max_retries=args.retries,
+                difficulty_range=(args.difficulty_min, args.difficulty_max),
+            )
+
+            stream = GymEpisodeStream(
+                config=config,
+                tokenizer=tokenizer,
+            )
+
+        # Run streaming
+        logger.info(f"Starting gym stream to {args.host}:{args.port}")
+        print(f"\n{'=' * 60}")
+        print("Gym Episode Streaming")
+        print(f"{'=' * 60}")
+
+        sample_count = 0
+        episode_ids = set()
+
+        async with stream:
+            async for sample in stream:
+                buffer.add(sample)
+                sample_count += 1
+                if sample.episode_id:
+                    episode_ids.add(sample.episode_id)
+
+                if sample_count % 100 == 0:
+                    print(
+                        f"  Samples: {sample_count}, "
+                        f"Episodes: {len(episode_ids)}, "
+                        f"Buffer: {buffer.size}"
+                    )
+
+                if args.max_samples and sample_count >= args.max_samples:
+                    logger.info(f"Reached max samples: {args.max_samples}")
+                    break
+
+        # Print summary
+        print(f"\n{'=' * 60}")
+        print("Summary")
+        print(f"{'=' * 60}")
+        print(f"  Total samples:    {sample_count}")
+        print(f"  Total episodes:   {len(episode_ids)}")
+        print(f"  Buffer size:      {buffer.size}")
+        print(f"  Success rate:     {buffer.success_rate:.1%}")
+        print(f"  Mean difficulty:  {buffer.mean_difficulty:.2f}")
+        print(f"  Mean reward:      {buffer.mean_reward:.2f}")
+
+        # Save buffer if output specified
+        if args.output:
+            import json
+            from pathlib import Path
+
+            output_path = Path(args.output)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            buffer_data = buffer.to_dict()
+            with open(output_path, "w") as f:
+                json.dump(buffer_data, f, indent=2, default=str)
+
+            print(f"\n  Buffer saved to: {output_path}")
+
+        return buffer
+
+    asyncio.run(run())
+
+
+def gym_info(args):
+    """Display gym stream configuration info."""
+    from ..data.batching.streaming import (
+        GymOutputMode,
+        GymTransport,
+    )
+
+    print(f"\n{'=' * 60}")
+    print("Gym Stream Configuration")
+    print(f"{'=' * 60}")
+
+    print("\nSupported Transports:")
+    for transport in GymTransport:
+        print(f"  - {transport.value}")
+
+    print("\nSupported Output Modes:")
+    for mode in GymOutputMode:
+        print(f"  - {mode.value}")
+
+    print("\nDefault Configuration:")
+    print("  Host:             localhost")
+    print("  Port:             8023")
+    print("  Transport:        telnet")
+    print("  Output Mode:      json")
+    print("  Connect Timeout:  10.0s")
+    print("  Max Retries:      3")
+
+    print("\nExample Usage:")
+    print("  # Run mock stream for testing")
+    print("  lazarus gym run --tokenizer gpt2 --mock --num-episodes 10")
+    print()
+    print("  # Connect to puzzle arcade server")
+    print("  lazarus gym run --tokenizer gpt2 --host localhost --port 8023")
+    print()
+    print("  # Save samples to buffer file")
+    print("  lazarus gym run --tokenizer gpt2 --mock --output buffer.json")
+
+
 def runtime_registry(args):
     """Display special token registry."""
     from ..data.tokenizers.runtime import (
@@ -1594,6 +2336,48 @@ Examples:
     sft_parser.add_argument("--lora-rank", type=int, default=8, help="LoRA rank")
     sft_parser.add_argument("--mask-prompt", action="store_true", help="Mask prompt in loss")
     sft_parser.add_argument("--log-interval", type=int, default=10, help="Log every N steps")
+    # Batching options
+    sft_parser.add_argument("--batchplan", help="Use pre-computed batch plan directory")
+    sft_parser.add_argument(
+        "--bucket-edges",
+        help="Bucket edges for length-based batching (e.g., 128,256,512)",
+    )
+    sft_parser.add_argument(
+        "--token-budget",
+        type=int,
+        help="Token budget for dynamic batching (replaces --batch-size)",
+    )
+    sft_parser.add_argument("--pack", action="store_true", help="Enable sequence packing")
+    sft_parser.add_argument("--pack-max-len", type=int, help="Max length for packed sequences")
+    sft_parser.add_argument(
+        "--pack-mode",
+        choices=["first_fit", "best_fit", "greedy"],
+        default="first_fit",
+        help="Packing algorithm",
+    )
+    # Online training options
+    sft_parser.add_argument(
+        "--online",
+        action="store_true",
+        help="Enable online training with gym stream",
+    )
+    sft_parser.add_argument(
+        "--gym-host",
+        default="localhost",
+        help="Gym server host for online training",
+    )
+    sft_parser.add_argument(
+        "--gym-port",
+        type=int,
+        default=8023,
+        help="Gym server port for online training",
+    )
+    sft_parser.add_argument(
+        "--buffer-size",
+        type=int,
+        default=100000,
+        help="Replay buffer size for online training",
+    )
     sft_parser.set_defaults(func=train_sft)
 
     # DPO training
@@ -1955,6 +2739,284 @@ Examples:
     )
     vocab_diff_parser.set_defaults(func=instrument_vocab_diff)
 
+    # === Data subcommand ===
+    data_parser = subparsers.add_parser("data", help="Data processing utilities")
+    data_subparsers = data_parser.add_subparsers(dest="data_command", help="Data commands")
+
+    # === Lengths subcommands ===
+    lengths_parser = data_subparsers.add_parser("lengths", help="Length cache utilities")
+    lengths_subparsers = lengths_parser.add_subparsers(
+        dest="lengths_command", help="Lengths commands"
+    )
+
+    # Build length cache
+    lengths_build_parser = lengths_subparsers.add_parser(
+        "build", help="Build length cache from dataset"
+    )
+    lengths_build_parser.add_argument(
+        "--dataset", "-d", required=True, help="Dataset file (JSONL or JSON)"
+    )
+    lengths_build_parser.add_argument(
+        "--tokenizer", "-t", required=True, help="Tokenizer name or path"
+    )
+    lengths_build_parser.add_argument(
+        "--output", "-o", required=True, help="Output cache file path"
+    )
+    lengths_build_parser.set_defaults(func=data_lengths_build)
+
+    # Length cache stats
+    lengths_stats_parser = lengths_subparsers.add_parser(
+        "stats", help="Show length cache statistics"
+    )
+    lengths_stats_parser.add_argument("--cache", "-c", required=True, help="Length cache file")
+    lengths_stats_parser.set_defaults(func=data_lengths_stats)
+
+    # === BatchPlan subcommands ===
+    batchplan_parser = data_subparsers.add_parser("batchplan", help="Batch plan utilities")
+    batchplan_subparsers = batchplan_parser.add_subparsers(
+        dest="batchplan_command", help="BatchPlan commands"
+    )
+
+    # Build batch plan
+    batchplan_build_parser = batchplan_subparsers.add_parser(
+        "build", help="Build batch plan from length cache"
+    )
+    batchplan_build_parser.add_argument("--lengths", "-l", required=True, help="Length cache file")
+    batchplan_build_parser.add_argument(
+        "--epochs", "-e", type=int, default=1, help="Number of epochs (default: 1)"
+    )
+    batchplan_build_parser.add_argument(
+        "--token-budget",
+        "-b",
+        type=int,
+        default=4096,
+        help="Token budget per batch (default: 4096)",
+    )
+    batchplan_build_parser.add_argument(
+        "--bucket-edges",
+        default="128,256,512",
+        help="Bucket edges (comma-separated, default: 128,256,512)",
+    )
+    batchplan_build_parser.add_argument(
+        "--overflow-max",
+        type=int,
+        default=2048,
+        help="Max length for overflow bucket (default: 2048)",
+    )
+    batchplan_build_parser.add_argument(
+        "--predictable",
+        "-p",
+        action="store_true",
+        help="Use predictable mode (deterministic batching)",
+    )
+    batchplan_build_parser.add_argument(
+        "--seed", "-s", type=int, default=42, help="Random seed for predictable mode (default: 42)"
+    )
+    batchplan_build_parser.add_argument("--dataset-hash", help="Dataset hash for fingerprinting")
+    batchplan_build_parser.add_argument(
+        "--output", "-o", required=True, help="Output directory for batch plan"
+    )
+    batchplan_build_parser.set_defaults(func=data_batchplan_build)
+
+    # Batch plan info
+    batchplan_info_parser = batchplan_subparsers.add_parser(
+        "info", help="Show batch plan information"
+    )
+    batchplan_info_parser.add_argument("--plan", "-p", required=True, help="Batch plan directory")
+    batchplan_info_parser.add_argument(
+        "--show-batches", "-n", type=int, default=0, help="Number of sample batches to show"
+    )
+    batchplan_info_parser.add_argument(
+        "--rank", "-r", type=int, default=None, help="Worker rank for sharded view (0-indexed)"
+    )
+    batchplan_info_parser.add_argument(
+        "--world-size", "-w", type=int, default=None, help="Total number of workers"
+    )
+    batchplan_info_parser.set_defaults(func=data_batchplan_info)
+
+    # Batch plan verify
+    batchplan_verify_parser = batchplan_subparsers.add_parser(
+        "verify", help="Verify batch plan reproducibility"
+    )
+    batchplan_verify_parser.add_argument("--plan", "-p", required=True, help="Batch plan directory")
+    batchplan_verify_parser.add_argument("--lengths", "-l", required=True, help="Length cache file")
+    batchplan_verify_parser.set_defaults(func=data_batchplan_verify)
+
+    # Batch plan shard
+    batchplan_shard_parser = batchplan_subparsers.add_parser(
+        "shard", help="Create sharded batch plans for distributed training"
+    )
+    batchplan_shard_parser.add_argument(
+        "--plan", "-p", required=True, help="Source batch plan directory"
+    )
+    batchplan_shard_parser.add_argument(
+        "--world-size", "-w", type=int, required=True, help="Number of distributed workers"
+    )
+    batchplan_shard_parser.add_argument(
+        "--output", "-o", required=True, help="Output directory for sharded plans"
+    )
+    batchplan_shard_parser.set_defaults(func=data_batchplan_shard)
+
+    # === Batching analysis subcommands ===
+    batching_parser = data_subparsers.add_parser("batching", help="Batching analysis utilities")
+    batching_subparsers = batching_parser.add_subparsers(
+        dest="batching_command", help="Batching commands"
+    )
+
+    # Analyze batching efficiency
+    batching_analyze_parser = batching_subparsers.add_parser(
+        "analyze", help="Analyze batching efficiency"
+    )
+    batching_analyze_parser.add_argument("--cache", "-c", required=True, help="Length cache file")
+    batching_analyze_parser.add_argument(
+        "--bucket-edges",
+        default="128,256,512",
+        help="Bucket edges to analyze (comma-separated, default: 128,256,512)",
+    )
+    batching_analyze_parser.add_argument(
+        "--overflow-max",
+        type=int,
+        default=2048,
+        help="Max length for overflow bucket (default: 2048)",
+    )
+    batching_analyze_parser.add_argument("--output", "-o", help="Save JSON report to file")
+    batching_analyze_parser.set_defaults(func=data_batching_analyze)
+
+    # Length histogram
+    batching_histogram_parser = batching_subparsers.add_parser(
+        "histogram", help="Display length histogram"
+    )
+    batching_histogram_parser.add_argument("--cache", "-c", required=True, help="Length cache file")
+    batching_histogram_parser.add_argument(
+        "--bins", type=int, default=15, help="Number of histogram bins (default: 15)"
+    )
+    batching_histogram_parser.add_argument(
+        "--width", type=int, default=50, help="Chart width (default: 50)"
+    )
+    batching_histogram_parser.set_defaults(func=data_batching_histogram)
+
+    # Suggest bucket edges
+    batching_suggest_parser = batching_subparsers.add_parser(
+        "suggest", help="Suggest optimal bucket edges"
+    )
+    batching_suggest_parser.add_argument("--cache", "-c", required=True, help="Length cache file")
+    batching_suggest_parser.add_argument(
+        "--num-buckets", "-n", type=int, default=4, help="Number of buckets (default: 4)"
+    )
+    batching_suggest_parser.add_argument(
+        "--goal",
+        "-g",
+        choices=["waste", "balance", "memory"],
+        default="waste",
+        help="Optimization goal: waste (minimize padding), balance (even bucket sizes), memory (power-of-2 edges)",
+    )
+    batching_suggest_parser.add_argument(
+        "--max-length", type=int, default=2048, help="Maximum sequence length (default: 2048)"
+    )
+    batching_suggest_parser.set_defaults(func=data_batching_suggest)
+
+    # === Batch generation subcommands ===
+    batch_parser = data_subparsers.add_parser("batch", help="Batch file generation")
+    batch_subparsers = batch_parser.add_subparsers(dest="batch_command", help="Batch commands")
+
+    # Generate NPZ batch files
+    batch_generate_parser = batch_subparsers.add_parser(
+        "generate", help="Generate NPZ batch files from BatchPlan"
+    )
+    batch_generate_parser.add_argument("--plan", "-p", required=True, help="Batch plan directory")
+    batch_generate_parser.add_argument(
+        "--dataset", "-d", required=True, help="Dataset file (JSONL or JSON)"
+    )
+    batch_generate_parser.add_argument(
+        "--tokenizer", "-t", required=True, help="Tokenizer name or path"
+    )
+    batch_generate_parser.add_argument(
+        "--output", "-o", required=True, help="Output directory for NPZ files"
+    )
+    batch_generate_parser.set_defaults(func=data_batch_generate)
+
+    # === Gym subcommand ===
+    gym_parser = subparsers.add_parser("gym", help="Gym streaming utilities")
+    gym_subparsers = gym_parser.add_subparsers(dest="gym_command", help="Gym commands")
+
+    # Gym run command
+    gym_run_parser = gym_subparsers.add_parser(
+        "run", help="Run gym episode streaming and collect samples"
+    )
+    gym_run_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
+    gym_run_parser.add_argument("--host", default="localhost", help="Gym server host")
+    gym_run_parser.add_argument("--port", type=int, default=8023, help="Gym server port")
+    gym_run_parser.add_argument(
+        "--transport",
+        choices=["telnet", "websocket", "http"],
+        default="telnet",
+        help="Transport protocol",
+    )
+    gym_run_parser.add_argument(
+        "--output-mode",
+        choices=["json", "text", "binary"],
+        default="json",
+        help="Output format from gym",
+    )
+    gym_run_parser.add_argument(
+        "--buffer-size",
+        type=int,
+        default=100000,
+        help="Replay buffer size",
+    )
+    gym_run_parser.add_argument("--timeout", type=float, default=10.0, help="Connection timeout")
+    gym_run_parser.add_argument("--retries", type=int, default=3, help="Max connection retries")
+    gym_run_parser.add_argument(
+        "--difficulty-min",
+        type=float,
+        default=0.0,
+        help="Minimum puzzle difficulty",
+    )
+    gym_run_parser.add_argument(
+        "--difficulty-max",
+        type=float,
+        default=1.0,
+        help="Maximum puzzle difficulty",
+    )
+    gym_run_parser.add_argument(
+        "--max-samples",
+        type=int,
+        help="Maximum samples to collect (infinite if not set)",
+    )
+    gym_run_parser.add_argument("--output", "-o", help="Output file for buffer (JSON)")
+    gym_run_parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    # Mock mode for testing
+    gym_run_parser.add_argument(
+        "--mock",
+        action="store_true",
+        help="Use mock gym stream for testing",
+    )
+    gym_run_parser.add_argument(
+        "--num-episodes",
+        type=int,
+        default=10,
+        help="Number of episodes (mock mode)",
+    )
+    gym_run_parser.add_argument(
+        "--steps-per-episode",
+        type=int,
+        default=5,
+        help="Steps per episode (mock mode)",
+    )
+    gym_run_parser.add_argument(
+        "--success-rate",
+        type=float,
+        default=0.7,
+        help="Success rate (mock mode)",
+    )
+    gym_run_parser.set_defaults(func=gym_run)
+
+    # Gym info command
+    gym_info_parser = gym_subparsers.add_parser(
+        "info", help="Display gym stream configuration info"
+    )
+    gym_info_parser.set_defaults(func=gym_info)
+
     return parser
 
 
@@ -1973,6 +3035,8 @@ def main():
         parser.parse_args(["train", "--help"])
     elif args.command == "tokenizer" and args.tok_command is None:
         parser.parse_args(["tokenizer", "--help"])
+    elif args.command == "gym" and getattr(args, "gym_command", None) is None:
+        parser.parse_args(["gym", "--help"])
 
 
 if __name__ == "__main__":

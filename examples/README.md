@@ -6,6 +6,13 @@ Examples organized by functionality area.
 
 ```
 examples/
+├── batching/           # Batching and distributed training
+│   ├── 01_basic_batching.py    # Token-budget batching
+│   ├── 02_sequence_packing.py  # Sequence packing algorithms
+│   ├── 03_batch_plan.py        # BatchPlan for reproducibility
+│   ├── 04_distributed.py       # Distributed training
+│   ├── 05_e2e_pipeline.py      # Complete end-to-end pipeline
+│   └── 06_analyze.py           # Batching analysis & optimization
 ├── tokenizer/          # Tokenization examples
 │   ├── basic_tokenization.py
 │   ├── custom_tokenizer.py
@@ -170,6 +177,95 @@ Features demonstrated:
 - **OOV/rare token analysis** - Identify vocabulary coverage issues
 - **Waste metrics** - Measure padding and truncation inefficiency
 - **Vocabulary comparison** - Before/after analysis for tokenizer swaps
+
+## Batching & Distributed Training
+
+### Basic Batching
+
+Token-budget batching for efficient GPU utilization:
+
+```bash
+uv run python examples/batching/01_basic_batching.py
+```
+
+Features demonstrated:
+- Length-based bucketing with `BucketSpec`
+- Token-budget batch formation
+- Padding waste metrics
+
+### Sequence Packing
+
+Pack multiple sequences to reduce padding waste:
+
+```bash
+uv run python examples/batching/02_sequence_packing.py
+```
+
+Features demonstrated:
+- FIRST_FIT, BEST_FIT, GREEDY algorithms
+- Segment-aware attention masks
+- Packing efficiency metrics
+
+### Batch Plans
+
+Precomputed schedules for reproducible training:
+
+```bash
+uv run python examples/batching/03_batch_plan.py
+```
+
+Features demonstrated:
+- Building `BatchPlan` with `BatchPlanBuilder`
+- Saving/loading plans to disk
+- Fingerprint verification
+
+### Distributed Training
+
+Sharding and checkpointing for multi-worker training:
+
+```bash
+uv run python examples/batching/04_distributed.py
+```
+
+Features demonstrated:
+- `DistributedConfig` from environment variables
+- Batch plan sharding across workers
+- Checkpoint resume with `CheckpointPosition`
+- CLI: `lazarus data batchplan shard`
+
+### End-to-End Pipeline
+
+Complete data pipeline from raw dataset to training-ready batches:
+
+```bash
+uv run python examples/batching/05_e2e_pipeline.py
+```
+
+Features demonstrated:
+- Dataset preparation (JSONL)
+- Tokenization with instruction/response formatting
+- Length caching for efficient batching
+- Batch plan creation with bucketing
+- Two training paths: runtime streaming or offline NPZ files
+- Distributed training with plan sharding
+
+### Batching Analysis
+
+Analyze and optimize batching configuration:
+
+```bash
+uv run python examples/batching/06_analyze.py
+```
+
+Features demonstrated:
+- Length histograms with percentiles (P25, P50, P75, P90, P99)
+- Bucket efficiency analysis
+- Optimal bucket edge suggestions with three goals:
+  - `minimize_waste` - Maximize token utilization
+  - `balance_buckets` - Even sample distribution
+  - `minimize_memory` - Reduce peak memory usage
+- Complete efficiency reports with recommendations
+- CLI equivalents: `lazarus data batching histogram`, `analyze`, `suggest`
 
 ## Running Examples
 

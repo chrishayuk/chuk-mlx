@@ -77,6 +77,19 @@ from .conversion import (
 )
 from .custom_tokenizer import CustomTokenizer
 
+# Fingerprinting
+from .fingerprint import (
+    FingerprintMismatch,
+    FingerprintRegistry,
+    TokenizerFingerprint,
+    assert_fingerprint,
+    compute_fingerprint,
+    get_registry,
+    load_fingerprint,
+    save_fingerprint,
+    verify_fingerprint,
+)
+
 # Special tokens
 from .special_tokens import (
     SpecialTokenConfig,
@@ -280,4 +293,14 @@ __all__ = [
     "runtime",
     "training",
     "regression",
+    # Fingerprinting
+    "TokenizerFingerprint",
+    "FingerprintMismatch",
+    "FingerprintRegistry",
+    "compute_fingerprint",
+    "verify_fingerprint",
+    "assert_fingerprint",
+    "save_fingerprint",
+    "load_fingerprint",
+    "get_registry",
 ]

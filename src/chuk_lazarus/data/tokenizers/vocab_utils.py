@@ -1,46 +1,164 @@
+"""
+Vocabulary I/O utilities with Pydantic models and async support.
+
+This module provides async-native vocabulary loading and saving using
+the VocabularyData Pydantic model - no raw dictionary operations.
+"""
+
+from __future__ import annotations
+
 import json
-import os
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import aiofiles
+
+from chuk_lazarus.data.tokenizers.types import VocabularyData
+
+if TYPE_CHECKING:
+    import os
+
+# =============================================================================
+# Constants
+# =============================================================================
+
+VOCAB_FILENAME = "tokenizer.json"
+DEFAULT_VERSION = "1.0"
 
 
-def load_vocabulary(vocab_file):
-    """Load vocabulary and special tokens from a JSON file."""
-    if not vocab_file or not os.path.exists(vocab_file):
-        raise ValueError("A valid vocab_file path must be provided")
-
-    # open the vocab
-    with open(vocab_file) as f:
-        # load the json
-        vocab_data = json.load(f)
-
-    # get the vocab, special tokens and added tokens
-    vocab = vocab_data.get("vocab", {})
-    special_tokens = vocab_data.get("special_tokens", {})
-    added_tokens = vocab_data.get("added_tokens", [])
-
-    # return the vocab
-    return vocab, special_tokens, added_tokens
+# =============================================================================
+# Async I/O Functions (preferred)
+# =============================================================================
 
 
-def save_vocabulary(vocab, special_tokens, added_tokens, save_directory, version="1.0"):
-    """Save the vocabulary, special tokens, and added tokens to a JSON file."""
+async def load_vocabulary_async(vocab_file: str | Path) -> VocabularyData:
+    """
+    Load vocabulary from a JSON file asynchronously.
 
-    # check the save directory exists
-    if not os.path.exists(save_directory):
-        # make the directory if not
-        os.makedirs(save_directory)
+    Args:
+        vocab_file: Path to the vocabulary JSON file.
 
-    # load the vocab file
-    vocab_file = os.path.join(save_directory, "tokenizer.json")
+    Returns:
+        VocabularyData with vocab, special_tokens, and added_tokens.
 
-    #
-    vocab_data = {
+    Raises:
+        ValueError: If vocab_file is not provided or doesn't exist.
+        ValidationError: If the JSON doesn't match the expected schema.
+    """
+    path = Path(vocab_file)
+
+    if not path.exists():
+        raise ValueError(f"Vocabulary file not found: {path}")
+
+    async with aiofiles.open(path, encoding="utf-8") as f:
+        content = await f.read()
+
+    data = json.loads(content)
+
+    return VocabularyData(
+        vocab=data.get("vocab", {}),
+        special_tokens=data.get("special_tokens", {}),
+        added_tokens=data.get("added_tokens", []),
+    )
+
+
+async def save_vocabulary_async(
+    vocab_data: VocabularyData,
+    save_directory: str | Path,
+    version: str = DEFAULT_VERSION,
+) -> Path:
+    """
+    Save vocabulary to a JSON file asynchronously.
+
+    Args:
+        vocab_data: The VocabularyData model to save.
+        save_directory: Directory to save the vocabulary file.
+        version: Version string for the vocabulary format.
+
+    Returns:
+        Path to the saved vocabulary file.
+    """
+    save_dir = Path(save_directory)
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    vocab_file = save_dir / VOCAB_FILENAME
+
+    output = {
         "version": version,
-        "vocab": vocab,
-        "special_tokens": special_tokens,
-        "added_tokens": added_tokens,
+        "vocab": vocab_data.vocab,
+        "special_tokens": vocab_data.special_tokens,
+        "added_tokens": vocab_data.added_tokens,
     }
 
-    with open(vocab_file, "w") as f:
-        json.dump(vocab_data, f, indent=2)
+    async with aiofiles.open(vocab_file, mode="w", encoding="utf-8") as f:
+        await f.write(json.dumps(output, indent=2))
+
+    return vocab_file
+
+
+# =============================================================================
+# Sync I/O Functions (for compatibility with sync contexts)
+# =============================================================================
+
+
+def load_vocabulary(vocab_file: str | Path | os.PathLike[str]) -> VocabularyData:
+    """
+    Load vocabulary from a JSON file synchronously.
+
+    Args:
+        vocab_file: Path to the vocabulary JSON file.
+
+    Returns:
+        VocabularyData with vocab, special_tokens, and added_tokens.
+
+    Raises:
+        ValueError: If vocab_file is not provided or doesn't exist.
+        ValidationError: If the JSON doesn't match the expected schema.
+    """
+    path = Path(vocab_file)
+
+    if not path.exists():
+        raise ValueError(f"Vocabulary file not found: {path}")
+
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    return VocabularyData(
+        vocab=data.get("vocab", {}),
+        special_tokens=data.get("special_tokens", {}),
+        added_tokens=data.get("added_tokens", []),
+    )
+
+
+def save_vocabulary(
+    vocab_data: VocabularyData,
+    save_directory: str | Path,
+    version: str = DEFAULT_VERSION,
+) -> Path:
+    """
+    Save vocabulary to a JSON file synchronously.
+
+    Args:
+        vocab_data: The VocabularyData model to save.
+        save_directory: Directory to save the vocabulary file.
+        version: Version string for the vocabulary format.
+
+    Returns:
+        Path to the saved vocabulary file.
+    """
+    save_dir = Path(save_directory)
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    vocab_file = save_dir / VOCAB_FILENAME
+
+    output = {
+        "version": version,
+        "vocab": vocab_data.vocab,
+        "special_tokens": vocab_data.special_tokens,
+        "added_tokens": vocab_data.added_tokens,
+    }
+
+    with open(vocab_file, mode="w", encoding="utf-8") as f:
+        json.dump(output, f, indent=2)
 
     return vocab_file

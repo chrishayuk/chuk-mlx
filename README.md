@@ -39,181 +39,119 @@ After installation, use the `chuk-lazarus` command directly:
 chuk-lazarus tokenizer encode -t "gpt2" --text "Hello"
 ```
 
-## Tokenizer CLI
+## CLI Reference
 
-The tokenizer CLI is a comprehensive toolkit for inspecting, analyzing, and debugging tokenizers. Supports HuggingFace tokenizers and OpenAI/tiktoken models.
-
-### Basic Commands
+### Tokenizer Commands
 
 ```bash
 # Encode text - see token IDs and boundaries
-uvx chuk-lazarus tokenizer encode -t "gpt2" --text "The quick brown fox"
+chuk-lazarus tokenizer encode -t "gpt2" --text "The quick brown fox"
 
 # Decode token IDs back to text
-uvx chuk-lazarus tokenizer decode -t "gpt2" --ids "464,2068,7586,21831"
+chuk-lazarus tokenizer decode -t "gpt2" --ids "464,2068,7586,21831"
 
 # Search the vocabulary
-uvx chuk-lazarus tokenizer vocab -t "gpt2" --search "hello"
+chuk-lazarus tokenizer vocab -t "gpt2" --search "hello"
 
-# Show vocabulary statistics
-uvx chuk-lazarus tokenizer vocab -t "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-```
+# Compare two tokenizers
+chuk-lazarus tokenizer compare -t1 "gpt2" -t2 "meta-llama/Llama-2-7b" --text "Test"
 
-### OpenAI Tokenizers
+# Health check with auto-fix
+chuk-lazarus tokenizer doctor -t "model-name" --fix
 
-Analyze OpenAI models using tiktoken (requires `chuk-lazarus[openai]`):
-
-```bash
-# Encode with GPT-4's tokenizer
-uvx "chuk-lazarus[openai]" tokenizer encode -t "gpt-4" --text "Hello, world!"
-
-# Compare GPT-4 vs GPT-4o tokenization
-uvx "chuk-lazarus[openai]" tokenizer compare -t1 "gpt-4" -t2 "gpt-4o" --text "Machine learning is amazing"
-
-# Health check on GPT-3.5-turbo tokenizer
-uvx "chuk-lazarus[openai]" tokenizer doctor -t "gpt-3.5-turbo"
-
-# Use encoding names directly
-uvx "chuk-lazarus[openai]" tokenizer encode -t "cl100k_base" --text "Hello"   # GPT-4 encoding
-uvx "chuk-lazarus[openai]" tokenizer encode -t "o200k_base" --text "Hello"    # GPT-4o encoding
-```
-
-Supported OpenAI models: `gpt-4`, `gpt-4-turbo`, `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `o1`, `o1-mini`, `o3-mini`, and more.
-
-### Tokenizer Doctor (Health Check & Auto-Fix)
-
-```bash
-# Run comprehensive tokenizer health check
-uvx chuk-lazarus tokenizer doctor -t "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-
-# Verbose output with test details
-uvx chuk-lazarus tokenizer doctor -t "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --verbose
-
-# Auto-fix missing chat template (detects format from model name)
-uvx chuk-lazarus tokenizer doctor -t "model-name" --fix
-
-# Force specific template format
-uvx chuk-lazarus tokenizer doctor -t "model-name" --fix --format chatml
-# Formats: chatml, llama, phi, gemma, zephyr, vicuna, alpaca
-
-# Save patched tokenizer to disk
-uvx chuk-lazarus tokenizer doctor -t "model-name" --fix --output ./patched-tokenizer
-```
-
-### Fingerprinting
-
-```bash
-# Generate a fingerprint (for compatibility verification)
-uvx chuk-lazarus tokenizer fingerprint -t "gpt2"
-
-# Save fingerprint for CI/CD verification
-uvx chuk-lazarus tokenizer fingerprint -t "gpt2" --save gpt2-fingerprint.json
-
-# Verify tokenizer matches expected fingerprint
-uvx chuk-lazarus tokenizer fingerprint -t "gpt2" --verify gpt2-fingerprint.json
+# Generate fingerprint for compatibility
+chuk-lazarus tokenizer fingerprint -t "gpt2" --save fingerprint.json
 ```
 
 ### Corpus Analysis
 
-Analyze how well a tokenizer fits your dataset:
-
 ```bash
-# Coverage analysis - UNK rate, tokens per word, vocab utilization
-uvx chuk-lazarus tokenizer analyze coverage -t "gpt2" --file corpus.txt
+# Coverage analysis - UNK rate, tokens per word
+chuk-lazarus tokenizer analyze coverage -t "gpt2" --file corpus.txt
 
-# Entropy analysis - token distribution uniformity
-uvx chuk-lazarus tokenizer analyze entropy -t "gpt2" --file corpus.txt
-
-# Fit score - overall tokenizer-dataset compatibility (0-100)
-uvx chuk-lazarus tokenizer analyze fit-score -t "gpt2" --file corpus.txt
+# Fit score - tokenizer-dataset compatibility (0-100)
+chuk-lazarus tokenizer analyze fit-score -t "gpt2" --file corpus.txt
 
 # Efficiency analysis - tokens per sample, fragmentation
-uvx chuk-lazarus tokenizer analyze efficiency -t "gpt2" --file corpus.txt
-
-# Vocabulary suggestions - find tokens to add for better compression
-uvx chuk-lazarus tokenizer analyze vocab-suggest -t "gpt2" --file corpus.txt
-
-# Compare two tokenizers on your corpus
-uvx chuk-lazarus tokenizer analyze diff -t1 "gpt2" -t2 "meta-llama/Llama-2-7b" -f corpus.txt
+chuk-lazarus tokenizer analyze efficiency -t "gpt2" --file corpus.txt
 ```
 
-### Instrumentation
-
-Observability tools for understanding tokenization behavior:
+### Data Commands
 
 ```bash
-# Token length histogram with ASCII visualization
-uvx chuk-lazarus tokenizer instrument histogram -t "gpt2" --file corpus.txt
+# Build a length cache (tokenize once, reuse lengths)
+chuk-lazarus data lengths build -d train.jsonl -t "gpt2" -o lengths.jsonl
 
-# OOV and rare token analysis
-uvx chuk-lazarus tokenizer instrument oov -t "gpt2" --file corpus.txt --show-rare
+# Build a batch plan for reproducible training
+chuk-lazarus data batchplan build -l lengths.jsonl -e 3 -b 4096 -o batch_plan/ --predictable
 
-# Padding and truncation waste analysis
-uvx chuk-lazarus tokenizer instrument waste -t "gpt2" --file corpus.txt --max-length 512
+# Show batch plan info
+chuk-lazarus data batchplan info -p batch_plan/ --show-batches 5
 
-# Compare vocabulary impact (before/after tokenizer swap)
-uvx chuk-lazarus tokenizer instrument vocab-diff -t1 "gpt2" -t2 "meta-llama/Llama-2-7b" --file corpus.txt
+# Analyze batching efficiency
+chuk-lazarus data batching analyze --cache lengths.jsonl --bucket-edges 128,256,512
 ```
 
-### Training Utilities
-
-Tools for efficient training data preparation:
+### Training Commands
 
 ```bash
-# Profile tokenization throughput
-uvx chuk-lazarus tokenizer training throughput -t "gpt2" --file corpus.txt
+# Train with SFT
+chuk-lazarus train sft --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --data train.jsonl --use-lora
 
-# Pack sequences for efficient training (20-40% speedup)
-uvx chuk-lazarus tokenizer training pack -t "gpt2" --file corpus.txt --max-length 512 -o packed.jsonl
+# Train with DPO
+chuk-lazarus train dpo --model ./checkpoints/sft/final --data preferences.jsonl
 
-# Create curriculum learning buckets by token length
-uvx chuk-lazarus tokenizer curriculum length-buckets -t "gpt2" --file corpus.txt
+# Generate synthetic training data
+chuk-lazarus generate --type math --output ./data/lazarus
 
-# Score texts by reasoning density for curriculum ordering
-uvx chuk-lazarus tokenizer curriculum reasoning-density -t "gpt2" --file corpus.txt
+# Run inference
+chuk-lazarus infer --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --prompt "What is 2+2?"
 ```
 
-### Regression Testing
+### Puzzle Arcade Integration
 
-Ensure tokenization doesn't change unexpectedly:
+Stream training data from the puzzle arcade server for online/RL training:
 
 ```bash
-# Run regression tests from YAML file
-uvx chuk-lazarus tokenizer regression run -t "gpt2" --tests tokenizer_tests.yaml
+# Connect to puzzle gym and collect episodes
+chuk-lazarus gym run --host localhost --port 8023 --puzzles sudoku,binary --episodes 100
 ```
 
-Example `tokenizer_tests.yaml`:
-```yaml
-name: My Tokenizer Tests
-tests:
-  - name: basic_text
-    text: "Hello, world!"
-    assertion: exact_tokens
-    expected: 4
-  - name: roundtrip
-    text: "The quick brown fox"
-    assertion: roundtrip_lossless
-  - name: math_symbols
-    text: "x^2 + y^2 = z^2"
-    assertion: max_tokens
-    expected: 10
+```python
+from chuk_lazarus.data.batching.streaming import (
+    TelnetGymClient, TelnetClientConfig, PuzzleGame, PuzzleDifficulty,
+    ReplayBuffer, ReplayBufferConfig, StreamSample, SampleSource,
+)
+
+# Connect to puzzle server
+config = TelnetClientConfig(host="localhost", port=8023)
+async with TelnetGymClient(config) as client:
+    # Start a puzzle
+    obs = await client.start_puzzle(PuzzleGame.SUDOKU, PuzzleDifficulty.EASY)
+
+    # Get optimal moves as training data
+    hint = await client.get_hint()
+    print(f"Next move: {hint.message}")
+
+    # Collect into replay buffer
+    buffer = ReplayBuffer(ReplayBufferConfig(max_size=10000))
+    sample = StreamSample(
+        input_ids=tokenize(prompt),
+        loss_mask=loss_mask,
+        source=SampleSource.GYM,
+        difficulty=0.3,
+    )
+    buffer.add(sample)
 ```
+
+**Supported puzzles:** Sudoku, KenKen, Kakuro, Binary, Futoshiki, Nonogram, Logic Grid, Killer Sudoku, Lights Out, Mastermind, Slitherlink, Bridges, Hitori, Shikaku, Hidato, Tents, Fillomino, Star Battle, Sokoban, Knapsack, Nurikabe, Minesweeper
 
 ## Python API
 
 ```python
 from chuk_lazarus.utils.tokenizer_loader import load_tokenizer
-from chuk_lazarus.data.tokenizers.analyze import (
-    analyze_coverage,
-    analyze_entropy,
-    calculate_fit_score,
-)
+from chuk_lazarus.data.tokenizers.analyze import analyze_coverage, calculate_fit_score
 from chuk_lazarus.data.tokenizers.fingerprint import compute_fingerprint
-from chuk_lazarus.data.tokenizers.runtime.chat_templates import (
-    ChatTemplateRegistry,
-    validate_chat_template,
-    patch_chat_template,
-)
 
 # Load any HuggingFace tokenizer
 tokenizer = load_tokenizer("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
@@ -231,66 +169,80 @@ print(f"Fit score: {fit.score}/100 ({fit.grade})")
 # Generate fingerprint for compatibility checks
 fp = compute_fingerprint(tokenizer)
 print(f"Fingerprint: {fp.fingerprint}")
-
-# Validate and patch chat templates
-result = validate_chat_template(tokenizer)
-print(f"Format: {result.format.value}, Valid: {result.is_valid}")
-
-# Patch a missing template
-patch_chat_template(tokenizer, "chatml")  # or llama, phi, gemma, etc.
 ```
 
-See the [Tokenizers README](src/chuk_lazarus/data/tokenizers/README.md) for comprehensive documentation of all analysis, preprocessing, and training utilities.
+## Architecture
 
-## Training CLI
-
-```bash
-# Train with SFT
-uvx chuk-lazarus train sft --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --data train.jsonl --use-lora
-
-# Train with DPO
-uvx chuk-lazarus train dpo --model ./checkpoints/sft/final --data preferences.jsonl
-
-# Generate synthetic training data
-uvx chuk-lazarus generate --type math --output ./data/lazarus
-
-# Run inference
-uvx chuk-lazarus infer --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --prompt "What is 2+2?"
 ```
+src/chuk_lazarus/
+├── cli/                    # Command-line interface
+├── data/
+│   ├── batching/           # Token-budget batching, packing, distributed planning
+│   │   ├── core/           # Bucketing, sampling, metrics
+│   │   ├── planning/       # Batch plans, predictability, packing
+│   │   ├── generation/     # Batch I/O, length caching
+│   │   ├── streaming/      # Gym integration, replay buffers
+│   │   └── analyze/        # Efficiency analysis
+│   ├── samples/            # Sample schema and validation
+│   ├── tokenizers/         # Tokenizer toolkit (analysis, preprocessing, runtime)
+│   └── generators/         # Synthetic data generation
+├── models/                 # Model architectures and loading
+├── training/               # Trainers (SFT, DPO, GRPO, PPO)
+├── inference/              # Text generation
+├── distributed/            # Distributed training utilities
+└── utils/                  # Utilities
+```
+
+### Key Modules
+
+| Module | Description |
+|--------|-------------|
+| **Tokenizers** | Comprehensive toolkit for analysis, preprocessing, and runtime management |
+| **Batching** | Token-budget batching, sequence packing, distributed batch planning |
+| **Streaming** | Puzzle arcade integration, replay buffers, online learning |
+| **Training** | SFT, DPO, GRPO, PPO trainers with LoRA support |
+| **Models** | LLaMA, Mistral, Gemma, Granite, StarCoder2, TinyLlama |
 
 ## Features
 
 - **Tokenizer Toolkit**: Encode, decode, analyze, compare, fingerprint, and debug any tokenizer
 - **Tokenizer Doctor**: Health check with auto-fix for missing chat templates
 - **Chat Template Registry**: 7 built-in formats (ChatML, Llama, Phi, Gemma, Zephyr, Vicuna, Alpaca)
+- **Batching Infrastructure**: Token-budget batching, sequence packing (50-70% token reduction)
+- **Puzzle Arcade Integration**: Stream training data from 24 puzzle types for online/RL learning
+- **Replay Buffers**: Priority sampling, difficulty tracking, curriculum support
 - **Training**: SFT, DPO, GRPO, PPO trainers with LoRA support
-- **Models**: LLaMA, Mistral, Gemma, Granite, StarCoder2, TinyLlama
 - **Analysis**: Coverage, entropy, efficiency, fit scoring, vocabulary induction
 - **Instrumentation**: Histograms, OOV analysis, waste metrics, vocab comparison
-- **CLI**: Comprehensive command-line interface for all operations
 
-## Project Structure
+## Documentation
 
+- [Getting Started](docs/getting-started.md) - Installation and quick reference
+- [CLI Reference](docs/cli.md) - Command-line interface documentation
+- [Tokenizers Guide](docs/tokenizers.md) - Comprehensive tokenizer toolkit
+- [Batching Guide](docs/batching.md) - Token-budget batching, packing, distributed training
+- [Training Guide](docs/training.md) - SFT, DPO, GRPO, PPO training
+- [API Reference](docs/api-reference.md) - Python API documentation
+
+## Supported Models
+
+- LLaMA / LLaMA 2 / LLaMA 3
+- Mistral
+- Gemma
+- Granite
+- StarCoder2
+- TinyLlama
+
+## OpenAI Tokenizers
+
+Support for OpenAI's tokenizers via tiktoken:
+
+```bash
+uvx "chuk-lazarus[openai]" tokenizer encode -t "gpt-4" --text "Hello, world!"
+uvx "chuk-lazarus[openai]" tokenizer compare -t1 "gpt-4" -t2 "gpt-4o" --text "Test"
 ```
-src/chuk_lazarus/
-├── cli/                    # Command-line interface
-├── data/
-│   ├── tokenizers/         # Tokenizer toolkit
-│   │   ├── analyze/        # Coverage, entropy, fit scoring
-│   │   ├── backends/       # HuggingFace + fast MLX backends + benchmarking
-│   │   ├── curriculum/     # Length buckets, reasoning density
-│   │   ├── instrumentation/# Histograms, OOV, waste metrics
-│   │   ├── preprocessing/  # Hooks, profiles, byte fallback
-│   │   ├── regression/     # Token regression testing
-│   │   ├── research/       # Soft tokens, embedding analysis
-│   │   ├── runtime/        # Special token registry, chat templates
-│   │   └── training/       # Packing, throughput profiling
-│   └── generators/         # Synthetic data generation
-├── models/                 # Model architectures and loading
-├── training/               # Trainers (SFT, DPO, GRPO, PPO)
-├── inference/              # Text generation
-└── utils/                  # Utilities
-```
+
+Supported: `gpt-4`, `gpt-4-turbo`, `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `o1`, `o1-mini`, `o3-mini`
 
 ## License
 
