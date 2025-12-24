@@ -1,6 +1,10 @@
 # Lazarus
 
-MLX-based LLM training and tokenizer toolkit for Apple Silicon.
+**Deterministic data + tokenizer tooling for MLX training.**
+
+Offline batch plans, reproducible batching, measurable efficiency — the stuff you wish every training stack shipped with.
+
+Built for Apple Silicon with MLX.
 
 ## Quick Start with uvx
 
@@ -90,6 +94,10 @@ chuk-lazarus data batchplan info -p batch_plan/ --show-batches 5
 
 # Analyze batching efficiency
 chuk-lazarus data batching analyze --cache lengths.jsonl --bucket-edges 128,256,512
+
+# Run comprehensive pipeline benchmark
+chuk-lazarus bench --num-samples 1000
+chuk-lazarus bench -d train.jsonl -t gpt2 --bucket-edges 128,256,512
 ```
 
 ### Training Commands

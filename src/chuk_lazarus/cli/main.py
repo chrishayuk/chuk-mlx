@@ -57,6 +57,11 @@ Gym Commands (Online Learning):
     lazarus gym run -t gpt2 --mock --output buffer.json  # Save samples to buffer
     lazarus gym info  # Display gym stream configuration
 
+Benchmark Commands:
+    lazarus bench  # Run benchmark with synthetic data
+    lazarus bench -d train.jsonl -t gpt2  # Benchmark with real dataset
+    lazarus bench --bucket-edges 128,256,512 --token-budget 4096  # Custom config
+
 Training with Batching:
     lazarus train sft --model model --data train.jsonl --batchplan batch_plan/
     lazarus train sft --model model --data train.jsonl --bucket-edges 128,256,512 --token-budget 4096
@@ -2221,6 +2226,181 @@ def gym_run(args):
     asyncio.run(run())
 
 
+def bench_pipeline(args):
+    """Run comprehensive batching pipeline benchmark."""
+    import asyncio
+    import time
+
+    from ..data.batching import (
+        BatchingConfig,
+        BatchPlanBuilder,
+        BucketSpec,
+        TokenBudgetBatchSampler,
+        compute_length_histogram,
+        analyze_bucket_efficiency,
+        create_efficiency_report,
+        pack_sequences,
+        PackingConfig,
+        PackingMode,
+        SequenceToPack,
+        compute_packing_metrics,
+    )
+    from ..utils.tokenizer_loader import load_tokenizer
+
+    print(f"\n{'=' * 70}")
+    print("LAZARUS PIPELINE BENCHMARK")
+    print(f"{'=' * 70}")
+
+    # Load tokenizer if provided, else use mock lengths
+    if args.dataset:
+        print(f"\nDataset: {args.dataset}")
+        print(f"Tokenizer: {args.tokenizer}")
+
+        tokenizer = load_tokenizer(args.tokenizer)
+
+        # Tokenize and build lengths
+        print("\n[1/6] Tokenizing dataset...")
+        start = time.time()
+        lengths = {}
+        samples = {}
+        import json
+        with open(args.dataset) as f:
+            for i, line in enumerate(f):
+                if args.max_samples and i >= args.max_samples:
+                    break
+                data = json.loads(line)
+                text = data.get("text", data.get("content", data.get("instruction", "")))
+                if text:
+                    ids = tokenizer.encode(text)
+                    sample_id = data.get("id", f"sample_{i}")
+                    lengths[sample_id] = len(ids)
+                    samples[sample_id] = ids
+        tokenize_time = time.time() - start
+        print(f"    Tokenized {len(lengths)} samples in {tokenize_time:.2f}s")
+        print(f"    Throughput: {len(lengths) / tokenize_time:.0f} samples/sec")
+    else:
+        print("\nUsing synthetic data (no --dataset provided)")
+        print(f"Samples: {args.num_samples}")
+
+        # Generate synthetic lengths
+        import random
+        random.seed(args.seed)
+        lengths = {f"s{i}": random.randint(32, args.max_length) for i in range(args.num_samples)}
+        samples = {sid: list(range(length)) for sid, length in lengths.items()}
+        tokenize_time = 0.0
+
+    # Parse bucket edges
+    bucket_edges = tuple(int(x) for x in args.bucket_edges.split(","))
+
+    # Length histogram
+    print("\n[2/6] Computing length histogram...")
+    histogram = compute_length_histogram(lengths, num_bins=15)
+    print(f"\n{histogram.to_ascii(width=50)}")
+    print(f"    Min: {histogram.min_length}, Max: {histogram.max_length}")
+    print(f"    Mean: {histogram.mean_length:.1f}, Median: {histogram.median_length}")
+    print(f"    P90: {histogram.p90}, P99: {histogram.p99}")
+
+    # Bucket efficiency analysis
+    print("\n[3/6] Analyzing bucket efficiency...")
+    bucket_spec = BucketSpec(edges=bucket_edges, overflow_max=args.max_length)
+    bucket_analysis = analyze_bucket_efficiency(lengths, bucket_spec)
+    print(f"\n{bucket_analysis.to_ascii()}")
+    print(f"    Overall efficiency: {bucket_analysis.overall_efficiency:.1%}")
+
+    # Batch plan building
+    print("\n[4/6] Building batch plan...")
+    config = BatchingConfig.predictable(
+        token_budget=args.token_budget,
+        bucket_edges=bucket_edges,
+        overflow_max=args.max_length,
+        seed=args.seed,
+    )
+
+    start = time.time()
+    builder = BatchPlanBuilder(
+        lengths=lengths,
+        batching_config=config,
+        dataset_hash="benchmark",
+        tokenizer_hash="benchmark",
+    )
+    plan = asyncio.run(builder.build(num_epochs=1))
+    plan_time = time.time() - start
+
+    total_batches = plan.total_microbatches
+    epoch = plan.get_epoch(0)
+    total_tokens = epoch.total_tokens
+
+    print(f"    Built plan in {plan_time:.3f}s")
+    print(f"    Total microbatches: {total_batches}")
+    print(f"    Total tokens: {total_tokens:,}")
+    print(f"    Fingerprint: {plan.fingerprint}")
+
+    # Compute batch metrics
+    avg_batch_size = epoch.total_samples / total_batches if total_batches > 0 else 0
+    avg_tokens_per_batch = total_tokens / total_batches if total_batches > 0 else 0
+
+    # Packing analysis
+    print("\n[5/6] Packing analysis...")
+    # Take a sample of sequences for packing demo
+    sample_seqs = [
+        SequenceToPack(
+            sample_id=sid,
+            input_ids=tuple(samples[sid][:lengths[sid]]),
+            loss_mask=tuple([1] * lengths[sid]),
+        )
+        for sid in list(lengths.keys())[:min(500, len(lengths))]
+    ]
+
+    pack_config = PackingConfig(
+        mode=PackingMode.GREEDY,
+        max_length=args.max_length,
+        pad_to_max=True,
+    )
+
+    start = time.time()
+    packed = pack_sequences(sample_seqs, pack_config, pad_token_id=0)
+    pack_time = time.time() - start
+    pack_metrics = compute_packing_metrics(packed)
+
+    print(f"    Packed {len(sample_seqs)} → {len(packed)} sequences in {pack_time:.3f}s")
+    print(f"    Packing ratio: {pack_metrics.packing_ratio:.2f}x")
+    print(f"    Efficiency: {pack_metrics.efficiency:.1%}")
+    print(f"    Token reduction: {1 - 1/pack_metrics.packing_ratio:.0%}" if pack_metrics.packing_ratio > 1 else "")
+
+    # Efficiency report
+    print("\n[6/6] Creating efficiency report...")
+    report = create_efficiency_report(lengths, bucket_spec)
+    print(f"\n{report.to_ascii()}")
+
+    # Summary
+    print(f"\n{'=' * 70}")
+    print("BENCHMARK SUMMARY")
+    print(f"{'=' * 70}")
+    print(f"\n{'Metric':<30} {'Value':>20}")
+    print("-" * 52)
+    print(f"{'Samples':<30} {len(lengths):>20,}")
+    print(f"{'Total tokens':<30} {sum(lengths.values()):>20,}")
+    print(f"{'Tokenization time':<30} {tokenize_time:>19.2f}s")
+    print(f"{'Plan build time':<30} {plan_time:>19.3f}s")
+    print(f"{'Pack time (500 samples)':<30} {pack_time:>19.3f}s")
+    print(f"{'Microbatches per epoch':<30} {total_batches:>20,}")
+    print(f"{'Avg batch size':<30} {avg_batch_size:>20.1f}")
+    print(f"{'Avg tokens/batch':<30} {avg_tokens_per_batch:>20.0f}")
+    print(f"{'Bucket efficiency':<30} {bucket_analysis.overall_efficiency:>19.1%}")
+    print(f"{'Packing ratio':<30} {pack_metrics.packing_ratio:>19.2f}x")
+    print(f"{'Packing efficiency':<30} {pack_metrics.efficiency:>19.1%}")
+    print(f"{'Plan fingerprint':<30} {plan.fingerprint:>20}")
+
+    if report.recommendations:
+        print(f"\n{'Recommendations:':<30}")
+        for rec in report.recommendations[:3]:
+            print(f"  • {rec}")
+
+    print(f"\n{'=' * 70}")
+    print("Benchmark complete.")
+    print(f"{'=' * 70}\n")
+
+
 def gym_info(args):
     """Display gym stream configuration info."""
     from ..data.batching.streaming import (
@@ -3016,6 +3196,59 @@ Examples:
         "info", help="Display gym stream configuration info"
     )
     gym_info_parser.set_defaults(func=gym_info)
+
+    # =========================================================================
+    # Bench command - comprehensive pipeline benchmark
+    # =========================================================================
+    bench_parser = subparsers.add_parser(
+        "bench",
+        help="Benchmark the batching pipeline",
+        description="Run comprehensive benchmarks on tokenization, batching, packing, and efficiency.",
+    )
+    bench_parser.add_argument(
+        "-d", "--dataset",
+        help="JSONL dataset file (optional - uses synthetic data if not provided)",
+    )
+    bench_parser.add_argument(
+        "-t", "--tokenizer",
+        default="gpt2",
+        help="Tokenizer to use (default: gpt2)",
+    )
+    bench_parser.add_argument(
+        "--bucket-edges",
+        default="128,256,512,1024",
+        help="Bucket edge lengths (comma-separated, default: 128,256,512,1024)",
+    )
+    bench_parser.add_argument(
+        "--token-budget",
+        type=int,
+        default=4096,
+        help="Token budget per microbatch (default: 4096)",
+    )
+    bench_parser.add_argument(
+        "--max-length",
+        type=int,
+        default=2048,
+        help="Maximum sequence length (default: 2048)",
+    )
+    bench_parser.add_argument(
+        "--max-samples",
+        type=int,
+        help="Maximum samples to process from dataset",
+    )
+    bench_parser.add_argument(
+        "--num-samples",
+        type=int,
+        default=1000,
+        help="Number of synthetic samples (when no dataset, default: 1000)",
+    )
+    bench_parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed (default: 42)",
+    )
+    bench_parser.set_defaults(func=bench_pipeline)
 
     return parser
 
