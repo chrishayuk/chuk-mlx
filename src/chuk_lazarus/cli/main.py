@@ -2229,6 +2229,7 @@ def gym_run(args):
 def bench_pipeline(args):
     """Run comprehensive batching pipeline benchmark."""
     import asyncio
+    import statistics
     import time
 
     from ..data.batching import (
@@ -2258,7 +2259,7 @@ def bench_pipeline(args):
         tokenizer = load_tokenizer(args.tokenizer)
 
         # Tokenize and build lengths
-        print("\n[1/6] Tokenizing dataset...")
+        print("\n[1/7] Tokenizing dataset...")
         start = time.time()
         lengths = {}
         samples = {}
@@ -2276,8 +2277,9 @@ def bench_pipeline(args):
                     lengths[sample_id] = len(ids)
                     samples[sample_id] = ids
         tokenize_time = time.time() - start
+        tokenize_throughput = len(lengths) / tokenize_time if tokenize_time > 0 else 0
         print(f"    Tokenized {len(lengths)} samples in {tokenize_time:.2f}s")
-        print(f"    Throughput: {len(lengths) / tokenize_time:.0f} samples/sec")
+        print(f"    Throughput: {tokenize_throughput:.0f} samples/sec")
     else:
         print("\nUsing synthetic data (no --dataset provided)")
         print(f"Samples: {args.num_samples}")
@@ -2289,27 +2291,33 @@ def bench_pipeline(args):
         lengths = {f"s{i}": random.randint(32, args.max_length) for i in range(args.num_samples)}
         samples = {sid: list(range(length)) for sid, length in lengths.items()}
         tokenize_time = 0.0
+        tokenize_throughput = 0.0
 
     # Parse bucket edges
     bucket_edges = tuple(int(x) for x in args.bucket_edges.split(","))
+    total_tokens = sum(lengths.values())
+    length_values = list(lengths.values())
+    length_variance = statistics.variance(length_values) if len(length_values) > 1 else 0
+    length_stddev = statistics.stdev(length_values) if len(length_values) > 1 else 0
 
     # Length histogram
-    print("\n[2/6] Computing length histogram...")
+    print("\n[2/7] Computing length histogram...")
     histogram = compute_length_histogram(lengths, num_bins=15)
     print(f"\n{histogram.to_ascii(width=50)}")
     print(f"    Min: {histogram.min_length}, Max: {histogram.max_length}")
     print(f"    Mean: {histogram.mean_length:.1f}, Median: {histogram.median_length}")
+    print(f"    StdDev: {length_stddev:.1f}, Variance: {length_variance:.1f}")
     print(f"    P90: {histogram.p90}, P99: {histogram.p99}")
 
     # Bucket efficiency analysis
-    print("\n[3/6] Analyzing bucket efficiency...")
+    print("\n[3/7] Analyzing bucket efficiency...")
     bucket_spec = BucketSpec(edges=bucket_edges, overflow_max=args.max_length)
     bucket_analysis = analyze_bucket_efficiency(lengths, bucket_spec)
     print(f"\n{bucket_analysis.to_ascii()}")
     print(f"    Overall efficiency: {bucket_analysis.overall_efficiency:.1%}")
 
     # Batch plan building
-    print("\n[4/6] Building batch plan...")
+    print("\n[4/7] Building batch plan...")
     config = BatchingConfig.predictable(
         token_budget=args.token_budget,
         bucket_edges=bucket_edges,
@@ -2329,19 +2337,33 @@ def bench_pipeline(args):
 
     total_batches = plan.total_microbatches
     epoch = plan.get_epoch(0)
-    total_tokens = epoch.total_tokens
+    epoch_tokens = epoch.total_tokens
 
     print(f"    Built plan in {plan_time:.3f}s")
     print(f"    Total microbatches: {total_batches}")
-    print(f"    Total tokens: {total_tokens:,}")
+    print(f"    Total tokens: {epoch_tokens:,}")
     print(f"    Fingerprint: {plan.fingerprint}")
 
     # Compute batch metrics
     avg_batch_size = epoch.total_samples / total_batches if total_batches > 0 else 0
-    avg_tokens_per_batch = total_tokens / total_batches if total_batches > 0 else 0
+    avg_tokens_per_batch = epoch_tokens / total_batches if total_batches > 0 else 0
+
+    # Compute padding waste for pad-to-bucket strategy
+    print("\n[5/7] Computing padding waste (pad-to-bucket)...")
+    padded_tokens_bucket = 0
+    for sid, length in lengths.items():
+        bucket_id = bucket_spec.get_bucket_id(length)
+        _, max_len = bucket_spec.get_bucket_range(bucket_id)
+        padded_tokens_bucket += max_len
+    padding_waste_bucket = (
+        1.0 - (total_tokens / padded_tokens_bucket) if padded_tokens_bucket > 0 else 0
+    )
+    print(f"    Total tokens (raw): {total_tokens:,}")
+    print(f"    Total tokens (padded to bucket): {padded_tokens_bucket:,}")
+    print(f"    Padding waste: {padding_waste_bucket:.1%}")
 
     # Packing analysis
-    print("\n[5/6] Packing analysis...")
+    print("\n[6/7] Packing analysis...")
     # Take a sample of sequences for packing demo
     sample_seqs = [
         SequenceToPack(
@@ -2366,43 +2388,130 @@ def bench_pipeline(args):
     print(f"    Packed {len(sample_seqs)} → {len(packed)} sequences in {pack_time:.3f}s")
     print(f"    Packing ratio: {pack_metrics.packing_ratio:.2f}x")
     print(f"    Efficiency: {pack_metrics.efficiency:.1%}")
-    print(
-        f"    Token reduction: {1 - 1 / pack_metrics.packing_ratio:.0%}"
-        if pack_metrics.packing_ratio > 1
-        else ""
+    if pack_metrics.packing_ratio > 1:
+        print(f"    Token reduction: {1 - 1 / pack_metrics.packing_ratio:.0%}")
+
+    # Memory footprint estimation
+    print("\n[7/7] Memory footprint estimation...")
+    # Estimate memory for different strategies
+    bytes_per_token = 4  # int32
+    mem_raw = total_tokens * bytes_per_token
+    mem_padded_bucket = padded_tokens_bucket * bytes_per_token
+    mem_packed = (
+        sum(len(p.input_ids) for p in packed) * bytes_per_token * (len(lengths) / len(sample_seqs))
     )
 
+    print(f"    Raw tokens: {mem_raw / 1024 / 1024:.1f} MB")
+    print(f"    Padded (bucket): {mem_padded_bucket / 1024 / 1024:.1f} MB")
+    print(f"    Packed (estimated): {mem_packed / 1024 / 1024:.1f} MB")
+
     # Efficiency report
-    print("\n[6/6] Creating efficiency report...")
+    print("\n[8/8] Creating efficiency report...")
     report = create_efficiency_report(lengths, bucket_spec)
     print(f"\n{report.to_ascii()}")
 
-    # Summary
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PACK VS PAD COMPARISON
+    # ═══════════════════════════════════════════════════════════════════════════
+    print(f"\n{'=' * 70}")
+    print("PACK VS PAD COMPARISON")
+    print(f"{'=' * 70}")
+
+    print(f"\n{'Strategy':<25} {'Tokens':>15} {'Waste %':>12} {'Memory':>12}")
+    print("-" * 66)
+    print(
+        f"{'Raw (no padding)':<25} {total_tokens:>15,} {'0.0%':>12} {mem_raw / 1024 / 1024:>10.1f} MB"
+    )
+    print(
+        f"{'Pad-to-bucket':<25} {padded_tokens_bucket:>15,} {padding_waste_bucket:>11.1%} {mem_padded_bucket / 1024 / 1024:>10.1f} MB"
+    )
+
+    # Estimate packed total tokens
+    packed_total_tokens = (
+        int(total_tokens / pack_metrics.efficiency) if pack_metrics.efficiency > 0 else total_tokens
+    )
+    packed_waste = 1.0 - pack_metrics.efficiency
+    print(
+        f"{'Packed (greedy)':<25} {packed_total_tokens:>15,} {packed_waste:>11.1%} {mem_packed / 1024 / 1024:>10.1f} MB"
+    )
+
+    if padding_waste_bucket > packed_waste:
+        savings = padding_waste_bucket - packed_waste
+        print(f"\n    → Packing saves {savings:.1%} waste vs pad-to-bucket")
+    else:
+        print("\n    → Pad-to-bucket is more efficient for this distribution")
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # THROUGHPUT METRICS
+    # ═══════════════════════════════════════════════════════════════════════════
+    print(f"\n{'=' * 70}")
+    print("THROUGHPUT METRICS")
+    print(f"{'=' * 70}")
+
+    print(f"\n{'Metric':<35} {'Value':>20}")
+    print("-" * 57)
+    print(f"{'Tokenization throughput':<35} {tokenize_throughput:>15.0f} samp/s")
+    print(f"{'Plan build throughput':<35} {len(lengths) / plan_time:>15.0f} samp/s")
+    print(f"{'Effective tokens/batch':<35} {avg_tokens_per_batch:>20.0f}")
+    print(f"{'Tokens/batch (theoretical max)':<35} {args.token_budget:>20}")
+    print(f"{'Token budget utilization':<35} {avg_tokens_per_batch / args.token_budget:>19.1%}")
+
+    # Batch size variance
+    batch_sizes = [len(mb.samples) for mb in epoch.microbatches]
+    batch_size_variance = statistics.variance(batch_sizes) if len(batch_sizes) > 1 else 0
+    batch_size_stddev = statistics.stdev(batch_sizes) if len(batch_sizes) > 1 else 0
+
+    print(f"{'Batch size mean':<35} {statistics.mean(batch_sizes):>20.1f}")
+    print(f"{'Batch size stddev':<35} {batch_size_stddev:>20.1f}")
+    print(f"{'Batch size variance':<35} {batch_size_variance:>20.1f}")
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # SUMMARY
+    # ═══════════════════════════════════════════════════════════════════════════
     print(f"\n{'=' * 70}")
     print("BENCHMARK SUMMARY")
     print(f"{'=' * 70}")
-    print(f"\n{'Metric':<30} {'Value':>20}")
-    print("-" * 52)
-    print(f"{'Samples':<30} {len(lengths):>20,}")
-    print(f"{'Total tokens':<30} {sum(lengths.values()):>20,}")
-    print(f"{'Tokenization time':<30} {tokenize_time:>19.2f}s")
-    print(f"{'Plan build time':<30} {plan_time:>19.3f}s")
-    print(f"{'Pack time (500 samples)':<30} {pack_time:>19.3f}s")
-    print(f"{'Microbatches per epoch':<30} {total_batches:>20,}")
-    print(f"{'Avg batch size':<30} {avg_batch_size:>20.1f}")
-    print(f"{'Avg tokens/batch':<30} {avg_tokens_per_batch:>20.0f}")
-    print(f"{'Bucket efficiency':<30} {bucket_analysis.overall_efficiency:>19.1%}")
-    print(f"{'Packing ratio':<30} {pack_metrics.packing_ratio:>19.2f}x")
-    print(f"{'Packing efficiency':<30} {pack_metrics.efficiency:>19.1%}")
-    print(f"{'Plan fingerprint':<30} {plan.fingerprint:>20}")
+    print(f"\n{'Metric':<35} {'Value':>20}")
+    print("-" * 57)
+    print(f"{'Samples':<35} {len(lengths):>20,}")
+    print(f"{'Total tokens':<35} {total_tokens:>20,}")
+    print(f"{'Length stddev':<35} {length_stddev:>20.1f}")
+    print(f"{'Tokenization time':<35} {tokenize_time:>19.2f}s")
+    print(f"{'Plan build time':<35} {plan_time:>19.3f}s")
+    print(f"{'Pack time (500 samples)':<35} {pack_time:>19.3f}s")
+    print(f"{'Microbatches per epoch':<35} {total_batches:>20,}")
+    print(f"{'Avg batch size':<35} {avg_batch_size:>20.1f}")
+    print(f"{'Avg tokens/batch':<35} {avg_tokens_per_batch:>20.0f}")
+    print(f"{'Token budget utilization':<35} {avg_tokens_per_batch / args.token_budget:>19.1%}")
+    print(f"{'Bucket efficiency':<35} {bucket_analysis.overall_efficiency:>19.1%}")
+    print(f"{'Padding waste (bucket)':<35} {padding_waste_bucket:>19.1%}")
+    print(f"{'Packing ratio':<35} {pack_metrics.packing_ratio:>19.2f}x")
+    print(f"{'Packing efficiency':<35} {pack_metrics.efficiency:>19.1%}")
+    print(f"{'Plan fingerprint':<35} {plan.fingerprint:>20}")
 
     if report.recommendations:
-        print(f"\n{'Recommendations:':<30}")
+        print(f"\n{'Recommendations:':<35}")
         for rec in report.recommendations[:3]:
             print(f"  • {rec}")
 
+    # Key insight
     print(f"\n{'=' * 70}")
-    print("Benchmark complete.")
+    print("KEY INSIGHT")
+    print(f"{'=' * 70}")
+    if pack_metrics.packing_ratio > 1.3:
+        print(f"\n  Packing recommended: {pack_metrics.packing_ratio:.1f}x compression saves")
+        print(f"  {1 - 1 / pack_metrics.packing_ratio:.0%} tokens per epoch.")
+    elif bucket_analysis.overall_efficiency > 0.85:
+        print(f"\n  Bucket efficiency is high ({bucket_analysis.overall_efficiency:.0%}).")
+        print("  Pad-to-bucket is sufficient for this distribution.")
+    else:
+        print(
+            f"\n  Consider adjusting bucket edges. Current efficiency: {bucket_analysis.overall_efficiency:.0%}"
+        )
+        print("  Suggested edges from report may improve utilization.")
+
+    print(f"\n{'=' * 70}")
+    print("Benchmark complete. Plan fingerprint can be used for CI/CD verification.")
     print(f"{'=' * 70}\n")
 
 

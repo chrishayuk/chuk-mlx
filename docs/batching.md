@@ -2,22 +2,62 @@
 
 A comprehensive, Pydantic-native batching infrastructure for efficient and reproducible ML training. Implements token-budget batching, sequence packing, and distributed batch planning.
 
+## The Plan as Contract
+
+The central idea: **the BatchPlan becomes the contract, not the dataloader.**
+
+Traditional dataloaders make batching decisions at runtime. This creates problems:
+- Non-reproducible training runs
+- Difficulty debugging batch-related issues
+- No way to verify batching across distributed workers
+- Training restarts produce different batch orderings
+
+Lazarus flips this: you build a **BatchPlan** offline, and the plan becomes a versioned artifact:
+
+```python
+# Build plan once (offline)
+plan = await builder.build(num_epochs=10)
+save_batch_plan(plan, "batch_plan/")
+
+# Plan is now:
+# - Versioned (fingerprint: bc280585be725a2a)
+# - Shareable (distribute to all workers)
+# - Verifiable (CI/CD can check fingerprint matches)
+# - Reproducible (same plan = same batches, always)
+
+# Use anywhere
+loaded = load_batch_plan("batch_plan/")
+for epoch, mb_idx, mb in loaded.iter_from(epoch=2, microbatch_idx=100):
+    batch = collate([samples[sid] for sid in mb.samples])
+    train_step(batch)
+```
+
+This enables:
+- **Offline optimization**: Tune bucket edges, packing, token budgets without touching the trainer
+- **Reproducibility**: Same fingerprint = bit-identical batch ordering across runs
+- **Distributed sharding**: Pre-shard plans for workers, no runtime coordination
+- **Resume from checkpoint**: Exact replay from any (epoch, microbatch_idx)
+- **CI/CD verification**: Validate plan hasn't drifted before training
+
 ## Overview
 
 This module provides:
 - **Token-budget batching** - Form batches by token count rather than sample count for optimal GPU utilization
 - **Length-based bucketing** - Group similar-length sequences to minimize padding waste
-- **Sequence packing** - Pack multiple short sequences into single training examples
+- **Sequence packing** - Pack multiple short sequences into single training examples (50-70% token reduction)
 - **Segment-aware attention** - Block-diagonal attention masks for packed sequences
 - **BatchPlan artifacts** - Precomputed batch schedules for reproducibility and distributed training
-- **Fingerprinting** - Verify batch ordering hasn't changed across runs
+- **Fingerprinting** - Cryptographic verification that batch ordering hasn't changed
+- **Streaming** - Online learning with replay buffers and curriculum sampling
 
 ## Design Principles
 
+- **Plan as contract**: BatchPlan is the source of truth, not runtime decisions
 - **Pydantic-native**: All data structures use Pydantic BaseModel for validation
 - **Async-first**: Async I/O for length caching and batch plan persistence
 - **Deterministic**: Seed control ensures identical batching across runs
 - **Distributed-ready**: Built-in sharding and checkpoint resume support
+- **Verifiable**: Fingerprints enable CI/CD validation of batch ordering
 
 ## Quick Start
 
@@ -595,6 +635,32 @@ lazarus data batch generate \
     --tokenizer gpt2 \
     --output batches/
 ```
+
+### Pipeline Benchmark
+```bash
+# Run comprehensive pipeline benchmark with synthetic data
+lazarus bench --num-samples 1000
+
+# Benchmark with real dataset
+lazarus bench --dataset train.jsonl --tokenizer gpt2 --bucket-edges 128,256,512
+
+# Full options
+lazarus bench \
+    --dataset train.jsonl \
+    --tokenizer TinyLlama/TinyLlama-1.1B-Chat-v1.0 \
+    --bucket-edges 128,256,512,1024 \
+    --token-budget 4096 \
+    --max-length 2048 \
+    --seed 42
+```
+
+The benchmark reports:
+- **Length histogram** with mean, stddev, percentiles
+- **Bucket efficiency** per-bucket and overall
+- **Pack vs Pad comparison** (tokens, waste %, memory)
+- **Throughput metrics** (tokenization, plan build, batch size variance)
+- **Recommendations** for bucket edge optimization
+- **Plan fingerprint** for CI/CD verification
 
 ## Performance Tips
 
