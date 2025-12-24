@@ -215,7 +215,16 @@ src/chuk_lazarus/
 │   ├── samples/            # Sample schema and validation
 │   ├── tokenizers/         # Tokenizer toolkit (analysis, preprocessing, runtime)
 │   └── generators/         # Synthetic data generation
-├── models/                 # Model architectures and loading
+├── models_v2/              # Composable model architecture
+│   ├── core/               # Backend, config, enums, registry
+│   ├── components/         # Attention, FFN, embeddings, SSM, recurrent
+│   ├── blocks/             # Transformer, Mamba, recurrent, hybrid blocks
+│   ├── backbones/          # Stacks of blocks with embeddings
+│   ├── heads/              # LM, classifier, regression heads
+│   ├── models/             # CausalLM, classifiers
+│   ├── families/           # Llama, Mamba implementations
+│   ├── adapters/           # LoRA adapters
+│   └── training/           # Loss functions
 ├── training/               # BatchPlan-driven reference trainers (SFT, DPO, GRPO, PPO)
 ├── inference/              # Text generation
 ├── distributed/            # Distributed training utilities
@@ -226,11 +235,11 @@ src/chuk_lazarus/
 
 | Module | Description |
 |--------|-------------|
+| **Models** | Composable architecture: components, blocks, backbones, heads, families (Llama, Mamba) |
 | **Tokenizers** | Comprehensive toolkit for analysis, preprocessing, and runtime management |
 | **Batching** | Token-budget batching, sequence packing, distributed batch planning |
 | **Streaming** | Puzzle arcade integration, replay buffers, online learning |
 | **Training** | BatchPlan-driven trainers — enforce, don't decide |
-| **Models** | LLaMA, Mistral, Gemma, Granite, StarCoder2, TinyLlama |
 
 ## Features
 
@@ -252,6 +261,7 @@ src/chuk_lazarus/
 
 - [Getting Started](docs/getting-started.md) - Installation and quick reference
 - [CLI Reference](docs/cli.md) - Command-line interface documentation
+- [Models Guide](docs/models.md) - Composable model architecture, components, LoRA adapters
 - [Tokenizers Guide](docs/tokenizers.md) - Comprehensive tokenizer toolkit
 - [Batching Guide](docs/batching.md) - Token-budget batching, packing, distributed training
 - [Training Guide](docs/training.md) - BatchPlan-driven training

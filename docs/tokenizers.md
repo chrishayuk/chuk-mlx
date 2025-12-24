@@ -64,6 +64,103 @@ print(f"Batch shape: {len(batch.input_ids)} x {len(batch.input_ids[0])}")
 
 ## Core Modules
 
+### `character_tokenizer.py`
+
+Lightweight character-level tokenizer for sequence encoding. Useful for:
+- Character-level language models
+- Testing and debugging pipelines
+- Domains where subword tokenization is overkill
+
+```python
+from chuk_lazarus.data.tokenizers import CharacterTokenizer, CharacterTokenizerConfig
+
+# Create from corpus (learns vocabulary)
+tokenizer = CharacterTokenizer.from_corpus(["hello", "world"])
+print(f"Vocab size: {tokenizer.vocab_size}")  # 11 (7 chars + 4 special)
+
+# Factory methods
+ascii_tokenizer = CharacterTokenizer.from_ascii()
+lowercase_tokenizer = CharacterTokenizer.from_ascii_lowercase()
+digits_tokenizer = CharacterTokenizer.from_digits()
+
+# Encode/decode
+tokens = tokenizer.encode("hello", add_special_tokens=True)
+text = tokenizer.decode(tokens, skip_special_tokens=True)
+
+# Batch encoding with padding
+batch = tokenizer.encode_batch(
+    ["hi", "hello"],
+    max_length=10,
+    padding=True,
+)
+```
+
+**Config options:**
+```python
+config = CharacterTokenizerConfig(
+    pad_token_id=0,      # Padding token ID
+    unk_token_id=1,      # Unknown token ID
+    bos_token_id=2,      # Beginning of sequence
+    eos_token_id=3,      # End of sequence
+    lowercase=True,      # Lowercase input before tokenizing
+)
+tokenizer = CharacterTokenizer.from_corpus(texts, config)
+```
+
+### `bow_tokenizer.py`
+
+Bag-of-Words character tokenizer for classification tasks. Converts text into fixed-size vectors of character frequencies (not token IDs).
+
+```python
+from chuk_lazarus.data.tokenizers import BoWCharacterTokenizer, BoWTokenizerConfig
+
+# Create from corpus
+tokenizer = BoWCharacterTokenizer.from_corpus(["cat", "dog"])
+print(f"Vocab size: {tokenizer.vocab_size}")  # 6 (unique chars)
+
+# Encode returns float vector (not token IDs)
+vec = tokenizer.encode("cat")  # [0.33, 0.0, 0.33, ...]
+print(f"Vector length: {len(vec)}")  # Same as vocab_size
+print(f"Sum: {sum(vec)}")  # ~1.0 (normalized by default)
+
+# Batch encoding
+vecs = tokenizer.encode_batch(["cat", "dog"])
+
+# Factory methods
+ascii_tokenizer = BoWCharacterTokenizer.from_ascii()
+lowercase_tokenizer = BoWCharacterTokenizer.from_ascii_lowercase()
+```
+
+**Config options:**
+```python
+config = BoWTokenizerConfig(
+    lowercase=True,   # Lowercase input (default: True)
+    normalize=True,   # L1-normalize vectors (default: True)
+)
+tokenizer = BoWCharacterTokenizer.from_corpus(texts, config)
+
+# Without normalization (raw counts)
+config = BoWTokenizerConfig(normalize=False)
+tokenizer = BoWCharacterTokenizer("abc", config)
+vec = tokenizer.encode("aab")  # [2.0, 1.0, 0.0] (raw counts)
+```
+
+**Use case - Sentiment Classification:**
+```python
+from chuk_lazarus.data import ClassificationDataset
+from chuk_lazarus.data.tokenizers import BoWCharacterTokenizer
+
+# Load data
+dataset = ClassificationDataset.from_jsonl("train.jsonl")
+
+# Build tokenizer from corpus
+tokenizer = BoWCharacterTokenizer.from_corpus(dataset.texts)
+
+# Encode for classification
+import mlx.core as mx
+inputs = mx.stack([mx.array(tokenizer.encode(s.text)) for s in dataset])
+```
+
 ### `custom_tokenizer.py`
 
 Custom tokenizer implementation extending HuggingFace's PreTrainedTokenizer.

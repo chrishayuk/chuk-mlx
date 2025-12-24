@@ -144,6 +144,8 @@ class BaseTrainer(ABC):
 
             epoch_metrics = self._create_epoch_metrics()
 
+            avg_metrics: dict[str, float] = {}
+
             for batch in self.get_train_batches(dataset):
                 self.global_step += 1
 
@@ -179,7 +181,8 @@ class BaseTrainer(ABC):
 
                 # Checkpoint
                 if self.global_step % self.config.checkpoint_interval == 0:
-                    self._save_checkpoint_if_best(avg_metrics)
+                    if avg_metrics:
+                        self._save_checkpoint_if_best(avg_metrics)
                     self.save_checkpoint(f"step_{self.global_step}")
 
                 # Early stopping - max steps
@@ -188,7 +191,7 @@ class BaseTrainer(ABC):
                     break
 
                 # Custom early stopping check
-                if self._should_stop_early(avg_metrics):
+                if avg_metrics and self._should_stop_early(avg_metrics):
                     break
 
             # End of epoch

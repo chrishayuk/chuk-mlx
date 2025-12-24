@@ -18,6 +18,13 @@ from .base_dataset import BaseDataset
 # Batch datasets (for pre-tokenized NPZ data)
 from .batch_dataset_base import BatchDatasetBase
 
+# Classification dataset
+from .classification_dataset import (
+    ClassificationDataset,
+    ClassificationSample,
+    load_classification_data,
+)
+
 # Async-native batching (unified pipeline)
 from .batching import (
     BatchFingerprint,
@@ -98,6 +105,10 @@ __all__ = [
     # Batch datasets
     "BatchDatasetBase",
     "TrainBatchDataset",
+    # Classification
+    "ClassificationDataset",
+    "ClassificationSample",
+    "load_classification_data",
     # Async-native batching (unified pipeline)
     "BucketSpec",
     "BucketId",

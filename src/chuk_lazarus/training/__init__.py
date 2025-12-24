@@ -8,9 +8,17 @@ This module provides:
 - Learning rate schedulers
 """
 
-# Loss functions
 # Base Trainer
 from .base_trainer import BaseTrainer, BaseTrainerConfig
+
+# Classification Trainer
+from .classification_trainer import (
+    ClassificationTrainer,
+    ClassificationTrainerConfig,
+    evaluate_classifier,
+)
+
+# Loss functions
 from .losses import (
     DPOConfig,
     GRPOBatch,
@@ -56,6 +64,10 @@ __all__ = [
     # Base
     "BaseTrainer",
     "BaseTrainerConfig",
+    # Classification
+    "ClassificationTrainer",
+    "ClassificationTrainerConfig",
+    "evaluate_classifier",
     # Losses
     "DPOConfig",
     "GRPOBatch",
