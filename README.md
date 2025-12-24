@@ -1,12 +1,14 @@
 # Lazarus
 
-**Deterministic data + tokenizer tooling for MLX training.**
+**A deterministic data & execution substrate that enables reliable training.**
 
 Offline batch plans, reproducible batching, measurable efficiency — the stuff you wish every training stack shipped with.
 
-Built for Apple Silicon with MLX.
+Built on MLX for Apple Silicon.
 
-**The core idea:** The BatchPlan becomes the contract, not the dataloader. Build plans offline, version them, verify them in CI/CD, and replay them exactly across distributed workers.
+**The core idea:** The BatchPlan becomes the contract, not the dataloader. Build plans offline, version them, verify them in CI/CD, and replay them exactly across distributed workers. BatchPlans are fingerprinted against the tokenizer and length cache, so you can detect drift when data or tokenization changes.
+
+Most training pipelines entangle data loading, batching, and execution inside the trainer, making runs hard to reproduce, debug, or scale. Lazarus separates *planning* from *execution*: batching decisions are made once, recorded as artifacts, and enforced consistently across runs and workers.
 
 ## Quick Start with uvx
 
@@ -105,20 +107,14 @@ chuk-lazarus bench -d train.jsonl -t gpt2 --bucket-edges 128,256,512
 # throughput metrics, memory footprint, and actionable recommendations
 ```
 
-### Training Commands
+BatchPlans are recommended for production and distributed training; streaming batching (below) is intended for online, exploratory, or RL-style workloads.
+
+**Minimal end-to-end deterministic pipeline:**
 
 ```bash
-# Train with SFT
-chuk-lazarus train sft --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --data train.jsonl --use-lora
-
-# Train with DPO
-chuk-lazarus train dpo --model ./checkpoints/sft/final --data preferences.jsonl
-
-# Generate synthetic training data
-chuk-lazarus generate --type math --output ./data/lazarus
-
-# Run inference
-chuk-lazarus infer --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --prompt "What is 2+2?"
+chuk-lazarus data lengths build -d train.jsonl -t gpt2 -o lengths.jsonl
+chuk-lazarus data batchplan build -l lengths.jsonl -e 1 -b 4096 -o batch_plan/ --predictable
+chuk-lazarus train sft --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --data train.jsonl --batch-plan batch_plan/
 ```
 
 ### Puzzle Arcade Integration
@@ -157,7 +153,27 @@ async with TelnetGymClient(config) as client:
     buffer.add(sample)
 ```
 
-**Supported puzzles:** Sudoku, KenKen, Kakuro, Binary, Futoshiki, Nonogram, Logic Grid, Killer Sudoku, Lights Out, Mastermind, Slitherlink, Bridges, Hitori, Shikaku, Hidato, Tents, Fillomino, Star Battle, Sokoban, Knapsack, Nurikabe, Minesweeper
+**Supported puzzles:** Sudoku, KenKen, Nonogram, Lights Out, Sokoban, Minesweeper, and [16 others](docs/gym.md).
+
+### BatchPlan-Driven Training
+
+Training in Lazarus is driven entirely by precomputed BatchPlans. The trainer does not decide batching, sequencing, or token budgets — it enforces them.
+
+> **Invariant:** If two runs use the same BatchPlan artifact (including its fingerprints) and seed, Lazarus guarantees identical batch structure and ordering across runs and workers.
+
+```bash
+# Train with SFT (uses BatchPlan for deterministic batching)
+chuk-lazarus train sft --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --data train.jsonl --use-lora
+
+# Train with DPO
+chuk-lazarus train dpo --model ./checkpoints/sft/final --data preferences.jsonl
+
+# Generate synthetic training data
+chuk-lazarus generate --type math --output ./data/lazarus
+
+# Run inference
+chuk-lazarus infer --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --prompt "What is 2+2?"
+```
 
 ## Python API
 
@@ -200,7 +216,7 @@ src/chuk_lazarus/
 │   ├── tokenizers/         # Tokenizer toolkit (analysis, preprocessing, runtime)
 │   └── generators/         # Synthetic data generation
 ├── models/                 # Model architectures and loading
-├── training/               # Trainers (SFT, DPO, GRPO, PPO)
+├── training/               # BatchPlan-driven reference trainers (SFT, DPO, GRPO, PPO)
 ├── inference/              # Text generation
 ├── distributed/            # Distributed training utilities
 └── utils/                  # Utilities
@@ -213,20 +229,22 @@ src/chuk_lazarus/
 | **Tokenizers** | Comprehensive toolkit for analysis, preprocessing, and runtime management |
 | **Batching** | Token-budget batching, sequence packing, distributed batch planning |
 | **Streaming** | Puzzle arcade integration, replay buffers, online learning |
-| **Training** | SFT, DPO, GRPO, PPO trainers with LoRA support |
+| **Training** | BatchPlan-driven trainers — enforce, don't decide |
 | **Models** | LLaMA, Mistral, Gemma, Granite, StarCoder2, TinyLlama |
 
 ## Features
 
 - **Tokenizer Toolkit**: Encode, decode, analyze, compare, fingerprint, and debug any tokenizer
+- **Character Tokenizer**: Built-in character-level tokenizer for classification experiments
 - **Tokenizer Doctor**: Health check with auto-fix for missing chat templates
 - **Chat Template Registry**: 7 built-in formats (ChatML, Llama, Phi, Gemma, Zephyr, Vicuna, Alpaca)
-- **Batching Infrastructure**: Token-budget batching, sequence packing (50-70% token reduction)
+- **Batching Infrastructure**: Token-budget batching, sequence packing (measurable via `chuk-lazarus bench`)
 - **BatchPlan Artifacts**: Versioned, fingerprinted batch schedules for reproducibility and CI/CD
 - **Pipeline Benchmark**: Pack vs pad comparison, throughput metrics, memory footprint analysis
+- **BatchPlan-Driven Training**: Trainers enforce plans, not build them — deterministic by design
+- **Focused Scope**: Lazarus does not optimize model architectures, optimizers, or schedulers — it makes data and execution deterministic and inspectable
 - **Puzzle Arcade Integration**: Stream training data from 24 puzzle types for online/RL learning
 - **Replay Buffers**: Priority sampling, difficulty tracking, curriculum support
-- **Training**: SFT, DPO, GRPO, PPO trainers with LoRA support
 - **Analysis**: Coverage, entropy, efficiency, fit scoring, vocabulary induction
 - **Instrumentation**: Histograms, OOV analysis, waste metrics, vocab comparison
 
@@ -236,7 +254,7 @@ src/chuk_lazarus/
 - [CLI Reference](docs/cli.md) - Command-line interface documentation
 - [Tokenizers Guide](docs/tokenizers.md) - Comprehensive tokenizer toolkit
 - [Batching Guide](docs/batching.md) - Token-budget batching, packing, distributed training
-- [Training Guide](docs/training.md) - SFT, DPO, GRPO, PPO training
+- [Training Guide](docs/training.md) - BatchPlan-driven training
 - [API Reference](docs/api-reference.md) - Python API documentation
 
 ## Supported Models

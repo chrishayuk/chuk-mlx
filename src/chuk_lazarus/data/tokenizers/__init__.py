@@ -52,6 +52,7 @@ from .batch_processing import (
     get_sequence_lengths,
     pad_batch,
 )
+from .character_tokenizer import CharacterTokenizer, CharacterTokenizerConfig
 
 # Conversion
 from .conversion import (
@@ -76,7 +77,6 @@ from .conversion import (
     save_huggingface_format,
     save_vocabulary_file,
 )
-from .character_tokenizer import CharacterTokenizer, CharacterTokenizerConfig
 from .custom_tokenizer import CustomTokenizer
 
 # Fingerprinting

@@ -216,9 +216,7 @@ class TestCharacterTokenizerBatch:
         tokenizer = CharacterTokenizer.from_ascii()
         texts = ["hi", "hello"]
 
-        batch = tokenizer.encode_batch(
-            texts, add_special_tokens=False, max_length=10, padding=True
-        )
+        batch = tokenizer.encode_batch(texts, add_special_tokens=False, max_length=10, padding=True)
 
         assert len(batch[0]) == 10
         assert len(batch[1]) == 10
