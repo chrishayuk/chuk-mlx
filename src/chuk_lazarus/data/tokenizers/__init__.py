@@ -7,7 +7,8 @@ training frameworks - tokenizers are inspectable, mutable, schedulable,
 and debuggable.
 
 Core:
-- CustomTokenizer: Tokenizer with special token handling
+- CharacterTokenizer: Character-level tokenizer for classification/experiments
+- CustomTokenizer: Whitespace tokenizer with special token handling
 - TokenDisplayUtility: Token visualization and debugging
 
 Statistics & Analysis:
@@ -51,6 +52,7 @@ from .batch_processing import (
     get_sequence_lengths,
     pad_batch,
 )
+from .character_tokenizer import CharacterTokenizer, CharacterTokenizerConfig
 
 # Conversion
 from .conversion import (
@@ -181,6 +183,8 @@ from .vocab_utils import load_vocabulary, save_vocabulary
 
 __all__ = [
     # Core
+    "CharacterTokenizer",
+    "CharacterTokenizerConfig",
     "CustomTokenizer",
     "TokenDisplayUtility",
     "load_vocabulary",
