@@ -297,13 +297,15 @@ class LlamaForCausalLM(Model):
         Returns:
             Generated sequence, shape (batch, total_len)
         """
-        batch_size = input_ids.shape[0]
-        stop_tokens = stop_tokens or []
-        generated = input_ids
+        stop_tokens_set = set(stop_tokens or [])
 
-        # Process prompt
+        # Process prompt and evaluate immediately
         output = self(input_ids)
+        mx.eval(output.logits)
         cache = output.cache
+
+        # Track generated tokens as list for efficiency
+        generated_tokens = [input_ids]
 
         for _ in range(max_new_tokens):
             # Get logits for last position
@@ -311,13 +313,20 @@ class LlamaForCausalLM(Model):
 
             # Apply repetition penalty
             if repetition_penalty != 1.0:
-                for i in range(batch_size):
-                    for token_id in set(generated[i].tolist()):
-                        logits = mx.where(
-                            mx.arange(logits.shape[-1]) == token_id,
-                            logits[:, :] / repetition_penalty,
-                            logits,
-                        )
+                # Get all generated tokens so far
+                all_tokens = mx.concatenate(generated_tokens, axis=1)
+                # Get unique tokens using Python set (evaluated once per step)
+                unique_tokens = set(all_tokens.flatten().tolist())
+                vocab_size = logits.shape[-1]
+                # Create penalty mask vectorized
+                token_indices = mx.array([t for t in unique_tokens if t < vocab_size])
+                if token_indices.size > 0:
+                    # One-hot encode and sum to get mask
+                    mask = mx.zeros((vocab_size,))
+                    for tok in token_indices.tolist():
+                        mask = mask.at[tok].add(1.0)
+                    penalty_mask = mx.where(mask > 0, repetition_penalty, 1.0)
+                    logits = logits / penalty_mask
 
             # Apply temperature
             if temperature != 1.0:
@@ -325,27 +334,32 @@ class LlamaForCausalLM(Model):
 
             # Apply top-k
             if top_k is not None and top_k > 0:
-                top_k_logits = mx.topk(logits, k=top_k)
-                min_val = top_k_logits[:, -1:]
+                top_k_values = mx.topk(logits, k=min(top_k, logits.shape[-1]))
+                min_val = top_k_values[:, -1:]
                 logits = mx.where(logits < min_val, float("-inf"), logits)
 
-            # Sample
+            # Sample next token
             probs = mx.softmax(logits, axis=-1)
             next_token = mx.random.categorical(mx.log(probs + 1e-10))
             next_token = mx.expand_dims(next_token, axis=-1)
 
-            # Append
-            generated = mx.concatenate([generated, next_token], axis=1)
+            # Evaluate to avoid graph buildup
+            mx.eval(next_token)
+
+            # Append to generated list
+            generated_tokens.append(next_token)
 
             # Check stop condition
-            if any(int(next_token[0, 0]) == stop for stop in stop_tokens):
+            next_token_val = int(next_token[0, 0])
+            if next_token_val in stop_tokens_set:
                 break
 
             # Forward with cache
             output = self(next_token, cache=cache)
+            mx.eval(output.logits)
             cache = output.cache
 
-        return generated
+        return mx.concatenate(generated_tokens, axis=1)
 
     @classmethod
     def from_config(cls, config: LlamaConfig) -> LlamaForCausalLM:

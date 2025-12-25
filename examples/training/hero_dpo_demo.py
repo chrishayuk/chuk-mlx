@@ -165,7 +165,7 @@ def demo_dataset_creation(output_dir: Path):
         num_samples=10, output_path=output_dir / "dpo_eval.jsonl"
     )
 
-    print(f"\nDataset Statistics:")
+    print("\nDataset Statistics:")
     print(f"  Training pairs: {len(train_data)}")
     print(f"  Evaluation pairs: {len(eval_data)}")
 

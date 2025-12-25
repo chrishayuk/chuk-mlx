@@ -19,7 +19,6 @@ from pathlib import Path
 
 from chuk_lazarus.data import (
     BatchingConfig,
-    BatchPlan,
     BatchPlanBuilder,
     compute_batch_fingerprint,
     load_batch_plan,

@@ -9,12 +9,13 @@ Provides:
 """
 
 from .geglu import GEGLU
-from .mlp import MLP
+from .mlp import MLP, create_mlp
 from .moe import MoE, MoERouter
 from .swiglu import SwiGLU
 
 __all__ = [
     "MLP",
+    "create_mlp",
     "SwiGLU",
     "GEGLU",
     "MoE",

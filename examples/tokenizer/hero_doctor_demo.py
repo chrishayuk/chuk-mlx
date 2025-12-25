@@ -19,7 +19,6 @@ Or via CLI:
 from chuk_lazarus.data.tokenizers.fingerprint import compute_fingerprint
 from chuk_lazarus.data.tokenizers.runtime.chat_templates import (
     ChatTemplateRegistry,
-    TemplateFormat,
     patch_chat_template,
     suggest_template_for_model,
     validate_chat_template,
@@ -66,12 +65,12 @@ def run_health_check(model_name: str) -> dict:
     validation = validate_chat_template(tokenizer)
 
     if validation.is_valid:
-        print(f"   Status: VALID")
+        print("   Status: VALID")
         print(f"   Format: {validation.format.value}")
         caps = [c.value for c in validation.capabilities]
         print(f"   Capabilities: {', '.join(caps) if caps else 'basic'}")
     else:
-        print(f"   Status: INVALID or MISSING")
+        print("   Status: INVALID or MISSING")
         results["healthy"] = False
         for issue in validation.issues:
             results["issues"].append(issue.message)
@@ -145,7 +144,7 @@ def demo_auto_fix(model_name: str):
     has_template = hasattr(tokenizer, "chat_template") and tokenizer.chat_template
 
     if has_template:
-        print(f"\nTokenizer already has chat template")
+        print("\nTokenizer already has chat template")
         registry = ChatTemplateRegistry()
         format = registry.detect_format(tokenizer.chat_template)
         print(f"Format: {format.value}")

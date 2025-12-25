@@ -42,34 +42,20 @@ import tempfile
 from pathlib import Path
 
 # === 1. Imports from all three modules ===
-
 # models_v2: Model loading and architecture
-from chuk_lazarus import load_model
+# data: Datasets and tokenizers
+from chuk_lazarus.data import (
+    BoWCharacterTokenizer,
+    ClassificationDataset,  # Protocol for type checking
+)
 from chuk_lazarus.models_v2 import (
-    CausalLM,
-    LlamaConfig,
-    LlamaForCausalLM,
     LoRAConfig,
-    ModelConfig,
-    apply_lora,
-    compute_lm_loss,
 )
 
 # training: Trainers and loss functions
 from chuk_lazarus.training import (
     ClassificationTrainer,
     ClassificationTrainerConfig,
-    SFTConfig,
-    SFTTrainer,
-    sft_loss,
-)
-
-# data: Datasets and tokenizers
-from chuk_lazarus.data import (
-    BoWCharacterTokenizer,
-    ClassificationDataset,
-    SFTDataset,
-    SFTDatasetProtocol,  # Protocol for type checking
 )
 
 

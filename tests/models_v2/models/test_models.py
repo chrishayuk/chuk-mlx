@@ -14,7 +14,7 @@ from chuk_lazarus.models_v2.models.causal_lm import (
     HybridCausalLM,
     create_causal_lm,
 )
-from chuk_lazarus.models_v2.models.classifier import (
+from chuk_lazarus.models_v2.models.classifiers import (
     SequenceClassifier,
     TokenClassifier,
     create_classifier,
