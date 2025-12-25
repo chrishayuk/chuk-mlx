@@ -2,11 +2,18 @@
 
 **A deterministic data & execution substrate that enables reliable training.**
 
+> Lazarus makes training runs reproducible **the same way lockfiles make builds reproducible**.
+
 Offline batch plans, reproducible batching, measurable efficiency — the stuff you wish every training stack shipped with.
 
-Built on MLX for Apple Silicon.
+Runs on macOS; designed for Apple Silicon first (MLX backend).
 
-**The core idea:** The BatchPlan becomes the contract, not the dataloader. Build plans offline, version them, verify them in CI/CD, and replay them exactly across distributed workers. BatchPlans are fingerprinted against the tokenizer and length cache, so you can detect drift when data or tokenization changes.
+**The core idea:** The BatchPlan is the contract. Trainers enforce it; they don't invent it. Build plans offline, version them, verify them in CI/CD (fingerprints + schema validation), and replay them exactly across distributed workers that share the same plan artifact. BatchPlans are fingerprinted against the tokenizer and length cache, so you can detect drift when data or tokenization changes.
+
+```
+Dataset → Tokenizer → Length Cache → BatchPlan Artifact → Trainer (enforces) → Checkpoints
+                 fingerprint └─────────── fingerprint ┘
+```
 
 Most training pipelines entangle data loading, batching, and execution inside the trainer, making runs hard to reproduce, debug, or scale. Lazarus separates *planning* from *execution*: batching decisions are made once, recorded as artifacts, and enforced consistently across runs and workers.
 
@@ -103,7 +110,8 @@ chuk-lazarus data batching analyze --cache lengths.jsonl --bucket-edges 128,256,
 chuk-lazarus bench --num-samples 1000
 chuk-lazarus bench -d train.jsonl -t gpt2 --bucket-edges 128,256,512
 
-# Benchmark reports: length histogram, bucket efficiency, pack vs pad comparison,
+# Benchmark reports are saved as JSON + markdown for tracking regressions:
+# length histogram, bucket efficiency, pack vs pad comparison,
 # throughput metrics, memory footprint, and actionable recommendations
 ```
 
@@ -160,13 +168,26 @@ async with TelnetGymClient(config) as client:
 Training in Lazarus is driven entirely by precomputed BatchPlans. The trainer does not decide batching, sequencing, or token budgets — it enforces them.
 
 > **Invariant:** If two runs use the same BatchPlan artifact (including its fingerprints) and seed, Lazarus guarantees identical batch structure and ordering across runs and workers.
+>
+> *Identical* means: same sample IDs per step, in the same order, with the same packing boundaries and token budgets. (Numerical results may differ slightly across hardware/kernel implementations; the **batch schedule** remains identical.)
 
 ```bash
-# Train with SFT (uses BatchPlan for deterministic batching)
-chuk-lazarus train sft --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --data train.jsonl --use-lora
+# Canonical deterministic training (always use --batch-plan)
+chuk-lazarus train sft \
+  --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" \
+  --data train.jsonl \
+  --batch-plan batch_plan/ \
+  --use-lora
+
+# Dev convenience (builds plan on the fly; still fingerprints and saves it)
+chuk-lazarus train sft \
+  --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" \
+  --data train.jsonl \
+  --build-plan --predictable \
+  --use-lora
 
 # Train with DPO
-chuk-lazarus train dpo --model ./checkpoints/sft/final --data preferences.jsonl
+chuk-lazarus train dpo --model ./checkpoints/sft/final --data preferences.jsonl --batch-plan batch_plan/
 
 # Generate synthetic training data
 chuk-lazarus generate --type math --output ./data/lazarus
@@ -224,7 +245,7 @@ src/chuk_lazarus/
 │   ├── models/             # CausalLM, classifiers
 │   ├── families/           # Llama, Mamba implementations
 │   ├── adapters/           # LoRA adapters
-│   └── training/           # Loss functions
+│   └── losses/             # Loss functions (pure math)
 ├── training/               # BatchPlan-driven reference trainers (SFT, DPO, GRPO, PPO)
 ├── inference/              # Text generation
 ├── distributed/            # Distributed training utilities
@@ -251,11 +272,52 @@ src/chuk_lazarus/
 - **BatchPlan Artifacts**: Versioned, fingerprinted batch schedules for reproducibility and CI/CD
 - **Pipeline Benchmark**: Pack vs pad comparison, throughput metrics, memory footprint analysis
 - **BatchPlan-Driven Training**: Trainers enforce plans, not build them — deterministic by design
-- **Focused Scope**: Lazarus does not optimize model architectures, optimizers, or schedulers — it makes data and execution deterministic and inspectable
 - **Puzzle Arcade Integration**: Stream training data from 24 puzzle types for online/RL learning
 - **Replay Buffers**: Priority sampling, difficulty tracking, curriculum support
 - **Analysis**: Coverage, entropy, efficiency, fit scoring, vocabulary induction
 - **Instrumentation**: Histograms, OOV analysis, waste metrics, vocab comparison
+
+**What Lazarus is NOT:**
+- Not a trainer framework competing with Lightning/Accelerate
+- Not a new optimizer zoo or model architecture lab
+- Not a "magic trainer" that decides things for you
+
+**What Lazarus IS:** A reproducible planning/execution substrate you can plug into anything.
+
+## Artifacts
+
+BatchPlans are the core artifact. When you build a batch plan, Lazarus creates:
+
+```
+batch_plan/
+├── plan.jsonl          # Batch schedule: sample IDs, packing, token counts per step
+├── metadata.json       # Epochs, token budget, strategy, version info
+├── fingerprints.json   # Tokenizer + length cache fingerprints for drift detection
+└── stats.json          # Efficiency metrics: utilization, waste, packing ratio
+```
+
+**Schema promise:** The `plan.jsonl` format is stable. Each line is a JSON object:
+
+```json
+{"step":0,"samples":[12,88,104],"tokens":4096,"packing":[[0,128],[128,256]]}
+```
+
+Fields: `step` (global index), `samples` (sample IDs), `tokens` (batch total), `packing` (boundaries).
+
+**metadata.json** includes:
+- `plan_format_version`: Schema version for forward compatibility
+- `tool_version`: Lazarus version that created the plan
+- `seed`: Random seed used (if predictable mode)
+- `created_at`: Timestamp
+
+**CI/CD validation:**
+
+```bash
+# Validate a plan artifact before training (CI-friendly)
+chuk-lazarus data batchplan validate -p batch_plan/ --strict
+```
+
+If the tokenizer or data changes, fingerprint mismatch is detected before training starts.
 
 ## Documentation
 

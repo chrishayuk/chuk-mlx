@@ -690,7 +690,7 @@ models_v2/
 ├── adapters/                # Parameter-efficient fine-tuning
 │   └── lora.py              # LoRAConfig, LoRALinear, apply_lora
 │
-├── training/                # Training utilities
+├── losses/                  # Loss functions (pure math)
 │   └── loss.py              # compute_lm_loss
 │
 └── loader.py                # load_model, load_model_async

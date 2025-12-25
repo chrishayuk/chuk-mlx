@@ -206,7 +206,7 @@ def demo_model_architecture():
     print(f"   Target modules: {lora_config.target_modules}")
 
     # 4. Show loss function (the only training-related thing in models_v2)
-    print("\n4. Basic LM Loss (models_v2.training.loss):")
+    print("\n4. Basic LM Loss (models_v2.losses.loss):")
     print("   compute_lm_loss(model, input_ids, labels, attention_mask)")
     print("   → Returns (loss, num_tokens)")
 

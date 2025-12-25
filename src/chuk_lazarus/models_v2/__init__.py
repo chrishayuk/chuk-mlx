@@ -123,11 +123,13 @@ from .introspection import (
     FLOPsEstimate,
     MemoryEstimate,
     ModelCapabilities,
+    ModelInfo,
     ParameterStats,
     count_parameters,
     detect_model_capabilities,
     estimate_flops,
     estimate_memory,
+    get_model_info,
     introspect,
     print_introspection,
 )
@@ -140,6 +142,9 @@ from .loader import (
     load_model_async,
 )
 
+# Loss functions
+from .losses import compute_lm_loss
+
 # Models
 from .models import (
     CausalLM,
@@ -148,9 +153,6 @@ from .models import (
     SequenceClassifier,
     TokenClassifier,
 )
-
-# Training utilities
-from .training import compute_lm_loss
 
 __all__ = [
     # === Core ===
@@ -258,13 +260,15 @@ __all__ = [
     "FLOPsEstimate",
     "MemoryEstimate",
     "ModelCapabilities",
+    "ModelInfo",
     "count_parameters",
     "estimate_flops",
     "estimate_memory",
     "get_model_capabilities",
     "detect_model_capabilities",
+    "get_model_info",
     "introspect",
     "print_introspection",
-    # === Training ===
+    # === Losses ===
     "compute_lm_loss",
 ]

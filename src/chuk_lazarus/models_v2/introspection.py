@@ -206,6 +206,76 @@ class MemoryEstimate:
 
 
 @dataclass
+class ModelInfo:
+    """
+    Core model information for routing, benchmarking, and deployment.
+
+    This is the stable introspection contract that every Model should expose.
+    Mirrors the structure of BatchPlan metadata for consistency.
+
+    Used for:
+    - MoE routing decisions
+    - Distributed execution planning
+    - Memory-constrained deployment
+    - Gym-driven model selection
+    - Registry queries
+    """
+
+    # Identity
+    name: str = ""
+    family: str = ""  # e.g., "llama", "mamba"
+
+    # Architecture
+    params: int = 0
+    d_model: int = 0  # hidden_size
+    n_layers: int = 0
+    n_heads: int = 0
+    vocab_size: int = 0
+
+    # Sequence limits
+    max_seq_len: int = 0
+    context_window: int = 0  # May differ from max_seq_len for sliding window
+
+    # Capabilities (boolean flags for fast filtering)
+    supports_kv_cache: bool = False
+    supports_generation: bool = False
+    supports_lora: bool = True  # Most models do
+    is_causal: bool = True
+
+    # Resource estimates (for routing/scheduling)
+    memory_mb: float = 0.0  # Inference memory
+    flops_per_token: int = 0
+
+    def summary(self) -> str:
+        """Human-readable one-liner."""
+        return (
+            f"{self.name}: {self.params:,} params, "
+            f"d={self.d_model}, L={self.n_layers}, "
+            f"ctx={self.max_seq_len}"
+        )
+
+    def to_dict(self) -> dict:
+        """Convert to dictionary for serialization."""
+        return {
+            "name": self.name,
+            "family": self.family,
+            "params": self.params,
+            "d_model": self.d_model,
+            "n_layers": self.n_layers,
+            "n_heads": self.n_heads,
+            "vocab_size": self.vocab_size,
+            "max_seq_len": self.max_seq_len,
+            "context_window": self.context_window,
+            "supports_kv_cache": self.supports_kv_cache,
+            "supports_generation": self.supports_generation,
+            "supports_lora": self.supports_lora,
+            "is_causal": self.is_causal,
+            "memory_mb": self.memory_mb,
+            "flops_per_token": self.flops_per_token,
+        }
+
+
+@dataclass
 class ModelCapabilities:
     """
     Capabilities exposed by a model.
@@ -498,3 +568,54 @@ def print_introspection(model: nn.Module, config: ModelConfig | None = None) -> 
         print(f"\n{mem.summary()}")
 
     print("=" * 60)
+
+
+def get_model_info(
+    model: nn.Module,
+    config: ModelConfig | None = None,
+    name: str = "",
+    family: str = "",
+) -> ModelInfo:
+    """
+    Build ModelInfo from a model instance.
+
+    This is the canonical way to get the stable introspection contract.
+
+    Args:
+        model: The model to introspect
+        config: Model configuration (required for full info)
+        name: Model name (optional, for display)
+        family: Model family (optional, e.g., "llama", "mamba")
+
+    Returns:
+        ModelInfo with all available information
+    """
+    params = count_parameters(model)
+    caps = detect_model_capabilities(model)
+
+    info = ModelInfo(
+        name=name or model.__class__.__name__,
+        family=family,
+        params=params.total,
+        supports_kv_cache=caps.supports_kv_cache,
+        supports_generation=caps.is_causal_lm,
+        supports_lora=caps.supports_lora,
+        is_causal=caps.is_causal_lm,
+    )
+
+    if config is not None:
+        info.d_model = config.hidden_size
+        info.n_layers = config.num_hidden_layers
+        info.n_heads = config.num_attention_heads
+        info.vocab_size = config.vocab_size
+        info.max_seq_len = getattr(config, "max_position_embeddings", 0)
+        info.context_window = info.max_seq_len
+
+        # Estimate resources
+        flops = estimate_flops(config, seq_length=1, batch_size=1)
+        info.flops_per_token = flops.per_token
+
+        memory = estimate_memory(model, config, seq_length=1, batch_size=1)
+        info.memory_mb = memory.total_inference_mb
+
+    return info
