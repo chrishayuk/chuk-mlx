@@ -5,12 +5,20 @@ Provides:
 - Decorator-based registration
 - Lookup by model_type or architecture name
 - Factory functions for creating models from config
+- Capability tracking for MoE routing and gym-driven selection
+
+This is Phase 1 of the registry roadmap:
+- Phase 1: Model registry + capabilities (current)
+- Phase 2: Expert-ready model boundaries
+- Phase 3: Deterministic routing
+- Phase 4: Gym-driven architecture pressure
 """
 
 from __future__ import annotations
 
 import logging
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, TypeVar
 
 if TYPE_CHECKING:
@@ -25,6 +33,42 @@ ModelClass = type[M]
 ModelFactory = Callable[["ModelConfig"], M]
 
 
+@dataclass
+class ModelCapability:
+    """
+    Capability descriptor for model registry.
+
+    Capabilities answer:
+    - "What models exist?" → list_models()
+    - "What capabilities do they have?" → get_capabilities()
+    - "What inputs do they accept?" → input_format
+
+    Future: Used for MoE routing, gym-driven selection, and expert specialization.
+    """
+
+    # Core capability flags
+    is_sequence_model: bool = True
+    is_policy_model: bool = False
+    is_memory_reader: bool = False
+    is_memory_writer: bool = False
+    is_router_candidate: bool = False
+
+    # Input/output format
+    input_format: str = "tokens"  # tokens, embeddings, images, etc.
+    output_format: str = "logits"  # logits, embeddings, classifications, etc.
+
+    # Model characteristics
+    supports_kv_cache: bool = False
+    supports_lora: bool = True
+    max_context_length: int | None = None
+
+    # Domain specializations (from fine-tuning)
+    domains: list[str] = field(default_factory=list)
+
+    # Tags for filtering
+    tags: list[str] = field(default_factory=list)
+
+
 class ModelRegistry:
     """
     Registry for model architectures.
@@ -32,6 +76,12 @@ class ModelRegistry:
     Supports lookup by:
     - model_type (e.g., "llama", "qwen2", "mamba")
     - architecture class name (e.g., "LlamaForCausalLM")
+    - capabilities (for MoE routing)
+
+    Phase 1 of the registry roadmap - provides:
+    - "What models exist?" → list_models()
+    - "What capabilities do they have?" → get_capabilities()
+    - "What inputs do they accept?" → get_capabilities().input_format
     """
 
     _instance: ModelRegistry | None = None
@@ -40,6 +90,7 @@ class ModelRegistry:
         self._by_type: dict[str, ModelFactory] = {}
         self._by_arch: dict[str, ModelFactory] = {}
         self._aliases: dict[str, str] = {}
+        self._capabilities: dict[str, ModelCapability] = {}
 
     @classmethod
     def get_instance(cls) -> ModelRegistry:
@@ -53,6 +104,7 @@ class ModelRegistry:
         model_type: str | None = None,
         architectures: list[str] | None = None,
         aliases: list[str] | None = None,
+        capabilities: ModelCapability | None = None,
     ) -> Callable[[ModelFactory], ModelFactory]:
         """
         Decorator to register a model factory.
@@ -61,6 +113,7 @@ class ModelRegistry:
             model_type: Primary model type identifier (e.g., "llama")
             architectures: HuggingFace architecture class names
             aliases: Alternative names for lookup
+            capabilities: Model capabilities for routing and selection
 
         Returns:
             Decorator function
@@ -70,6 +123,11 @@ class ModelRegistry:
                 model_type="llama",
                 architectures=["LlamaForCausalLM", "LlamaModel"],
                 aliases=["llama2", "llama3"],
+                capabilities=ModelCapability(
+                    is_sequence_model=True,
+                    supports_kv_cache=True,
+                    tags=["causal_lm", "instruct"],
+                ),
             )
             def create_llama(config: ModelConfig) -> LlamaModel:
                 return LlamaModel(config)
@@ -80,6 +138,10 @@ class ModelRegistry:
             if model_type:
                 self._by_type[model_type.lower()] = factory
                 logger.debug(f"Registered model type: {model_type}")
+
+                # Store capabilities if provided
+                if capabilities:
+                    self._capabilities[model_type.lower()] = capabilities
 
             # Register by architecture names
             if architectures:
@@ -210,11 +272,85 @@ class ModelRegistry:
         """List all registered architecture names."""
         return sorted(self._by_arch.keys())
 
+    def get_capabilities(self, model_type: str) -> ModelCapability | None:
+        """
+        Get capabilities for a model type.
+
+        Args:
+            model_type: Model type identifier
+
+        Returns:
+            ModelCapability or None if not registered
+        """
+        # Resolve alias if needed
+        key = model_type.lower()
+        if key in self._aliases:
+            key = self._aliases[key]
+        return self._capabilities.get(key)
+
+    def find_by_capability(
+        self,
+        is_sequence_model: bool | None = None,
+        is_policy_model: bool | None = None,
+        is_memory_reader: bool | None = None,
+        is_memory_writer: bool | None = None,
+        supports_kv_cache: bool | None = None,
+        tags: list[str] | None = None,
+    ) -> list[str]:
+        """
+        Find models matching capability criteria.
+
+        Used for MoE routing and expert selection.
+
+        Args:
+            is_sequence_model: Filter by sequence model capability
+            is_policy_model: Filter by policy model capability
+            is_memory_reader: Filter by memory reader capability
+            is_memory_writer: Filter by memory writer capability
+            supports_kv_cache: Filter by KV cache support
+            tags: Filter by tags (any match)
+
+        Returns:
+            List of model type identifiers matching the criteria
+        """
+        matches = []
+
+        for model_type, caps in self._capabilities.items():
+            # Check each criterion if specified
+            if is_sequence_model is not None and caps.is_sequence_model != is_sequence_model:
+                continue
+            if is_policy_model is not None and caps.is_policy_model != is_policy_model:
+                continue
+            if is_memory_reader is not None and caps.is_memory_reader != is_memory_reader:
+                continue
+            if is_memory_writer is not None and caps.is_memory_writer != is_memory_writer:
+                continue
+            if supports_kv_cache is not None and caps.supports_kv_cache != supports_kv_cache:
+                continue
+            if tags is not None:
+                # Check if any tag matches
+                if not any(tag in caps.tags for tag in tags):
+                    continue
+
+            matches.append(model_type)
+
+        return sorted(matches)
+
+    def list_capabilities(self) -> dict[str, ModelCapability]:
+        """
+        List all registered capabilities.
+
+        Returns:
+            Dict mapping model_type to ModelCapability
+        """
+        return dict(self._capabilities)
+
     def clear(self) -> None:
         """Clear all registrations (useful for testing)."""
         self._by_type.clear()
         self._by_arch.clear()
         self._aliases.clear()
+        self._capabilities.clear()
 
 
 # Global registry instance
@@ -225,6 +361,7 @@ def register_model(
     model_type: str | None = None,
     architectures: list[str] | None = None,
     aliases: list[str] | None = None,
+    capabilities: ModelCapability | None = None,
 ) -> Callable[[ModelFactory], ModelFactory]:
     """
     Decorator to register a model factory with the global registry.
@@ -233,6 +370,10 @@ def register_model(
         @register_model(
             model_type="llama",
             architectures=["LlamaForCausalLM"],
+            capabilities=ModelCapability(
+                supports_kv_cache=True,
+                tags=["causal_lm"],
+            ),
         )
         def create_llama(config: ModelConfig) -> LlamaModel:
             return LlamaModel(config)
@@ -241,6 +382,7 @@ def register_model(
         model_type=model_type,
         architectures=architectures,
         aliases=aliases,
+        capabilities=capabilities,
     )
 
 
@@ -285,3 +427,50 @@ def list_models() -> dict[str, list[str]]:
         "types": _registry.list_types(),
         "architectures": _registry.list_architectures(),
     }
+
+
+def get_model_capabilities(model_type: str) -> ModelCapability | None:
+    """
+    Get capabilities for a model type.
+
+    Args:
+        model_type: Model type identifier
+
+    Returns:
+        ModelCapability or None if not registered
+    """
+    return _registry.get_capabilities(model_type)
+
+
+def find_models_by_capability(
+    is_sequence_model: bool | None = None,
+    is_policy_model: bool | None = None,
+    is_memory_reader: bool | None = None,
+    is_memory_writer: bool | None = None,
+    supports_kv_cache: bool | None = None,
+    tags: list[str] | None = None,
+) -> list[str]:
+    """
+    Find models matching capability criteria.
+
+    Used for MoE routing and expert selection.
+
+    Args:
+        is_sequence_model: Filter by sequence model capability
+        is_policy_model: Filter by policy model capability
+        is_memory_reader: Filter by memory reader capability
+        is_memory_writer: Filter by memory writer capability
+        supports_kv_cache: Filter by KV cache support
+        tags: Filter by tags (any match)
+
+    Returns:
+        List of model type identifiers matching the criteria
+    """
+    return _registry.find_by_capability(
+        is_sequence_model=is_sequence_model,
+        is_policy_model=is_policy_model,
+        is_memory_reader=is_memory_reader,
+        is_memory_writer=is_memory_writer,
+        supports_kv_cache=supports_kv_cache,
+        tags=tags,
+    )

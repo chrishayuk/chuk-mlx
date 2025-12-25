@@ -159,11 +159,8 @@ class CausalLM(Model):
         batch_size, prompt_len = input_ids.shape
         stop_tokens = stop_tokens or []
 
-        # Initialize cache
-        cache = self.init_cache(batch_size, prompt_len + max_new_tokens)
-
-        # Process prompt
-        output = self(input_ids, cache=cache)
+        # Process prompt (cache=None to let attention build incrementally)
+        output = self(input_ids)
         cache = output.cache
 
         # Track generated tokens
@@ -179,8 +176,8 @@ class CausalLM(Model):
 
             # Apply top-k
             if top_k is not None:
-                top_k_logits, top_k_indices = mx.topk(logits, k=top_k)
-                # Create mask for top-k
+                top_k_logits = mx.topk(logits, k=top_k)
+                # Create mask for top-k (take smallest value in top-k)
                 min_val = top_k_logits[:, -1:]
                 logits = mx.where(logits < min_val, float("-inf"), logits)
 

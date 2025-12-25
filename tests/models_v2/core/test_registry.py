@@ -364,3 +364,336 @@ class TestRegistryEdgeCases:
 
         model = registry.create(config)
         assert isinstance(model, MockModel)
+
+
+class TestModelCapability:
+    """Tests for ModelCapability dataclass."""
+
+    def test_creation(self):
+        """Test creating ModelCapability."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        caps = ModelCapability(
+            is_sequence_model=True,
+            supports_kv_cache=True,
+            tags=["causal_lm", "instruct"],
+        )
+        assert caps.is_sequence_model is True
+        assert caps.supports_kv_cache is True
+        assert "causal_lm" in caps.tags
+
+    def test_default_values(self):
+        """Test default capability values."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        caps = ModelCapability()
+        assert caps.is_sequence_model is True
+        assert caps.is_policy_model is False
+        assert caps.is_memory_reader is False
+        assert caps.is_memory_writer is False
+        assert caps.is_router_candidate is False
+        assert caps.input_format == "tokens"
+        assert caps.output_format == "logits"
+        assert caps.supports_lora is True
+        assert caps.domains == []
+        assert caps.tags == []
+
+    def test_all_fields(self):
+        """Test all capability fields."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        caps = ModelCapability(
+            is_sequence_model=True,
+            is_policy_model=True,
+            is_memory_reader=True,
+            is_memory_writer=True,
+            is_router_candidate=True,
+            input_format="embeddings",
+            output_format="classifications",
+            supports_kv_cache=True,
+            supports_lora=False,
+            max_context_length=4096,
+            domains=["code", "math"],
+            tags=["classifier", "encoder"],
+        )
+        assert caps.is_policy_model is True
+        assert caps.is_memory_reader is True
+        assert caps.is_memory_writer is True
+        assert caps.is_router_candidate is True
+        assert caps.input_format == "embeddings"
+        assert caps.output_format == "classifications"
+        assert caps.max_context_length == 4096
+        assert "code" in caps.domains
+        assert "classifier" in caps.tags
+
+
+class TestRegistryCapabilities:
+    """Tests for registry capability tracking."""
+
+    def test_register_with_capabilities(self):
+        """Test registration with capabilities."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        registry = ModelRegistry()
+
+        caps = ModelCapability(
+            supports_kv_cache=True,
+            tags=["causal_lm"],
+        )
+
+        @registry.register(model_type="caps_test", capabilities=caps)
+        def create_caps_test(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        stored = registry.get_capabilities("caps_test")
+        assert stored is not None
+        assert stored.supports_kv_cache is True
+        assert "causal_lm" in stored.tags
+
+    def test_get_capabilities_case_insensitive(self):
+        """Test capabilities lookup is case-insensitive."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        registry = ModelRegistry()
+
+        @registry.register(
+            model_type="CaseCaps",
+            capabilities=ModelCapability(supports_kv_cache=True),
+        )
+        def create_case_caps(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        # Should work with any case
+        assert registry.get_capabilities("casecaps") is not None
+        assert registry.get_capabilities("CASECAPS") is not None
+        assert registry.get_capabilities("CaseCaps") is not None
+
+    def test_get_capabilities_via_alias(self):
+        """Test capabilities lookup via alias."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        registry = ModelRegistry()
+
+        @registry.register(
+            model_type="aliased_caps",
+            aliases=["ac1", "ac2"],
+            capabilities=ModelCapability(is_policy_model=True),
+        )
+        def create_aliased_caps(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        # Should work via alias
+        assert registry.get_capabilities("ac1") is not None
+        assert registry.get_capabilities("ac2") is not None
+        assert registry.get_capabilities("ac1").is_policy_model is True
+
+    def test_find_by_capability_sequence_model(self):
+        """Test finding models by sequence model capability."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        registry = ModelRegistry()
+
+        @registry.register(
+            model_type="seq_model",
+            capabilities=ModelCapability(is_sequence_model=True),
+        )
+        def create_seq(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        @registry.register(
+            model_type="non_seq_model",
+            capabilities=ModelCapability(is_sequence_model=False),
+        )
+        def create_non_seq(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        seq_models = registry.find_by_capability(is_sequence_model=True)
+        assert "seq_model" in seq_models
+        assert "non_seq_model" not in seq_models
+
+        non_seq_models = registry.find_by_capability(is_sequence_model=False)
+        assert "non_seq_model" in non_seq_models
+        assert "seq_model" not in non_seq_models
+
+    def test_find_by_capability_kv_cache(self):
+        """Test finding models by KV cache support."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        registry = ModelRegistry()
+
+        @registry.register(
+            model_type="cached_model",
+            capabilities=ModelCapability(supports_kv_cache=True),
+        )
+        def create_cached(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        @registry.register(
+            model_type="uncached_model",
+            capabilities=ModelCapability(supports_kv_cache=False),
+        )
+        def create_uncached(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        cached = registry.find_by_capability(supports_kv_cache=True)
+        assert "cached_model" in cached
+        assert "uncached_model" not in cached
+
+    def test_find_by_capability_tags(self):
+        """Test finding models by tags."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        registry = ModelRegistry()
+
+        @registry.register(
+            model_type="instruct_model",
+            capabilities=ModelCapability(tags=["instruct", "chat"]),
+        )
+        def create_instruct(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        @registry.register(
+            model_type="base_model",
+            capabilities=ModelCapability(tags=["base", "pretrained"]),
+        )
+        def create_base(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        # Find by single tag
+        instruct = registry.find_by_capability(tags=["instruct"])
+        assert "instruct_model" in instruct
+        assert "base_model" not in instruct
+
+        # Find by any of multiple tags
+        chat_or_base = registry.find_by_capability(tags=["chat", "base"])
+        assert "instruct_model" in chat_or_base  # has "chat"
+        assert "base_model" in chat_or_base  # has "base"
+
+    def test_find_by_multiple_capabilities(self):
+        """Test finding models by multiple capability criteria."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        registry = ModelRegistry()
+
+        @registry.register(
+            model_type="full_featured",
+            capabilities=ModelCapability(
+                is_sequence_model=True,
+                supports_kv_cache=True,
+                tags=["instruct"],
+            ),
+        )
+        def create_full(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        @registry.register(
+            model_type="partial_featured",
+            capabilities=ModelCapability(
+                is_sequence_model=True,
+                supports_kv_cache=False,
+                tags=["instruct"],
+            ),
+        )
+        def create_partial(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        # Must match all criteria
+        matches = registry.find_by_capability(
+            is_sequence_model=True,
+            supports_kv_cache=True,
+            tags=["instruct"],
+        )
+        assert "full_featured" in matches
+        assert "partial_featured" not in matches
+
+    def test_list_capabilities(self):
+        """Test listing all capabilities."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        registry = ModelRegistry()
+
+        @registry.register(
+            model_type="list_test_1",
+            capabilities=ModelCapability(supports_kv_cache=True),
+        )
+        def create_1(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        @registry.register(
+            model_type="list_test_2",
+            capabilities=ModelCapability(is_policy_model=True),
+        )
+        def create_2(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        caps = registry.list_capabilities()
+        assert "list_test_1" in caps
+        assert "list_test_2" in caps
+        assert caps["list_test_1"].supports_kv_cache is True
+        assert caps["list_test_2"].is_policy_model is True
+
+    def test_clear_clears_capabilities(self):
+        """Test clear also clears capabilities."""
+        from chuk_lazarus.models_v2.core.registry import ModelCapability
+
+        registry = ModelRegistry()
+
+        @registry.register(
+            model_type="to_clear",
+            capabilities=ModelCapability(supports_kv_cache=True),
+        )
+        def create_clear(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        assert registry.get_capabilities("to_clear") is not None
+        assert registry.list_capabilities() != {}
+
+        registry.clear()
+
+        assert registry.get_capabilities("to_clear") is None
+        assert registry.list_capabilities() == {}
+
+
+class TestGlobalCapabilityFunctions:
+    """Tests for global capability functions."""
+
+    def test_get_model_capabilities(self):
+        """Test global get_model_capabilities function."""
+        from chuk_lazarus.models_v2.core.registry import (
+            ModelCapability,
+            get_model_capabilities,
+        )
+
+        @register_model(
+            model_type="global_caps_test_unique_11111",
+            capabilities=ModelCapability(tags=["test"]),
+        )
+        def create_global_caps(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        caps = get_model_capabilities("global_caps_test_unique_11111")
+        assert caps is not None
+        assert "test" in caps.tags
+
+    def test_find_models_by_capability(self):
+        """Test global find_models_by_capability function."""
+        from chuk_lazarus.models_v2.core.registry import (
+            ModelCapability,
+            find_models_by_capability,
+        )
+
+        @register_model(
+            model_type="global_find_test_unique_22222",
+            capabilities=ModelCapability(
+                is_memory_reader=True,
+                tags=["memory"],
+            ),
+        )
+        def create_memory_model(config: ModelConfig) -> MockModel:
+            return MockModel(config)
+
+        matches = find_models_by_capability(
+            is_memory_reader=True,
+            tags=["memory"],
+        )
+        assert "global_find_test_unique_22222" in matches

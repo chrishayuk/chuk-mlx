@@ -76,6 +76,37 @@ class TestMambaConfig:
 
         assert config.n_layer == 24
 
+    def test_get_ssm_config(self):
+        """Test get_ssm_config returns SSMConfig."""
+        config = MambaConfig(hidden_size=512, d_state=32, d_conv=8, expand=4)
+        ssm_config = config.get_ssm_config()
+
+        assert ssm_config.hidden_size == 512
+        assert ssm_config.state_size == 32
+        assert ssm_config.conv_kernel_size == 8
+        assert ssm_config.expand_factor == 4
+
+    def test_mamba_370m_preset(self):
+        """Test Mamba-370M preset."""
+        config = MambaConfig.mamba_370m()
+
+        assert config.hidden_size == 1024
+        assert config.num_hidden_layers == 48
+
+    def test_mamba_790m_preset(self):
+        """Test Mamba-790M preset."""
+        config = MambaConfig.mamba_790m()
+
+        assert config.hidden_size == 1536
+        assert config.num_hidden_layers == 48
+
+    def test_mamba_2_8b_preset(self):
+        """Test Mamba-2.8B preset."""
+        config = MambaConfig.mamba_2_8b()
+
+        assert config.hidden_size == 2560
+        assert config.num_hidden_layers == 64
+
 
 class TestMambaModel:
     """Tests for MambaModel (backbone)."""

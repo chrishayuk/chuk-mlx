@@ -24,7 +24,7 @@ from .losses import (
     GRPOBatch,
     GRPOConfig,
     PPOConfig,
-    SFTConfig,
+    SFTLossConfig,
     compute_grpo_advantages,
     compute_ppo_loss_for_batch,
     create_dpo_loss_fn,
@@ -45,6 +45,7 @@ from .trainers import (
     GRPOTrainerConfig,
     PPOTrainer,
     PPOTrainerConfig,
+    SFTConfig,
     SFTTrainer,
 )
 
@@ -74,6 +75,7 @@ __all__ = [
     "GRPOConfig",
     "PPOConfig",
     "SFTConfig",
+    "SFTLossConfig",
     "compute_grpo_advantages",
     "compute_ppo_loss_for_batch",
     "create_dpo_loss_fn",
@@ -90,6 +92,7 @@ __all__ = [
     "GRPOTrainerConfig",
     "PPOTrainer",
     "PPOTrainerConfig",
+    "SFTConfig",
     "SFTTrainer",
     # Utils
     "compute_approx_kl",
