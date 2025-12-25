@@ -198,8 +198,142 @@ If weight loading fails:
 - Verify safetensors format
 - Some models may need HF authentication
 
+## FunctionGemma (Function Calling)
+
+FunctionGemma is a 270M parameter model from Google, designed specifically for on-device function calling. It's excellent for:
+- Tool use / API calling
+- MCP (Model Context Protocol) integration
+- Lightweight RAG pipelines
+- On-device agents
+
+### Running FunctionGemma
+
+```bash
+# Run the FunctionGemma inference example
+uv run python examples/models/gemma/01_functiongemma_inference.py
+```
+
+### How FunctionGemma Works
+
+FunctionGemma uses special tokens for structured function calling:
+- `<start_function_declaration>` / `<end_function_declaration>` - Define available tools
+- `<start_function_call>` / `<end_function_call>` - Model requests tool use
+- `<start_function_response>` / `<end_function_response>` - Tool results
+- `<escape>` - Wraps string values in structured data
+
+### Example with Tools
+
+```python
+from huggingface_hub import hf_hub_download
+from jinja2 import Template
+from mlx_lm import generate, load
+
+# Load bf16 model (better accuracy than quantized for function calling)
+model_name = "mlx-community/functiongemma-270m-it-bf16"
+model, tokenizer = load(model_name)
+
+# Load Jinja2 chat template
+template_path = hf_hub_download(model_name, "chat_template.jinja")
+with open(template_path) as f:
+    chat_template = Template(f.read())
+
+# Define tools in OpenAI-compatible format
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Gets current weather for a location.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {"type": "string", "description": "City name"},
+                },
+                "required": ["location"],
+            },
+        },
+    },
+]
+
+# Format messages with tools
+messages = [
+    {"role": "developer", "content": "You can do function calling with these functions"},
+    {"role": "user", "content": "What's the weather in Tokyo?"},
+]
+
+prompt = chat_template.render(
+    messages=messages,
+    tools=tools,
+    add_generation_prompt=True,
+    bos_token="<bos>",
+    eos_token="<eos>",
+)
+
+# Generate
+response = generate(model, tokenizer, prompt=prompt, max_tokens=100, verbose=False)
+# Output: call:get_weather{location:<escape>Tokyo<escape>}
+```
+
+### Parsing Function Calls
+
+```python
+import re
+
+def parse_function_call(response: str) -> dict | None:
+    """Parse function call from FunctionGemma output."""
+    pattern = r"call:(\w+)\{(.+?)\}"
+    match = re.search(pattern, response, re.DOTALL)
+
+    if match:
+        func_name = match.group(1)
+        args_str = match.group(2)
+
+        # Parse arguments (handle <escape> tokens)
+        args = {}
+        arg_pattern = r"(\w+):<escape>([^<]+)<escape>"
+        for arg_match in re.finditer(arg_pattern, args_str):
+            args[arg_match.group(1)] = arg_match.group(2)
+
+        return {"name": func_name, "arguments": args}
+    return None
+```
+
+### Model Selection
+
+| Model | Size | Quality | Use Case |
+|-------|------|---------|----------|
+| `functiongemma-270m-it-bf16` | ~540MB | Best | Production function calling |
+| `functiongemma-270m-it-4bit` | ~135MB | Lower | Memory-constrained devices |
+
+**Note:** bf16 models provide significantly better function calling accuracy than quantized versions. Use 4-bit only when memory is severely constrained.
+
+### Using chuk-lazarus Native Implementation
+
+You can also use our native Gemma implementation directly:
+
+```python
+import mlx.core as mx
+from chuk_lazarus.models_v2.families.gemma import GemmaConfig, GemmaForCausalLM
+
+# Create config for FunctionGemma 270M
+config = GemmaConfig.functiongemma_270m()
+
+# Create model
+model = GemmaForCausalLM(config)
+
+# Load weights from mlx-community
+# weights = mx.load("path/to/model.safetensors")
+# model.update(weights)
+
+# Forward pass
+test_input = mx.array([[1, 2, 3, 4, 5]])
+output = model(test_input)
+print(f"Output shape: {output.logits.shape}")
+```
+
 ## See Also
 
 - [Models Guide](models.md) - Architecture details
 - [Training Guide](training.md) - Fine-tuning models
 - [Examples](../examples/models/llama/) - Working inference examples
+- [Examples](../examples/models/gemma/) - FunctionGemma examples
