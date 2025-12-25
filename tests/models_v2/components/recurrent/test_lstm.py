@@ -3,6 +3,7 @@ Tests for LSTM.
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 
 from chuk_lazarus.models_v2.components.recurrent import LSTM
 
@@ -142,7 +143,8 @@ class TestLSTMGradients:
             out, _ = model(x)
             return mx.mean(out**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(lstm, x)
+        loss_and_grad_fn = nn.value_and_grad(lstm, loss_fn)
+        loss, grads = loss_and_grad_fn(lstm, x)
 
         assert loss.item() > 0
 

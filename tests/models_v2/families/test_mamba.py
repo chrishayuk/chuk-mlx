@@ -5,6 +5,7 @@ Tests MambaConfig, MambaModel, and MambaForCausalLM.
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 
 from chuk_lazarus.models_v2.families.mamba import (
     MambaConfig,
@@ -336,7 +337,8 @@ class TestMambaGradients:
             output = model(input_ids, labels=labels)
             return output.loss
 
-        loss, grads = mx.value_and_grad(loss_fn)(model, input_ids, labels)
+        loss_and_grad_fn = nn.value_and_grad(model, loss_fn)
+        loss, grads = loss_and_grad_fn(model, input_ids, labels)
 
         assert loss.item() > 0
         # Check some gradients exist
@@ -353,7 +355,8 @@ class TestMambaGradients:
             output = model(input_ids)
             return mx.mean(output.logits**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(model, input_ids)
+        loss_and_grad_fn = nn.value_and_grad(model, loss_fn)
+        loss, grads = loss_and_grad_fn(model, input_ids)
 
         assert loss.item() > 0
 

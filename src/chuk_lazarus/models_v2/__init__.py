@@ -105,8 +105,15 @@ from .core import (
 )
 
 # Families
-from .families import llama, mamba
+from .families import granite, llama, llama4, mamba
+from .families.granite import (
+    GraniteConfig,
+    GraniteForCausalLM,
+    GraniteHybridConfig,
+    GraniteHybridForCausalLM,
+)
 from .families.llama import LlamaConfig, LlamaForCausalLM
+from .families.llama4 import Llama4Config, Llama4ForCausalLM, Llama4TextConfig
 from .families.mamba import MambaConfig, MambaForCausalLM
 
 # Heads
@@ -238,10 +245,19 @@ __all__ = [
     "SequenceClassifier",
     "TokenClassifier",
     # === Families ===
+    "granite",
     "llama",
+    "llama4",
     "mamba",
+    "GraniteConfig",
+    "GraniteForCausalLM",
+    "GraniteHybridConfig",
+    "GraniteHybridForCausalLM",
     "LlamaConfig",
     "LlamaForCausalLM",
+    "Llama4Config",
+    "Llama4TextConfig",
+    "Llama4ForCausalLM",
     "MambaConfig",
     "MambaForCausalLM",
     # === Loader ===

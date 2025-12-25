@@ -37,9 +37,21 @@ examples/
 ├── data/               # Data handling examples
 │   ├── generate_math_data.py
 │   └── create_sft_dataset.py
-└── models/             # Model loading examples
-    ├── load_with_lora.py
-    └── model_config.py
+└── models/             # Model inference examples
+    ├── gemma/              # Gemma family examples
+    │   ├── 01_functiongemma_inference.py  # FunctionGemma tool calling
+    │   ├── 02_load_pretrained.py          # Load pretrained weights
+    │   └── 03_gemma3_inference.py         # Gemma 3 text generation
+    ├── granite/            # IBM Granite examples
+    │   └── 01_granite_inference.py        # Granite inference
+    ├── llama/              # Llama family examples
+    │   ├── 01_causal_lm.py                # Basic causal LM
+    │   ├── 02_tinyllama_inference.py      # TinyLlama inference
+    │   └── 03_llama_family_inference.py   # Multi-model inference
+    ├── llama4/             # Llama 4 examples
+    │   └── 01_llama4_inference.py         # Llama 4 Scout inference
+    ├── lora/               # LoRA examples
+    └── mlp/                # MLP classifier examples
 ```
 
 ## Quick Start
@@ -266,6 +278,63 @@ Features demonstrated:
   - `minimize_memory` - Reduce peak memory usage
 - Complete efficiency reports with recommendations
 - CLI equivalents: `lazarus data batching histogram`, `analyze`, `suggest`
+
+## Model Inference Examples
+
+Run inference with various model families using pretrained weights from HuggingFace.
+
+### Gemma 3
+
+```bash
+# Basic inference
+uv run python examples/models/gemma/03_gemma3_inference.py --prompt "What is the capital of France?"
+
+# Interactive chat
+uv run python examples/models/gemma/03_gemma3_inference.py --chat
+
+# Use larger model
+uv run python examples/models/gemma/03_gemma3_inference.py \
+  --model mlx-community/gemma-3-4b-it-bf16 \
+  --prompt "Explain machine learning"
+```
+
+**Available models:** `gemma-3-1b-it-bf16`, `gemma-3-4b-it-bf16`, `gemma-3-12b-it-bf16`, `gemma-3-27b-it-bf16`
+
+### FunctionGemma (Tool Calling)
+
+```bash
+# Function calling example
+uv run python examples/models/gemma/01_functiongemma_inference.py
+```
+
+### Llama Family
+
+```bash
+# List available models
+uv run python examples/models/llama/03_llama_family_inference.py --list-models
+
+# Run with different models
+uv run python examples/models/llama/03_llama_family_inference.py --model tinyllama
+uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-360m
+```
+
+**Available presets:** `tinyllama`, `smollm2-135m`, `smollm2-360m`, `smollm2-1.7b`, `llama2-7b`, `llama3.2-1b`, `mistral-7b`
+
+### Granite
+
+```bash
+# Basic inference
+uv run python examples/models/granite/01_granite_inference.py --prompt "What is machine learning?"
+```
+
+### Llama 4
+
+```bash
+# Llama 4 Scout inference (requires HF auth)
+uv run python examples/models/llama4/01_llama4_inference.py --prompt "Explain quantum computing"
+```
+
+**Note:** Llama 4 requires HuggingFace authentication. Run `huggingface-cli login` first.
 
 ## Running Examples
 

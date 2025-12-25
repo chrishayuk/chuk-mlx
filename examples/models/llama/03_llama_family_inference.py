@@ -229,6 +229,11 @@ def _convert_weight_name(hf_name: str, tie_word_embeddings: bool = False) -> str
     if layer_match:
         layer_idx = layer_match.group(1)
         rest = layer_match.group(2)
+
+        # Skip rotary embeddings - we compute these dynamically
+        if "rotary_emb" in rest:
+            return None
+
         return f"model.layers.{layer_idx}.{rest}"
 
     # Unknown weight - skip with warning for debugging

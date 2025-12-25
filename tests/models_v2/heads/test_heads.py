@@ -342,7 +342,8 @@ class TestHeadGradients:
             out = model(hidden_states, labels=labels)
             return out.loss
 
-        loss, grads = mx.value_and_grad(loss_fn)(head, hidden_states, labels)
+        loss_and_grad_fn = nn.value_and_grad(head, loss_fn)
+        loss, grads = loss_and_grad_fn(head, hidden_states, labels)
 
         assert loss.item() > 0
         assert any(g is not None for g in grads.values())
@@ -361,7 +362,8 @@ class TestHeadGradients:
             out = model(hidden_states, labels=labels)
             return out.loss
 
-        loss, grads = mx.value_and_grad(loss_fn)(head, hidden_states, labels)
+        loss_and_grad_fn = nn.value_and_grad(head, loss_fn)
+        loss, grads = loss_and_grad_fn(head, hidden_states, labels)
 
         assert loss.item() > 0
 
@@ -379,7 +381,8 @@ class TestHeadGradients:
             out = model(hidden_states, labels=labels)
             return out.loss
 
-        loss, grads = mx.value_and_grad(loss_fn)(head, hidden_states, labels)
+        loss_and_grad_fn = nn.value_and_grad(head, loss_fn)
+        loss, grads = loss_and_grad_fn(head, hidden_states, labels)
 
         assert loss.item() >= 0
 

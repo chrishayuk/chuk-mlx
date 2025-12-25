@@ -3,6 +3,7 @@ Tests for GroupedQueryAttention (GQA).
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 import pytest
 
 from chuk_lazarus.models_v2.components.attention import GroupedQueryAttention
@@ -218,6 +219,7 @@ class TestGQAGradients:
             out, _ = model(x)
             return mx.mean(out**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(attn, x)
+        loss_and_grad_fn = nn.value_and_grad(attn, loss_fn)
+        loss, grads = loss_and_grad_fn(attn, x)
 
         assert loss.item() > 0

@@ -5,6 +5,7 @@ Tests TransformerBackbone, MambaBackbone, RecurrentBackbone, and HybridBackbone.
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 
 from chuk_lazarus.models_v2.backbones import (
     BackboneOutput,
@@ -334,7 +335,8 @@ class TestBackboneGradients:
             out = model(input_ids)
             return mx.mean(out.last_hidden_state**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(backbone, input_ids)
+        loss_and_grad_fn = nn.value_and_grad(backbone, loss_fn)
+        loss, grads = loss_and_grad_fn(backbone, input_ids)
 
         assert loss.item() > 0
         assert any(g is not None for g in grads.values())
@@ -354,7 +356,8 @@ class TestBackboneGradients:
             out = model(input_ids)
             return mx.mean(out.last_hidden_state**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(backbone, input_ids)
+        loss_and_grad_fn = nn.value_and_grad(backbone, loss_fn)
+        loss, grads = loss_and_grad_fn(backbone, input_ids)
 
         assert loss.item() > 0
 
@@ -373,7 +376,8 @@ class TestBackboneGradients:
             out = model(input_ids)
             return mx.mean(out.last_hidden_state**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(backbone, input_ids)
+        loss_and_grad_fn = nn.value_and_grad(backbone, loss_fn)
+        loss, grads = loss_and_grad_fn(backbone, input_ids)
 
         assert loss.item() > 0
 

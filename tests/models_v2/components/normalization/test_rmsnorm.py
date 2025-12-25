@@ -3,6 +3,7 @@ Tests for RMSNorm.
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 
 from chuk_lazarus.models_v2.components.normalization import RMSNorm
 from chuk_lazarus.models_v2.components.normalization.rmsnorm import create_rmsnorm
@@ -77,7 +78,8 @@ class TestRMSNormGradients:
             out = model(x)
             return mx.mean(out**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(norm, x)
+        loss_and_grad_fn = nn.value_and_grad(norm, loss_fn)
+        loss, grads = loss_and_grad_fn(norm, x)
         assert loss.item() > 0
 
 

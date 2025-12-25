@@ -198,6 +198,148 @@ If weight loading fails:
 - Verify safetensors format
 - Some models may need HF authentication
 
+## Gemma 3 Inference
+
+Gemma 3 is Google's latest open model family with 4 sizes (1B, 4B, 12B, 27B) and 128K context. Use bf16 models from mlx-community for direct loading.
+
+### Running Gemma 3 Inference
+
+```bash
+# Basic inference
+uv run python examples/models/gemma/03_gemma3_inference.py --prompt "What is the capital of France?"
+
+# With custom parameters
+uv run python examples/models/gemma/03_gemma3_inference.py \
+  --prompt "Write a haiku about programming" \
+  --max-tokens 128 \
+  --temperature 0.7
+
+# Interactive chat mode
+uv run python examples/models/gemma/03_gemma3_inference.py --chat
+
+# Use larger model
+uv run python examples/models/gemma/03_gemma3_inference.py \
+  --model mlx-community/gemma-3-4b-it-bf16 \
+  --prompt "Explain quantum computing"
+```
+
+### Available Gemma 3 Models
+
+| Model ID | Parameters | Memory | Notes |
+|----------|------------|--------|-------|
+| `mlx-community/gemma-3-1b-it-bf16` | 1B | ~2GB | Fast, good for testing |
+| `mlx-community/gemma-3-4b-it-bf16` | 4B | ~8GB | Good quality/speed balance |
+| `mlx-community/gemma-3-12b-it-bf16` | 12B | ~24GB | High quality |
+| `mlx-community/gemma-3-27b-it-bf16` | 27B | ~54GB | Best quality |
+
+**Notes:**
+- Use bf16 models (not 4-bit quantized) for direct loading. Quantized models require additional quantization support.
+- The 4B+ models are multimodal but this example uses them for text-only inference (vision components are filtered out).
+
+### Python API
+
+```python
+import mlx.core as mx
+from mlx.utils import tree_unflatten
+from pathlib import Path
+from huggingface_hub import snapshot_download
+from transformers import AutoTokenizer
+import json
+
+from chuk_lazarus.models_v2.families.gemma import GemmaConfig, GemmaForCausalLM
+
+# Download model
+model_id = "mlx-community/gemma-3-1b-it-bf16"
+model_path = Path(snapshot_download(repo_id=model_id, allow_patterns=["*.json", "*.safetensors"]))
+
+# Load config
+with open(model_path / "config.json") as f:
+    hf_config = json.load(f)
+
+config = GemmaConfig(
+    vocab_size=hf_config["vocab_size"],
+    hidden_size=hf_config["hidden_size"],
+    num_hidden_layers=hf_config["num_hidden_layers"],
+    num_attention_heads=hf_config["num_attention_heads"],
+    num_key_value_heads=hf_config.get("num_key_value_heads", hf_config["num_attention_heads"]),
+    intermediate_size=hf_config["intermediate_size"],
+    head_dim=hf_config.get("head_dim", 256),
+)
+
+# Create model and load weights
+model = GemmaForCausalLM(config)
+weights = mx.load(str(model_path / "model.safetensors"))
+nested = tree_unflatten(list(weights.items()))
+model.update(nested)
+mx.eval(model.parameters())
+
+# Load tokenizer
+tokenizer = AutoTokenizer.from_pretrained(str(model_path))
+
+# Generate
+prompt = "<bos><start_of_turn>user\nHello!<end_of_turn>\n<start_of_turn>model\n"
+input_ids = mx.array(tokenizer.encode(prompt, return_tensors="np"))
+
+output_ids = model.generate(
+    input_ids,
+    max_new_tokens=100,
+    temperature=0.7,
+    stop_tokens=[tokenizer.eos_token_id, 106],  # 106 is <end_of_turn>
+)
+
+response = tokenizer.decode(output_ids[0, input_ids.shape[1]:].tolist(), skip_special_tokens=True)
+print(response)
+```
+
+## Granite Inference
+
+IBM Granite models are available in dense (3.0, 3.1) and hybrid MoE (4.0) variants.
+
+### Running Granite Inference
+
+```bash
+# Basic inference
+uv run python examples/models/granite/01_granite_inference.py --prompt "What is machine learning?"
+
+# Use specific model
+uv run python examples/models/granite/01_granite_inference.py \
+  --model ibm-granite/granite-3.1-2b-instruct \
+  --prompt "Explain neural networks"
+```
+
+### Available Granite Models
+
+| Model ID | Type | Parameters | Notes |
+|----------|------|------------|-------|
+| `ibm-granite/granite-3.0-8b-instruct` | Dense | 8B | Original Granite 3.0 |
+| `ibm-granite/granite-3.1-2b-instruct` | Dense | 2B | Long context (128K) |
+| `ibm-granite/granite-3.1-8b-instruct` | Dense | 8B | Long context (128K) |
+
+## Llama 4 Inference
+
+Meta's Llama 4 Scout model uses a hybrid Mamba-Transformer architecture with MoE for efficient long-context processing.
+
+### Running Llama 4 Inference
+
+```bash
+# Basic inference
+uv run python examples/models/llama4/01_llama4_inference.py --prompt "What is the future of AI?"
+
+# With custom parameters
+uv run python examples/models/llama4/01_llama4_inference.py \
+  --prompt "Write a story about space exploration" \
+  --max-tokens 200 \
+  --temperature 0.8
+```
+
+### Available Llama 4 Models
+
+| Model ID | Parameters | Architecture | Notes |
+|----------|------------|--------------|-------|
+| `meta-llama/Llama-4-Scout-17B-16E-Instruct` | 17B active / 109B total | Hybrid Mamba-Transformer MoE | 16 experts, 10M context |
+
+**Note:** Llama 4 requires HuggingFace authentication. Run `huggingface-cli login` first.
+
 ## FunctionGemma (Function Calling)
 
 FunctionGemma is a 270M parameter model from Google, designed specifically for on-device function calling. It's excellent for:

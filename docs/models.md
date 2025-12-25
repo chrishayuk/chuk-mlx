@@ -628,6 +628,111 @@ for i in range(config.num_hidden_layers):
         print(f"Layer {i}: global attention")
 ```
 
+### Granite Family
+
+```python
+from chuk_lazarus.models_v2.families.granite import (
+    GraniteConfig,
+    GraniteHybridConfig,
+    GraniteForCausalLM,
+)
+
+# Dense models (Granite 3.0, 3.1)
+config = GraniteConfig.tiny()              # Testing
+config = GraniteConfig.granite_3_8b()      # Granite 3.0 8B
+config = GraniteConfig.granite_3_1_2b()    # Granite 3.1 2B (128K context)
+config = GraniteConfig.granite_3_1_8b()    # Granite 3.1 8B (128K context)
+
+# Hybrid MoE models (Granite 4.0)
+config = GraniteHybridConfig.tiny()        # Testing
+config = GraniteHybridConfig.tiny_moe()    # Testing with MoE
+config = GraniteHybridConfig.granite_4_micro()  # Granite 4.0 Micro (dense)
+config = GraniteHybridConfig.granite_4_tiny()   # Granite 4.0 Tiny (MoE + Mamba)
+config = GraniteHybridConfig.granite_4_small()  # Granite 4.0 Small (MoE + Mamba)
+
+# Create model
+model = GraniteForCausalLM(config)
+
+# Forward pass
+output = model(token_ids)
+
+# Generate text
+generated = model.generate(
+    input_ids=prompt_ids,
+    max_new_tokens=100,
+    temperature=0.7,
+)
+```
+
+#### Granite Architecture Features
+
+Granite models have several unique features:
+
+- **muP scaling**: Embedding, attention, residual, and logits multipliers for stable training
+- **Flexible normalization**: RMSNorm or LayerNorm, configurable position
+- **GQA support**: Grouped-query attention for efficient inference
+- **Long context**: 128K context for Granite 3.1 models
+- **Hybrid architecture (4.0)**: Mamba + Attention layers with MoE
+
+```python
+# Dense model features
+config = GraniteConfig.granite_3_1_8b()
+print(f"Embedding multiplier: {config.embedding_multiplier}")
+print(f"Attention multiplier: {config.attention_multiplier}")
+print(f"Logits scaling: {config.logits_scaling}")
+
+# Hybrid model features
+config = GraniteHybridConfig.granite_4_tiny()
+print(f"MoE: {config.is_moe}")
+print(f"Mamba layers: {config.num_mamba_layers}")
+print(f"Attention layers: {config.num_attention_layers}")
+print(f"Experts: {config.num_local_experts} total, {config.num_experts_per_tok} per token")
+```
+
+### Llama 4 Family
+
+```python
+from chuk_lazarus.models_v2.families.llama4 import (
+    Llama4TextConfig,
+    Llama4ForCausalLM,
+)
+
+# Preset configurations
+config = Llama4TextConfig.tiny()           # Testing
+config = Llama4TextConfig.llama4_scout()   # Llama 4 Scout 17B/109B
+
+# Create model
+model = Llama4ForCausalLM(config)
+
+# Forward pass
+output = model(token_ids)
+
+# Generate text
+generated = model.generate(
+    input_ids=prompt_ids,
+    max_new_tokens=100,
+    temperature=0.7,
+)
+```
+
+#### Llama 4 Architecture Features
+
+Llama 4 uses a novel hybrid architecture:
+
+- **Mamba-Transformer hybrid**: Interleaved Mamba2 and attention layers
+- **Interleaved MoE**: MoE layers alternating with dense layers
+- **Massive context**: Up to 10M tokens with efficient state-space layers
+- **Shared + routed experts**: Shared expert always active, plus routed experts
+- **NoPE (No Positional Encoding)**: Some models use no positional encoding
+
+```python
+config = Llama4TextConfig.llama4_scout()
+print(f"Hidden size: {config.hidden_size}")
+print(f"Layers: {config.num_hidden_layers}")
+print(f"Experts: {config.num_local_experts} total, {config.num_experts_per_tok} per token")
+print(f"MoE layers: every {config.interleave_moe_layer_step} layer")
+```
+
 ## Model Loading
 
 Async-native loading from local files or HuggingFace Hub.
@@ -787,8 +892,10 @@ models_v2/
 │
 ├── families/                # Architecture-specific
 │   ├── llama/               # LlamaConfig, LlamaForCausalLM
+│   ├── llama4/              # Llama4TextConfig, Llama4ForCausalLM
 │   ├── mamba/               # MambaConfig, MambaForCausalLM
-│   └── gemma/               # GemmaConfig, GemmaForCausalLM
+│   ├── gemma/               # GemmaConfig, GemmaForCausalLM
+│   └── granite/             # GraniteConfig, GraniteForCausalLM
 │
 ├── adapters/                # Parameter-efficient fine-tuning
 │   └── lora.py              # LoRAConfig, LoRALinear, apply_lora

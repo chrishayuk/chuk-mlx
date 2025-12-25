@@ -3,6 +3,7 @@ Tests for SelectiveSSM.
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 
 from chuk_lazarus.models_v2.components.ssm import (
     SelectiveSSM,
@@ -202,7 +203,8 @@ class TestSSMGradients:
             out, _ = model(x)
             return mx.mean(out**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(ssm, x)
+        loss_and_grad_fn = nn.value_and_grad(ssm, loss_fn)
+        loss, grads = loss_and_grad_fn(ssm, x)
 
         assert loss.item() > 0
         assert any(g is not None for g in grads.values())

@@ -5,6 +5,7 @@ Tests for token embeddings.
 import math
 
 import mlx.core as mx
+import mlx.nn as nn
 
 from chuk_lazarus.models_v2.components.embeddings import create_token_embedding
 from chuk_lazarus.models_v2.components.embeddings.token import TokenEmbedding
@@ -117,5 +118,6 @@ class TestEmbeddingGradients:
             out = model(x)
             return mx.mean(out**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(embed, input_ids)
+        loss_and_grad_fn = nn.value_and_grad(embed, loss_fn)
+        loss, grads = loss_and_grad_fn(embed, input_ids)
         assert loss.item() > 0
