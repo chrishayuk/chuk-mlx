@@ -1,6 +1,8 @@
 # Models v2
 
-A composable, async-native, Pydantic-native model framework for building and training language models on MLX.
+A composable, Pydantic-native model framework for building and training language models on MLX.
+
+Models v2 treats **model architecture as a composable system**, not a monolith.
 
 ## Architecture
 
@@ -72,11 +74,11 @@ mamba_model = MambaForCausalLM(mamba_config)
 
 ## Design Principles
 
-- **Pydantic-native**: Configs use BaseModel with frozen=True
-- **Async-native**: All I/O is async
-- **No magic strings**: Enums for type safety
-- **No dictionary goop**: Structured output types
-- **Backend-agnostic**: Works on MLX, PyTorch, JAX
+- **Pydantic-native**: Configs use BaseModel with frozen=True for validation and serialization
+- **Async-native**: Model loading, checkpoint I/O, and external resources are async-safe
+- **No magic strings**: Enums for type safety (AttentionType, FFNType, NormType, etc.)
+- **No dictionary goop**: Structured output types (ModelOutput, BlockOutput, BackboneOutput)
+- **Backend-agnostic by design**: Core abstractions are backend-neutral; MLX is the reference implementation
 
 ## Documentation
 

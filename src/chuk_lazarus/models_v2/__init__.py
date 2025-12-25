@@ -123,11 +123,13 @@ from .introspection import (
     FLOPsEstimate,
     MemoryEstimate,
     ModelCapabilities,
+    ModelInfo,
     ParameterStats,
     count_parameters,
     detect_model_capabilities,
     estimate_flops,
     estimate_memory,
+    get_model_info,
     introspect,
     print_introspection,
 )
@@ -258,13 +260,15 @@ __all__ = [
     "FLOPsEstimate",
     "MemoryEstimate",
     "ModelCapabilities",
+    "ModelInfo",
     "count_parameters",
     "estimate_flops",
     "estimate_memory",
     "get_model_capabilities",
     "detect_model_capabilities",
+    "get_model_info",
     "introspect",
     "print_introspection",
-    # === Training ===
+    # === Losses ===
     "compute_lm_loss",
 ]
