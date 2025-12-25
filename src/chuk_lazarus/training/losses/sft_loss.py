@@ -10,23 +10,11 @@ import mlx.core as mx
 
 
 @dataclass
-class SFTConfig:
-    """Configuration for SFT training."""
+class SFTLossConfig:
+    """Configuration for SFT loss computation."""
 
-    num_epochs: int = 3
-    batch_size: int = 4
-    learning_rate: float = 1e-5
-    weight_decay: float = 0.01
-    warmup_steps: int = 100
-    max_grad_norm: float = 1.0
-    max_seq_length: int = 512
     mask_prompt: bool = True
-    log_interval: int = 10
-    eval_interval: int = 100
-    checkpoint_interval: int = 500
-    checkpoint_dir: str = "./checkpoints/sft"
-    max_steps: int | None = None
-    min_loss: float | None = None
+    max_seq_length: int = 512
 
 
 def sft_loss(

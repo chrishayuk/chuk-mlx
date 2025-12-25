@@ -477,24 +477,30 @@ Architecture-specific implementations with preset configurations.
 from chuk_lazarus.models_v2 import LlamaConfig, LlamaForCausalLM
 
 # Preset configurations
-config = LlamaConfig.tiny()      # 42M params (testing)
-config = LlamaConfig.llama2_7b() # 7B params
-config = LlamaConfig.llama3_8b() # 8B params
-config = LlamaConfig.mistral_7b() # Mistral 7B
-config = LlamaConfig.codellama_7b() # Code Llama 7B
+config = LlamaConfig.tiny()        # Testing
+config = LlamaConfig.llama2_7b()   # Llama 2 7B
+config = LlamaConfig.llama2_13b()  # Llama 2 13B
+config = LlamaConfig.llama2_70b()  # Llama 2 70B
+config = LlamaConfig.llama3_8b()   # Llama 3 8B
+config = LlamaConfig.llama3_70b()  # Llama 3 70B
+config = LlamaConfig.mistral_7b()  # Mistral 7B
+config = LlamaConfig.code_llama_7b() # Code Llama 7B
 
 # Create model
 model = LlamaForCausalLM(config)
 
-# Forward pass
+# Forward pass with labels for training
 output = model(token_ids, labels=labels)
 print(f"Loss: {output.loss}")
 
-# Generate (greedy)
+# Generate text
 generated = model.generate(
     input_ids=prompt_ids,
     max_new_tokens=100,
     temperature=0.7,
+    top_k=50,              # Top-k sampling
+    repetition_penalty=1.1, # Reduce repetition
+    stop_tokens=[2],       # EOS token
 )
 ```
 
@@ -507,13 +513,22 @@ from chuk_lazarus.models_v2 import MambaConfig, MambaForCausalLM
 config = MambaConfig.tiny()       # Testing
 config = MambaConfig.mamba_130m() # 130M params
 config = MambaConfig.mamba_370m() # 370M params
+config = MambaConfig.mamba_790m() # 790M params
 config = MambaConfig.mamba_1_4b() # 1.4B params
+config = MambaConfig.mamba_2_8b() # 2.8B params
 
 # Create model
 model = MambaForCausalLM(config)
 
-# Mamba is efficient for long sequences
+# Mamba is efficient for long sequences (O(n) complexity)
 output = model(long_sequence_ids)
+
+# Generate text
+generated = model.generate(
+    input_ids=prompt_ids,
+    max_new_tokens=100,
+    temperature=0.7,
+)
 ```
 
 ## Model Loading

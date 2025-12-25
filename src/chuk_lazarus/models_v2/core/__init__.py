@@ -13,6 +13,7 @@ from .backend import (
     Backend,
     BackendType,
     MLXBackend,
+    Tensor,
     TorchBackend,
     get_backend,
     reset_backend,
@@ -67,8 +68,11 @@ from .protocols import (
     RecurrentCell,
 )
 from .registry import (
+    ModelCapability,
     ModelRegistry,
     create_model,
+    find_models_by_capability,
+    get_model_capabilities,
     get_model_class,
     list_models,
     register_model,
@@ -126,12 +130,16 @@ __all__ = [
     "LayerCache",
     # Registry
     "ModelRegistry",
+    "ModelCapability",
     "register_model",
     "get_model_class",
     "get_factory",
     "create_model",
     "list_models",
+    "get_model_capabilities",
+    "find_models_by_capability",
     # Backend
+    "Tensor",
     "Backend",
     "BackendType",
     "MLXBackend",

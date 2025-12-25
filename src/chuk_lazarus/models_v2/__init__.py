@@ -85,6 +85,8 @@ from .core import (
     FFNConfig,
     FFNType,
     HeadType,
+    # Registry
+    ModelCapability,
     # Config
     ModelConfig,
     ModelMode,
@@ -92,11 +94,12 @@ from .core import (
     NormType,
     PositionEmbeddingType,
     SSMConfig,
+    find_models_by_capability,
     # Backend
     get_backend,
     get_factory,
+    get_model_capabilities,
     list_models,
-    # Registry
     register_model,
     set_backend,
 )
@@ -113,6 +116,20 @@ from .heads import (
     HeadOutput,
     LMHead,
     RegressionHead,
+)
+
+# Introspection
+from .introspection import (
+    FLOPsEstimate,
+    MemoryEstimate,
+    ModelCapabilities,
+    ParameterStats,
+    count_parameters,
+    detect_model_capabilities,
+    estimate_flops,
+    estimate_memory,
+    introspect,
+    print_introspection,
 )
 
 # Loader
@@ -158,6 +175,9 @@ __all__ = [
     "register_model",
     "get_factory",
     "list_models",
+    "ModelCapability",
+    "get_model_capabilities",
+    "find_models_by_capability",
     # Backend
     "get_backend",
     "set_backend",
@@ -233,6 +253,18 @@ __all__ = [
     "apply_lora",
     "merge_lora_weights",
     "count_lora_parameters",
+    # === Introspection ===
+    "ParameterStats",
+    "FLOPsEstimate",
+    "MemoryEstimate",
+    "ModelCapabilities",
+    "count_parameters",
+    "estimate_flops",
+    "estimate_memory",
+    "get_model_capabilities",
+    "detect_model_capabilities",
+    "introspect",
+    "print_introspection",
     # === Training ===
     "compute_lm_loss",
 ]

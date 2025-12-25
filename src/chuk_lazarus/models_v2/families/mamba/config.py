@@ -57,9 +57,10 @@ class MambaConfig(ModelConfig):
     def get_ssm_config(self) -> SSMConfig:
         """Get SSM configuration for blocks."""
         return SSMConfig(
+            hidden_size=self.hidden_size,
             state_size=self.d_state,
-            conv_kernel=self.d_conv,
-            expand=self.expand,
+            conv_kernel_size=self.d_conv,
+            expand_factor=self.expand,
         )
 
     @classmethod

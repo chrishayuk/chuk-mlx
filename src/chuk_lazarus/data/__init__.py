@@ -12,18 +12,11 @@ This module provides:
 - Tokenizer utilities
 """
 
-# Base class
+# Base class and protocols
 from .base_dataset import BaseDataset
 
 # Batch datasets (for pre-tokenized NPZ data)
 from .batch_dataset_base import BatchDatasetBase
-
-# Classification dataset
-from .classification_dataset import (
-    ClassificationDataset,
-    ClassificationSample,
-    load_classification_data,
-)
 
 # Async-native batching (unified pipeline)
 from .batching import (
@@ -64,6 +57,13 @@ from .batching import (
     verify_batch_fingerprint,
 )
 
+# Classification dataset
+from .classification_dataset import (
+    ClassificationDataset,
+    ClassificationSample,
+    load_classification_data,
+)
+
 # Data generators
 from .generators import (
     MathProblem,
@@ -74,6 +74,14 @@ from .generators import (
     generate_lazarus_dataset,
 )
 from .preference_dataset import PreferenceDataset, PreferencePair, load_preference_data
+from .protocols import (
+    BatchableDataset,
+    ClassificationDatasetProtocol,
+    Dataset,
+    PreferenceDatasetProtocol,
+    SFTDatasetProtocol,
+    TokenizerProtocol,
+)
 from .rollout_buffer import Episode, RolloutBuffer, Transition
 
 # Canonical sample schema (Phase 0 - Pydantic-native)
@@ -93,6 +101,10 @@ from .sft_dataset import SFTDataset, SFTSample
 
 # Tokenizer utilities
 from .tokenizers import (
+    BoWCharacterTokenizer,
+    BoWTokenizerConfig,
+    CharacterTokenizer,
+    CharacterTokenizerConfig,
     CustomTokenizer,
     load_vocabulary,
     save_vocabulary,
@@ -100,8 +112,14 @@ from .tokenizers import (
 from .train_batch_dataset import TrainBatchDataset
 
 __all__ = [
-    # Base
+    # Base and Protocols
     "BaseDataset",
+    "Dataset",
+    "BatchableDataset",
+    "SFTDatasetProtocol",
+    "PreferenceDatasetProtocol",
+    "ClassificationDatasetProtocol",
+    "TokenizerProtocol",
     # Batch datasets
     "BatchDatasetBase",
     "TrainBatchDataset",
@@ -177,6 +195,10 @@ __all__ = [
     "SFTDataset",
     "SFTSample",
     # Tokenizers
+    "BoWCharacterTokenizer",
+    "BoWTokenizerConfig",
+    "CharacterTokenizer",
+    "CharacterTokenizerConfig",
     "CustomTokenizer",
     "load_vocabulary",
     "save_vocabulary",

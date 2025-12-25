@@ -2,15 +2,21 @@
 SFT (Supervised Fine-Tuning) Training Example
 
 Shows how to fine-tune a model on instruction-following data.
+
+This example demonstrates the integration of:
+- models_v2: Model loading and architecture
+- training: SFTTrainer for supervised fine-tuning
+- data: SFTDataset for loading training data
 """
 
+from chuk_lazarus import load_model
 from chuk_lazarus.data import SFTDataset
-from chuk_lazarus.models import load_model
 from chuk_lazarus.training import SFTConfig, SFTTrainer
 
 
 def main():
-    # Load model
+    # Load model using the unified loader
+    # This returns (model, tokenizer) tuple
     print("Loading model...")
     model, tokenizer = load_model(
         "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
@@ -20,10 +26,13 @@ def main():
     # Create dataset (expects JSONL with "prompt" and "response" fields)
     # Example data format:
     # {"prompt": "What is 2+2?", "response": "2+2 equals 4."}
+    # Or with messages format:
+    # {"messages": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]}
     dataset = SFTDataset(
-        path="./data/train.jsonl",
+        data_path="./data/train.jsonl",
         tokenizer=tokenizer,
         max_length=512,
+        mask_prompt=True,  # Only compute loss on response tokens
     )
 
     # Configure training
@@ -37,8 +46,8 @@ def main():
     )
 
     # Create trainer and train
-    trainer = SFTTrainer(model, tokenizer, config)
-    trainer.train(dataset)
+    trainer = SFTTrainer(model=model, tokenizer=tokenizer, config=config)
+    trainer.train(train_dataset=dataset)
 
     print("Training complete!")
     print(f"Checkpoints saved to: {config.checkpoint_dir}")

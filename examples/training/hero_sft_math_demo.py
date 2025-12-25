@@ -204,15 +204,15 @@ def demo_inference():
 
     print("\nPython code:")
     print("""
-    from chuk_lazarus.models import load_model
+    from chuk_lazarus import load_model
     from chuk_lazarus.inference import Generator
 
-    model = load_model(
+    model, tokenizer = load_model(
         "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         adapter_path="./checkpoints/math-sft/final"
     )
 
-    generator = Generator(model.model, model.tokenizer)
+    generator = Generator(model, tokenizer)
     response = generator.generate("What is 42 + 58?", max_tokens=100)
     print(response)
     """)

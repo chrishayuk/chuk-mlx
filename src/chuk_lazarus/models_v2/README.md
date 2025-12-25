@@ -13,24 +13,47 @@ Components -> Blocks -> Backbones -> Heads -> Models
 ## Quick Start
 
 ```python
-from chuk_lazarus import (
+from chuk_lazarus.models_v2 import (
     LlamaConfig,
     LlamaForCausalLM,
-    LoRAConfig,
-    apply_lora,
+    MambaConfig,
+    MambaForCausalLM,
 )
+import mlx.core as mx
 
-# Create model
-config = LlamaConfig.tiny()
+# Llama model
+config = LlamaConfig.tiny()  # or llama2_7b(), llama3_8b(), mistral_7b()
 model = LlamaForCausalLM(config)
 
-# Apply LoRA
-lora_layers = apply_lora(model, LoRAConfig(rank=8))
-
 # Forward pass
-import mlx.core as mx
 output = model(mx.array([[1, 2, 3, 4, 5]]))
+print(f"Logits: {output.logits.shape}")
+
+# Generate text
+generated = model.generate(
+    input_ids=mx.array([[1, 2, 3]]),
+    max_new_tokens=50,
+    temperature=0.7,
+)
+
+# Mamba model (state-space, O(n) complexity)
+mamba_config = MambaConfig.mamba_130m()  # or mamba_370m(), mamba_1_4b()
+mamba_model = MambaForCausalLM(mamba_config)
 ```
+
+## Model Presets
+
+### Llama Family
+- `LlamaConfig.tiny()` - Testing
+- `LlamaConfig.llama2_7b()`, `llama2_13b()`, `llama2_70b()`
+- `LlamaConfig.llama3_8b()`, `llama3_70b()`
+- `LlamaConfig.mistral_7b()`
+- `LlamaConfig.code_llama_7b()`
+
+### Mamba Family
+- `MambaConfig.tiny()` - Testing
+- `MambaConfig.mamba_130m()`, `mamba_370m()`, `mamba_790m()`
+- `MambaConfig.mamba_1_4b()`, `mamba_2_8b()`
 
 ## Submodules
 

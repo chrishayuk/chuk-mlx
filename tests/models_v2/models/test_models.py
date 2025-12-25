@@ -1113,3 +1113,442 @@ class TestMambaCausalLMDirect:
         output = model(input_ids)
 
         assert output.logits.shape == (1, 5, config.vocab_size)
+
+
+class TestCausalLMDirectGeneration:
+    """Tests for CausalLM.generate method directly via family models."""
+
+    def test_generate_basic_via_causal_lm(self):
+        """Test basic generation via LlamaForCausalLM."""
+        from chuk_lazarus.models_v2.families.llama import LlamaConfig, LlamaForCausalLM
+
+        config = LlamaConfig.tiny()
+        model = LlamaForCausalLM(config)
+
+        input_ids = mx.array([[1, 2, 3]])
+        generated = model.generate(input_ids, max_new_tokens=3)
+
+        assert generated.shape[0] == 1
+        assert generated.shape[1] == 6
+
+    def test_generate_with_temperature_zero(self):
+        """Test generation with temperature=0 (greedy)."""
+        from chuk_lazarus.models_v2.families.llama import LlamaConfig, LlamaForCausalLM
+
+        config = LlamaConfig.tiny()
+        model = LlamaForCausalLM(config)
+
+        input_ids = mx.array([[1, 2, 3]])
+        generated = model.generate(input_ids, max_new_tokens=3, temperature=0.0)
+
+        assert generated.shape[1] == 6
+
+    def test_generate_with_top_k_via_causal_lm(self):
+        """Test generation with top-k via LlamaForCausalLM."""
+        from chuk_lazarus.models_v2.families.llama import LlamaConfig, LlamaForCausalLM
+
+        config = LlamaConfig.tiny()
+        model = LlamaForCausalLM(config)
+
+        input_ids = mx.array([[1, 2, 3]])
+        generated = model.generate(input_ids, max_new_tokens=3, top_k=10)
+
+        assert generated.shape[1] == 6
+
+    def test_generate_with_top_p_via_causal_lm(self):
+        """Test generation with top-p via LlamaForCausalLM."""
+        from chuk_lazarus.models_v2.families.llama import LlamaConfig, LlamaForCausalLM
+
+        config = LlamaConfig.tiny()
+        model = LlamaForCausalLM(config)
+
+        input_ids = mx.array([[1, 2, 3]])
+        generated = model.generate(input_ids, max_new_tokens=3, top_p=0.9)
+
+        assert generated.shape[1] == 6
+
+    def test_generate_stop_tokens_via_causal_lm(self):
+        """Test generation with stop tokens via LlamaForCausalLM."""
+        from chuk_lazarus.models_v2.families.llama import LlamaConfig, LlamaForCausalLM
+
+        config = LlamaConfig.tiny()
+        model = LlamaForCausalLM(config)
+
+        input_ids = mx.array([[1, 2, 3]])
+        # Using stop tokens that are likely to be generated
+        generated = model.generate(input_ids, max_new_tokens=5, stop_tokens=[0, 1, 2])
+
+        assert generated.shape[1] <= 8
+
+
+class TestMambaCausalLMClass:
+    """Tests for MambaCausalLM wrapper class via family models."""
+
+    def test_mamba_causal_lm_class_creation(self):
+        """Test MambaCausalLM creation via MambaForCausalLM."""
+        from chuk_lazarus.models_v2.families.mamba import MambaConfig, MambaForCausalLM
+
+        config = MambaConfig.tiny()
+        model = MambaForCausalLM(config)
+
+        assert hasattr(model, "backbone")
+
+    def test_mamba_causal_lm_class_forward(self):
+        """Test MambaForCausalLM forward pass."""
+        from chuk_lazarus.models_v2.families.mamba import MambaConfig, MambaForCausalLM
+
+        config = MambaConfig.tiny()
+        model = MambaForCausalLM(config)
+
+        input_ids = mx.array([[1, 2, 3, 4, 5]])
+        output = model(input_ids)
+
+        assert output.logits.shape == (1, 5, config.vocab_size)
+
+
+class TestClassifierMambaBackbone:
+    """Tests for classifiers with Mamba backbone via direct MambaBackbone."""
+
+    def test_sequence_classifier_mamba_backbone(self):
+        """Test SequenceClassifier components with Mamba backbone directly."""
+        from chuk_lazarus.models_v2.backbones import MambaBackbone
+        from chuk_lazarus.models_v2.heads import ClassifierHead
+
+        # Create Mamba backbone directly
+        backbone = MambaBackbone(
+            vocab_size=100,
+            d_model=64,
+            num_layers=2,
+            d_state=16,
+        )
+
+        head = ClassifierHead(
+            hidden_size=64,
+            num_labels=3,
+            pool_strategy="last",
+        )
+
+        input_ids = mx.array([[1, 2, 3, 4, 5]])
+        backbone_output = backbone(input_ids)
+        head_output = head(backbone_output.last_hidden_state)
+
+        assert head_output.logits.shape == (1, 3)
+
+    def test_token_classifier_mamba_backbone(self):
+        """Test TokenClassifier components with Mamba backbone directly."""
+        from chuk_lazarus.models_v2.backbones import MambaBackbone
+        from chuk_lazarus.models_v2.heads import ClassifierHead
+
+        # Create Mamba backbone directly
+        backbone = MambaBackbone(
+            vocab_size=100,
+            d_model=64,
+            num_layers=2,
+            d_state=16,
+        )
+
+        head = ClassifierHead(
+            hidden_size=64,
+            num_labels=5,
+            pool_strategy="none",
+        )
+
+        input_ids = mx.array([[1, 2, 3, 4, 5]])
+        backbone_output = backbone(input_ids)
+        head_output = head(backbone_output.last_hidden_state)
+
+        assert head_output.logits.shape == (1, 5, 5)
+
+
+class TestClassifierUnsupportedBackbone:
+    """Tests for classifier error handling."""
+
+    def test_sequence_classifier_unsupported_backbone(self):
+        """Test SequenceClassifier raises error for unsupported backbone."""
+        import pytest
+
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+
+        with pytest.raises(ValueError, match="Unsupported backbone"):
+            SequenceClassifier(config, num_labels=3, backbone_type=BackboneType.HYBRID)
+
+    def test_token_classifier_unsupported_backbone(self):
+        """Test TokenClassifier raises error for unsupported backbone."""
+        import pytest
+
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+
+        with pytest.raises(ValueError, match="Unsupported backbone"):
+            TokenClassifier(config, num_labels=5, backbone_type=BackboneType.HYBRID)
+
+
+class TestClassifierOutputHiddenStates:
+    """Tests for classifier output_hidden_states."""
+
+    def test_sequence_classifier_hidden_states(self):
+        """Test SequenceClassifier with output_hidden_states."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = SequenceClassifier(config, num_labels=3)
+
+        input_ids = mx.array([[1, 2, 3, 4, 5]])
+        output = model(input_ids, output_hidden_states=True)
+
+        assert output.hidden_states is not None
+        assert len(output.hidden_states) >= 2
+
+    def test_token_classifier_hidden_states(self):
+        """Test TokenClassifier with output_hidden_states."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = TokenClassifier(config, num_labels=5)
+
+        input_ids = mx.array([[1, 2, 3, 4, 5]])
+        output = model(input_ids, output_hidden_states=True)
+
+        assert output.hidden_states is not None
+
+
+class TestCreateClassifierWithEnum:
+    """Tests for create_classifier with ClassificationTask enum."""
+
+    def test_create_classifier_with_enum(self):
+        """Test create_classifier with ClassificationTask enum."""
+        from chuk_lazarus.models_v2.core.enums import ClassificationTask
+
+        model = create_classifier(
+            vocab_size=100,
+            hidden_size=64,
+            num_layers=2,
+            num_heads=2,
+            num_labels=5,
+            task=ClassificationTask.SEQUENCE,
+        )
+
+        assert isinstance(model, SequenceClassifier)
+
+    def test_create_classifier_token_with_enum(self):
+        """Test create_classifier for token task with enum."""
+        from chuk_lazarus.models_v2.core.enums import ClassificationTask
+
+        model = create_classifier(
+            vocab_size=100,
+            hidden_size=64,
+            num_layers=2,
+            num_heads=2,
+            num_labels=9,
+            task=ClassificationTask.TOKEN,
+        )
+
+        assert isinstance(model, TokenClassifier)
+
+
+class TestCausalLMMambaBackboneType:
+    """Tests for CausalLM with Mamba backbone type via family models."""
+
+    def test_causal_lm_mamba_backbone_type(self):
+        """Test Mamba backbone via MambaForCausalLM."""
+        from chuk_lazarus.models_v2.families.mamba import MambaConfig, MambaForCausalLM
+
+        config = MambaConfig.tiny()
+        model = MambaForCausalLM(config)
+
+        assert hasattr(model, "backbone")
+
+        input_ids = mx.array([[1, 2, 3]])
+        output = model(input_ids)
+
+        assert output.logits.shape == (1, 3, config.vocab_size)
+
+    def test_causal_lm_untied_embeddings(self):
+        """Test LlamaForCausalLM with untied embeddings."""
+        from chuk_lazarus.models_v2.families.llama import LlamaConfig, LlamaForCausalLM
+
+        config = LlamaConfig.tiny()
+        config = LlamaConfig(**{**config.__dict__, "tie_word_embeddings": False})
+        model = LlamaForCausalLM(config)
+
+        input_ids = mx.array([[1, 2, 3]])
+        output = model(input_ids)
+
+        assert output.logits.shape == (1, 3, config.vocab_size)
+
+
+class TestCausalLMGenerate:
+    """Tests for CausalLM generate method covering all code paths."""
+
+    def test_generate_temperature_default(self):
+        """Test generate with default temperature (1.0) via CausalLM."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = CausalLM(config, backbone_type=BackboneType.TRANSFORMER)
+
+        input_ids = mx.array([[1, 2, 3]])
+        generated = model.generate(input_ids, max_new_tokens=3)
+
+        assert generated.shape[1] == 6
+
+    def test_generate_temperature_not_one(self):
+        """Test generate with temperature != 1.0 via CausalLM."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = CausalLM(config, backbone_type=BackboneType.TRANSFORMER)
+
+        input_ids = mx.array([[1, 2, 3]])
+        generated = model.generate(input_ids, max_new_tokens=3, temperature=0.5)
+
+        assert generated.shape[1] == 6
+
+    def test_generate_with_top_k(self):
+        """Test generate with top_k sampling via CausalLM."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = CausalLM(config, backbone_type=BackboneType.TRANSFORMER)
+
+        input_ids = mx.array([[1, 2, 3]])
+        generated = model.generate(input_ids, max_new_tokens=3, top_k=5)
+
+        assert generated.shape[1] == 6
+
+    def test_generate_with_top_p(self):
+        """Test generate with top_p (nucleus) sampling via CausalLM."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = CausalLM(config, backbone_type=BackboneType.TRANSFORMER)
+
+        input_ids = mx.array([[1, 2, 3]])
+        generated = model.generate(input_ids, max_new_tokens=3, top_p=0.95)
+
+        assert generated.shape[1] == 6
+
+    def test_generate_with_stop_tokens(self):
+        """Test generate with stop tokens via CausalLM."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = CausalLM(config, backbone_type=BackboneType.TRANSFORMER)
+
+        input_ids = mx.array([[1, 2, 3]])
+        # Use common tokens that might appear
+        generated = model.generate(input_ids, max_new_tokens=5, stop_tokens=[0, 1, 2])
+
+        assert generated.shape[1] <= 8
+
+
+class TestCreateCausalLM:
+    """Tests for create_causal_lm factory function."""
+
+    def test_create_causal_lm_transformer(self):
+        """Test create_causal_lm with transformer backbone."""
+        model = create_causal_lm(
+            vocab_size=100,
+            hidden_size=64,
+            num_layers=2,
+            num_heads=2,
+            backbone_type="transformer",
+        )
+
+        assert isinstance(model, CausalLM)
+        assert model.backbone_type == BackboneType.TRANSFORMER
+
+    def test_create_causal_lm_default_backbone(self):
+        """Test create_causal_lm with default backbone."""
+        model = create_causal_lm(
+            vocab_size=100,
+            hidden_size=64,
+            num_layers=2,
+            num_heads=2,
+        )
+
+        assert isinstance(model, CausalLM)
+
+
+class TestClassifierConfigAndBackbone:
+    """Tests for classifier config and backbone properties."""
+
+    def test_sequence_classifier_config_property(self):
+        """Test SequenceClassifier config property."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = SequenceClassifier(config, num_labels=3)
+
+        assert model.config == config
+        assert model.config.vocab_size == 100
+
+    def test_sequence_classifier_backbone_property(self):
+        """Test SequenceClassifier backbone property."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = SequenceClassifier(config, num_labels=3)
+
+        assert model.backbone is not None
+
+    def test_token_classifier_config_property(self):
+        """Test TokenClassifier config property."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = TokenClassifier(config, num_labels=5)
+
+        assert model.config == config
+        assert model.config.vocab_size == 100
+
+    def test_token_classifier_backbone_property(self):
+        """Test TokenClassifier backbone property."""
+        config = ModelConfig(
+            vocab_size=100,
+            hidden_size=64,
+            num_hidden_layers=2,
+            num_attention_heads=2,
+        )
+        model = TokenClassifier(config, num_labels=5)
+
+        assert model.backbone is not None
