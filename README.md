@@ -196,6 +196,46 @@ chuk-lazarus generate --type math --output ./data/lazarus
 chuk-lazarus infer --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --prompt "What is 2+2?"
 ```
 
+### Model Inference (models_v2)
+
+Run inference with pretrained HuggingFace models using the composable models_v2 architecture:
+
+```bash
+# Run inference with various Llama-family models
+uv run python examples/models/llama/03_llama_family_inference.py --model tinyllama
+uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-360m
+uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-1.7b
+
+# Custom prompt and parameters
+uv run python examples/models/llama/03_llama_family_inference.py \
+  --model smollm2-360m \
+  --prompt "Explain quantum computing in one sentence" \
+  --max-tokens 100 \
+  --temperature 0.7
+
+# List all available model presets
+uv run python examples/models/llama/03_llama_family_inference.py --list-models
+```
+
+**Available presets:** `tinyllama` (1.1B), `smollm2-135m`, `smollm2-360m`, `smollm2-1.7b`, `llama3.2-1b`, `llama3.2-3b`, `mistral-7b`
+
+### FunctionGemma (Function Calling)
+
+Run function calling inference with Google's FunctionGemma model:
+
+```bash
+# Run FunctionGemma for tool use / function calling
+uv run python examples/models/gemma/01_functiongemma_inference.py
+```
+
+FunctionGemma is a 270M parameter model optimized for on-device function calling, supporting:
+- Tool use / API calling
+- MCP (Model Context Protocol) integration
+- Lightweight RAG pipelines
+- On-device agents
+
+See [docs/inference.md](docs/inference.md) for detailed inference documentation.
+
 ## Python API
 
 ```python
@@ -324,6 +364,7 @@ If the tokenizer or data changes, fingerprint mismatch is detected before traini
 - [Getting Started](docs/getting-started.md) - Installation and quick reference
 - [CLI Reference](docs/cli.md) - Command-line interface documentation
 - [Models Guide](docs/models.md) - Composable model architecture, components, LoRA adapters
+- [Inference Guide](docs/inference.md) - Run inference with pretrained HuggingFace models
 - [Tokenizers Guide](docs/tokenizers.md) - Comprehensive tokenizer toolkit
 - [Batching Guide](docs/batching.md) - Token-budget batching, packing, distributed training
 - [Training Guide](docs/training.md) - BatchPlan-driven training
@@ -337,6 +378,7 @@ If the tokenizer or data changes, fingerprint mismatch is detected before traini
 - Granite
 - StarCoder2
 - TinyLlama
+- SmolLM2 (135M, 360M, 1.7B)
 
 ## OpenAI Tokenizers
 

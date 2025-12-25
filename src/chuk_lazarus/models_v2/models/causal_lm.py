@@ -157,10 +157,11 @@ class CausalLM(Model):
             Generated token IDs, shape (batch, prompt_len + generated_len)
         """
         batch_size, prompt_len = input_ids.shape
-        stop_tokens = stop_tokens or []
+        stop_tokens_set = set(stop_tokens or [])
 
-        # Process prompt (cache=None to let attention build incrementally)
+        # Process prompt and evaluate immediately
         output = self(input_ids)
+        mx.eval(output.logits)
         cache = output.cache
 
         # Track generated tokens
@@ -176,9 +177,8 @@ class CausalLM(Model):
 
             # Apply top-k
             if top_k is not None:
-                top_k_logits = mx.topk(logits, k=top_k)
-                # Create mask for top-k (take smallest value in top-k)
-                min_val = top_k_logits[:, -1:]
+                top_k_values = mx.topk(logits, k=min(top_k, logits.shape[-1]))
+                min_val = top_k_values[:, -1:]
                 logits = mx.where(logits < min_val, float("-inf"), logits)
 
             # Apply top-p (nucleus sampling)
@@ -202,14 +202,19 @@ class CausalLM(Model):
             next_token = mx.random.categorical(mx.log(probs + 1e-10))
             next_token = mx.expand_dims(next_token, axis=-1)
 
+            # Evaluate to avoid graph buildup
+            mx.eval(next_token)
+
             generated.append(next_token)
 
             # Check stop condition
-            if any(int(next_token[0, 0]) == stop for stop in stop_tokens):
+            next_token_val = int(next_token[0, 0])
+            if next_token_val in stop_tokens_set:
                 break
 
             # Forward with new token
             output = self(next_token, cache=cache)
+            mx.eval(output.logits)
             cache = output.cache
 
         return mx.concatenate(generated, axis=1)

@@ -149,7 +149,7 @@ def demo_dataset_creation(output_dir: Path):
     # Generate eval data
     eval_data = generate_sft_dataset(num_samples=20, output_path=output_dir / "sft_eval.jsonl")
 
-    print(f"\nDataset Statistics:")
+    print("\nDataset Statistics:")
     print(f"  Training samples: {len(train_data)}")
     print(f"  Evaluation samples: {len(eval_data)}")
 

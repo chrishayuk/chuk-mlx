@@ -158,7 +158,7 @@ def main():
     print("   lazarus data batching suggest -c lengths.jsonl --num-buckets 4 --goal waste")
     print()
     edges_str = ",".join(map(str, optimized_spec.edges))
-    print(f"   # Build batch plan with optimized edges")
+    print("   # Build batch plan with optimized edges")
     print(f"   lazarus data batchplan build -l lengths.jsonl --bucket-edges {edges_str} -o batch_plan/")
 
     print("\n" + "=" * 70)

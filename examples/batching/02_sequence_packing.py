@@ -217,7 +217,7 @@ def main():
     # Show separator in first pack
     if packed_sep:
         first = packed_sep[0]
-        print(f"\n   First pack with separators:")
+        print("\n   First pack with separators:")
         print(f"     Samples: {list(first.sample_ids)}")
 
         # Find separator positions

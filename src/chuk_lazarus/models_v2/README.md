@@ -43,6 +43,24 @@ mamba_config = MambaConfig.mamba_130m()  # or mamba_370m(), mamba_1_4b()
 mamba_model = MambaForCausalLM(mamba_config)
 ```
 
+## Inference with Pretrained Models
+
+Run inference with HuggingFace models:
+
+```bash
+# Using the Llama family inference example
+uv run python examples/models/llama/03_llama_family_inference.py --model tinyllama
+uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-360m
+uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-1.7b
+
+# List all available presets
+uv run python examples/models/llama/03_llama_family_inference.py --list-models
+```
+
+Available model presets: `tinyllama`, `smollm2-135m`, `smollm2-360m`, `smollm2-1.7b`, `llama3.2-1b`, `llama3.2-3b`, `mistral-7b`
+
+See [docs/inference.md](../../../docs/inference.md) for detailed inference documentation.
+
 ## Model Presets
 
 ### Llama Family

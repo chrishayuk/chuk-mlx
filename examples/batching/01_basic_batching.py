@@ -17,7 +17,6 @@ import tempfile
 from pathlib import Path
 
 from chuk_lazarus.data import (
-    BatchMetrics,
     BucketSpec,
     LengthCache,
     Sample,
@@ -156,11 +155,11 @@ async def main():
         loss_tokens = {s.meta.sample_id: s.num_loss_tokens for s in samples}
         metrics = sampler.compute_metrics(loss_tokens_per_sample=loss_tokens)
 
-        print(f"\n   Summary:")
+        print("\n   Summary:")
         for key, value in metrics.summary().items():
             print(f"   {key}: {value}")
 
-        print(f"\n   Per-bucket efficiency:")
+        print("\n   Per-bucket efficiency:")
         for bucket_info in metrics.bucket_summary():
             print(
                 f"   Bucket {bucket_info['bucket_id']}: "

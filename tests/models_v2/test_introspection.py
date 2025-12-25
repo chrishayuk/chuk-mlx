@@ -530,7 +530,7 @@ class TestDetectModelCapabilities:
 
     def test_detect_sequence_classifier(self):
         """Test detecting SequenceClassifier capabilities."""
-        from chuk_lazarus.models_v2.models.classifier import SequenceClassifier
+        from chuk_lazarus.models_v2.models.classifiers import SequenceClassifier
 
         config = ModelConfig(
             vocab_size=1000,
@@ -546,7 +546,7 @@ class TestDetectModelCapabilities:
 
     def test_detect_token_classifier(self):
         """Test detecting TokenClassifier capabilities."""
-        from chuk_lazarus.models_v2.models.classifier import TokenClassifier
+        from chuk_lazarus.models_v2.models.classifiers import TokenClassifier
 
         config = ModelConfig(
             vocab_size=1000,

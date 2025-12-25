@@ -33,10 +33,7 @@ from chuk_lazarus.data import (
 from chuk_lazarus.distributed import (
     CheckpointPosition,
     DistributedConfig,
-    get_rank,
-    get_world_size,
     interleave_microbatches,
-    is_main_process,
     load_checkpoint_position,
     save_checkpoint_position,
     shard_batch_plan,
@@ -249,7 +246,7 @@ async def main():
         ckpt_path = Path(tmpdir) / "checkpoint_position.json"
         save_checkpoint_position(checkpoint_pos, ckpt_path)
         loaded_pos = load_checkpoint_position(ckpt_path)
-        print(f"   Saved/loaded checkpoint position: ✓")
+        print("   Saved/loaded checkpoint position: ✓")
 
     # Resume iteration
     remaining = list(plan.iter_from(
@@ -259,7 +256,7 @@ async def main():
 
     total_remaining = len(remaining)
     epochs_remaining = len(set(ep for ep, _, _ in remaining))
-    print(f"\n   Resuming from checkpoint:")
+    print("\n   Resuming from checkpoint:")
     print(f"   - {total_remaining} microbatches remaining")
     print(f"   - Across {epochs_remaining} epoch(s)")
 
