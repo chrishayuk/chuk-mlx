@@ -67,7 +67,7 @@ mamba_model = MambaForCausalLM(mamba_config)
 | `models/` | CausalLM, SequenceClassifier, TokenClassifier |
 | `families/` | LlamaForCausalLM, MambaForCausalLM |
 | `adapters/` | LoRA adapters for efficient fine-tuning |
-| `training/` | Loss functions |
+| `losses/` | Loss functions (pure math) |
 | `loader.py` | Async model loading |
 
 ## Design Principles

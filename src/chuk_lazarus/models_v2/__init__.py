@@ -140,6 +140,9 @@ from .loader import (
     load_model_async,
 )
 
+# Loss functions
+from .losses import compute_lm_loss
+
 # Models
 from .models import (
     CausalLM,
@@ -148,9 +151,6 @@ from .models import (
     SequenceClassifier,
     TokenClassifier,
 )
-
-# Training utilities
-from .training import compute_lm_loss
 
 __all__ = [
     # === Core ===
