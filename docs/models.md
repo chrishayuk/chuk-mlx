@@ -467,6 +467,53 @@ output = token_clf(token_ids)
 print(f"Per-token logits: {output.logits.shape}")
 ```
 
+### Standalone Classifiers
+
+Simple classifiers for use without a full backbone:
+
+```python
+from chuk_lazarus.models_v2.models.classifiers import (
+    LinearClassifier,
+    MLPClassifier,
+    create_classifier,
+)
+
+# LinearClassifier - single linear layer
+linear_clf = LinearClassifier(
+    input_dim=768,
+    num_classes=5,
+    bias=True,
+)
+logits = linear_clf(hidden_states)  # (batch, 5)
+
+# MLPClassifier - MLP with hidden layers
+mlp_clf = MLPClassifier(
+    input_dim=768,
+    hidden_dim=256,
+    num_classes=5,
+    num_layers=2,
+    dropout=0.1,
+    activation="gelu",
+)
+logits = mlp_clf(hidden_states)  # (batch, 5)
+
+# Factory function for easy creation
+clf = create_classifier(
+    classifier_type="mlp",  # or "linear"
+    input_dim=768,
+    num_classes=10,
+    hidden_dim=512,
+    num_layers=3,
+)
+```
+
+| Classifier | Parameters | Use Case |
+|------------|------------|----------|
+| `LinearClassifier` | input_dim × num_classes | Simple classification, probing |
+| `MLPClassifier` | Multiple layers | Complex classification tasks |
+| `SequenceClassifier` | Backbone + head | Full sequence classification |
+| `TokenClassifier` | Backbone + per-token head | NER, POS tagging |
+
 ## Families
 
 Architecture-specific implementations with preset configurations.
@@ -529,6 +576,161 @@ generated = model.generate(
     max_new_tokens=100,
     temperature=0.7,
 )
+```
+
+### Gemma Family
+
+```python
+from chuk_lazarus.models_v2.families.gemma import GemmaConfig, GemmaForCausalLM
+
+# Preset configurations
+config = GemmaConfig.tiny()              # Testing
+config = GemmaConfig.gemma3_270m()       # 270M params (FunctionGemma base)
+config = GemmaConfig.functiongemma_270m() # Same as 270M, tuned for function calling
+config = GemmaConfig.gemma3_1b()         # 1B params
+config = GemmaConfig.gemma3_4b()         # 4B params
+config = GemmaConfig.gemma3_12b()        # 12B params
+config = GemmaConfig.gemma3_27b()        # 27B params
+
+# Create model
+model = GemmaForCausalLM(config)
+
+# Forward pass
+output = model(token_ids)
+
+# Generate text
+generated = model.generate(
+    input_ids=prompt_ids,
+    max_new_tokens=100,
+    temperature=0.7,
+)
+```
+
+#### Gemma Architecture Features
+
+Gemma 3 has several unique architectural features:
+
+- **Alternating sliding window / global attention**: Every Nth layer uses global attention (pattern configurable)
+- **Query/Key pre-normalization**: Q and K projections have separate RMSNorm layers
+- **4 normalization layers per block**: Pre-attn, post-attn, pre-ffn, post-ffn norms
+- **Gated GELU activation**: Uses `gelu(gate) * up` pattern in FFN
+- **Embedding scaling**: Hidden states scaled by √hidden_size
+- **GemmaNorm**: RMSNorm with `(1 + weight)` scaling
+
+```python
+# Check which layers use sliding vs global attention
+config = GemmaConfig.gemma3_270m()
+
+for i in range(config.num_hidden_layers):
+    if config.is_sliding_layer(i):
+        print(f"Layer {i}: sliding window ({config.sliding_window} tokens)")
+    else:
+        print(f"Layer {i}: global attention")
+```
+
+### Granite Family
+
+```python
+from chuk_lazarus.models_v2.families.granite import (
+    GraniteConfig,
+    GraniteHybridConfig,
+    GraniteForCausalLM,
+)
+
+# Dense models (Granite 3.0, 3.1)
+config = GraniteConfig.tiny()              # Testing
+config = GraniteConfig.granite_3_8b()      # Granite 3.0 8B
+config = GraniteConfig.granite_3_1_2b()    # Granite 3.1 2B (128K context)
+config = GraniteConfig.granite_3_1_8b()    # Granite 3.1 8B (128K context)
+
+# Hybrid MoE models (Granite 4.0)
+config = GraniteHybridConfig.tiny()        # Testing
+config = GraniteHybridConfig.tiny_moe()    # Testing with MoE
+config = GraniteHybridConfig.granite_4_micro()  # Granite 4.0 Micro (dense)
+config = GraniteHybridConfig.granite_4_tiny()   # Granite 4.0 Tiny (MoE + Mamba)
+config = GraniteHybridConfig.granite_4_small()  # Granite 4.0 Small (MoE + Mamba)
+
+# Create model
+model = GraniteForCausalLM(config)
+
+# Forward pass
+output = model(token_ids)
+
+# Generate text
+generated = model.generate(
+    input_ids=prompt_ids,
+    max_new_tokens=100,
+    temperature=0.7,
+)
+```
+
+#### Granite Architecture Features
+
+Granite models have several unique features:
+
+- **muP scaling**: Embedding, attention, residual, and logits multipliers for stable training
+- **Flexible normalization**: RMSNorm or LayerNorm, configurable position
+- **GQA support**: Grouped-query attention for efficient inference
+- **Long context**: 128K context for Granite 3.1 models
+- **Hybrid architecture (4.0)**: Mamba + Attention layers with MoE
+
+```python
+# Dense model features
+config = GraniteConfig.granite_3_1_8b()
+print(f"Embedding multiplier: {config.embedding_multiplier}")
+print(f"Attention multiplier: {config.attention_multiplier}")
+print(f"Logits scaling: {config.logits_scaling}")
+
+# Hybrid model features
+config = GraniteHybridConfig.granite_4_tiny()
+print(f"MoE: {config.is_moe}")
+print(f"Mamba layers: {config.num_mamba_layers}")
+print(f"Attention layers: {config.num_attention_layers}")
+print(f"Experts: {config.num_local_experts} total, {config.num_experts_per_tok} per token")
+```
+
+### Llama 4 Family
+
+```python
+from chuk_lazarus.models_v2.families.llama4 import (
+    Llama4TextConfig,
+    Llama4ForCausalLM,
+)
+
+# Preset configurations
+config = Llama4TextConfig.tiny()           # Testing
+config = Llama4TextConfig.llama4_scout()   # Llama 4 Scout 17B/109B
+
+# Create model
+model = Llama4ForCausalLM(config)
+
+# Forward pass
+output = model(token_ids)
+
+# Generate text
+generated = model.generate(
+    input_ids=prompt_ids,
+    max_new_tokens=100,
+    temperature=0.7,
+)
+```
+
+#### Llama 4 Architecture Features
+
+Llama 4 uses a novel hybrid architecture:
+
+- **Mamba-Transformer hybrid**: Interleaved Mamba2 and attention layers
+- **Interleaved MoE**: MoE layers alternating with dense layers
+- **Massive context**: Up to 10M tokens with efficient state-space layers
+- **Shared + routed experts**: Shared expert always active, plus routed experts
+- **NoPE (No Positional Encoding)**: Some models use no positional encoding
+
+```python
+config = Llama4TextConfig.llama4_scout()
+print(f"Hidden size: {config.hidden_size}")
+print(f"Layers: {config.num_hidden_layers}")
+print(f"Experts: {config.num_local_experts} total, {config.num_experts_per_tok} per token")
+print(f"MoE layers: every {config.interleave_moe_layer_step} layer")
 ```
 
 ## Model Loading
@@ -681,11 +883,19 @@ models_v2/
 ├── models/                  # Complete end-to-end
 │   ├── base.py              # Model, ModelOutput
 │   ├── causal_lm.py         # CausalLM
-│   └── classifier.py        # SequenceClassifier, TokenClassifier
+│   └── classifiers/         # Classification models
+│       ├── linear.py        # LinearClassifier
+│       ├── mlp.py           # MLPClassifier
+│       ├── sequence.py      # SequenceClassifier
+│       ├── token.py         # TokenClassifier
+│       └── factory.py       # create_classifier()
 │
 ├── families/                # Architecture-specific
 │   ├── llama/               # LlamaConfig, LlamaForCausalLM
-│   └── mamba/               # MambaConfig, MambaForCausalLM
+│   ├── llama4/              # Llama4TextConfig, Llama4ForCausalLM
+│   ├── mamba/               # MambaConfig, MambaForCausalLM
+│   ├── gemma/               # GemmaConfig, GemmaForCausalLM
+│   └── granite/             # GraniteConfig, GraniteForCausalLM
 │
 ├── adapters/                # Parameter-efficient fine-tuning
 │   └── lora.py              # LoRAConfig, LoRALinear, apply_lora

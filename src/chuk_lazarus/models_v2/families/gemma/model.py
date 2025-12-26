@@ -81,7 +81,7 @@ class GemmaAttention(nn.Module):
         self.n_rep = self.num_heads // self.num_kv_heads
 
         # Attention scale using query_pre_attn_scalar
-        self.scale = config.query_pre_attn_scalar ** -0.5
+        self.scale = config.query_pre_attn_scalar**-0.5
 
         # Projections (no bias for Gemma)
         self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
@@ -166,9 +166,7 @@ def clip_residual(x: mx.array, y: mx.array) -> mx.array:
     if x.dtype != mx.float16:
         return x + y
     bound = mx.finfo(mx.float16).max
-    return mx.clip(
-        x.astype(mx.float32) + y.astype(mx.float32), -bound, bound
-    ).astype(mx.float16)
+    return mx.clip(x.astype(mx.float32) + y.astype(mx.float32), -bound, bound).astype(mx.float16)
 
 
 class GemmaBlock(Block):
@@ -203,6 +201,7 @@ class GemmaBlock(Block):
     @property
     def block_type(self):
         from ...core.enums import BlockType
+
         return BlockType.TRANSFORMER
 
     @property
@@ -249,10 +248,7 @@ class GemmaModel(Backbone):
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
 
         # Transformer blocks
-        self.layers = [
-            GemmaBlock(config, layer_idx=i)
-            for i in range(config.num_hidden_layers)
-        ]
+        self.layers = [GemmaBlock(config, layer_idx=i) for i in range(config.num_hidden_layers)]
 
         # Final norm
         self.norm = GemmaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
@@ -276,15 +272,7 @@ class GemmaModel(Backbone):
         window_size: int | None = None,
     ) -> mx.array:
         """Create causal attention mask, optionally with sliding window."""
-        batch_size, seq_len, _ = h.shape
-
-        # Get total sequence length including cache
-        if cache is not None and cache[0] is not None:
-            cache_len = cache[0][0].shape[2]
-            total_len = cache_len + seq_len
-        else:
-            cache_len = 0
-            total_len = seq_len
+        _, seq_len, _ = h.shape
 
         # Create causal mask
         mask = nn.MultiHeadAttention.create_additive_causal_mask(seq_len)
@@ -318,7 +306,7 @@ class GemmaModel(Backbone):
             h = self.embed_tokens(input_ids)
 
         # Scale embeddings by sqrt(hidden_size) - Gemma specific
-        h = h * mx.array(self.config.hidden_size ** 0.5, dtype=mx.bfloat16).astype(h.dtype)
+        h = h * mx.array(self.config.hidden_size**0.5, dtype=mx.bfloat16).astype(h.dtype)
 
         # Initialize cache if needed
         if cache is None:
@@ -327,7 +315,9 @@ class GemmaModel(Backbone):
         # Create masks for global and sliding window layers
         # Global layers get a reference cache for mask creation
         global_layer_idx = self.sliding_window_pattern - 1
-        global_mask = self._create_attention_mask(h, [cache[global_layer_idx]] if cache[global_layer_idx] else None)
+        global_mask = self._create_attention_mask(
+            h, [cache[global_layer_idx]] if cache[global_layer_idx] else None
+        )
 
         if self.sliding_window_pattern > 1:
             sliding_mask = self._create_attention_mask(
@@ -499,7 +489,7 @@ class GemmaForCausalLM(Model):
 
             # Apply top-k
             if top_k is not None and top_k > 0:
-                top_k_logits, _ = mx.topk(logits, k=min(top_k, logits.shape[-1]))
+                top_k_logits = mx.topk(logits, k=min(top_k, logits.shape[-1]))
                 min_val = top_k_logits[:, -1:]
                 logits = mx.where(logits < min_val, float("-inf"), logits)
 

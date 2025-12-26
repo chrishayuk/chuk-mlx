@@ -3,6 +3,7 @@ Tests for MinGRU (minimal GRU variant).
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 import mlx.utils
 
 from chuk_lazarus.models_v2.components.recurrent import GRU, MinGRU
@@ -169,7 +170,8 @@ class TestMinGRUGradients:
             out, _ = model(x)
             return mx.mean(out**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(mingru, x)
+        loss_and_grad_fn = nn.value_and_grad(mingru, loss_fn)
+        loss, grads = loss_and_grad_fn(mingru, x)
 
         assert loss.item() > 0
 

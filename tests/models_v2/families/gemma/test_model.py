@@ -80,7 +80,7 @@ class TestGemmaAttention:
     def test_sliding_vs_global_layer(self, tiny_config):
         """Test different attention types for sliding vs global layers."""
         sliding_attn = GemmaAttention(tiny_config, layer_idx=0)  # sliding
-        global_attn = GemmaAttention(tiny_config, layer_idx=2)   # global (pattern=3)
+        global_attn = GemmaAttention(tiny_config, layer_idx=2)  # global (pattern=3)
 
         assert sliding_attn.is_sliding is True
         assert global_attn.is_sliding is False
@@ -158,8 +158,9 @@ class TestGemmaModel:
         model = GemmaModel(tiny_config)
         input_ids = mx.array([[1]])
 
-        # Get raw embedding
-        raw_embed = model.embed_tokens(input_ids)
+        # Get raw embedding and verify it exists
+        embed = model.embed_tokens(input_ids)
+        assert embed.shape == (1, 1, tiny_config.hidden_size)
 
         # The model internally scales by sqrt(hidden_size)
         # We can verify the output is different from raw embedding
@@ -285,6 +286,220 @@ class TestGemmaForCausalLM:
 
         assert isinstance(model, GemmaForCausalLM)
         assert model.config == tiny_config
+
+
+class TestGemmaBlockProperties:
+    """Tests for GemmaBlock properties."""
+
+    def test_block_type_property(self):
+        """Test block_type property returns TRANSFORMER."""
+        from chuk_lazarus.models_v2.core.enums import BlockType
+
+        config = GemmaConfig.tiny()
+        block = GemmaBlock(config, layer_idx=0)
+
+        assert block.block_type == BlockType.TRANSFORMER
+
+    def test_hidden_size_property(self):
+        """Test hidden_size property."""
+        config = GemmaConfig.tiny()
+        block = GemmaBlock(config, layer_idx=0)
+
+        assert block.hidden_size == config.hidden_size
+
+
+class TestGemmaModelProperties:
+    """Tests for GemmaModel properties."""
+
+    def test_hidden_size_property(self):
+        """Test hidden_size property."""
+        config = GemmaConfig.tiny()
+        model = GemmaModel(config)
+
+        assert model.hidden_size == config.hidden_size
+
+    def test_num_layers_property(self):
+        """Test num_layers property."""
+        config = GemmaConfig.tiny()
+        model = GemmaModel(config)
+
+        assert model.num_layers == config.num_hidden_layers
+
+    def test_vocab_size_property(self):
+        """Test vocab_size property."""
+        config = GemmaConfig.tiny()
+        model = GemmaModel(config)
+
+        assert model.vocab_size == config.vocab_size
+
+    def test_get_input_embeddings(self):
+        """Test get_input_embeddings method."""
+        config = GemmaConfig.tiny()
+        model = GemmaModel(config)
+
+        embeddings = model.get_input_embeddings()
+        assert embeddings is model.embed_tokens
+
+    def test_set_input_embeddings(self):
+        """Test set_input_embeddings method."""
+        import mlx.nn as nn
+
+        config = GemmaConfig.tiny()
+        model = GemmaModel(config)
+
+        new_embed = nn.Embedding(500, config.hidden_size)
+        model.set_input_embeddings(new_embed)
+
+        assert model.embed_tokens is new_embed
+
+    def test_forward_with_input_embeddings(self):
+        """Test forward pass using input_embeddings instead of input_ids."""
+        config = GemmaConfig.tiny()
+        model = GemmaModel(config)
+
+        # Create embeddings directly
+        input_embeddings = mx.random.normal((1, 5, config.hidden_size))
+        # Use dummy input_ids (not used when input_embeddings provided)
+        input_ids = mx.array([[0, 0, 0, 0, 0]])
+
+        output = model(input_ids, input_embeddings=input_embeddings)
+
+        assert output.last_hidden_state.shape == (1, 5, config.hidden_size)
+
+    def test_sliding_window_pattern_1(self):
+        """Test model with sliding_window_pattern=1 (no sliding window)."""
+        config = GemmaConfig.tiny()
+        config.sliding_window_pattern = 1  # All global attention
+        model = GemmaModel(config)
+
+        input_ids = mx.array([[1, 2, 3, 4, 5]])
+        output = model(input_ids)
+
+        assert output.last_hidden_state.shape == (1, 5, config.hidden_size)
+
+
+class TestGemmaForCausalLMExtended:
+    """Additional tests for GemmaForCausalLM."""
+
+    def test_sanitize_with_lm_head(self):
+        """Test sanitize keeps tie_word_embeddings False when lm_head present."""
+        config = GemmaConfig.tiny()
+        model = GemmaForCausalLM(config)
+
+        weights = {"lm_head.weight": mx.zeros((config.vocab_size, config.hidden_size))}
+        sanitized = model.sanitize(weights)
+
+        assert model.tie_word_embeddings is False
+        assert sanitized == weights
+
+    def test_sanitize_without_lm_head(self):
+        """Test sanitize sets tie_word_embeddings True when no lm_head."""
+        config = GemmaConfig.tiny()
+        model = GemmaForCausalLM(config)
+
+        weights = {"model.embed_tokens.weight": mx.zeros((config.vocab_size, config.hidden_size))}
+        sanitized = model.sanitize(weights)
+
+        assert model.tie_word_embeddings is True
+        assert sanitized == weights
+
+    def test_tied_embeddings_forward(self):
+        """Test forward pass with tied embeddings."""
+        config = GemmaConfig.tiny()
+        model = GemmaForCausalLM(config)
+        model.tie_word_embeddings = True
+
+        input_ids = mx.array([[1, 2, 3, 4, 5]])
+        output = model(input_ids)
+
+        # Should use embed_tokens.as_linear for logits
+        assert output.logits.shape == (1, 5, config.vocab_size)
+
+    def test_layers_property(self):
+        """Test layers property returns transformer layers."""
+        config = GemmaConfig.tiny()
+        model = GemmaForCausalLM(config)
+
+        layers = model.layers
+        assert layers is model.model.layers
+        assert len(layers) == config.num_hidden_layers
+
+    def test_generate_with_top_k(self):
+        """Test generation with top-k sampling."""
+        config = GemmaConfig.tiny()
+        model = GemmaForCausalLM(config)
+        input_ids = mx.array([[1, 2, 3]])
+
+        generated = model.generate(
+            input_ids,
+            max_new_tokens=3,
+            temperature=0.8,
+            top_k=10,
+        )
+
+        assert generated.shape[1] == 6  # 3 prompt + 3 generated
+
+    def test_generate_with_top_p(self):
+        """Test generation with nucleus (top-p) sampling."""
+        config = GemmaConfig.tiny()
+        model = GemmaForCausalLM(config)
+        input_ids = mx.array([[1, 2, 3]])
+
+        generated = model.generate(
+            input_ids,
+            max_new_tokens=3,
+            temperature=0.8,
+            top_p=0.9,
+        )
+
+        assert generated.shape[1] == 6  # 3 prompt + 3 generated
+
+    def test_generate_with_top_k_and_top_p(self):
+        """Test generation with both top-k and top-p."""
+        config = GemmaConfig.tiny()
+        model = GemmaForCausalLM(config)
+        input_ids = mx.array([[1, 2, 3]])
+
+        generated = model.generate(
+            input_ids,
+            max_new_tokens=3,
+            temperature=0.8,
+            top_k=50,
+            top_p=0.95,
+        )
+
+        assert generated.shape[1] == 6  # 3 prompt + 3 generated
+
+
+class TestClipResidual:
+    """Tests for clip_residual function."""
+
+    def test_clip_residual_non_float16(self):
+        """Test clip_residual with non-float16 input."""
+        from chuk_lazarus.models_v2.families.gemma.model import clip_residual
+
+        x = mx.random.normal((2, 5, 64))  # float32 by default
+        y = mx.random.normal((2, 5, 64))
+
+        result = clip_residual(x, y)
+
+        # Should just add without clipping
+        expected = x + y
+        assert mx.allclose(result, expected)
+
+    def test_clip_residual_float16(self):
+        """Test clip_residual with float16 input (overflow protection)."""
+        from chuk_lazarus.models_v2.families.gemma.model import clip_residual
+
+        x = mx.random.normal((2, 5, 64)).astype(mx.float16)
+        y = mx.random.normal((2, 5, 64)).astype(mx.float16)
+
+        result = clip_residual(x, y)
+
+        # Should be float16 output
+        assert result.dtype == mx.float16
+        # Shape should be preserved
+        assert result.shape == x.shape
 
 
 class TestFunctionGemma:

@@ -3,6 +3,7 @@ Tests for Mamba layer and MambaBlock.
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 
 from chuk_lazarus.models_v2.components.ssm import (
     Mamba,
@@ -112,6 +113,7 @@ class TestMambaBlockGradients:
             out, _ = model(x)
             return mx.mean(out**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(block, x)
+        loss_and_grad_fn = nn.value_and_grad(block, loss_fn)
+        loss, grads = loss_and_grad_fn(block, x)
 
         assert loss.item() > 0

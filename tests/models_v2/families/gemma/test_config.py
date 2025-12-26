@@ -2,7 +2,6 @@
 Tests for GemmaConfig.
 """
 
-
 from chuk_lazarus.models_v2.families.gemma import GemmaConfig
 
 
@@ -95,7 +94,7 @@ class TestGemmaConfig:
 
         # Pattern 6 means every 6th layer is global
         assert config.is_global_layer(4) is False  # layer 5 is sliding
-        assert config.is_global_layer(5) is True   # layer 6 is global
+        assert config.is_global_layer(5) is True  # layer 6 is global
         assert config.is_global_layer(6) is False  # layer 7 is sliding
         assert config.is_global_layer(11) is True  # layer 12 is global
 

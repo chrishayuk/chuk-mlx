@@ -3,6 +3,7 @@ Tests for SwiGLU feed-forward network.
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 
 from chuk_lazarus.models_v2.components.ffn import SwiGLU
 from chuk_lazarus.models_v2.components.ffn.swiglu import create_swiglu
@@ -121,7 +122,8 @@ class TestSwiGLUGradients:
         def loss_fn(model, x):
             return mx.mean(model(x) ** 2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(ffn, x)
+        loss_and_grad_fn = nn.value_and_grad(ffn, loss_fn)
+        loss, grads = loss_and_grad_fn(ffn, x)
 
         assert loss.item() > 0
         assert any(g is not None for g in grads.values())

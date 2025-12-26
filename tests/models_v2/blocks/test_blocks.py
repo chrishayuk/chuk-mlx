@@ -286,7 +286,8 @@ class TestBlockGradients:
             out = model(x)
             return mx.mean(out.hidden_states**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(block, x)
+        loss_and_grad_fn = nn.value_and_grad(block, loss_fn)
+        loss, grads = loss_and_grad_fn(block, x)
 
         assert loss.item() > 0
         assert any(g is not None for g in grads.values())
@@ -304,7 +305,8 @@ class TestBlockGradients:
             out = model(x)
             return mx.mean(out.hidden_states**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(block, x)
+        loss_and_grad_fn = nn.value_and_grad(block, loss_fn)
+        loss, grads = loss_and_grad_fn(block, x)
 
         assert loss.item() > 0
 
@@ -321,7 +323,8 @@ class TestBlockGradients:
             out = model(x)
             return mx.mean(out.hidden_states**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(block, x)
+        loss_and_grad_fn = nn.value_and_grad(block, loss_fn)
+        loss, grads = loss_and_grad_fn(block, x)
 
         assert loss.item() > 0
 

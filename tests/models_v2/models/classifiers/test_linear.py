@@ -3,6 +3,7 @@ Tests for LinearClassifier.
 """
 
 import mlx.core as mx
+import mlx.nn as nn
 
 from chuk_lazarus.models_v2.models.classifiers import LinearClassifier
 
@@ -78,7 +79,8 @@ class TestLinearClassifier:
             log_probs = logits - mx.logsumexp(logits, axis=-1, keepdims=True)
             return -mx.mean(log_probs[mx.arange(4), targets])
 
-        loss, grads = mx.value_and_grad(loss_fn)(clf)
+        loss_and_grad_fn = nn.value_and_grad(clf, loss_fn)
+        loss, grads = loss_and_grad_fn(clf)
 
         assert loss.item() > 0
         assert "fc" in grads

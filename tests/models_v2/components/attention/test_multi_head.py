@@ -182,7 +182,8 @@ class TestMHAGradients:
             out, _ = model(x)
             return mx.mean(out**2)
 
-        loss, grads = mx.value_and_grad(loss_fn)(attn, x)
+        loss_and_grad_fn = nn.value_and_grad(attn, loss_fn)
+        loss, grads = loss_and_grad_fn(attn, x)
 
         assert loss.item() > 0
         # Check gradients exist
