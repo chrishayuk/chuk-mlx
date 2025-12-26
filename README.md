@@ -196,28 +196,62 @@ chuk-lazarus generate --type math --output ./data/lazarus
 chuk-lazarus infer --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --prompt "What is 2+2?"
 ```
 
-### Model Inference (models_v2)
+### Inference Pipeline (New!)
 
-Run inference with pretrained HuggingFace models using the composable models_v2 architecture:
+The new unified inference pipeline provides a simplified API for running inference with any supported model family. One-liner setup, no boilerplate:
 
-```bash
-# Run inference with various Llama-family models
-uv run python examples/models/llama/03_llama_family_inference.py --model tinyllama
-uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-360m
-uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-1.7b
+```python
+from chuk_lazarus.inference import InferencePipeline, PipelineConfig, DType
+from chuk_lazarus.models_v2 import LlamaConfig, LlamaForCausalLM
 
-# Custom prompt and parameters
-uv run python examples/models/llama/03_llama_family_inference.py \
-  --model smollm2-360m \
-  --prompt "Explain quantum computing in one sentence" \
-  --max-tokens 100 \
-  --temperature 0.7
+# One-liner model loading
+pipeline = InferencePipeline.from_pretrained(
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    LlamaForCausalLM,
+    LlamaConfig,
+)
 
-# List all available model presets
-uv run python examples/models/llama/03_llama_family_inference.py --list-models
+# Simple chat API
+result = pipeline.chat("What is the capital of France?")
+print(result.text)
+print(result.stats.summary)  # "25 tokens in 0.42s (59.5 tok/s)"
 ```
 
-**Available presets:** `tinyllama` (1.1B), `smollm2-135m`, `smollm2-360m`, `smollm2-1.7b`, `llama3.2-1b`, `llama3.2-3b`, `mistral-7b`
+**Key features:**
+- Typed configuration with Pydantic (`PipelineConfig`, `GenerationConfig`)
+- Async support (`InferencePipeline.from_pretrained_async`)
+- Chat history management (`ChatHistory`)
+- Streaming generation (`generate_stream`)
+- No magic strings - uses enums (`DType`, `Role`)
+
+```bash
+# Simplified inference examples
+uv run python examples/inference/simple_inference.py --prompt "Write a haiku"
+uv run python examples/inference/llama_inference.py --model smollm2-360m
+uv run python examples/inference/granite_inference.py --model granite-3.1-2b
+uv run python examples/inference/gemma_inference.py --chat
+```
+
+### Model Family Examples
+
+Run inference with specific model families:
+
+```bash
+# Llama family (TinyLlama, SmolLM2, Llama 2/3, Mistral)
+uv run python examples/inference/llama_inference.py --model tinyllama
+uv run python examples/inference/llama_inference.py --model smollm2-360m
+uv run python examples/inference/llama_inference.py --list  # Show all presets
+
+# Gemma 3 (1B, 4B, 12B, 27B with 128K context)
+uv run python examples/inference/gemma_inference.py --chat
+uv run python examples/inference/gemma_inference.py --model gemma-3-4b
+
+# Granite (IBM, dense and hybrid MoE variants)
+uv run python examples/inference/granite_inference.py --model granite-3.1-2b
+
+# Llama 4 Scout (Hybrid Mamba-Transformer MoE)
+uv run python examples/inference/llama4_inference.py
+```
 
 ### FunctionGemma (Function Calling)
 
@@ -287,7 +321,11 @@ src/chuk_lazarus/
 │   ├── adapters/           # LoRA adapters
 │   └── losses/             # Loss functions (pure math)
 ├── training/               # BatchPlan-driven reference trainers (SFT, DPO, GRPO, PPO)
-├── inference/              # Text generation
+├── inference/              # Unified inference pipeline
+│   ├── pipeline.py         # InferencePipeline high-level API
+│   ├── loader.py           # HFLoader, DType, WeightConverter
+│   ├── chat.py             # ChatHistory, Role, format_chat_prompt
+│   └── generation.py       # GenerationConfig, generate, generate_stream
 ├── distributed/            # Distributed training utilities
 └── utils/                  # Utilities
 ```
@@ -296,7 +334,8 @@ src/chuk_lazarus/
 
 | Module | Description |
 |--------|-------------|
-| **Models** | Composable architecture: components, blocks, backbones, heads, families (Llama, Mamba) |
+| **Models** | Composable architecture: components, blocks, backbones, heads, families (Llama, Gemma, Granite) |
+| **Inference** | Unified pipeline API: `InferencePipeline`, chat history, streaming generation |
 | **Tokenizers** | Comprehensive toolkit for analysis, preprocessing, and runtime management |
 | **Batching** | Token-budget batching, sequence packing, distributed batch planning |
 | **Streaming** | Puzzle arcade integration, replay buffers, online learning |
@@ -372,13 +411,14 @@ If the tokenizer or data changes, fingerprint mismatch is detected before traini
 
 ## Supported Models
 
-- LLaMA / LLaMA 2 / LLaMA 3
-- Mistral
-- Gemma
-- Granite
-- StarCoder2
-- TinyLlama
-- SmolLM2 (135M, 360M, 1.7B)
+| Family | Models | Notes |
+|--------|--------|-------|
+| **Llama** | TinyLlama, Llama 2 (7B, 13B), Llama 3.1/3.2, Llama 4 Scout | Llama 4 uses Mamba-Transformer hybrid |
+| **SmolLM2** | 135M, 360M, 1.7B | No auth required, fast inference |
+| **Mistral** | 7B Instruct v0.3 | Sliding window attention |
+| **Gemma** | Gemma 3 (270M, 1B, 4B, 12B, 27B), FunctionGemma | 128K context, function calling |
+| **Granite** | 3.0/3.1 (2B, 8B), 4.0 Tiny (1B, 1.5B MoE) | IBM, dense and MoE variants |
+| **StarCoder2** | 3B, 7B, 15B | Code generation |
 
 ## OpenAI Tokenizers
 

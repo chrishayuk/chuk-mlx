@@ -1,8 +1,64 @@
 # Inference Guide
 
-Run text generation with pretrained models from HuggingFace Hub using the models_v2 architecture.
+Run text generation with pretrained models from HuggingFace Hub using the unified inference pipeline.
 
 ## Quick Start
+
+### Inference Pipeline (Recommended)
+
+The new `InferencePipeline` provides a simplified, one-liner API for loading and running inference:
+
+```python
+from chuk_lazarus.inference import InferencePipeline, PipelineConfig, DType
+from chuk_lazarus.models_v2 import LlamaConfig, LlamaForCausalLM
+
+# One-liner model loading
+pipeline = InferencePipeline.from_pretrained(
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    LlamaForCausalLM,
+    LlamaConfig,
+)
+
+# Simple chat API
+result = pipeline.chat("What is the capital of France?")
+print(result.text)
+print(result.stats.summary)  # "25 tokens in 0.42s (59.5 tok/s)"
+```
+
+### With Custom Configuration
+
+```python
+from chuk_lazarus.inference import (
+    InferencePipeline,
+    PipelineConfig,
+    GenerationConfig,
+    DType,
+)
+from chuk_lazarus.models_v2 import LlamaConfig, LlamaForCausalLM
+
+# Configure the pipeline
+config = PipelineConfig(
+    dtype=DType.BFLOAT16,
+    default_system_message="You are a helpful coding assistant.",
+    default_max_tokens=200,
+    default_temperature=0.7,
+)
+
+pipeline = InferencePipeline.from_pretrained(
+    "HuggingFaceTB/SmolLM2-360M-Instruct",
+    LlamaForCausalLM,
+    LlamaConfig,
+    pipeline_config=config,
+)
+
+# Generate with custom settings
+result = pipeline.chat(
+    "Write a Python function to calculate Fibonacci numbers",
+    max_new_tokens=300,
+    temperature=0.3,
+)
+print(result.text)
+```
 
 ### CLI Inference
 
@@ -18,7 +74,9 @@ chuk-lazarus infer \
   --temperature 0.7
 ```
 
-### Python API
+### Low-Level Python API
+
+For more control, use the models directly:
 
 ```python
 from chuk_lazarus.models_v2 import LlamaConfig, LlamaForCausalLM
@@ -48,23 +106,133 @@ response = tokenizer.decode(output_ids[0].tolist(), skip_special_tokens=True)
 print(response)
 ```
 
-## Llama Family Inference Example
+## Inference Pipeline API
 
-The `examples/models/llama/03_llama_family_inference.py` script provides a unified interface for running inference with various Llama-architecture models:
+### Core Classes
+
+| Class | Description |
+|-------|-------------|
+| `InferencePipeline` | High-level API for model loading and generation |
+| `PipelineConfig` | Pipeline configuration (dtype, defaults) |
+| `GenerationConfig` | Generation parameters (max_tokens, temperature, top_p) |
+| `GenerationResult` | Generation output with text and stats |
+| `ChatHistory` | Multi-turn conversation management |
+
+### Loading Models
+
+```python
+# Synchronous loading
+pipeline = InferencePipeline.from_pretrained(
+    model_id="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    model_class=LlamaForCausalLM,
+    config_class=LlamaConfig,
+    pipeline_config=PipelineConfig(dtype=DType.BFLOAT16),
+)
+
+# Async loading
+pipeline = await InferencePipeline.from_pretrained_async(
+    model_id="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    model_class=LlamaForCausalLM,
+    config_class=LlamaConfig,
+)
+```
+
+### Chat API
+
+```python
+# Simple single-turn chat
+result = pipeline.chat("What is 2+2?")
+
+# With custom system message
+result = pipeline.chat(
+    "Write a haiku",
+    system_message="You are a poet.",
+)
+
+# Multi-turn conversation
+from chuk_lazarus.inference import ChatHistory
+
+history = ChatHistory()
+history.add_system("You are a helpful assistant.")
+history.add_user("What is Python?")
+history.add_assistant("Python is a programming language.")
+history.add_user("What is it used for?")
+
+result = pipeline.chat_with_history(history)
+```
+
+### Raw Generation
+
+```python
+# Direct prompt without chat formatting
+result = pipeline.generate(
+    "Once upon a time",
+    max_new_tokens=100,
+    temperature=0.9,
+)
+
+# With full config
+from chuk_lazarus.inference import GenerationConfig
+
+config = GenerationConfig(
+    max_new_tokens=200,
+    temperature=0.7,
+    top_p=0.9,
+    top_k=40,
+)
+result = pipeline.generate("The quick brown fox", config=config)
+```
+
+### Streaming Generation
+
+```python
+from chuk_lazarus.inference import generate_stream
+
+# Stream tokens as they're generated
+for chunk in generate_stream(model, tokenizer, "Write a story"):
+    print(chunk, end="", flush=True)
+```
+
+## Simplified Examples
+
+The `examples/inference/` directory contains streamlined examples using the new inference pipeline:
+
+```bash
+# Simple inference (any Llama-family model)
+uv run python examples/inference/simple_inference.py --prompt "What is the capital of France?"
+
+# Llama family with model presets
+uv run python examples/inference/llama_inference.py --model smollm2-360m
+uv run python examples/inference/llama_inference.py --list  # Show all presets
+
+# Gemma 3 with interactive chat
+uv run python examples/inference/gemma_inference.py --chat
+
+# Granite (IBM)
+uv run python examples/inference/granite_inference.py --model granite-3.1-2b
+
+# Llama 4 Scout (Mamba-Transformer hybrid)
+uv run python examples/inference/llama4_inference.py
+```
+
+These examples replace the 400+ line model-specific examples with ~100-200 line implementations using the unified API.
+
+## Llama Family Inference
+
+The `examples/inference/llama_inference.py` script provides a unified interface for Llama-architecture models:
 
 ```bash
 # List available model presets
-uv run python examples/models/llama/03_llama_family_inference.py --list-models
+uv run python examples/inference/llama_inference.py --list
 
 # Run with different models
-uv run python examples/models/llama/03_llama_family_inference.py --model tinyllama
-uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-135m
-uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-360m
-uv run python examples/models/llama/03_llama_family_inference.py --model smollm2-1.7b
+uv run python examples/inference/llama_inference.py --model tinyllama
+uv run python examples/inference/llama_inference.py --model smollm2-360m
+uv run python examples/inference/llama_inference.py --model llama3.2-1b
 
 # Custom prompt
-uv run python examples/models/llama/03_llama_family_inference.py \
-  --model tinyllama \
+uv run python examples/inference/llama_inference.py \
+  --model smollm2-360m \
   --prompt "Explain relativity in simple terms" \
   --max-tokens 150 \
   --temperature 0.8
@@ -198,39 +366,42 @@ If weight loading fails:
 - Verify safetensors format
 - Some models may need HF authentication
 
-## Gemma 3 Inference
+## Gemma Inference
 
-Gemma 3 is Google's latest open model family with 4 sizes (1B, 4B, 12B, 27B) and 128K context. Use bf16 models from mlx-community for direct loading.
+Gemma 3 is Google's latest open model family with 5 sizes (270M, 1B, 4B, 12B, 27B) and 128K context. Use bf16 models from mlx-community for direct loading.
 
-### Running Gemma 3 Inference
+### Running Gemma Inference
 
 ```bash
-# Basic inference
-uv run python examples/models/gemma/03_gemma3_inference.py --prompt "What is the capital of France?"
+# Basic inference (simplified API)
+uv run python examples/inference/gemma_inference.py --prompt "What is the capital of France?"
 
-# With custom parameters
-uv run python examples/models/gemma/03_gemma3_inference.py \
-  --prompt "Write a haiku about programming" \
-  --max-tokens 128 \
-  --temperature 0.7
+# Gemma 3 270M (smallest, fastest)
+uv run python examples/inference/gemma_inference.py --model gemma3-270m
+
+# FunctionGemma 270M (function calling optimized)
+uv run python examples/inference/gemma_inference.py --model functiongemma
 
 # Interactive chat mode
-uv run python examples/models/gemma/03_gemma3_inference.py --chat
+uv run python examples/inference/gemma_inference.py --chat
 
 # Use larger model
-uv run python examples/models/gemma/03_gemma3_inference.py \
-  --model mlx-community/gemma-3-4b-it-bf16 \
-  --prompt "Explain quantum computing"
+uv run python examples/inference/gemma_inference.py --model gemma3-4b
+
+# List all available models
+uv run python examples/inference/gemma_inference.py --list
 ```
 
-### Available Gemma 3 Models
+### Available Gemma Models
 
-| Model ID | Parameters | Memory | Notes |
-|----------|------------|--------|-------|
-| `mlx-community/gemma-3-1b-it-bf16` | 1B | ~2GB | Fast, good for testing |
-| `mlx-community/gemma-3-4b-it-bf16` | 4B | ~8GB | Good quality/speed balance |
-| `mlx-community/gemma-3-12b-it-bf16` | 12B | ~24GB | High quality |
-| `mlx-community/gemma-3-27b-it-bf16` | 27B | ~54GB | Best quality |
+| Preset | Model ID | Parameters | Memory | Notes |
+|--------|----------|------------|--------|-------|
+| `gemma3-270m` | mlx-community/gemma-3-270m-it-bf16 | 270M | ~540MB | Smallest, fastest |
+| `functiongemma` | mlx-community/functiongemma-270m-it-bf16 | 270M | ~540MB | Function calling optimized |
+| `gemma3-1b` | mlx-community/gemma-3-1b-it-bf16 | 1B | ~2GB | Fast, good for testing |
+| `gemma3-4b` | mlx-community/gemma-3-4b-it-bf16 | 4B | ~8GB | Good quality/speed balance |
+| `gemma3-12b` | mlx-community/gemma-3-12b-it-bf16 | 12B | ~24GB | High quality |
+| `gemma3-27b` | mlx-community/gemma-3-27b-it-bf16 | 27B | ~54GB | Best quality |
 
 **Notes:**
 - Use bf16 models (not 4-bit quantized) for direct loading. Quantized models require additional quantization support.

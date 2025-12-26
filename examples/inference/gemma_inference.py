@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """
-Gemma 3 Inference Example (Simplified)
+Gemma Inference Example (Simplified)
 
-Demonstrates the simplified API for Gemma 3 text models.
+Demonstrates the simplified API for Gemma text models.
 For vision/multimodal, see examples/models/gemma/04_gemma3_vision_inference.py.
 
 Supports:
+- Gemma 3 270M (smallest, fastest)
+- FunctionGemma 270M (function calling optimized)
 - Gemma 3 1B (text-only)
 - Gemma 3 4B (multimodal - text-only mode here)
 - Gemma 3 12B
@@ -15,6 +17,12 @@ Usage:
     # Default: Gemma 3 1B
     uv run python examples/inference/gemma_inference.py
 
+    # Gemma 3 270M (smallest)
+    uv run python examples/inference/gemma_inference.py --model gemma3-270m
+
+    # FunctionGemma 270M (function calling)
+    uv run python examples/inference/gemma_inference.py --model functiongemma
+
     # Gemma 3 4B
     uv run python examples/inference/gemma_inference.py --model gemma3-4b
 
@@ -23,6 +31,9 @@ Usage:
 
     # Interactive chat mode
     uv run python examples/inference/gemma_inference.py --chat
+
+    # List available models
+    uv run python examples/inference/gemma_inference.py --list
 """
 
 from __future__ import annotations
@@ -47,8 +58,15 @@ from chuk_lazarus.models_v2.families.gemma import GemmaConfig, GemmaForCausalLM
 
 
 class GemmaModel(str, Enum):
-    """Available Gemma 3 model presets."""
+    """Available Gemma model presets."""
 
+    # Gemma 3 270M (smallest, fastest)
+    GEMMA3_270M = "mlx-community/gemma-3-270m-it-bf16"
+
+    # FunctionGemma (270M - function calling optimized)
+    FUNCTIONGEMMA_270M = "mlx-community/functiongemma-270m-it-bf16"
+
+    # Gemma 3 family
     GEMMA3_1B = "mlx-community/gemma-3-1b-it-bf16"
     GEMMA3_4B = "mlx-community/gemma-3-4b-it-bf16"
     GEMMA3_12B = "mlx-community/gemma-3-12b-it-bf16"
@@ -56,6 +74,12 @@ class GemmaModel(str, Enum):
 
 
 MODEL_ALIASES = {
+    # Gemma 3 270M
+    "gemma3-270m": GemmaModel.GEMMA3_270M,
+    # FunctionGemma
+    "functiongemma": GemmaModel.FUNCTIONGEMMA_270M,
+    "functiongemma-270m": GemmaModel.FUNCTIONGEMMA_270M,
+    # Gemma 3
     "gemma3-1b": GemmaModel.GEMMA3_1B,
     "gemma3-4b": GemmaModel.GEMMA3_4B,
     "gemma3-12b": GemmaModel.GEMMA3_12B,
