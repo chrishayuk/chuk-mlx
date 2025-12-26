@@ -41,7 +41,8 @@ examples/
     ├── gemma/              # Gemma family examples
     │   ├── 01_functiongemma_inference.py  # FunctionGemma tool calling
     │   ├── 02_load_pretrained.py          # Load pretrained weights
-    │   └── 03_gemma3_inference.py         # Gemma 3 text generation
+    │   ├── 03_gemma3_inference.py         # Gemma 3 text generation
+    │   └── 04_gemma3_vision_inference.py  # Gemma 3 vision (multimodal)
     ├── granite/            # IBM Granite examples
     │   └── 01_granite_inference.py        # Granite inference
     ├── llama/              # Llama family examples
@@ -299,6 +300,23 @@ uv run python examples/models/gemma/03_gemma3_inference.py \
 ```
 
 **Available models:** `gemma-3-1b-it-bf16`, `gemma-3-4b-it-bf16`, `gemma-3-12b-it-bf16`, `gemma-3-27b-it-bf16`
+
+### Gemma 3 Vision (Multimodal)
+
+```bash
+# Image understanding
+uv run python examples/models/gemma/04_gemma3_vision_inference.py \
+  --image /path/to/image.jpg \
+  --prompt "What is in this image?"
+
+# Detailed description
+uv run python examples/models/gemma/04_gemma3_vision_inference.py \
+  --image photo.jpg \
+  --prompt "Describe this image in detail" \
+  --max-tokens 200
+```
+
+**Available models:** `gemma-3-4b-it-bf16` (4B), `gemma-3-12b-it-bf16` (12B), `gemma-3-27b-it-bf16` (27B)
 
 ### FunctionGemma (Tool Calling)
 

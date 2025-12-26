@@ -2,10 +2,27 @@
 """
 Gemma 3 Vision Inference Example
 
-This example demonstrates how to:
-1. Load a pretrained Gemma 3 multimodal model from mlx-community
-2. Process images using the SigLIP vision encoder
-3. Generate text descriptions of images
+Multimodal inference with Gemma 3 using the chuk_lazarus framework.
+Demonstrates loading pretrained weights and running vision-language tasks.
+
+Architecture Overview:
+    Gemma 3 multimodal models consist of three main components:
+
+    1. SigLIP Vision Encoder (27 layers, 1152 hidden dim)
+       - Patches image into 14x14 patches -> 64x64 = 4096 tokens for 896x896 images
+       - Each patch goes through vision transformer layers
+       - Uses standard multi-head attention with GELU(precise) activation
+       - Pre-norm architecture with LayerNorm
+
+    2. Multi-Modal Projector
+       - Average pooling: 64x64 -> 16x16 (4096 -> 256 tokens)
+       - Gemma-style RMSNorm (1+weight scaling) + Linear projection
+       - Output scaled by 1/sqrt(hidden_size) to match text embedding magnitude
+
+    3. Gemma 3 Language Model (34 layers for 4B)
+       - Image embeddings replace <image_soft_token> placeholders (256 tokens)
+       - Alternating sliding window (1024) / global attention layers
+       - GQA with 8 query heads, 4 KV heads
 
 Supported models from mlx-community (bf16 recommended):
 - mlx-community/gemma-3-4b-it-bf16 (4B params, multimodal)
@@ -18,13 +35,19 @@ Requirements:
     pip install huggingface_hub safetensors transformers pillow
 
 Usage:
+    # Basic usage with local image
     python 04_gemma3_vision_inference.py --image path/to/image.jpg
+
+    # Custom prompt
     python 04_gemma3_vision_inference.py --image path/to/image.jpg --prompt "Describe this image"
-    python 04_gemma3_vision_inference.py --url "https://example.com/image.jpg"
+
+    # URL-based image
+    python 04_gemma3_vision_inference.py --url https://example.com/image.jpg
 
 References:
-    - https://huggingface.co/blog/gemma3
-    - https://huggingface.co/collections/mlx-community/gemma-3
+    - For text-only inference: 03_gemma3_inference.py
+    - mlx-vlm (alternative implementation): https://github.com/Blaizzy/mlx-vlm
+    - Gemma 3 blog: https://huggingface.co/blog/gemma3
 """
 
 import argparse
@@ -68,7 +91,8 @@ class Gemma3VisionConfig:
 
     vision_config: SigLIPVisionConfig
     text_config: GemmaConfig
-    mm_tokens_per_image: int = 256
+    mm_tokens_per_image: int = 256  # After pooling: 16x16 = 256 tokens
+    mm_tokens_per_side: int = 16    # Output spatial dimension
     image_token_index: int = 262144
     boi_token_index: int = 255999  # Beginning of image
     eoi_token_index: int = 256000  # End of image
@@ -84,12 +108,14 @@ class SigLIPMLP(nn.Module):
 
     def __init__(self, config: SigLIPVisionConfig):
         super().__init__()
-        self.fc1 = nn.Linear(config.hidden_size, config.intermediate_size)
-        self.fc2 = nn.Linear(config.intermediate_size, config.hidden_size)
+        # SigLIP uses GELU with precise approximation and biased linear layers
+        self.activation_fn = nn.GELU(approx="precise")
+        self.fc1 = nn.Linear(config.hidden_size, config.intermediate_size, bias=True)
+        self.fc2 = nn.Linear(config.intermediate_size, config.hidden_size, bias=True)
 
     def __call__(self, x: mx.array) -> mx.array:
         x = self.fc1(x)
-        x = nn.gelu(x)  # Precise GELU (not approximate)
+        x = self.activation_fn(x)
         x = self.fc2(x)
         return x
 
@@ -104,10 +130,11 @@ class SigLIPAttention(nn.Module):
         self.head_dim = self.embed_dim // self.num_heads
         self.scale = self.head_dim**-0.5
 
-        self.q_proj = nn.Linear(self.embed_dim, self.embed_dim)
-        self.k_proj = nn.Linear(self.embed_dim, self.embed_dim)
-        self.v_proj = nn.Linear(self.embed_dim, self.embed_dim)
-        self.out_proj = nn.Linear(self.embed_dim, self.embed_dim)
+        # SigLIP uses biased linear layers in attention
+        self.q_proj = nn.Linear(self.embed_dim, self.embed_dim, bias=True)
+        self.k_proj = nn.Linear(self.embed_dim, self.embed_dim, bias=True)
+        self.v_proj = nn.Linear(self.embed_dim, self.embed_dim, bias=True)
+        self.out_proj = nn.Linear(self.embed_dim, self.embed_dim, bias=True)
 
     def __call__(self, x: mx.array) -> mx.array:
         B, L, _ = x.shape
@@ -125,10 +152,10 @@ class SigLIPAttention(nn.Module):
             0, 2, 1, 3
         )
 
-        # Scaled dot-product attention
-        scores = (queries @ keys.transpose(0, 1, 3, 2)) * self.scale
-        weights = mx.softmax(scores, axis=-1)
-        output = weights @ values
+        # Use MLX optimized scaled dot-product attention
+        output = mx.fast.scaled_dot_product_attention(
+            queries, keys, values, scale=self.scale, mask=None
+        )
 
         # Reshape back
         output = output.transpose(0, 2, 1, 3).reshape(B, L, self.embed_dim)
@@ -233,23 +260,76 @@ class SigLIPVisionModel(nn.Module):
 # =============================================================================
 
 
-class MultiModalProjector(nn.Module):
-    """Projects vision features to language model space."""
+class GemmaRMSNorm(nn.Module):
+    """Gemma-style RMSNorm that uses (1 + weight) as scale factor.
 
-    def __init__(self, vision_hidden_size: int, text_hidden_size: int):
+    This matches the HuggingFace/mlx-vlm implementation where the weight
+    parameter is an offset from 1.0, not the direct scale.
+    """
+
+    def __init__(self, dims: int, eps: float = 1e-6):
         super().__init__()
-        self.mm_soft_emb_norm = nn.RMSNorm(vision_hidden_size)
+        self.eps = eps
+        self.weight = mx.zeros((dims,))  # Offset from 1.0
+
+    def __call__(self, x: mx.array) -> mx.array:
+        return mx.fast.rms_norm(x, 1.0 + self.weight, self.eps)
+
+
+class MultiModalProjector(nn.Module):
+    """Projects vision features to language model space with pooling.
+
+    The projector performs:
+    1. Average pooling: 64x64 tokens -> 16x16 tokens (4096 -> 256)
+    2. RMSNorm normalization (Gemma-style with 1+weight scaling)
+    3. Linear projection to text embedding dimension
+    """
+
+    def __init__(
+        self,
+        vision_hidden_size: int,
+        text_hidden_size: int,
+        patches_per_image: int = 4096,  # 64x64
+        tokens_per_side: int = 16,       # Output: 16x16 = 256 tokens
+    ):
+        super().__init__()
+        self.patches_per_image = patches_per_image
+        self.tokens_per_side = tokens_per_side
+        self.kernel_size = int(math.sqrt(patches_per_image)) // tokens_per_side  # 64 // 16 = 4
+
+        # Use Gemma-style RMSNorm with (1 + weight) scaling
+        self.mm_soft_emb_norm = GemmaRMSNorm(vision_hidden_size)
         # Note: weight shape is (vision, text) for projection
         self.mm_input_projection_weight = mx.zeros((vision_hidden_size, text_hidden_size))
 
     def __call__(self, image_features: mx.array) -> mx.array:
         """
         Args:
-            image_features: (B, num_patches, vision_hidden_size)
+            image_features: (B, num_patches, vision_hidden_size) where num_patches = 4096
 
         Returns:
-            (B, num_patches, text_hidden_size)
+            (B, 256, text_hidden_size) - pooled and projected features
         """
+        batch_size, num_patches, hidden_size = image_features.shape
+
+        # Reshape to spatial: (B, 64, 64, hidden)
+        spatial_size = int(math.sqrt(num_patches))
+        image_features = image_features.reshape(batch_size, spatial_size, spatial_size, hidden_size)
+
+        # Average pool: 64x64 -> 16x16 using kernel_size=4
+        # MLX doesn't have AvgPool2d, so we do it manually
+        k = self.kernel_size
+        new_h = spatial_size // k
+        new_w = spatial_size // k
+
+        # Reshape for pooling: (B, new_h, k, new_w, k, hidden)
+        image_features = image_features.reshape(batch_size, new_h, k, new_w, k, hidden_size)
+        # Average over the k x k windows
+        image_features = mx.mean(image_features, axis=(2, 4))  # (B, new_h, new_w, hidden)
+
+        # Flatten back to sequence: (B, 256, hidden)
+        image_features = image_features.reshape(batch_size, new_h * new_w, hidden_size)
+
         # Apply soft embedding norm
         image_features = self.mm_soft_emb_norm(image_features)
         # Project to text space
@@ -292,9 +372,22 @@ class Gemma3ForConditionalGeneration(nn.Module):
         self.language_model = GemmaForCausalLM(config.text_config)
 
     def get_image_features(self, pixel_values: mx.array) -> mx.array:
-        """Extract and project image features."""
+        """Extract and project image features.
+
+        Scale by 1/sqrt(hidden_size) following mlx-vlm approach.
+        This ensures image features have the right magnitude when combined
+        with text embeddings before the backbone's sqrt(hidden_size) scaling.
+        """
         vision_outputs = self.vision_tower(pixel_values)
         image_features = self.multi_modal_projector(vision_outputs)
+
+        # Scale image features by 1/sqrt(hidden_size) - standard Gemma 3 multimodal scaling
+        hidden_size = self.config.text_config.hidden_size
+        image_features = image_features / (hidden_size**0.5)
+
+        # Cast to match the typical model dtype
+        image_features = image_features.astype(mx.bfloat16)
+
         return image_features
 
     def __call__(
@@ -342,74 +435,128 @@ class Gemma3ForConditionalGeneration(nn.Module):
         self,
         input_ids: mx.array,
         pixel_values: mx.array | None = None,
+        image_positions: list[int] | None = None,
         max_new_tokens: int = 100,
         temperature: float = 0.7,
         top_k: int | None = 40,
         top_p: float | None = 0.95,
         stop_tokens: list[int] | None = None,
     ) -> mx.array:
-        """Generate text given optional image input."""
-        # Get initial embeddings
+        """
+        Generate text given optional image input with KV-cache for efficiency.
+
+        Args:
+            input_ids: Tokenized text prompt (batch_size, seq_len)
+            pixel_values: Preprocessed image (batch_size, H, W, C) or None
+            image_positions: List of positions where image soft tokens are (to be replaced)
+            max_new_tokens: Maximum number of tokens to generate
+            temperature: Sampling temperature (0 = greedy, higher = more random)
+            top_k: Top-k sampling (filter to top k tokens)
+            top_p: Nucleus sampling (filter to tokens with cumulative prob <= top_p)
+            stop_tokens: Token IDs that stop generation
+
+        Returns:
+            Generated token IDs including the prompt tokens
+        """
+        # Step 1: Build initial embeddings
+        print("  Embedding text tokens...", flush=True)
         inputs_embeds = self.language_model.model.embed_tokens(input_ids)
 
-        if pixel_values is not None:
+        if pixel_values is not None and image_positions is not None and len(image_positions) > 0:
+            print("  Processing image through vision encoder...", flush=True)
             image_features = self.get_image_features(pixel_values)
-            inputs_embeds = mx.concatenate([image_features, inputs_embeds], axis=1)
+            mx.eval(image_features)
+            print(f"  Image features shape: {image_features.shape}", flush=True)
 
-        # Generate using the language model
-        # We need to handle the extended sequence length from image features
-        generated_ids = input_ids.tolist()[0]
+            # Replace embeddings at image positions with image features
+            # This follows the mlx-vlm approach: scatter image features into placeholder positions
+            batch_size, seq_len, embed_dim = inputs_embeds.shape
+            num_image_tokens = image_features.shape[1]
 
-        for _ in range(max_new_tokens):
-            # Forward pass
-            output = self.language_model.model(
-                input_ids=None,
-                input_embeddings=inputs_embeds,
-            )
+            if len(image_positions) == num_image_tokens:
+                # Replace the embeddings at image positions with scaled image features
+                # Use MLX operations to scatter image features at the correct positions
+                # The image soft tokens are contiguous starting at image_positions[0]
+                start_pos = image_positions[0]
+                end_pos = start_pos + num_image_tokens
 
-            # Get next token logits
-            logits = self.language_model.lm_head(output.last_hidden_state[:, -1:, :])
-            logits = logits[:, 0, :]  # (B, vocab_size)
+                # Build new embeddings: [before][image_features][after]
+                before = inputs_embeds[:, :start_pos, :]
+                after = inputs_embeds[:, end_pos:, :]
+                inputs_embeds = mx.concatenate([before, image_features, after], axis=1)
+                print(f"  Replaced {num_image_tokens} image soft token embeddings at positions {start_pos}-{end_pos-1}", flush=True)
+            else:
+                print(f"  Warning: image_positions ({len(image_positions)}) != num_image_tokens ({num_image_tokens})", flush=True)
 
-            # Sample next token
-            if temperature > 0:
+            print(f"  Final embeddings shape: {inputs_embeds.shape}", flush=True)
+
+        # Step 2: Process initial sequence through backbone to get KV-cache
+        print("  Building KV-cache (this may take a moment)...", flush=True)
+        output = self.language_model.model(
+            input_ids=None,
+            input_embeddings=inputs_embeds,
+            cache=None,  # No cache on first pass
+        )
+        cache = output.cache
+        mx.eval(cache)
+        print("  KV-cache ready!", flush=True)
+
+        # Track generated tokens
+        generated_ids = list(input_ids[0].tolist())
+
+        # Get first token from initial pass
+        logits = self.language_model.lm_head(output.last_hidden_state[:, -1:, :])
+        logits = logits[:, 0, :]
+
+        print("  Generating tokens:", end=" ", flush=True)
+        for i in range(max_new_tokens):
+            # Apply temperature
+            if temperature > 0 and temperature != 1.0:
                 logits = logits / temperature
 
-                if top_k is not None:
-                    top_k_logits = mx.topk(logits, k=min(top_k, logits.shape[-1]))
-                    threshold = top_k_logits[:, -1:]
-                    logits = mx.where(logits < threshold, float("-inf"), logits)
+            # Apply top-k sampling
+            if top_k is not None and top_k > 0:
+                top_k_logits = mx.topk(logits, k=min(top_k, logits.shape[-1]))
+                threshold = top_k_logits[:, -1:]
+                logits = mx.where(logits < threshold, float("-inf"), logits)
 
-                if top_p is not None:
-                    sorted_indices = mx.argsort(logits, axis=-1)[:, ::-1]
-                    sorted_logits = mx.take_along_axis(logits, sorted_indices, axis=-1)
-                    sorted_probs = mx.softmax(sorted_logits, axis=-1)
-                    cumsum_probs = mx.cumsum(sorted_probs, axis=-1)
-                    # Find cutoff: first position where cumsum > top_p
-                    cutoff_mask = cumsum_probs > top_p
-                    # Set logits below threshold to -inf using sorted order
-                    sorted_logits = mx.where(cutoff_mask, float("-inf"), sorted_logits)
-                    # Unsort back to original order
-                    inv_indices = mx.argsort(sorted_indices, axis=-1)
-                    logits = mx.take_along_axis(sorted_logits, inv_indices, axis=-1)
+            # Apply top-p (nucleus) sampling
+            if top_p is not None and top_p < 1.0:
+                sorted_logits = mx.sort(logits, axis=-1)[:, ::-1]
+                sorted_probs = mx.softmax(sorted_logits, axis=-1)
+                cumsum_probs = mx.cumsum(sorted_probs, axis=-1)
+                cutoff_idx = mx.sum(cumsum_probs < top_p, axis=-1, keepdims=True)
+                cutoff_logit = mx.take_along_axis(sorted_logits, cutoff_idx, axis=-1)
+                logits = mx.where(logits < cutoff_logit, float("-inf"), logits)
 
-                probs = mx.softmax(logits, axis=-1)
-                next_token = mx.random.categorical(probs)
+            # Sample or greedy decode
+            if temperature == 0:
+                next_token = mx.argmax(logits, axis=-1, keepdims=True)
             else:
-                next_token = mx.argmax(logits, axis=-1)
+                probs = mx.softmax(logits, axis=-1)
+                next_token = mx.random.categorical(mx.log(probs + 1e-10))
+                next_token = mx.expand_dims(next_token, axis=-1)
 
-            next_token_id = next_token.item()
+            next_token_id = int(next_token[0, 0])
             generated_ids.append(next_token_id)
+            print(".", end="", flush=True)
 
             # Check stop tokens
             if stop_tokens and next_token_id in stop_tokens:
                 break
 
-            # Extend embeddings
-            next_embed = self.language_model.model.embed_tokens(next_token.reshape(1, 1))
-            inputs_embeds = mx.concatenate([inputs_embeds, next_embed], axis=1)
-            mx.eval(inputs_embeds)
+            # Forward pass with cache - only process the new token!
+            # This is the key to efficiency: we reuse the cached K/V tensors
+            output = self.language_model.model(
+                input_ids=next_token,  # Just the new token
+                cache=cache,  # Reuse cached K/V from previous tokens
+            )
+            cache = output.cache
+            logits = self.language_model.lm_head(output.last_hidden_state[:, -1:, :])
+            logits = logits[:, 0, :]
+            mx.eval(logits)
 
+        print(" done!", flush=True)
         return mx.array([generated_ids])
 
 
@@ -421,8 +568,9 @@ class Gemma3ForConditionalGeneration(nn.Module):
 def download_model(model_id: str) -> Path:
     """Download model from HuggingFace Hub."""
     from huggingface_hub import snapshot_download
+    import sys
 
-    print(f"Downloading {model_id}...")
+    print(f"Downloading {model_id}...", flush=True)
     path = snapshot_download(
         repo_id=model_id,
         allow_patterns=["*.json", "*.safetensors"],
@@ -473,7 +621,7 @@ def load_weights(model_path: Path) -> dict:
     """Load weights from safetensors files."""
     weights = {}
     for sf_path in model_path.glob("*.safetensors"):
-        print(f"  Loading {sf_path.name}...")
+        print(f"  Loading {sf_path.name}...", flush=True)
         file_weights = mx.load(str(sf_path))
         weights.update(file_weights)
     return weights
@@ -524,27 +672,27 @@ def load_gemma3_vision_model(model_id: str) -> tuple[Gemma3ForConditionalGenerat
     model_path = download_model(model_id)
 
     # Load weights
-    print("Loading weights...")
+    print("Loading weights...", flush=True)
     weights = load_weights(model_path)
-    print(f"  Loaded {len(weights)} tensors")
+    print(f"  Loaded {len(weights)} tensors", flush=True)
 
     # Load config and infer missing values
-    print("Loading config...")
+    print("Loading config...", flush=True)
     config = load_config(model_path)
     config = infer_text_config_from_weights(weights, config)
-    print(f"  Vision: {config.vision_config.num_hidden_layers} layers, {config.vision_config.hidden_size} dim")
-    print(f"  Text: {config.text_config.num_hidden_layers} layers, {config.text_config.hidden_size} dim")
+    print(f"  Vision: {config.vision_config.num_hidden_layers} layers, {config.vision_config.hidden_size} dim", flush=True)
+    print(f"  Text: {config.text_config.num_hidden_layers} layers, {config.text_config.hidden_size} dim", flush=True)
 
     # Load tokenizer
-    print("Loading tokenizer...")
+    print("Loading tokenizer...", flush=True)
     tokenizer = AutoTokenizer.from_pretrained(str(model_path))
 
     # Create model
-    print("Creating model...")
+    print("Creating model...", flush=True)
     model = Gemma3ForConditionalGeneration(config)
 
     # Load weights
-    print("Applying weights...")
+    print("Applying weights...", flush=True)
     nested_weights = tree_unflatten(list(weights.items()))
     model.update(nested_weights)
 
@@ -656,22 +804,31 @@ def main():
     pixel_values = load_image(image_source, config.vision_config.image_size)
     print(f"  Image shape: {pixel_values.shape}")
 
-    # Format prompt with image tokens
-    # Gemma 3 uses <image> token to mark where image features go
-    prompt = f"<bos><start_of_turn>user\n<image>{args.prompt}<end_of_turn>\n<start_of_turn>model\n"
+    # Format prompt with proper image tokens
+    # Gemma 3 expects: <bos><start_of_turn>user\n<start_of_image>[256 soft tokens]<end_of_image>prompt<end_of_turn>\n<start_of_turn>model\n
+    # The 256 <image_soft_token> (262144) placeholders get replaced with actual image embeddings
     print(f"\nPrompt: {args.prompt}")
     print("-" * 60)
 
-    # Tokenize (without the image token for now)
-    text_prompt = f"<bos><start_of_turn>user\n{args.prompt}<end_of_turn>\n<start_of_turn>model\n"
+    # Build prompt with 256 image soft token placeholders
+    num_image_tokens = 256
+    image_soft_token = "<image_soft_token>"
+    text_prompt = f"<bos><start_of_turn>user\n<start_of_image>{image_soft_token * num_image_tokens}<end_of_image>{args.prompt}<end_of_turn>\n<start_of_turn>model\n"
     input_ids = tokenizer.encode(text_prompt, return_tensors="np")
     input_ids = mx.array(input_ids)
+
+    # Find the image soft token positions (262144)
+    image_soft_token_id = 262144
+    input_ids_list = input_ids[0].tolist()
+    image_positions = [i for i, tid in enumerate(input_ids_list) if tid == image_soft_token_id]
+    print(f"  Found {len(image_positions)} image soft tokens starting at position {image_positions[0] if image_positions else 'N/A'}")
 
     # Generate
     print("\nGenerating response...")
     output_ids = model.generate(
         input_ids,
         pixel_values=pixel_values,
+        image_positions=image_positions,
         max_new_tokens=args.max_tokens,
         temperature=args.temperature,
         top_k=40,
@@ -679,12 +836,18 @@ def main():
         stop_tokens=[tokenizer.eos_token_id, 106],  # 106 is <end_of_turn>
     )
 
-    # Decode response
-    response = tokenizer.decode(output_ids[0].tolist(), skip_special_tokens=True)
+    # Decode only the newly generated tokens (skip the prompt tokens)
+    prompt_len = input_ids.shape[1]
+    generated_tokens = output_ids[0, prompt_len:].tolist()
+    response = tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
-    # Extract just the model's response (after the prompt)
-    if args.prompt in response:
-        response = response.split(args.prompt)[-1].strip()
+    # Clean up the response
+    response = response.strip()
+
+    # Remove any trailing special tokens that might remain
+    for suffix in ["<end_of_turn>", "<eos>", "</s>"]:
+        if response.endswith(suffix):
+            response = response[: -len(suffix)].strip()
 
     print(f"\nResponse:\n{response}")
     print("=" * 60)
