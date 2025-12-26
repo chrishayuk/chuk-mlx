@@ -170,6 +170,7 @@ class TestActivationType:
             "silu",
             "gelu",
             "gelu_approx",
+            "gelu_tanh",
             "relu",
             "relu2",
             "tanh",

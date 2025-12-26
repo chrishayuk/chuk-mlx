@@ -638,6 +638,8 @@ class ModelConfig(BaseModel):
             "gelu": ActivationType.GELU,
             "gelu_new": ActivationType.GELU,
             "gelu_fast": ActivationType.GELU_APPROX,
+            "gelu_pytorch_tanh": ActivationType.GELU_TANH,
+            "gelu_tanh": ActivationType.GELU_TANH,
             "relu": ActivationType.RELU,
             "relu2": ActivationType.RELU2,
             "tanh": ActivationType.TANH,

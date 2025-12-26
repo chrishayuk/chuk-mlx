@@ -251,6 +251,14 @@ uv run python examples/inference/granite_inference.py --model granite-3.1-2b
 
 # Llama 4 Scout (Hybrid Mamba-Transformer MoE)
 uv run python examples/inference/llama4_inference.py
+
+# StarCoder2 (Code generation, 3B/7B/15B)
+uv run python examples/inference/starcoder2_inference.py --prompt "def fibonacci(n):"
+uv run python examples/inference/starcoder2_inference.py --interactive  # Interactive mode
+
+# Jamba (Hybrid Mamba-Transformer MoE, 256K context)
+uv run python examples/inference/jamba_inference.py --test-tiny  # Test without download
+uv run python examples/inference/jamba_inference.py --list       # Show models
 ```
 
 ### FunctionGemma (Function Calling)
@@ -419,6 +427,8 @@ If the tokenizer or data changes, fingerprint mismatch is detected before traini
 | **Gemma** | Gemma 3 (270M, 1B, 4B, 12B, 27B), FunctionGemma | 128K context, function calling |
 | **Granite** | 3.0/3.1 (2B, 8B), 4.0 Tiny (1B, 1.5B MoE) | IBM, dense and MoE variants |
 | **StarCoder2** | 3B, 7B, 15B | Code generation |
+| **Jamba** | v0.1, 1.5 Mini (52B), 1.5 Large (398B) | AI21 hybrid Mamba-Transformer MoE, 256K context |
+| **Mamba** | 130M, 370M, 790M, 1.4B, 2.8B | Pure SSM architecture |
 
 ## OpenAI Tokenizers
 

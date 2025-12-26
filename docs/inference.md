@@ -213,6 +213,12 @@ uv run python examples/inference/granite_inference.py --model granite-3.1-2b
 
 # Llama 4 Scout (Mamba-Transformer hybrid)
 uv run python examples/inference/llama4_inference.py
+
+# StarCoder2 (code generation)
+uv run python examples/inference/starcoder2_inference.py --prompt "def quicksort(arr):"
+
+# Jamba (hybrid Mamba-Transformer MoE)
+uv run python examples/inference/jamba_inference.py --test-tiny
 ```
 
 These examples replace the 400+ line model-specific examples with ~100-200 line implementations using the unified API.
@@ -510,6 +516,176 @@ uv run python examples/models/llama4/01_llama4_inference.py \
 | `meta-llama/Llama-4-Scout-17B-16E-Instruct` | 17B active / 109B total | Hybrid Mamba-Transformer MoE | 16 experts, 10M context |
 
 **Note:** Llama 4 requires HuggingFace authentication. Run `huggingface-cli login` first.
+
+## Jamba Inference
+
+Jamba is AI21 Labs' hybrid Mamba-Transformer MoE model with 256K context. It combines SSM efficiency with attention precision.
+
+### Running Jamba Inference
+
+```bash
+# Test with tiny model (no download needed)
+uv run python examples/inference/jamba_inference.py --test-tiny
+
+# Basic inference (requires AI21 authentication)
+uv run python examples/inference/jamba_inference.py --prompt "What is quantum computing?"
+
+# Interactive chat mode
+uv run python examples/inference/jamba_inference.py --chat
+
+# List available models
+uv run python examples/inference/jamba_inference.py --list
+```
+
+### Available Jamba Models
+
+| Preset | Model ID | Parameters | Notes |
+|--------|----------|------------|-------|
+| `jamba` | ai21labs/Jamba-v0.1 | 52B total / 12B active | Original release |
+| `jamba-1.5-mini` | ai21labs/AI21-Jamba-1.5-Mini | 52B total / 12B active | Updated training |
+| `jamba-1.5-large` | ai21labs/AI21-Jamba-1.5-Large | 398B total / 94B active | Largest model |
+
+**Note:** Jamba models require AI21 Labs authentication on HuggingFace. Run `huggingface-cli login` first.
+
+### Jamba Architecture
+
+Jamba's hybrid architecture provides unique advantages:
+- **Mamba layers** (7/8): O(n) complexity, constant memory per step
+- **Attention layers** (1/8): Precise recall for specific facts
+- **MoE** (every 2nd layer): 16 experts, 2 active per token
+- **256K context window**: Long document processing
+
+Layer pattern example (32 layers):
+- Layers 0,1,3,5,7,...: Mamba
+- Layers 4,12,20,28: Attention
+- Odd layers: MoE, Even layers: Dense FFN
+
+### Python API
+
+```python
+import mlx.core as mx
+from chuk_lazarus.models_v2.families.jamba import JambaConfig, JambaForCausalLM
+
+# Create tiny model for testing
+config = JambaConfig.tiny()
+model = JambaForCausalLM(config)
+
+# Check layer pattern
+for i in range(config.num_hidden_layers):
+    layer_type = "ATT" if config.is_attention_layer(i) else "MAM"
+    ffn_type = "MoE" if config.is_moe_layer(i) else "FFN"
+    print(f"Layer {i}: {layer_type} + {ffn_type}")
+
+# Forward pass
+input_ids = mx.array([[1, 2, 3, 4, 5]])
+output = model(input_ids)
+print(f"Output shape: {output.logits.shape}")
+
+# Generate
+output_ids = model.generate(input_ids, max_new_tokens=20)
+print(f"Generated: {output_ids.shape}")
+```
+
+## StarCoder2 Inference
+
+StarCoder2 is BigCode's code generation model family, optimized for programming tasks. Available in 3B, 7B, and 15B parameter sizes.
+
+### Running StarCoder2 Inference
+
+```bash
+# Basic code completion
+uv run python examples/inference/starcoder2_inference.py --prompt "def fibonacci(n):"
+
+# Use specific model size
+uv run python examples/inference/starcoder2_inference.py --model starcoder2-7b
+
+# Interactive mode
+uv run python examples/inference/starcoder2_inference.py --interactive
+
+# List available models
+uv run python examples/inference/starcoder2_inference.py --list
+```
+
+### Available StarCoder2 Models
+
+| Preset | Model ID | Parameters | Notes |
+|--------|----------|------------|-------|
+| `starcoder2-3b` | bigcode/starcoder2-3b | 3B | Good for testing, runs on most hardware |
+| `starcoder2-7b` | bigcode/starcoder2-7b | 7B | Balanced quality/speed |
+| `starcoder2-15b` | bigcode/starcoder2-15b | 15B | Best quality, needs more memory |
+
+### StarCoder2 Architecture
+
+StarCoder2 differs from Llama-family models:
+- **LayerNorm** instead of RMSNorm
+- **GELU activation** instead of SiLU/SwiGLU
+- **Standard MLP** instead of gated MLP
+- **Bias in linear layers** (attention and MLP)
+- **Grouped Query Attention** for efficient inference
+- **Sliding window attention** (4096 tokens)
+
+### Python API
+
+```python
+import mlx.core as mx
+from mlx.utils import tree_unflatten
+from pathlib import Path
+from huggingface_hub import snapshot_download
+from transformers import AutoTokenizer
+import json
+
+from chuk_lazarus.models_v2.families.starcoder2 import StarCoder2Config, StarCoder2ForCausalLM
+
+# Download model
+model_id = "bigcode/starcoder2-3b"
+model_path = Path(snapshot_download(repo_id=model_id, allow_patterns=["*.json", "*.safetensors"]))
+
+# Load config
+with open(model_path / "config.json") as f:
+    hf_config = json.load(f)
+
+config = StarCoder2Config(
+    vocab_size=hf_config["vocab_size"],
+    hidden_size=hf_config["hidden_size"],
+    num_hidden_layers=hf_config["num_hidden_layers"],
+    num_attention_heads=hf_config["num_attention_heads"],
+    num_key_value_heads=hf_config.get("num_key_value_heads"),
+    intermediate_size=hf_config["intermediate_size"],
+)
+
+# Create model and load weights
+model = StarCoder2ForCausalLM(config)
+weights = {}
+for sf_path in model_path.glob("*.safetensors"):
+    weights.update(mx.load(str(sf_path)))
+nested = tree_unflatten(list(weights.items()))
+model.update(nested)
+mx.eval(model.parameters())
+
+# Load tokenizer
+tokenizer = AutoTokenizer.from_pretrained(str(model_path))
+
+# Generate code
+prompt = "def fibonacci(n):"
+input_ids = mx.array(tokenizer.encode(prompt, return_tensors="np"))
+
+output_ids = model.generate(
+    input_ids,
+    max_new_tokens=100,
+    temperature=0.2,  # Lower temperature for code
+    stop_tokens=[tokenizer.eos_token_id],
+)
+
+code = tokenizer.decode(output_ids[0].tolist(), skip_special_tokens=True)
+print(code)
+```
+
+### Tips for Code Generation
+
+- **Low temperature** (0.1-0.3): More deterministic, better for completions
+- **Medium temperature** (0.5-0.7): Balanced creativity
+- **Use context**: Include function signatures, docstrings, or comments
+- **Stop tokens**: The model will stop at `<|endoftext|>` by default
 
 ## FunctionGemma (Function Calling)
 
