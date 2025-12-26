@@ -227,7 +227,7 @@ wheels = [
 
 [[package]]
 name = "chuk-lazarus"
-version = "0.3"
+version = "0.4"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },
