@@ -523,7 +523,7 @@ class TestFromPretrainedMocked:
         mock_config = ModelConfig(vocab_size=100, hidden_size=64, num_hidden_layers=4)
 
         with patch(
-            "chuk_lazarus.introspection.analyzer._load_model_sync",
+            "chuk_lazarus.introspection.analyzer.core._load_model_sync",
             return_value=(mock_model, mock_tokenizer, mock_config),
         ):
             async with ModelAnalyzer.from_pretrained("test-model") as analyzer:
@@ -542,7 +542,7 @@ class TestFromPretrainedMocked:
         mock_config = ModelConfig(vocab_size=100, hidden_size=64, num_hidden_layers=4)
 
         with patch(
-            "chuk_lazarus.introspection.analyzer._load_model_sync",
+            "chuk_lazarus.introspection.analyzer.core._load_model_sync",
             return_value=(mock_model, mock_tokenizer, mock_config),
         ):
             async with ModelAnalyzer.from_pretrained(
@@ -561,7 +561,7 @@ class TestFromPretrainedMocked:
         mock_config = ModelConfig(vocab_size=100, hidden_size=64, num_hidden_layers=4)
 
         with patch(
-            "chuk_lazarus.introspection.analyzer._load_model_sync",
+            "chuk_lazarus.introspection.analyzer.core._load_model_sync",
             return_value=(mock_model, mock_tokenizer, mock_config),
         ):
             async with ModelAnalyzer.from_pretrained("test-model") as analyzer:
@@ -584,7 +584,7 @@ class TestAnalyzePromptConvenience:
         mock_config = ModelConfig(vocab_size=100, hidden_size=64, num_hidden_layers=4)
 
         with patch(
-            "chuk_lazarus.introspection.analyzer._load_model_sync",
+            "chuk_lazarus.introspection.analyzer.core._load_model_sync",
             return_value=(mock_model, mock_tokenizer, mock_config),
         ):
             result = await analyze_prompt("test-model", "hello world")
@@ -605,7 +605,7 @@ class TestAnalyzePromptConvenience:
         config = AnalysisConfig(layer_strategy=LayerStrategy.ALL, top_k=3)
 
         with patch(
-            "chuk_lazarus.introspection.analyzer._load_model_sync",
+            "chuk_lazarus.introspection.analyzer.core._load_model_sync",
             return_value=(mock_model, mock_tokenizer, mock_config),
         ):
             result = await analyze_prompt("test-model", "test", config)

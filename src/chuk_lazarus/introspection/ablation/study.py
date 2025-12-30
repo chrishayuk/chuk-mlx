@@ -1,335 +1,22 @@
 """
-Model-agnostic ablation study utilities.
+Core AblationStudy class for running ablation experiments.
 
 Provides infrastructure for running ablation experiments across different
-model families (Gemma, Llama, Granite, etc.) to identify causal circuits.
-
-Example:
-    >>> from chuk_lazarus.introspection.ablation import AblationStudy, AblationConfig
-    >>>
-    >>> study = AblationStudy.from_pretrained("mlx-community/gemma-3-270m-it-bf16")
-    >>> results = study.run_mlp_sweep(
-    ...     prompt="What is the weather?",
-    ...     criterion=lambda x: "<function_call>" in x,
-    ...     layers=range(18),
-    ... )
-    >>> study.print_summary(results)
+model families to identify causal circuits.
 """
 
 from __future__ import annotations
 
 import json
 from collections.abc import Callable
-from dataclasses import dataclass, field
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
-import mlx.nn as nn
 
-
-class AblationType(str, Enum):
-    """Type of ablation to perform."""
-
-    ZERO = "zero"  # Zero out weights
-    MEAN = "mean"  # Replace with mean activation
-    NOISE = "noise"  # Add noise to weights
-
-
-class ComponentType(str, Enum):
-    """Model component to ablate."""
-
-    MLP = "mlp"
-    ATTENTION = "attention"
-    BOTH = "both"
-    MLP_GATE = "mlp_gate"
-    MLP_UP = "mlp_up"
-    MLP_DOWN = "mlp_down"
-    ATTN_Q = "attn_q"
-    ATTN_K = "attn_k"
-    ATTN_V = "attn_v"
-    ATTN_O = "attn_o"
-
-
-@dataclass
-class AblationConfig:
-    """Configuration for ablation experiments."""
-
-    ablation_type: AblationType = AblationType.ZERO
-    component: ComponentType = ComponentType.MLP
-    max_new_tokens: int = 60
-    temperature: float = 0.0
-
-
-@dataclass
-class AblationResult:
-    """Result of a single ablation experiment."""
-
-    layer: int
-    component: str
-    original_output: str
-    ablated_output: str
-    original_criterion: bool
-    ablated_criterion: bool
-    criterion_changed: bool
-    output_coherent: bool = True
-    metadata: dict = field(default_factory=dict)
-
-
-@dataclass
-class LayerSweepResult:
-    """Results from sweeping across layers."""
-
-    task_name: str
-    criterion_name: str
-    results: list[AblationResult]
-    causal_layers: list[int] = field(default_factory=list)
-
-    def __post_init__(self):
-        self.causal_layers = [r.layer for r in self.results if r.criterion_changed]
-
-
-class ModelAdapter:
-    """
-    Adapter for accessing model internals across different architectures.
-
-    Provides a unified interface for:
-    - Accessing layers
-    - Getting/setting component weights
-    - Running generation
-    """
-
-    def __init__(self, model: nn.Module, tokenizer: Any, config: Any):
-        self.model = model
-        self.tokenizer = tokenizer
-        self.config = config
-        self._detect_architecture()
-
-    def _detect_architecture(self):
-        """Detect model architecture and set accessors."""
-        # Try different common patterns
-        if hasattr(self.model, "model") and hasattr(self.model.model, "layers"):
-            self._layers = self.model.model.layers
-            self._backbone = self.model.model
-        elif hasattr(self.model, "layers"):
-            self._layers = self.model.layers
-            self._backbone = self.model
-        elif hasattr(self.model, "transformer") and hasattr(self.model.transformer, "h"):
-            self._layers = self.model.transformer.h
-            self._backbone = self.model.transformer
-        else:
-            raise ValueError(
-                "Cannot detect model architecture. Expected model.model.layers, model.layers, or model.transformer.h"
-            )
-
-    @property
-    def num_layers(self) -> int:
-        """Number of transformer/SSM layers."""
-        return len(self._layers)
-
-    @property
-    def hidden_size(self) -> int:
-        """Hidden dimension size."""
-        if hasattr(self.config, "hidden_size"):
-            return self.config.hidden_size
-        elif hasattr(self.config, "d_model"):
-            return self.config.d_model
-        raise ValueError("Cannot determine hidden size from config")
-
-    def get_layer(self, idx: int) -> nn.Module:
-        """Get layer by index."""
-        return self._layers[idx]
-
-    def is_moe_layer(self, layer_idx: int) -> bool:
-        """Check if a layer uses Mixture of Experts."""
-        layer = self.get_layer(layer_idx)
-        if hasattr(layer, "mlp"):
-            mlp = layer.mlp
-            # Check for MoE patterns
-            if hasattr(mlp, "router") or hasattr(mlp, "experts"):
-                return True
-            # Check class name
-            if "MoE" in type(mlp).__name__:
-                return True
-        return False
-
-    def get_mlp_down_weight(self, layer_idx: int) -> mx.array:
-        """Get MLP down projection weight.
-
-        For MoE layers, returns the router weight instead.
-        """
-        layer = self.get_layer(layer_idx)
-
-        # Check for MoE first
-        if hasattr(layer, "mlp"):
-            mlp = layer.mlp
-            # MoE: return router weight (zeroing this effectively disables MLP)
-            if hasattr(mlp, "router"):
-                if hasattr(mlp.router, "weight"):
-                    return mlp.router.weight
-            # Dense MLP patterns
-            if hasattr(mlp, "down_proj"):
-                return mlp.down_proj.weight
-            elif hasattr(mlp, "c_proj"):  # GPT-2 style
-                return mlp.c_proj.weight
-            elif hasattr(mlp, "w2"):  # Some Llama variants
-                return mlp.w2.weight
-        elif hasattr(layer, "feed_forward"):
-            ff = layer.feed_forward
-            if hasattr(ff, "down_proj"):
-                return ff.down_proj.weight
-            elif hasattr(ff, "w2"):
-                return ff.w2.weight
-
-        raise ValueError(f"Cannot find MLP down projection in layer {layer_idx}")
-
-    def set_mlp_down_weight(self, layer_idx: int, weight: mx.array):
-        """Set MLP down projection weight.
-
-        For MoE layers, sets the router weight instead.
-        """
-        layer = self.get_layer(layer_idx)
-
-        if hasattr(layer, "mlp"):
-            mlp = layer.mlp
-            # MoE: set router weight
-            if hasattr(mlp, "router"):
-                if hasattr(mlp.router, "weight"):
-                    mlp.router.weight = weight
-                    mx.eval(weight)
-                    return
-            # Dense MLP patterns
-            if hasattr(mlp, "down_proj"):
-                mlp.down_proj.weight = weight
-            elif hasattr(mlp, "c_proj"):
-                mlp.c_proj.weight = weight
-            elif hasattr(mlp, "w2"):
-                mlp.w2.weight = weight
-            else:
-                raise ValueError(f"Cannot find MLP down projection in layer {layer_idx}")
-        elif hasattr(layer, "feed_forward"):
-            ff = layer.feed_forward
-            if hasattr(ff, "down_proj"):
-                ff.down_proj.weight = weight
-            elif hasattr(ff, "w2"):
-                ff.w2.weight = weight
-            else:
-                raise ValueError(f"Cannot find MLP down projection in layer {layer_idx}")
-        else:
-            raise ValueError(f"Cannot find MLP in layer {layer_idx}")
-
-        mx.eval(weight)
-
-    def get_attn_o_weight(self, layer_idx: int) -> mx.array:
-        """Get attention output projection weight."""
-        layer = self.get_layer(layer_idx)
-
-        # Try common patterns
-        if hasattr(layer, "self_attn"):
-            attn = layer.self_attn
-            if hasattr(attn, "o_proj"):
-                return attn.o_proj.weight
-            elif hasattr(attn, "out_proj"):
-                return attn.out_proj.weight
-        elif hasattr(layer, "attention"):
-            attn = layer.attention
-            if hasattr(attn, "o_proj"):
-                return attn.o_proj.weight
-            elif hasattr(attn, "wo"):  # Llama style
-                return attn.wo.weight
-
-        raise ValueError(f"Cannot find attention output projection in layer {layer_idx}")
-
-    def set_attn_o_weight(self, layer_idx: int, weight: mx.array):
-        """Set attention output projection weight."""
-        layer = self.get_layer(layer_idx)
-
-        if hasattr(layer, "self_attn"):
-            attn = layer.self_attn
-            if hasattr(attn, "o_proj"):
-                attn.o_proj.weight = weight
-            elif hasattr(attn, "out_proj"):
-                attn.out_proj.weight = weight
-            else:
-                raise ValueError(f"Cannot find attention output projection in layer {layer_idx}")
-        elif hasattr(layer, "attention"):
-            attn = layer.attention
-            if hasattr(attn, "o_proj"):
-                attn.o_proj.weight = weight
-            elif hasattr(attn, "wo"):
-                attn.wo.weight = weight
-            else:
-                raise ValueError(f"Cannot find attention output projection in layer {layer_idx}")
-        else:
-            raise ValueError(f"Cannot find attention in layer {layer_idx}")
-
-        mx.eval(weight)
-
-    def generate(
-        self,
-        input_ids: mx.array,
-        max_new_tokens: int = 60,
-        temperature: float = 0.0,
-    ) -> str:
-        """Generate text from input IDs."""
-        # Use model's generate method if available
-        if hasattr(self.model, "generate"):
-            stop_tokens = []
-            if self.tokenizer.eos_token_id is not None:
-                stop_tokens = [self.tokenizer.eos_token_id]
-
-            generated = self.model.generate(
-                input_ids,
-                max_new_tokens=max_new_tokens,
-                temperature=temperature,
-                stop_tokens=stop_tokens,
-            )
-            output_ids = generated[0, input_ids.shape[1] :].tolist()
-            return self.tokenizer.decode(output_ids, skip_special_tokens=False)
-
-        # Fallback: manual generation
-        return self._manual_generate(input_ids, max_new_tokens, temperature)
-
-    def _manual_generate(
-        self,
-        input_ids: mx.array,
-        max_new_tokens: int,
-        temperature: float,
-    ) -> str:
-        """Manual autoregressive generation."""
-        generated = input_ids
-
-        for _ in range(max_new_tokens):
-            output = self.model(generated)
-
-            # Handle different output types
-            if hasattr(output, "logits"):
-                logits = output.logits
-            elif isinstance(output, tuple):
-                logits = output[0]
-            else:
-                logits = output
-
-            # Get last token logits
-            next_logits = logits[0, -1, :]
-
-            # Sample
-            if temperature == 0:
-                next_token = mx.argmax(next_logits, axis=-1, keepdims=True)
-            else:
-                probs = mx.softmax(next_logits / temperature)
-                next_token = mx.random.categorical(mx.log(probs + 1e-10))
-                next_token = mx.expand_dims(next_token, axis=0)
-
-            generated = mx.concatenate([generated, next_token[None, :]], axis=1)
-
-            # Check for EOS
-            if self.tokenizer.eos_token_id and int(next_token[0]) == self.tokenizer.eos_token_id:
-                break
-
-        output_ids = generated[0, input_ids.shape[1] :].tolist()
-        return self.tokenizer.decode(output_ids, skip_special_tokens=False)
+from .adapter import ModelAdapter
+from .config import AblationConfig, ComponentType
+from .models import AblationResult, LayerSweepResult
 
 
 class AblationStudy:
@@ -386,8 +73,6 @@ class AblationStudy:
     @staticmethod
     def _detect_family(model_path: str) -> str:
         """Detect model family from config.json."""
-        import json
-
         config_path = Path(model_path) / "config.json"
         with open(config_path) as f:
             config = json.load(f)
@@ -419,15 +104,15 @@ class AblationStudy:
             return "llama"
 
     @staticmethod
-    def _load_model(model_path: str, family: str):
+    def _load_model(model_path: str, family: str) -> tuple[Any, Any]:
         """Load model based on family using existing from_pretrained methods."""
         import asyncio
 
         from mlx.utils import tree_unflatten
 
         if family == "gemma":
-            from ..models_v2.families.gemma import GemmaConfig, GemmaForCausalLM
-            from ..models_v2.families.gemma.convert import load_hf_config, load_weights
+            from ...models_v2.families.gemma import GemmaConfig, GemmaForCausalLM
+            from ...models_v2.families.gemma.convert import load_hf_config, load_weights
 
             hf_config = load_hf_config(model_path)
             config = GemmaConfig.from_hf_config(hf_config)
@@ -440,11 +125,8 @@ class AblationStudy:
             return model, config
 
         elif family == "llama":
-            import json
-            from pathlib import Path
-
-            from ..inference.loader import DType, HFLoader, StandardWeightConverter
-            from ..models_v2.families.llama import LlamaConfig, LlamaForCausalLM
+            from ...inference.loader import DType, HFLoader, StandardWeightConverter
+            from ...models_v2.families.llama import LlamaConfig, LlamaForCausalLM
 
             # Load config
             with open(Path(model_path) / "config.json") as f:
@@ -454,7 +136,7 @@ class AblationStudy:
             # Create model
             model = LlamaForCausalLM(config)
 
-            # Load weights using HFLoader (handles weight naming correctly)
+            # Load weights using HFLoader
             converter = StandardWeightConverter(tie_word_embeddings=config.tie_word_embeddings)
             loaded = HFLoader.load_weights(Path(model_path), DType.BFLOAT16, converter)
             nested = HFLoader.build_nested_weights(loaded)
@@ -463,14 +145,13 @@ class AblationStudy:
             return model, config
 
         elif family == "granite":
-            from ..models_v2.families.granite import GraniteConfig, GraniteForCausalLM
-            from ..models_v2.families.granite.convert import load_hf_config, load_weights
+            from ...models_v2.families.granite import GraniteConfig, GraniteForCausalLM
+            from ...models_v2.families.granite.convert import load_hf_config, load_weights
 
             hf_config = load_hf_config(model_path)
             config = GraniteConfig.from_hf_config(hf_config)
             model = GraniteForCausalLM(config)
             raw_weights = load_weights(model_path)
-            # Only sanitize if model has the method
             if hasattr(model, "sanitize"):
                 raw_weights = model.sanitize(raw_weights)
             nested_weights = tree_unflatten(list(raw_weights.items()))
@@ -479,44 +160,31 @@ class AblationStudy:
             return model, config
 
         elif family == "jamba":
-            from ..models_v2.families.jamba import JambaForCausalLM
+            from ...models_v2.families.jamba import JambaForCausalLM
 
-            # Use the existing from_pretrained_async
             model = asyncio.run(JambaForCausalLM.from_pretrained_async(model_path))
             mx.eval(model.parameters())
             return model, model.config
 
         elif family == "starcoder2":
-            from ..models_v2.families.starcoder2 import StarCoder2ForCausalLM
+            from ...models_v2.families.starcoder2 import StarCoder2ForCausalLM
 
-            # Use the existing from_pretrained_async
             model = asyncio.run(StarCoder2ForCausalLM.from_pretrained_async(model_path))
             mx.eval(model.parameters())
             return model, model.config
 
         elif family == "qwen3":
-            import json
-            from pathlib import Path
-
             from mlx.utils import tree_unflatten
 
-            from ..inference.loader import DType, HFLoader, StandardWeightConverter
-            from ..models_v2.families.qwen3 import Qwen3Config, Qwen3ForCausalLM
+            from ...inference.loader import DType, HFLoader, StandardWeightConverter
+            from ...models_v2.families.qwen3 import Qwen3Config, Qwen3ForCausalLM
 
-            # Load config
             with open(Path(model_path) / "config.json") as f:
                 config_data = json.load(f)
             config = Qwen3Config.from_hf_config(config_data)
-
-            # Create model
             model = Qwen3ForCausalLM(config)
-
-            # Load weights
             converter = StandardWeightConverter(tie_word_embeddings=config.tie_word_embeddings)
             loaded = HFLoader.load_weights(Path(model_path), DType.BFLOAT16, converter)
-
-            # Sanitize weights (Qwen3 has specific mapping)
-            # LoadedWeights.weights is the actual dict
             sanitized = model.sanitize(
                 loaded.weights, tie_word_embeddings=config.tie_word_embeddings
             )
@@ -526,26 +194,16 @@ class AblationStudy:
             return model, config
 
         elif family == "gpt_oss":
-            import json
-            from pathlib import Path
-
             from mlx.utils import tree_unflatten
 
-            from ..inference.loader import HFLoader
-            from ..models_v2.families.gpt_oss import GptOssConfig, GptOssForCausalLM
+            from ...inference.loader import HFLoader
+            from ...models_v2.families.gpt_oss import GptOssConfig, GptOssForCausalLM
 
-            # Load config
             with open(Path(model_path) / "config.json") as f:
                 config_data = json.load(f)
             config = GptOssConfig.from_hf_config(config_data)
-
-            # Create model
             model = GptOssForCausalLM(config)
-
-            # Load weights
             raw_weights = HFLoader.load_raw_weights(Path(model_path))
-
-            # Sanitize weights (GPT-OSS has specific MoE weight mapping)
             sanitized = model.sanitize(raw_weights, tie_word_embeddings=config.tie_word_embeddings)
             nested = tree_unflatten(list(sanitized.items()))
             model.update(nested)
@@ -554,7 +212,8 @@ class AblationStudy:
 
         else:
             raise ValueError(
-                f"Unsupported model family: {family}. Supported: gemma, llama, granite, jamba, starcoder2, qwen3, gpt_oss"
+                f"Unsupported model family: {family}. "
+                f"Supported: gemma, llama, granite, jamba, starcoder2, qwen3, gpt_oss"
             )
 
     def ablate_and_generate(
@@ -680,7 +339,7 @@ class AblationStudy:
 
     def run_multi_task_sweep(
         self,
-        tasks: list[tuple[str, str, Callable[[str], bool]]],  # (name, prompt, criterion)
+        tasks: list[tuple[str, str, Callable[[str], bool]]],
         layers: list[int] | None = None,
         component: ComponentType = ComponentType.MLP,
         config: AblationConfig | None = None,
@@ -730,7 +389,8 @@ class AblationStudy:
             changed_str = "YES ***" if r.criterion_changed else "no"
             coherent_str = "yes" if r.output_coherent else "NO"
             print(
-                f"{r.layer:<8} {str(r.original_criterion):<10} {str(r.ablated_criterion):<10} {changed_str:<10} {coherent_str}"
+                f"{r.layer:<8} {str(r.original_criterion):<10} "
+                f"{str(r.ablated_criterion):<10} {changed_str:<10} {coherent_str}"
             )
 
         print(f"\nCausal layers: {result.causal_layers or 'None'}")
@@ -740,7 +400,6 @@ class AblationStudy:
         if not results:
             return
 
-        # Get all layers from first result
         first_result = next(iter(results.values()))
         layers = [r.layer for r in first_result.results]
         task_names = list(results.keys())
@@ -783,7 +442,8 @@ class AblationStudy:
                 universal.append(layer)
 
         print(
-            f"\nUniversal decision layers (affect {len(task_names) - 1}+ tasks): {universal or 'None'}"
+            f"\nUniversal decision layers (affect {len(task_names) - 1}+ tasks): "
+            f"{universal or 'None'}"
         )
 
     def save_results(self, results: dict[str, LayerSweepResult], path: str | Path):

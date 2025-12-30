@@ -1,306 +1,35 @@
 """
-Async-native model analyzer with pydantic models.
+Core ModelAnalyzer class for async-native model introspection.
 
-Provides a clean API for introspecting models:
-- Load models from HuggingFace
-- Run logit lens analysis
-- Track token evolution across layers
-
-Example:
-    >>> from chuk_lazarus.introspection import ModelAnalyzer, AnalysisConfig
-    >>>
-    >>> async with ModelAnalyzer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0") as analyzer:
-    ...     result = await analyzer.analyze("The capital of France is")
-    ...     print(result.final_prediction)
-    ...     for layer in result.layer_predictions:
-    ...         print(f"Layer {layer.layer_idx}: {layer.top_token}")
+This module provides the main ModelAnalyzer class for analyzing
+model behavior through logit lens and token tracking.
 """
 
 from __future__ import annotations
 
 import asyncio
+import math
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from enum import Enum
 from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
-from pydantic import BaseModel, ConfigDict, Field
 
-from .hooks import CaptureConfig, ModelHooks, PositionSelection
-from .logit_lens import LogitLens
-
-
-class LayerStrategy(str, Enum):
-    """Strategy for selecting which layers to capture."""
-
-    ALL = "all"
-    EVENLY_SPACED = "evenly_spaced"
-    FIRST_LAST = "first_last"
-    CUSTOM = "custom"
-
-
-class TrackStrategy(str, Enum):
-    """Strategy for automatic token tracking."""
-
-    MANUAL = "manual"  # Use track_tokens list explicitly
-    TOP_K_FINAL = "top_k_final"  # Track top-k tokens from final layer
-    EMERGENT = "emergent"  # Find tokens that spike mid-network
-    TOOL_TOKENS = "tool_tokens"  # Track common tool-calling tokens
-
-
-class AnalysisConfig(BaseModel):
-    """Configuration for model analysis."""
-
-    layer_strategy: LayerStrategy = Field(
-        default=LayerStrategy.EVENLY_SPACED,
-        description="How to select layers for capture",
-    )
-    layer_step: int = Field(
-        default=4,
-        ge=1,
-        description="Step size for evenly spaced layer capture",
-    )
-    custom_layers: list[int] | None = Field(
-        default=None,
-        description="Specific layers to capture when using CUSTOM strategy",
-    )
-    position_strategy: PositionSelection = Field(
-        default=PositionSelection.LAST,
-        description="Which sequence positions to capture",
-    )
-    top_k: int = Field(
-        default=5,
-        ge=1,
-        le=100,
-        description="Number of top predictions to return",
-    )
-    track_tokens: list[str] = Field(
-        default_factory=list,
-        description="Tokens to track across layers (when using MANUAL strategy)",
-    )
-    track_strategy: TrackStrategy = Field(
-        default=TrackStrategy.MANUAL,
-        description="Strategy for automatic token tracking",
-    )
-    compute_entropy: bool = Field(
-        default=True,
-        description="Compute entropy for each layer's distribution",
-    )
-    compute_transitions: bool = Field(
-        default=True,
-        description="Compute KL/JS divergence between consecutive layers",
-    )
-    compute_residual_decomposition: bool = Field(
-        default=False,
-        description="Decompose residual stream into attention vs FFN contributions (requires ALL layers)",
-    )
-
-    model_config = ConfigDict(use_enum_values=False)
-
-
-class TokenPrediction(BaseModel):
-    """A single token prediction with probability."""
-
-    token: str = Field(description="Decoded token string")
-    token_id: int = Field(description="Token ID in vocabulary")
-    probability: float = Field(ge=0, le=1, description="Probability")
-    rank: int = Field(ge=1, description="Rank among all tokens")
-
-    model_config = ConfigDict(frozen=True)
-
-
-class LayerPredictionResult(BaseModel):
-    """Predictions at a single layer."""
-
-    layer_idx: int = Field(ge=0, description="Layer index")
-    predictions: list[TokenPrediction] = Field(description="Top-k predictions")
-    entropy: float = Field(default=0.0, description="Shannon entropy of the full distribution")
-    entropy_normalized: float = Field(
-        default=0.0, description="Entropy normalized by max entropy (0=certain, 1=uniform)"
-    )
-
-    @property
-    def top_token(self) -> str:
-        """Get the top predicted token."""
-        return self.predictions[0].token if self.predictions else ""
-
-    @property
-    def top_probability(self) -> float:
-        """Get the probability of top token."""
-        return self.predictions[0].probability if self.predictions else 0.0
-
-    @property
-    def is_confident(self) -> bool:
-        """Check if the layer is confident (normalized entropy < 0.3)."""
-        return self.entropy_normalized < 0.3
-
-    model_config = ConfigDict(frozen=True)
-
-
-class LayerTransition(BaseModel):
-    """Metrics for the transition between two consecutive layers."""
-
-    from_layer: int = Field(ge=0, description="Source layer index")
-    to_layer: int = Field(ge=0, description="Target layer index")
-    kl_divergence: float = Field(ge=0, description="KL divergence from source to target")
-    js_divergence: float = Field(ge=0, description="Jensen-Shannon divergence (symmetric)")
-    top_token_changed: bool = Field(description="Whether the top prediction changed")
-    entropy_delta: float = Field(description="Change in entropy (negative = more confident)")
-
-    @property
-    def is_significant(self) -> bool:
-        """Check if this transition shows significant computation (JS > 0.1)."""
-        return self.js_divergence > 0.1
-
-    model_config = ConfigDict(frozen=True)
-
-
-class ResidualContribution(BaseModel):
-    """Contribution of a component (attention or FFN) to the residual stream.
-
-    Computed by measuring how much each component changes the probability
-    distribution when its contribution is ablated.
-    """
-
-    layer_idx: int = Field(ge=0, description="Layer index")
-    attention_norm: float = Field(ge=0, description="L2 norm of attention contribution")
-    ffn_norm: float = Field(ge=0, description="L2 norm of FFN contribution")
-    total_norm: float = Field(ge=0, description="L2 norm of total layer contribution")
-    attention_fraction: float = Field(
-        ge=0, le=1, description="Attention's fraction of total contribution"
-    )
-    ffn_fraction: float = Field(ge=0, le=1, description="FFN's fraction of total contribution")
-
-    @property
-    def dominant_component(self) -> str:
-        """Which component contributes more: 'attention' or 'ffn'."""
-        return "attention" if self.attention_fraction > self.ffn_fraction else "ffn"
-
-    model_config = ConfigDict(frozen=True)
-
-
-class TokenEvolutionResult(BaseModel):
-    """Evolution of a specific token's probability across layers."""
-
-    token: str = Field(description="The tracked token")
-    token_id: int = Field(description="Token ID")
-    layer_probabilities: dict[int, float] = Field(description="Probability at each captured layer")
-    layer_ranks: dict[int, int | None] = Field(
-        description="Rank at each layer (None if not in top-100)"
-    )
-    emergence_layer: int | None = Field(
-        default=None,
-        description="First layer where token becomes top-1",
-    )
-
-    model_config = ConfigDict(frozen=True)
-
-
-class AnalysisResult(BaseModel):
-    """Complete analysis result for a prompt."""
-
-    prompt: str = Field(description="The analyzed prompt")
-    tokens: list[str] = Field(description="Tokenized prompt")
-    num_layers: int = Field(ge=1, description="Total layers in model")
-    captured_layers: list[int] = Field(description="Layers that were captured")
-    final_prediction: list[TokenPrediction] = Field(
-        description="Top-k predictions from final layer"
-    )
-    layer_predictions: list[LayerPredictionResult] = Field(
-        description="Predictions at each captured layer"
-    )
-    layer_transitions: list[LayerTransition] = Field(
-        default_factory=list,
-        description="Transition metrics between consecutive captured layers",
-    )
-    token_evolutions: list[TokenEvolutionResult] = Field(
-        default_factory=list,
-        description="Evolution of tracked tokens",
-    )
-    residual_contributions: list[ResidualContribution] = Field(
-        default_factory=list,
-        description="Residual stream decomposition (attention vs FFN) per layer",
-    )
-
-    @property
-    def predicted_token(self) -> str:
-        """Get the model's top prediction."""
-        return self.final_prediction[0].token if self.final_prediction else ""
-
-    @property
-    def predicted_probability(self) -> float:
-        """Get probability of top prediction."""
-        return self.final_prediction[0].probability if self.final_prediction else 0.0
-
-    @property
-    def decision_layer(self) -> int | None:
-        """Find the layer where the final prediction first becomes confident.
-
-        Returns the first layer where:
-        1. The top token matches the final prediction
-        2. The layer is confident (normalized entropy < 0.3)
-
-        Returns None if the model never becomes confident.
-        """
-        final_token = self.predicted_token
-        for pred in self.layer_predictions:
-            if pred.top_token == final_token and pred.is_confident:
-                return pred.layer_idx
-        return None
-
-    @property
-    def max_kl_transition(self) -> LayerTransition | None:
-        """Find the transition with highest KL divergence (where computation happens)."""
-        if not self.layer_transitions:
-            return None
-        return max(self.layer_transitions, key=lambda t: t.kl_divergence)
-
-    @property
-    def significant_transitions(self) -> list[LayerTransition]:
-        """Get all transitions with JS divergence > 0.1."""
-        return [t for t in self.layer_transitions if t.is_significant]
-
-    @property
-    def attention_dominant_layers(self) -> list[int]:
-        """Layers where attention contributes more than FFN."""
-        return [
-            c.layer_idx for c in self.residual_contributions if c.dominant_component == "attention"
-        ]
-
-    @property
-    def ffn_dominant_layers(self) -> list[int]:
-        """Layers where FFN contributes more than attention."""
-        return [c.layer_idx for c in self.residual_contributions if c.dominant_component == "ffn"]
-
-    @property
-    def max_attention_layer(self) -> int | None:
-        """Layer with highest attention contribution."""
-        if not self.residual_contributions:
-            return None
-        return max(self.residual_contributions, key=lambda c: c.attention_norm).layer_idx
-
-    @property
-    def max_ffn_layer(self) -> int | None:
-        """Layer with highest FFN contribution."""
-        if not self.residual_contributions:
-            return None
-        return max(self.residual_contributions, key=lambda c: c.ffn_norm).layer_idx
-
-    model_config = ConfigDict(frozen=True)
-
-
-class ModelInfo(BaseModel):
-    """Information about a loaded model."""
-
-    model_id: str = Field(description="Model identifier")
-    num_layers: int = Field(ge=1, description="Number of layers")
-    hidden_size: int = Field(ge=1, description="Hidden dimension size")
-    vocab_size: int = Field(ge=1, description="Vocabulary size")
-    has_tied_embeddings: bool = Field(description="Whether embeddings are tied")
-
-    model_config = ConfigDict(frozen=True)
+from ..hooks import CaptureConfig, ModelHooks
+from ..logit_lens import LogitLens
+from .config import AnalysisConfig, LayerStrategy, TrackStrategy
+from .loader import _load_model_sync
+from .models import (
+    AnalysisResult,
+    LayerPredictionResult,
+    LayerTransition,
+    ModelInfo,
+    ResidualContribution,
+    TokenEvolutionResult,
+    TokenPrediction,
+)
+from .utils import compute_entropy, compute_js_divergence, compute_kl_divergence
 
 
 class ModelAnalyzer:
@@ -376,12 +105,7 @@ class ModelAnalyzer:
             ModelAnalyzer instance
 
         Example:
-            >>> # Any model works - family auto-detected
             >>> async with ModelAnalyzer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0") as analyzer:
-            ...     result = await analyzer.analyze("Hello")
-
-            >>> # Gemma models automatically get embedding_scale from config
-            >>> async with ModelAnalyzer.from_pretrained("mlx-community/gemma-3-270m-it-bf16") as analyzer:
             ...     result = await analyzer.analyze("Hello")
         """
         # Load model in thread pool to not block
@@ -494,8 +218,6 @@ class ModelAnalyzer:
             Analyses run sequentially to avoid MLX Metal backend
             threading issues when multiple GPU operations run concurrently.
         """
-        # Run analyses sequentially to avoid MLX Metal thread-safety issues
-        # (concurrent GPU operations from multiple threads can cause segfaults)
         results = []
         for prompt in prompts:
             result = await self.analyze(prompt, config)
@@ -508,8 +230,6 @@ class ModelAnalyzer:
         config: AnalysisConfig,
     ) -> AnalysisResult:
         """Synchronous analysis implementation."""
-        import math
-
         # Tokenize
         input_ids = mx.array(self._tokenizer.encode(prompt))[None, :]
         tokens = [self._tokenizer.decode([tid]) for tid in input_ids[0].tolist()]
@@ -519,7 +239,6 @@ class ModelAnalyzer:
         layers_to_capture = self._get_layers_to_capture(num_layers, config)
 
         # Setup hooks with proper enum-based config
-        # Pass both embedding_scale and config for maximum compatibility
         hooks = ModelHooks(
             self._model, embedding_scale=self._embedding_scale, model_config=self._config
         )
@@ -561,17 +280,15 @@ class ModelAnalyzer:
             entropy = 0.0
             entropy_normalized = 0.0
             if config.compute_entropy:
-                # Get layer logits via hooks and compute full distribution
                 layer_logits = hooks.get_layer_logits(pred.layer_idx, normalize=True)
                 if layer_logits is not None:
-                    # Get logits for last position
                     if layer_logits.ndim == 3:
                         pos_logits = layer_logits[0, -1, :]
                     else:
                         pos_logits = layer_logits[-1, :]
                     probs = mx.softmax(pos_logits)
                     layer_probs_cache[pred.layer_idx] = probs
-                    entropy = self._compute_entropy(probs)
+                    entropy = compute_entropy(probs)
                     entropy_normalized = entropy / max_entropy if max_entropy > 0 else 0.0
 
             layer_predictions.append(
@@ -593,13 +310,12 @@ class ModelAnalyzer:
                 from_layer = from_pred.layer_idx
                 to_layer = to_pred.layer_idx
 
-                # Get probability distributions
                 from_probs = layer_probs_cache.get(from_layer)
                 to_probs = layer_probs_cache.get(to_layer)
 
                 if from_probs is not None and to_probs is not None:
-                    kl_div = self._compute_kl_divergence(from_probs, to_probs)
-                    js_div = self._compute_js_divergence(from_probs, to_probs)
+                    kl_div = compute_kl_divergence(from_probs, to_probs)
+                    js_div = compute_js_divergence(from_probs, to_probs)
                 else:
                     kl_div = 0.0
                     js_div = 0.0
@@ -653,44 +369,12 @@ class ModelAnalyzer:
             residual_contributions=residual_contributions,
         )
 
-    def _compute_entropy(self, probs: mx.array) -> float:
-        """Compute Shannon entropy of a probability distribution."""
-        # Avoid log(0) by clipping
-        probs_clipped = mx.clip(probs, 1e-10, 1.0)
-        entropy = -mx.sum(probs_clipped * mx.log(probs_clipped))
-        return float(entropy)
-
-    def _compute_kl_divergence(self, p: mx.array, q: mx.array) -> float:
-        """Compute KL divergence D(P || Q)."""
-        # Clip to avoid log(0) and division by zero
-        p_clipped = mx.clip(p, 1e-10, 1.0)
-        q_clipped = mx.clip(q, 1e-10, 1.0)
-        kl = mx.sum(p_clipped * mx.log(p_clipped / q_clipped))
-        return float(mx.maximum(kl, mx.array(0.0)))  # KL should be >= 0
-
-    def _compute_js_divergence(self, p: mx.array, q: mx.array) -> float:
-        """Compute Jensen-Shannon divergence (symmetric, bounded [0, ln(2)])."""
-        m = (p + q) / 2
-        js = 0.5 * self._compute_kl_divergence(p, m) + 0.5 * self._compute_kl_divergence(q, m)
-        return js
-
     def _compute_residual_decomposition(
         self,
         hooks: ModelHooks,
         captured_layers: list[int],
     ) -> list[ResidualContribution]:
-        """Compute residual stream decomposition using hidden state differences.
-
-        This computes the contribution of each layer to the residual stream by
-        measuring the L2 norm of the hidden state change. For a true attention vs FFN
-        decomposition, we would need to capture intermediate states within each layer.
-
-        Since standard transformer layers are: h' = h + attn(norm(h)) + ffn(norm(h + attn))
-        We approximate using the layer-wise contribution norm.
-
-        For models that expose attention/FFN outputs separately (via capture_attention_output
-        and capture_ffn_output in CaptureConfig), we use those directly.
-        """
+        """Compute residual stream decomposition using hidden state differences."""
         contributions = []
 
         # Get embeddings as the "layer -1" state
@@ -700,7 +384,7 @@ class ModelAnalyzer:
 
         # Get last position hidden state from embeddings
         if embeddings.ndim == 3:
-            prev_hidden = embeddings[0, -1, :]  # [hidden_size]
+            prev_hidden = embeddings[0, -1, :]
         else:
             prev_hidden = embeddings[-1, :]
 
@@ -709,7 +393,6 @@ class ModelAnalyzer:
             if hidden is None:
                 continue
 
-            # Get last position hidden state
             if hidden.ndim == 3:
                 curr_hidden = hidden[0, -1, :]
             else:
@@ -724,7 +407,6 @@ class ModelAnalyzer:
             ffn_output = hooks.state.ffn_outputs.get(layer_idx)
 
             if attn_output is not None and ffn_output is not None:
-                # We have separate outputs - compute their norms
                 if attn_output.ndim == 3:
                     attn_vec = attn_output[0, -1, :]
                 else:
@@ -739,12 +421,10 @@ class ModelAnalyzer:
                 ffn_norm = float(mx.sqrt(mx.sum(ffn_vec * ffn_vec)))
             else:
                 # Approximate: split total contribution equally
-                # In reality, attention and FFN contribute differently,
-                # but without intermediate captures, we can only report total
                 attn_norm = total_norm / 2.0
                 ffn_norm = total_norm / 2.0
 
-            # Compute fractions (handle zero case)
+            # Compute fractions
             total = attn_norm + ffn_norm
             if total > 0:
                 attn_fraction = attn_norm / total
@@ -764,7 +444,6 @@ class ModelAnalyzer:
                 )
             )
 
-            # Update prev_hidden for next iteration
             prev_hidden = curr_hidden
 
         return contributions
@@ -777,14 +456,12 @@ class ModelAnalyzer:
             return config.track_tokens
 
         if config.track_strategy == TrackStrategy.TOP_K_FINAL:
-            # Track top-k tokens from final layer prediction
             if layer_predictions:
                 final_pred = layer_predictions[-1]
                 return [p.token for p in final_pred.predictions]
             return []
 
         if config.track_strategy == TrackStrategy.TOOL_TOKENS:
-            # Common tool-calling tokens to track
             return [
                 "{",
                 "get_",
@@ -798,9 +475,6 @@ class ModelAnalyzer:
             ]
 
         if config.track_strategy == TrackStrategy.EMERGENT:
-            # Find tokens that appear in middle layers but not early
-            # This requires more sophisticated analysis
-            # For now, combine top-k final with tool tokens
             tokens = set()
             if layer_predictions:
                 final_pred = layer_predictions[-1]
@@ -876,78 +550,6 @@ class ModelAnalyzer:
         if hasattr(self._tokenizer, "vocab_size"):
             return self._tokenizer.vocab_size
         return len(self._tokenizer)
-
-
-def _is_quantized_model(config: dict, model_id: str) -> bool:
-    """Check if a model is quantized based on config or model ID."""
-    # Check config for quantization markers
-    if "quantization_config" in config:
-        return True
-
-    # Check model ID for common quantization markers
-    model_id_lower = model_id.lower()
-    quant_markers = ["-4bit", "-8bit", "-q4", "-q8", "gguf", "gptq", "awq"]
-    return any(marker in model_id_lower for marker in quant_markers)
-
-
-def _load_model_sync(model_id: str) -> tuple[nn.Module, Any, Any]:
-    """
-    Load model synchronously using the model families registry.
-
-    Only uses our native loader via the family registry.
-    Unsupported models will raise an error.
-
-    Returns:
-        (model, tokenizer, config) tuple
-    """
-    import json
-
-    from ..inference.loader import DType, HFLoader
-    from ..models_v2.families.registry import detect_model_family, get_family_info
-
-    # Download model
-    result = HFLoader.download(model_id)
-    model_path = result.model_path
-
-    # Load config to detect model family
-    config_path = model_path / "config.json"
-    with open(config_path) as f:
-        config_data = json.load(f)
-
-    # Detect model family from config
-    family_type = detect_model_family(config_data)
-
-    if family_type is None:
-        model_type = config_data.get("model_type", "unknown")
-        archs = config_data.get("architectures", [])
-        raise ValueError(
-            f"Unsupported model family. model_type={model_type}, architectures={archs}. "
-            f"Model must be registered in the families registry."
-        )
-
-    family_info = get_family_info(family_type)
-    if family_info is None:
-        raise ValueError(f"No family info registered for {family_type}")
-
-    print(f"Using native loader for {family_type.value}")
-
-    # Get config and model classes from registry
-    config_class = family_info.config_class
-    model_class = family_info.model_class
-
-    # Create config from HuggingFace config dict
-    config = config_class.from_hf_config(config_data)
-
-    # Create model
-    model = model_class(config)
-
-    # Apply weights using unified loader
-    HFLoader.apply_weights_to_model(model, model_path, config, dtype=DType.BFLOAT16)
-
-    # Load tokenizer
-    tokenizer = HFLoader.load_tokenizer(model_path)
-
-    return model, tokenizer, config
 
 
 # Convenience function for simple usage

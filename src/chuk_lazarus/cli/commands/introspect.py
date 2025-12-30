@@ -120,6 +120,7 @@ def introspect_analyze(args):
     steer_config = None
     if getattr(args, "steer", None):
         import numpy as np
+
         steer_parts = args.steer.split(":")
         if len(steer_parts) != 2:
             print("Error: --steer format should be 'direction.npz:coefficient'")
@@ -165,6 +166,7 @@ def introspect_analyze(args):
             steering_wrapper = None
             if steer_config is not None:
                 import mlx.core as mx
+
                 from ...introspection.steering import SteeringHook
 
                 steer_layer = steer_config["layer"]
@@ -173,7 +175,9 @@ def introspect_analyze(args):
 
                 pos_label = steer_config.get("positive", "positive")
                 neg_label = steer_config.get("negative", "negative")
-                direction_str = f"{neg_label}→{pos_label}" if steer_coef > 0 else f"{pos_label}→{neg_label}"
+                direction_str = (
+                    f"{neg_label}→{pos_label}" if steer_coef > 0 else f"{pos_label}→{neg_label}"
+                )
 
                 print(f"\n  Steering: {steer_config['file']}")
                 print(f"    Layer: {steer_layer}")
@@ -197,7 +201,13 @@ def introspect_analyze(args):
                         def __init__(self, layer, hook):
                             self._wrapped = layer
                             self._hook = hook
-                            for attr in ["mlp", "attn", "self_attn", "input_layernorm", "post_attention_layernorm"]:
+                            for attr in [
+                                "mlp",
+                                "attn",
+                                "self_attn",
+                                "input_layernorm",
+                                "post_attention_layernorm",
+                            ]:
                                 if hasattr(layer, attr):
                                     setattr(self, attr, getattr(layer, attr))
 
@@ -541,6 +551,15 @@ def introspect_ablate(args):
 
     from ...introspection import AblationConfig, AblationStudy, ComponentType
 
+    # Validate arguments: need either --prompt+--criterion OR --prompts
+    prompts_arg = getattr(args, "prompts", None)
+    if not prompts_arg and not args.prompt:
+        print("Error: Either --prompt/-p (with --criterion/-c) or --prompts is required")
+        return
+    if args.prompt and not args.criterion and not prompts_arg:
+        print("Error: --criterion/-c is required when using --prompt/-p")
+        return
+
     print(f"Loading model: {args.model}")
     study = AblationStudy.from_pretrained(args.model)
 
@@ -597,7 +616,6 @@ def introspect_ablate(args):
     )
 
     # Handle multiple prompts mode (--prompts "prompt1:expected1|prompt2:expected2")
-    prompts_arg = getattr(args, "prompts", None)
     if prompts_arg:
         prompt_pairs = []
         for item in prompts_arg.split("|"):
@@ -606,14 +624,20 @@ def introspect_ablate(args):
                 prompt, expected = item.rsplit(":", 1)
                 prompt_pairs.append((prompt.strip(), expected.strip()))
             else:
-                # Use the criterion as expected
-                prompt_pairs.append((item, args.criterion))
+                # Prompt without expected value - use criterion if available, else error
+                if args.criterion:
+                    prompt_pairs.append((item, args.criterion))
+                else:
+                    print(
+                        f"Error: Prompt '{item}' has no expected value (use 'prompt:expected' format)"
+                    )
+                    return
 
         verbose = getattr(args, "verbose", False)
 
-        print(f"\n{'='*70}")
-        print(f"MULTI-PROMPT ABLATION TEST")
-        print(f"{'='*70}")
+        print(f"\n{'=' * 70}")
+        print("MULTI-PROMPT ABLATION TEST")
+        print(f"{'=' * 70}")
 
         # Store full outputs for verbose mode
         all_outputs: dict[str, dict[str, tuple[str, bool]]] = {}
@@ -640,7 +664,7 @@ def introspect_ablate(args):
 
         if multi_mode:
             # Single test with all layers together
-            layer_str = ",".join(str(l) for l in layers)
+            layer_str = ",".join(str(layer) for layer in layers)
             row = f"L{layer_str:<19}"[:20]
             all_outputs[f"L{layer_str}"] = {}
             for prompt, expected in prompt_pairs:
@@ -667,9 +691,9 @@ def introspect_ablate(args):
 
         # Verbose output - show full generations
         if verbose:
-            print(f"\n{'='*70}")
+            print(f"\n{'=' * 70}")
             print("FULL OUTPUTS")
-            print(f"{'='*70}")
+            print(f"{'=' * 70}")
             for prompt, expected in prompt_pairs:
                 print(f"\n>>> Prompt: {prompt!r} (expected: {expected})")
                 print("-" * 50)
@@ -705,11 +729,11 @@ def introspect_ablate(args):
         ablated = study.ablate_and_generate(args.prompt, layers=layers, config=config)
         ablated_passes = criterion(ablated)
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Prompt: {args.prompt}")
         print(f"Criterion: {args.criterion}")
         print(f"Layers ablated: {layers}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         print(f"\nOriginal output ({['FAIL', 'PASS'][original_passes]}):")
         print(f"  {original.strip()[:200]}")
         print(f"\nAblated output ({['FAIL', 'PASS'][ablated_passes]}):")
@@ -722,7 +746,7 @@ def introspect_ablate(args):
         elif original_passes and ablated_passes:
             print(f"\n=> NOT CAUSAL: Ablating {layers} doesn't affect outcome")
         else:
-            print(f"\n=> BASELINE FAILS: Original doesn't pass criterion")
+            print("\n=> BASELINE FAILS: Original doesn't pass criterion")
 
     else:
         # Sweep mode: test each layer independently
@@ -2487,11 +2511,11 @@ def introspect_probe(args):
         class_b_mean = X_best[y == 0].mean(axis=0)
         direction = class_a_mean - class_b_mean
         direction = direction / np.linalg.norm(direction)  # Normalize
-        print(f"\nDirection method: difference of means (normalized)")
+        print("\nDirection method: difference of means (normalized)")
     else:
         # Logistic regression weights
         direction = final_probe.coef_[0]
-        print(f"\nDirection method: logistic regression weights")
+        print("\nDirection method: logistic regression weights")
 
     direction_norm = float(np.linalg.norm(direction))
 
@@ -2499,7 +2523,7 @@ def introspect_probe(args):
     projections = X_best @ (direction / np.linalg.norm(direction))
     class_a_proj = projections[y == 1]
     class_b_proj = projections[y == 0]
-    print(f"\nProjection statistics:")
+    print("\nProjection statistics:")
     print(f"  {args.label_a}: {class_a_proj.mean():+.2f} ± {class_a_proj.std():.2f}")
     print(f"  {args.label_b}: {class_b_proj.mean():+.2f} ± {class_b_proj.std():.2f}")
     separation = abs(class_a_proj.mean() - class_b_proj.mean())
@@ -2606,7 +2630,7 @@ def introspect_neurons(args):
 
     # Parse labels if provided
     if args.labels:
-        labels = [l.strip() for l in args.labels.split("|")]
+        labels = [lbl.strip() for lbl in args.labels.split("|")]
         if len(labels) != len(prompts):
             print(f"Warning: {len(labels)} labels for {len(prompts)} prompts, ignoring labels")
             labels = None
@@ -2648,11 +2672,13 @@ def introspect_neurons(args):
     all_activations = []
     for prompt in prompts:
         hooks = ModelHooks(model, model_config=config)
-        hooks.configure(CaptureConfig(
-            layers=[layer],
-            capture_hidden_states=True,
-            positions=PositionSelection.LAST,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=[layer],
+                capture_hidden_states=True,
+                positions=PositionSelection.LAST,
+            )
+        )
 
         input_ids = tokenizer.encode(prompt, return_tensors="np")
         hooks.forward(mx.array(input_ids))
@@ -2740,8 +2766,10 @@ def introspect_neurons(args):
             direction = "→ POSITIVE detector" if w > 0 else "→ NEGATIVE detector"
             weight_str = f" (weight: {w:+.3f}) {direction}"
 
-        print(f"Neuron {n:4d}: min={vals.min():+7.1f}, max={vals.max():+7.1f}, "
-              f"mean={vals.mean():+7.1f}, std={vals.std():6.1f}{weight_str}")
+        print(
+            f"Neuron {n:4d}: min={vals.min():+7.1f}, max={vals.max():+7.1f}, "
+            f"mean={vals.mean():+7.1f}, std={vals.std():6.1f}{weight_str}"
+        )
 
     # Correlation with labels if provided
     if labels:
@@ -2751,7 +2779,7 @@ def introspect_neurons(args):
 
         unique_labels = sorted(set(labels))
         for label in unique_labels:
-            mask = np.array([l == label for l in labels])
+            mask = np.array([lbl == label for lbl in labels])
             if mask.sum() > 0:
                 print(f"\n{label}:")
                 for j, n in enumerate(neurons):
@@ -2832,14 +2860,16 @@ def introspect_directions(args):
 
         directions.append(direction)
         names.append(name)
-        metadata.append({
-            "file": str(path),
-            "name": name,
-            "layer": layer,
-            "method": method,
-            "accuracy": accuracy,
-            "dim": len(direction),
-        })
+        metadata.append(
+            {
+                "file": str(path),
+                "name": name,
+                "layer": layer,
+                "method": method,
+                "accuracy": accuracy,
+                "dim": len(direction),
+            }
+        )
 
         acc_str = f", acc={accuracy:.1%}" if accuracy else ""
         print(f"  {name}: layer={layer}, dim={len(direction)}{acc_str}")
@@ -2951,12 +2981,12 @@ def introspect_directions(args):
         print(f"Aligned (|cos| > 0.5): {len(aligned_pairs)}")
 
         if orthogonal_pairs:
-            print(f"\nOrthogonal pairs (independent dimensions):")
+            print("\nOrthogonal pairs (independent dimensions):")
             for a, b, s in sorted(orthogonal_pairs, key=lambda x: abs(x[2])):
                 print(f"  {a} ⊥ {b} (cos = {s:+.3f})")
 
         if aligned_pairs:
-            print(f"\nAligned pairs (potentially redundant):")
+            print("\nAligned pairs (potentially redundant):")
             for a, b, s in sorted(aligned_pairs, key=lambda x: -abs(x[2])):
                 print(f"  {a} ≈ {b} (cos = {s:+.3f})")
 
@@ -2984,7 +3014,9 @@ def introspect_directions(args):
             "pairs": [
                 {"a": a, "b": b, "cosine": s, "orthogonal": abs(s) < threshold}
                 for a, b, s in off_diag
-            ] if off_diag else [],
+            ]
+            if off_diag
+            else [],
         }
         with open(args.output, "w") as f:
             json.dump(output_data, f, indent=2)

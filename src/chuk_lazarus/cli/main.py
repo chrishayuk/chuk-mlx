@@ -1141,14 +1141,12 @@ Examples:
     ablation_parser.add_argument(
         "--prompt",
         "-p",
-        required=True,
-        help="Prompt to test",
+        help="Prompt to test (required unless using --prompts)",
     )
     ablation_parser.add_argument(
         "--criterion",
         "-c",
-        required=True,
-        help="Criterion to check (e.g., 'function_call', 'sorry', 'positive')",
+        help="Criterion to check (e.g., 'function_call', 'sorry', 'positive', or expected text)",
     )
     ablation_parser.add_argument(
         "--component",

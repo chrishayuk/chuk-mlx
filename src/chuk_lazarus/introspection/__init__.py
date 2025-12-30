@@ -6,6 +6,8 @@ This module provides tools for understanding model behavior:
 - Hooks for capturing intermediate activations
 - Attention visualization
 - Logit lens for layer-by-layer prediction analysis
+- Ablation studies for causal circuit discovery
+- Activation steering for behavior modification
 
 Example - Async Analyzer (Recommended):
     >>> from chuk_lazarus.introspection import ModelAnalyzer, AnalysisConfig, LayerStrategy
@@ -43,7 +45,17 @@ Example - Logit Lens:
     >>> lens.print_evolution()  # See predictions at each layer
 """
 
-# Async analyzer (recommended API)
+# Async analyzer (recommended API) - from subpackage
+# Ablation study - from subpackage
+from .ablation import (
+    AblationConfig,
+    AblationResult,
+    AblationStudy,
+    AblationType,
+    ComponentType,
+    LayerSweepResult,
+    ModelAdapter,
+)
 from .analyzer import (
     AnalysisConfig,
     AnalysisResult,
@@ -77,12 +89,36 @@ from .hooks import (
     PositionSelection,
 )
 
+# Layer analysis
+from .layer_analysis import (
+    AttentionResult,
+    ClusterResult,
+    LayerAnalysisResult,
+    LayerAnalyzer,
+    RepresentationResult,
+    analyze_format_sensitivity,
+)
+
 # Logit lens
 from .logit_lens import (
     LayerPrediction,
     LogitLens,
     TokenEvolution,
     run_logit_lens,
+)
+
+# Activation steering - from subpackage
+from .steering import (
+    ActivationSteering,
+    LegacySteeringConfig,
+    SteeredGemmaMLP,
+    SteeringConfig,
+    SteeringHook,
+    SteeringMode,
+    ToolCallingSteering,
+    compare_steering_effects,
+    format_functiongemma_prompt,
+    steer_model,
 )
 
 __all__ = [
@@ -123,6 +159,7 @@ __all__ = [
     "AblationType",
     "ComponentType",
     "LayerSweepResult",
+    "ModelAdapter",
     # Layer analysis
     "LayerAnalyzer",
     "LayerAnalysisResult",
@@ -133,30 +170,12 @@ __all__ = [
     # Activation steering
     "ActivationSteering",
     "SteeringConfig",
+    "SteeringHook",
+    "SteeringMode",
+    "LegacySteeringConfig",
+    "SteeredGemmaMLP",
+    "ToolCallingSteering",
+    "steer_model",
+    "compare_steering_effects",
+    "format_functiongemma_prompt",
 ]
-
-# Ablation study (lazy import to avoid circular deps)
-from .ablation import (
-    AblationConfig,
-    AblationResult,
-    AblationStudy,
-    AblationType,
-    ComponentType,
-    LayerSweepResult,
-)
-
-# Layer analysis
-from .layer_analysis import (
-    AttentionResult,
-    ClusterResult,
-    LayerAnalysisResult,
-    LayerAnalyzer,
-    RepresentationResult,
-    analyze_format_sensitivity,
-)
-
-# Activation steering
-from .steering import (
-    ActivationSteering,
-    SteeringConfig,
-)
