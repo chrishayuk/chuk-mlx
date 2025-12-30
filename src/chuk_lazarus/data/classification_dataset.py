@@ -1,15 +1,16 @@
 """
-Classification dataset for text classification tasks.
+Classification dataset.
 
-Provides a simple, Pydantic-native dataset for loading classification
-data from JSONL files. Supports:
+Supports:
 - Text classification (sentiment, topic, etc.)
+- Numeric feature classification (tabular data)
 - Multi-class and binary classification
 - Train/test/validation splits
 """
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -25,37 +26,31 @@ class ClassificationSample(BaseModel):
 
     model_config = {"frozen": True}
 
-    text: str = Field(description="Input text")
     label: int = Field(description="Class label (integer)")
-    sample_id: str | None = Field(default=None, description="Optional sample ID")
+    text: str | None = Field(default=None, description="Input text (for text classification)")
+    features: list[float] | None = Field(
+        default=None, description="Input features (for tabular data)"
+    )
 
 
 class ClassificationDataset:
     """
-    Dataset for text classification tasks.
+    Dataset for classification tasks.
 
-    Loads data from JSONL files with format:
-        {"text": "...", "label": 0}
-        {"text": "...", "label": 1}
+    Supports both text and numeric features:
 
-    Example:
+    Text classification:
         >>> dataset = ClassificationDataset.from_jsonl("train.jsonl")
-        >>> len(dataset)
-        100
-        >>> dataset[0]
-        ClassificationSample(text="great movie", label=1)
+        >>> dataset[0].text
+        "great movie"
 
-        >>> for sample in dataset:
-        ...     print(sample.text, sample.label)
+    Numeric features:
+        >>> dataset = ClassificationDataset.from_features(X, y)
+        >>> dataset[0].features
+        [0.72, 0.85]
     """
 
     def __init__(self, samples: list[ClassificationSample]) -> None:
-        """
-        Initialize with list of samples.
-
-        Args:
-            samples: List of ClassificationSample objects.
-        """
         self._samples = samples
         self._label_set = frozenset(s.label for s in samples)
 
@@ -97,19 +92,64 @@ class ClassificationDataset:
         cls,
         data: list[tuple[str, int]],
     ) -> ClassificationDataset:
+        """Create dataset from list of (text, label) tuples."""
+        samples = [ClassificationSample(text=text, label=label) for text, label in data]
+        return cls(samples)
+
+    @classmethod
+    def from_features(
+        cls,
+        X: list[list[float]],
+        y: list[int],
+    ) -> ClassificationDataset:
         """
-        Create dataset from list of (text, label) tuples.
+        Create dataset from numeric features.
 
         Args:
-            data: List of (text, label) tuples.
-
-        Returns:
-            ClassificationDataset instance.
+            X: List of feature vectors, e.g., [[0.72, 0.85], [0.30, 0.25], ...]
+            y: List of labels, e.g., [1, 0, ...]
         """
         samples = [
-            ClassificationSample(text=text, label=label, sample_id=f"sample_{i}")
-            for i, (text, label) in enumerate(data)
+            ClassificationSample(features=features, label=label) for features, label in zip(X, y)
         ]
+        return cls(samples)
+
+    @classmethod
+    def from_csv(
+        cls,
+        path: str | Path,
+        feature_columns: list[str],
+        label_column: str,
+        normalize: float | None = None,
+    ) -> ClassificationDataset:
+        """
+        Load dataset from CSV file.
+
+        Args:
+            path: Path to CSV file.
+            feature_columns: Column names to use as features.
+            label_column: Column name for labels.
+            normalize: If set, divide features by this value (e.g., 100.0).
+
+        Example:
+            >>> dataset = ClassificationDataset.from_csv(
+            ...     "exam.csv",
+            ...     feature_columns=["coursework", "exam"],
+            ...     label_column="label",
+            ...     normalize=100.0,
+            ... )
+        """
+        path = Path(path)
+        samples = []
+
+        with open(path) as f:
+            for row in csv.DictReader(f):
+                features = [float(row[col]) for col in feature_columns]
+                if normalize:
+                    features = [x / normalize for x in features]
+                label = int(row[label_column])
+                samples.append(ClassificationSample(features=features, label=label))
+
         return cls(samples)
 
     @property

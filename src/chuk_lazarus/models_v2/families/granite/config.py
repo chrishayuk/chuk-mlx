@@ -15,6 +15,7 @@ from typing import Any, Literal
 from pydantic import Field
 
 from ...core.config import ModelConfig
+from ..constants import ConfigField, DefaultNormEps, DefaultRoPETheta, HFModelType
 
 
 class GraniteConfig(ModelConfig):
@@ -38,7 +39,7 @@ class GraniteConfig(ModelConfig):
         ... )
     """
 
-    model_type: str = "granite"
+    model_type: str = HFModelType.GRANITE.value
 
     # Granite-specific multipliers
     embedding_multiplier: float = Field(
@@ -60,8 +61,8 @@ class GraniteConfig(ModelConfig):
 
     # Standard transformer settings
     hidden_act: str = "silu"
-    rope_theta: float = 10000.0
-    rms_norm_eps: float = 1e-5
+    rope_theta: float = DefaultRoPETheta.LLAMA2.value
+    rms_norm_eps: float = DefaultNormEps.LLAMA.value
 
     # Attention settings
     attention_dropout: float = 0.0
@@ -70,6 +71,48 @@ class GraniteConfig(ModelConfig):
 
     # RoPE scaling
     rope_scaling: dict[str, Any] | None = None
+
+    @classmethod
+    def from_hf_config(
+        cls,
+        hf_config: dict[str, Any],
+        weights: dict[str, Any] | None = None,
+    ) -> GraniteConfig:
+        """
+        Create GraniteConfig from HuggingFace config.json.
+
+        Args:
+            hf_config: Raw config dict from config.json
+            weights: Optional weights dict (unused, for API compatibility)
+
+        Returns:
+            Configured GraniteConfig instance
+        """
+        return cls(
+            model_type=hf_config.get(ConfigField.MODEL_TYPE.value, HFModelType.GRANITE.value),
+            vocab_size=hf_config.get(ConfigField.VOCAB_SIZE.value, 49155),
+            hidden_size=hf_config.get(ConfigField.HIDDEN_SIZE.value, 4096),
+            num_hidden_layers=hf_config.get(ConfigField.NUM_HIDDEN_LAYERS.value, 40),
+            num_attention_heads=hf_config.get(ConfigField.NUM_ATTENTION_HEADS.value, 32),
+            num_key_value_heads=hf_config.get(ConfigField.NUM_KEY_VALUE_HEADS.value, 8),
+            intermediate_size=hf_config.get(ConfigField.INTERMEDIATE_SIZE.value, 12800),
+            max_position_embeddings=hf_config.get(ConfigField.MAX_POSITION_EMBEDDINGS.value, 4096),
+            hidden_act=hf_config.get("hidden_act", "silu"),
+            rope_theta=hf_config.get(ConfigField.ROPE_THETA.value, DefaultRoPETheta.LLAMA2.value),
+            rms_norm_eps=hf_config.get(ConfigField.RMS_NORM_EPS.value, DefaultNormEps.LLAMA.value),
+            tie_word_embeddings=hf_config.get(ConfigField.TIE_WORD_EMBEDDINGS.value, True),
+            # Granite-specific multipliers
+            embedding_multiplier=hf_config.get("embedding_multiplier", 12.0),
+            attention_multiplier=hf_config.get("attention_multiplier", 1.0),
+            residual_multiplier=hf_config.get("residual_multiplier", 1.0),
+            logits_scaling=hf_config.get("logits_scaling", 1.0),
+            # Attention settings
+            attention_dropout=hf_config.get("attention_dropout", 0.0),
+            attention_bias=hf_config.get("attention_bias", False),
+            mlp_bias=hf_config.get("mlp_bias", False),
+            # RoPE scaling
+            rope_scaling=hf_config.get("rope_scaling"),
+        )
 
     @classmethod
     def granite_3_8b(cls) -> GraniteConfig:
@@ -170,7 +213,7 @@ class GraniteHybridConfig(ModelConfig):
         ... )
     """
 
-    model_type: str = "granitemoehybrid"
+    model_type: str = HFModelType.GRANITE_MOE_HYBRID.value
 
     # Layer configuration
     layer_types: list[Literal["mamba", "attention"]] = Field(
@@ -190,8 +233,8 @@ class GraniteHybridConfig(ModelConfig):
 
     # Standard settings
     hidden_act: str = "silu"
-    rope_theta: float = 10000.0
-    rms_norm_eps: float = 1e-5
+    rope_theta: float = DefaultRoPETheta.LLAMA2.value
+    rms_norm_eps: float = DefaultNormEps.LLAMA.value
     normalization_function: str = "rmsnorm"
 
     # Attention settings
@@ -221,6 +264,79 @@ class GraniteHybridConfig(ModelConfig):
 
     # RoPE scaling
     rope_scaling: dict[str, Any] | None = None
+
+    @classmethod
+    def from_hf_config(
+        cls,
+        hf_config: dict[str, Any],
+        weights: dict[str, Any] | None = None,
+    ) -> GraniteHybridConfig:
+        """
+        Create GraniteHybridConfig from HuggingFace config.json.
+
+        Args:
+            hf_config: Raw config dict from config.json
+            weights: Optional weights dict (unused, for API compatibility)
+
+        Returns:
+            Configured GraniteHybridConfig instance
+        """
+        # Extract layer types from config
+        layer_types = hf_config.get("layer_types")
+        if layer_types is None:
+            # Default to all attention if not specified
+            num_layers = hf_config.get("num_hidden_layers", 40)
+            layer_types = ["attention"] * num_layers
+
+        return cls(
+            model_type=hf_config.get(
+                ConfigField.MODEL_TYPE.value, HFModelType.GRANITE_MOE_HYBRID.value
+            ),
+            vocab_size=hf_config.get(ConfigField.VOCAB_SIZE.value, 49160),
+            hidden_size=hf_config.get(ConfigField.HIDDEN_SIZE.value, 1536),
+            num_hidden_layers=hf_config.get(ConfigField.NUM_HIDDEN_LAYERS.value, 40),
+            num_attention_heads=hf_config.get(ConfigField.NUM_ATTENTION_HEADS.value, 12),
+            num_key_value_heads=hf_config.get(ConfigField.NUM_KEY_VALUE_HEADS.value, 4),
+            intermediate_size=hf_config.get(ConfigField.INTERMEDIATE_SIZE.value, 512),
+            max_position_embeddings=hf_config.get(
+                ConfigField.MAX_POSITION_EMBEDDINGS.value, 131072
+            ),
+            tie_word_embeddings=hf_config.get(ConfigField.TIE_WORD_EMBEDDINGS.value, True),
+            # Layer configuration
+            layer_types=layer_types,
+            position_embedding_type=hf_config.get("position_embedding_type", "rope"),
+            # Granite-specific multipliers
+            embedding_multiplier=hf_config.get("embedding_multiplier", 12.0),
+            attention_multiplier=hf_config.get("attention_multiplier", 0.0078125),
+            residual_multiplier=hf_config.get("residual_multiplier", 0.22),
+            logits_scaling=hf_config.get("logits_scaling", 6.0),
+            # Standard settings
+            hidden_act=hf_config.get("hidden_act", "silu"),
+            rope_theta=hf_config.get(ConfigField.ROPE_THETA.value, DefaultRoPETheta.LLAMA2.value),
+            rms_norm_eps=hf_config.get(ConfigField.RMS_NORM_EPS.value, DefaultNormEps.LLAMA.value),
+            normalization_function=hf_config.get("normalization_function", "rmsnorm"),
+            # Attention settings
+            attention_dropout=hf_config.get("attention_dropout", 0.0),
+            attention_bias=hf_config.get("attention_bias", False),
+            # Mamba-2 settings
+            mamba_d_state=hf_config.get(ConfigField.MAMBA_D_STATE.value, 128),
+            mamba_d_conv=hf_config.get(ConfigField.MAMBA_D_CONV.value, 4),
+            mamba_expand=hf_config.get(ConfigField.MAMBA_EXPAND.value, 2),
+            mamba_n_heads=hf_config.get("mamba_n_heads", 48),
+            mamba_d_head=hf_config.get("mamba_d_head", 64),
+            mamba_n_groups=hf_config.get("mamba_n_groups", 1),
+            mamba_chunk_size=hf_config.get("mamba_chunk_size", 256),
+            mamba_conv_bias=hf_config.get("mamba_conv_bias", True),
+            mamba_proj_bias=hf_config.get("mamba_proj_bias", False),
+            # MoE settings
+            num_local_experts=hf_config.get(ConfigField.NUM_EXPERTS.value, 0),
+            num_experts_per_tok=hf_config.get(ConfigField.NUM_EXPERTS_PER_TOK.value, 0),
+            shared_intermediate_size=hf_config.get("shared_intermediate_size", 0),
+            router_aux_loss_coef=hf_config.get("router_aux_loss_coef", 0.0),
+            output_router_logits=hf_config.get("output_router_logits", False),
+            # RoPE scaling
+            rope_scaling=hf_config.get("rope_scaling"),
+        )
 
     @property
     def is_moe(self) -> bool:

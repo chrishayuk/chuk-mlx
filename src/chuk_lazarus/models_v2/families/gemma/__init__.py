@@ -22,6 +22,8 @@ from .convert import (
     GEMMA_WEIGHT_MAP,
     convert_hf_weights,
     convert_mlx_community_weights,
+    load_hf_config,
+    load_weights,
 )
 from .model import (
     FunctionGemmaForCausalLM,
@@ -45,7 +47,9 @@ __all__ = [
     # Full models
     "GemmaForCausalLM",
     "FunctionGemmaForCausalLM",
-    # Weight conversion
+    # Loading utilities
+    "load_hf_config",
+    "load_weights",
     "convert_hf_weights",
     "convert_mlx_community_weights",
     "GEMMA_WEIGHT_MAP",

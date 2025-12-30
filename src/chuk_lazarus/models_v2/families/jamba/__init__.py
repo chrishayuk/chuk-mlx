@@ -18,7 +18,7 @@ Reference: https://huggingface.co/ai21labs/Jamba-v0.1
 """
 
 from .config import JambaConfig
-from .convert import JAMBA_WEIGHT_MAP, convert_hf_weights
+from .convert import JAMBA_WEIGHT_MAP, convert_hf_weights, load_hf_config, load_weights
 from .model import JambaAttentionBlock, JambaForCausalLM, JambaMambaBlock, JambaModel
 
 __all__ = [
@@ -29,4 +29,6 @@ __all__ = [
     "JambaAttentionBlock",
     "convert_hf_weights",
     "JAMBA_WEIGHT_MAP",
+    "load_hf_config",
+    "load_weights",
 ]

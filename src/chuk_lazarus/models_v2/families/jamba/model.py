@@ -23,7 +23,7 @@ from ...components.embeddings import create_token_embedding
 from ...components.ffn import MoE, SwiGLU
 from ...components.normalization import RMSNorm
 from ...components.ssm import Mamba
-from ...core.config import AttentionConfig, FFNConfig
+from ...core.config import AttentionConfig, FFNConfig, PositionConfig, RoPEConfig
 from ...core.registry import register_model
 from ...heads import LMHead
 from ...models.base import Model, ModelOutput
@@ -58,6 +58,8 @@ class JambaMambaBlock(nn.Module):
             expand=config.mamba_expand,
             bias=config.mamba_proj_bias,
             conv_bias=config.mamba_conv_bias,
+            use_mamba2_norms=getattr(config, "use_mamba2_norms", False),
+            rms_norm_eps=config.rms_norm_eps,
         )
 
         # Pre-FFN norm
@@ -126,12 +128,20 @@ class JambaAttentionBlock(nn.Module):
         # Pre-attention norm
         self.input_layernorm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
+        # Position config with RoPE
+        rope_config = RoPEConfig(
+            theta=getattr(config, "rope_theta", 10000.0),
+            max_position_embeddings=config.max_position_embeddings,
+        )
+        position_config = PositionConfig(rope=rope_config)
+
         # Attention
         attn_config = AttentionConfig(
             num_attention_heads=config.num_attention_heads,
             num_key_value_heads=num_kv_heads,
             hidden_size=config.hidden_size,
             head_dim=head_dim,
+            position=position_config,
         )
         self.self_attn = GroupedQueryAttention(attn_config)
 
@@ -239,11 +249,19 @@ class JambaModel(Backbone):
         hidden_states = self.embed_tokens(input_ids)
 
         # Create causal mask for attention layers
-        if attention_mask is None:
+        # When using cache, we need to create a mask that allows the new tokens
+        # to attend to all cached positions. For single token generation with cache,
+        # no mask is needed since we can attend to everything.
+        if attention_mask is not None:
+            mask = attention_mask
+        elif cache is not None:
+            # During incremental generation, new tokens can attend to all past tokens
+            # For single token, we just need no masking (or a 1x(cache_len+1) mask of 0s)
+            mask = None
+        else:
+            # Initial forward pass: use causal mask
             mask = nn.MultiHeadAttention.create_additive_causal_mask(seq_len)
             mask = mask.astype(hidden_states.dtype)
-        else:
-            mask = attention_mask
 
         # Track hidden states
         all_hidden_states = (hidden_states,) if output_hidden_states else None
@@ -420,6 +438,36 @@ class JambaForCausalLM(Model):
             cache = output.cache
 
         return mx.concatenate(generated_tokens, axis=1)
+
+    def sanitize(self, weights: dict) -> dict:
+        """
+        Convert HuggingFace weights to our format.
+
+        This handles:
+        - Mamba weight naming (mamba.in_proj -> mamba.ssm.in_proj)
+        - MoE router naming (feed_forward.router -> feed_forward.router.gate)
+        - Final norm naming (final_layernorm -> norm)
+        - LM head naming (lm_head -> lm_head.lm_head)
+        - Conv1d weight transposition (HF: out,1,k -> MLX: out,k,1)
+        - Tied embeddings (skip lm_head.weight if tie_word_embeddings=True)
+        """
+        from .convert import _map_weight_name
+
+        converted = {}
+        for name, weight in weights.items():
+            # Skip lm_head for tied embeddings
+            if name == "lm_head.weight" and self._config.tie_word_embeddings:
+                continue
+
+            new_name = _map_weight_name(name)
+            if new_name is not None:
+                # Transpose conv1d weights from HF format (out, 1, kernel) to MLX format (out, kernel, 1)
+                if "conv1d.weight" in new_name and weight.ndim == 3:
+                    # HF: (out_channels, 1, kernel_size) -> MLX: (out_channels, kernel_size, 1)
+                    weight = mx.transpose(weight, (0, 2, 1))
+                converted[new_name] = weight
+
+        return converted
 
     @classmethod
     def from_config(cls, config: JambaConfig) -> JambaForCausalLM:

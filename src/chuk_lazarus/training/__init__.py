@@ -15,7 +15,10 @@ from .base_trainer import BaseTrainer, BaseTrainerConfig
 from .classification_trainer import (
     ClassificationTrainer,
     ClassificationTrainerConfig,
-    evaluate_classifier,
+    EncoderProtocol,
+    evaluate,
+    predict,
+    train_classifier,
 )
 
 # Loss functions
@@ -68,7 +71,10 @@ __all__ = [
     # Classification
     "ClassificationTrainer",
     "ClassificationTrainerConfig",
-    "evaluate_classifier",
+    "EncoderProtocol",
+    "evaluate",
+    "predict",
+    "train_classifier",
     # Losses
     "DPOConfig",
     "GRPOBatch",

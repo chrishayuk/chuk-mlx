@@ -196,33 +196,30 @@ chuk-lazarus generate --type math --output ./data/lazarus
 chuk-lazarus infer --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --prompt "What is 2+2?"
 ```
 
-### Inference Pipeline (New!)
+### UnifiedPipeline
 
-The new unified inference pipeline provides a simplified API for running inference with any supported model family. One-liner setup, no boilerplate:
+The `UnifiedPipeline` auto-detects model family and provides a simplified API. One-liner setup, no boilerplate:
 
 ```python
-from chuk_lazarus.inference import InferencePipeline, PipelineConfig, DType
-from chuk_lazarus.models_v2 import LlamaConfig, LlamaForCausalLM
+from chuk_lazarus.inference import UnifiedPipeline, UnifiedPipelineConfig, DType
 
-# One-liner model loading
-pipeline = InferencePipeline.from_pretrained(
-    "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-    LlamaForCausalLM,
-    LlamaConfig,
-)
+# One-liner model loading - auto-detects family!
+pipeline = UnifiedPipeline.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 
 # Simple chat API
 result = pipeline.chat("What is the capital of France?")
 print(result.text)
 print(result.stats.summary)  # "25 tokens in 0.42s (59.5 tok/s)"
+print(f"Model family: {pipeline.family_type}")  # ModelFamilyType.LLAMA
 ```
 
 **Key features:**
-- Typed configuration with Pydantic (`PipelineConfig`, `GenerationConfig`)
-- Async support (`InferencePipeline.from_pretrained_async`)
+- Auto-detection of model family from HuggingFace config
+- Typed configuration with Pydantic (`UnifiedPipelineConfig`, `GenerationConfig`)
+- Async support (`UnifiedPipeline.from_pretrained_async`)
 - Chat history management (`ChatHistory`)
 - Streaming generation (`generate_stream`)
-- No magic strings - uses enums (`DType`, `Role`)
+- No magic strings - uses enums (`DType`, `Role`, `ModelFamilyType`)
 
 ```bash
 # Simplified inference examples
@@ -278,6 +275,70 @@ FunctionGemma is a 270M parameter model optimized for on-device function calling
 
 See [docs/inference.md](docs/inference.md) for detailed inference documentation.
 
+### Introspection (Model Analysis)
+
+Analyze model behavior using logit lens, ablation studies, and attention visualization:
+
+```bash
+# Run logit lens analysis - see how predictions evolve across layers
+chuk-lazarus introspect analyze -m TinyLlama/TinyLlama-1.1B-Chat-v1.0 -p "The capital of France is"
+
+# Track specific tokens through layers
+chuk-lazarus introspect analyze -m model -p "Hello" --track "world,there" --layer-strategy all
+
+# Compare two models' predictions
+chuk-lazarus introspect compare -m1 google/gemma-3-270m-it -m2 google/functiongemma-270m-it -p "Get the weather" --track "get_"
+
+# Ablation study - find causal circuits
+chuk-lazarus introspect ablate -m model -p "What's the weather?" -c function_call --layers 8-15
+
+# Multi-layer ablation - test layers together
+chuk-lazarus introspect ablate -m model -p "45 * 45 = " -c "2025" --layers 22,23 --multi
+
+# Difficulty gradient - find differential causality
+chuk-lazarus introspect ablate -m openai/gpt-oss-20b \
+    -p x -c x \
+    --prompts "10*10=:100|45*45=:2025|47*47=:2209" \
+    --layers 20-23
+
+# Low-level hook demonstration
+chuk-lazarus introspect hooks -m model -p "Test" --layers 0,4,8 --capture-attention
+```
+
+Python API:
+
+```python
+from chuk_lazarus.introspection import ModelAnalyzer, AnalysisConfig, LayerStrategy
+
+# Async API for logit lens analysis
+async with ModelAnalyzer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0") as analyzer:
+    result = await analyzer.analyze("The capital of France is")
+    print(result.predicted_token)  # " Paris"
+    for layer in result.layer_predictions:
+        print(f"Layer {layer.layer_idx}: {layer.top_token}")
+
+# Track token evolution
+config = AnalysisConfig(track_tokens=["Paris", " Paris"])
+result = await analyzer.analyze("The capital of France is", config)
+for evo in result.token_evolutions:
+    print(f"{evo.token} emerges at layer {evo.emergence_layer}")
+```
+
+```python
+from chuk_lazarus.introspection import AblationStudy, AblationConfig
+
+# Ablation studies - identify causal circuits
+study = AblationStudy.from_pretrained("openai/gpt-oss-20b")
+config = AblationConfig(max_new_tokens=15)
+
+original = study.ablate_and_generate("45 * 45 = ", layers=[], config=config)
+ablated = study.ablate_and_generate("45 * 45 = ", layers=[22, 23], config=config)
+print(f"Original: {original}")  # "2025..."
+print(f"L22+L23 ablated: {ablated}")  # Broken output
+```
+
+See [docs/introspection.md](docs/introspection.md) for detailed introspection documentation.
+
 ## Python API
 
 ```python
@@ -330,10 +391,16 @@ src/chuk_lazarus/
 │   └── losses/             # Loss functions (pure math)
 ├── training/               # BatchPlan-driven reference trainers (SFT, DPO, GRPO, PPO)
 ├── inference/              # Unified inference pipeline
-│   ├── pipeline.py         # InferencePipeline high-level API
+│   ├── unified.py          # UnifiedPipeline with auto-detection
 │   ├── loader.py           # HFLoader, DType, WeightConverter
 │   ├── chat.py             # ChatHistory, Role, format_chat_prompt
 │   └── generation.py       # GenerationConfig, generate, generate_stream
+├── introspection/          # Model introspection and analysis
+│   ├── analyzer.py         # ModelAnalyzer async API with Pydantic models
+│   ├── hooks.py            # ModelHooks for capturing intermediate states
+│   ├── logit_lens.py       # Layer-by-layer prediction analysis
+│   ├── attention.py        # Attention pattern analysis
+│   └── visualizers/        # Heatmaps and evolution plots
 ├── distributed/            # Distributed training utilities
 └── utils/                  # Utilities
 ```
@@ -343,7 +410,8 @@ src/chuk_lazarus/
 | Module | Description |
 |--------|-------------|
 | **Models** | Composable architecture: components, blocks, backbones, heads, families (Llama, Gemma, Granite) |
-| **Inference** | Unified pipeline API: `InferencePipeline`, chat history, streaming generation |
+| **Inference** | `UnifiedPipeline` with auto-detection, chat history, streaming generation |
+| **Introspection** | Model analysis: logit lens, attention visualization, hooks for intermediate states |
 | **Tokenizers** | Comprehensive toolkit for analysis, preprocessing, and runtime management |
 | **Batching** | Token-budget batching, sequence packing, distributed batch planning |
 | **Streaming** | Puzzle arcade integration, replay buffers, online learning |
@@ -351,6 +419,7 @@ src/chuk_lazarus/
 
 ## Features
 
+- **Introspection**: Logit lens analysis, attention visualization, hooks for intermediate states, token evolution tracking
 - **Tokenizer Toolkit**: Encode, decode, analyze, compare, fingerprint, and debug any tokenizer
 - **Character Tokenizer**: Built-in character-level tokenizer for classification experiments
 - **Tokenizer Doctor**: Health check with auto-fix for missing chat templates
@@ -412,6 +481,7 @@ If the tokenizer or data changes, fingerprint mismatch is detected before traini
 - [CLI Reference](docs/cli.md) - Command-line interface documentation
 - [Models Guide](docs/models.md) - Composable model architecture, components, LoRA adapters
 - [Inference Guide](docs/inference.md) - Run inference with pretrained HuggingFace models
+- [Introspection Guide](docs/introspection.md) - Logit lens, attention visualization, model analysis
 - [Tokenizers Guide](docs/tokenizers.md) - Comprehensive tokenizer toolkit
 - [Batching Guide](docs/batching.md) - Token-budget batching, packing, distributed training
 - [Training Guide](docs/training.md) - BatchPlan-driven training

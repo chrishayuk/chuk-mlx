@@ -6,15 +6,18 @@ Converts HuggingFace checkpoint weights to our format.
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Any
 
+import mlx.core as mx
 import numpy as np
 
 # Mapping from HuggingFace weight names to our weight names
 LLAMA_WEIGHT_MAP = {
-    # Embeddings
-    "model.embed_tokens.weight": "model.embed_tokens.weight",
+    # Embeddings (our TokenEmbedding wraps nn.Embedding, so weight.weight)
+    "model.embed_tokens.weight": "model.embed_tokens.weight.weight",
     # Each layer has the pattern:
     # model.layers.{i}.input_layernorm.weight -> model.layers.{i}.input_layernorm.weight
     # model.layers.{i}.self_attn.q_proj.weight -> model.layers.{i}.self_attn.q_proj.weight
@@ -151,3 +154,45 @@ def print_weight_shapes(weights: dict[str, np.ndarray]) -> None:
     """Print shapes of all weights for debugging."""
     for name, weight in sorted(weights.items()):
         print(f"{name}: {weight.shape}")
+
+
+def load_hf_config(model_path: str | Path) -> dict[str, Any]:
+    """
+    Load config.json from HuggingFace model directory.
+
+    Args:
+        model_path: Path to model directory
+
+    Returns:
+        Config dict from config.json
+    """
+    config_path = Path(model_path) / "config.json"
+    with open(config_path) as f:
+        return json.load(f)
+
+
+def load_weights(model_path: str | Path) -> dict[str, mx.array]:
+    """
+    Load and convert weights from HuggingFace safetensors.
+
+    Args:
+        model_path: Path to model directory with *.safetensors files
+
+    Returns:
+        Dict of converted MLX weights ready to apply to model
+
+    Example:
+        >>> weights = load_weights("/path/to/llama-3-8b")
+        >>> model.update(tree_unflatten(list(weights.items())))
+    """
+    model_path = Path(model_path)
+    raw_weights: dict[str, mx.array] = {}
+
+    # Load all safetensor files
+    for sf_path in sorted(model_path.glob("*.safetensors")):
+        file_weights = mx.load(str(sf_path))
+        raw_weights.update(file_weights)
+
+    # Llama weights are typically already in the right format
+    # Just return as-is (mlx-community models use same naming)
+    return raw_weights

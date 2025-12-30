@@ -28,7 +28,9 @@ class TestSelectiveSSM:
         output, cache = ssm(x)
 
         assert output.shape == (2, 10, 256)
-        assert cache is None  # No cache in training mode
+        # SSM always returns cache for stateful inference support
+        assert cache is not None
+        assert len(cache) == 2  # (conv_state, ssm_state)
 
     def test_inner_dimension(self):
         """Test inner dimension expansion."""

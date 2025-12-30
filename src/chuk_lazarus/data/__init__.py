@@ -105,10 +105,11 @@ from .tokenizers import (
     BoWTokenizerConfig,
     CharacterTokenizer,
     CharacterTokenizerConfig,
-    CustomTokenizer,
     load_vocabulary,
     save_vocabulary,
 )
+
+# CustomTokenizer is available via lazy import: from chuk_lazarus.data.tokenizers import CustomTokenizer
 from .train_batch_dataset import TrainBatchDataset
 
 __all__ = [
@@ -199,7 +200,6 @@ __all__ = [
     "BoWTokenizerConfig",
     "CharacterTokenizer",
     "CharacterTokenizerConfig",
-    "CustomTokenizer",
     "load_vocabulary",
     "save_vocabulary",
 ]

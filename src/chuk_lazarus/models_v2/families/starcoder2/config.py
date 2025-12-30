@@ -28,6 +28,7 @@ from typing import Any
 from pydantic import Field
 
 from ...core.config import ModelConfig
+from ..constants import ConfigField, DefaultRoPETheta, HFModelType
 
 
 class StarCoderConfig(ModelConfig):
@@ -166,11 +167,11 @@ class StarCoder2Config(ModelConfig):
         ... )
     """
 
-    model_type: str = "starcoder2"
+    model_type: str = HFModelType.STARCODER2.value
 
     # StarCoder2-specific defaults
     hidden_act: str = "gelu_pytorch_tanh"  # GELU activation
-    rope_theta: float = 100000.0  # Extended RoPE base
+    rope_theta: float = DefaultRoPETheta.STARCODER2.value  # Extended RoPE base
     layer_norm_eps: float = 1e-5  # LayerNorm epsilon (not rms_norm_eps)
     rms_norm_eps: float = 1e-5  # Keep for compat but use layer_norm_eps
 
@@ -238,4 +239,74 @@ class StarCoder2Config(ModelConfig):
             intermediate_size=128,
             max_position_embeddings=256,
             sliding_window=128,
+        )
+
+    @classmethod
+    def from_hf_config(
+        cls,
+        hf_config: dict[str, Any],
+        weights: dict[str, Any] | None = None,
+    ) -> StarCoder2Config:
+        """
+        Create config from HuggingFace config.json dict.
+
+        Args:
+            hf_config: Dict loaded from config.json
+            weights: Optional weights dict to infer head counts from shapes
+
+        Returns:
+            StarCoder2Config instance
+
+        Example:
+            >>> import json
+            >>> with open("config.json") as f:
+            ...     hf_config = json.load(f)
+            >>> config = StarCoder2Config.from_hf_config(hf_config)
+        """
+        hidden_size = hf_config["hidden_size"]
+        head_dim = hf_config.get("head_dim") or (
+            hidden_size // hf_config.get("num_attention_heads", 1)
+        )
+
+        # Try to get head counts from config, otherwise infer from weights
+        num_attention_heads = hf_config.get("num_attention_heads")
+        num_key_value_heads = hf_config.get("num_key_value_heads")
+
+        if weights and (num_attention_heads is None or num_key_value_heads is None):
+            for k, v in weights.items():
+                if "layers.0" in k and "self_attn.q_proj.weight" in k:
+                    if num_attention_heads is None:
+                        num_attention_heads = v.shape[0] // head_dim
+                if "layers.0" in k and "self_attn.k_proj.weight" in k:
+                    if num_key_value_heads is None:
+                        num_key_value_heads = v.shape[0] // head_dim
+                    break
+
+        # Fallback defaults
+        if num_attention_heads is None:
+            num_attention_heads = hidden_size // head_dim
+        if num_key_value_heads is None:
+            num_key_value_heads = num_attention_heads
+
+        # Check if lm_head is present to determine if embeddings are tied
+        has_lm_head = weights is not None and any("lm_head" in k for k in weights)
+        tie_embeddings = hf_config.get("tie_word_embeddings", not has_lm_head)
+
+        return cls(
+            model_type=hf_config.get(ConfigField.MODEL_TYPE.value, HFModelType.STARCODER2.value),
+            vocab_size=hf_config.get(ConfigField.VOCAB_SIZE.value, 49152),
+            hidden_size=hidden_size,
+            num_hidden_layers=hf_config[ConfigField.NUM_HIDDEN_LAYERS.value],
+            num_attention_heads=num_attention_heads,
+            num_key_value_heads=num_key_value_heads,
+            intermediate_size=hf_config[ConfigField.INTERMEDIATE_SIZE.value],
+            max_position_embeddings=hf_config.get(ConfigField.MAX_POSITION_EMBEDDINGS.value, 16384),
+            rope_theta=hf_config.get(
+                ConfigField.ROPE_THETA.value, DefaultRoPETheta.STARCODER2.value
+            ),
+            layer_norm_eps=hf_config.get("norm_epsilon", 1e-5),
+            sliding_window=hf_config.get(ConfigField.SLIDING_WINDOW.value, 4096),
+            attention_bias=hf_config.get("use_bias", True),
+            mlp_bias=hf_config.get("use_bias", True),
+            tie_word_embeddings=tie_embeddings,
         )

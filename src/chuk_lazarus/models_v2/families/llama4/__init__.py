@@ -17,6 +17,7 @@ Reference: https://llama.meta.com/llama4/
 
 from .attention import Llama4Attention, Llama4FlexAttention, create_llama4_attention
 from .config import Llama4Config, Llama4TextConfig, Llama4VisionConfig
+from .convert import load_hf_config, load_weights
 from .model import Llama4, Llama4Block, Llama4ForCausalLM, Llama4Model
 from .moe import Llama4MLP, Llama4MoE, create_llama4_moe
 
@@ -38,4 +39,7 @@ __all__ = [
     # Factories
     "create_llama4_attention",
     "create_llama4_moe",
+    # Loading utilities
+    "load_hf_config",
+    "load_weights",
 ]

@@ -18,6 +18,7 @@ from typing import Any
 from pydantic import Field
 
 from ...core.config import ModelConfig
+from ..constants import ConfigField, DefaultNormEps, HFModelType
 
 
 class JambaConfig(ModelConfig):
@@ -49,7 +50,7 @@ class JambaConfig(ModelConfig):
         ... )
     """
 
-    model_type: str = "jamba"
+    model_type: str = HFModelType.JAMBA.value
 
     # Jamba-specific: Hybrid layer pattern
     attn_layer_period: int = Field(
@@ -88,10 +89,13 @@ class JambaConfig(ModelConfig):
     mamba_dt_rank: int = Field(default=256, description="Mamba dt projection rank")
     mamba_conv_bias: bool = Field(default=True, description="Use bias in Mamba conv")
     mamba_proj_bias: bool = Field(default=False, description="Use bias in Mamba projections")
+    use_mamba2_norms: bool = Field(
+        default=False, description="Use Mamba2-style layer norms (b/c/dt)"
+    )
 
     # Standard transformer params
     hidden_act: str = "silu"
-    rms_norm_eps: float = 1e-6
+    rms_norm_eps: float = DefaultNormEps.JAMBA.value
     max_position_embeddings: int = 262144  # 256K context
     tie_word_embeddings: bool = False
 
@@ -103,8 +107,62 @@ class JambaConfig(ModelConfig):
         return (layer_idx - self.attn_layer_offset) % self.attn_layer_period == 0
 
     def is_moe_layer(self, layer_idx: int) -> bool:
-        """Check if layer at index uses MoE (vs dense FFN)."""
+        """Check if layer at index uses MoE (vs dense FFN).
+
+        Returns False if num_experts <= 1 (no MoE, just regular FFN).
+        """
+        if self.num_experts <= 1:
+            return False
         return (layer_idx - self.expert_layer_offset) % self.expert_layer_period == 0
+
+    @classmethod
+    def from_hf_config(
+        cls,
+        hf_config: dict[str, Any],
+        weights: dict[str, Any] | None = None,
+    ) -> JambaConfig:
+        """
+        Create JambaConfig from HuggingFace config.json.
+
+        Args:
+            hf_config: Raw config dict from config.json
+            weights: Optional weights dict (unused, for API compatibility)
+
+        Returns:
+            Configured JambaConfig instance
+        """
+        return cls(
+            model_type=hf_config.get(ConfigField.MODEL_TYPE.value, HFModelType.JAMBA.value),
+            vocab_size=hf_config.get(ConfigField.VOCAB_SIZE.value, 65536),
+            hidden_size=hf_config.get(ConfigField.HIDDEN_SIZE.value, 4096),
+            num_hidden_layers=hf_config.get(ConfigField.NUM_HIDDEN_LAYERS.value, 32),
+            num_attention_heads=hf_config.get(ConfigField.NUM_ATTENTION_HEADS.value, 32),
+            num_key_value_heads=hf_config.get(ConfigField.NUM_KEY_VALUE_HEADS.value, 8),
+            intermediate_size=hf_config.get(ConfigField.INTERMEDIATE_SIZE.value, 14336),
+            max_position_embeddings=hf_config.get(
+                ConfigField.MAX_POSITION_EMBEDDINGS.value, 262144
+            ),
+            hidden_act=hf_config.get("hidden_act", "silu"),
+            rms_norm_eps=hf_config.get(ConfigField.RMS_NORM_EPS.value, DefaultNormEps.JAMBA.value),
+            tie_word_embeddings=hf_config.get(ConfigField.TIE_WORD_EMBEDDINGS.value, False),
+            # Hybrid layer pattern
+            attn_layer_period=hf_config.get(ConfigField.ATTN_LAYER_PERIOD.value, 8),
+            attn_layer_offset=hf_config.get("attn_layer_offset", 4),
+            # MoE pattern
+            expert_layer_period=hf_config.get(ConfigField.EXPERT_LAYER_PERIOD.value, 2),
+            expert_layer_offset=hf_config.get("expert_layer_offset", 1),
+            num_experts=hf_config.get(ConfigField.NUM_EXPERTS.value, 16),
+            num_experts_per_tok=hf_config.get(ConfigField.NUM_EXPERTS_PER_TOK.value, 2),
+            # Mamba parameters
+            mamba_d_state=hf_config.get(ConfigField.MAMBA_D_STATE.value, 16),
+            mamba_d_conv=hf_config.get(ConfigField.MAMBA_D_CONV.value, 4),
+            mamba_expand=hf_config.get(ConfigField.MAMBA_EXPAND.value, 2),
+            mamba_dt_rank=hf_config.get("mamba_dt_rank", 256),
+            mamba_conv_bias=hf_config.get("mamba_conv_bias", True),
+            mamba_proj_bias=hf_config.get("mamba_proj_bias", False),
+            # RoPE scaling
+            rope_scaling=hf_config.get("rope_scaling"),
+        )
 
     @classmethod
     def jamba_v0_1(cls) -> JambaConfig:

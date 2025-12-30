@@ -1,5 +1,5 @@
 """
-Classification Trainer for text classification tasks.
+Classification Trainer.
 
 Provides a ready-to-use trainer for classification with:
 - Automatic batching from ClassificationDataset
@@ -26,8 +26,15 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class BoWTokenizerProtocol(Protocol):
-    """Protocol for bag-of-words tokenizers."""
+class EncoderProtocol(Protocol):
+    """
+    Protocol for feature encoders.
+
+    Converts sample text/data into a fixed-size feature vector.
+    Examples:
+    - BoWCharacterTokenizer: text -> character frequency vector
+    - FeatureEncoder: "72,85" -> [0.72, 0.85] (numeric features)
+    """
 
     def encode(self, text: str) -> list[float]: ...
 
@@ -48,33 +55,31 @@ class ClassificationTrainerConfig(BaseTrainerConfig):
 
 class ClassificationTrainer(BaseTrainer):
     """
-    Trainer for text classification tasks.
+    Trainer for classification tasks.
 
-    Works with ClassificationDataset and any tokenizer implementing
-    the BoWTokenizerProtocol (encode() -> list[float]).
-
-    Example:
-        >>> from chuk_lazarus.data import ClassificationDataset
-        >>> from chuk_lazarus.data.tokenizers import BoWCharacterTokenizer
-        >>> from chuk_lazarus.training import ClassificationTrainer, ClassificationTrainerConfig
-        >>>
+    Example (text classification):
         >>> dataset = ClassificationDataset.from_jsonl("train.jsonl")
-        >>> tokenizer = BoWCharacterTokenizer.from_corpus(dataset.texts)
-        >>> model = MyClassifier(vocab_size=tokenizer.vocab_size, num_classes=2)
-        >>>
-        >>> config = ClassificationTrainerConfig(batch_size=32, max_steps=100)
-        >>> trainer = ClassificationTrainer(model, tokenizer, config)
+        >>> encoder = BoWCharacterTokenizer.from_corpus(dataset.texts)
+        >>> model = LinearClassifier(input_size=encoder.vocab_size, num_labels=2)
+        >>> trainer = ClassificationTrainer(model, encoder, config)
+        >>> trainer.train(dataset, num_epochs=10)
+
+    Example (numeric features - no encoder needed):
+        >>> dataset = ClassificationDataset.from_features(X, y)
+        >>> model = LinearClassifier(input_size=2, num_labels=2)
+        >>> trainer = ClassificationTrainer(model, None, config)
         >>> trainer.train(dataset, num_epochs=10)
     """
 
     def __init__(
         self,
         model: nn.Module,
-        tokenizer: BoWTokenizerProtocol,
+        encoder: EncoderProtocol | None,
         config: ClassificationTrainerConfig,
     ):
-        super().__init__(model, tokenizer, config)
+        super().__init__(model, encoder, config)
         self.config: ClassificationTrainerConfig = config
+        self.encoder = encoder
 
     def compute_loss(self, batch: dict[str, Any]) -> tuple[mx.array, dict[str, Any]]:
         """Compute cross-entropy loss and accuracy."""
@@ -89,6 +94,14 @@ class ClassificationTrainer(BaseTrainer):
 
         return loss, {"loss": loss, "accuracy": accuracy}
 
+    def _get_features(self, sample) -> list[float]:
+        """Extract features from a sample."""
+        if sample.features is not None:
+            return sample.features
+        if self.encoder is not None and sample.text is not None:
+            return self.encoder.encode(sample.text)
+        raise ValueError("Sample must have features or text (with encoder)")
+
     def get_train_batches(self, dataset: ClassificationDataset) -> Iterator[dict[str, Any]]:
         """Create batches from ClassificationDataset."""
         batch_size = self.config.batch_size
@@ -100,7 +113,7 @@ class ClassificationTrainer(BaseTrainer):
             batch_indices = indices[i : i + batch_size]
             batch_samples = [dataset[j] for j in batch_indices]
 
-            inputs = mx.stack([mx.array(self.tokenizer.encode(s.text)) for s in batch_samples])
+            inputs = mx.stack([mx.array(self._get_features(s)) for s in batch_samples])
             labels = mx.array([s.label for s in batch_samples])
 
             yield {"input": inputs, "label": labels}
@@ -116,52 +129,80 @@ class ClassificationTrainer(BaseTrainer):
         logger.info(f"Step {self.global_step:3d} | Loss: {loss:.4f} | Acc: {acc:.2%}")
 
 
-def evaluate_classifier(
+def evaluate(
     model: nn.Module,
-    tokenizer: BoWTokenizerProtocol,
     dataset: ClassificationDataset,
-    label_names: list[str] | None = None,
-) -> dict[str, Any]:
+    encoder: EncoderProtocol | None = None,
+) -> dict[str, float]:
     """
     Evaluate a classification model.
 
     Args:
         model: The classifier model.
-        tokenizer: Tokenizer with encode() method.
         dataset: ClassificationDataset to evaluate on.
-        label_names: Optional names for labels (e.g., ["negative", "positive"]).
+        encoder: Optional encoder (only needed for text classification).
 
     Returns:
-        Dictionary with:
-        - accuracy: Overall accuracy
-        - predictions: List of (text, true_label, pred_label, confidence) tuples
+        Dictionary with accuracy.
     """
-    inputs = mx.stack([mx.array(tokenizer.encode(s.text)) for s in dataset])
+
+    def get_features(sample) -> list[float]:
+        if sample.features is not None:
+            return sample.features
+        if encoder is not None and sample.text is not None:
+            return encoder.encode(sample.text)
+        raise ValueError("Sample must have features or text (with encoder)")
+
+    inputs = mx.stack([mx.array(get_features(s)) for s in dataset])
     labels = mx.array([s.label for s in dataset])
 
     logits = model(inputs)
-    probs = mx.softmax(logits, axis=-1)
     predictions = mx.argmax(logits, axis=-1)
-
     accuracy = float(mx.mean(predictions == labels))
 
-    results = []
-    for i, sample in enumerate(dataset):
-        pred = int(predictions[i])
-        conf = float(probs[i, pred])
-        pred_name = label_names[pred] if label_names else str(pred)
-        results.append(
-            {
-                "text": sample.text,
-                "true_label": sample.label,
-                "pred_label": pred,
-                "pred_name": pred_name,
-                "confidence": conf,
-                "correct": sample.label == pred,
-            }
-        )
+    return {"accuracy": accuracy}
 
-    return {
-        "accuracy": accuracy,
-        "predictions": results,
-    }
+
+def predict(model: nn.Module, features: list[float]) -> tuple[int, float]:
+    """
+    Make a prediction for a single sample.
+
+    Args:
+        model: Trained classifier.
+        features: Feature vector (already normalized).
+
+    Returns:
+        Tuple of (predicted_class, confidence).
+    """
+    x = mx.array([features])
+    logits = model(x)
+    probs = mx.softmax(logits, axis=-1)
+    pred = int(mx.argmax(logits, axis=-1)[0])
+    return pred, float(probs[0, pred])
+
+
+def train_classifier(
+    model: nn.Module,
+    dataset,
+    epochs: int = 10,
+    lr: float = 0.01,
+    batch_size: int = 32,
+) -> None:
+    """
+    Simple training helper for classification.
+
+    Args:
+        model: Classifier model.
+        dataset: Training dataset with features.
+        epochs: Number of epochs.
+        lr: Learning rate.
+        batch_size: Batch size.
+    """
+    config = ClassificationTrainerConfig(
+        batch_size=batch_size,
+        learning_rate=lr,
+        log_interval=max(1, len(dataset) // batch_size),  # Log once per epoch
+        checkpoint_interval=999999,  # Don't save checkpoints
+    )
+    trainer = ClassificationTrainer(model, None, config)
+    trainer.train(dataset=dataset, num_epochs=epochs)

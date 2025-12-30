@@ -6,9 +6,12 @@ Converts HuggingFace checkpoint weights to our format.
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Any
 
+import mlx.core as mx
 import numpy as np
 
 # Mapping from HuggingFace weight names to our weight names
@@ -162,3 +165,62 @@ def print_weight_shapes(weights: dict[str, np.ndarray]) -> None:
     """Print shapes of all weights for debugging."""
     for name, weight in sorted(weights.items()):
         print(f"{name}: {weight.shape}")
+
+
+def load_hf_config(model_path: str | Path) -> dict[str, Any]:
+    """
+    Load config.json from HuggingFace model directory.
+
+    Args:
+        model_path: Path to model directory
+
+    Returns:
+        Config dict from config.json
+    """
+    config_path = Path(model_path) / "config.json"
+    with open(config_path) as f:
+        return json.load(f)
+
+
+def load_weights(model_path: str | Path) -> dict[str, mx.array]:
+    """
+    Load and convert weights from HuggingFace safetensors.
+
+    Args:
+        model_path: Path to model directory with *.safetensors files
+
+    Returns:
+        Dict of converted MLX weights ready to apply to model
+
+    Example:
+        >>> weights = load_weights("/path/to/starcoder2-3b")
+        >>> model.update(tree_unflatten(list(weights.items())))
+    """
+    model_path = Path(model_path)
+    raw_weights: dict[str, mx.array] = {}
+
+    # Load all safetensor files
+    for sf_path in sorted(model_path.glob("*.safetensors")):
+        file_weights = mx.load(str(sf_path))
+        raw_weights.update(file_weights)
+
+    # Convert weight names
+    converted: dict[str, mx.array] = {}
+    for name, weight in raw_weights.items():
+        new_name = name
+
+        # MLP naming: c_fc -> up_proj, c_proj -> down_proj
+        new_name = new_name.replace("mlp.c_fc", "mlp.up_proj")
+        new_name = new_name.replace("mlp.c_proj", "mlp.down_proj")
+
+        # Embedding: add nested .weight for MLX nn.Embedding
+        if new_name == "model.embed_tokens.weight":
+            new_name = "model.embed_tokens.weight.weight"
+
+        # LM head: add nested path
+        if new_name == "lm_head.weight":
+            new_name = "lm_head.lm_head.weight"
+
+        converted[new_name] = weight
+
+    return converted

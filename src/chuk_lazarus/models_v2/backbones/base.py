@@ -101,6 +101,19 @@ class Backbone(nn.Module, ABC):
         """
         return [None] * self.num_layers
 
+    @property
+    def embedding_scale(self) -> float | None:
+        """
+        Return embedding scale factor if this model uses one.
+
+        Some models (e.g., Gemma) scale embeddings by sqrt(hidden_size).
+        Override this in subclasses that need embedding scaling.
+
+        Returns:
+            Scale factor to multiply embeddings by, or None for no scaling
+        """
+        return None
+
     def get_input_embeddings(self) -> nn.Module:
         """Return the input embedding layer."""
         raise NotImplementedError

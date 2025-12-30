@@ -18,12 +18,13 @@ import re
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import mlx.core as mx
 from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
+    import mlx.nn as nn
     from transformers import PreTrainedTokenizer
 
 
@@ -219,7 +220,7 @@ class HFLoader:
             model_path: Path to model directory
 
         Returns:
-            Tokenizer with pad_token configured
+            Tokenizer with pad_token configured and external chat template loaded
         """
         try:
             from transformers import AutoTokenizer
@@ -230,6 +231,16 @@ class HFLoader:
 
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
+
+        # Check for external chat template file (some models like GPT-OSS store it separately)
+        model_path = Path(model_path)
+        chat_template_path = model_path / "chat_template.jinja"
+        if chat_template_path.exists() and not tokenizer.chat_template:
+            try:
+                with open(chat_template_path) as f:
+                    tokenizer.chat_template = f.read()
+            except Exception:
+                pass  # Ignore errors, template is optional
 
         return tokenizer
 
@@ -325,3 +336,91 @@ class HFLoader:
             current[parts[-1]] = weight
 
         return nested
+
+    @staticmethod
+    def load_raw_weights(model_path: Path) -> dict[str, mx.array]:
+        """Load raw weights from safetensors without any name conversion.
+
+        Use this when you want to apply model-specific sanitize methods.
+
+        Args:
+            model_path: Path to model directory
+
+        Returns:
+            Raw weight dict as stored in safetensors files
+        """
+        safetensor_files = sorted(model_path.glob("*.safetensors"))
+        if not safetensor_files:
+            raise FileNotFoundError(f"No safetensors files found in {model_path}")
+
+        raw_weights: dict[str, mx.array] = {}
+        for sf_path in safetensor_files:
+            print(f"  Loading {sf_path.name}...")
+            raw_weights.update(mx.load(str(sf_path)))
+
+        return raw_weights
+
+    @staticmethod
+    def apply_weights_to_model(
+        model: nn.Module,
+        model_path: Path,
+        model_config: Any,
+        dtype: DType = DType.BFLOAT16,
+    ) -> None:
+        """Load and apply weights to a model using the appropriate method.
+
+        Automatically detects whether to use:
+        1. Model's sanitize method (for family-specific weight conversion)
+        2. Standard HFLoader conversion (for generic models)
+
+        Args:
+            model: The model instance to load weights into
+            model_path: Path to model directory with safetensors
+            model_config: Model config (used for tie_word_embeddings)
+            dtype: Target dtype for weights
+        """
+        import inspect
+
+        from mlx.utils import tree_unflatten
+
+        model_class = model.__class__
+
+        # Check if model has a sanitize method
+        if hasattr(model_class, "sanitize"):
+            # Load raw weights - sanitize will handle conversion
+            raw_weights = HFLoader.load_raw_weights(model_path)
+
+            # Get sanitize signature to handle different interfaces
+            sanitize_func = model_class.sanitize
+            sig = inspect.signature(sanitize_func)
+            params = list(sig.parameters.keys())
+
+            # Determine if it's an instance or static method
+            is_static = isinstance(inspect.getattr_static(model_class, "sanitize"), staticmethod)
+
+            # Build arguments
+            tie_word_embeddings = getattr(model_config, "tie_word_embeddings", False)
+
+            if is_static:
+                # Static method: sanitize(weights, tie_word_embeddings=...)
+                if "tie_word_embeddings" in params:
+                    sanitized = sanitize_func(raw_weights, tie_word_embeddings=tie_word_embeddings)
+                else:
+                    sanitized = sanitize_func(raw_weights)
+            else:
+                # Instance method: model.sanitize(weights)
+                if "tie_word_embeddings" in params:
+                    sanitized = sanitize_func(
+                        model, raw_weights, tie_word_embeddings=tie_word_embeddings
+                    )
+                else:
+                    sanitized = sanitize_func(model, raw_weights)
+
+            nested = tree_unflatten(list(sanitized.items()))
+        else:
+            # No sanitize - use standard HFLoader conversion
+            loaded = HFLoader.load_weights(model_path, dtype=dtype)
+            nested = HFLoader.build_nested_weights(loaded)
+
+        model.update(nested)
+        mx.eval(model.parameters())

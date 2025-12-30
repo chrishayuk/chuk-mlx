@@ -6,15 +6,66 @@ Converts HuggingFace checkpoint weights to our format.
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Any
 
+import mlx.core as mx
 import numpy as np
+
+
+def load_hf_config(model_path: str | Path) -> dict[str, Any]:
+    """
+    Load config.json from HuggingFace model directory.
+
+    Args:
+        model_path: Path to model directory
+
+    Returns:
+        Config dict from config.json
+    """
+    config_path = Path(model_path) / "config.json"
+    with open(config_path) as f:
+        return json.load(f)
+
+
+def load_weights(model_path: str | Path) -> dict[str, mx.array]:
+    """
+    Load and convert weights from HuggingFace safetensors.
+
+    Args:
+        model_path: Path to model directory with *.safetensors files
+
+    Returns:
+        Dict of converted MLX weights ready to apply to model
+
+    Example:
+        >>> weights = load_weights("/path/to/jamba-v0.1")
+        >>> model.update(tree_unflatten(list(weights.items())))
+    """
+    model_path = Path(model_path)
+    raw_weights: dict[str, mx.array] = {}
+
+    # Load all safetensor files
+    for sf_path in sorted(model_path.glob("*.safetensors")):
+        file_weights = mx.load(str(sf_path))
+        raw_weights.update(file_weights)
+
+    # Convert HF weight names to our format
+    converted: dict[str, mx.array] = {}
+    for name, weight in raw_weights.items():
+        new_name = _map_weight_name(name)
+        if new_name is not None:
+            converted[new_name] = weight
+
+    return converted
+
 
 # Mapping from HuggingFace weight names to our weight names
 JAMBA_WEIGHT_MAP = {
-    # Embeddings
-    "model.embed_tokens.weight": "model.embed_tokens.weight",
+    # Embeddings (our TokenEmbedding wraps nn.Embedding, so weight.weight)
+    "model.embed_tokens.weight": "model.embed_tokens.weight.weight",
     # Final norm
     "model.final_layernorm.weight": "model.norm.weight",
     # LM head
@@ -62,6 +113,9 @@ def _map_weight_name(hf_name: str) -> str | None:
     - model.layers.{i}.self_attn.* (for attention layers)
     - model.layers.{i}.pre_ff_layernorm.weight
     - model.layers.{i}.feed_forward.* (dense or MoE)
+
+    Note: HF Jamba has extra layernorms (dt_layernorm, b_layernorm, c_layernorm)
+    that our model doesn't use. These are skipped.
     """
     # Check direct mapping first
     if hf_name in JAMBA_WEIGHT_MAP:
@@ -78,6 +132,13 @@ def _map_weight_name(hf_name: str) -> str | None:
         # HF: mamba.in_proj.weight -> mamba.ssm.in_proj.weight
         if rest.startswith("mamba."):
             mamba_rest = rest[6:]  # Remove "mamba."
+
+            # Map Mamba2-style layernorms (used by Jamba Reasoning 3B)
+            # HF: mamba.dt_layernorm.weight -> mamba.ssm.dt_layernorm.weight
+            # These are optional - only present in Mamba2-based models
+            if mamba_rest.startswith(("dt_layernorm", "b_layernorm", "c_layernorm")):
+                return f"model.layers.{layer_idx}.mamba.ssm.{mamba_rest}"
+
             return f"model.layers.{layer_idx}.mamba.ssm.{mamba_rest}"
 
         # Handle MoE router

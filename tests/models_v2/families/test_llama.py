@@ -451,7 +451,8 @@ class TestLlamaConvert:
 
         converted = convert_hf_weights(hf_weights)
 
-        assert "model.embed_tokens.weight" in converted
+        # embed_tokens maps to weight.weight (TokenEmbedding wraps nn.Embedding)
+        assert "model.embed_tokens.weight.weight" in converted
         assert "model.norm.weight" in converted
         assert "lm_head.lm_head.weight" in converted
 
@@ -471,7 +472,8 @@ class TestLlamaConvert:
 
         # lm_head should be skipped with tied embeddings
         assert "lm_head.lm_head.weight" not in converted
-        assert "model.embed_tokens.weight" in converted
+        # embed_tokens maps to weight.weight (TokenEmbedding wraps nn.Embedding)
+        assert "model.embed_tokens.weight.weight" in converted
 
     def test_convert_hf_weights_layers(self):
         """Test HuggingFace weight conversion for layer weights."""
@@ -505,13 +507,15 @@ class TestLlamaConvert:
         from chuk_lazarus.models_v2.families.llama.convert import convert_mlx_to_hf
 
         mlx_weights = {
-            "model.embed_tokens.weight": np.random.randn(1000, 256).astype(np.float32),
+            # Our model uses weight.weight for embeddings
+            "model.embed_tokens.weight.weight": np.random.randn(1000, 256).astype(np.float32),
             "model.norm.weight": np.random.randn(256).astype(np.float32),
             "model.layers.0.input_layernorm.weight": np.random.randn(256).astype(np.float32),
         }
 
         converted = convert_mlx_to_hf(mlx_weights)
 
+        # weight.weight maps back to weight
         assert "model.embed_tokens.weight" in converted
         assert "model.norm.weight" in converted
 

@@ -15,6 +15,7 @@ Reference: https://huggingface.co/ibm-granite
 """
 
 from .config import GraniteConfig, GraniteHybridConfig
+from .convert import load_hf_config, load_weights
 from .hybrid import (
     Granite4,
     GraniteHybrid,
@@ -52,4 +53,7 @@ __all__ = [
     "GraniteHybridAttention",
     "GraniteHybridMoE",
     "GraniteMamba2Block",
+    # Loading utilities
+    "load_hf_config",
+    "load_weights",
 ]

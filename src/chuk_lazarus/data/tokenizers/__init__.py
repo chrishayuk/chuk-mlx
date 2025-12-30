@@ -78,8 +78,9 @@ from .conversion import (
     save_huggingface_format,
     save_vocabulary_file,
 )
-from .custom_tokenizer import CustomTokenizer
 
+# CustomTokenizer imported lazily to avoid transformers warning when not needed
+# from .custom_tokenizer import CustomTokenizer
 # Fingerprinting
 from .fingerprint import (
     FingerprintMismatch,
@@ -311,3 +312,12 @@ __all__ = [
     "load_fingerprint",
     "get_registry",
 ]
+
+
+# Lazy import for CustomTokenizer to avoid transformers warning when not needed
+def __getattr__(name: str):
+    if name == "CustomTokenizer":
+        from .custom_tokenizer import CustomTokenizer
+
+        return CustomTokenizer
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

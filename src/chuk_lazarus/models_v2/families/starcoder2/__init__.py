@@ -34,7 +34,12 @@ References:
 """
 
 from .config import StarCoder2Config, StarCoderConfig
-from .convert import STARCODER2_WEIGHT_MAP, convert_hf_weights
+from .convert import (
+    STARCODER2_WEIGHT_MAP,
+    convert_hf_weights,
+    load_hf_config,
+    load_weights,
+)
 from .model import (
     StarCoder2Block,
     StarCoder2ForCausalLM,
@@ -55,7 +60,9 @@ __all__ = [
     "StarCoder2ForCausalLM",
     "StarCoder2Model",
     "StarCoder2Block",
-    # Utilities
+    # Loading utilities
+    "load_hf_config",
+    "load_weights",
     "convert_hf_weights",
     "STARCODER2_WEIGHT_MAP",
 ]

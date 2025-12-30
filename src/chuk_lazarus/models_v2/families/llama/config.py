@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from ...core.config import ModelConfig
+from ..constants import ConfigField, DefaultNormEps, DefaultRoPETheta, HFModelType
 
 
 class LlamaConfig(ModelConfig):
@@ -56,12 +57,12 @@ class LlamaConfig(ModelConfig):
         ... )
     """
 
-    model_type: str = "llama"
+    model_type: str = HFModelType.LLAMA.value
 
     # Llama-specific defaults
     hidden_act: str = "silu"  # SwiGLU activation
-    rope_theta: float = 10000.0
-    rms_norm_eps: float = 1e-5
+    rope_theta: float = DefaultRoPETheta.LLAMA2.value
+    rms_norm_eps: float = DefaultNormEps.LLAMA.value
 
     # Optional: precomputed RoPE scaling
     rope_scaling: dict[str, Any] | None = None
@@ -137,7 +138,7 @@ class LlamaConfig(ModelConfig):
     def mistral_7b(cls) -> LlamaConfig:
         """Create Mistral 7B configuration."""
         return cls(
-            model_type="mistral",
+            model_type=HFModelType.MISTRAL.value,
             vocab_size=32000,
             hidden_size=4096,
             num_hidden_layers=32,
@@ -152,7 +153,7 @@ class LlamaConfig(ModelConfig):
     def code_llama_7b(cls) -> LlamaConfig:
         """Create Code Llama 7B configuration."""
         return cls(
-            model_type="code_llama",
+            model_type=HFModelType.CODELLAMA.value,
             vocab_size=32016,  # Extended for code tokens
             hidden_size=4096,
             num_hidden_layers=32,
@@ -174,4 +175,85 @@ class LlamaConfig(ModelConfig):
             num_key_value_heads=2,
             intermediate_size=128,
             max_position_embeddings=256,
+        )
+
+    @classmethod
+    def from_hf_config(
+        cls,
+        hf_config: dict[str, Any],
+        weights: dict[str, Any] | None = None,
+    ) -> LlamaConfig:
+        """
+        Create config from HuggingFace config.json dict.
+
+        Handles both standard HuggingFace format and mlx-community format:
+        - HF: hidden_size, num_hidden_layers, num_attention_heads, intermediate_size
+        - MLX: dim, n_layers, n_heads, hidden_dim
+
+        Args:
+            hf_config: Dict loaded from config.json
+            weights: Optional weights dict (not used for Llama)
+
+        Returns:
+            LlamaConfig instance
+
+        Example:
+            >>> import json
+            >>> with open("config.json") as f:
+            ...     hf_config = json.load(f)
+            >>> config = LlamaConfig.from_hf_config(hf_config)
+        """
+        # Detect mlx-community format (uses n_layers, dim, etc.)
+        is_mlx_format = "n_layers" in hf_config or "dim" in hf_config
+
+        if is_mlx_format:
+            # MLX community format mapping
+            hidden_size = hf_config.get("dim", hf_config.get(ConfigField.HIDDEN_SIZE.value))
+            num_hidden_layers = hf_config.get(
+                "n_layers", hf_config.get(ConfigField.NUM_HIDDEN_LAYERS.value)
+            )
+            num_attention_heads = hf_config.get(
+                "n_heads", hf_config.get(ConfigField.NUM_ATTENTION_HEADS.value)
+            )
+            num_key_value_heads = hf_config.get(
+                "n_kv_heads",
+                hf_config.get(ConfigField.NUM_KEY_VALUE_HEADS.value, num_attention_heads),
+            )
+            intermediate_size = hf_config.get(
+                "hidden_dim", hf_config.get(ConfigField.INTERMEDIATE_SIZE.value)
+            )
+            rms_norm_eps = hf_config.get(
+                "norm_eps",
+                hf_config.get(ConfigField.RMS_NORM_EPS.value, DefaultNormEps.LLAMA.value),
+            )
+            # head_dim is extracted but currently unused (computed from hidden_size/heads)
+            _ = hf_config.get("head_dim")
+        else:
+            # Standard HuggingFace format
+            hidden_size = hf_config[ConfigField.HIDDEN_SIZE.value]
+            num_hidden_layers = hf_config[ConfigField.NUM_HIDDEN_LAYERS.value]
+            num_attention_heads = hf_config[ConfigField.NUM_ATTENTION_HEADS.value]
+            num_key_value_heads = hf_config.get(
+                ConfigField.NUM_KEY_VALUE_HEADS.value, num_attention_heads
+            )
+            intermediate_size = hf_config[ConfigField.INTERMEDIATE_SIZE.value]
+            rms_norm_eps = hf_config.get(ConfigField.RMS_NORM_EPS.value, DefaultNormEps.LLAMA.value)
+
+        return cls(
+            model_type=hf_config.get(ConfigField.MODEL_TYPE.value, HFModelType.LLAMA.value),
+            vocab_size=hf_config[ConfigField.VOCAB_SIZE.value],
+            hidden_size=hidden_size,
+            num_hidden_layers=num_hidden_layers,
+            num_attention_heads=num_attention_heads,
+            num_key_value_heads=num_key_value_heads,
+            intermediate_size=intermediate_size,
+            max_position_embeddings=hf_config.get(ConfigField.MAX_POSITION_EMBEDDINGS.value, 4096),
+            rope_theta=hf_config.get(ConfigField.ROPE_THETA.value, DefaultRoPETheta.LLAMA2.value),
+            rms_norm_eps=rms_norm_eps,
+            sliding_window=hf_config.get(ConfigField.SLIDING_WINDOW.value),
+            rope_scaling=hf_config.get("rope_scaling"),
+            tie_word_embeddings=hf_config.get(ConfigField.TIE_WORD_EMBEDDINGS.value, False),
+            bos_token_id=hf_config.get(ConfigField.BOS_TOKEN_ID.value, 1),
+            eos_token_id=hf_config.get(ConfigField.EOS_TOKEN_ID.value, 2),
+            pad_token_id=hf_config.get(ConfigField.PAD_TOKEN_ID.value),
         )

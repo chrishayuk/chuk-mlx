@@ -15,7 +15,7 @@ models_v2 composable architecture.
 """
 
 from .config import LlamaConfig
-from .convert import LLAMA_WEIGHT_MAP, convert_hf_weights
+from .convert import LLAMA_WEIGHT_MAP, convert_hf_weights, load_hf_config, load_weights
 from .model import LlamaBlock, LlamaForCausalLM, LlamaModel
 
 __all__ = [
@@ -23,6 +23,9 @@ __all__ = [
     "LlamaForCausalLM",
     "LlamaModel",
     "LlamaBlock",
+    # Loading utilities
+    "load_hf_config",
+    "load_weights",
     "convert_hf_weights",
     "LLAMA_WEIGHT_MAP",
 ]
