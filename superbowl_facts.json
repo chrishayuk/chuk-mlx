@@ -1,0 +1,16 @@
+[
+  {"query": "The winner of Super Bowl 2010 was the", "answer": "New", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2011 was the", "answer": "Green", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2012 was the", "answer": "New", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2013 was the", "answer": "Baltimore", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2014 was the", "answer": "Seattle", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2015 was the", "answer": "New", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2016 was the", "answer": "Denver", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2017 was the", "answer": "New", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2018 was the", "answer": "Philadelphia", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2019 was the", "answer": "New", "category": "2010s"},
+  {"query": "The winner of Super Bowl 2020 was the", "answer": "Kansas", "category": "2020s"},
+  {"query": "The winner of Super Bowl 2021 was the", "answer": "Tampa", "category": "2020s"},
+  {"query": "The winner of Super Bowl 2022 was the", "answer": "Los", "category": "2020s"},
+  {"query": "The winner of Super Bowl 2023 was the", "answer": "Kansas", "category": "2020s"}
+]

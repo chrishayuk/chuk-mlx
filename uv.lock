@@ -232,6 +232,7 @@ source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },
     { name = "huggingface-hub" },
+    { name = "matplotlib" },
     { name = "mlx" },
     { name = "mlx-lm" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -280,6 +281,7 @@ requires-dist = [
     { name = "bandit", marker = "extra == 'dev'", specifier = ">=1.7.0" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "huggingface-hub", specifier = ">=0.23.0,<0.24.0" },
+    { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "matplotlib", marker = "extra == 'circuit'", specifier = ">=3.7.0" },
     { name = "mlx", specifier = ">=0.12.0" },
     { name = "mlx-data", marker = "extra == 'fast'", specifier = ">=0.0.3" },

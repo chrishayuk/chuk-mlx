@@ -115,7 +115,14 @@ from .commands.introspect import (
     introspect_activation_diff,
     introspect_analyze,
     introspect_arithmetic,
+    introspect_circuit_capture,
+    introspect_circuit_compare,
+    introspect_circuit_decode,
+    introspect_circuit_invoke,
+    introspect_circuit_test,
     introspect_compare,
+    introspect_memory,
+    introspect_memory_inject,
     introspect_directions,
     introspect_format_sensitivity,
     introspect_generate,
@@ -1047,7 +1054,49 @@ Examples:
     )
     analyze_parser.add_argument(
         "--steer",
-        help="Apply steering during analysis. Format: 'direction.npz:coefficient' (e.g., 'difficulty.npz:5' or 'difficulty.npz:-10')",
+        help="Apply steering during analysis. Either 'direction.npz:coefficient' or just 'direction.npz' (use --strength for coefficient)",
+    )
+    analyze_parser.add_argument(
+        "--steer-neuron",
+        type=int,
+        help="Single neuron index to steer (alternative to --steer with a direction file)",
+    )
+    analyze_parser.add_argument(
+        "--steer-layer",
+        type=int,
+        help="Layer to apply neuron steering (required with --steer-neuron)",
+    )
+    analyze_parser.add_argument(
+        "--strength",
+        type=float,
+        help="Steering strength/coefficient when using --steer or --steer-neuron (default: 1.0)",
+    )
+    analyze_parser.add_argument(
+        "--inject-layer",
+        type=int,
+        help="Layer at which to inject a token embedding (use with --inject-token)",
+    )
+    analyze_parser.add_argument(
+        "--inject-token",
+        help="Token to inject at --inject-layer (e.g., '2491' to force that answer)",
+    )
+    analyze_parser.add_argument(
+        "--inject-blend",
+        type=float,
+        default=1.0,
+        help="Blend factor for injection: 0=original, 1=full replacement (default: 1.0)",
+    )
+    analyze_parser.add_argument(
+        "--compute-override",
+        choices=["arithmetic", "none"],
+        default="none",
+        help="Override model computation with Python at layer boundary. "
+        "'arithmetic' detects A*B=, A+B=, etc and injects correct answer at --compute-layer",
+    )
+    analyze_parser.add_argument(
+        "--compute-layer",
+        type=int,
+        help="Layer at which to inject computed answer (default: 80%% of model depth)",
     )
     analyze_parser.set_defaults(func=introspect_analyze)
 
@@ -1463,6 +1512,11 @@ Three modes of operation:
         help="Path to direction file (.npz or .json)",
     )
     steer_parser.add_argument(
+        "--neuron",
+        type=int,
+        help="Single neuron index to steer (creates a one-hot direction)",
+    )
+    steer_parser.add_argument(
         "--layer",
         "-l",
         type=int,
@@ -1471,9 +1525,10 @@ Three modes of operation:
     steer_parser.add_argument(
         "--coefficient",
         "-c",
+        "--strength",
         type=float,
         default=1.0,
-        help="Steering coefficient (default: 1.0, negative = toward negative class)",
+        help="Steering coefficient/strength (default: 1.0, negative = toward negative class)",
     )
     steer_parser.add_argument(
         "--extract",
@@ -1506,6 +1561,7 @@ Three modes of operation:
     )
     steer_parser.add_argument(
         "--max-tokens",
+        "-n",
         type=int,
         default=50,
         help="Maximum tokens to generate (default: 50)",
@@ -1707,6 +1763,12 @@ Examples:
     lazarus introspect neurons -m model -l 15 \\
         --prompts "2+2=|47*47=" \\
         --from-direction difficulty.npz --top-k 6
+
+    # Track neuron across multiple layers
+    lazarus introspect neurons -m model --layers 15,19,20,21 \\
+        --prompts "10*10=|25*25=|100*100=|17*19=|23*29=|47*53=" \\
+        --neurons 1930 \\
+        --labels "trivial|easy|memorized|medium|hard|hardest"
         """,
     )
     neurons_parser.add_argument(
@@ -1719,8 +1781,11 @@ Examples:
         "--layer",
         "-l",
         type=int,
-        required=True,
-        help="Layer to analyze",
+        help="Single layer to analyze (use --layers for multiple)",
+    )
+    neurons_parser.add_argument(
+        "--layers",
+        help="Multiple layers to analyze (comma-separated, e.g., '15,19,20,21')",
     )
     neurons_parser.add_argument(
         "--prompts",
@@ -1734,6 +1799,10 @@ Examples:
         help="Neuron indices to analyze (comma-separated, e.g., '808,1190,1168')",
     )
     neurons_parser.add_argument(
+        "--neuron-names",
+        help="Names for neurons (pipe-separated, same order as --neurons, e.g., 'Confidence|Computation|Effort')",
+    )
+    neurons_parser.add_argument(
         "--from-direction",
         help="Load top neurons from saved direction .npz file",
     )
@@ -1741,11 +1810,25 @@ Examples:
         "--top-k",
         type=int,
         default=10,
-        help="Number of top neurons to show when using --from-direction (default: 10)",
+        help="Number of top neurons to show when using --from-direction or --auto-discover (default: 10)",
+    )
+    neurons_parser.add_argument(
+        "--auto-discover",
+        action="store_true",
+        help="Automatically discover discriminative neurons by variance/separation across prompts",
     )
     neurons_parser.add_argument(
         "--labels",
-        help="Labels for prompts (pipe-separated, same order as prompts)",
+        help="Labels for prompts (pipe-separated, same order as prompts). Required for --auto-discover",
+    )
+    neurons_parser.add_argument(
+        "--steer",
+        help="Apply steering during analysis. Either 'direction.npz:coefficient' or just 'direction.npz' (use --strength for coefficient)",
+    )
+    neurons_parser.add_argument(
+        "--strength",
+        type=float,
+        help="Steering strength/coefficient when using --steer (default: 1.0)",
     )
     neurons_parser.add_argument(
         "--output",
@@ -1762,6 +1845,17 @@ Examples:
 cluster separately in activation space.
 
 Shows ASCII scatter plot and cluster statistics.
+
+Supports two syntaxes:
+1. Legacy two-class: --class-a "prompts" --class-b "prompts" --label-a X --label-b Y
+2. Multi-class: --prompts "p1|p2|p3" --label L1 --prompts "p4|p5" --label L2 ...
+
+Multi-class example:
+    lazarus introspect cluster -m model \\
+        --prompts "45*45=|25*25=|15*15=" --label mult \\
+        --prompts "123+456=|100+37=|50+50=" --label add \\
+        --prompts "The capital of France is|The opposite of hot is" --label language \\
+        --layer 19 --save-plot L19_cluster.png
         """,
     )
     cluster_parser.add_argument(
@@ -1770,38 +1864,215 @@ Shows ASCII scatter plot and cluster statistics.
         required=True,
         help="Model name or HuggingFace ID",
     )
+    # Legacy two-class syntax
     cluster_parser.add_argument(
         "--class-a",
-        required=True,
-        help="Class A prompts (pipe-separated or @file.txt)",
+        help="Class A prompts (pipe-separated or @file.txt) [legacy syntax]",
     )
     cluster_parser.add_argument(
         "--class-b",
-        required=True,
-        help="Class B prompts (pipe-separated or @file.txt)",
+        help="Class B prompts (pipe-separated or @file.txt) [legacy syntax]",
     )
     cluster_parser.add_argument(
         "--label-a",
         default="class_a",
-        help="Label for class A (default: 'class_a')",
+        help="Label for class A (default: 'class_a') [legacy syntax]",
     )
     cluster_parser.add_argument(
         "--label-b",
         default="class_b",
-        help="Label for class B (default: 'class_b')",
+        help="Label for class B (default: 'class_b') [legacy syntax]",
+    )
+    # New multi-class syntax
+    cluster_parser.add_argument(
+        "--prompts",
+        action="append",
+        dest="prompt_groups",
+        help="Prompts for a class (pipe-separated or @file.txt). Use multiple times with --label.",
+    )
+    cluster_parser.add_argument(
+        "--label",
+        action="append",
+        dest="labels",
+        help="Label for the preceding --prompts group. Must match number of --prompts.",
     )
     cluster_parser.add_argument(
         "--layer",
         "-l",
-        type=int,
-        help="Layer to analyze (default: ~50%% of model depth)",
+        help="Layer(s) to analyze - single int or comma-separated (e.g., '19' or '19,20,21'). Default: ~50%% of model depth",
     )
     cluster_parser.add_argument(
         "--output",
         "-o",
         help="Save results to JSON file",
     )
+    cluster_parser.add_argument(
+        "--save-plot",
+        help="Save matplotlib scatter plot to file (e.g., cluster.png)",
+    )
     cluster_parser.set_defaults(func=introspect_activation_cluster)
+
+    # Memory command - extract memory organization structure
+    memory_parser = introspect_subparsers.add_parser(
+        "memory",
+        help="Extract memory organization structure for facts",
+        description="""Extract how facts are organized in model memory by analyzing
+neighborhood activation patterns.
+
+For each query, captures what other facts co-activate, revealing:
+- Memory organization (row vs column, clusters)
+- Asymmetry (does A->B activate same as B->A?)
+- Attractor nodes (frequently co-activated facts)
+- Difficulty patterns (which facts are hardest to retrieve)
+
+Built-in fact types:
+- multiplication: Single-digit times tables (2-9)
+- addition: Single-digit addition
+- capitals: Country capitals
+- elements: Periodic table elements
+
+Custom facts via CSV/JSON file.
+
+Examples:
+    # Extract times table memory structure
+    lazarus introspect memory -m model --facts multiplication --layer 20
+
+    # Extract capital city memory
+    lazarus introspect memory -m model --facts capitals --layer 15
+
+    # Custom facts from file
+    lazarus introspect memory -m model --facts @my_facts.json --layer 20
+        """,
+    )
+    memory_parser.add_argument(
+        "--model", "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    memory_parser.add_argument(
+        "--facts", "-f",
+        required=True,
+        help="Fact type: 'multiplication', 'addition', 'capitals', 'elements', or @file.json",
+    )
+    memory_parser.add_argument(
+        "--layer", "-l",
+        type=int,
+        help="Layer to analyze (default: ~80%% of model depth)",
+    )
+    memory_parser.add_argument(
+        "--top-k",
+        type=int,
+        default=30,
+        help="Number of top predictions to capture per query (default: 30)",
+    )
+    memory_parser.add_argument(
+        "--output", "-o",
+        help="Save detailed results to JSON file",
+    )
+    memory_parser.add_argument(
+        "--save-plot",
+        help="Save visualization to file (e.g., memory_structure.png)",
+    )
+    memory_parser.add_argument(
+        "--classify",
+        action="store_true",
+        help="Show memorization classification (memorized/partial/weak/not memorized)",
+    )
+    memory_parser.set_defaults(func=introspect_memory)
+
+    # Memory-inject command - external memory injection
+    memory_inject_parser = introspect_subparsers.add_parser(
+        "memory-inject",
+        help="External memory injection for fact retrieval",
+        description="""External memory injection: Inject correct answers from an external store.
+
+This provides circuit-guided memory externalization by:
+1. Building a store of (query, value) vector pairs from known facts
+2. Matching input queries to stored entries by similarity
+3. Injecting retrieved values into the residual stream
+
+Use cases:
+- Override incorrect model answers
+- Rescue out-of-distribution query formats
+- Add new facts without fine-tuning
+
+Examples:
+    # Test on multiplication with standard query
+    lazarus introspect memory-inject -m openai/gpt-oss-20b \\
+        --facts multiplication --query "7*8="
+
+    # Rescue non-standard format (force injection even if below threshold)
+    lazarus introspect memory-inject -m openai/gpt-oss-20b \\
+        --facts multiplication --query "seven times eight equals" --force
+
+    # Multiple queries
+    lazarus introspect memory-inject -m openai/gpt-oss-20b \\
+        --facts multiplication --queries "7*8=|6*7=|9*9="
+
+    # Evaluate on all facts
+    lazarus introspect memory-inject -m openai/gpt-oss-20b \\
+        --facts multiplication --evaluate
+        """,
+    )
+    memory_inject_parser.add_argument(
+        "--model", "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    memory_inject_parser.add_argument(
+        "--facts", "-f",
+        required=True,
+        help="Fact type: 'multiplication', 'addition', or @file.json",
+    )
+    memory_inject_parser.add_argument(
+        "--query", "-q",
+        help="Single query to test",
+    )
+    memory_inject_parser.add_argument(
+        "--queries",
+        help="Multiple queries separated by | (e.g., '7*8=|6*7=')",
+    )
+    memory_inject_parser.add_argument(
+        "--query-layer",
+        type=int,
+        help="Layer for query matching (default: ~92%% of model depth)",
+    )
+    memory_inject_parser.add_argument(
+        "--inject-layer",
+        type=int,
+        help="Layer to inject values (default: ~88%% of model depth)",
+    )
+    memory_inject_parser.add_argument(
+        "--blend",
+        type=float,
+        default=1.0,
+        help="Blend factor: 0=no injection, 1=full replacement (default: 1.0)",
+    )
+    memory_inject_parser.add_argument(
+        "--threshold",
+        type=float,
+        default=0.7,
+        help="Minimum similarity to use injection (default: 0.7)",
+    )
+    memory_inject_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force injection even if similarity is below threshold",
+    )
+    memory_inject_parser.add_argument(
+        "--save-store",
+        help="Save memory store to file (e.g., memory.npz)",
+    )
+    memory_inject_parser.add_argument(
+        "--load-store",
+        help="Load memory store from file",
+    )
+    memory_inject_parser.add_argument(
+        "--evaluate",
+        action="store_true",
+        help="Evaluate baseline vs injected accuracy on all facts",
+    )
+    memory_inject_parser.set_defaults(func=introspect_memory_inject)
 
     # Directions command - compare multiple direction vectors for orthogonality
     directions_parser = introspect_subparsers.add_parser(
@@ -1834,6 +2105,209 @@ Example:
         help="Save similarity matrix to JSON file",
     )
     directions_parser.set_defaults(func=introspect_directions)
+
+    # Circuit command - direct circuit invocation and manipulation
+    circuit_parser = introspect_subparsers.add_parser(
+        "circuit",
+        help="Direct circuit capture, interpolation, and invocation",
+        description="""Experimental: Capture and manipulate computation circuits directly.
+
+Subcommands:
+  capture   - Capture activations for a computation (e.g., "7 * 4 = 28")
+  invoke    - Interpolate/combine captured circuits to compute new values
+  decode    - Decode activations back to tokens/answers
+
+Examples:
+    # Capture multiplication examples
+    lazarus introspect circuit capture -m model \\
+        --prompts "7*4=28|6*8=48|9*3=27" --layer 19 --save mult_circuit.npz
+
+    # Invoke circuit with new operands (interpolate)
+    lazarus introspect circuit invoke -m model \\
+        --circuit mult_circuit.npz --operands "5,6" --layer 19
+
+    # Decode what answer the circuit produces
+    lazarus introspect circuit decode -m model \\
+        --activations circuit_state.npz --layer 19
+        """,
+    )
+    circuit_subparsers = circuit_parser.add_subparsers(dest="circuit_command")
+
+    # Circuit capture
+    capture_parser = circuit_subparsers.add_parser(
+        "capture",
+        help="Capture circuit activations for known computations",
+    )
+    capture_parser.add_argument(
+        "--model", "-m", required=True,
+        help="Model name or HuggingFace ID",
+    )
+    capture_parser.add_argument(
+        "--prompts", "-p", required=True,
+        help="Computation prompts (pipe-separated, e.g., '7*4=|6*8=' or '7*4=28|6*8=48')",
+    )
+    capture_parser.add_argument(
+        "--results", "-r",
+        help="Expected results (pipe-separated, e.g., '28|48') - use with prompts like '7*4=|6*8='",
+    )
+    capture_parser.add_argument(
+        "--layer", "-l", type=int, required=True,
+        help="Layer to capture activations from",
+    )
+    capture_parser.add_argument(
+        "--save", "-o", required=True,
+        help="Save captured circuit to .npz file",
+    )
+    capture_parser.add_argument(
+        "--extract-direction", action="store_true",
+        help="Extract and save the direction that encodes the result value",
+    )
+    capture_parser.add_argument(
+        "--position",
+        choices=["last", "answer", "operator"],
+        default="last",
+        help="Position to capture: last token, answer position, or operator position",
+    )
+    capture_parser.set_defaults(func=introspect_circuit_capture)
+
+    # Circuit invoke
+    invoke_parser = circuit_subparsers.add_parser(
+        "invoke",
+        help="Invoke circuit with new operands via interpolation",
+    )
+    invoke_parser.add_argument(
+        "--model", "-m",
+        help="Model name or HuggingFace ID (required for 'steer' method)",
+    )
+    invoke_parser.add_argument(
+        "--circuit", "-c", required=True,
+        help="Captured circuit file (.npz)",
+    )
+    invoke_parser.add_argument(
+        "--operands",
+        help="New operands to compute (pipe-separated pairs, e.g., '5,6|8,9')",
+    )
+    invoke_parser.add_argument(
+        "--prompts", "-p", dest="invoke_prompts",
+        help="Prompts to run through circuit (for 'steer' method, e.g., '5*6=|8*9=')",
+    )
+    invoke_parser.add_argument(
+        "--layer", "-l", type=int,
+        help="Layer for circuit (default: from circuit file)",
+    )
+    invoke_parser.add_argument(
+        "--method",
+        choices=["steer", "interpolate", "extrapolate", "linear"],
+        default="linear",
+        help="How to invoke circuit: steer (uses direction), linear/interpolate/extrapolate (uses activations)",
+    )
+    invoke_parser.add_argument(
+        "--output", "-o",
+        help="Save result to file",
+    )
+    invoke_parser.set_defaults(func=introspect_circuit_invoke)
+
+    # Circuit decode
+    decode_parser = circuit_subparsers.add_parser(
+        "decode",
+        help="Decode circuit activations to see what answer they produce",
+    )
+    decode_parser.add_argument(
+        "--model", "-m", required=True,
+        help="Model name or HuggingFace ID",
+    )
+    decode_parser.add_argument(
+        "--prompt", "-p", required=True,
+        help="Base prompt to inject activations into",
+    )
+    decode_parser.add_argument(
+        "--inject", "-i", required=True,
+        help="Activations to inject (.npz file)",
+    )
+    decode_parser.add_argument(
+        "--inject-idx", type=int, default=0,
+        help="Index of activation to inject (default: 0)",
+    )
+    decode_parser.add_argument(
+        "--layer", "-l", type=int,
+        help="Layer to inject at",
+    )
+    decode_parser.add_argument(
+        "--blend", type=float, default=1.0,
+        help="Blend factor (0=original, 1=full injection)",
+    )
+    decode_parser.add_argument(
+        "-n", "--max-tokens", type=int, default=20,
+        help="Max tokens to generate",
+    )
+    decode_parser.set_defaults(func=introspect_circuit_decode)
+
+    # Circuit test - apply trained direction to new activations (proper OOD testing)
+    test_parser = circuit_subparsers.add_parser(
+        "test",
+        help="Test if a circuit generalizes to new inputs",
+    )
+    test_parser.add_argument(
+        "--circuit", "-c", required=True,
+        help="Trained circuit file (.npz from 'circuit capture --extract-direction')",
+    )
+    # Option 1: Provide pre-captured activations
+    test_parser.add_argument(
+        "--test-activations", "-t",
+        help="Pre-captured test activations (.npz file)",
+    )
+    # Option 2: Capture on the fly with model + prompts
+    test_parser.add_argument(
+        "--model", "-m",
+        help="Model to use for capturing test activations",
+    )
+    test_parser.add_argument(
+        "--prompts", "-p",
+        help="Test prompts (e.g., '1*1=|11*11=|10*5=')",
+    )
+    test_parser.add_argument(
+        "--results", "-r",
+        help="Expected results (e.g., '1|121|50')",
+    )
+    test_parser.add_argument(
+        "--output", "-o",
+        help="Save results to JSON file",
+    )
+    test_parser.set_defaults(func=introspect_circuit_test)
+
+    # Circuit compare - compare multiple circuits (directions)
+    compare_circuit_parser = circuit_subparsers.add_parser(
+        "compare",
+        help="Compare multiple circuits (e.g., add vs mult vs div)",
+        description="""Compare the directions/circuits extracted for different operations.
+
+Shows:
+- Cosine similarity between circuit directions
+- Angle between circuits (orthogonal = independent computations)
+- Top neurons for each circuit
+
+Example:
+    lazarus introspect circuit compare \\
+        -c mult_circuit.npz add_circuit.npz sub_circuit.npz div_circuit.npz
+        """,
+    )
+    compare_circuit_parser.add_argument(
+        "--circuits", "-c",
+        nargs="+",
+        required=True,
+        help="Circuit files to compare (.npz files from 'circuit capture --extract-direction')",
+    )
+    compare_circuit_parser.add_argument(
+        "--top-k",
+        type=int,
+        default=10,
+        help="Number of top neurons to show per circuit (default: 10)",
+    )
+    compare_circuit_parser.add_argument(
+        "--output", "-o",
+        help="Save comparison results to JSON file",
+    )
+    compare_circuit_parser.set_defaults(func=introspect_circuit_compare)
 
     return parser
 

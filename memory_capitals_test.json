@@ -1,0 +1,5646 @@
+{
+  "model_id": "openai/gpt-oss-20b",
+  "fact_type": "capitals",
+  "layer": 20,
+  "num_facts": 30,
+  "accuracy": {
+    "top1": 8,
+    "top5": 11,
+    "not_found": 4
+  },
+  "attractors": [
+    {
+      "answer": "Paris",
+      "count": 24,
+      "avg_prob": 0.013841549555460611
+    },
+    {
+      "answer": "London",
+      "count": 16,
+      "avg_prob": 0.003522157669067383
+    },
+    {
+      "answer": "Berlin",
+      "count": 8,
+      "avg_prob": 0.0013594627380371094
+    },
+    {
+      "answer": "Tokyo",
+      "count": 5,
+      "avg_prob": 0.0016796112060546875
+    },
+    {
+      "answer": "Madrid",
+      "count": 3,
+      "avg_prob": 0.006453196207682292
+    },
+    {
+      "answer": "Oslo",
+      "count": 3,
+      "avg_prob": 0.0007870992024739584
+    },
+    {
+      "answer": "Copenhagen",
+      "count": 1,
+      "avg_prob": 0.00067901611328125
+    }
+  ],
+  "results": [
+    {
+      "query": "The capital of France is",
+      "answer": "Paris",
+      "country": "France",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " Paris",
+          "token_id": 12650,
+          "prob": 0.4453125
+        },
+        {
+          "token": " {",
+          "token_id": 354,
+          "prob": 0.23828125
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.087890625
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.060546875
+        },
+        {
+          "token": " ${",
+          "token_id": 6465,
+          "prob": 0.046875
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.046875
+        },
+        {
+          "token": " <",
+          "token_id": 464,
+          "prob": 0.022216796875
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.010498046875
+        },
+        {
+          "token": " {{",
+          "token_id": 12521,
+          "prob": 0.0081787109375
+        },
+        {
+          "token": " known",
+          "token_id": 5542,
+          "prob": 0.0030059814453125
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 1,
+        "correct_prob": 0.4453125,
+        "same_category": [
+          {
+            "answer": "London",
+            "prob": 0.00133514404296875,
+            "from_query": "The capital of UK is"
+          },
+          {
+            "answer": "Berlin",
+            "prob": 0.000972747802734375,
+            "from_query": "The capital of Germany is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "{",
+            "prob": 0.23828125
+          },
+          {
+            "token": "not",
+            "prob": 0.087890625
+          },
+          {
+            "token": "[",
+            "prob": 0.060546875
+          },
+          {
+            "token": "${",
+            "prob": 0.046875
+          },
+          {
+            "token": ":",
+            "prob": 0.046875
+          },
+          {
+            "token": "<",
+            "prob": 0.022216796875
+          },
+          {
+            "token": "also",
+            "prob": 0.010498046875
+          },
+          {
+            "token": "{{",
+            "prob": 0.0081787109375
+          },
+          {
+            "token": "known",
+            "prob": 0.0030059814453125
+          },
+          {
+            "token": "indeed",
+            "prob": 0.002655029296875
+          },
+          {
+            "token": "the",
+            "prob": 0.002655029296875
+          },
+          {
+            "token": "a",
+            "prob": 0.0020599365234375
+          },
+          {
+            "token": "**",
+            "prob": 0.00182342529296875
+          },
+          {
+            "token": "\\",
+            "prob": 0.0016021728515625
+          },
+          {
+            "token": "______",
+            "prob": 0.0014190673828125
+          },
+          {
+            "token": ":",
+            "prob": 0.0014190673828125
+          },
+          {
+            "token": "",
+            "prob": 0.001251220703125
+          },
+          {
+            "token": "called",
+            "prob": 0.0010986328125
+          },
+          {
+            "token": "given",
+            "prob": 0.000858306884765625
+          },
+          {
+            "token": "currently",
+            "prob": 0.0008087158203125
+          },
+          {
+            "token": "France",
+            "prob": 0.000518798828125
+          },
+          {
+            "token": ":\\",
+            "prob": 0.000457763671875
+          },
+          {
+            "token": ":",
+            "prob": 0.000457763671875
+          },
+          {
+            "token": "{}",
+            "prob": 0.0004062652587890625
+          },
+          {
+            "token": "$",
+            "prob": 0.0003814697265625
+          },
+          {
+            "token": "actually",
+            "prob": 0.000335693359375
+          },
+          {
+            "token": "now",
+            "prob": 0.00029754638671875
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Germany is",
+      "answer": "Berlin",
+      "country": "Germany",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " Berlin",
+          "token_id": 21230,
+          "prob": 0.45703125
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.2158203125
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.07958984375
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.0546875
+        },
+        {
+          "token": " Paris",
+          "token_id": 12650,
+          "prob": 0.0291748046875
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.022705078125
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.0177001953125
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.015625
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.015625
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.015625
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 1,
+        "correct_prob": 0.45703125,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.0291748046875,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.00506591796875,
+            "from_query": "The capital of UK is"
+          },
+          {
+            "answer": "Madrid",
+            "prob": 0.000606536865234375,
+            "from_query": "The capital of Spain is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.2158203125
+          },
+          {
+            "token": ":",
+            "prob": 0.07958984375
+          },
+          {
+            "token": "the",
+            "prob": 0.0546875
+          },
+          {
+            "token": "not",
+            "prob": 0.022705078125
+          },
+          {
+            "token": "'",
+            "prob": 0.0177001953125
+          },
+          {
+            "token": "also",
+            "prob": 0.015625
+          },
+          {
+            "token": "[",
+            "prob": 0.015625
+          },
+          {
+            "token": "a",
+            "prob": 0.015625
+          },
+          {
+            "token": "{",
+            "prob": 0.01214599609375
+          },
+          {
+            "token": ":",
+            "prob": 0.007354736328125
+          },
+          {
+            "token": "<",
+            "prob": 0.00653076171875
+          },
+          {
+            "token": "______",
+            "prob": 0.0057373046875
+          },
+          {
+            "token": "**",
+            "prob": 0.0057373046875
+          },
+          {
+            "token": "",
+            "prob": 0.00506591796875
+          },
+          {
+            "token": ":",
+            "prob": 0.003082275390625
+          },
+          {
+            "token": "capital",
+            "prob": 0.0023956298828125
+          },
+          {
+            "token": "\"",
+            "prob": 0.00164794921875
+          },
+          {
+            "token": "called",
+            "prob": 0.00128173828125
+          },
+          {
+            "token": "given",
+            "prob": 0.00128173828125
+          },
+          {
+            "token": "\\",
+            "prob": 0.00128173828125
+          },
+          {
+            "token": "Frankfurt",
+            "prob": 0.0012054443359375
+          },
+          {
+            "token": "Munich",
+            "prob": 0.00099945068359375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.000881195068359375
+          },
+          {
+            "token": "${",
+            "prob": 0.000881195068359375
+          },
+          {
+            "token": "...",
+            "prob": 0.0006866455078125
+          },
+          {
+            "token": "known",
+            "prob": 0.000606536865234375
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Italy is",
+      "answer": "Rome",
+      "country": "Italy",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.361328125
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.1708984375
+        },
+        {
+          "token": " Paris",
+          "token_id": 12650,
+          "prob": 0.1171875
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0712890625
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.0380859375
+        },
+        {
+          "token": " Rome",
+          "token_id": 27388,
+          "prob": 0.033447265625
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.0296630859375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0230712890625
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.0230712890625
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.0203857421875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 6,
+        "correct_prob": 0.033447265625,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.1171875,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "Madrid",
+            "prob": 0.0035552978515625,
+            "from_query": "The capital of Spain is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.0035552978515625,
+            "from_query": "The capital of UK is"
+          },
+          {
+            "answer": "Berlin",
+            "prob": 0.00201416015625,
+            "from_query": "The capital of Germany is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Tokyo",
+            "prob": 0.0013885498046875,
+            "from_query": "The capital of Japan is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.361328125
+          },
+          {
+            "token": "the",
+            "prob": 0.1708984375
+          },
+          {
+            "token": ":",
+            "prob": 0.0712890625
+          },
+          {
+            "token": "not",
+            "prob": 0.0380859375
+          },
+          {
+            "token": "a",
+            "prob": 0.0296630859375
+          },
+          {
+            "token": "also",
+            "prob": 0.0230712890625
+          },
+          {
+            "token": "[",
+            "prob": 0.0230712890625
+          },
+          {
+            "token": "'",
+            "prob": 0.0203857421875
+          },
+          {
+            "token": "{",
+            "prob": 0.0203857421875
+          },
+          {
+            "token": "**",
+            "prob": 0.0140380859375
+          },
+          {
+            "token": ":",
+            "prob": 0.00848388671875
+          },
+          {
+            "token": "",
+            "prob": 0.00750732421875
+          },
+          {
+            "token": "______",
+            "prob": 0.006622314453125
+          },
+          {
+            "token": "<",
+            "prob": 0.004547119140625
+          },
+          {
+            "token": "called",
+            "prob": 0.0040283203125
+          },
+          {
+            "token": ":",
+            "prob": 0.0035552978515625
+          },
+          {
+            "token": "\"",
+            "prob": 0.0027618408203125
+          },
+          {
+            "token": "given",
+            "prob": 0.00244140625
+          },
+          {
+            "token": "indeed",
+            "prob": 0.00189971923828125
+          },
+          {
+            "token": "set",
+            "prob": 0.0017852783203125
+          },
+          {
+            "token": "...",
+            "prob": 0.001678466796875
+          },
+          {
+            "token": "...",
+            "prob": 0.00130462646484375
+          },
+          {
+            "token": "(",
+            "prob": 0.00130462646484375
+          },
+          {
+            "token": "in",
+            "prob": 0.00115203857421875
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Spain is",
+      "answer": "Madrid",
+      "country": "Spain",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " Madrid",
+          "token_id": 20264,
+          "prob": 0.244140625
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.2158203125
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.130859375
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.1015625
+        },
+        {
+          "token": " Paris",
+          "token_id": 12650,
+          "prob": 0.0703125
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.048095703125
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.0291748046875
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.022705078125
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.02001953125
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.02001953125
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 1,
+        "correct_prob": 0.244140625,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.0703125,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.0034942626953125,
+            "from_query": "The capital of UK is"
+          },
+          {
+            "answer": "Berlin",
+            "prob": 0.0021209716796875,
+            "from_query": "The capital of Germany is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.2158203125
+          },
+          {
+            "token": "the",
+            "prob": 0.130859375
+          },
+          {
+            "token": ":",
+            "prob": 0.1015625
+          },
+          {
+            "token": "a",
+            "prob": 0.048095703125
+          },
+          {
+            "token": "not",
+            "prob": 0.0291748046875
+          },
+          {
+            "token": "[",
+            "prob": 0.022705078125
+          },
+          {
+            "token": "also",
+            "prob": 0.02001953125
+          },
+          {
+            "token": "'",
+            "prob": 0.02001953125
+          },
+          {
+            "token": "**",
+            "prob": 0.015625
+          },
+          {
+            "token": ":",
+            "prob": 0.0107421875
+          },
+          {
+            "token": "",
+            "prob": 0.0107421875
+          },
+          {
+            "token": "Barcelona",
+            "prob": 0.00946044921875
+          },
+          {
+            "token": "{",
+            "prob": 0.007354736328125
+          },
+          {
+            "token": ":",
+            "prob": 0.0057373046875
+          },
+          {
+            "token": "______",
+            "prob": 0.003936767578125
+          },
+          {
+            "token": "called",
+            "prob": 0.0034942626953125
+          },
+          {
+            "token": "indeed",
+            "prob": 0.002716064453125
+          },
+          {
+            "token": "<",
+            "prob": 0.002716064453125
+          },
+          {
+            "token": "given",
+            "prob": 0.0014495849609375
+          },
+          {
+            "token": "known",
+            "prob": 0.001068115234375
+          },
+          {
+            "token": "\"",
+            "prob": 0.001068115234375
+          },
+          {
+            "token": "capital",
+            "prob": 0.00099945068359375
+          },
+          {
+            "token": "(",
+            "prob": 0.00093841552734375
+          },
+          {
+            "token": "\\",
+            "prob": 0.00087738037109375
+          },
+          {
+            "token": "*",
+            "prob": 0.0007781982421875
+          },
+          {
+            "token": "set",
+            "prob": 0.000644683837890625
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of UK is",
+      "answer": "London",
+      "country": "UK",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " London",
+          "token_id": 9741,
+          "prob": 0.890625
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.023681640625
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.023681640625
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.01116943359375
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.01116943359375
+        },
+        {
+          "token": " {",
+          "token_id": 354,
+          "prob": 0.01116943359375
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.006805419921875
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.00531005859375
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.00250244140625
+        },
+        {
+          "token": " ???",
+          "token_id": 75946,
+          "prob": 0.00151824951171875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 1,
+        "correct_prob": 0.890625,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.0007171630859375,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "not",
+            "prob": 0.023681640625
+          },
+          {
+            "token": ":",
+            "prob": 0.023681640625
+          },
+          {
+            "token": "'",
+            "prob": 0.01116943359375
+          },
+          {
+            "token": "\"",
+            "prob": 0.01116943359375
+          },
+          {
+            "token": "{",
+            "prob": 0.01116943359375
+          },
+          {
+            "token": "[",
+            "prob": 0.006805419921875
+          },
+          {
+            "token": "",
+            "prob": 0.00531005859375
+          },
+          {
+            "token": "the",
+            "prob": 0.00250244140625
+          },
+          {
+            "token": "???",
+            "prob": 0.00151824951171875
+          },
+          {
+            "token": "England",
+            "prob": 0.00151824951171875
+          },
+          {
+            "token": "<",
+            "prob": 0.00133514404296875
+          },
+          {
+            "token": "______",
+            "prob": 0.00118255615234375
+          },
+          {
+            "token": "a",
+            "prob": 0.00118255615234375
+          },
+          {
+            "token": "unknown",
+            "prob": 0.0007171630859375
+          },
+          {
+            "token": "...",
+            "prob": 0.000492095947265625
+          },
+          {
+            "token": "UK",
+            "prob": 0.0003833770751953125
+          },
+          {
+            "token": "also",
+            "prob": 0.0003833770751953125
+          },
+          {
+            "token": "(",
+            "prob": 0.0002994537353515625
+          },
+          {
+            "token": "called",
+            "prob": 0.000247955322265625
+          },
+          {
+            "token": ":",
+            "prob": 0.000247955322265625
+          },
+          {
+            "token": "\\",
+            "prob": 0.0002193450927734375
+          },
+          {
+            "token": "given",
+            "prob": 0.00020599365234375
+          },
+          {
+            "token": "\"",
+            "prob": 0.00015926361083984375
+          },
+          {
+            "token": "in",
+            "prob": 0.0001506805419921875
+          },
+          {
+            "token": "known",
+            "prob": 0.000141143798828125
+          },
+          {
+            "token": "?",
+            "prob": 0.00013256072998046875
+          },
+          {
+            "token": "Manchester",
+            "prob": 0.00011730194091796875
+          },
+          {
+            "token": "?",
+            "prob": 0.00011730194091796875
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Japan is",
+      "answer": "Tokyo",
+      "country": "Japan",
+      "category": "Asia",
+      "predictions": [
+        {
+          "token": " Tokyo",
+          "token_id": 40510,
+          "prob": 0.42578125
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.201171875
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.107421875
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.0947265625
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.0186767578125
+        },
+        {
+          "token": ":\n",
+          "token_id": 734,
+          "prob": 0.0128173828125
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.0128173828125
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.0128173828125
+        },
+        {
+          "token": " {",
+          "token_id": 354,
+          "prob": 0.0128173828125
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.0113525390625
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 1,
+        "correct_prob": 0.42578125,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Paris",
+            "prob": 0.004730224609375,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.201171875
+          },
+          {
+            "token": ":",
+            "prob": 0.107421875
+          },
+          {
+            "token": "the",
+            "prob": 0.0947265625
+          },
+          {
+            "token": "a",
+            "prob": 0.0186767578125
+          },
+          {
+            "token": ":",
+            "prob": 0.0128173828125
+          },
+          {
+            "token": "[",
+            "prob": 0.0128173828125
+          },
+          {
+            "token": "'",
+            "prob": 0.0128173828125
+          },
+          {
+            "token": "{",
+            "prob": 0.0128173828125
+          },
+          {
+            "token": "not",
+            "prob": 0.0113525390625
+          },
+          {
+            "token": "**",
+            "prob": 0.010009765625
+          },
+          {
+            "token": "also",
+            "prob": 0.010009765625
+          },
+          {
+            "token": "______",
+            "prob": 0.00885009765625
+          },
+          {
+            "token": "",
+            "prob": 0.006072998046875
+          },
+          {
+            "token": "called",
+            "prob": 0.005340576171875
+          },
+          {
+            "token": ":",
+            "prob": 0.005340576171875
+          },
+          {
+            "token": "given",
+            "prob": 0.003692626953125
+          },
+          {
+            "token": "<",
+            "prob": 0.003692626953125
+          },
+          {
+            "token": "known",
+            "prob": 0.0032501220703125
+          },
+          {
+            "token": "indeed",
+            "prob": 0.001739501953125
+          },
+          {
+            "token": "capital",
+            "prob": 0.001739501953125
+          },
+          {
+            "token": "\"",
+            "prob": 0.00164031982421875
+          },
+          {
+            "token": "\\",
+            "prob": 0.00153350830078125
+          },
+          {
+            "token": "Japan",
+            "prob": 0.00144195556640625
+          },
+          {
+            "token": "${",
+            "prob": 0.0013580322265625
+          },
+          {
+            "token": "(",
+            "prob": 0.00119781494140625
+          },
+          {
+            "token": "...",
+            "prob": 0.00087738037109375
+          },
+          {
+            "token": "___",
+            "prob": 0.000682830810546875
+          },
+          {
+            "token": "what",
+            "prob": 0.000682830810546875
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of China is",
+      "answer": "Beijing",
+      "country": "China",
+      "category": "Asia",
+      "predictions": [
+        {
+          "token": " Beijing",
+          "token_id": 48624,
+          "prob": 0.68359375
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.08154296875
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.04931640625
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.043701171875
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.03857421875
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.01416015625
+        },
+        {
+          "token": " Shanghai",
+          "token_id": 48173,
+          "prob": 0.010986328125
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.010986328125
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.007598876953125
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.007598876953125
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 1,
+        "correct_prob": 0.68359375,
+        "same_category": [
+          {
+            "answer": "Tokyo",
+            "prob": 0.0021820068359375,
+            "from_query": "The capital of Japan is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Paris",
+            "prob": 0.003173828125,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.08154296875
+          },
+          {
+            "token": "the",
+            "prob": 0.04931640625
+          },
+          {
+            "token": "a",
+            "prob": 0.043701171875
+          },
+          {
+            "token": ":",
+            "prob": 0.03857421875
+          },
+          {
+            "token": "not",
+            "prob": 0.01416015625
+          },
+          {
+            "token": "Shanghai",
+            "prob": 0.010986328125
+          },
+          {
+            "token": "[",
+            "prob": 0.010986328125
+          },
+          {
+            "token": "**",
+            "prob": 0.007598876953125
+          },
+          {
+            "token": "also",
+            "prob": 0.007598876953125
+          },
+          {
+            "token": "'",
+            "prob": 0.0067138671875
+          },
+          {
+            "token": "",
+            "prob": 0.005218505859375
+          },
+          {
+            "token": ":",
+            "prob": 0.004058837890625
+          },
+          {
+            "token": "______",
+            "prob": 0.0021820068359375
+          },
+          {
+            "token": "known",
+            "prob": 0.0021820068359375
+          },
+          {
+            "token": ":",
+            "prob": 0.0021820068359375
+          },
+          {
+            "token": "<",
+            "prob": 0.001922607421875
+          },
+          {
+            "token": "indeed",
+            "prob": 0.00168609619140625
+          },
+          {
+            "token": "called",
+            "prob": 0.00115966796875
+          },
+          {
+            "token": "{",
+            "prob": 0.00115966796875
+          },
+          {
+            "token": "currently",
+            "prob": 0.00102996826171875
+          },
+          {
+            "token": "given",
+            "prob": 0.00090789794921875
+          },
+          {
+            "token": "\\",
+            "prob": 0.00090789794921875
+          },
+          {
+            "token": "capital",
+            "prob": 0.000797271728515625
+          },
+          {
+            "token": "China",
+            "prob": 0.000621795654296875
+          },
+          {
+            "token": "New",
+            "prob": 0.000514984130859375
+          },
+          {
+            "token": "(",
+            "prob": 0.000484466552734375
+          },
+          {
+            "token": "\"",
+            "prob": 0.000484466552734375
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of India is",
+      "answer": "Delhi",
+      "country": "India",
+      "category": "Asia",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.19921875
+        },
+        {
+          "token": " Delhi",
+          "token_id": 30076,
+          "prob": 0.1552734375
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.1064453125
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.0830078125
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.064453125
+        },
+        {
+          "token": " Paris",
+          "token_id": 12650,
+          "prob": 0.05029296875
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.05029296875
+        },
+        {
+          "token": " Mumbai",
+          "token_id": 47911,
+          "prob": 0.04443359375
+        },
+        {
+          "token": " {",
+          "token_id": 354,
+          "prob": 0.04443359375
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.02099609375
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 2,
+        "correct_prob": 0.1552734375,
+        "same_category": [
+          {
+            "answer": "Tokyo",
+            "prob": 0.0036468505859375,
+            "from_query": "The capital of Japan is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Paris",
+            "prob": 0.05029296875,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.01123046875,
+            "from_query": "The capital of UK is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.19921875
+          },
+          {
+            "token": ":",
+            "prob": 0.1064453125
+          },
+          {
+            "token": "[",
+            "prob": 0.0830078125
+          },
+          {
+            "token": "not",
+            "prob": 0.064453125
+          },
+          {
+            "token": "the",
+            "prob": 0.05029296875
+          },
+          {
+            "token": "Mumbai",
+            "prob": 0.04443359375
+          },
+          {
+            "token": "{",
+            "prob": 0.04443359375
+          },
+          {
+            "token": "**",
+            "prob": 0.02099609375
+          },
+          {
+            "token": "also",
+            "prob": 0.02099609375
+          },
+          {
+            "token": "'",
+            "prob": 0.014404296875
+          },
+          {
+            "token": "a",
+            "prob": 0.014404296875
+          },
+          {
+            "token": "<",
+            "prob": 0.00994873046875
+          },
+          {
+            "token": "New",
+            "prob": 0.007720947265625
+          },
+          {
+            "token": "given",
+            "prob": 0.006011962890625
+          },
+          {
+            "token": "______",
+            "prob": 0.00531005859375
+          },
+          {
+            "token": "capital",
+            "prob": 0.00531005859375
+          },
+          {
+            "token": ":",
+            "prob": 0.00531005859375
+          },
+          {
+            "token": "",
+            "prob": 0.004974365234375
+          },
+          {
+            "token": "known",
+            "prob": 0.00469970703125
+          },
+          {
+            "token": "\\",
+            "prob": 0.00439453125
+          },
+          {
+            "token": ":",
+            "prob": 0.0036468505859375
+          },
+          {
+            "token": "set",
+            "prob": 0.0036468505859375
+          },
+          {
+            "token": "{{",
+            "prob": 0.002838134765625
+          },
+          {
+            "token": "Washington",
+            "prob": 0.0026702880859375
+          },
+          {
+            "token": "called",
+            "prob": 0.0026702880859375
+          },
+          {
+            "token": "India",
+            "prob": 0.00250244140625
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Brazil is",
+      "answer": "Brasilia",
+      "country": "Brazil",
+      "category": "Americas",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.62890625
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0751953125
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.058349609375
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.04541015625
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.040283203125
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.027587890625
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.0244140625
+        },
+        {
+          "token": " capital",
+          "token_id": 9029,
+          "prob": 0.0130615234375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.01153564453125
+        },
+        {
+          "token": ":\n",
+          "token_id": 734,
+          "prob": 0.00897216796875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": null,
+        "correct_prob": null,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Paris",
+            "prob": 0.001556396484375,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.62890625
+          },
+          {
+            "token": ":",
+            "prob": 0.0751953125
+          },
+          {
+            "token": "the",
+            "prob": 0.058349609375
+          },
+          {
+            "token": "not",
+            "prob": 0.04541015625
+          },
+          {
+            "token": "**",
+            "prob": 0.040283203125
+          },
+          {
+            "token": "a",
+            "prob": 0.027587890625
+          },
+          {
+            "token": "'",
+            "prob": 0.0244140625
+          },
+          {
+            "token": "capital",
+            "prob": 0.0130615234375
+          },
+          {
+            "token": "also",
+            "prob": 0.01153564453125
+          },
+          {
+            "token": ":",
+            "prob": 0.00897216796875
+          },
+          {
+            "token": "______",
+            "prob": 0.0079345703125
+          },
+          {
+            "token": "[",
+            "prob": 0.0079345703125
+          },
+          {
+            "token": ":",
+            "prob": 0.005462646484375
+          },
+          {
+            "token": "{",
+            "prob": 0.005462646484375
+          },
+          {
+            "token": "",
+            "prob": 0.004241943359375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.0037384033203125
+          },
+          {
+            "token": "Bras\u00edlia",
+            "prob": 0.00225830078125
+          },
+          {
+            "token": "<",
+            "prob": 0.00225830078125
+          },
+          {
+            "token": "Capital",
+            "prob": 0.001556396484375
+          },
+          {
+            "token": "...",
+            "prob": 0.001556396484375
+          },
+          {
+            "token": "called",
+            "prob": 0.001373291015625
+          },
+          {
+            "token": "\"",
+            "prob": 0.001373291015625
+          },
+          {
+            "token": "given",
+            "prob": 0.00121307373046875
+          },
+          {
+            "token": "*",
+            "prob": 0.00121307373046875
+          },
+          {
+            "token": "\\",
+            "prob": 0.0011444091796875
+          },
+          {
+            "token": "...",
+            "prob": 0.0011444091796875
+          },
+          {
+            "token": "(",
+            "prob": 0.001007080078125
+          },
+          {
+            "token": "___",
+            "prob": 0.00064849853515625
+          },
+          {
+            "token": "S\u00e3o",
+            "prob": 0.0006103515625
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Russia is",
+      "answer": "Moscow",
+      "country": "Russia",
+      "category": "Other",
+      "predictions": [
+        {
+          "token": " Moscow",
+          "token_id": 51802,
+          "prob": 0.322265625
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.25
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.1337890625
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0810546875
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.055908203125
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.0206298828125
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0159912109375
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.0159912109375
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.01416015625
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.01251220703125
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 1,
+        "correct_prob": 0.322265625,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Paris",
+            "prob": 0.005889892578125,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "Berlin",
+            "prob": 0.0024566650390625,
+            "from_query": "The capital of Germany is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.000797271728515625,
+            "from_query": "The capital of UK is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.25
+          },
+          {
+            "token": "the",
+            "prob": 0.1337890625
+          },
+          {
+            "token": ":",
+            "prob": 0.0810546875
+          },
+          {
+            "token": "a",
+            "prob": 0.055908203125
+          },
+          {
+            "token": "not",
+            "prob": 0.0206298828125
+          },
+          {
+            "token": "also",
+            "prob": 0.0159912109375
+          },
+          {
+            "token": "[",
+            "prob": 0.0159912109375
+          },
+          {
+            "token": "'",
+            "prob": 0.01416015625
+          },
+          {
+            "token": "**",
+            "prob": 0.01251220703125
+          },
+          {
+            "token": "",
+            "prob": 0.01251220703125
+          },
+          {
+            "token": ":",
+            "prob": 0.00970458984375
+          },
+          {
+            "token": "______",
+            "prob": 0.007598876953125
+          },
+          {
+            "token": ":",
+            "prob": 0.004608154296875
+          },
+          {
+            "token": "known",
+            "prob": 0.0027923583984375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.002166748046875
+          },
+          {
+            "token": "{",
+            "prob": 0.002166748046875
+          },
+          {
+            "token": "called",
+            "prob": 0.00191497802734375
+          },
+          {
+            "token": "<",
+            "prob": 0.00191497802734375
+          },
+          {
+            "token": "Kiev",
+            "prob": 0.0016937255859375
+          },
+          {
+            "token": "\\",
+            "prob": 0.0016937255859375
+          },
+          {
+            "token": "\"",
+            "prob": 0.00115966796875
+          },
+          {
+            "token": "capital",
+            "prob": 0.000965118408203125
+          },
+          {
+            "token": "given",
+            "prob": 0.000965118408203125
+          },
+          {
+            "token": "what",
+            "prob": 0.000965118408203125
+          },
+          {
+            "token": "currently",
+            "prob": 0.000904083251953125
+          },
+          {
+            "token": "(",
+            "prob": 0.000904083251953125
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Canada is",
+      "answer": "Ottawa",
+      "country": "Canada",
+      "category": "Americas",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.283203125
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.171875
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.10400390625
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.10400390625
+        },
+        {
+          "token": " Toronto",
+          "token_id": 27812,
+          "prob": 0.08154296875
+        },
+        {
+          "token": " Ottawa",
+          "token_id": 67810,
+          "prob": 0.038330078125
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0299072265625
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.0299072265625
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.0205078125
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.01806640625
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 6,
+        "correct_prob": 0.038330078125,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "London",
+            "prob": 0.008544921875,
+            "from_query": "The capital of UK is"
+          },
+          {
+            "answer": "Paris",
+            "prob": 0.0035552978515625,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.283203125
+          },
+          {
+            "token": "the",
+            "prob": 0.171875
+          },
+          {
+            "token": "not",
+            "prob": 0.10400390625
+          },
+          {
+            "token": ":",
+            "prob": 0.10400390625
+          },
+          {
+            "token": "Toronto",
+            "prob": 0.08154296875
+          },
+          {
+            "token": "also",
+            "prob": 0.0299072265625
+          },
+          {
+            "token": "a",
+            "prob": 0.0299072265625
+          },
+          {
+            "token": "'",
+            "prob": 0.0205078125
+          },
+          {
+            "token": "**",
+            "prob": 0.01806640625
+          },
+          {
+            "token": "[",
+            "prob": 0.01806640625
+          },
+          {
+            "token": "______",
+            "prob": 0.00970458984375
+          },
+          {
+            "token": ":",
+            "prob": 0.008544921875
+          },
+          {
+            "token": "",
+            "prob": 0.008544921875
+          },
+          {
+            "token": "capital",
+            "prob": 0.00518798828125
+          },
+          {
+            "token": "{",
+            "prob": 0.00518798828125
+          },
+          {
+            "token": "known",
+            "prob": 0.00457763671875
+          },
+          {
+            "token": ":",
+            "prob": 0.00457763671875
+          },
+          {
+            "token": "called",
+            "prob": 0.004058837890625
+          },
+          {
+            "token": "Montreal",
+            "prob": 0.0035552978515625
+          },
+          {
+            "token": "<",
+            "prob": 0.002777099609375
+          },
+          {
+            "token": "Washington",
+            "prob": 0.0024566650390625
+          },
+          {
+            "token": "given",
+            "prob": 0.002166748046875
+          },
+          {
+            "token": "\\",
+            "prob": 0.002166748046875
+          },
+          {
+            "token": "\"",
+            "prob": 0.0019073486328125
+          },
+          {
+            "token": "(",
+            "prob": 0.00168609619140625
+          },
+          {
+            "token": "indeed",
+            "prob": 0.00148773193359375
+          },
+          {
+            "token": "*",
+            "prob": 0.00148773193359375
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Australia is",
+      "answer": "Canberra",
+      "country": "Australia",
+      "category": "Other",
+      "predictions": [
+        {
+          "token": " Sydney",
+          "token_id": 31677,
+          "prob": 0.17578125
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.13671875
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.13671875
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.1064453125
+        },
+        {
+          "token": " Canberra",
+          "token_id": 134455,
+          "prob": 0.09423828125
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0732421875
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.050537109375
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.0269775390625
+        },
+        {
+          "token": ":\n",
+          "token_id": 734,
+          "prob": 0.02099609375
+        },
+        {
+          "token": " Melbourne",
+          "token_id": 39178,
+          "prob": 0.0185546875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 5,
+        "correct_prob": 0.09423828125,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "London",
+            "prob": 0.014404296875,
+            "from_query": "The capital of UK is"
+          },
+          {
+            "answer": "Paris",
+            "prob": 0.004669189453125,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "Sydney",
+            "prob": 0.17578125
+          },
+          {
+            "token": "\"",
+            "prob": 0.13671875
+          },
+          {
+            "token": "the",
+            "prob": 0.13671875
+          },
+          {
+            "token": "not",
+            "prob": 0.1064453125
+          },
+          {
+            "token": ":",
+            "prob": 0.0732421875
+          },
+          {
+            "token": "**",
+            "prob": 0.050537109375
+          },
+          {
+            "token": "a",
+            "prob": 0.0269775390625
+          },
+          {
+            "token": ":",
+            "prob": 0.02099609375
+          },
+          {
+            "token": "Melbourne",
+            "prob": 0.0185546875
+          },
+          {
+            "token": "also",
+            "prob": 0.0185546875
+          },
+          {
+            "token": "capital",
+            "prob": 0.014404296875
+          },
+          {
+            "token": "______",
+            "prob": 0.0126953125
+          },
+          {
+            "token": "called",
+            "prob": 0.00872802734375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.0068359375
+          },
+          {
+            "token": "[",
+            "prob": 0.0068359375
+          },
+          {
+            "token": "New",
+            "prob": 0.006011962890625
+          },
+          {
+            "token": ":",
+            "prob": 0.006011962890625
+          },
+          {
+            "token": "'",
+            "prob": 0.006011962890625
+          },
+          {
+            "token": "known",
+            "prob": 0.0032196044921875
+          },
+          {
+            "token": "actually",
+            "prob": 0.0032196044921875
+          },
+          {
+            "token": "*",
+            "prob": 0.0032196044921875
+          },
+          {
+            "token": "",
+            "prob": 0.0032196044921875
+          },
+          {
+            "token": "Capital",
+            "prob": 0.002838134765625
+          },
+          {
+            "token": "<",
+            "prob": 0.002838134765625
+          },
+          {
+            "token": "given",
+            "prob": 0.0022125244140625
+          },
+          {
+            "token": "{",
+            "prob": 0.0017242431640625
+          },
+          {
+            "token": "\"",
+            "prob": 0.0017242431640625
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Mexico is",
+      "answer": "Mexico City",
+      "country": "Mexico",
+      "category": "Americas",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.3046875
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.2373046875
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.11181640625
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.0986328125
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.036376953125
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.0322265625
+        },
+        {
+          "token": " capital",
+          "token_id": 9029,
+          "prob": 0.01953125
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.01953125
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.0172119140625
+        },
+        {
+          "token": ":\n",
+          "token_id": 734,
+          "prob": 0.0172119140625
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": null,
+        "correct_prob": null,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Madrid",
+            "prob": 0.01519775390625,
+            "from_query": "The capital of Spain is"
+          },
+          {
+            "answer": "Paris",
+            "prob": 0.0026397705078125,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.3046875
+          },
+          {
+            "token": "the",
+            "prob": 0.2373046875
+          },
+          {
+            "token": ":",
+            "prob": 0.11181640625
+          },
+          {
+            "token": "a",
+            "prob": 0.0986328125
+          },
+          {
+            "token": "not",
+            "prob": 0.036376953125
+          },
+          {
+            "token": "'",
+            "prob": 0.0322265625
+          },
+          {
+            "token": "capital",
+            "prob": 0.01953125
+          },
+          {
+            "token": "also",
+            "prob": 0.01953125
+          },
+          {
+            "token": "**",
+            "prob": 0.0172119140625
+          },
+          {
+            "token": ":",
+            "prob": 0.0172119140625
+          },
+          {
+            "token": "[",
+            "prob": 0.01336669921875
+          },
+          {
+            "token": "",
+            "prob": 0.01336669921875
+          },
+          {
+            "token": ":",
+            "prob": 0.00921630859375
+          },
+          {
+            "token": "Mexico",
+            "prob": 0.006317138671875
+          },
+          {
+            "token": "______",
+            "prob": 0.005584716796875
+          },
+          {
+            "token": "called",
+            "prob": 0.0038299560546875
+          },
+          {
+            "token": "indeed",
+            "prob": 0.003387451171875
+          },
+          {
+            "token": "\\",
+            "prob": 0.0023193359375
+          },
+          {
+            "token": "given",
+            "prob": 0.0018157958984375
+          },
+          {
+            "token": "{",
+            "prob": 0.0018157958984375
+          },
+          {
+            "token": "...",
+            "prob": 0.00170135498046875
+          },
+          {
+            "token": "(",
+            "prob": 0.00170135498046875
+          },
+          {
+            "token": "Capital",
+            "prob": 0.00150299072265625
+          },
+          {
+            "token": "<",
+            "prob": 0.00141143798828125
+          },
+          {
+            "token": "known",
+            "prob": 0.00124359130859375
+          },
+          {
+            "token": "Washington",
+            "prob": 0.0010986328125
+          },
+          {
+            "token": "\"",
+            "prob": 0.0010986328125
+          },
+          {
+            "token": "...",
+            "prob": 0.00102996826171875
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Egypt is",
+      "answer": "Cairo",
+      "country": "Egypt",
+      "category": "Other",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.412109375
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.1943359375
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.10400390625
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.04931640625
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.04931640625
+        },
+        {
+          "token": " Cairo",
+          "token_id": 92144,
+          "prob": 0.023193359375
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.023193359375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0205078125
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.01409912109375
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.01409912109375
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 6,
+        "correct_prob": 0.023193359375,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Paris",
+            "prob": 0.00665283203125,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.0012359619140625,
+            "from_query": "The capital of UK is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.412109375
+          },
+          {
+            "token": "the",
+            "prob": 0.1943359375
+          },
+          {
+            "token": "a",
+            "prob": 0.10400390625
+          },
+          {
+            "token": "**",
+            "prob": 0.04931640625
+          },
+          {
+            "token": ":",
+            "prob": 0.04931640625
+          },
+          {
+            "token": "not",
+            "prob": 0.023193359375
+          },
+          {
+            "token": "also",
+            "prob": 0.0205078125
+          },
+          {
+            "token": "[",
+            "prob": 0.01409912109375
+          },
+          {
+            "token": "'",
+            "prob": 0.01409912109375
+          },
+          {
+            "token": "______",
+            "prob": 0.010986328125
+          },
+          {
+            "token": "called",
+            "prob": 0.00970458984375
+          },
+          {
+            "token": ":",
+            "prob": 0.00970458984375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.00665283203125
+          },
+          {
+            "token": "",
+            "prob": 0.00665283203125
+          },
+          {
+            "token": "capital",
+            "prob": 0.004058837890625
+          },
+          {
+            "token": "known",
+            "prob": 0.004058837890625
+          },
+          {
+            "token": ":",
+            "prob": 0.004058837890625
+          },
+          {
+            "token": "{",
+            "prob": 0.003143310546875
+          },
+          {
+            "token": "what",
+            "prob": 0.002166748046875
+          },
+          {
+            "token": "\"",
+            "prob": 0.002044677734375
+          },
+          {
+            "token": "given",
+            "prob": 0.001800537109375
+          },
+          {
+            "token": "\\",
+            "prob": 0.001800537109375
+          },
+          {
+            "token": "*",
+            "prob": 0.001312255859375
+          },
+          {
+            "token": "currently",
+            "prob": 0.00115966796875
+          },
+          {
+            "token": "...",
+            "prob": 0.0010223388671875
+          },
+          {
+            "token": "...",
+            "prob": 0.0009613037109375
+          },
+          {
+            "token": "(",
+            "prob": 0.0009613037109375
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of South Africa is",
+      "answer": "Pretoria",
+      "country": "South Africa",
+      "category": "Other",
+      "predictions": [
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.5546875
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.23046875
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.0751953125
+        },
+        {
+          "token": " actually",
+          "token_id": 4771,
+          "prob": 0.0244140625
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.0189208984375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0189208984375
+        },
+        {
+          "token": " Johannesburg",
+          "token_id": 112855,
+          "prob": 0.0147705078125
+        },
+        {
+          "token": " Pretoria",
+          "token_id": 179337,
+          "prob": 0.0089111328125
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.0079345703125
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0079345703125
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 8,
+        "correct_prob": 0.0089111328125,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "not",
+            "prob": 0.5546875
+          },
+          {
+            "token": "a",
+            "prob": 0.23046875
+          },
+          {
+            "token": "the",
+            "prob": 0.0751953125
+          },
+          {
+            "token": "actually",
+            "prob": 0.0244140625
+          },
+          {
+            "token": "**",
+            "prob": 0.0189208984375
+          },
+          {
+            "token": "also",
+            "prob": 0.0189208984375
+          },
+          {
+            "token": "Johannesburg",
+            "prob": 0.0147705078125
+          },
+          {
+            "token": "\"",
+            "prob": 0.0079345703125
+          },
+          {
+            "token": ":",
+            "prob": 0.0079345703125
+          },
+          {
+            "token": "called",
+            "prob": 0.00482177734375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.0025787353515625
+          },
+          {
+            "token": ":",
+            "prob": 0.0025787353515625
+          },
+          {
+            "token": "both",
+            "prob": 0.0022735595703125
+          },
+          {
+            "token": "South",
+            "prob": 0.00177001953125
+          },
+          {
+            "token": "in",
+            "prob": 0.00146484375
+          },
+          {
+            "token": "...",
+            "prob": 0.0012969970703125
+          },
+          {
+            "token": "an",
+            "prob": 0.00121307373046875
+          },
+          {
+            "token": ":",
+            "prob": 0.0011444091796875
+          },
+          {
+            "token": "often",
+            "prob": 0.001068115234375
+          },
+          {
+            "token": "",
+            "prob": 0.000835418701171875
+          },
+          {
+            "token": "listed",
+            "prob": 0.000690460205078125
+          },
+          {
+            "token": "located",
+            "prob": 0.0006103515625
+          },
+          {
+            "token": "[",
+            "prob": 0.0006103515625
+          },
+          {
+            "token": "typically",
+            "prob": 0.00057220458984375
+          },
+          {
+            "token": "*",
+            "prob": 0.000476837158203125
+          },
+          {
+            "token": "______",
+            "prob": 0.000392913818359375
+          },
+          {
+            "token": "made",
+            "prob": 0.000370025634765625
+          },
+          {
+            "token": "set",
+            "prob": 0.000370025634765625
+          },
+          {
+            "token": "different",
+            "prob": 0.000347137451171875
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Argentina is",
+      "answer": "Buenos Aires",
+      "country": "Argentina",
+      "category": "Americas",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.4453125
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.1630859375
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.09912109375
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.068359375
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.05322265625
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.03662109375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0322265625
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.017333984375
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.013427734375
+        },
+        {
+          "token": " called",
+          "token_id": 4358,
+          "prob": 0.00921630859375
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": null,
+        "correct_prob": null,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Paris",
+            "prob": 0.0030059814453125,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.4453125
+          },
+          {
+            "token": "the",
+            "prob": 0.1630859375
+          },
+          {
+            "token": "**",
+            "prob": 0.09912109375
+          },
+          {
+            "token": "a",
+            "prob": 0.068359375
+          },
+          {
+            "token": ":",
+            "prob": 0.05322265625
+          },
+          {
+            "token": "not",
+            "prob": 0.03662109375
+          },
+          {
+            "token": "also",
+            "prob": 0.0322265625
+          },
+          {
+            "token": "",
+            "prob": 0.017333984375
+          },
+          {
+            "token": "'",
+            "prob": 0.013427734375
+          },
+          {
+            "token": "called",
+            "prob": 0.00921630859375
+          },
+          {
+            "token": ":",
+            "prob": 0.00634765625
+          },
+          {
+            "token": "______",
+            "prob": 0.005584716796875
+          },
+          {
+            "token": ":",
+            "prob": 0.005584716796875
+          },
+          {
+            "token": "indeed",
+            "prob": 0.004364013671875
+          },
+          {
+            "token": "[",
+            "prob": 0.004364013671875
+          },
+          {
+            "token": "Buenos",
+            "prob": 0.0030059814453125
+          },
+          {
+            "token": "*",
+            "prob": 0.0030059814453125
+          },
+          {
+            "token": "(",
+            "prob": 0.0023345947265625
+          },
+          {
+            "token": "{",
+            "prob": 0.00182342529296875
+          },
+          {
+            "token": "<",
+            "prob": 0.0016021728515625
+          },
+          {
+            "token": "given",
+            "prob": 0.0011749267578125
+          },
+          {
+            "token": "...",
+            "prob": 0.0011749267578125
+          },
+          {
+            "token": "in",
+            "prob": 0.0010986328125
+          },
+          {
+            "token": "known",
+            "prob": 0.00103759765625
+          },
+          {
+            "token": "\"",
+            "prob": 0.00103759765625
+          },
+          {
+            "token": "capital",
+            "prob": 0.000972747802734375
+          },
+          {
+            "token": "...",
+            "prob": 0.000972747802734375
+          },
+          {
+            "token": "an",
+            "prob": 0.000713348388671875
+          },
+          {
+            "token": "",
+            "prob": 0.000667572021484375
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Poland is",
+      "answer": "Warsaw",
+      "country": "Poland",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.59375
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.10302734375
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0908203125
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.0625
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0230712890625
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.0230712890625
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.0157470703125
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.0123291015625
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.0108642578125
+        },
+        {
+          "token": ":\n",
+          "token_id": 734,
+          "prob": 0.007476806640625
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 17,
+        "correct_prob": 0.00274658203125,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.005828857421875,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "Berlin",
+            "prob": 0.00146484375,
+            "from_query": "The capital of Germany is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.000576019287109375,
+            "from_query": "The capital of UK is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.59375
+          },
+          {
+            "token": "the",
+            "prob": 0.10302734375
+          },
+          {
+            "token": ":",
+            "prob": 0.0908203125
+          },
+          {
+            "token": "a",
+            "prob": 0.0625
+          },
+          {
+            "token": "also",
+            "prob": 0.0230712890625
+          },
+          {
+            "token": "'",
+            "prob": 0.0230712890625
+          },
+          {
+            "token": "**",
+            "prob": 0.0157470703125
+          },
+          {
+            "token": "",
+            "prob": 0.0123291015625
+          },
+          {
+            "token": "not",
+            "prob": 0.0108642578125
+          },
+          {
+            "token": ":",
+            "prob": 0.007476806640625
+          },
+          {
+            "token": "[",
+            "prob": 0.007476806640625
+          },
+          {
+            "token": ":",
+            "prob": 0.0045166015625
+          },
+          {
+            "token": "{",
+            "prob": 0.0045166015625
+          },
+          {
+            "token": "______",
+            "prob": 0.00311279296875
+          },
+          {
+            "token": "capital",
+            "prob": 0.00311279296875
+          },
+          {
+            "token": "called",
+            "prob": 0.0024261474609375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.00213623046875
+          },
+          {
+            "token": "<",
+            "prob": 0.00146484375
+          },
+          {
+            "token": "\"",
+            "prob": 0.00146484375
+          },
+          {
+            "token": "known",
+            "prob": 0.0012969970703125
+          },
+          {
+            "token": "given",
+            "prob": 0.0012969970703125
+          },
+          {
+            "token": "\\",
+            "prob": 0.0011444091796875
+          },
+          {
+            "token": "...",
+            "prob": 0.001007080078125
+          },
+          {
+            "token": "(",
+            "prob": 0.00089263916015625
+          },
+          {
+            "token": "...",
+            "prob": 0.000789642333984375
+          },
+          {
+            "token": "*",
+            "prob": 0.00074005126953125
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Netherlands is",
+      "answer": "Amsterdam",
+      "country": "Netherlands",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.6171875
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.2265625
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.06494140625
+        },
+        {
+          "token": " Amsterdam",
+          "token_id": 29417,
+          "prob": 0.02392578125
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0211181640625
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.0145263671875
+        },
+        {
+          "token": " ???",
+          "token_id": 75946,
+          "prob": 0.0036773681640625
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.00286865234375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0025177001953125
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.002227783203125
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 4,
+        "correct_prob": 0.02392578125,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.000820159912109375,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.00046539306640625,
+            "from_query": "The capital of UK is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.6171875
+          },
+          {
+            "token": "'",
+            "prob": 0.2265625
+          },
+          {
+            "token": "not",
+            "prob": 0.06494140625
+          },
+          {
+            "token": ":",
+            "prob": 0.0211181640625
+          },
+          {
+            "token": "",
+            "prob": 0.0145263671875
+          },
+          {
+            "token": "???",
+            "prob": 0.0036773681640625
+          },
+          {
+            "token": "[",
+            "prob": 0.00286865234375
+          },
+          {
+            "token": "also",
+            "prob": 0.0025177001953125
+          },
+          {
+            "token": "a",
+            "prob": 0.002227783203125
+          },
+          {
+            "token": "{",
+            "prob": 0.0019683837890625
+          },
+          {
+            "token": "the",
+            "prob": 0.0019683837890625
+          },
+          {
+            "token": "...",
+            "prob": 0.00135040283203125
+          },
+          {
+            "token": "<",
+            "prob": 0.00135040283203125
+          },
+          {
+            "token": "______",
+            "prob": 0.0010528564453125
+          },
+          {
+            "token": "\"",
+            "prob": 0.000926971435546875
+          },
+          {
+            "token": "unknown",
+            "prob": 0.000637054443359375
+          },
+          {
+            "token": "called",
+            "prob": 0.000637054443359375
+          },
+          {
+            "token": ":",
+            "prob": 0.000637054443359375
+          },
+          {
+            "token": "(",
+            "prob": 0.0005645751953125
+          },
+          {
+            "token": "...\"",
+            "prob": 0.0004119873046875
+          },
+          {
+            "token": "?",
+            "prob": 0.0004119873046875
+          },
+          {
+            "token": "given",
+            "prob": 0.000385284423828125
+          },
+          {
+            "token": "Rotterdam",
+            "prob": 0.000362396240234375
+          },
+          {
+            "token": "**",
+            "prob": 0.000362396240234375
+          },
+          {
+            "token": "?",
+            "prob": 0.0003414154052734375
+          },
+          {
+            "token": "in",
+            "prob": 0.0003414154052734375
+          },
+          {
+            "token": "known",
+            "prob": 0.0002651214599609375
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Belgium is",
+      "answer": "Brussels",
+      "country": "Belgium",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.255859375
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.2255859375
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.19921875
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.0830078125
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.056884765625
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.04443359375
+        },
+        {
+          "token": " Brussels",
+          "token_id": 73446,
+          "prob": 0.023681640625
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.02099609375
+        },
+        {
+          "token": ":\n\n",
+          "token_id": 1402,
+          "prob": 0.01275634765625
+        },
+        {
+          "token": ":\n",
+          "token_id": 734,
+          "prob": 0.01123046875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 7,
+        "correct_prob": 0.023681640625,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.00872802734375,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.002838134765625,
+            "from_query": "The capital of UK is"
+          },
+          {
+            "answer": "Berlin",
+            "prob": 0.00055694580078125,
+            "from_query": "The capital of Germany is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.255859375
+          },
+          {
+            "token": "**",
+            "prob": 0.2255859375
+          },
+          {
+            "token": "the",
+            "prob": 0.19921875
+          },
+          {
+            "token": "not",
+            "prob": 0.0830078125
+          },
+          {
+            "token": ":",
+            "prob": 0.056884765625
+          },
+          {
+            "token": "a",
+            "prob": 0.04443359375
+          },
+          {
+            "token": "also",
+            "prob": 0.02099609375
+          },
+          {
+            "token": ":",
+            "prob": 0.01275634765625
+          },
+          {
+            "token": ":",
+            "prob": 0.01123046875
+          },
+          {
+            "token": "'",
+            "prob": 0.01123046875
+          },
+          {
+            "token": "",
+            "prob": 0.007720947265625
+          },
+          {
+            "token": "______",
+            "prob": 0.00604248046875
+          },
+          {
+            "token": "called",
+            "prob": 0.00604248046875
+          },
+          {
+            "token": "*",
+            "prob": 0.0036468505859375
+          },
+          {
+            "token": "[",
+            "prob": 0.002838134765625
+          },
+          {
+            "token": "indeed",
+            "prob": 0.0025177001953125
+          },
+          {
+            "token": "capital",
+            "prob": 0.0025177001953125
+          },
+          {
+            "token": "{",
+            "prob": 0.0011138916015625
+          },
+          {
+            "token": "...",
+            "prob": 0.00104522705078125
+          },
+          {
+            "token": "<",
+            "prob": 0.00104522705078125
+          },
+          {
+            "token": "...",
+            "prob": 0.00092315673828125
+          },
+          {
+            "token": "known",
+            "prob": 0.00081634521484375
+          },
+          {
+            "token": "\"",
+            "prob": 0.00081634521484375
+          },
+          {
+            "token": "given",
+            "prob": 0.000766754150390625
+          },
+          {
+            "token": "\\",
+            "prob": 0.000675201416015625
+          },
+          {
+            "token": "(",
+            "prob": 0.00052642822265625
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Sweden is",
+      "answer": "Stockholm",
+      "country": "Sweden",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.416015625
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.22265625
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.08203125
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.08203125
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0498046875
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0341796875
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.030029296875
+        },
+        {
+          "token": " called",
+          "token_id": 4358,
+          "prob": 0.01422119140625
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.01104736328125
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.00982666015625
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 19,
+        "correct_prob": 0.001495361328125,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.0021820068359375,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "Oslo",
+            "prob": 0.00116729736328125,
+            "from_query": "The capital of Norway is"
+          },
+          {
+            "answer": "Berlin",
+            "prob": 0.00070953369140625,
+            "from_query": "The capital of Germany is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.00058746337890625,
+            "from_query": "The capital of UK is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.416015625
+          },
+          {
+            "token": "the",
+            "prob": 0.22265625
+          },
+          {
+            "token": "**",
+            "prob": 0.08203125
+          },
+          {
+            "token": "a",
+            "prob": 0.08203125
+          },
+          {
+            "token": ":",
+            "prob": 0.0498046875
+          },
+          {
+            "token": "also",
+            "prob": 0.0341796875
+          },
+          {
+            "token": "not",
+            "prob": 0.030029296875
+          },
+          {
+            "token": "called",
+            "prob": 0.01422119140625
+          },
+          {
+            "token": "",
+            "prob": 0.01104736328125
+          },
+          {
+            "token": "'",
+            "prob": 0.00982666015625
+          },
+          {
+            "token": ":",
+            "prob": 0.00860595703125
+          },
+          {
+            "token": "known",
+            "prob": 0.005950927734375
+          },
+          {
+            "token": ":",
+            "prob": 0.005218505859375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.00360107421875
+          },
+          {
+            "token": "[",
+            "prob": 0.0028076171875
+          },
+          {
+            "token": "capital",
+            "prob": 0.0021820068359375
+          },
+          {
+            "token": "______",
+            "prob": 0.001495361328125
+          },
+          {
+            "token": "*",
+            "prob": 0.001495361328125
+          },
+          {
+            "token": "currently",
+            "prob": 0.00102996826171875
+          },
+          {
+            "token": "<",
+            "prob": 0.00102996826171875
+          },
+          {
+            "token": "what",
+            "prob": 0.00090789794921875
+          },
+          {
+            "token": "given",
+            "prob": 0.000804901123046875
+          },
+          {
+            "token": "...",
+            "prob": 0.000518798828125
+          },
+          {
+            "token": "\\",
+            "prob": 0.000518798828125
+          },
+          {
+            "token": "...",
+            "prob": 0.000518798828125
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Norway is",
+      "answer": "Oslo",
+      "country": "Norway",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " Oslo",
+          "token_id": 44865,
+          "prob": 0.3984375
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.212890625
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.166015625
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.05419921875
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.036865234375
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.03271484375
+        },
+        {
+          "token": " called",
+          "token_id": 4358,
+          "prob": 0.02880859375
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.01361083984375
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.00823974609375
+        },
+        {
+          "token": " capital",
+          "token_id": 9029,
+          "prob": 0.007293701171875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 1,
+        "correct_prob": 0.3984375,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.00072479248046875,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "Copenhagen",
+            "prob": 0.00067901611328125,
+            "from_query": "The capital of Denmark is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.000362396240234375,
+            "from_query": "The capital of UK is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.212890625
+          },
+          {
+            "token": "**",
+            "prob": 0.166015625
+          },
+          {
+            "token": "the",
+            "prob": 0.05419921875
+          },
+          {
+            "token": "not",
+            "prob": 0.036865234375
+          },
+          {
+            "token": "a",
+            "prob": 0.03271484375
+          },
+          {
+            "token": "called",
+            "prob": 0.02880859375
+          },
+          {
+            "token": ":",
+            "prob": 0.01361083984375
+          },
+          {
+            "token": "",
+            "prob": 0.00823974609375
+          },
+          {
+            "token": "capital",
+            "prob": 0.007293701171875
+          },
+          {
+            "token": "also",
+            "prob": 0.00640869140625
+          },
+          {
+            "token": ":",
+            "prob": 0.00567626953125
+          },
+          {
+            "token": ":",
+            "prob": 0.004425048828125
+          },
+          {
+            "token": "'",
+            "prob": 0.003448486328125
+          },
+          {
+            "token": "known",
+            "prob": 0.0023651123046875
+          },
+          {
+            "token": "indeed",
+            "prob": 0.001434326171875
+          },
+          {
+            "token": "______",
+            "prob": 0.00127410888671875
+          },
+          {
+            "token": "*",
+            "prob": 0.00127410888671875
+          },
+          {
+            "token": "<",
+            "prob": 0.00098419189453125
+          },
+          {
+            "token": "[",
+            "prob": 0.000820159912109375
+          },
+          {
+            "token": "given",
+            "prob": 0.00072479248046875
+          },
+          {
+            "token": "what",
+            "prob": 0.00049591064453125
+          },
+          {
+            "token": "`",
+            "prob": 0.000438690185546875
+          },
+          {
+            "token": "(",
+            "prob": 0.000438690185546875
+          },
+          {
+            "token": "\"",
+            "prob": 0.000438690185546875
+          },
+          {
+            "token": "\\",
+            "prob": 0.0004100799560546875
+          },
+          {
+            "token": "actually",
+            "prob": 0.000385284423828125
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Denmark is",
+      "answer": "Copenhagen",
+      "country": "Denmark",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.41015625
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.1943359375
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.1708984375
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.06298828125
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0380859375
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.0230712890625
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0230712890625
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.015869140625
+        },
+        {
+          "token": " called",
+          "token_id": 4358,
+          "prob": 0.0140380859375
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.00848388671875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 19,
+        "correct_prob": 0.001678466796875,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.0021514892578125,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.00115203857421875,
+            "from_query": "The capital of UK is"
+          },
+          {
+            "answer": "Oslo",
+            "prob": 0.00061798095703125,
+            "from_query": "The capital of Norway is"
+          },
+          {
+            "answer": "Berlin",
+            "prob": 0.000579833984375,
+            "from_query": "The capital of Germany is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.41015625
+          },
+          {
+            "token": "the",
+            "prob": 0.1943359375
+          },
+          {
+            "token": "**",
+            "prob": 0.1708984375
+          },
+          {
+            "token": "a",
+            "prob": 0.06298828125
+          },
+          {
+            "token": "also",
+            "prob": 0.0380859375
+          },
+          {
+            "token": "not",
+            "prob": 0.0230712890625
+          },
+          {
+            "token": ":",
+            "prob": 0.0230712890625
+          },
+          {
+            "token": "",
+            "prob": 0.015869140625
+          },
+          {
+            "token": "called",
+            "prob": 0.0140380859375
+          },
+          {
+            "token": "'",
+            "prob": 0.00848388671875
+          },
+          {
+            "token": ":",
+            "prob": 0.004547119140625
+          },
+          {
+            "token": ":",
+            "prob": 0.0040283203125
+          },
+          {
+            "token": "known",
+            "prob": 0.0035552978515625
+          },
+          {
+            "token": "[",
+            "prob": 0.0031280517578125
+          },
+          {
+            "token": "capital",
+            "prob": 0.0027618408203125
+          },
+          {
+            "token": "indeed",
+            "prob": 0.0021514892578125
+          },
+          {
+            "token": "*",
+            "prob": 0.0021514892578125
+          },
+          {
+            "token": "______",
+            "prob": 0.000896453857421875
+          },
+          {
+            "token": "given",
+            "prob": 0.000698089599609375
+          },
+          {
+            "token": "<",
+            "prob": 0.00061798095703125
+          },
+          {
+            "token": "actually",
+            "prob": 0.000579833984375
+          },
+          {
+            "token": "in",
+            "prob": 0.000579833984375
+          },
+          {
+            "token": "(",
+            "prob": 0.00051116943359375
+          },
+          {
+            "token": "...",
+            "prob": 0.00037384033203125
+          },
+          {
+            "token": "\"",
+            "prob": 0.00037384033203125
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Finland is",
+      "answer": "Helsinki",
+      "country": "Finland",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.462890625
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.150390625
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.1328125
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.10302734375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.026123046875
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.0203857421875
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.0179443359375
+        },
+        {
+          "token": " called",
+          "token_id": 4358,
+          "prob": 0.015869140625
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.01397705078125
+        },
+        {
+          "token": " capital",
+          "token_id": 9029,
+          "prob": 0.01092529296875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 16,
+        "correct_prob": 0.0016632080078125,
+        "same_category": [
+          {
+            "answer": "Oslo",
+            "prob": 0.000576019287109375,
+            "from_query": "The capital of Norway is"
+          },
+          {
+            "answer": "Paris",
+            "prob": 0.0004482269287109375,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.462890625
+          },
+          {
+            "token": "**",
+            "prob": 0.150390625
+          },
+          {
+            "token": "the",
+            "prob": 0.1328125
+          },
+          {
+            "token": "a",
+            "prob": 0.10302734375
+          },
+          {
+            "token": "also",
+            "prob": 0.026123046875
+          },
+          {
+            "token": "not",
+            "prob": 0.0203857421875
+          },
+          {
+            "token": ":",
+            "prob": 0.0179443359375
+          },
+          {
+            "token": "called",
+            "prob": 0.015869140625
+          },
+          {
+            "token": "'",
+            "prob": 0.01397705078125
+          },
+          {
+            "token": "capital",
+            "prob": 0.01092529296875
+          },
+          {
+            "token": "",
+            "prob": 0.00958251953125
+          },
+          {
+            "token": "known",
+            "prob": 0.005828857421875
+          },
+          {
+            "token": ":",
+            "prob": 0.004547119140625
+          },
+          {
+            "token": ":",
+            "prob": 0.003997802734375
+          },
+          {
+            "token": "*",
+            "prob": 0.0024261474609375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.00147247314453125
+          },
+          {
+            "token": "[",
+            "prob": 0.0011444091796875
+          },
+          {
+            "token": "currently",
+            "prob": 0.000614166259765625
+          },
+          {
+            "token": "given",
+            "prob": 0.000576019287109375
+          },
+          {
+            "token": "in",
+            "prob": 0.000576019287109375
+          },
+          {
+            "token": "(",
+            "prob": 0.0004482269287109375
+          },
+          {
+            "token": "______",
+            "prob": 0.0004215240478515625
+          },
+          {
+            "token": "...",
+            "prob": 0.0003719329833984375
+          },
+          {
+            "token": "Capital",
+            "prob": 0.0003490447998046875
+          },
+          {
+            "token": "...",
+            "prob": 0.0003490447998046875
+          },
+          {
+            "token": "<",
+            "prob": 0.0003490447998046875
+          },
+          {
+            "token": "what",
+            "prob": 0.00032806396484375
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Greece is",
+      "answer": "Athens",
+      "country": "Greece",
+      "category": "Europe",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.50390625
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.14453125
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.08740234375
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.0771484375
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.046630859375
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.041259765625
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.0172119140625
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.013427734375
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.01190185546875
+        },
+        {
+          "token": " called",
+          "token_id": 4358,
+          "prob": 0.0072021484375
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 15,
+        "correct_prob": 0.0034027099609375,
+        "same_category": [
+          {
+            "answer": "Paris",
+            "prob": 0.005584716796875,
+            "from_query": "The capital of France is"
+          },
+          {
+            "answer": "London",
+            "prob": 0.00070953369140625,
+            "from_query": "The capital of UK is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.50390625
+          },
+          {
+            "token": "the",
+            "prob": 0.14453125
+          },
+          {
+            "token": "a",
+            "prob": 0.08740234375
+          },
+          {
+            "token": "**",
+            "prob": 0.0771484375
+          },
+          {
+            "token": ":",
+            "prob": 0.046630859375
+          },
+          {
+            "token": "not",
+            "prob": 0.041259765625
+          },
+          {
+            "token": "",
+            "prob": 0.0172119140625
+          },
+          {
+            "token": "also",
+            "prob": 0.013427734375
+          },
+          {
+            "token": "'",
+            "prob": 0.01190185546875
+          },
+          {
+            "token": "called",
+            "prob": 0.0072021484375
+          },
+          {
+            "token": ":",
+            "prob": 0.005584716796875
+          },
+          {
+            "token": ":",
+            "prob": 0.00494384765625
+          },
+          {
+            "token": "[",
+            "prob": 0.00494384765625
+          },
+          {
+            "token": "______",
+            "prob": 0.0030059814453125
+          },
+          {
+            "token": "known",
+            "prob": 0.00160980224609375
+          },
+          {
+            "token": "*",
+            "prob": 0.00160980224609375
+          },
+          {
+            "token": "capital",
+            "prob": 0.00141143798828125
+          },
+          {
+            "token": "(",
+            "prob": 0.00124359130859375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.0010986328125
+          },
+          {
+            "token": "\"",
+            "prob": 0.000972747802734375
+          },
+          {
+            "token": "{",
+            "prob": 0.000858306884765625
+          },
+          {
+            "token": "<",
+            "prob": 0.0008087158203125
+          },
+          {
+            "token": "...",
+            "prob": 0.000759124755859375
+          },
+          {
+            "token": "given",
+            "prob": 0.000667572021484375
+          },
+          {
+            "token": "in",
+            "prob": 0.00058746337890625
+          },
+          {
+            "token": "\\",
+            "prob": 0.00048828125
+          },
+          {
+            "token": "...",
+            "prob": 0.0004596710205078125
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Turkey is",
+      "answer": "Ankara",
+      "country": "Turkey",
+      "category": "Asia",
+      "predictions": [
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.33984375
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.181640625
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.1416015625
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.09765625
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.08544921875
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.035888671875
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.01495361328125
+        },
+        {
+          "token": " Ankara",
+          "token_id": 91267,
+          "prob": 0.009033203125
+        },
+        {
+          "token": " ______",
+          "token_id": 64429,
+          "prob": 0.009033203125
+        },
+        {
+          "token": ":\n",
+          "token_id": 734,
+          "prob": 0.009033203125
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 8,
+        "correct_prob": 0.009033203125,
+        "same_category": [
+          {
+            "answer": "Tokyo",
+            "prob": 0.00079345703125,
+            "from_query": "The capital of Japan is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Paris",
+            "prob": 0.0017852783203125,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "**",
+            "prob": 0.33984375
+          },
+          {
+            "token": "the",
+            "prob": 0.181640625
+          },
+          {
+            "token": "\"",
+            "prob": 0.1416015625
+          },
+          {
+            "token": "not",
+            "prob": 0.09765625
+          },
+          {
+            "token": "a",
+            "prob": 0.08544921875
+          },
+          {
+            "token": ":",
+            "prob": 0.035888671875
+          },
+          {
+            "token": "also",
+            "prob": 0.01495361328125
+          },
+          {
+            "token": "______",
+            "prob": 0.009033203125
+          },
+          {
+            "token": ":",
+            "prob": 0.009033203125
+          },
+          {
+            "token": ":",
+            "prob": 0.00799560546875
+          },
+          {
+            "token": "",
+            "prob": 0.007049560546875
+          },
+          {
+            "token": "Istanbul",
+            "prob": 0.005462646484375
+          },
+          {
+            "token": "capital",
+            "prob": 0.005462646484375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.0042724609375
+          },
+          {
+            "token": "currently",
+            "prob": 0.0042724609375
+          },
+          {
+            "token": "[",
+            "prob": 0.0037689208984375
+          },
+          {
+            "token": "'",
+            "prob": 0.0033416748046875
+          },
+          {
+            "token": "called",
+            "prob": 0.0029449462890625
+          },
+          {
+            "token": "...",
+            "prob": 0.0029449462890625
+          },
+          {
+            "token": "*",
+            "prob": 0.002288818359375
+          },
+          {
+            "token": "known",
+            "prob": 0.0017852783203125
+          },
+          {
+            "token": "what",
+            "prob": 0.0013885498046875
+          },
+          {
+            "token": "...",
+            "prob": 0.00101470947265625
+          },
+          {
+            "token": "actually",
+            "prob": 0.00095367431640625
+          },
+          {
+            "token": "<",
+            "prob": 0.0008392333984375
+          },
+          {
+            "token": "___",
+            "prob": 0.00074005126953125
+          },
+          {
+            "token": "given",
+            "prob": 0.00074005126953125
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Iran is",
+      "answer": "Tehran",
+      "country": "Iran",
+      "category": "Asia",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.54296875
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.15625
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.12109375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0306396484375
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.027099609375
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.0238037109375
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.0238037109375
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.016357421875
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.01129150390625
+        },
+        {
+          "token": " [",
+          "token_id": 723,
+          "prob": 0.00994873046875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 13,
+        "correct_prob": 0.00323486328125,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [
+          {
+            "answer": "Paris",
+            "prob": 0.000385284423828125,
+            "from_query": "The capital of France is"
+          }
+        ],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.54296875
+          },
+          {
+            "token": "a",
+            "prob": 0.15625
+          },
+          {
+            "token": "the",
+            "prob": 0.12109375
+          },
+          {
+            "token": "also",
+            "prob": 0.0306396484375
+          },
+          {
+            "token": ":",
+            "prob": 0.027099609375
+          },
+          {
+            "token": "**",
+            "prob": 0.0238037109375
+          },
+          {
+            "token": "not",
+            "prob": 0.0238037109375
+          },
+          {
+            "token": "'",
+            "prob": 0.016357421875
+          },
+          {
+            "token": "",
+            "prob": 0.01129150390625
+          },
+          {
+            "token": "[",
+            "prob": 0.00994873046875
+          },
+          {
+            "token": ":",
+            "prob": 0.005340576171875
+          },
+          {
+            "token": ":",
+            "prob": 0.00469970703125
+          },
+          {
+            "token": "______",
+            "prob": 0.00323486328125
+          },
+          {
+            "token": "called",
+            "prob": 0.0028533935546875
+          },
+          {
+            "token": "indeed",
+            "prob": 0.002227783203125
+          },
+          {
+            "token": "known",
+            "prob": 0.00118255615234375
+          },
+          {
+            "token": "(",
+            "prob": 0.00118255615234375
+          },
+          {
+            "token": "\\",
+            "prob": 0.00092315673828125
+          },
+          {
+            "token": "...",
+            "prob": 0.00081634521484375
+          },
+          {
+            "token": "\"",
+            "prob": 0.00081634521484375
+          },
+          {
+            "token": "capital",
+            "prob": 0.000720977783203125
+          },
+          {
+            "token": "...",
+            "prob": 0.000720977783203125
+          },
+          {
+            "token": "*",
+            "prob": 0.00063323974609375
+          },
+          {
+            "token": "an",
+            "prob": 0.00049591064453125
+          },
+          {
+            "token": "currently",
+            "prob": 0.0004367828369140625
+          },
+          {
+            "token": "what",
+            "prob": 0.0004367828369140625
+          },
+          {
+            "token": "{",
+            "prob": 0.0004367828369140625
+          },
+          {
+            "token": "given",
+            "prob": 0.000385284423828125
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Iraq is",
+      "answer": "Baghdad",
+      "country": "Iraq",
+      "category": "Asia",
+      "predictions": [
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.4453125
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.14453125
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.1279296875
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.060546875
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.060546875
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0322265625
+        },
+        {
+          "token": " '",
+          "token_id": 461,
+          "prob": 0.022216796875
+        },
+        {
+          "token": " ",
+          "token_id": 220,
+          "prob": 0.022216796875
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.01953125
+        },
+        {
+          "token": ":\n\n",
+          "token_id": 1402,
+          "prob": 0.00921630859375
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 28,
+        "correct_prob": 0.000629425048828125,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "\"",
+            "prob": 0.4453125
+          },
+          {
+            "token": "**",
+            "prob": 0.14453125
+          },
+          {
+            "token": "the",
+            "prob": 0.1279296875
+          },
+          {
+            "token": "not",
+            "prob": 0.060546875
+          },
+          {
+            "token": "a",
+            "prob": 0.060546875
+          },
+          {
+            "token": "also",
+            "prob": 0.0322265625
+          },
+          {
+            "token": "'",
+            "prob": 0.022216796875
+          },
+          {
+            "token": "",
+            "prob": 0.022216796875
+          },
+          {
+            "token": ":",
+            "prob": 0.01953125
+          },
+          {
+            "token": ":",
+            "prob": 0.00921630859375
+          },
+          {
+            "token": "called",
+            "prob": 0.0081787109375
+          },
+          {
+            "token": ":",
+            "prob": 0.0081787109375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.00494384765625
+          },
+          {
+            "token": "capital",
+            "prob": 0.00494384765625
+          },
+          {
+            "token": "______",
+            "prob": 0.0030059814453125
+          },
+          {
+            "token": "currently",
+            "prob": 0.0023345947265625
+          },
+          {
+            "token": "known",
+            "prob": 0.0023345947265625
+          },
+          {
+            "token": "[",
+            "prob": 0.0023345947265625
+          },
+          {
+            "token": "city",
+            "prob": 0.0020599365234375
+          },
+          {
+            "token": "given",
+            "prob": 0.0010986328125
+          },
+          {
+            "token": "...",
+            "prob": 0.000972747802734375
+          },
+          {
+            "token": "...",
+            "prob": 0.00091552734375
+          },
+          {
+            "token": "*",
+            "prob": 0.000858306884765625
+          },
+          {
+            "token": "\\",
+            "prob": 0.000759124755859375
+          },
+          {
+            "token": "an",
+            "prob": 0.000759124755859375
+          },
+          {
+            "token": "`",
+            "prob": 0.000713348388671875
+          },
+          {
+            "token": "(",
+            "prob": 0.000713348388671875
+          },
+          {
+            "token": "in",
+            "prob": 0.000629425048828125
+          },
+          {
+            "token": "cities",
+            "prob": 0.000591278076171875
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Saudi Arabia is",
+      "answer": "Riyadh",
+      "country": "Saudi Arabia",
+      "category": "Asia",
+      "predictions": [
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.49609375
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.1611328125
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.125
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.09765625
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.040771484375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0169677734375
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.01031494140625
+        },
+        {
+          "token": ":\n\n",
+          "token_id": 1402,
+          "prob": 0.00799560546875
+        },
+        {
+          "token": ":\n",
+          "token_id": 734,
+          "prob": 0.007080078125
+        },
+        {
+          "token": " known",
+          "token_id": 5542,
+          "prob": 0.0062255859375
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": null,
+        "correct_prob": null,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "**",
+            "prob": 0.49609375
+          },
+          {
+            "token": "\"",
+            "prob": 0.1611328125
+          },
+          {
+            "token": "the",
+            "prob": 0.125
+          },
+          {
+            "token": "a",
+            "prob": 0.09765625
+          },
+          {
+            "token": "not",
+            "prob": 0.040771484375
+          },
+          {
+            "token": "also",
+            "prob": 0.0169677734375
+          },
+          {
+            "token": ":",
+            "prob": 0.01031494140625
+          },
+          {
+            "token": ":",
+            "prob": 0.00799560546875
+          },
+          {
+            "token": ":",
+            "prob": 0.007080078125
+          },
+          {
+            "token": "known",
+            "prob": 0.0062255859375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.0037841796875
+          },
+          {
+            "token": "called",
+            "prob": 0.0037841796875
+          },
+          {
+            "token": "'",
+            "prob": 0.0037841796875
+          },
+          {
+            "token": "",
+            "prob": 0.0029449462890625
+          },
+          {
+            "token": "*",
+            "prob": 0.0023040771484375
+          },
+          {
+            "token": "______",
+            "prob": 0.0020294189453125
+          },
+          {
+            "token": "[",
+            "prob": 0.0020294189453125
+          },
+          {
+            "token": "capital",
+            "prob": 0.00139617919921875
+          },
+          {
+            "token": "actually",
+            "prob": 0.000843048095703125
+          },
+          {
+            "token": "given",
+            "prob": 0.000659942626953125
+          },
+          {
+            "token": "located",
+            "prob": 0.00051116943359375
+          },
+          {
+            "token": "...",
+            "prob": 0.00051116943359375
+          },
+          {
+            "token": "Riy",
+            "prob": 0.0004520416259765625
+          },
+          {
+            "token": "\\",
+            "prob": 0.0004253387451171875
+          },
+          {
+            "token": "an",
+            "prob": 0.0003986358642578125
+          },
+          {
+            "token": "...",
+            "prob": 0.00037384033203125
+          },
+          {
+            "token": "in",
+            "prob": 0.0003528594970703125
+          },
+          {
+            "token": "",
+            "prob": 0.0003528594970703125
+          },
+          {
+            "token": "currently",
+            "prob": 0.000331878662109375
+          },
+          {
+            "token": "being",
+            "prob": 0.0002918243408203125
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Israel is",
+      "answer": "Jerusalem",
+      "country": "Israel",
+      "category": "Asia",
+      "predictions": [
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.2314453125
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.2041015625
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.1591796875
+        },
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.1396484375
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.0751953125
+        },
+        {
+          "token": " Jerusalem",
+          "token_id": 46088,
+          "prob": 0.058349609375
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.021484375
+        },
+        {
+          "token": " called",
+          "token_id": 4358,
+          "prob": 0.01904296875
+        },
+        {
+          "token": " indeed",
+          "token_id": 22476,
+          "prob": 0.0167236328125
+        },
+        {
+          "token": " currently",
+          "token_id": 6821,
+          "prob": 0.0079345703125
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 6,
+        "correct_prob": 0.058349609375,
+        "same_category": [],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "not",
+            "prob": 0.2314453125
+          },
+          {
+            "token": "a",
+            "prob": 0.2041015625
+          },
+          {
+            "token": "the",
+            "prob": 0.1591796875
+          },
+          {
+            "token": "**",
+            "prob": 0.1396484375
+          },
+          {
+            "token": "also",
+            "prob": 0.0751953125
+          },
+          {
+            "token": "\"",
+            "prob": 0.021484375
+          },
+          {
+            "token": "called",
+            "prob": 0.01904296875
+          },
+          {
+            "token": "indeed",
+            "prob": 0.0167236328125
+          },
+          {
+            "token": "currently",
+            "prob": 0.0079345703125
+          },
+          {
+            "token": "known",
+            "prob": 0.00616455078125
+          },
+          {
+            "token": "",
+            "prob": 0.005462646484375
+          },
+          {
+            "token": "______",
+            "prob": 0.004791259765625
+          },
+          {
+            "token": "an",
+            "prob": 0.004241943359375
+          },
+          {
+            "token": ":",
+            "prob": 0.004241943359375
+          },
+          {
+            "token": "[",
+            "prob": 0.0033111572265625
+          },
+          {
+            "token": "actually",
+            "prob": 0.0018768310546875
+          },
+          {
+            "token": ":",
+            "prob": 0.0018768310546875
+          },
+          {
+            "token": "*",
+            "prob": 0.0018768310546875
+          },
+          {
+            "token": "commonly",
+            "prob": 0.00176239013671875
+          },
+          {
+            "token": "typically",
+            "prob": 0.00156402587890625
+          },
+          {
+            "token": ":",
+            "prob": 0.00156402587890625
+          },
+          {
+            "token": "often",
+            "prob": 0.00146484375
+          },
+          {
+            "token": "given",
+            "prob": 0.00138092041015625
+          },
+          {
+            "token": "considered",
+            "prob": 0.00128936767578125
+          },
+          {
+            "token": "what",
+            "prob": 0.0011444091796875
+          },
+          {
+            "token": "officially",
+            "prob": 0.00107574462890625
+          },
+          {
+            "token": "defined",
+            "prob": 0.00107574462890625
+          },
+          {
+            "token": "'",
+            "prob": 0.000736236572265625
+          },
+          {
+            "token": "found",
+            "prob": 0.0006103515625
+          }
+        ]
+      }
+    },
+    {
+      "query": "The capital of Thailand is",
+      "answer": "Bangkok",
+      "country": "Thailand",
+      "category": "Asia",
+      "predictions": [
+        {
+          "token": " **",
+          "token_id": 6240,
+          "prob": 0.48046875
+        },
+        {
+          "token": " \"",
+          "token_id": 392,
+          "prob": 0.1767578125
+        },
+        {
+          "token": " the",
+          "token_id": 290,
+          "prob": 0.15625
+        },
+        {
+          "token": " a",
+          "token_id": 261,
+          "prob": 0.08349609375
+        },
+        {
+          "token": " not",
+          "token_id": 625,
+          "prob": 0.03076171875
+        },
+        {
+          "token": ":",
+          "token_id": 25,
+          "prob": 0.01446533203125
+        },
+        {
+          "token": " called",
+          "token_id": 4358,
+          "prob": 0.0087890625
+        },
+        {
+          "token": " also",
+          "token_id": 1217,
+          "prob": 0.006866455078125
+        },
+        {
+          "token": " Bangkok",
+          "token_id": 57824,
+          "prob": 0.005340576171875
+        },
+        {
+          "token": ":\n\n",
+          "token_id": 1402,
+          "prob": 0.005340576171875
+        }
+      ],
+      "neighborhood": {
+        "correct_rank": 9,
+        "correct_prob": 0.005340576171875,
+        "same_category": [
+          {
+            "answer": "Tokyo",
+            "prob": 0.0003871917724609375,
+            "from_query": "The capital of Japan is"
+          }
+        ],
+        "same_category_alt": [],
+        "other_answers": [],
+        "non_answers": [
+          {
+            "token": "**",
+            "prob": 0.48046875
+          },
+          {
+            "token": "\"",
+            "prob": 0.1767578125
+          },
+          {
+            "token": "the",
+            "prob": 0.15625
+          },
+          {
+            "token": "a",
+            "prob": 0.08349609375
+          },
+          {
+            "token": "not",
+            "prob": 0.03076171875
+          },
+          {
+            "token": ":",
+            "prob": 0.01446533203125
+          },
+          {
+            "token": "called",
+            "prob": 0.0087890625
+          },
+          {
+            "token": "also",
+            "prob": 0.006866455078125
+          },
+          {
+            "token": ":",
+            "prob": 0.005340576171875
+          },
+          {
+            "token": ":",
+            "prob": 0.005340576171875
+          },
+          {
+            "token": "known",
+            "prob": 0.004150390625
+          },
+          {
+            "token": "'",
+            "prob": 0.00323486328125
+          },
+          {
+            "token": "",
+            "prob": 0.0028533935546875
+          },
+          {
+            "token": "[",
+            "prob": 0.0025177001953125
+          },
+          {
+            "token": "*",
+            "prob": 0.00173187255859375
+          },
+          {
+            "token": "indeed",
+            "prob": 0.001190185546875
+          },
+          {
+            "token": "______",
+            "prob": 0.000926971435546875
+          },
+          {
+            "token": "capital",
+            "prob": 0.00081634521484375
+          },
+          {
+            "token": "...",
+            "prob": 0.000720977783203125
+          },
+          {
+            "token": "actually",
+            "prob": 0.00049591064453125
+          },
+          {
+            "token": "(",
+            "prob": 0.00046539306640625
+          },
+          {
+            "token": "...",
+            "prob": 0.000438690185546875
+          },
+          {
+            "token": "what",
+            "prob": 0.000438690185546875
+          },
+          {
+            "token": "currently",
+            "prob": 0.0003871917724609375
+          },
+          {
+            "token": "",
+            "prob": 0.000362396240234375
+          },
+          {
+            "token": "set",
+            "prob": 0.000301361083984375
+          },
+          {
+            "token": "given",
+            "prob": 0.00028228759765625
+          },
+          {
+            "token": "<",
+            "prob": 0.00028228759765625
+          }
+        ]
+      }
+    }
+  ]
+}

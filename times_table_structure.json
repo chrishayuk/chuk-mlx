@@ -1,0 +1,6602 @@
+[
+  {
+    "prompt": "2*2=",
+    "a": 2,
+    "b": 2,
+    "correct": 4,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.957,
+        "token": "4"
+      },
+      {
+        "value": 6,
+        "prob": 0.0176,
+        "token": "6"
+      },
+      {
+        "value": 8,
+        "prob": 0.0137,
+        "token": "8"
+      },
+      {
+        "value": 2,
+        "prob": 0.0106,
+        "token": "2"
+      },
+      {
+        "value": 3,
+        "prob": 0.0011,
+        "token": "3"
+      },
+      {
+        "value": 12,
+        "prob": 0.0009,
+        "token": "12"
+      },
+      {
+        "value": 5,
+        "prob": 0.0005,
+        "token": "5"
+      },
+      {
+        "value": 10,
+        "prob": 0.0003,
+        "token": "10"
+      },
+      {
+        "value": 1,
+        "prob": 0.0002,
+        "token": "1"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 1,
+      "correct_prob": 0.957,
+      "same_row": [
+        {
+          "value": 6,
+          "prob": 0.0176,
+          "from": "2*3"
+        },
+        {
+          "value": 8,
+          "prob": 0.0137,
+          "from": "2*4"
+        },
+        {
+          "value": 12,
+          "prob": 0.0009,
+          "from": "2*6"
+        },
+        {
+          "value": 10,
+          "prob": 0.0003,
+          "from": "2*5"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "2*3=",
+    "a": 2,
+    "b": 3,
+    "correct": 6,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.9062,
+        "token": "6"
+      },
+      {
+        "value": 3,
+        "prob": 0.0654,
+        "token": "3"
+      },
+      {
+        "value": 4,
+        "prob": 0.0089,
+        "token": "4"
+      },
+      {
+        "value": 12,
+        "prob": 0.0069,
+        "token": "12"
+      },
+      {
+        "value": 8,
+        "prob": 0.0069,
+        "token": "8"
+      },
+      {
+        "value": 7,
+        "prob": 0.0011,
+        "token": "7"
+      },
+      {
+        "value": 10,
+        "prob": 0.0008,
+        "token": "10"
+      },
+      {
+        "value": 9,
+        "prob": 0.0007,
+        "token": "9"
+      },
+      {
+        "value": 2,
+        "prob": 0.0007,
+        "token": "2"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 1,
+      "correct_prob": 0.9062,
+      "same_row": [
+        {
+          "value": 4,
+          "prob": 0.0089,
+          "from": "2*2"
+        },
+        {
+          "value": 12,
+          "prob": 0.0069,
+          "from": "2*6"
+        },
+        {
+          "value": 8,
+          "prob": 0.0069,
+          "from": "2*4"
+        },
+        {
+          "value": 10,
+          "prob": 0.0008,
+          "from": "2*5"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 9,
+          "prob": 0.0007,
+          "from": "3*3"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "2*4=",
+    "a": 2,
+    "b": 4,
+    "correct": 8,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.8828,
+        "token": "4"
+      },
+      {
+        "value": 8,
+        "prob": 0.082,
+        "token": "8"
+      },
+      {
+        "value": 6,
+        "prob": 0.0208,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.0077,
+        "token": "12"
+      },
+      {
+        "value": 2,
+        "prob": 0.0017,
+        "token": "2"
+      },
+      {
+        "value": 10,
+        "prob": 0.0013,
+        "token": "10"
+      },
+      {
+        "value": 16,
+        "prob": 0.001,
+        "token": "16"
+      },
+      {
+        "value": 5,
+        "prob": 0.0004,
+        "token": "5"
+      },
+      {
+        "value": 7,
+        "prob": 0.0004,
+        "token": "7"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.082,
+      "same_row": [
+        {
+          "value": 4,
+          "prob": 0.8828,
+          "from": "2*2"
+        },
+        {
+          "value": 6,
+          "prob": 0.0208,
+          "from": "2*3"
+        },
+        {
+          "value": 12,
+          "prob": 0.0077,
+          "from": "2*6"
+        },
+        {
+          "value": 10,
+          "prob": 0.0013,
+          "from": "2*5"
+        },
+        {
+          "value": 16,
+          "prob": 0.001,
+          "from": "2*8"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "2*5=",
+    "a": 2,
+    "b": 5,
+    "correct": 10,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 5,
+        "prob": 0.4746,
+        "token": "5"
+      },
+      {
+        "value": 10,
+        "prob": 0.3262,
+        "token": "10"
+      },
+      {
+        "value": 6,
+        "prob": 0.0645,
+        "token": "6"
+      },
+      {
+        "value": 20,
+        "prob": 0.0388,
+        "token": "20"
+      },
+      {
+        "value": 12,
+        "prob": 0.0209,
+        "token": "12"
+      },
+      {
+        "value": 8,
+        "prob": 0.0143,
+        "token": "8"
+      },
+      {
+        "value": 4,
+        "prob": 0.0143,
+        "token": "4"
+      },
+      {
+        "value": 2,
+        "prob": 0.0126,
+        "token": "2"
+      },
+      {
+        "value": 15,
+        "prob": 0.0098,
+        "token": "15"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.3262,
+      "same_row": [
+        {
+          "value": 6,
+          "prob": 0.0645,
+          "from": "2*3"
+        },
+        {
+          "value": 12,
+          "prob": 0.0209,
+          "from": "2*6"
+        },
+        {
+          "value": 8,
+          "prob": 0.0143,
+          "from": "2*4"
+        },
+        {
+          "value": 4,
+          "prob": 0.0143,
+          "from": "2*2"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 20,
+          "prob": 0.0388,
+          "from": "4*5"
+        },
+        {
+          "value": 15,
+          "prob": 0.0098,
+          "from": "3*5"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "2*6=",
+    "a": 2,
+    "b": 6,
+    "correct": 12,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.9219,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.0459,
+        "token": "12"
+      },
+      {
+        "value": 8,
+        "prob": 0.0168,
+        "token": "8"
+      },
+      {
+        "value": 18,
+        "prob": 0.0026,
+        "token": "18"
+      },
+      {
+        "value": 10,
+        "prob": 0.0026,
+        "token": "10"
+      },
+      {
+        "value": 24,
+        "prob": 0.002,
+        "token": "24"
+      },
+      {
+        "value": 16,
+        "prob": 0.0016,
+        "token": "16"
+      },
+      {
+        "value": 4,
+        "prob": 0.0014,
+        "token": "4"
+      },
+      {
+        "value": 2,
+        "prob": 0.0014,
+        "token": "2"
+      },
+      {
+        "value": 7,
+        "prob": 0.0011,
+        "token": "7"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.0459,
+      "same_row": [
+        {
+          "value": 6,
+          "prob": 0.9219,
+          "from": "2*3"
+        },
+        {
+          "value": 8,
+          "prob": 0.0168,
+          "from": "2*4"
+        },
+        {
+          "value": 18,
+          "prob": 0.0026,
+          "from": "2*9"
+        },
+        {
+          "value": 10,
+          "prob": 0.0026,
+          "from": "2*5"
+        },
+        {
+          "value": 16,
+          "prob": 0.0016,
+          "from": "2*8"
+        },
+        {
+          "value": 4,
+          "prob": 0.0014,
+          "from": "2*2"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 24,
+          "prob": 0.002,
+          "from": "4*6"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "2*7=",
+    "a": 2,
+    "b": 7,
+    "correct": 14,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 7,
+        "prob": 0.2188,
+        "token": "7"
+      },
+      {
+        "value": 8,
+        "prob": 0.1504,
+        "token": "8"
+      },
+      {
+        "value": 12,
+        "prob": 0.1328,
+        "token": "12"
+      },
+      {
+        "value": 6,
+        "prob": 0.1328,
+        "token": "6"
+      },
+      {
+        "value": 14,
+        "prob": 0.0552,
+        "token": "14"
+      },
+      {
+        "value": 10,
+        "prob": 0.0552,
+        "token": "10"
+      },
+      {
+        "value": 18,
+        "prob": 0.0381,
+        "token": "18"
+      },
+      {
+        "value": 2,
+        "prob": 0.0297,
+        "token": "2"
+      },
+      {
+        "value": 9,
+        "prob": 0.0261,
+        "token": "9"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 5,
+      "correct_prob": 0.0552,
+      "same_row": [
+        {
+          "value": 8,
+          "prob": 0.1504,
+          "from": "2*4"
+        },
+        {
+          "value": 12,
+          "prob": 0.1328,
+          "from": "2*6"
+        },
+        {
+          "value": 6,
+          "prob": 0.1328,
+          "from": "2*3"
+        },
+        {
+          "value": 10,
+          "prob": 0.0552,
+          "from": "2*5"
+        },
+        {
+          "value": 18,
+          "prob": 0.0381,
+          "from": "2*9"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.0261,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "2*8=",
+    "a": 2,
+    "b": 8,
+    "correct": 16,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.9414,
+        "token": "8"
+      },
+      {
+        "value": 12,
+        "prob": 0.0152,
+        "token": "12"
+      },
+      {
+        "value": 16,
+        "prob": 0.0134,
+        "token": "16"
+      },
+      {
+        "value": 6,
+        "prob": 0.0056,
+        "token": "6"
+      },
+      {
+        "value": 4,
+        "prob": 0.0044,
+        "token": "4"
+      },
+      {
+        "value": 24,
+        "prob": 0.0038,
+        "token": "24"
+      },
+      {
+        "value": 10,
+        "prob": 0.003,
+        "token": "10"
+      },
+      {
+        "value": 2,
+        "prob": 0.0026,
+        "token": "2"
+      },
+      {
+        "value": 18,
+        "prob": 0.0018,
+        "token": "18"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 3,
+      "correct_prob": 0.0134,
+      "same_row": [
+        {
+          "value": 8,
+          "prob": 0.9414,
+          "from": "2*4"
+        },
+        {
+          "value": 12,
+          "prob": 0.0152,
+          "from": "2*6"
+        },
+        {
+          "value": 6,
+          "prob": 0.0056,
+          "from": "2*3"
+        },
+        {
+          "value": 4,
+          "prob": 0.0044,
+          "from": "2*2"
+        },
+        {
+          "value": 10,
+          "prob": 0.003,
+          "from": "2*5"
+        },
+        {
+          "value": 18,
+          "prob": 0.0018,
+          "from": "2*9"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 24,
+          "prob": 0.0038,
+          "from": "3*8"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "2*9=",
+    "a": 2,
+    "b": 9,
+    "correct": 18,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.6211,
+        "token": "9"
+      },
+      {
+        "value": 12,
+        "prob": 0.1079,
+        "token": "12"
+      },
+      {
+        "value": 18,
+        "prob": 0.0952,
+        "token": "18"
+      },
+      {
+        "value": 8,
+        "prob": 0.0398,
+        "token": "8"
+      },
+      {
+        "value": 10,
+        "prob": 0.0242,
+        "token": "10"
+      },
+      {
+        "value": 6,
+        "prob": 0.0242,
+        "token": "6"
+      },
+      {
+        "value": 24,
+        "prob": 0.0187,
+        "token": "24"
+      },
+      {
+        "value": 14,
+        "prob": 0.0069,
+        "token": "14"
+      },
+      {
+        "value": 16,
+        "prob": 0.0054,
+        "token": "16"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 3,
+      "correct_prob": 0.0952,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.1079,
+          "from": "2*6"
+        },
+        {
+          "value": 8,
+          "prob": 0.0398,
+          "from": "2*4"
+        },
+        {
+          "value": 10,
+          "prob": 0.0242,
+          "from": "2*5"
+        },
+        {
+          "value": 6,
+          "prob": 0.0242,
+          "from": "2*3"
+        },
+        {
+          "value": 14,
+          "prob": 0.0069,
+          "from": "2*7"
+        },
+        {
+          "value": 16,
+          "prob": 0.0054,
+          "from": "2*8"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [
+        {
+          "value": 24,
+          "prob": 0.0187,
+          "from": [
+            3,
+            8
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.6211,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "3*2=",
+    "a": 3,
+    "b": 2,
+    "correct": 6,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.8828,
+        "token": "6"
+      },
+      {
+        "value": 3,
+        "prob": 0.064,
+        "token": "3"
+      },
+      {
+        "value": 8,
+        "prob": 0.0183,
+        "token": "8"
+      },
+      {
+        "value": 12,
+        "prob": 0.0142,
+        "token": "12"
+      },
+      {
+        "value": 4,
+        "prob": 0.0077,
+        "token": "4"
+      },
+      {
+        "value": 7,
+        "prob": 0.0032,
+        "token": "7"
+      },
+      {
+        "value": 2,
+        "prob": 0.0032,
+        "token": "2"
+      },
+      {
+        "value": 9,
+        "prob": 0.0025,
+        "token": "9"
+      },
+      {
+        "value": 10,
+        "prob": 0.0017,
+        "token": "10"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 1,
+      "correct_prob": 0.8828,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.0142,
+          "from": "3*4"
+        },
+        {
+          "value": 9,
+          "prob": 0.0025,
+          "from": "3*3"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 8,
+          "prob": 0.0183,
+          "from": "2*4"
+        },
+        {
+          "value": 4,
+          "prob": 0.0077,
+          "from": "2*2"
+        },
+        {
+          "value": 10,
+          "prob": 0.0017,
+          "from": "2*5"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "3*3=",
+    "a": 3,
+    "b": 3,
+    "correct": 9,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 3,
+        "prob": 0.7305,
+        "token": "3"
+      },
+      {
+        "value": 9,
+        "prob": 0.1836,
+        "token": "9"
+      },
+      {
+        "value": 6,
+        "prob": 0.0413,
+        "token": "6"
+      },
+      {
+        "value": 8,
+        "prob": 0.0151,
+        "token": "8"
+      },
+      {
+        "value": 12,
+        "prob": 0.0081,
+        "token": "12"
+      },
+      {
+        "value": 7,
+        "prob": 0.0063,
+        "token": "7"
+      },
+      {
+        "value": 4,
+        "prob": 0.0043,
+        "token": "4"
+      },
+      {
+        "value": 10,
+        "prob": 0.0038,
+        "token": "10"
+      },
+      {
+        "value": 15,
+        "prob": 0.0016,
+        "token": "15"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.1836,
+      "same_row": [
+        {
+          "value": 6,
+          "prob": 0.0413,
+          "from": "2*3"
+        },
+        {
+          "value": 12,
+          "prob": 0.0081,
+          "from": "3*4"
+        },
+        {
+          "value": 15,
+          "prob": 0.0016,
+          "from": "3*5"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [
+        {
+          "value": 8,
+          "prob": 0.0151,
+          "from": [
+            2,
+            4
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0038,
+          "from": [
+            2,
+            5
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.0043,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "3*4=",
+    "a": 3,
+    "b": 4,
+    "correct": 12,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 12,
+        "prob": 0.4961,
+        "token": "12"
+      },
+      {
+        "value": 4,
+        "prob": 0.3418,
+        "token": "4"
+      },
+      {
+        "value": 6,
+        "prob": 0.0674,
+        "token": "6"
+      },
+      {
+        "value": 3,
+        "prob": 0.0408,
+        "token": "3"
+      },
+      {
+        "value": 8,
+        "prob": 0.0193,
+        "token": "8"
+      },
+      {
+        "value": 10,
+        "prob": 0.0071,
+        "token": "10"
+      },
+      {
+        "value": 24,
+        "prob": 0.0062,
+        "token": "24"
+      },
+      {
+        "value": 15,
+        "prob": 0.0029,
+        "token": "15"
+      },
+      {
+        "value": 9,
+        "prob": 0.0029,
+        "token": "9"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 1,
+      "correct_prob": 0.4961,
+      "same_row": [
+        {
+          "value": 6,
+          "prob": 0.0674,
+          "from": "2*3"
+        },
+        {
+          "value": 24,
+          "prob": 0.0062,
+          "from": "3*8"
+        },
+        {
+          "value": 15,
+          "prob": 0.0029,
+          "from": "3*5"
+        },
+        {
+          "value": 9,
+          "prob": 0.0029,
+          "from": "3*3"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 8,
+          "prob": 0.0193,
+          "from": "2*4"
+        }
+      ],
+      "adjacent_products": [
+        {
+          "value": 10,
+          "prob": 0.0071,
+          "from": [
+            2,
+            5
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.3418,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "3*5=",
+    "a": 3,
+    "b": 5,
+    "correct": 15,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 15,
+        "prob": 0.2832,
+        "token": "15"
+      },
+      {
+        "value": 5,
+        "prob": 0.1943,
+        "token": "5"
+      },
+      {
+        "value": 3,
+        "prob": 0.1338,
+        "token": "3"
+      },
+      {
+        "value": 12,
+        "prob": 0.104,
+        "token": "12"
+      },
+      {
+        "value": 10,
+        "prob": 0.063,
+        "token": "10"
+      },
+      {
+        "value": 30,
+        "prob": 0.0559,
+        "token": "30"
+      },
+      {
+        "value": 6,
+        "prob": 0.0559,
+        "token": "6"
+      },
+      {
+        "value": 20,
+        "prob": 0.0085,
+        "token": "20"
+      },
+      {
+        "value": 25,
+        "prob": 0.0041,
+        "token": "25"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 1,
+      "correct_prob": 0.2832,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.104,
+          "from": "3*4"
+        },
+        {
+          "value": 6,
+          "prob": 0.0559,
+          "from": "2*3"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 10,
+          "prob": 0.063,
+          "from": "2*5"
+        },
+        {
+          "value": 30,
+          "prob": 0.0559,
+          "from": "5*6"
+        },
+        {
+          "value": 20,
+          "prob": 0.0085,
+          "from": "4*5"
+        },
+        {
+          "value": 25,
+          "prob": 0.0041,
+          "from": "5*5"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "3*6=",
+    "a": 3,
+    "b": 6,
+    "correct": 18,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.9258,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.0219,
+        "token": "12"
+      },
+      {
+        "value": 3,
+        "prob": 0.0192,
+        "token": "3"
+      },
+      {
+        "value": 18,
+        "prob": 0.0132,
+        "token": "18"
+      },
+      {
+        "value": 10,
+        "prob": 0.0026,
+        "token": "10"
+      },
+      {
+        "value": 24,
+        "prob": 0.0023,
+        "token": "24"
+      },
+      {
+        "value": 30,
+        "prob": 0.0023,
+        "token": "30"
+      },
+      {
+        "value": 15,
+        "prob": 0.0023,
+        "token": "15"
+      },
+      {
+        "value": 9,
+        "prob": 0.0023,
+        "token": "9"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0132,
+      "same_row": [
+        {
+          "value": 6,
+          "prob": 0.9258,
+          "from": "2*3"
+        },
+        {
+          "value": 12,
+          "prob": 0.0219,
+          "from": "3*4"
+        },
+        {
+          "value": 24,
+          "prob": 0.0023,
+          "from": "3*8"
+        },
+        {
+          "value": 15,
+          "prob": 0.0023,
+          "from": "3*5"
+        },
+        {
+          "value": 9,
+          "prob": 0.0023,
+          "from": "3*3"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 30,
+          "prob": 0.0023,
+          "from": "5*6"
+        }
+      ],
+      "adjacent_products": [
+        {
+          "value": 10,
+          "prob": 0.0026,
+          "from": [
+            2,
+            5
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "3*7=",
+    "a": 3,
+    "b": 7,
+    "correct": 21,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 3,
+        "prob": 0.4746,
+        "token": "3"
+      },
+      {
+        "value": 12,
+        "prob": 0.1055,
+        "token": "12"
+      },
+      {
+        "value": 7,
+        "prob": 0.0728,
+        "token": "7"
+      },
+      {
+        "value": 6,
+        "prob": 0.0388,
+        "token": "6"
+      },
+      {
+        "value": 21,
+        "prob": 0.0342,
+        "token": "21"
+      },
+      {
+        "value": 30,
+        "prob": 0.0237,
+        "token": "30"
+      },
+      {
+        "value": 15,
+        "prob": 0.0237,
+        "token": "15"
+      },
+      {
+        "value": 27,
+        "prob": 0.0162,
+        "token": "27"
+      },
+      {
+        "value": 24,
+        "prob": 0.0143,
+        "token": "24"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 5,
+      "correct_prob": 0.0342,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.1055,
+          "from": "3*4"
+        },
+        {
+          "value": 6,
+          "prob": 0.0388,
+          "from": "2*3"
+        },
+        {
+          "value": 15,
+          "prob": 0.0237,
+          "from": "3*5"
+        },
+        {
+          "value": 27,
+          "prob": 0.0162,
+          "from": "3*9"
+        },
+        {
+          "value": 24,
+          "prob": 0.0143,
+          "from": "3*8"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [
+        {
+          "value": 30,
+          "prob": 0.0237,
+          "from": [
+            5,
+            6
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "3*8=",
+    "a": 3,
+    "b": 8,
+    "correct": 24,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.5781,
+        "token": "8"
+      },
+      {
+        "value": 3,
+        "prob": 0.1143,
+        "token": "3"
+      },
+      {
+        "value": 12,
+        "prob": 0.1006,
+        "token": "12"
+      },
+      {
+        "value": 24,
+        "prob": 0.0537,
+        "token": "24"
+      },
+      {
+        "value": 6,
+        "prob": 0.0154,
+        "token": "6"
+      },
+      {
+        "value": 18,
+        "prob": 0.012,
+        "token": "18"
+      },
+      {
+        "value": 30,
+        "prob": 0.012,
+        "token": "30"
+      },
+      {
+        "value": 9,
+        "prob": 0.0064,
+        "token": "9"
+      },
+      {
+        "value": 4,
+        "prob": 0.0064,
+        "token": "4"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0537,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.1006,
+          "from": "3*4"
+        },
+        {
+          "value": 6,
+          "prob": 0.0154,
+          "from": "2*3"
+        },
+        {
+          "value": 18,
+          "prob": 0.012,
+          "from": "3*6"
+        },
+        {
+          "value": 9,
+          "prob": 0.0064,
+          "from": "3*3"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [
+        {
+          "value": 30,
+          "prob": 0.012,
+          "from": [
+            5,
+            6
+          ]
+        }
+      ],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.5781,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.0064,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "3*9=",
+    "a": 3,
+    "b": 9,
+    "correct": 27,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.6328,
+        "token": "9"
+      },
+      {
+        "value": 3,
+        "prob": 0.1592,
+        "token": "3"
+      },
+      {
+        "value": 12,
+        "prob": 0.0278,
+        "token": "12"
+      },
+      {
+        "value": 27,
+        "prob": 0.0216,
+        "token": "27"
+      },
+      {
+        "value": 18,
+        "prob": 0.019,
+        "token": "18"
+      },
+      {
+        "value": 30,
+        "prob": 0.0168,
+        "token": "30"
+      },
+      {
+        "value": 15,
+        "prob": 0.0116,
+        "token": "15"
+      },
+      {
+        "value": 10,
+        "prob": 0.0102,
+        "token": "10"
+      },
+      {
+        "value": 24,
+        "prob": 0.009,
+        "token": "24"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0216,
+      "same_row": [
+        {
+          "value": 9,
+          "prob": 0.6328,
+          "from": "3*3"
+        },
+        {
+          "value": 12,
+          "prob": 0.0278,
+          "from": "3*4"
+        },
+        {
+          "value": 18,
+          "prob": 0.019,
+          "from": "3*6"
+        },
+        {
+          "value": 15,
+          "prob": 0.0116,
+          "from": "3*5"
+        },
+        {
+          "value": 24,
+          "prob": 0.009,
+          "from": "3*8"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [
+        {
+          "value": 30,
+          "prob": 0.0168,
+          "from": [
+            5,
+            6
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [],
+      "other": [
+        {
+          "value": 10,
+          "prob": 0.0102,
+          "from": "2*5"
+        }
+      ]
+    }
+  },
+  {
+    "prompt": "4*2=",
+    "a": 4,
+    "b": 2,
+    "correct": 8,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.6016,
+        "token": "4"
+      },
+      {
+        "value": 8,
+        "prob": 0.3223,
+        "token": "8"
+      },
+      {
+        "value": 6,
+        "prob": 0.0386,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.016,
+        "token": "12"
+      },
+      {
+        "value": 2,
+        "prob": 0.0125,
+        "token": "2"
+      },
+      {
+        "value": 10,
+        "prob": 0.0032,
+        "token": "10"
+      },
+      {
+        "value": 16,
+        "prob": 0.0025,
+        "token": "16"
+      },
+      {
+        "value": 7,
+        "prob": 0.0015,
+        "token": "7"
+      },
+      {
+        "value": 24,
+        "prob": 0.0008,
+        "token": "24"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.3223,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.016,
+          "from": "3*4"
+        },
+        {
+          "value": 16,
+          "prob": 0.0025,
+          "from": "4*4"
+        },
+        {
+          "value": 24,
+          "prob": 0.0008,
+          "from": "4*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 4,
+          "prob": 0.6016,
+          "from": "2*2"
+        },
+        {
+          "value": 6,
+          "prob": 0.0386,
+          "from": "2*3"
+        },
+        {
+          "value": 10,
+          "prob": 0.0032,
+          "from": "2*5"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "4*3=",
+    "a": 4,
+    "b": 3,
+    "correct": 12,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 12,
+        "prob": 0.377,
+        "token": "12"
+      },
+      {
+        "value": 3,
+        "prob": 0.2598,
+        "token": "3"
+      },
+      {
+        "value": 4,
+        "prob": 0.1777,
+        "token": "4"
+      },
+      {
+        "value": 6,
+        "prob": 0.1084,
+        "token": "6"
+      },
+      {
+        "value": 8,
+        "prob": 0.0349,
+        "token": "8"
+      },
+      {
+        "value": 24,
+        "prob": 0.0089,
+        "token": "24"
+      },
+      {
+        "value": 9,
+        "prob": 0.0078,
+        "token": "9"
+      },
+      {
+        "value": 15,
+        "prob": 0.0047,
+        "token": "15"
+      },
+      {
+        "value": 10,
+        "prob": 0.0047,
+        "token": "10"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 1,
+      "correct_prob": 0.377,
+      "same_row": [
+        {
+          "value": 8,
+          "prob": 0.0349,
+          "from": "2*4"
+        },
+        {
+          "value": 24,
+          "prob": 0.0089,
+          "from": "4*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 6,
+          "prob": 0.1084,
+          "from": "2*3"
+        },
+        {
+          "value": 9,
+          "prob": 0.0078,
+          "from": "3*3"
+        },
+        {
+          "value": 15,
+          "prob": 0.0047,
+          "from": "3*5"
+        }
+      ],
+      "adjacent_products": [
+        {
+          "value": 10,
+          "prob": 0.0047,
+          "from": [
+            2,
+            5
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.1777,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "4*4=",
+    "a": 4,
+    "b": 4,
+    "correct": 16,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.8945,
+        "token": "4"
+      },
+      {
+        "value": 12,
+        "prob": 0.0347,
+        "token": "12"
+      },
+      {
+        "value": 8,
+        "prob": 0.0347,
+        "token": "8"
+      },
+      {
+        "value": 16,
+        "prob": 0.0238,
+        "token": "16"
+      },
+      {
+        "value": 10,
+        "prob": 0.0047,
+        "token": "10"
+      },
+      {
+        "value": 24,
+        "prob": 0.0025,
+        "token": "24"
+      },
+      {
+        "value": 6,
+        "prob": 0.0022,
+        "token": "6"
+      },
+      {
+        "value": 14,
+        "prob": 0.0006,
+        "token": "14"
+      },
+      {
+        "value": 9,
+        "prob": 0.0006,
+        "token": "9"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0238,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.0347,
+          "from": "3*4"
+        },
+        {
+          "value": 8,
+          "prob": 0.0347,
+          "from": "2*4"
+        },
+        {
+          "value": 24,
+          "prob": 0.0025,
+          "from": "4*6"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [
+        {
+          "value": 10,
+          "prob": 0.0047,
+          "from": [
+            2,
+            5
+          ]
+        },
+        {
+          "value": 6,
+          "prob": 0.0022,
+          "from": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 14,
+          "prob": 0.0006,
+          "from": [
+            2,
+            7
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.8945,
+          "from": "2*2"
+        },
+        {
+          "value": 9,
+          "prob": 0.0006,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "4*5=",
+    "a": 4,
+    "b": 5,
+    "correct": 20,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 5,
+        "prob": 0.4844,
+        "token": "5"
+      },
+      {
+        "value": 10,
+        "prob": 0.1572,
+        "token": "10"
+      },
+      {
+        "value": 4,
+        "prob": 0.1221,
+        "token": "4"
+      },
+      {
+        "value": 20,
+        "prob": 0.0742,
+        "token": "20"
+      },
+      {
+        "value": 12,
+        "prob": 0.0449,
+        "token": "12"
+      },
+      {
+        "value": 15,
+        "prob": 0.0212,
+        "token": "15"
+      },
+      {
+        "value": 40,
+        "prob": 0.0188,
+        "token": "40"
+      },
+      {
+        "value": 25,
+        "prob": 0.0129,
+        "token": "25"
+      },
+      {
+        "value": 6,
+        "prob": 0.0048,
+        "token": "6"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0742,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.0449,
+          "from": "3*4"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 10,
+          "prob": 0.1572,
+          "from": "2*5"
+        },
+        {
+          "value": 15,
+          "prob": 0.0212,
+          "from": "3*5"
+        },
+        {
+          "value": 40,
+          "prob": 0.0188,
+          "from": "5*8"
+        },
+        {
+          "value": 25,
+          "prob": 0.0129,
+          "from": "5*5"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.0048,
+          "from": "2*3",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.1221,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "4*6=",
+    "a": 4,
+    "b": 6,
+    "correct": 24,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.8242,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.126,
+        "token": "12"
+      },
+      {
+        "value": 24,
+        "prob": 0.0133,
+        "token": "24"
+      },
+      {
+        "value": 4,
+        "prob": 0.0092,
+        "token": "4"
+      },
+      {
+        "value": 8,
+        "prob": 0.0056,
+        "token": "8"
+      },
+      {
+        "value": 16,
+        "prob": 0.0049,
+        "token": "16"
+      },
+      {
+        "value": 18,
+        "prob": 0.0018,
+        "token": "18"
+      },
+      {
+        "value": 10,
+        "prob": 0.0016,
+        "token": "10"
+      },
+      {
+        "value": 48,
+        "prob": 0.0008,
+        "token": "48"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 3,
+      "correct_prob": 0.0133,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.126,
+          "from": "3*4"
+        },
+        {
+          "value": 8,
+          "prob": 0.0056,
+          "from": "2*4"
+        },
+        {
+          "value": 16,
+          "prob": 0.0049,
+          "from": "4*4"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 18,
+          "prob": 0.0018,
+          "from": "3*6"
+        },
+        {
+          "value": 48,
+          "prob": 0.0008,
+          "from": "6*8"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.8242,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0016,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.0092,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "4*7=",
+    "a": 4,
+    "b": 7,
+    "correct": 28,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.2158,
+        "token": "4"
+      },
+      {
+        "value": 12,
+        "prob": 0.1484,
+        "token": "12"
+      },
+      {
+        "value": 28,
+        "prob": 0.1021,
+        "token": "28"
+      },
+      {
+        "value": 7,
+        "prob": 0.0898,
+        "token": "7"
+      },
+      {
+        "value": 14,
+        "prob": 0.0698,
+        "token": "14"
+      },
+      {
+        "value": 8,
+        "prob": 0.0425,
+        "token": "8"
+      },
+      {
+        "value": 24,
+        "prob": 0.0293,
+        "token": "24"
+      },
+      {
+        "value": 10,
+        "prob": 0.0293,
+        "token": "10"
+      },
+      {
+        "value": 17,
+        "prob": 0.0156,
+        "token": "17"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 3,
+      "correct_prob": 0.1021,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.1484,
+          "from": "3*4"
+        },
+        {
+          "value": 8,
+          "prob": 0.0425,
+          "from": "2*4"
+        },
+        {
+          "value": 24,
+          "prob": 0.0293,
+          "from": "4*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 14,
+          "prob": 0.0698,
+          "from": "2*7"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 10,
+          "prob": 0.0293,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.2158,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "4*8=",
+    "a": 4,
+    "b": 8,
+    "correct": 32,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.8711,
+        "token": "8"
+      },
+      {
+        "value": 4,
+        "prob": 0.063,
+        "token": "4"
+      },
+      {
+        "value": 16,
+        "prob": 0.014,
+        "token": "16"
+      },
+      {
+        "value": 24,
+        "prob": 0.0085,
+        "token": "24"
+      },
+      {
+        "value": 12,
+        "prob": 0.0085,
+        "token": "12"
+      },
+      {
+        "value": 40,
+        "prob": 0.0036,
+        "token": "40"
+      },
+      {
+        "value": 80,
+        "prob": 0.0024,
+        "token": "80"
+      },
+      {
+        "value": 32,
+        "prob": 0.0022,
+        "token": "32"
+      },
+      {
+        "value": 48,
+        "prob": 0.0019,
+        "token": "48"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 8,
+      "correct_prob": 0.0022,
+      "same_row": [
+        {
+          "value": 8,
+          "prob": 0.8711,
+          "from": "2*4"
+        },
+        {
+          "value": 16,
+          "prob": 0.014,
+          "from": "4*4"
+        },
+        {
+          "value": 24,
+          "prob": 0.0085,
+          "from": "4*6"
+        },
+        {
+          "value": 12,
+          "prob": 0.0085,
+          "from": "3*4"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 40,
+          "prob": 0.0036,
+          "from": "5*8"
+        },
+        {
+          "value": 48,
+          "prob": 0.0019,
+          "from": "6*8"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.063,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "4*9=",
+    "a": 4,
+    "b": 9,
+    "correct": 36,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.4512,
+        "token": "9"
+      },
+      {
+        "value": 4,
+        "prob": 0.166,
+        "token": "4"
+      },
+      {
+        "value": 12,
+        "prob": 0.1299,
+        "token": "12"
+      },
+      {
+        "value": 24,
+        "prob": 0.0476,
+        "token": "24"
+      },
+      {
+        "value": 18,
+        "prob": 0.0371,
+        "token": "18"
+      },
+      {
+        "value": 8,
+        "prob": 0.0225,
+        "token": "8"
+      },
+      {
+        "value": 10,
+        "prob": 0.0198,
+        "token": "10"
+      },
+      {
+        "value": 36,
+        "prob": 0.0106,
+        "token": "36"
+      },
+      {
+        "value": 16,
+        "prob": 0.0082,
+        "token": "16"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 8,
+      "correct_prob": 0.0106,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.1299,
+          "from": "3*4"
+        },
+        {
+          "value": 24,
+          "prob": 0.0476,
+          "from": "4*6"
+        },
+        {
+          "value": 8,
+          "prob": 0.0225,
+          "from": "2*4"
+        },
+        {
+          "value": 16,
+          "prob": 0.0082,
+          "from": "4*4"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 18,
+          "prob": 0.0371,
+          "from": "2*9"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 10,
+          "prob": 0.0198,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.4512,
+          "from": "3*3"
+        },
+        {
+          "value": 4,
+          "prob": 0.166,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "5*2=",
+    "a": 5,
+    "b": 2,
+    "correct": 10,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 5,
+        "prob": 0.2578,
+        "token": "5"
+      },
+      {
+        "value": 10,
+        "prob": 0.2275,
+        "token": "10"
+      },
+      {
+        "value": 2,
+        "prob": 0.2002,
+        "token": "2"
+      },
+      {
+        "value": 6,
+        "prob": 0.1221,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.0449,
+        "token": "12"
+      },
+      {
+        "value": 8,
+        "prob": 0.0449,
+        "token": "8"
+      },
+      {
+        "value": 4,
+        "prob": 0.0211,
+        "token": "4"
+      },
+      {
+        "value": 20,
+        "prob": 0.0128,
+        "token": "20"
+      },
+      {
+        "value": 1,
+        "prob": 0.0114,
+        "token": "1"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.2275,
+      "same_row": [
+        {
+          "value": 20,
+          "prob": 0.0128,
+          "from": "4*5"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 6,
+          "prob": 0.1221,
+          "from": "2*3"
+        },
+        {
+          "value": 12,
+          "prob": 0.0449,
+          "from": "2*6"
+        },
+        {
+          "value": 8,
+          "prob": 0.0449,
+          "from": "2*4"
+        },
+        {
+          "value": 4,
+          "prob": 0.0211,
+          "from": "2*2"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "5*3=",
+    "a": 5,
+    "b": 3,
+    "correct": 15,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 3,
+        "prob": 0.8516,
+        "token": "3"
+      },
+      {
+        "value": 15,
+        "prob": 0.0544,
+        "token": "15"
+      },
+      {
+        "value": 12,
+        "prob": 0.0256,
+        "token": "12"
+      },
+      {
+        "value": 6,
+        "prob": 0.02,
+        "token": "6"
+      },
+      {
+        "value": 5,
+        "prob": 0.02,
+        "token": "5"
+      },
+      {
+        "value": 10,
+        "prob": 0.0074,
+        "token": "10"
+      },
+      {
+        "value": 9,
+        "prob": 0.0045,
+        "token": "9"
+      },
+      {
+        "value": 30,
+        "prob": 0.0031,
+        "token": "30"
+      },
+      {
+        "value": 1,
+        "prob": 0.0024,
+        "token": "1"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.0544,
+      "same_row": [
+        {
+          "value": 10,
+          "prob": 0.0074,
+          "from": "2*5"
+        },
+        {
+          "value": 30,
+          "prob": 0.0031,
+          "from": "5*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0256,
+          "from": "3*4"
+        },
+        {
+          "value": 6,
+          "prob": 0.02,
+          "from": "2*3"
+        },
+        {
+          "value": 9,
+          "prob": 0.0045,
+          "from": "3*3"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "5*4=",
+    "a": 5,
+    "b": 4,
+    "correct": 20,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.8047,
+        "token": "4"
+      },
+      {
+        "value": 10,
+        "prob": 0.0581,
+        "token": "10"
+      },
+      {
+        "value": 12,
+        "prob": 0.0454,
+        "token": "12"
+      },
+      {
+        "value": 5,
+        "prob": 0.04,
+        "token": "5"
+      },
+      {
+        "value": 20,
+        "prob": 0.0129,
+        "token": "20"
+      },
+      {
+        "value": 40,
+        "prob": 0.0048,
+        "token": "40"
+      },
+      {
+        "value": 15,
+        "prob": 0.0037,
+        "token": "15"
+      },
+      {
+        "value": 8,
+        "prob": 0.0029,
+        "token": "8"
+      },
+      {
+        "value": 6,
+        "prob": 0.0023,
+        "token": "6"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 5,
+      "correct_prob": 0.0129,
+      "same_row": [
+        {
+          "value": 10,
+          "prob": 0.0581,
+          "from": "2*5"
+        },
+        {
+          "value": 40,
+          "prob": 0.0048,
+          "from": "5*8"
+        },
+        {
+          "value": 15,
+          "prob": 0.0037,
+          "from": "3*5"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0454,
+          "from": "3*4"
+        },
+        {
+          "value": 8,
+          "prob": 0.0029,
+          "from": "2*4"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.0023,
+          "from": "2*3",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.8047,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "5*5=",
+    "a": 5,
+    "b": 5,
+    "correct": 25,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 5,
+        "prob": 0.4746,
+        "token": "5"
+      },
+      {
+        "value": 25,
+        "prob": 0.3262,
+        "token": "25"
+      },
+      {
+        "value": 10,
+        "prob": 0.0645,
+        "token": "10"
+      },
+      {
+        "value": 15,
+        "prob": 0.0569,
+        "token": "15"
+      },
+      {
+        "value": 1,
+        "prob": 0.0112,
+        "token": "1"
+      },
+      {
+        "value": 12,
+        "prob": 0.0077,
+        "token": "12"
+      },
+      {
+        "value": 3,
+        "prob": 0.0041,
+        "token": "3"
+      },
+      {
+        "value": 20,
+        "prob": 0.0032,
+        "token": "20"
+      },
+      {
+        "value": 9,
+        "prob": 0.0032,
+        "token": "9"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.3262,
+      "same_row": [
+        {
+          "value": 10,
+          "prob": 0.0645,
+          "from": "2*5"
+        },
+        {
+          "value": 15,
+          "prob": 0.0569,
+          "from": "3*5"
+        },
+        {
+          "value": 20,
+          "prob": 0.0032,
+          "from": "4*5"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.0032,
+          "from": "3*3"
+        }
+      ],
+      "other": [
+        {
+          "value": 12,
+          "prob": 0.0077,
+          "from": "2*6"
+        }
+      ]
+    }
+  },
+  {
+    "prompt": "5*6=",
+    "a": 5,
+    "b": 6,
+    "correct": 30,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.9258,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.0317,
+        "token": "12"
+      },
+      {
+        "value": 10,
+        "prob": 0.0103,
+        "token": "10"
+      },
+      {
+        "value": 30,
+        "prob": 0.007,
+        "token": "30"
+      },
+      {
+        "value": 15,
+        "prob": 0.007,
+        "token": "15"
+      },
+      {
+        "value": 60,
+        "prob": 0.0055,
+        "token": "60"
+      },
+      {
+        "value": 5,
+        "prob": 0.0029,
+        "token": "5"
+      },
+      {
+        "value": 3,
+        "prob": 0.0012,
+        "token": "3"
+      },
+      {
+        "value": 18,
+        "prob": 0.0011,
+        "token": "18"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.007,
+      "same_row": [
+        {
+          "value": 10,
+          "prob": 0.0103,
+          "from": "2*5"
+        },
+        {
+          "value": 15,
+          "prob": 0.007,
+          "from": "3*5"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0317,
+          "from": "2*6"
+        },
+        {
+          "value": 18,
+          "prob": 0.0011,
+          "from": "3*6"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.9258,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        }
+      ],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "5*7=",
+    "a": 5,
+    "b": 7,
+    "correct": 35,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 7,
+        "prob": 0.1279,
+        "token": "7"
+      },
+      {
+        "value": 35,
+        "prob": 0.0776,
+        "token": "35"
+      },
+      {
+        "value": 10,
+        "prob": 0.0608,
+        "token": "10"
+      },
+      {
+        "value": 5,
+        "prob": 0.0608,
+        "token": "5"
+      },
+      {
+        "value": 15,
+        "prob": 0.0537,
+        "token": "15"
+      },
+      {
+        "value": 12,
+        "prob": 0.042,
+        "token": "12"
+      },
+      {
+        "value": 3,
+        "prob": 0.0287,
+        "token": "3"
+      },
+      {
+        "value": 6,
+        "prob": 0.0253,
+        "token": "6"
+      },
+      {
+        "value": 70,
+        "prob": 0.0223,
+        "token": "70"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.0776,
+      "same_row": [
+        {
+          "value": 10,
+          "prob": 0.0608,
+          "from": "2*5"
+        },
+        {
+          "value": 15,
+          "prob": 0.0537,
+          "from": "3*5"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": [
+        {
+          "value": 12,
+          "prob": 0.042,
+          "from": "2*6"
+        },
+        {
+          "value": 6,
+          "prob": 0.0253,
+          "from": "2*3"
+        }
+      ]
+    }
+  },
+  {
+    "prompt": "5*8=",
+    "a": 5,
+    "b": 8,
+    "correct": 40,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.6289,
+        "token": "8"
+      },
+      {
+        "value": 10,
+        "prob": 0.0454,
+        "token": "10"
+      },
+      {
+        "value": 80,
+        "prob": 0.0403,
+        "token": "80"
+      },
+      {
+        "value": 40,
+        "prob": 0.0189,
+        "token": "40"
+      },
+      {
+        "value": 12,
+        "prob": 0.0189,
+        "token": "12"
+      },
+      {
+        "value": 5,
+        "prob": 0.0131,
+        "token": "5"
+      },
+      {
+        "value": 4,
+        "prob": 0.0101,
+        "token": "4"
+      },
+      {
+        "value": 16,
+        "prob": 0.0079,
+        "token": "16"
+      },
+      {
+        "value": 20,
+        "prob": 0.007,
+        "token": "20"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0189,
+      "same_row": [
+        {
+          "value": 10,
+          "prob": 0.0454,
+          "from": "2*5"
+        },
+        {
+          "value": 20,
+          "prob": 0.007,
+          "from": "4*5"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 16,
+          "prob": 0.0079,
+          "from": "2*8"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.6289,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 12,
+          "prob": 0.0189,
+          "from": "2*6",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.0101,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "5*9=",
+    "a": 5,
+    "b": 9,
+    "correct": 45,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.7461,
+        "token": "9"
+      },
+      {
+        "value": 15,
+        "prob": 0.0371,
+        "token": "15"
+      },
+      {
+        "value": 10,
+        "prob": 0.0289,
+        "token": "10"
+      },
+      {
+        "value": 5,
+        "prob": 0.0289,
+        "token": "5"
+      },
+      {
+        "value": 45,
+        "prob": 0.0199,
+        "token": "45"
+      },
+      {
+        "value": 25,
+        "prob": 0.0107,
+        "token": "25"
+      },
+      {
+        "value": 18,
+        "prob": 0.0094,
+        "token": "18"
+      },
+      {
+        "value": 30,
+        "prob": 0.0083,
+        "token": "30"
+      },
+      {
+        "value": 12,
+        "prob": 0.0083,
+        "token": "12"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 5,
+      "correct_prob": 0.0199,
+      "same_row": [
+        {
+          "value": 15,
+          "prob": 0.0371,
+          "from": "3*5"
+        },
+        {
+          "value": 10,
+          "prob": 0.0289,
+          "from": "2*5"
+        },
+        {
+          "value": 25,
+          "prob": 0.0107,
+          "from": "5*5"
+        },
+        {
+          "value": 30,
+          "prob": 0.0083,
+          "from": "5*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 18,
+          "prob": 0.0094,
+          "from": "2*9"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 12,
+          "prob": 0.0083,
+          "from": "2*6",
+          "shared": [
+            3
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.7461,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "6*2=",
+    "a": 6,
+    "b": 2,
+    "correct": 12,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.7852,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.1064,
+        "token": "12"
+      },
+      {
+        "value": 8,
+        "prob": 0.0503,
+        "token": "8"
+      },
+      {
+        "value": 2,
+        "prob": 0.0209,
+        "token": "2"
+      },
+      {
+        "value": 10,
+        "prob": 0.006,
+        "token": "10"
+      },
+      {
+        "value": 16,
+        "prob": 0.0041,
+        "token": "16"
+      },
+      {
+        "value": 4,
+        "prob": 0.0041,
+        "token": "4"
+      },
+      {
+        "value": 7,
+        "prob": 0.0036,
+        "token": "7"
+      },
+      {
+        "value": 18,
+        "prob": 0.0032,
+        "token": "18"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.1064,
+      "same_row": [
+        {
+          "value": 18,
+          "prob": 0.0032,
+          "from": "3*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 6,
+          "prob": 0.7852,
+          "from": "2*3"
+        },
+        {
+          "value": 8,
+          "prob": 0.0503,
+          "from": "2*4"
+        },
+        {
+          "value": 10,
+          "prob": 0.006,
+          "from": "2*5"
+        },
+        {
+          "value": 16,
+          "prob": 0.0041,
+          "from": "2*8"
+        },
+        {
+          "value": 4,
+          "prob": 0.0041,
+          "from": "2*2"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "6*3=",
+    "a": 6,
+    "b": 3,
+    "correct": 18,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 3,
+        "prob": 0.5859,
+        "token": "3"
+      },
+      {
+        "value": 6,
+        "prob": 0.2773,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.0544,
+        "token": "12"
+      },
+      {
+        "value": 18,
+        "prob": 0.0138,
+        "token": "18"
+      },
+      {
+        "value": 9,
+        "prob": 0.0095,
+        "token": "9"
+      },
+      {
+        "value": 24,
+        "prob": 0.0084,
+        "token": "24"
+      },
+      {
+        "value": 8,
+        "prob": 0.0084,
+        "token": "8"
+      },
+      {
+        "value": 30,
+        "prob": 0.0058,
+        "token": "30"
+      },
+      {
+        "value": 15,
+        "prob": 0.0058,
+        "token": "15"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0138,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.0544,
+          "from": "2*6"
+        },
+        {
+          "value": 24,
+          "prob": 0.0084,
+          "from": "4*6"
+        },
+        {
+          "value": 30,
+          "prob": 0.0058,
+          "from": "5*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 6,
+          "prob": 0.2773,
+          "from": "2*3"
+        },
+        {
+          "value": 9,
+          "prob": 0.0095,
+          "from": "3*3"
+        },
+        {
+          "value": 15,
+          "prob": 0.0058,
+          "from": "3*5"
+        }
+      ],
+      "adjacent_products": [
+        {
+          "value": 8,
+          "prob": 0.0084,
+          "from": [
+            2,
+            4
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "6*4=",
+    "a": 6,
+    "b": 4,
+    "correct": 24,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.5703,
+        "token": "4"
+      },
+      {
+        "value": 12,
+        "prob": 0.209,
+        "token": "12"
+      },
+      {
+        "value": 6,
+        "prob": 0.0991,
+        "token": "6"
+      },
+      {
+        "value": 24,
+        "prob": 0.0364,
+        "token": "24"
+      },
+      {
+        "value": 8,
+        "prob": 0.0322,
+        "token": "8"
+      },
+      {
+        "value": 16,
+        "prob": 0.0134,
+        "token": "16"
+      },
+      {
+        "value": 10,
+        "prob": 0.0049,
+        "token": "10"
+      },
+      {
+        "value": 28,
+        "prob": 0.003,
+        "token": "28"
+      },
+      {
+        "value": 14,
+        "prob": 0.003,
+        "token": "14"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0364,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.209,
+          "from": "2*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 8,
+          "prob": 0.0322,
+          "from": "2*4"
+        },
+        {
+          "value": 16,
+          "prob": 0.0134,
+          "from": "4*4"
+        },
+        {
+          "value": 28,
+          "prob": 0.003,
+          "from": "4*7"
+        }
+      ],
+      "adjacent_products": [
+        {
+          "value": 14,
+          "prob": 0.003,
+          "from": [
+            2,
+            7
+          ]
+        }
+      ],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.0991,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0049,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.5703,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "6*5=",
+    "a": 6,
+    "b": 5,
+    "correct": 30,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.3887,
+        "token": "6"
+      },
+      {
+        "value": 5,
+        "prob": 0.208,
+        "token": "5"
+      },
+      {
+        "value": 15,
+        "prob": 0.0596,
+        "token": "15"
+      },
+      {
+        "value": 30,
+        "prob": 0.0527,
+        "token": "30"
+      },
+      {
+        "value": 12,
+        "prob": 0.0464,
+        "token": "12"
+      },
+      {
+        "value": 10,
+        "prob": 0.0464,
+        "token": "10"
+      },
+      {
+        "value": 60,
+        "prob": 0.0249,
+        "token": "60"
+      },
+      {
+        "value": 120,
+        "prob": 0.0092,
+        "token": "120"
+      },
+      {
+        "value": 20,
+        "prob": 0.0081,
+        "token": "20"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0527,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.0464,
+          "from": "2*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 15,
+          "prob": 0.0596,
+          "from": "3*5"
+        },
+        {
+          "value": 10,
+          "prob": 0.0464,
+          "from": "2*5"
+        },
+        {
+          "value": 20,
+          "prob": 0.0081,
+          "from": "4*5"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.3887,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        }
+      ],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "6*6=",
+    "a": 6,
+    "b": 6,
+    "correct": 36,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.8906,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.0347,
+        "token": "12"
+      },
+      {
+        "value": 36,
+        "prob": 0.0184,
+        "token": "36"
+      },
+      {
+        "value": 16,
+        "prob": 0.0112,
+        "token": "16"
+      },
+      {
+        "value": 24,
+        "prob": 0.0068,
+        "token": "24"
+      },
+      {
+        "value": 18,
+        "prob": 0.006,
+        "token": "18"
+      },
+      {
+        "value": 8,
+        "prob": 0.0041,
+        "token": "8"
+      },
+      {
+        "value": 10,
+        "prob": 0.0036,
+        "token": "10"
+      },
+      {
+        "value": 9,
+        "prob": 0.0032,
+        "token": "9"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 3,
+      "correct_prob": 0.0184,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.0347,
+          "from": "2*6"
+        },
+        {
+          "value": 24,
+          "prob": 0.0068,
+          "from": "4*6"
+        },
+        {
+          "value": 18,
+          "prob": 0.006,
+          "from": "3*6"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.8906,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 8,
+          "prob": 0.0041,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0036,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 16,
+          "prob": 0.0112,
+          "from": "4*4"
+        },
+        {
+          "value": 9,
+          "prob": 0.0032,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "6*7=",
+    "a": 6,
+    "b": 7,
+    "correct": 42,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.5195,
+        "token": "6"
+      },
+      {
+        "value": 7,
+        "prob": 0.168,
+        "token": "7"
+      },
+      {
+        "value": 12,
+        "prob": 0.0623,
+        "token": "12"
+      },
+      {
+        "value": 21,
+        "prob": 0.0123,
+        "token": "21"
+      },
+      {
+        "value": 10,
+        "prob": 0.0123,
+        "token": "10"
+      },
+      {
+        "value": 24,
+        "prob": 0.0108,
+        "token": "24"
+      },
+      {
+        "value": 3,
+        "prob": 0.0108,
+        "token": "3"
+      },
+      {
+        "value": 28,
+        "prob": 0.0095,
+        "token": "28"
+      },
+      {
+        "value": 14,
+        "prob": 0.0095,
+        "token": "14"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": null,
+      "correct_prob": null,
+      "same_row": [
+        {
+          "value": 12,
+          "prob": 0.0623,
+          "from": "2*6"
+        },
+        {
+          "value": 24,
+          "prob": 0.0108,
+          "from": "4*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 21,
+          "prob": 0.0123,
+          "from": "3*7"
+        },
+        {
+          "value": 28,
+          "prob": 0.0095,
+          "from": "4*7"
+        },
+        {
+          "value": 14,
+          "prob": 0.0095,
+          "from": "2*7"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.5195,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0123,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "6*8=",
+    "a": 6,
+    "b": 8,
+    "correct": 48,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.7539,
+        "token": "8"
+      },
+      {
+        "value": 24,
+        "prob": 0.0376,
+        "token": "24"
+      },
+      {
+        "value": 6,
+        "prob": 0.0376,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.0332,
+        "token": "12"
+      },
+      {
+        "value": 48,
+        "prob": 0.0178,
+        "token": "48"
+      },
+      {
+        "value": 16,
+        "prob": 0.0156,
+        "token": "16"
+      },
+      {
+        "value": 18,
+        "prob": 0.0057,
+        "token": "18"
+      },
+      {
+        "value": 28,
+        "prob": 0.0031,
+        "token": "28"
+      },
+      {
+        "value": 80,
+        "prob": 0.0027,
+        "token": "80"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 5,
+      "correct_prob": 0.0178,
+      "same_row": [
+        {
+          "value": 24,
+          "prob": 0.0376,
+          "from": "4*6"
+        },
+        {
+          "value": 12,
+          "prob": 0.0332,
+          "from": "2*6"
+        },
+        {
+          "value": 18,
+          "prob": 0.0057,
+          "from": "3*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 16,
+          "prob": 0.0156,
+          "from": "2*8"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.7539,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 6,
+          "prob": 0.0376,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 28,
+          "prob": 0.0031,
+          "from": "4*7",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "6*9=",
+    "a": 6,
+    "b": 9,
+    "correct": 54,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.6406,
+        "token": "9"
+      },
+      {
+        "value": 6,
+        "prob": 0.0525,
+        "token": "6"
+      },
+      {
+        "value": 54,
+        "prob": 0.0464,
+        "token": "54"
+      },
+      {
+        "value": 18,
+        "prob": 0.0464,
+        "token": "18"
+      },
+      {
+        "value": 36,
+        "prob": 0.0193,
+        "token": "36"
+      },
+      {
+        "value": 10,
+        "prob": 0.0193,
+        "token": "10"
+      },
+      {
+        "value": 12,
+        "prob": 0.0171,
+        "token": "12"
+      },
+      {
+        "value": 27,
+        "prob": 0.0133,
+        "token": "27"
+      },
+      {
+        "value": 24,
+        "prob": 0.0133,
+        "token": "24"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 3,
+      "correct_prob": 0.0464,
+      "same_row": [
+        {
+          "value": 18,
+          "prob": 0.0464,
+          "from": "3*6"
+        },
+        {
+          "value": 36,
+          "prob": 0.0193,
+          "from": "6*6"
+        },
+        {
+          "value": 12,
+          "prob": 0.0171,
+          "from": "2*6"
+        },
+        {
+          "value": 24,
+          "prob": 0.0133,
+          "from": "4*6"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 27,
+          "prob": 0.0133,
+          "from": "3*9"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.0525,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0193,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.6406,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "7*2=",
+    "a": 7,
+    "b": 2,
+    "correct": 14,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.1973,
+        "token": "8"
+      },
+      {
+        "value": 12,
+        "prob": 0.1533,
+        "token": "12"
+      },
+      {
+        "value": 7,
+        "prob": 0.1533,
+        "token": "7"
+      },
+      {
+        "value": 2,
+        "prob": 0.1533,
+        "token": "2"
+      },
+      {
+        "value": 6,
+        "prob": 0.1055,
+        "token": "6"
+      },
+      {
+        "value": 10,
+        "prob": 0.0439,
+        "token": "10"
+      },
+      {
+        "value": 9,
+        "prob": 0.0342,
+        "token": "9"
+      },
+      {
+        "value": 14,
+        "prob": 0.0303,
+        "token": "14"
+      },
+      {
+        "value": 18,
+        "prob": 0.0183,
+        "token": "18"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 8,
+      "correct_prob": 0.0303,
+      "same_row": [],
+      "same_col": [
+        {
+          "value": 8,
+          "prob": 0.1973,
+          "from": "2*4"
+        },
+        {
+          "value": 12,
+          "prob": 0.1533,
+          "from": "2*6"
+        },
+        {
+          "value": 6,
+          "prob": 0.1055,
+          "from": "2*3"
+        },
+        {
+          "value": 10,
+          "prob": 0.0439,
+          "from": "2*5"
+        },
+        {
+          "value": 18,
+          "prob": 0.0183,
+          "from": "2*9"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.0342,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "7*3=",
+    "a": 7,
+    "b": 3,
+    "correct": 21,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 3,
+        "prob": 0.9336,
+        "token": "3"
+      },
+      {
+        "value": 12,
+        "prob": 0.0104,
+        "token": "12"
+      },
+      {
+        "value": 7,
+        "prob": 0.0104,
+        "token": "7"
+      },
+      {
+        "value": 9,
+        "prob": 0.0063,
+        "token": "9"
+      },
+      {
+        "value": 6,
+        "prob": 0.0056,
+        "token": "6"
+      },
+      {
+        "value": 15,
+        "prob": 0.0049,
+        "token": "15"
+      },
+      {
+        "value": 30,
+        "prob": 0.0038,
+        "token": "30"
+      },
+      {
+        "value": 27,
+        "prob": 0.0026,
+        "token": "27"
+      },
+      {
+        "value": 24,
+        "prob": 0.0023,
+        "token": "24"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": null,
+      "correct_prob": null,
+      "same_row": [],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0104,
+          "from": "3*4"
+        },
+        {
+          "value": 9,
+          "prob": 0.0063,
+          "from": "3*3"
+        },
+        {
+          "value": 6,
+          "prob": 0.0056,
+          "from": "2*3"
+        },
+        {
+          "value": 15,
+          "prob": 0.0049,
+          "from": "3*5"
+        },
+        {
+          "value": 27,
+          "prob": 0.0026,
+          "from": "3*9"
+        },
+        {
+          "value": 24,
+          "prob": 0.0023,
+          "from": "3*8"
+        }
+      ],
+      "adjacent_products": [
+        {
+          "value": 30,
+          "prob": 0.0038,
+          "from": [
+            5,
+            6
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "7*4=",
+    "a": 7,
+    "b": 4,
+    "correct": 28,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.8633,
+        "token": "4"
+      },
+      {
+        "value": 12,
+        "prob": 0.0334,
+        "token": "12"
+      },
+      {
+        "value": 8,
+        "prob": 0.0204,
+        "token": "8"
+      },
+      {
+        "value": 7,
+        "prob": 0.0109,
+        "token": "7"
+      },
+      {
+        "value": 24,
+        "prob": 0.0085,
+        "token": "24"
+      },
+      {
+        "value": 28,
+        "prob": 0.0075,
+        "token": "28"
+      },
+      {
+        "value": 14,
+        "prob": 0.0075,
+        "token": "14"
+      },
+      {
+        "value": 10,
+        "prob": 0.0058,
+        "token": "10"
+      },
+      {
+        "value": 16,
+        "prob": 0.0051,
+        "token": "16"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 6,
+      "correct_prob": 0.0075,
+      "same_row": [
+        {
+          "value": 14,
+          "prob": 0.0075,
+          "from": "2*7"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0334,
+          "from": "3*4"
+        },
+        {
+          "value": 8,
+          "prob": 0.0204,
+          "from": "2*4"
+        },
+        {
+          "value": 24,
+          "prob": 0.0085,
+          "from": "4*6"
+        },
+        {
+          "value": 16,
+          "prob": 0.0051,
+          "from": "4*4"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 10,
+          "prob": 0.0058,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.8633,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "7*5=",
+    "a": 7,
+    "b": 5,
+    "correct": 35,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 5,
+        "prob": 0.5195,
+        "token": "5"
+      },
+      {
+        "value": 15,
+        "prob": 0.0376,
+        "token": "15"
+      },
+      {
+        "value": 35,
+        "prob": 0.0259,
+        "token": "35"
+      },
+      {
+        "value": 25,
+        "prob": 0.0228,
+        "token": "25"
+      },
+      {
+        "value": 10,
+        "prob": 0.0201,
+        "token": "10"
+      },
+      {
+        "value": 20,
+        "prob": 0.0065,
+        "token": "20"
+      },
+      {
+        "value": 55,
+        "prob": 0.0058,
+        "token": "55"
+      },
+      {
+        "value": 7,
+        "prob": 0.0058,
+        "token": "7"
+      },
+      {
+        "value": 1,
+        "prob": 0.0051,
+        "token": "1"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 3,
+      "correct_prob": 0.0259,
+      "same_row": [],
+      "same_col": [
+        {
+          "value": 15,
+          "prob": 0.0376,
+          "from": "3*5"
+        },
+        {
+          "value": 25,
+          "prob": 0.0228,
+          "from": "5*5"
+        },
+        {
+          "value": 10,
+          "prob": 0.0201,
+          "from": "2*5"
+        },
+        {
+          "value": 20,
+          "prob": 0.0065,
+          "from": "4*5"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "7*6=",
+    "a": 7,
+    "b": 6,
+    "correct": 42,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.9219,
+        "token": "6"
+      },
+      {
+        "value": 7,
+        "prob": 0.0132,
+        "token": "7"
+      },
+      {
+        "value": 12,
+        "prob": 0.0116,
+        "token": "12"
+      },
+      {
+        "value": 3,
+        "prob": 0.0023,
+        "token": "3"
+      },
+      {
+        "value": 18,
+        "prob": 0.0014,
+        "token": "18"
+      },
+      {
+        "value": 24,
+        "prob": 0.0012,
+        "token": "24"
+      },
+      {
+        "value": 30,
+        "prob": 0.0012,
+        "token": "30"
+      },
+      {
+        "value": 10,
+        "prob": 0.0012,
+        "token": "10"
+      },
+      {
+        "value": 70,
+        "prob": 0.0011,
+        "token": "70"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": null,
+      "correct_prob": null,
+      "same_row": [],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0116,
+          "from": "2*6"
+        },
+        {
+          "value": 18,
+          "prob": 0.0014,
+          "from": "3*6"
+        },
+        {
+          "value": 24,
+          "prob": 0.0012,
+          "from": "4*6"
+        },
+        {
+          "value": 30,
+          "prob": 0.0012,
+          "from": "5*6"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.9219,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0012,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "7*7=",
+    "a": 7,
+    "b": 7,
+    "correct": 49,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 7,
+        "prob": 0.1602,
+        "token": "7"
+      },
+      {
+        "value": 9,
+        "prob": 0.0669,
+        "token": "9"
+      },
+      {
+        "value": 6,
+        "prob": 0.0669,
+        "token": "6"
+      },
+      {
+        "value": 49,
+        "prob": 0.0588,
+        "token": "49"
+      },
+      {
+        "value": 25,
+        "prob": 0.0522,
+        "token": "25"
+      },
+      {
+        "value": 12,
+        "prob": 0.0457,
+        "token": "12"
+      },
+      {
+        "value": 21,
+        "prob": 0.0405,
+        "token": "21"
+      },
+      {
+        "value": 10,
+        "prob": 0.0315,
+        "token": "10"
+      },
+      {
+        "value": 1,
+        "prob": 0.0278,
+        "token": "1"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0588,
+      "same_row": [
+        {
+          "value": 21,
+          "prob": 0.0405,
+          "from": "3*7"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.0669,
+          "from": "3*3"
+        },
+        {
+          "value": 25,
+          "prob": 0.0522,
+          "from": "5*5"
+        }
+      ],
+      "other": [
+        {
+          "value": 6,
+          "prob": 0.0669,
+          "from": "2*3"
+        },
+        {
+          "value": 12,
+          "prob": 0.0457,
+          "from": "2*6"
+        },
+        {
+          "value": 10,
+          "prob": 0.0315,
+          "from": "2*5"
+        }
+      ]
+    }
+  },
+  {
+    "prompt": "7*8=",
+    "a": 7,
+    "b": 8,
+    "correct": 56,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.7227,
+        "token": "8"
+      },
+      {
+        "value": 24,
+        "prob": 0.0055,
+        "token": "24"
+      },
+      {
+        "value": 12,
+        "prob": 0.0043,
+        "token": "12"
+      },
+      {
+        "value": 7,
+        "prob": 0.0038,
+        "token": "7"
+      },
+      {
+        "value": 28,
+        "prob": 0.0034,
+        "token": "28"
+      },
+      {
+        "value": 16,
+        "prob": 0.0026,
+        "token": "16"
+      },
+      {
+        "value": 72,
+        "prob": 0.002,
+        "token": "72"
+      },
+      {
+        "value": 80,
+        "prob": 0.002,
+        "token": "80"
+      },
+      {
+        "value": 6,
+        "prob": 0.0018,
+        "token": "6"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": null,
+      "correct_prob": null,
+      "same_row": [
+        {
+          "value": 28,
+          "prob": 0.0034,
+          "from": "4*7"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 24,
+          "prob": 0.0055,
+          "from": "3*8"
+        },
+        {
+          "value": 16,
+          "prob": 0.0026,
+          "from": "2*8"
+        },
+        {
+          "value": 72,
+          "prob": 0.002,
+          "from": "8*9"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.7227,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 12,
+          "prob": 0.0043,
+          "from": "2*6",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 6,
+          "prob": 0.0018,
+          "from": "2*3",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "7*9=",
+    "a": 7,
+    "b": 9,
+    "correct": 63,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.6758,
+        "token": "9"
+      },
+      {
+        "value": 27,
+        "prob": 0.0059,
+        "token": "27"
+      },
+      {
+        "value": 54,
+        "prob": 0.0045,
+        "token": "54"
+      },
+      {
+        "value": 63,
+        "prob": 0.0028,
+        "token": "63"
+      },
+      {
+        "value": 24,
+        "prob": 0.0028,
+        "token": "24"
+      },
+      {
+        "value": 12,
+        "prob": 0.0028,
+        "token": "12"
+      },
+      {
+        "value": 10,
+        "prob": 0.0028,
+        "token": "10"
+      },
+      {
+        "value": 7,
+        "prob": 0.0028,
+        "token": "7"
+      },
+      {
+        "value": 49,
+        "prob": 0.0024,
+        "token": "49"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0028,
+      "same_row": [
+        {
+          "value": 49,
+          "prob": 0.0024,
+          "from": "7*7"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 27,
+          "prob": 0.0059,
+          "from": "3*9"
+        },
+        {
+          "value": 54,
+          "prob": 0.0045,
+          "from": "6*9"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 24,
+          "prob": 0.0028,
+          "from": "3*8",
+          "shared": [
+            3
+          ]
+        },
+        {
+          "value": 12,
+          "prob": 0.0028,
+          "from": "2*6",
+          "shared": [
+            3
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.6758,
+          "from": "3*3"
+        }
+      ],
+      "other": [
+        {
+          "value": 10,
+          "prob": 0.0028,
+          "from": "2*5"
+        }
+      ]
+    }
+  },
+  {
+    "prompt": "8*2=",
+    "a": 8,
+    "b": 2,
+    "correct": 16,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.8594,
+        "token": "8"
+      },
+      {
+        "value": 12,
+        "prob": 0.0378,
+        "token": "12"
+      },
+      {
+        "value": 2,
+        "prob": 0.0294,
+        "token": "2"
+      },
+      {
+        "value": 16,
+        "prob": 0.0228,
+        "token": "16"
+      },
+      {
+        "value": 6,
+        "prob": 0.0139,
+        "token": "6"
+      },
+      {
+        "value": 10,
+        "prob": 0.0095,
+        "token": "10"
+      },
+      {
+        "value": 4,
+        "prob": 0.0074,
+        "token": "4"
+      },
+      {
+        "value": 9,
+        "prob": 0.0035,
+        "token": "9"
+      },
+      {
+        "value": 18,
+        "prob": 0.0031,
+        "token": "18"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0228,
+      "same_row": [],
+      "same_col": [
+        {
+          "value": 8,
+          "prob": 0.8594,
+          "from": "2*4"
+        },
+        {
+          "value": 12,
+          "prob": 0.0378,
+          "from": "2*6"
+        },
+        {
+          "value": 6,
+          "prob": 0.0139,
+          "from": "2*3"
+        },
+        {
+          "value": 10,
+          "prob": 0.0095,
+          "from": "2*5"
+        },
+        {
+          "value": 4,
+          "prob": 0.0074,
+          "from": "2*2"
+        },
+        {
+          "value": 18,
+          "prob": 0.0031,
+          "from": "2*9"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.0035,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "8*3=",
+    "a": 8,
+    "b": 3,
+    "correct": 24,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 3,
+        "prob": 0.7617,
+        "token": "3"
+      },
+      {
+        "value": 12,
+        "prob": 0.0708,
+        "token": "12"
+      },
+      {
+        "value": 8,
+        "prob": 0.0625,
+        "token": "8"
+      },
+      {
+        "value": 24,
+        "prob": 0.026,
+        "token": "24"
+      },
+      {
+        "value": 6,
+        "prob": 0.014,
+        "token": "6"
+      },
+      {
+        "value": 30,
+        "prob": 0.0109,
+        "token": "30"
+      },
+      {
+        "value": 9,
+        "prob": 0.0109,
+        "token": "9"
+      },
+      {
+        "value": 18,
+        "prob": 0.0051,
+        "token": "18"
+      },
+      {
+        "value": 15,
+        "prob": 0.0045,
+        "token": "15"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.026,
+      "same_row": [],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0708,
+          "from": "3*4"
+        },
+        {
+          "value": 6,
+          "prob": 0.014,
+          "from": "2*3"
+        },
+        {
+          "value": 9,
+          "prob": 0.0109,
+          "from": "3*3"
+        },
+        {
+          "value": 18,
+          "prob": 0.0051,
+          "from": "3*6"
+        },
+        {
+          "value": 15,
+          "prob": 0.0045,
+          "from": "3*5"
+        }
+      ],
+      "adjacent_products": [
+        {
+          "value": 30,
+          "prob": 0.0109,
+          "from": [
+            5,
+            6
+          ]
+        }
+      ],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.0625,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "8*4=",
+    "a": 8,
+    "b": 4,
+    "correct": 32,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.8359,
+        "token": "4"
+      },
+      {
+        "value": 8,
+        "prob": 0.1001,
+        "token": "8"
+      },
+      {
+        "value": 16,
+        "prob": 0.0173,
+        "token": "16"
+      },
+      {
+        "value": 12,
+        "prob": 0.0153,
+        "token": "12"
+      },
+      {
+        "value": 24,
+        "prob": 0.0072,
+        "token": "24"
+      },
+      {
+        "value": 32,
+        "prob": 0.0027,
+        "token": "32"
+      },
+      {
+        "value": 40,
+        "prob": 0.0021,
+        "token": "40"
+      },
+      {
+        "value": 10,
+        "prob": 0.0021,
+        "token": "10"
+      },
+      {
+        "value": 48,
+        "prob": 0.0018,
+        "token": "48"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 6,
+      "correct_prob": 0.0027,
+      "same_row": [
+        {
+          "value": 16,
+          "prob": 0.0173,
+          "from": "2*8"
+        },
+        {
+          "value": 24,
+          "prob": 0.0072,
+          "from": "3*8"
+        },
+        {
+          "value": 40,
+          "prob": 0.0021,
+          "from": "5*8"
+        },
+        {
+          "value": 48,
+          "prob": 0.0018,
+          "from": "6*8"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 8,
+          "prob": 0.1001,
+          "from": "2*4"
+        },
+        {
+          "value": 12,
+          "prob": 0.0153,
+          "from": "3*4"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 10,
+          "prob": 0.0021,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.8359,
+          "from": "2*2"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "8*5=",
+    "a": 8,
+    "b": 5,
+    "correct": 40,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 5,
+        "prob": 0.6367,
+        "token": "5"
+      },
+      {
+        "value": 10,
+        "prob": 0.0762,
+        "token": "10"
+      },
+      {
+        "value": 20,
+        "prob": 0.0247,
+        "token": "20"
+      },
+      {
+        "value": 25,
+        "prob": 0.017,
+        "token": "25"
+      },
+      {
+        "value": 8,
+        "prob": 0.017,
+        "token": "8"
+      },
+      {
+        "value": 15,
+        "prob": 0.015,
+        "token": "15"
+      },
+      {
+        "value": 40,
+        "prob": 0.0117,
+        "token": "40"
+      },
+      {
+        "value": 80,
+        "prob": 0.008,
+        "token": "80"
+      },
+      {
+        "value": 30,
+        "prob": 0.008,
+        "token": "30"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 7,
+      "correct_prob": 0.0117,
+      "same_row": [],
+      "same_col": [
+        {
+          "value": 10,
+          "prob": 0.0762,
+          "from": "2*5"
+        },
+        {
+          "value": 20,
+          "prob": 0.0247,
+          "from": "4*5"
+        },
+        {
+          "value": 25,
+          "prob": 0.017,
+          "from": "5*5"
+        },
+        {
+          "value": 15,
+          "prob": 0.015,
+          "from": "3*5"
+        },
+        {
+          "value": 30,
+          "prob": 0.008,
+          "from": "5*6"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.017,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "8*6=",
+    "a": 8,
+    "b": 6,
+    "correct": 48,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.8594,
+        "token": "6"
+      },
+      {
+        "value": 12,
+        "prob": 0.0378,
+        "token": "12"
+      },
+      {
+        "value": 8,
+        "prob": 0.0203,
+        "token": "8"
+      },
+      {
+        "value": 48,
+        "prob": 0.0139,
+        "token": "48"
+      },
+      {
+        "value": 24,
+        "prob": 0.0139,
+        "token": "24"
+      },
+      {
+        "value": 16,
+        "prob": 0.0084,
+        "token": "16"
+      },
+      {
+        "value": 60,
+        "prob": 0.004,
+        "token": "60"
+      },
+      {
+        "value": 18,
+        "prob": 0.004,
+        "token": "18"
+      },
+      {
+        "value": 30,
+        "prob": 0.0027,
+        "token": "30"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0139,
+      "same_row": [
+        {
+          "value": 24,
+          "prob": 0.0139,
+          "from": "3*8"
+        },
+        {
+          "value": 16,
+          "prob": 0.0084,
+          "from": "2*8"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0378,
+          "from": "2*6"
+        },
+        {
+          "value": 18,
+          "prob": 0.004,
+          "from": "3*6"
+        },
+        {
+          "value": 30,
+          "prob": 0.0027,
+          "from": "5*6"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.8594,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 8,
+          "prob": 0.0203,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [],
+      "other": []
+    }
+  },
+  {
+    "prompt": "8*7=",
+    "a": 8,
+    "b": 7,
+    "correct": 56,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.127,
+        "token": "8"
+      },
+      {
+        "value": 28,
+        "prob": 0.1113,
+        "token": "28"
+      },
+      {
+        "value": 7,
+        "prob": 0.0869,
+        "token": "7"
+      },
+      {
+        "value": 70,
+        "prob": 0.0527,
+        "token": "70"
+      },
+      {
+        "value": 12,
+        "prob": 0.0194,
+        "token": "12"
+      },
+      {
+        "value": 24,
+        "prob": 0.0117,
+        "token": "24"
+      },
+      {
+        "value": 10,
+        "prob": 0.0117,
+        "token": "10"
+      },
+      {
+        "value": 9,
+        "prob": 0.0117,
+        "token": "9"
+      },
+      {
+        "value": 6,
+        "prob": 0.0117,
+        "token": "6"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": null,
+      "correct_prob": null,
+      "same_row": [
+        {
+          "value": 24,
+          "prob": 0.0117,
+          "from": "3*8"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 28,
+          "prob": 0.1113,
+          "from": "4*7"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.127,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 12,
+          "prob": 0.0194,
+          "from": "2*6",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0117,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 6,
+          "prob": 0.0117,
+          "from": "2*3",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.0117,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "8*8=",
+    "a": 8,
+    "b": 8,
+    "correct": 64,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 8,
+        "prob": 0.9258,
+        "token": "8"
+      },
+      {
+        "value": 16,
+        "prob": 0.017,
+        "token": "16"
+      },
+      {
+        "value": 64,
+        "prob": 0.0103,
+        "token": "64"
+      },
+      {
+        "value": 80,
+        "prob": 0.007,
+        "token": "80"
+      },
+      {
+        "value": 24,
+        "prob": 0.0023,
+        "token": "24"
+      },
+      {
+        "value": 9,
+        "prob": 0.0016,
+        "token": "9"
+      },
+      {
+        "value": 4,
+        "prob": 0.0016,
+        "token": "4"
+      },
+      {
+        "value": 81,
+        "prob": 0.0014,
+        "token": "81"
+      },
+      {
+        "value": 1,
+        "prob": 0.0012,
+        "token": "1"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 3,
+      "correct_prob": 0.0103,
+      "same_row": [
+        {
+          "value": 16,
+          "prob": 0.017,
+          "from": "2*8"
+        },
+        {
+          "value": 24,
+          "prob": 0.0023,
+          "from": "3*8"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.9258,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.0016,
+          "from": "3*3"
+        },
+        {
+          "value": 4,
+          "prob": 0.0016,
+          "from": "2*2"
+        },
+        {
+          "value": 81,
+          "prob": 0.0014,
+          "from": "9*9"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "8*9=",
+    "a": 8,
+    "b": 9,
+    "correct": 72,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.8711,
+        "token": "9"
+      },
+      {
+        "value": 8,
+        "prob": 0.0232,
+        "token": "8"
+      },
+      {
+        "value": 18,
+        "prob": 0.0067,
+        "token": "18"
+      },
+      {
+        "value": 72,
+        "prob": 0.004,
+        "token": "72"
+      },
+      {
+        "value": 54,
+        "prob": 0.004,
+        "token": "54"
+      },
+      {
+        "value": 12,
+        "prob": 0.004,
+        "token": "12"
+      },
+      {
+        "value": 24,
+        "prob": 0.0031,
+        "token": "24"
+      },
+      {
+        "value": 90,
+        "prob": 0.0028,
+        "token": "90"
+      },
+      {
+        "value": 10,
+        "prob": 0.0022,
+        "token": "10"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.004,
+      "same_row": [
+        {
+          "value": 24,
+          "prob": 0.0031,
+          "from": "3*8"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 18,
+          "prob": 0.0067,
+          "from": "2*9"
+        },
+        {
+          "value": 54,
+          "prob": 0.004,
+          "from": "6*9"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.0232,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 12,
+          "prob": 0.004,
+          "from": "2*6",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0022,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.8711,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "9*2=",
+    "a": 9,
+    "b": 2,
+    "correct": 18,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.4082,
+        "token": "9"
+      },
+      {
+        "value": 12,
+        "prob": 0.1699,
+        "token": "12"
+      },
+      {
+        "value": 2,
+        "prob": 0.1172,
+        "token": "2"
+      },
+      {
+        "value": 18,
+        "prob": 0.0708,
+        "token": "18"
+      },
+      {
+        "value": 10,
+        "prob": 0.043,
+        "token": "10"
+      },
+      {
+        "value": 6,
+        "prob": 0.0378,
+        "token": "6"
+      },
+      {
+        "value": 8,
+        "prob": 0.0334,
+        "token": "8"
+      },
+      {
+        "value": 14,
+        "prob": 0.014,
+        "token": "14"
+      },
+      {
+        "value": 24,
+        "prob": 0.0085,
+        "token": "24"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0708,
+      "same_row": [],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.1699,
+          "from": "2*6"
+        },
+        {
+          "value": 10,
+          "prob": 0.043,
+          "from": "2*5"
+        },
+        {
+          "value": 6,
+          "prob": 0.0378,
+          "from": "2*3"
+        },
+        {
+          "value": 8,
+          "prob": 0.0334,
+          "from": "2*4"
+        },
+        {
+          "value": 14,
+          "prob": 0.014,
+          "from": "2*7"
+        }
+      ],
+      "adjacent_products": [
+        {
+          "value": 24,
+          "prob": 0.0085,
+          "from": [
+            3,
+            8
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.4082,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "9*3=",
+    "a": 9,
+    "b": 3,
+    "correct": 27,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 3,
+        "prob": 0.6953,
+        "token": "3"
+      },
+      {
+        "value": 9,
+        "prob": 0.1992,
+        "token": "9"
+      },
+      {
+        "value": 12,
+        "prob": 0.0112,
+        "token": "12"
+      },
+      {
+        "value": 27,
+        "prob": 0.0099,
+        "token": "27"
+      },
+      {
+        "value": 30,
+        "prob": 0.0087,
+        "token": "30"
+      },
+      {
+        "value": 18,
+        "prob": 0.0077,
+        "token": "18"
+      },
+      {
+        "value": 15,
+        "prob": 0.0068,
+        "token": "15"
+      },
+      {
+        "value": 10,
+        "prob": 0.0053,
+        "token": "10"
+      },
+      {
+        "value": 24,
+        "prob": 0.0042,
+        "token": "24"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0099,
+      "same_row": [
+        {
+          "value": 18,
+          "prob": 0.0077,
+          "from": "2*9"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 9,
+          "prob": 0.1992,
+          "from": "3*3"
+        },
+        {
+          "value": 12,
+          "prob": 0.0112,
+          "from": "3*4"
+        },
+        {
+          "value": 15,
+          "prob": 0.0068,
+          "from": "3*5"
+        },
+        {
+          "value": 24,
+          "prob": 0.0042,
+          "from": "3*8"
+        }
+      ],
+      "adjacent_products": [
+        {
+          "value": 30,
+          "prob": 0.0087,
+          "from": [
+            5,
+            6
+          ]
+        }
+      ],
+      "shared_factors": [],
+      "squares": [],
+      "other": [
+        {
+          "value": 10,
+          "prob": 0.0053,
+          "from": "2*5"
+        }
+      ]
+    }
+  },
+  {
+    "prompt": "9*4=",
+    "a": 9,
+    "b": 4,
+    "correct": 36,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 4,
+        "prob": 0.7891,
+        "token": "4"
+      },
+      {
+        "value": 9,
+        "prob": 0.0571,
+        "token": "9"
+      },
+      {
+        "value": 12,
+        "prob": 0.0505,
+        "token": "12"
+      },
+      {
+        "value": 24,
+        "prob": 0.0145,
+        "token": "24"
+      },
+      {
+        "value": 10,
+        "prob": 0.0088,
+        "token": "10"
+      },
+      {
+        "value": 8,
+        "prob": 0.0078,
+        "token": "8"
+      },
+      {
+        "value": 18,
+        "prob": 0.006,
+        "token": "18"
+      },
+      {
+        "value": 28,
+        "prob": 0.0053,
+        "token": "28"
+      },
+      {
+        "value": 14,
+        "prob": 0.0047,
+        "token": "14"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": null,
+      "correct_prob": null,
+      "same_row": [
+        {
+          "value": 18,
+          "prob": 0.006,
+          "from": "2*9"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0505,
+          "from": "3*4"
+        },
+        {
+          "value": 24,
+          "prob": 0.0145,
+          "from": "4*6"
+        },
+        {
+          "value": 8,
+          "prob": 0.0078,
+          "from": "2*4"
+        },
+        {
+          "value": 28,
+          "prob": 0.0053,
+          "from": "4*7"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 10,
+          "prob": 0.0088,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 14,
+          "prob": 0.0047,
+          "from": "2*7",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 4,
+          "prob": 0.7891,
+          "from": "2*2"
+        },
+        {
+          "value": 9,
+          "prob": 0.0571,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "9*5=",
+    "a": 9,
+    "b": 5,
+    "correct": 45,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 5,
+        "prob": 0.6641,
+        "token": "5"
+      },
+      {
+        "value": 15,
+        "prob": 0.0615,
+        "token": "15"
+      },
+      {
+        "value": 9,
+        "prob": 0.033,
+        "token": "9"
+      },
+      {
+        "value": 25,
+        "prob": 0.0258,
+        "token": "25"
+      },
+      {
+        "value": 10,
+        "prob": 0.02,
+        "token": "10"
+      },
+      {
+        "value": 30,
+        "prob": 0.0121,
+        "token": "30"
+      },
+      {
+        "value": 45,
+        "prob": 0.0095,
+        "token": "45"
+      },
+      {
+        "value": 35,
+        "prob": 0.0095,
+        "token": "35"
+      },
+      {
+        "value": 55,
+        "prob": 0.0058,
+        "token": "55"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 7,
+      "correct_prob": 0.0095,
+      "same_row": [],
+      "same_col": [
+        {
+          "value": 15,
+          "prob": 0.0615,
+          "from": "3*5"
+        },
+        {
+          "value": 25,
+          "prob": 0.0258,
+          "from": "5*5"
+        },
+        {
+          "value": 10,
+          "prob": 0.02,
+          "from": "2*5"
+        },
+        {
+          "value": 30,
+          "prob": 0.0121,
+          "from": "5*6"
+        },
+        {
+          "value": 35,
+          "prob": 0.0095,
+          "from": "5*7"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.033,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "9*6=",
+    "a": 9,
+    "b": 6,
+    "correct": 54,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 6,
+        "prob": 0.8203,
+        "token": "6"
+      },
+      {
+        "value": 9,
+        "prob": 0.0461,
+        "token": "9"
+      },
+      {
+        "value": 18,
+        "prob": 0.017,
+        "token": "18"
+      },
+      {
+        "value": 54,
+        "prob": 0.0132,
+        "token": "54"
+      },
+      {
+        "value": 12,
+        "prob": 0.0117,
+        "token": "12"
+      },
+      {
+        "value": 10,
+        "prob": 0.0071,
+        "token": "10"
+      },
+      {
+        "value": 36,
+        "prob": 0.0049,
+        "token": "36"
+      },
+      {
+        "value": 30,
+        "prob": 0.0043,
+        "token": "30"
+      },
+      {
+        "value": 24,
+        "prob": 0.0038,
+        "token": "24"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 4,
+      "correct_prob": 0.0132,
+      "same_row": [
+        {
+          "value": 18,
+          "prob": 0.017,
+          "from": "2*9"
+        },
+        {
+          "value": 36,
+          "prob": 0.0049,
+          "from": "4*9"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 12,
+          "prob": 0.0117,
+          "from": "2*6"
+        },
+        {
+          "value": 30,
+          "prob": 0.0043,
+          "from": "5*6"
+        },
+        {
+          "value": 24,
+          "prob": 0.0038,
+          "from": "4*6"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 6,
+          "prob": 0.8203,
+          "from": "2*3",
+          "shared": [
+            2,
+            3
+          ]
+        },
+        {
+          "value": 10,
+          "prob": 0.0071,
+          "from": "2*5",
+          "shared": [
+            2
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.0461,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "9*7=",
+    "a": 9,
+    "b": 7,
+    "correct": 63,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.2598,
+        "token": "9"
+      },
+      {
+        "value": 7,
+        "prob": 0.084,
+        "token": "7"
+      },
+      {
+        "value": 10,
+        "prob": 0.0309,
+        "token": "10"
+      },
+      {
+        "value": 21,
+        "prob": 0.0242,
+        "token": "21"
+      },
+      {
+        "value": 12,
+        "prob": 0.0166,
+        "token": "12"
+      },
+      {
+        "value": 35,
+        "prob": 0.0129,
+        "token": "35"
+      },
+      {
+        "value": 3,
+        "prob": 0.0129,
+        "token": "3"
+      },
+      {
+        "value": 70,
+        "prob": 0.0114,
+        "token": "70"
+      },
+      {
+        "value": 27,
+        "prob": 0.0114,
+        "token": "27"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": null,
+      "correct_prob": null,
+      "same_row": [
+        {
+          "value": 27,
+          "prob": 0.0114,
+          "from": "3*9"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 21,
+          "prob": 0.0242,
+          "from": "3*7"
+        },
+        {
+          "value": 35,
+          "prob": 0.0129,
+          "from": "5*7"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 12,
+          "prob": 0.0166,
+          "from": "2*6",
+          "shared": [
+            3
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.2598,
+          "from": "3*3"
+        }
+      ],
+      "other": [
+        {
+          "value": 10,
+          "prob": 0.0309,
+          "from": "2*5"
+        }
+      ]
+    }
+  },
+  {
+    "prompt": "9*8=",
+    "a": 9,
+    "b": 8,
+    "correct": 72,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.293,
+        "token": "9"
+      },
+      {
+        "value": 8,
+        "prob": 0.293,
+        "token": "8"
+      },
+      {
+        "value": 24,
+        "prob": 0.0188,
+        "token": "24"
+      },
+      {
+        "value": 18,
+        "prob": 0.0165,
+        "token": "18"
+      },
+      {
+        "value": 12,
+        "prob": 0.0165,
+        "token": "12"
+      },
+      {
+        "value": 72,
+        "prob": 0.0129,
+        "token": "72"
+      },
+      {
+        "value": 80,
+        "prob": 0.01,
+        "token": "80"
+      },
+      {
+        "value": 108,
+        "prob": 0.0078,
+        "token": "108"
+      },
+      {
+        "value": 54,
+        "prob": 0.0078,
+        "token": "54"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 6,
+      "correct_prob": 0.0129,
+      "same_row": [
+        {
+          "value": 18,
+          "prob": 0.0165,
+          "from": "2*9"
+        },
+        {
+          "value": 54,
+          "prob": 0.0078,
+          "from": "6*9"
+        }
+      ],
+      "same_col": [
+        {
+          "value": 24,
+          "prob": 0.0188,
+          "from": "3*8"
+        }
+      ],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 8,
+          "prob": 0.293,
+          "from": "2*4",
+          "shared": [
+            2
+          ]
+        },
+        {
+          "value": 12,
+          "prob": 0.0165,
+          "from": "2*6",
+          "shared": [
+            2,
+            3
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.293,
+          "from": "3*3"
+        }
+      ],
+      "other": []
+    }
+  },
+  {
+    "prompt": "9*9=",
+    "a": 9,
+    "b": 9,
+    "correct": 81,
+    "layer": 20,
+    "predictions": [
+      {
+        "value": 9,
+        "prob": 0.8633,
+        "token": "9"
+      },
+      {
+        "value": 81,
+        "prob": 0.0625,
+        "token": "81"
+      },
+      {
+        "value": 10,
+        "prob": 0.0085,
+        "token": "10"
+      },
+      {
+        "value": 1,
+        "prob": 0.0066,
+        "token": "1"
+      },
+      {
+        "value": 49,
+        "prob": 0.0045,
+        "token": "49"
+      },
+      {
+        "value": 12,
+        "prob": 0.0045,
+        "token": "12"
+      },
+      {
+        "value": 54,
+        "prob": 0.0027,
+        "token": "54"
+      },
+      {
+        "value": 25,
+        "prob": 0.0027,
+        "token": "25"
+      },
+      {
+        "value": 90,
+        "prob": 0.0024,
+        "token": "90"
+      }
+    ],
+    "neighborhood": {
+      "correct_rank": 2,
+      "correct_prob": 0.0625,
+      "same_row": [
+        {
+          "value": 54,
+          "prob": 0.0027,
+          "from": "6*9"
+        }
+      ],
+      "same_col": [],
+      "adjacent_products": [],
+      "shared_factors": [
+        {
+          "value": 12,
+          "prob": 0.0045,
+          "from": "2*6",
+          "shared": [
+            3
+          ]
+        }
+      ],
+      "squares": [
+        {
+          "value": 9,
+          "prob": 0.8633,
+          "from": "3*3"
+        },
+        {
+          "value": 49,
+          "prob": 0.0045,
+          "from": "7*7"
+        },
+        {
+          "value": 25,
+          "prob": 0.0027,
+          "from": "5*5"
+        }
+      ],
+      "other": [
+        {
+          "value": 10,
+          "prob": 0.0085,
+          "from": "2*5"
+        }
+      ]
+    }
+  }
+]
