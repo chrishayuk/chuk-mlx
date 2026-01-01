@@ -120,6 +120,7 @@ from .commands.introspect import (
     introspect_circuit_decode,
     introspect_circuit_invoke,
     introspect_circuit_test,
+    introspect_circuit_view,
     introspect_compare,
     introspect_memory,
     introspect_memory_inject,
@@ -2308,6 +2309,54 @@ Example:
         help="Save comparison results to JSON file",
     )
     compare_circuit_parser.set_defaults(func=introspect_circuit_compare)
+
+    # Circuit view - display circuit contents
+    view_parser = circuit_subparsers.add_parser(
+        "view",
+        help="View the contents of a captured circuit file",
+        description="""Display circuit metadata, entries, and optionally as a formatted table.
+
+Examples:
+    # Basic view (shows first 20 entries)
+    lazarus introspect circuit view -c mult_complete_table.npz
+
+    # Show as multiplication/addition table grid
+    lazarus introspect circuit view -c mult_complete_table.npz --table
+
+    # Show with direction statistics and top neurons
+    lazarus introspect circuit view -c mult_complete_table.npz --stats
+
+    # Show all entries
+    lazarus introspect circuit view -c mult_complete_table.npz --limit 0
+        """,
+    )
+    view_parser.add_argument(
+        "--circuit", "-c", required=True,
+        help="Circuit file to view (.npz)",
+    )
+    view_parser.add_argument(
+        "--table", "-t",
+        action="store_true",
+        help="Display as a formatted grid (for arithmetic circuits)",
+    )
+    view_parser.add_argument(
+        "--stats", "-s",
+        action="store_true",
+        help="Show direction statistics and top neurons",
+    )
+    view_parser.add_argument(
+        "--limit", "-n",
+        type=int,
+        default=20,
+        help="Max entries to show in list view (0 for all, default: 20)",
+    )
+    view_parser.add_argument(
+        "--top-k",
+        type=int,
+        default=10,
+        help="Number of top neurons to show with --stats (default: 10)",
+    )
+    view_parser.set_defaults(func=introspect_circuit_view)
 
     return parser
 

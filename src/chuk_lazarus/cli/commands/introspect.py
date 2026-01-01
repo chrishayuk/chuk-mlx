@@ -5356,6 +5356,164 @@ def introspect_circuit_test(args):
         print(f"\nResults saved to: {args.output}")
 
 
+def introspect_circuit_view(args):
+    """View the contents of a captured circuit file.
+
+    Displays circuit metadata, captured prompts/results, and optionally
+    formats the data as a table (e.g., multiplication table grid).
+
+    Example:
+        lazarus introspect circuit view -c mult_complete_table.npz
+        lazarus introspect circuit view -c mult_complete_table.npz --table
+        lazarus introspect circuit view -c mult_complete_table.npz --stats
+    """
+    import numpy as np
+    from pathlib import Path
+
+    circuit_path = args.circuit
+    if not circuit_path:
+        print("ERROR: Must specify --circuit file")
+        return
+
+    path = Path(circuit_path)
+    if not path.exists():
+        print(f"ERROR: Circuit file not found: {circuit_path}")
+        return
+
+    # Load circuit
+    print(f"Loading circuit: {circuit_path}")
+    data = np.load(circuit_path, allow_pickle=True)
+
+    # Show available keys
+    keys = list(data.keys())
+    print(f"\nKeys: {keys}")
+
+    # Basic info
+    print(f"\n{'=' * 70}")
+    print("CIRCUIT INFO")
+    print(f"{'=' * 70}")
+
+    if "model_id" in data:
+        print(f"  Model: {data['model_id']}")
+    if "layer" in data:
+        print(f"  Layer: {data['layer']}")
+    if "activations" in data:
+        print(f"  Activations shape: {data['activations'].shape}")
+    if "direction" in data:
+        print(f"  Direction shape: {data['direction'].shape}")
+        direction = data["direction"]
+        print(f"  Direction norm: {np.linalg.norm(direction):.4f}")
+
+    # Direction stats if available
+    if "direction_stats" in data and getattr(args, "stats", False):
+        stats = data["direction_stats"].item() if hasattr(data["direction_stats"], "item") else dict(data["direction_stats"])
+        print(f"\n{'=' * 70}")
+        print("DIRECTION STATS")
+        print(f"{'=' * 70}")
+        for key, value in stats.items():
+            if isinstance(value, float):
+                print(f"  {key}: {value:.4f}")
+            else:
+                print(f"  {key}: {value}")
+
+    # Show prompts and results
+    if "prompts" in data and "results" in data:
+        prompts = list(data["prompts"])
+        results = list(data["results"])
+
+        print(f"\n{'=' * 70}")
+        print(f"ENTRIES ({len(prompts)} total)")
+        print(f"{'=' * 70}")
+
+        # Check if this looks like a multiplication/arithmetic table
+        show_table = getattr(args, "table", False)
+        is_arithmetic = False
+        operator = None
+
+        if "operators" in data:
+            operators = list(data["operators"])
+            unique_ops = set(operators)
+            if len(unique_ops) == 1:
+                operator = list(unique_ops)[0]
+                is_arithmetic = operator in ["*", "+", "-", "/"]
+
+        # Try to detect from prompts if operators not stored
+        if not is_arithmetic and len(prompts) > 0:
+            for op in ["*", "+", "-", "/"]:
+                if op in str(prompts[0]):
+                    operator = op
+                    is_arithmetic = True
+                    break
+
+        # Show as table if requested and it's arithmetic
+        if show_table and is_arithmetic and "operands_a" in data and "operands_b" in data:
+            operands_a = list(data["operands_a"])
+            operands_b = list(data["operands_b"])
+
+            # Find unique operands
+            unique_a = sorted(set(operands_a))
+            unique_b = sorted(set(operands_b))
+
+            # Check if it's a complete grid
+            expected_size = len(unique_a) * len(unique_b)
+            if len(results) == expected_size:
+                # Build result lookup
+                result_map = {}
+                for i, (a, b, r) in enumerate(zip(operands_a, operands_b, results)):
+                    result_map[(a, b)] = r
+
+                # Print as grid
+                op_name = {"*": "Multiplication", "+": "Addition", "-": "Subtraction", "/": "Division"}.get(operator, "Arithmetic")
+                print(f"\n{op_name} Table:")
+                print()
+
+                # Header
+                header = "    "
+                for b in unique_b:
+                    header += f"{int(b):4}"
+                print(header)
+                print("   " + "-" * (4 * len(unique_b) + 1))
+
+                # Rows
+                for a in unique_a:
+                    row = f"{int(a)} |"
+                    for b in unique_b:
+                        val = result_map.get((a, b), "?")
+                        if val is not None:
+                            row += f"{int(val):4}"
+                        else:
+                            row += "   ?"
+                    print(row)
+            else:
+                show_table = False  # Fall back to list view
+
+        # Show as list (default or fallback)
+        if not show_table:
+            limit = getattr(args, "limit", 20)
+            for i, (p, r) in enumerate(zip(prompts, results)):
+                if i >= limit and limit > 0:
+                    remaining = len(prompts) - limit
+                    print(f"  ... and {remaining} more entries")
+                    print(f"  (use --limit 0 to show all, or --table for grid view)")
+                    break
+                result_str = f" = {r}" if r is not None else ""
+                print(f"  {i:3}: {p}{result_str}")
+
+    # Show top neurons if direction exists
+    if "direction" in data and getattr(args, "stats", False):
+        direction = data["direction"]
+        top_k = getattr(args, "top_k", 10)
+
+        print(f"\n{'=' * 70}")
+        print(f"TOP {top_k} NEURONS (by absolute weight)")
+        print(f"{'=' * 70}")
+
+        top_indices = np.argsort(np.abs(direction))[-top_k:][::-1]
+        for rank, idx in enumerate(top_indices, 1):
+            weight = direction[idx]
+            print(f"  {rank:2}. Neuron {idx:4}: {weight:+.6f}")
+
+
 def introspect_circuit_compare(args):
     """Compare multiple circuits to see how similar/different they are.
 
