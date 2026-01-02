@@ -4,24 +4,25 @@ Inference and text generation utilities.
 Provides a high-level API for loading and running inference
 with any supported model family.
 
-Example usage:
+Recommended: Use UnifiedPipeline which auto-detects model family:
 
-    from chuk_lazarus.inference import InferencePipeline
-    from chuk_lazarus.models_v2 import LlamaForCausalLM, LlamaConfig
+    from chuk_lazarus.inference import UnifiedPipeline
 
-    # One-liner setup
-    pipeline = InferencePipeline.from_pretrained(
-        "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-        LlamaForCausalLM,
-        LlamaConfig,
-    )
+    # One-liner for any supported model - auto-detects family!
+    pipeline = UnifiedPipeline.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 
     # Chat
     response = pipeline.chat("What is the capital of France?")
     print(response.text)
+
+    # Generation with custom settings
+    response = pipeline.generate(
+        "Write a poem about AI",
+        max_new_tokens=200,
+        temperature=0.9,
+    )
 """
 
-# Core generation
 # Chat utilities
 from .chat import (
     ASSISTANT_SUFFIX,
@@ -42,7 +43,6 @@ from .generation import (
     generate_stream,
     get_stop_tokens,
 )
-from .generator import generate_response, generate_sequence
 
 # Loader utilities
 from .loader import (
@@ -55,17 +55,15 @@ from .loader import (
     WeightConverter,
 )
 
-# High-level pipeline
-from .pipeline import (
-    InferencePipeline,
-    PipelineConfig,
-    PipelineState,
+# Unified pipeline (recommended)
+from .unified import (
+    IntrospectionResult,
+    UnifiedPipeline,
+    UnifiedPipelineConfig,
+    UnifiedPipelineState,
 )
 
 __all__ = [
-    # Legacy
-    "generate_response",
-    "generate_sequence",
     # Loader
     "DownloadConfig",
     "DownloadResult",
@@ -89,8 +87,9 @@ __all__ = [
     "generate",
     "generate_stream",
     "get_stop_tokens",
-    # Pipeline
-    "InferencePipeline",
-    "PipelineConfig",
-    "PipelineState",
+    # Unified Pipeline (recommended)
+    "UnifiedPipeline",
+    "UnifiedPipelineConfig",
+    "UnifiedPipelineState",
+    "IntrospectionResult",
 ]

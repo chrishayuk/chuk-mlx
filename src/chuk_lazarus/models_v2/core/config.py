@@ -522,9 +522,9 @@ class ModelConfig(BaseModel):
         description="Residual dropout",
     )
 
-    # Special tokens
-    bos_token_id: int | None = Field(default=1, description="BOS token ID")
-    eos_token_id: int | None = Field(default=2, description="EOS token ID")
+    # Special tokens (can be int or list[int] for models with multiple stop tokens)
+    bos_token_id: int | list[int] | None = Field(default=1, description="BOS token ID")
+    eos_token_id: int | list[int] | None = Field(default=2, description="EOS token ID")
     pad_token_id: int | None = Field(default=None, description="Padding token ID")
 
     # Embeddings
@@ -538,6 +538,50 @@ class ModelConfig(BaseModel):
         default=None,
         description="Sliding window size",
     )
+
+    @property
+    def embedding_scale(self) -> float | None:
+        """
+        Get embedding scale factor for this model family.
+
+        Some models (e.g., Gemma) scale embeddings by sqrt(hidden_size).
+        Override this in subclasses that need scaling.
+
+        Returns:
+            Scale factor or None if no scaling needed.
+        """
+        return None
+
+    def get_decision_layer_range(self) -> tuple[int, int]:
+        """
+        Get the typical "decision layer" range for this model.
+
+        Decision layers are where high-level decisions (like tool-calling)
+        tend to be encoded. Computed as ~60-80% of model depth.
+
+        Returns:
+            (start_layer, end_layer) tuple
+        """
+        start = int(self.num_hidden_layers * 0.5)
+        end = int(self.num_hidden_layers * 0.8)
+        return (start, end)
+
+    def get_stratigraphy_layers(self, num_samples: int = 10) -> list[int]:
+        """
+        Get evenly-spaced layers for stratigraphy analysis.
+
+        Args:
+            num_samples: Target number of layers to sample
+
+        Returns:
+            List of layer indices for probing
+        """
+        step = max(1, self.num_hidden_layers // num_samples)
+        layers = list(range(0, self.num_hidden_layers, step))
+        # Always include the last layer
+        if (self.num_hidden_layers - 1) not in layers:
+            layers.append(self.num_hidden_layers - 1)
+        return sorted(set(layers))
 
     @model_validator(mode="after")
     def set_derived_values(self) -> ModelConfig:
@@ -638,6 +682,8 @@ class ModelConfig(BaseModel):
             "gelu": ActivationType.GELU,
             "gelu_new": ActivationType.GELU,
             "gelu_fast": ActivationType.GELU_APPROX,
+            "gelu_pytorch_tanh": ActivationType.GELU_TANH,
+            "gelu_tanh": ActivationType.GELU_TANH,
             "relu": ActivationType.RELU,
             "relu2": ActivationType.RELU2,
             "tanh": ActivationType.TANH,

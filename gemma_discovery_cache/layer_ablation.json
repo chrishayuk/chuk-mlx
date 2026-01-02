@@ -1,0 +1,177 @@
+{
+  "model": "mlx-community/gemma-3-4b-it-bf16",
+  "num_layers": 34,
+  "baseline_accuracy": 1.0,
+  "single_layer_results": [
+    {
+      "layer": 0,
+      "accuracy": 0.0,
+      "drop": 1.0
+    },
+    {
+      "layer": 1,
+      "accuracy": 0.1,
+      "drop": 0.9
+    },
+    {
+      "layer": 2,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 3,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 4,
+      "accuracy": 0.0,
+      "drop": 1.0
+    },
+    {
+      "layer": 5,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 6,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 7,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 8,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 9,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 10,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 11,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 12,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 13,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 14,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 15,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 16,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 17,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 18,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 19,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 20,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 21,
+      "accuracy": 0.3,
+      "drop": 0.7
+    },
+    {
+      "layer": 22,
+      "accuracy": 0.9,
+      "drop": 0.09999999999999998
+    },
+    {
+      "layer": 23,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 24,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 25,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 26,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 27,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 28,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 29,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 30,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 31,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 32,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 33,
+      "accuracy": 1.0,
+      "drop": 0.0
+    }
+  ]
+}

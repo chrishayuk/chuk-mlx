@@ -95,6 +95,7 @@ class ActivationType(str, Enum):
     SILU = "silu"  # SiLU / Swish
     GELU = "gelu"
     GELU_APPROX = "gelu_approx"  # Fast GELU approximation
+    GELU_TANH = "gelu_tanh"  # GELU with tanh approximation (gelu_pytorch_tanh)
     RELU = "relu"
     RELU2 = "relu2"  # ReLU squared
     TANH = "tanh"

@@ -1,0 +1,14 @@
+{
+  "layer": 8,
+  "commutativity": {
+    "avg_similarity": 0.9999694437154852,
+    "min_similarity": 0.9999401778715906,
+    "max_similarity": 0.9999844527322486
+  },
+  "row_column": {
+    "avg_row_similarity": 0.9999652475278662,
+    "avg_col_similarity": 0.9999660729683298,
+    "avg_random_similarity": 0.9999473017424747
+  },
+  "conclusion": "COMPUTE"
+}

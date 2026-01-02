@@ -105,7 +105,7 @@ from .core import (
 )
 
 # Families
-from .families import granite, llama, llama4, mamba
+from .families import granite, llama, llama4, mamba, qwen3
 from .families.granite import (
     GraniteConfig,
     GraniteForCausalLM,
@@ -115,6 +115,7 @@ from .families.granite import (
 from .families.llama import LlamaConfig, LlamaForCausalLM
 from .families.llama4 import Llama4Config, Llama4ForCausalLM, Llama4TextConfig
 from .families.mamba import MambaConfig, MambaForCausalLM
+from .families.qwen3 import Qwen3Config, Qwen3ForCausalLM
 
 # Heads
 from .heads import (
@@ -249,6 +250,7 @@ __all__ = [
     "llama",
     "llama4",
     "mamba",
+    "qwen3",
     "GraniteConfig",
     "GraniteForCausalLM",
     "GraniteHybridConfig",
@@ -260,6 +262,8 @@ __all__ = [
     "Llama4ForCausalLM",
     "MambaConfig",
     "MambaForCausalLM",
+    "Qwen3Config",
+    "Qwen3ForCausalLM",
     # === Loader ===
     "load_model",
     "load_model_async",

@@ -66,6 +66,8 @@ class SelectiveSSM(nn.Module):
         dt_init_floor: float = 1e-4,
         bias: bool = False,
         conv_bias: bool = True,
+        use_mamba2_norms: bool = False,
+        rms_norm_eps: float = 1e-6,
     ):
         super().__init__()
 
@@ -73,6 +75,7 @@ class SelectiveSSM(nn.Module):
         self.d_state = d_state
         self.d_conv = d_conv
         self.expand = expand
+        self.use_mamba2_norms = use_mamba2_norms
 
         # Inner dimension
         self.d_inner = int(expand * d_model)
@@ -96,12 +99,14 @@ class SelectiveSSM(nn.Module):
 
         # Convolution for local context
         # Groups = d_inner for depthwise conv
+        # NOTE: We use padding=0 and manually pad on the left for causal convolution
         self.conv1d = nn.Conv1d(
             in_channels=self.d_inner,
             out_channels=self.d_inner,
             kernel_size=d_conv,
+            groups=self.d_inner,  # Depthwise convolution
             bias=conv_bias,
-            padding=d_conv - 1,
+            padding=0,  # No padding - we do causal padding manually
         )
 
         # SSM parameters projections
@@ -127,6 +132,14 @@ class SelectiveSSM(nn.Module):
 
         # Output projection
         self.out_proj = nn.Linear(self.d_inner, d_model, bias=bias)
+
+        # Mamba2-style layer norms (used by Jamba Reasoning 3B)
+        if use_mamba2_norms:
+            from ..normalization import RMSNorm
+
+            self.dt_layernorm = RMSNorm(self.dt_rank, eps=rms_norm_eps)
+            self.b_layernorm = RMSNorm(d_state, eps=rms_norm_eps)
+            self.c_layernorm = RMSNorm(d_state, eps=rms_norm_eps)
 
     def _init_A(self) -> mx.array:
         """Initialize A in log space."""
@@ -175,25 +188,25 @@ class SelectiveSSM(nn.Module):
 
         # MLX Conv1d expects (B, L, C) format - no transpose needed!
 
-        # Handle cache for inference
+        # Handle cache for inference - prepend cached conv state
         if cache is not None:
             conv_state, ssm_state = cache
-            # Prepend conv state along sequence dimension
-            x_proj = mx.concatenate([conv_state, x_proj], axis=1)
-
-        # Apply convolution - input is (B, L, d_inner)
-        x_conv = self.conv1d(x_proj)
-
-        # Handle caching
-        if cache is not None:
-            # Keep last d_conv-1 positions for next step
-            new_conv_state = x_proj[:, -(self.d_conv - 1) :, :]
-            # Trim to seq_len
-            x_conv = x_conv[:, :seq_len, :]
+            # conv_state contains the last d_conv-1 positions from previous forward
+            x_conv_input = mx.concatenate([conv_state, x_proj], axis=1)
         else:
-            # Trim causal padding
-            x_conv = x_conv[:, :seq_len, :]
-            new_conv_state = None
+            # For first pass, pad with zeros on the left for causal convolution
+            padding = mx.zeros((batch, self.d_conv - 1, self.d_inner))
+            x_conv_input = mx.concatenate([padding, x_proj], axis=1)
+
+        # Apply convolution - input is (B, L + d_conv - 1, d_inner)
+        # Output is (B, L, d_inner) due to kernel_size and no padding
+        x_conv = self.conv1d(x_conv_input)
+
+        # Save conv state for next step: last d_conv-1 positions of x_conv_input
+        # This is what we'll prepend to the next input for causal convolution
+        # x_conv_input already has d_conv-1 + seq_len positions
+        conv_cache_len = self.d_conv - 1
+        new_conv_state = x_conv_input[:, -conv_cache_len:, :]
 
         # Apply activation
         x_conv = nn.silu(x_conv)
@@ -206,6 +219,12 @@ class SelectiveSSM(nn.Module):
             axis=-1,
         )
 
+        # Apply Mamba2-style layer norms if enabled
+        if self.use_mamba2_norms:
+            dt = self.dt_layernorm(dt)
+            B = self.b_layernorm(B)
+            C = self.c_layernorm(C)
+
         # Project dt to full dimension and apply softplus
         dt = self.dt_proj(dt)  # (B, L, d_inner)
         dt = nn.softplus(dt)  # Ensure positive
@@ -216,10 +235,12 @@ class SelectiveSSM(nn.Module):
         # Run selective scan
         if cache is not None:
             y, new_ssm_state = selective_scan_step(x_conv, dt, A, B, C, self.D, ssm_state)
-            new_cache = (new_conv_state, new_ssm_state)
         else:
-            y = selective_scan(x_conv, dt, A, B, C, self.D)
-            new_cache = None
+            # For first pass, run full scan and get final state for caching
+            y, new_ssm_state = selective_scan_with_state(x_conv, dt, A, B, C, self.D)
+
+        # Build new cache (conv_state is already computed above)
+        new_cache = (new_conv_state, new_ssm_state)
 
         # Gate with z
         y = y * nn.silu(z)
@@ -309,6 +330,63 @@ def selective_scan(
     y = y + D * x
 
     return y
+
+
+def selective_scan_with_state(
+    x: mx.array,
+    dt: mx.array,
+    A: mx.array,
+    B: mx.array,
+    C: mx.array,
+    D: mx.array,
+) -> tuple[mx.array, mx.array]:
+    """
+    Selective scan that returns both output and final state.
+
+    Same as selective_scan but also returns the final SSM state
+    for use in incremental inference.
+
+    Args:
+        x: Input, shape (B, L, D)
+        dt: Delta (timestep), shape (B, L, D)
+        A: State transition, shape (D, N)
+        B: Input projection, shape (B, L, N)
+        C: Output projection, shape (B, L, N)
+        D: Skip connection, shape (D,)
+
+    Returns:
+        - Output, shape (B, L, D)
+        - Final SSM state, shape (B, D, N)
+    """
+    batch, seq_len, d_inner = x.shape
+    d_state = A.shape[1]
+
+    # Discretize A and B
+    dt_expanded = mx.expand_dims(dt, axis=-1)  # (B, L, D, 1)
+    A_expanded = mx.expand_dims(A, axis=(0, 1))  # (1, 1, D, N)
+    dA = mx.exp(dt_expanded * A_expanded)  # (B, L, D, N)
+
+    B_expanded = mx.expand_dims(B, axis=2)  # (B, L, 1, N)
+    dB = dt_expanded * B_expanded  # (B, L, D, N)
+
+    x_expanded = mx.expand_dims(x, axis=-1)  # (B, L, D, 1)
+    dBx = dB * x_expanded  # (B, L, D, N)
+
+    # Sequential scan through time
+    h = mx.zeros((batch, d_inner, d_state))
+
+    outputs = []
+    for t in range(seq_len):
+        h = dA[:, t] * h + dBx[:, t]  # (B, D, N)
+        y_t = mx.sum(h * mx.expand_dims(C[:, t], axis=1), axis=-1)  # (B, D)
+        outputs.append(y_t)
+
+    y = mx.stack(outputs, axis=1)  # (B, L, D)
+
+    # Add skip connection
+    y = y + D * x
+
+    return y, h  # Return output and final state
 
 
 def selective_scan_step(

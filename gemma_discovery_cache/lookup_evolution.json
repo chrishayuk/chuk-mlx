@@ -1,0 +1,240 @@
+[
+  {
+    "layer": 0,
+    "commutativity": 0.9999994257747501,
+    "same_product": 0.9999997844336855,
+    "row_similarity": 0.999999572432527,
+    "col_similarity": 0.9999994697577334
+  },
+  {
+    "layer": 1,
+    "commutativity": 0.9999759216433584,
+    "same_product": 0.9999461213105223,
+    "row_similarity": 0.9999574457579156,
+    "col_similarity": 0.9999923997026102
+  },
+  {
+    "layer": 2,
+    "commutativity": 0.9999609639126011,
+    "same_product": 0.9999222588702334,
+    "row_similarity": 0.9999481646598289,
+    "col_similarity": 0.9999870640944586
+  },
+  {
+    "layer": 3,
+    "commutativity": 0.9999033809683665,
+    "same_product": 0.9998423963716375,
+    "row_similarity": 0.9998707833547645,
+    "col_similarity": 0.9999632289359249
+  },
+  {
+    "layer": 4,
+    "commutativity": 0.99991930466358,
+    "same_product": 0.9998846770611027,
+    "row_similarity": 0.9999245818686953,
+    "col_similarity": 0.9999398550227775
+  },
+  {
+    "layer": 5,
+    "commutativity": 0.9999481579048457,
+    "same_product": 0.9999230649322778,
+    "row_similarity": 0.9999459330601846,
+    "col_similarity": 0.9999608543239392
+  },
+  {
+    "layer": 6,
+    "commutativity": 0.9999196758185854,
+    "same_product": 0.9998840708579511,
+    "row_similarity": 0.9999115229091825,
+    "col_similarity": 0.9999339070259173
+  },
+  {
+    "layer": 7,
+    "commutativity": 0.9999593198597899,
+    "same_product": 0.9999286106666598,
+    "row_similarity": 0.9999488327401479,
+    "col_similarity": 0.999958294240242
+  },
+  {
+    "layer": 8,
+    "commutativity": 0.9999694437154852,
+    "same_product": 0.9999486719857249,
+    "row_similarity": 0.9999652475278662,
+    "col_similarity": 0.9999660729683298
+  },
+  {
+    "layer": 9,
+    "commutativity": 0.9999659838931387,
+    "same_product": 0.9999384415087256,
+    "row_similarity": 0.9999581945715025,
+    "col_similarity": 0.9999562818934739
+  },
+  {
+    "layer": 10,
+    "commutativity": 0.9999720895205862,
+    "same_product": 0.9999458517221651,
+    "row_similarity": 0.9999646683947548,
+    "col_similarity": 0.999958585994744
+  },
+  {
+    "layer": 11,
+    "commutativity": 0.9999693449346062,
+    "same_product": 0.9999410396206143,
+    "row_similarity": 0.9999548329393458,
+    "col_similarity": 0.9999504742660231
+  },
+  {
+    "layer": 12,
+    "commutativity": 0.9999697129389283,
+    "same_product": 0.9999424989505264,
+    "row_similarity": 0.9999556294151954,
+    "col_similarity": 0.9999498370196152
+  },
+  {
+    "layer": 13,
+    "commutativity": 0.9999721378099204,
+    "same_product": 0.9999473527190237,
+    "row_similarity": 0.9999613737901833,
+    "col_similarity": 0.9999543404948857
+  },
+  {
+    "layer": 14,
+    "commutativity": 0.9999731096078893,
+    "same_product": 0.999945668446595,
+    "row_similarity": 0.9999617377524929,
+    "col_similarity": 0.9999537034078829
+  },
+  {
+    "layer": 15,
+    "commutativity": 0.9999535598340569,
+    "same_product": 0.999886446943367,
+    "row_similarity": 0.9999288563635849,
+    "col_similarity": 0.9999075846732021
+  },
+  {
+    "layer": 16,
+    "commutativity": 0.999929829043112,
+    "same_product": 0.9998227854950972,
+    "row_similarity": 0.9999015902715876,
+    "col_similarity": 0.9998496270483852
+  },
+  {
+    "layer": 17,
+    "commutativity": 0.9999239359306034,
+    "same_product": 0.9997415458442145,
+    "row_similarity": 0.9998476333308155,
+    "col_similarity": 0.9997812442212533
+  },
+  {
+    "layer": 18,
+    "commutativity": 0.9999016012110139,
+    "same_product": 0.9996400581186584,
+    "row_similarity": 0.9997596042851742,
+    "col_similarity": 0.9997150047125994
+  },
+  {
+    "layer": 19,
+    "commutativity": 0.9998827059875018,
+    "same_product": 0.9994584019539715,
+    "row_similarity": 0.9996357172591271,
+    "col_similarity": 0.9995758391773363
+  },
+  {
+    "layer": 20,
+    "commutativity": 0.9998658951678305,
+    "same_product": 0.9992897032955591,
+    "row_similarity": 0.9995670934964791,
+    "col_similarity": 0.9994537368830766
+  },
+  {
+    "layer": 21,
+    "commutativity": 0.9990169420842333,
+    "same_product": 0.9914723136239001,
+    "row_similarity": 0.9934984454730269,
+    "col_similarity": 0.9961724305236651
+  },
+  {
+    "layer": 22,
+    "commutativity": 0.9989723497898566,
+    "same_product": 0.9914908516180795,
+    "row_similarity": 0.9916947524340444,
+    "col_similarity": 0.9941699511444335
+  },
+  {
+    "layer": 23,
+    "commutativity": 0.998200858885,
+    "same_product": 0.9885254956450404,
+    "row_similarity": 0.9850978604389794,
+    "col_similarity": 0.9885556703296895
+  },
+  {
+    "layer": 24,
+    "commutativity": 0.9976164505914505,
+    "same_product": 0.9868333728149088,
+    "row_similarity": 0.9788215322502485,
+    "col_similarity": 0.9824751908951127
+  },
+  {
+    "layer": 25,
+    "commutativity": 0.9975127684939592,
+    "same_product": 0.9875206387235991,
+    "row_similarity": 0.9778614476549767,
+    "col_similarity": 0.9808693914238591
+  },
+  {
+    "layer": 26,
+    "commutativity": 0.9974763634650267,
+    "same_product": 0.9888895388786219,
+    "row_similarity": 0.9715634213897292,
+    "col_similarity": 0.9739837958338408
+  },
+  {
+    "layer": 27,
+    "commutativity": 0.9976664238874117,
+    "same_product": 0.9903906112789269,
+    "row_similarity": 0.9686986731389929,
+    "col_similarity": 0.9704766697640924
+  },
+  {
+    "layer": 28,
+    "commutativity": 0.9982024586403703,
+    "same_product": 0.9929371732966139,
+    "row_similarity": 0.9773492560544196,
+    "col_similarity": 0.9785804981003522
+  },
+  {
+    "layer": 29,
+    "commutativity": 0.99779613287029,
+    "same_product": 0.9924621125384169,
+    "row_similarity": 0.9746991239463405,
+    "col_similarity": 0.9755765421676453
+  },
+  {
+    "layer": 30,
+    "commutativity": 0.9976905897371432,
+    "same_product": 0.9919206047089476,
+    "row_similarity": 0.9657723059986616,
+    "col_similarity": 0.9666071528200896
+  },
+  {
+    "layer": 31,
+    "commutativity": 0.9983299469465662,
+    "same_product": 0.9943173016685444,
+    "row_similarity": 0.9779992529054626,
+    "col_similarity": 0.9785587981246716
+  },
+  {
+    "layer": 32,
+    "commutativity": 0.9985341275370899,
+    "same_product": 0.9952568158677966,
+    "row_similarity": 0.9838547695054244,
+    "col_similarity": 0.9842542794013155
+  },
+  {
+    "layer": 33,
+    "commutativity": 0.9987397282692033,
+    "same_product": 0.996167176588059,
+    "row_similarity": 0.9880200837884274,
+    "col_similarity": 0.9883208062691934
+  }
+]

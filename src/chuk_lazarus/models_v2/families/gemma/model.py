@@ -265,6 +265,11 @@ class GemmaModel(Backbone):
     def vocab_size(self) -> int:
         return self._vocab_size
 
+    @property
+    def embedding_scale(self) -> float:
+        """Gemma scales embeddings by sqrt(hidden_size)."""
+        return self._hidden_size**0.5
+
     def _create_attention_mask(
         self,
         h: mx.array,
@@ -439,7 +444,34 @@ class GemmaForCausalLM(Model):
         )
 
     def sanitize(self, weights: dict) -> dict:
-        """Handle weight loading quirks."""
+        """Handle weight loading quirks.
+
+        Handles:
+        - VLM-style weights with 'language_model.' prefix
+        - Filtering out vision_tower and other VLM-only components
+        - Tied word embeddings detection
+        """
+        # Handle VLM-style weights (e.g., gemma-3-4b-it with Gemma3ForConditionalGeneration)
+        # These have weights prefixed with 'language_model.'
+        # Also filter out vision_tower, multi_modal_projector, etc.
+        has_language_model_prefix = any(k.startswith("language_model.") for k in weights.keys())
+
+        if has_language_model_prefix:
+            # Extract only language_model weights, strip prefix
+            weights = {
+                k.replace("language_model.", "", 1): v
+                for k, v in weights.items()
+                if k.startswith("language_model.")
+            }
+        else:
+            # Filter out VLM components that aren't part of the text model
+            vlm_prefixes = ("vision_tower.", "multi_modal_projector.", "image_")
+            weights = {
+                k: v
+                for k, v in weights.items()
+                if not any(k.startswith(prefix) for prefix in vlm_prefixes)
+            }
+
         if "lm_head.weight" not in weights:
             self.tie_word_embeddings = True
         return weights

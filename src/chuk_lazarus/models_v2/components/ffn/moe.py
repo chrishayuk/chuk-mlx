@@ -13,7 +13,7 @@ import mlx.core as mx
 import mlx.nn as nn
 
 from ...core.config import FFNConfig
-from .swiglu import SwiGLU
+from .glu import GLU
 
 
 class MoERouter(nn.Module):
@@ -123,13 +123,14 @@ class MoE(nn.Module):
             num_experts_per_tok=config.num_experts_per_tok,
         )
 
-        # Experts (each is a SwiGLU MLP)
+        # Experts (each is a GLU MLP, defaults to SwiGLU with SILU activation)
         expert_config = FFNConfig(
             hidden_size=config.hidden_size,
             intermediate_size=config.intermediate_size,
+            activation=config.activation,
             bias=config.bias,
         )
-        self.experts = [SwiGLU(expert_config) for _ in range(config.num_experts)]
+        self.experts = [GLU(expert_config) for _ in range(config.num_experts)]
 
     def __call__(self, x: mx.array) -> mx.array:
         """

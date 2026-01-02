@@ -328,20 +328,26 @@ class LlamaForCausalLM(Model):
                     penalty_mask = mx.where(mask > 0, repetition_penalty, 1.0)
                     logits = logits / penalty_mask
 
-            # Apply temperature
-            if temperature != 1.0:
-                logits = logits / temperature
-
-            # Apply top-k
-            if top_k is not None and top_k > 0:
-                top_k_values = mx.topk(logits, k=min(top_k, logits.shape[-1]))
-                min_val = top_k_values[:, -1:]
-                logits = mx.where(logits < min_val, float("-inf"), logits)
-
             # Sample next token
-            probs = mx.softmax(logits, axis=-1)
-            next_token = mx.random.categorical(mx.log(probs + 1e-10))
-            next_token = mx.expand_dims(next_token, axis=-1)
+            if temperature == 0.0:
+                # Greedy decoding
+                next_token = mx.argmax(logits, axis=-1)
+                next_token = mx.expand_dims(next_token, axis=-1)
+            else:
+                # Apply temperature
+                if temperature != 1.0:
+                    logits = logits / temperature
+
+                # Apply top-k
+                if top_k is not None and top_k > 0:
+                    top_k_values = mx.topk(logits, k=min(top_k, logits.shape[-1]))
+                    min_val = top_k_values[:, -1:]
+                    logits = mx.where(logits < min_val, float("-inf"), logits)
+
+                # Sample
+                probs = mx.softmax(logits, axis=-1)
+                next_token = mx.random.categorical(mx.log(probs + 1e-10))
+                next_token = mx.expand_dims(next_token, axis=-1)
 
             # Evaluate to avoid graph buildup
             mx.eval(next_token)
@@ -388,19 +394,33 @@ class LlamaForCausalLM(Model):
         # Create model
         model = cls(config)
 
-        # Load weights
+        # Load weights using mlx.load (handles bfloat16 natively)
+        from mlx.utils import tree_unflatten
+
         from .convert import convert_hf_weights
 
+        # Try single file first, then sharded
         weights_path = path / "model.safetensors"
         if weights_path.exists():
-            try:
-                import safetensors.numpy as st
+            raw_weights = mx.load(str(weights_path))
+            weights = convert_hf_weights(raw_weights)
+            nested_weights = tree_unflatten(list(weights.items()))
+            model.update(nested_weights)
+        else:
+            # Try sharded safetensors
+            index_path = path / "model.safetensors.index.json"
+            if index_path.exists():
+                import json
 
-                hf_weights = st.load_file(str(weights_path))
-                weights = convert_hf_weights(hf_weights)
-                weights = {k: mx.array(v) for k, v in weights.items()}
-                model.update(weights)
-            except ImportError:
-                pass
+                with open(index_path) as f:
+                    index = json.load(f)
+                shard_files = set(index.get("weight_map", {}).values())
+                raw_weights = {}
+                for shard_file in sorted(shard_files):
+                    shard_weights = mx.load(str(path / shard_file))
+                    raw_weights.update(shard_weights)
+                weights = convert_hf_weights(raw_weights)
+                nested_weights = tree_unflatten(list(weights.items()))
+                model.update(nested_weights)
 
         return model

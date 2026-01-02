@@ -1,0 +1,103 @@
+{
+  "model": "mlx-community/gemma-3-4b-it-bf16",
+  "baseline_accuracy": 1.0,
+  "num_heads": 8,
+  "single_head_results": [
+    {
+      "layer": 16,
+      "head": 0,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 16,
+      "head": 1,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 16,
+      "head": 2,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 16,
+      "head": 3,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 20,
+      "head": 0,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 20,
+      "head": 1,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 20,
+      "head": 2,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 20,
+      "head": 3,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 24,
+      "head": 0,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 24,
+      "head": 1,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 24,
+      "head": 2,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 24,
+      "head": 3,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 28,
+      "head": 0,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 28,
+      "head": 1,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 28,
+      "head": 2,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "layer": 28,
+      "head": 3,
+      "accuracy": 1.0,
+      "drop": 0.0
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "task_type": {
+    "raw_embedding_accuracy": 1.0,
+    "after_l0_accuracy": 1.0,
+    "interpretation": "Task type baked into embeddings"
+  },
+  "operation_type": {
+    "raw_embedding_accuracy": 0.16666666666666666,
+    "after_l0_accuracy": 0.7333333333333333,
+    "interpretation": "L0 adds operation info"
+  },
+  "operands": {
+    "Operand 1 (a)": {
+      "raw": 0.08333333333333333,
+      "l0": 0.25
+    },
+    "Operand 2 (b)": {
+      "raw": 0.0,
+      "l0": 0.16666666666666666
+    }
+  },
+  "answer": {
+    "raw_classification": 0.0,
+    "l0_classification": 0.0,
+    "raw_r2": -0.06292431683283795,
+    "l0_r2": 0.5196694692763637,
+    "raw_mae": 13.75,
+    "l0_mae": 9.29937869206836
+  },
+  "tokens": {
+    "tokens": [
+      "<bos>",
+      "7",
+      " *",
+      " ",
+      "8",
+      " =",
+      " "
+    ],
+    "embeddings_compared": [
+      [
+        "7 * 8 = ",
+        "8 * 7 = "
+      ],
+      [
+        "7 * 8 = ",
+        "7 + 8 = "
+      ],
+      [
+        "7 * 8 = ",
+        "The cat = "
+      ]
+    ]
+  }
+}

@@ -51,6 +51,8 @@ class Mamba(nn.Module):
         expand: int = 2,
         bias: bool = False,
         conv_bias: bool = True,
+        use_mamba2_norms: bool = False,
+        rms_norm_eps: float = 1e-6,
     ):
         super().__init__()
 
@@ -67,6 +69,8 @@ class Mamba(nn.Module):
             expand=expand,
             bias=bias,
             conv_bias=conv_bias,
+            use_mamba2_norms=use_mamba2_norms,
+            rms_norm_eps=rms_norm_eps,
         )
 
     def __call__(

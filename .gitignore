@@ -70,3 +70,6 @@ sample_data/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# ai
+.claude/

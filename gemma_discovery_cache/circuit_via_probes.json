@@ -1,0 +1,92 @@
+{
+  "model": "mlx-community/gemma-3-4b-it-bf16",
+  "layer_accuracies": {
+    "0": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    },
+    "4": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    },
+    "8": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    },
+    "12": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    },
+    "16": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    },
+    "20": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    },
+    "24": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    },
+    "28": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    },
+    "32": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    },
+    "33": {
+      "accuracy": 1.0,
+      "interpretation": "FULLY ENCODED"
+    }
+  },
+  "emergence_layer": null,
+  "peak_layer": 0,
+  "key_neurons": [
+    {
+      "neuron": 19,
+      "layers": [
+        20,
+        24,
+        28
+      ],
+      "importance": 0.0026546772626590757
+    },
+    {
+      "neuron": 1698,
+      "layers": [
+        20,
+        24,
+        28
+      ],
+      "importance": 0.0023904963204362294
+    },
+    {
+      "neuron": 2309,
+      "layers": [
+        20,
+        24,
+        28
+      ],
+      "importance": 0.0018882654217588328
+    },
+    {
+      "neuron": 468,
+      "layers": [
+        20,
+        24
+      ],
+      "importance": 0.0013362500868011689
+    },
+    {
+      "neuron": 1305,
+      "layers": [
+        20,
+        24
+      ],
+      "importance": 0.0013279100114977757
+    }
+  ]
+}

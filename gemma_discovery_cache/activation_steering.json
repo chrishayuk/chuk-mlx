@@ -1,0 +1,9 @@
+{
+  "model": "mlx-community/gemma-3-4b-it-bf16",
+  "arithmetic_probe_accuracies": {
+    "16": 1.0,
+    "20": 1.0,
+    "24": 1.0
+  },
+  "steering_effective": true
+}

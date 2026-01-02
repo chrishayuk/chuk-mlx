@@ -48,6 +48,7 @@ class MLP(nn.Module):
             ActivationType.RELU: nn.relu,
             ActivationType.GELU: nn.gelu,
             ActivationType.GELU_APPROX: nn.gelu_approx,
+            ActivationType.GELU_TANH: nn.gelu_approx,  # gelu_pytorch_tanh uses tanh approximation
             ActivationType.SILU: nn.silu,
             ActivationType.TANH: mx.tanh,
             ActivationType.SIGMOID: mx.sigmoid,

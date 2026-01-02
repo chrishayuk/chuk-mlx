@@ -1,0 +1,284 @@
+{
+  "task": "arithmetic",
+  "model": "mlx-community/gemma-3-4b-it-bf16",
+  "num_layers": 34,
+  "profiles": [
+    {
+      "layer": 0,
+      "role": "embedding",
+      "specialization": "attention-heavy",
+      "attention_mlp_ratio": 0.23941176470588235,
+      "avg_target_prob": 0.0,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 1,
+      "role": "embedding",
+      "specialization": "attention-heavy",
+      "attention_mlp_ratio": 0.3485630066322771,
+      "avg_target_prob": 0.0,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 2,
+      "role": "embedding",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 2.4790334044065387,
+      "avg_target_prob": 0.0,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 3,
+      "role": "embedding",
+      "specialization": "attention-heavy",
+      "attention_mlp_ratio": 0.317085597826087,
+      "avg_target_prob": 0.0,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 4,
+      "role": "early",
+      "specialization": "balanced",
+      "attention_mlp_ratio": 0.9798449612403101,
+      "avg_target_prob": 0.0,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 5,
+      "role": "early",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 1.2502024291497975,
+      "avg_target_prob": 0.0,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 6,
+      "role": "early",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 1.2846193152784875,
+      "avg_target_prob": 2.339509264624826e-38,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 7,
+      "role": "early",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 1.3325804630152456,
+      "avg_target_prob": 0.0,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 8,
+      "role": "early",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 3.5081160846040333,
+      "avg_target_prob": 2.2441403977521562e-35,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 9,
+      "role": "early",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 3.683385579937304,
+      "avg_target_prob": 1.7179849937267732e-35,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 10,
+      "role": "early",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 7.14766355140187,
+      "avg_target_prob": 1.3472678709400099e-31,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 11,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 14.47774936061381,
+      "avg_target_prob": 3.9389875300574197e-31,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 12,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 10.613861386138614,
+      "avg_target_prob": 2.2218249121784817e-31,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 13,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 10.262565641410353,
+      "avg_target_prob": 2.751661534720518e-32,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 14,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 27.47690595436839,
+      "avg_target_prob": 5.024182241559462e-36,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 15,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 19.579661016949153,
+      "avg_target_prob": 3.397913357845675e-39,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 16,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 86.47689463955638,
+      "avg_target_prob": 1.1071477097358171e-29,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 17,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 444.7751937984496,
+      "avg_target_prob": 5.600902947882739e-30,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 18,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 117.97014925373135,
+      "avg_target_prob": 8.596659892987241e-30,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 19,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 232.17400101163378,
+      "avg_target_prob": 9.78413337760034e-29,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 20,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 165.66666666666666,
+      "avg_target_prob": 5.281998063736294e-29,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 21,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 265.1364590622813,
+      "avg_target_prob": 2.2974927417702044e-23,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 22,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 535.9449793672627,
+      "avg_target_prob": 5.0260745013076174e-17,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 23,
+      "role": "middle",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 977.7717206132879,
+      "avg_target_prob": 6.468874992473172e-19,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 24,
+      "role": "late",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 320.3197715917202,
+      "avg_target_prob": 3.621799586786295e-18,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 25,
+      "role": "late",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 344.98395721925135,
+      "avg_target_prob": 3.1323298446978294e-18,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 26,
+      "role": "late",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 572.2666666666667,
+      "avg_target_prob": 4.3002808606215415e-15,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 27,
+      "role": "late",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 816.6716049382716,
+      "avg_target_prob": 5.821271126332092e-14,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 28,
+      "role": "late",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 640.2813186813187,
+      "avg_target_prob": 1.0230044274463722e-13,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 29,
+      "role": "late",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 4193.523809523809,
+      "avg_target_prob": 1.1639664874926684e-21,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 30,
+      "role": "late",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 633.0712250712251,
+      "avg_target_prob": 2.3538086808895852e-25,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 31,
+      "role": "output",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 1604.8310567936737,
+      "avg_target_prob": 1.617955512224273e-20,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 32,
+      "role": "output",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 635.3389355742297,
+      "avg_target_prob": 2.379633966866173e-20,
+      "emergence_rate": 0.0
+    },
+    {
+      "layer": 33,
+      "role": "output",
+      "specialization": "mlp-heavy",
+      "attention_mlp_ratio": 1742.9364386220282,
+      "avg_target_prob": 9.98613872374131e-22,
+      "emergence_rate": 0.0
+    }
+  ],
+  "transitions": {
+    "attention_to_mlp": 2,
+    "emergence_layer": null,
+    "stabilization_layer": null
+  }
+}

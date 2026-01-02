@@ -12,10 +12,14 @@ Reference: https://arxiv.org/abs/2312.00752
 """
 
 from .config import MambaConfig
+from .convert import load_hf_config, load_weights
 from .model import MambaForCausalLM, MambaModel
 
 __all__ = [
     "MambaConfig",
     "MambaForCausalLM",
     "MambaModel",
+    # Loading utilities
+    "load_hf_config",
+    "load_weights",
 ]
