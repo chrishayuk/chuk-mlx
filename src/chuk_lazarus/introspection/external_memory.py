@@ -171,12 +171,14 @@ class ExternalMemory:
         if memory_config is None:
             n_layers = config.num_hidden_layers
             memory_config = MemoryConfig(
-                query_layer=int(n_layers * 0.92),   # ~92% depth for matching
+                query_layer=int(n_layers * 0.92),  # ~92% depth for matching
                 inject_layer=int(n_layers * 0.88),  # ~88% depth for injection
-                value_layer=int(n_layers * 0.92),   # ~92% depth for value extraction
+                value_layer=int(n_layers * 0.92),  # ~92% depth for value extraction
             )
-            print(f"  Auto-configured: query_layer={memory_config.query_layer}, "
-                  f"inject_layer={memory_config.inject_layer}")
+            print(
+                f"  Auto-configured: query_layer={memory_config.query_layer}, "
+                f"inject_layer={memory_config.inject_layer}"
+            )
 
         return cls(model, tokenizer, config, memory_config)
 
@@ -232,7 +234,11 @@ class ExternalMemory:
                 out = lyr(h, mask=mask)
             except TypeError:
                 out = lyr(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
             if idx == layer:
                 break
 
@@ -275,7 +281,11 @@ class ExternalMemory:
                 out = lyr(h, mask=mask)
             except TypeError:
                 out = lyr(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Inject at specified layer
             if inject_layer is not None and idx == inject_layer and inject_vector is not None:
@@ -387,11 +397,13 @@ class ExternalMemory:
         facts = []
         for a in range(min_val, max_val + 1):
             for b in range(min_val, max_val + 1):
-                facts.append({
-                    "query": f"{a}*{b}=",
-                    "answer": str(a * b),
-                    "metadata": {"type": "multiplication", "a": a, "b": b},
-                })
+                facts.append(
+                    {
+                        "query": f"{a}*{b}=",
+                        "answer": str(a * b),
+                        "metadata": {"type": "multiplication", "a": a, "b": b},
+                    }
+                )
 
         print(f"Adding {len(facts)} multiplication facts...")
         return self.add_facts(facts)
@@ -463,9 +475,9 @@ class ExternalMemory:
             matched_entry, similarity = matches[0]
 
             should_inject = (
-                use_injection and
-                matched_entry.value_vector is not None and
-                (force_injection or similarity >= mc.similarity_threshold)
+                use_injection
+                and matched_entry.value_vector is not None
+                and (force_injection or similarity >= mc.similarity_threshold)
             )
 
             if should_inject:
@@ -509,13 +521,17 @@ class ExternalMemory:
 
         # Save vectors
         vectors = {
-            f"query_{i}": np.array(e.query_vector) for i, e in enumerate(self._entries)
+            f"query_{i}": np.array(e.query_vector)
+            for i, e in enumerate(self._entries)
             if e.query_vector is not None
         }
-        vectors.update({
-            f"value_{i}": np.array(e.value_vector) for i, e in enumerate(self._entries)
-            if e.value_vector is not None
-        })
+        vectors.update(
+            {
+                f"value_{i}": np.array(e.value_vector)
+                for i, e in enumerate(self._entries)
+                if e.value_vector is not None
+            }
+        )
 
         np.savez(path.with_suffix(".npz"), **vectors)
 
@@ -602,7 +618,7 @@ class ExternalMemory:
             "baseline_correct": 0,
             "injected_correct": 0,
             "rescued": 0,  # Wrong baseline, correct injected
-            "broken": 0,   # Correct baseline, wrong injected
+            "broken": 0,  # Correct baseline, wrong injected
         }
 
         for fact in test_facts:
@@ -611,8 +627,7 @@ class ExternalMemory:
 
             baseline_correct = result.baseline_answer.strip() == expected
             injected_correct = (
-                result.injected_answer is not None and
-                result.injected_answer.strip() == expected
+                result.injected_answer is not None and result.injected_answer.strip() == expected
             )
 
             if baseline_correct:
@@ -631,10 +646,12 @@ class ExternalMemory:
                 elif baseline_correct and not injected_correct:
                     status = " [BROKEN]"
 
-                print(f"  {fact['query']} -> expected={expected}, "
-                      f"baseline={result.baseline_answer.strip()}, "
-                      f"injected={result.injected_answer.strip() if result.injected_answer else 'N/A'}"
-                      f"{status}")
+                print(
+                    f"  {fact['query']} -> expected={expected}, "
+                    f"baseline={result.baseline_answer.strip()}, "
+                    f"injected={result.injected_answer.strip() if result.injected_answer else 'N/A'}"
+                    f"{status}"
+                )
 
         results["baseline_accuracy"] = results["baseline_correct"] / results["total"]
         results["injected_accuracy"] = results["injected_correct"] / results["total"]
@@ -683,7 +700,9 @@ def demo():
         print(f"  Baseline: {result.baseline_answer} ({result.baseline_confidence:.1%})")
         if result.used_injection:
             print(f"  Injected: {result.injected_answer} ({result.injected_confidence:.1%})")
-            print(f"  Match: {result.matched_entry.query} -> {result.matched_entry.answer} (sim={result.similarity:.3f})")
+            print(
+                f"  Match: {result.matched_entry.query} -> {result.matched_entry.answer} (sim={result.similarity:.3f})"
+            )
 
     print("\n" + "=" * 70)
     print("Override Test (Inject Wrong Answers)")

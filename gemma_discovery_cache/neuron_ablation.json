@@ -1,0 +1,78 @@
+{
+  "model": "mlx-community/gemma-3-4b-it-bf16",
+  "baseline_accuracy": 1.0,
+  "single_ablations": [
+    {
+      "neuron": 19,
+      "layer": 20,
+      "role": "ARITHMETIC-",
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "neuron": 1698,
+      "layer": 20,
+      "role": "ARITHMETIC+",
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "neuron": 2309,
+      "layer": 20,
+      "role": "ARITHMETIC-",
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "neuron": 468,
+      "layer": 20,
+      "role": "ARITHMETIC-",
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "neuron": 1305,
+      "layer": 20,
+      "role": "ARITHMETIC-",
+      "accuracy": 1.0,
+      "drop": 0.0
+    }
+  ],
+  "combined_ablations": [
+    {
+      "neurons": [
+        19,
+        1698,
+        2309
+      ],
+      "layer": 20,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "neurons": [
+        19,
+        1698,
+        2309
+      ],
+      "layer": 24,
+      "accuracy": 1.0,
+      "drop": 0.0
+    },
+    {
+      "neurons": [
+        19,
+        1698,
+        2309
+      ],
+      "layer": 28,
+      "accuracy": 1.0,
+      "drop": 0.0
+    }
+  ],
+  "top_neurons": [
+    19,
+    1698,
+    2309
+  ]
+}

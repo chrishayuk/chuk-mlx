@@ -294,7 +294,9 @@ def introspect_analyze(args):
                 tokenizer = analyzer._tokenizer
                 inject_token_ids = tokenizer.encode(inject_token_str)
                 if len(inject_token_ids) != 1:
-                    print(f"  Warning: '{inject_token_str}' tokenizes to {len(inject_token_ids)} tokens, using first")
+                    print(
+                        f"  Warning: '{inject_token_str}' tokenizes to {len(inject_token_ids)} tokens, using first"
+                    )
                 inject_token_id = inject_token_ids[0]
 
                 # Get embedding
@@ -308,14 +310,18 @@ def introspect_analyze(args):
                     embed = None
 
                 if embed is not None:
-                    inject_embedding = embed(mx.array([inject_token_id]))[0]  # Shape: (hidden_size,)
+                    inject_embedding = embed(mx.array([inject_token_id]))[
+                        0
+                    ]  # Shape: (hidden_size,)
 
                     # Apply embedding scale if present
                     embed_scale = getattr(model_config, "embedding_scale", None)
                     if embed_scale:
                         inject_embedding = inject_embedding * embed_scale
 
-                    print(f"\n  Injecting token '{inject_token_str}' (id={inject_token_id}) at layer {inject_layer_idx}")
+                    print(
+                        f"\n  Injecting token '{inject_token_str}' (id={inject_token_id}) at layer {inject_layer_idx}"
+                    )
                     print(f"    Blend: {inject_blend:.1f} (0=original, 1=full replacement)")
 
                     # Access model layers
@@ -359,8 +365,12 @@ def introspect_analyze(args):
                                 # Inject at last position: blend original with inject embedding
                                 # hs shape: (batch, seq, hidden)
                                 last_pos = hs[:, -1:, :]  # (batch, 1, hidden)
-                                inject_expanded = self._inject_emb.reshape(1, 1, -1)  # (1, 1, hidden)
-                                blended = (1 - self._blend) * last_pos + self._blend * inject_expanded
+                                inject_expanded = self._inject_emb.reshape(
+                                    1, 1, -1
+                                )  # (1, 1, hidden)
+                                blended = (
+                                    1 - self._blend
+                                ) * last_pos + self._blend * inject_expanded
                                 new_hs = mx.concatenate([hs[:, :-1, :], blended], axis=1)
 
                                 if hasattr(out, "hidden_states"):
@@ -374,7 +384,9 @@ def introspect_analyze(args):
                             def __getattr__(self, name):
                                 return getattr(self._wrapped, name)
 
-                        layers[inject_layer_idx] = InjectedLayerWrapper(original_layer, inject_embedding, inject_blend)
+                        layers[inject_layer_idx] = InjectedLayerWrapper(
+                            original_layer, inject_embedding, inject_blend
+                        )
                         injection_wrapper = (layers, inject_layer_idx, original_layer)
 
             # Apply compute override if configured
@@ -414,8 +426,6 @@ def introspect_analyze(args):
                     tokenizer = analyzer._tokenizer
                     answer_token_ids = tokenizer.encode(answer_str)
                     if len(answer_token_ids) == 1:
-                        answer_token_id = answer_token_ids[0]
-
                         # Get embedding
                         model = analyzer._model
                         if hasattr(model, "model") and hasattr(model.model, "embed_tokens"):
@@ -461,7 +471,9 @@ def introspect_analyze(args):
                                 h_ref = h_ref * embed_scale
 
                             seq_len = ref_ids.shape[1]
-                            mask = nn.MultiHeadAttention.create_additive_causal_mask(seq_len).astype(h_ref.dtype)
+                            mask = nn.MultiHeadAttention.create_additive_causal_mask(
+                                seq_len
+                            ).astype(h_ref.dtype)
 
                             for idx, lyr in enumerate(ref_layers):
                                 try:
@@ -478,7 +490,9 @@ def introspect_analyze(args):
                                     reference_hidden = h_ref[0, -1, :]  # Shape: (hidden_size,)
                                     break
 
-                            print(f"    Captured reference hidden state (norm={float(mx.sqrt(mx.sum(reference_hidden**2))):.1f})")
+                            print(
+                                f"    Captured reference hidden state (norm={float(mx.sqrt(mx.sum(reference_hidden**2))):.1f})"
+                            )
 
                             # Access model layers
                             if hasattr(model, "model") and hasattr(model.model, "layers"):
@@ -496,7 +510,9 @@ def introspect_analyze(args):
 
                                     def __init__(self, layer, ref_hidden):
                                         self._wrapped = layer
-                                        self._ref_hidden = ref_hidden  # Hidden state from reference prompt
+                                        self._ref_hidden = (
+                                            ref_hidden  # Hidden state from reference prompt
+                                        )
                                         for attr in [
                                             "mlp",
                                             "attn",
@@ -533,13 +549,19 @@ def introspect_analyze(args):
                                     def __getattr__(self, name):
                                         return getattr(self._wrapped, name)
 
-                                layers[compute_layer_idx] = ComputeOverrideWrapper(original_layer, reference_hidden)
+                                layers[compute_layer_idx] = ComputeOverrideWrapper(
+                                    original_layer, reference_hidden
+                                )
                                 compute_wrapper = (layers, compute_layer_idx, original_layer)
                     else:
-                        print(f"\n  WARNING: Answer '{answer_str}' requires {len(answer_token_ids)} tokens, skipping override")
+                        print(
+                            f"\n  WARNING: Answer '{answer_str}' requires {len(answer_token_ids)} tokens, skipping override"
+                        )
                 else:
                     if override_mode == "arithmetic":
-                        print(f"\n  WARNING: Could not parse arithmetic from prompt: {prompt_to_check}")
+                        print(
+                            f"\n  WARNING: Could not parse arithmetic from prompt: {prompt_to_check}"
+                        )
 
             # Check chat template mode
             use_raw = getattr(args, "raw", False)
@@ -2950,7 +2972,7 @@ def introspect_neurons(args):
 
     # Parse layers - support both --layer and --layers
     if args.layers:
-        layers_to_analyze = [int(l.strip()) for l in args.layers.split(",")]
+        layers_to_analyze = [int(layer.strip()) for layer in args.layers.split(",")]
     elif args.layer is not None:
         layers_to_analyze = [args.layer]
     else:
@@ -2988,7 +3010,9 @@ def introspect_neurons(args):
             steer_config["positive"] = str(steer_data["label_positive"])
             steer_config["negative"] = str(steer_data["label_negative"])
 
-        print(f"  Steering: {steer_file} @ layer {steer_config['layer']} with coefficient {steer_coef}")
+        print(
+            f"  Steering: {steer_file} @ layer {steer_config['layer']} with coefficient {steer_coef}"
+        )
 
     # Parse prompts
     if args.prompts.startswith("@"):
@@ -3041,7 +3065,7 @@ def introspect_neurons(args):
             return
 
         print(f"\nAuto-discovering discriminative neurons at layer {discover_layer}...")
-        print(f"  Collecting full hidden states for all prompts...")
+        print("  Collecting full hidden states for all prompts...")
 
         # Collect full hidden state for each prompt
         full_activations = []
@@ -3081,7 +3105,7 @@ def introspect_neurons(args):
         # When single samples per group, use range/overall_std as proxy
         single_sample_mode = all(len(label_groups[lbl]) == 1 for lbl in unique_labels_sorted)
         if single_sample_mode:
-            print(f"  Note: Single sample per label - using range-based discrimination")
+            print("  Note: Single sample per label - using range-based discrimination")
 
         neuron_scores = []
         for neuron_idx in range(num_neurons):
@@ -3127,14 +3151,18 @@ def introspect_neurons(args):
             # Also track the range (max - min across group means)
             mean_range = max(group_means) - min(group_means)
 
-            neuron_scores.append({
-                "idx": neuron_idx,
-                "separation": max_separation,
-                "best_pair": best_pair,
-                "overall_std": overall_std,
-                "mean_range": mean_range,
-                "group_means": {lbl: group_means[i] for i, lbl in enumerate(unique_labels_sorted)},
-            })
+            neuron_scores.append(
+                {
+                    "idx": neuron_idx,
+                    "separation": max_separation,
+                    "best_pair": best_pair,
+                    "overall_std": overall_std,
+                    "mean_range": mean_range,
+                    "group_means": {
+                        lbl: group_means[i] for i, lbl in enumerate(unique_labels_sorted)
+                    },
+                }
+            )
 
         # Sort by separation score
         neuron_scores.sort(key=lambda x: -x["separation"])
@@ -3183,10 +3211,12 @@ def introspect_neurons(args):
         if n in neuron_names:
             name = neuron_names[n][:width]
             return f"{name:>{width}}"
-        return f"N{n:>{width-1}}"
+        return f"N{n:>{width - 1}}"
 
     steer_msg = " (with steering)" if steer_config else ""
-    print(f"\nCollecting activations for {len(prompts)} prompts across {len(layers_to_analyze)} layers{steer_msg}...")
+    print(
+        f"\nCollecting activations for {len(prompts)} prompts across {len(layers_to_analyze)} layers{steer_msg}..."
+    )
 
     # Collect activations for ALL layers in one pass per prompt
     # Structure: all_activations[layer][prompt_idx] = hidden_state
@@ -3237,7 +3267,7 @@ def introspect_neurons(args):
     # Multi-layer mode: show cross-layer comparison table first
     if len(layers_to_analyze) > 1:
         print(f"\n{'=' * 80}")
-        print(f"CROSS-LAYER NEURON TRACKING")
+        print("CROSS-LAYER NEURON TRACKING")
         print(f"{'=' * 80}")
 
         # Build cross-layer table: rows are prompts, columns are layers
@@ -3759,7 +3789,7 @@ def introspect_activation_cluster(args):
     # Parse layers - support single int or comma-separated
     if args.layer is not None:
         if "," in str(args.layer):
-            target_layers = [int(l.strip()) for l in str(args.layer).split(",")]
+            target_layers = [int(layer.strip()) for layer in str(args.layer).split(",")]
         else:
             target_layers = [int(args.layer)]
     else:
@@ -3816,7 +3846,9 @@ def introspect_activation_cluster(args):
         count = labels.count(label)
         print(f"  {label}: {count} prompts")
 
-    print(f"\nCollecting activations for {len(prompts)} prompts across {len(target_layers)} layer(s)...")
+    print(
+        f"\nCollecting activations for {len(prompts)} prompts across {len(target_layers)} layer(s)..."
+    )
 
     # Collect activations for all layers at once (more efficient)
     activations_by_layer = {layer: [] for layer in target_layers}
@@ -3976,7 +4008,11 @@ def introspect_activation_cluster(args):
                 plt.tight_layout()
                 # For multiple layers, add layer number to filename
                 if len(target_layers) > 1:
-                    base, ext = args.save_plot.rsplit(".", 1) if "." in args.save_plot else (args.save_plot, "png")
+                    base, ext = (
+                        args.save_plot.rsplit(".", 1)
+                        if "." in args.save_plot
+                        else (args.save_plot, "png")
+                    )
                     plot_path = f"{base}_L{target_layer}.{ext}"
                 else:
                     plot_path = args.save_plot
@@ -4044,14 +4080,16 @@ def introspect_memory(args):
         facts = []
         for a in range(2, 10):
             for b in range(2, 10):
-                facts.append({
-                    "query": f"{a}*{b}=",
-                    "answer": str(a * b),
-                    "operand_a": a,
-                    "operand_b": b,
-                    "category": f"{a}x",  # Row category
-                    "category_alt": f"x{b}",  # Column category
-                })
+                facts.append(
+                    {
+                        "query": f"{a}*{b}=",
+                        "answer": str(a * b),
+                        "operand_a": a,
+                        "operand_b": b,
+                        "category": f"{a}x",  # Row category
+                        "category_alt": f"x{b}",  # Column category
+                    }
+                )
         return facts
 
     def generate_addition_facts():
@@ -4059,66 +4097,136 @@ def introspect_memory(args):
         facts = []
         for a in range(1, 10):
             for b in range(1, 10):
-                facts.append({
-                    "query": f"{a}+{b}=",
-                    "answer": str(a + b),
-                    "operand_a": a,
-                    "operand_b": b,
-                    "category": f"{a}+",
-                    "category_alt": f"+{b}",
-                })
+                facts.append(
+                    {
+                        "query": f"{a}+{b}=",
+                        "answer": str(a + b),
+                        "operand_a": a,
+                        "operand_b": b,
+                        "category": f"{a}+",
+                        "category_alt": f"+{b}",
+                    }
+                )
         return facts
 
     def generate_capital_facts():
         """Generate country capital facts."""
         capitals = [
-            ("France", "Paris"), ("Germany", "Berlin"), ("Italy", "Rome"),
-            ("Spain", "Madrid"), ("UK", "London"), ("Japan", "Tokyo"),
-            ("China", "Beijing"), ("India", "Delhi"), ("Brazil", "Brasilia"),
-            ("Russia", "Moscow"), ("Canada", "Ottawa"), ("Australia", "Canberra"),
-            ("Mexico", "Mexico City"), ("Egypt", "Cairo"), ("South Africa", "Pretoria"),
-            ("Argentina", "Buenos Aires"), ("Poland", "Warsaw"), ("Netherlands", "Amsterdam"),
-            ("Belgium", "Brussels"), ("Sweden", "Stockholm"), ("Norway", "Oslo"),
-            ("Denmark", "Copenhagen"), ("Finland", "Helsinki"), ("Greece", "Athens"),
-            ("Turkey", "Ankara"), ("Iran", "Tehran"), ("Iraq", "Baghdad"),
-            ("Saudi Arabia", "Riyadh"), ("Israel", "Jerusalem"), ("Thailand", "Bangkok"),
+            ("France", "Paris"),
+            ("Germany", "Berlin"),
+            ("Italy", "Rome"),
+            ("Spain", "Madrid"),
+            ("UK", "London"),
+            ("Japan", "Tokyo"),
+            ("China", "Beijing"),
+            ("India", "Delhi"),
+            ("Brazil", "Brasilia"),
+            ("Russia", "Moscow"),
+            ("Canada", "Ottawa"),
+            ("Australia", "Canberra"),
+            ("Mexico", "Mexico City"),
+            ("Egypt", "Cairo"),
+            ("South Africa", "Pretoria"),
+            ("Argentina", "Buenos Aires"),
+            ("Poland", "Warsaw"),
+            ("Netherlands", "Amsterdam"),
+            ("Belgium", "Brussels"),
+            ("Sweden", "Stockholm"),
+            ("Norway", "Oslo"),
+            ("Denmark", "Copenhagen"),
+            ("Finland", "Helsinki"),
+            ("Greece", "Athens"),
+            ("Turkey", "Ankara"),
+            ("Iran", "Tehran"),
+            ("Iraq", "Baghdad"),
+            ("Saudi Arabia", "Riyadh"),
+            ("Israel", "Jerusalem"),
+            ("Thailand", "Bangkok"),
         ]
         facts = []
         for country, capital in capitals:
             # Get continent/region for categorization
-            region = "Europe" if country in ["France", "Germany", "Italy", "Spain", "UK", "Poland", "Netherlands", "Belgium", "Sweden", "Norway", "Denmark", "Finland", "Greece"] else \
-                     "Asia" if country in ["Japan", "China", "India", "Turkey", "Iran", "Iraq", "Saudi Arabia", "Israel", "Thailand"] else \
-                     "Americas" if country in ["Brazil", "Canada", "Mexico", "Argentina"] else \
-                     "Other"
-            facts.append({
-                "query": f"The capital of {country} is",
-                "answer": capital,
-                "country": country,
-                "category": region,
-            })
+            region = (
+                "Europe"
+                if country
+                in [
+                    "France",
+                    "Germany",
+                    "Italy",
+                    "Spain",
+                    "UK",
+                    "Poland",
+                    "Netherlands",
+                    "Belgium",
+                    "Sweden",
+                    "Norway",
+                    "Denmark",
+                    "Finland",
+                    "Greece",
+                ]
+                else "Asia"
+                if country
+                in [
+                    "Japan",
+                    "China",
+                    "India",
+                    "Turkey",
+                    "Iran",
+                    "Iraq",
+                    "Saudi Arabia",
+                    "Israel",
+                    "Thailand",
+                ]
+                else "Americas"
+                if country in ["Brazil", "Canada", "Mexico", "Argentina"]
+                else "Other"
+            )
+            facts.append(
+                {
+                    "query": f"The capital of {country} is",
+                    "answer": capital,
+                    "country": country,
+                    "category": region,
+                }
+            )
         return facts
 
     def generate_element_facts():
         """Generate periodic table element facts."""
         elements = [
-            (1, "H", "Hydrogen"), (2, "He", "Helium"), (3, "Li", "Lithium"),
-            (4, "Be", "Beryllium"), (5, "B", "Boron"), (6, "C", "Carbon"),
-            (7, "N", "Nitrogen"), (8, "O", "Oxygen"), (9, "F", "Fluorine"),
-            (10, "Ne", "Neon"), (11, "Na", "Sodium"), (12, "Mg", "Magnesium"),
-            (13, "Al", "Aluminum"), (14, "Si", "Silicon"), (15, "P", "Phosphorus"),
-            (16, "S", "Sulfur"), (17, "Cl", "Chlorine"), (18, "Ar", "Argon"),
-            (19, "K", "Potassium"), (20, "Ca", "Calcium"),
+            (1, "H", "Hydrogen"),
+            (2, "He", "Helium"),
+            (3, "Li", "Lithium"),
+            (4, "Be", "Beryllium"),
+            (5, "B", "Boron"),
+            (6, "C", "Carbon"),
+            (7, "N", "Nitrogen"),
+            (8, "O", "Oxygen"),
+            (9, "F", "Fluorine"),
+            (10, "Ne", "Neon"),
+            (11, "Na", "Sodium"),
+            (12, "Mg", "Magnesium"),
+            (13, "Al", "Aluminum"),
+            (14, "Si", "Silicon"),
+            (15, "P", "Phosphorus"),
+            (16, "S", "Sulfur"),
+            (17, "Cl", "Chlorine"),
+            (18, "Ar", "Argon"),
+            (19, "K", "Potassium"),
+            (20, "Ca", "Calcium"),
         ]
         facts = []
         for num, symbol, name in elements:
             period = 1 if num <= 2 else 2 if num <= 10 else 3
-            facts.append({
-                "query": f"Element {num} is",
-                "answer": name,
-                "number": num,
-                "symbol": symbol,
-                "category": f"Period {period}",
-            })
+            facts.append(
+                {
+                    "query": f"Element {num} is",
+                    "answer": name,
+                    "number": num,
+                    "symbol": symbol,
+                    "category": f"Period {period}",
+                }
+            )
         return facts
 
     # Load facts
@@ -4242,11 +4350,13 @@ def introspect_memory(args):
         predictions = []
         for idx, prob in zip(top_indices.tolist(), top_probs.tolist()):
             token = tokenizer.decode([idx])
-            predictions.append({
-                "token": token,
-                "token_id": idx,
-                "prob": prob,
-            })
+            predictions.append(
+                {
+                    "token": token,
+                    "token_id": idx,
+                    "prob": prob,
+                }
+            )
 
         return predictions
 
@@ -4296,40 +4406,54 @@ def introspect_memory(args):
                 # Check category match
                 if "category" in fact and "category" in other_fact:
                     if fact["category"] == other_fact["category"]:
-                        neighborhood["same_category"].append({
-                            "answer": token,
-                            "prob": pred["prob"],
-                            "from_query": other_fact["query"],
-                        })
-                    elif "category_alt" in fact and fact.get("category_alt") == other_fact.get("category_alt"):
-                        neighborhood["same_category_alt"].append({
-                            "answer": token,
-                            "prob": pred["prob"],
-                            "from_query": other_fact["query"],
-                        })
+                        neighborhood["same_category"].append(
+                            {
+                                "answer": token,
+                                "prob": pred["prob"],
+                                "from_query": other_fact["query"],
+                            }
+                        )
+                    elif "category_alt" in fact and fact.get("category_alt") == other_fact.get(
+                        "category_alt"
+                    ):
+                        neighborhood["same_category_alt"].append(
+                            {
+                                "answer": token,
+                                "prob": pred["prob"],
+                                "from_query": other_fact["query"],
+                            }
+                        )
                     else:
-                        neighborhood["other_answers"].append({
+                        neighborhood["other_answers"].append(
+                            {
+                                "answer": token,
+                                "prob": pred["prob"],
+                                "from_query": other_fact["query"],
+                            }
+                        )
+                else:
+                    neighborhood["other_answers"].append(
+                        {
                             "answer": token,
                             "prob": pred["prob"],
-                            "from_query": other_fact["query"],
-                        })
-                else:
-                    neighborhood["other_answers"].append({
-                        "answer": token,
-                        "prob": pred["prob"],
-                    })
+                        }
+                    )
             else:
                 # Not a known answer
-                neighborhood["non_answers"].append({
-                    "token": token,
-                    "prob": pred["prob"],
-                })
+                neighborhood["non_answers"].append(
+                    {
+                        "token": token,
+                        "prob": pred["prob"],
+                    }
+                )
 
-        results.append({
-            **fact,
-            "predictions": predictions[:10],  # Save top 10 for reference
-            "neighborhood": neighborhood,
-        })
+        results.append(
+            {
+                **fact,
+                "predictions": predictions[:10],  # Save top 10 for reference
+                "neighborhood": neighborhood,
+            }
+        )
 
     # Aggregate analysis
     print(f"\n{'=' * 70}")
@@ -4338,18 +4462,24 @@ def introspect_memory(args):
 
     # 1. Overall accuracy
     correct_top1 = sum(1 for r in results if r["neighborhood"]["correct_rank"] == 1)
-    correct_top5 = sum(1 for r in results if r["neighborhood"]["correct_rank"] and r["neighborhood"]["correct_rank"] <= 5)
+    correct_top5 = sum(
+        1
+        for r in results
+        if r["neighborhood"]["correct_rank"] and r["neighborhood"]["correct_rank"] <= 5
+    )
     not_found = sum(1 for r in results if r["neighborhood"]["correct_rank"] is None)
 
-    print(f"\n1. RETRIEVAL ACCURACY")
-    print(f"   Top-1: {correct_top1}/{len(results)} ({100*correct_top1/len(results):.1f}%)")
-    print(f"   Top-5: {correct_top5}/{len(results)} ({100*correct_top5/len(results):.1f}%)")
-    print(f"   Not in top-{top_k}: {not_found}/{len(results)} ({100*not_found/len(results):.1f}%)")
+    print("\n1. RETRIEVAL ACCURACY")
+    print(f"   Top-1: {correct_top1}/{len(results)} ({100 * correct_top1 / len(results):.1f}%)")
+    print(f"   Top-5: {correct_top5}/{len(results)} ({100 * correct_top5 / len(results):.1f}%)")
+    print(
+        f"   Not in top-{top_k}: {not_found}/{len(results)} ({100 * not_found / len(results):.1f}%)"
+    )
 
     # 2. Category analysis (if applicable)
     if "category" in facts[0]:
-        print(f"\n2. ACCURACY BY CATEGORY")
-        categories = list(set(f["category"] for f in facts))
+        print("\n2. ACCURACY BY CATEGORY")
+        categories = list({f["category"] for f in facts})
         for cat in sorted(categories):
             cat_facts = [r for r in results if r["category"] == cat]
             cat_top1 = sum(1 for r in cat_facts if r["neighborhood"]["correct_rank"] == 1)
@@ -4357,7 +4487,7 @@ def introspect_memory(args):
             print(f"   {cat}: {cat_top1}/{len(cat_facts)} top-1, avg_prob={cat_avg_prob:.3f}")
 
     # 3. Neighborhood composition
-    print(f"\n3. NEIGHBORHOOD COMPOSITION")
+    print("\n3. NEIGHBORHOOD COMPOSITION")
     total_same_cat = sum(len(r["neighborhood"]["same_category"]) for r in results)
     total_same_cat_alt = sum(len(r["neighborhood"]["same_category_alt"]) for r in results)
     total_other = sum(len(r["neighborhood"]["other_answers"]) for r in results)
@@ -4370,7 +4500,7 @@ def introspect_memory(args):
     print(f"   Non-answer tokens: {total_non}")
 
     # 4. Attractor analysis
-    print(f"\n4. ATTRACTOR NODES (most frequently co-activated)")
+    print("\n4. ATTRACTOR NODES (most frequently co-activated)")
     answer_counts = defaultdict(int)
     answer_probs = defaultdict(list)
     for r in results:
@@ -4385,7 +4515,7 @@ def introspect_memory(args):
         print(f"   '{answer}': appears {count} times, avg_prob={avg_prob:.4f}")
 
     # 5. Hardest facts
-    print(f"\n5. HARDEST FACTS (lowest retrieval rank)")
+    print("\n5. HARDEST FACTS (lowest retrieval rank)")
     sorted_by_difficulty = sorted(results, key=lambda x: x["neighborhood"]["correct_rank"] or 999)
     for r in sorted_by_difficulty[-10:]:
         rank = r["neighborhood"]["correct_rank"] or f">{top_k}"
@@ -4394,25 +4524,32 @@ def introspect_memory(args):
 
     # 6. Asymmetry analysis (for facts with operand_a and operand_b)
     if "operand_a" in facts[0] and "operand_b" in facts[0]:
-        print(f"\n6. ASYMMETRY ANALYSIS (A op B vs B op A)")
+        print("\n6. ASYMMETRY ANALYSIS (A op B vs B op A)")
         asymmetries = []
         for r in results:
             a, b = r["operand_a"], r["operand_b"]
             if a >= b:
                 continue
             # Find reverse
-            reverse = next((x for x in results if x["operand_a"] == b and x["operand_b"] == a), None)
+            reverse = next(
+                (x for x in results if x["operand_a"] == b and x["operand_b"] == a), None
+            )
             if reverse:
                 rank_ab = r["neighborhood"]["correct_rank"] or 999
                 rank_ba = reverse["neighborhood"]["correct_rank"] or 999
                 prob_ab = r["neighborhood"]["correct_prob"] or 0
                 prob_ba = reverse["neighborhood"]["correct_prob"] or 0
                 if abs(rank_ab - rank_ba) > 2 or abs(prob_ab - prob_ba) > 0.05:
-                    asymmetries.append({
-                        "a": a, "b": b,
-                        "rank_ab": rank_ab, "rank_ba": rank_ba,
-                        "prob_ab": prob_ab, "prob_ba": prob_ba,
-                    })
+                    asymmetries.append(
+                        {
+                            "a": a,
+                            "b": b,
+                            "rank_ab": rank_ab,
+                            "rank_ba": rank_ba,
+                            "prob_ab": prob_ab,
+                            "prob_ba": prob_ba,
+                        }
+                    )
 
         if asymmetries:
             asymmetries.sort(key=lambda x: abs(x["rank_ab"] - x["rank_ba"]), reverse=True)
@@ -4420,14 +4557,14 @@ def introspect_memory(args):
                 a, b = asym["a"], asym["b"]
                 print(f"   {a}*{b}: rank={asym['rank_ab']}, prob={asym['prob_ab']:.3f}")
                 print(f"   {b}*{a}: rank={asym['rank_ba']}, prob={asym['prob_ba']:.3f}")
-                print(f"      Δrank={asym['rank_ab']-asym['rank_ba']:+d}")
+                print(f"      Δrank={asym['rank_ab'] - asym['rank_ba']:+d}")
                 print()
         else:
             print("   No significant asymmetries found")
 
     # 7. Row vs Column bias (for operand-based facts)
     if "category" in facts[0] and "category_alt" in facts[0]:
-        print(f"\n7. ORGANIZATION BIAS (primary vs alt category)")
+        print("\n7. ORGANIZATION BIAS (primary vs alt category)")
         row_bias = 0
         col_bias = 0
         neutral = 0
@@ -4446,13 +4583,13 @@ def introspect_memory(args):
 
     # 8. Memorization classification (if --classify flag)
     if getattr(args, "classify", False):
-        print(f"\n8. MEMORIZATION CLASSIFICATION")
+        print("\n8. MEMORIZATION CLASSIFICATION")
         print("-" * 50)
 
-        memorized = []       # rank 1, prob > 0.1
-        partial = []         # rank 2-5, prob > 0.01
-        weak = []            # rank 6-15, prob > 0.001
-        not_memorized = []   # rank > 15 or prob < 0.001
+        memorized = []  # rank 1, prob > 0.1
+        partial = []  # rank 2-5, prob > 0.01
+        weak = []  # rank 6-15, prob > 0.001
+        not_memorized = []  # rank > 15 or prob < 0.001
 
         for r in results:
             query = r["query"]
@@ -4487,10 +4624,11 @@ def introspect_memory(args):
             print(f"      {q:<20} = {a:<6} rank={rank_str}, prob={p:.3%}")
 
         # Summary bar
-        total = len(results)
-        print(f"\n   Summary: ", end="")
-        print(f"[{'#' * len(memorized)}{'~' * len(partial)}{'?' * len(weak)}{'.' * len(not_memorized)}]")
-        print(f"            # memorized  ~ partial  ? weak  . not memorized")
+        print("\n   Summary: ", end="")
+        print(
+            f"[{'#' * len(memorized)}{'~' * len(partial)}{'?' * len(weak)}{'.' * len(not_memorized)}]"
+        )
+        print("            # memorized  ~ partial  ? weak  . not memorized")
 
     # Save results
     if args.output:
@@ -4504,7 +4642,10 @@ def introspect_memory(args):
                 "top5": correct_top5,
                 "not_found": not_found,
             },
-            "attractors": [{"answer": a, "count": c, "avg_prob": float(np.mean(answer_probs[a]))} for a, c in top_attractors],
+            "attractors": [
+                {"answer": a, "count": c, "avg_prob": float(np.mean(answer_probs[a]))}
+                for a, c in top_attractors
+            ],
             "results": results,
         }
         with open(args.output, "w") as f:
@@ -4521,7 +4662,7 @@ def introspect_memory(args):
             # Plot 1: Accuracy by category
             if "category" in facts[0]:
                 ax = axes[0, 0]
-                categories = sorted(set(f["category"] for f in facts))
+                categories = sorted({f["category"] for f in facts})
                 cat_accuracy = []
                 for cat in categories:
                     cat_facts = [r for r in results if r["category"] == cat]
@@ -4530,12 +4671,12 @@ def introspect_memory(args):
                 ax.bar(categories, cat_accuracy)
                 ax.set_ylabel("Top-1 Accuracy (%)")
                 ax.set_title("Accuracy by Category")
-                ax.tick_params(axis='x', rotation=45)
+                ax.tick_params(axis="x", rotation=45)
 
             # Plot 2: Rank distribution
             ax = axes[0, 1]
             ranks = [r["neighborhood"]["correct_rank"] or top_k + 1 for r in results]
-            ax.hist(ranks, bins=range(1, top_k + 3), edgecolor='black')
+            ax.hist(ranks, bins=range(1, top_k + 3), edgecolor="black")
             ax.set_xlabel("Correct Answer Rank")
             ax.set_ylabel("Count")
             ax.set_title("Rank Distribution")
@@ -4596,7 +4737,6 @@ def introspect_circuit_capture(args):
             --extract-direction \\
             -o mult_direction.npz
     """
-    import json
     import re
 
     import mlx.core as mx
@@ -4649,35 +4789,41 @@ def introspect_circuit_capture(args):
         match = pattern_with_result.search(prompt)
         if match:
             a, op, b, result = match.groups()
-            parsed.append({
-                "prompt": prompt,
-                "operand_a": int(a),
-                "operand_b": int(b),
-                "operator": op,
-                "result": int(result),
-            })
+            parsed.append(
+                {
+                    "prompt": prompt,
+                    "operand_a": int(a),
+                    "operand_b": int(b),
+                    "operator": op,
+                    "result": int(result),
+                }
+            )
         else:
             match = pattern_no_result.search(prompt)
             if match:
                 a, op, b = match.groups()
                 # Use explicit result if provided
                 result = explicit_results[i] if explicit_results else None
-                parsed.append({
-                    "prompt": prompt,
-                    "operand_a": int(a),
-                    "operand_b": int(b),
-                    "operator": op,
-                    "result": result,
-                })
+                parsed.append(
+                    {
+                        "prompt": prompt,
+                        "operand_a": int(a),
+                        "operand_b": int(b),
+                        "operator": op,
+                        "result": result,
+                    }
+                )
             else:
                 # Non-arithmetic prompt
-                parsed.append({
-                    "prompt": prompt,
-                    "operand_a": None,
-                    "operand_b": None,
-                    "operator": None,
-                    "result": explicit_results[i] if explicit_results else None,
-                })
+                parsed.append(
+                    {
+                        "prompt": prompt,
+                        "operand_a": None,
+                        "operand_b": None,
+                        "operator": None,
+                        "result": explicit_results[i] if explicit_results else None,
+                    }
+                )
 
     # Collect activations
     activations = []
@@ -4704,7 +4850,9 @@ def introspect_circuit_capture(args):
         # Print progress
         if item["result"] is not None:
             if item["operand_a"] is not None:
-                print(f"  {item['operand_a']} {item['operator']} {item['operand_b']} = {item['result']}")
+                print(
+                    f"  {item['operand_a']} {item['operator']} {item['operand_b']} = {item['result']}"
+                )
             else:
                 print(f"  {prompt[:30]}... -> {item['result']}")
         else:
@@ -4719,7 +4867,7 @@ def introspect_circuit_capture(args):
 
     arithmetic_items = [p for p in parsed if p["result"] is not None]
     if len(arithmetic_items) >= 2:
-        print(f"\nAnalyzing linear predictability of results from activations...")
+        print("\nAnalyzing linear predictability of results from activations...")
 
         try:
             from sklearn.linear_model import Ridge
@@ -4792,7 +4940,7 @@ def introspect_circuit_capture(args):
         if direction is not None and extract_direction:
             save_data["direction"] = direction
             save_data["direction_stats"] = direction_stats
-            print(f"\n  Direction extracted and saved!")
+            print("\n  Direction extracted and saved!")
 
         np.savez(output_path, **save_data)
         print(f"\nCircuit saved to: {output_path}")
@@ -4842,7 +4990,6 @@ def introspect_circuit_invoke(args):
     print(f"Loading circuit: {circuit_path}")
     data = np.load(circuit_path, allow_pickle=True)
 
-    activations = data["activations"]
     layer = int(data["layer"])
     model_id = str(data["model_id"])
     prompts = list(data["prompts"])
@@ -4860,7 +5007,7 @@ def introspect_circuit_invoke(args):
     else:
         direction = None
         direction_stats = {}
-        print(f"  Has extracted direction: no")
+        print("  Has extracted direction: no")
 
     print(f"  Model: {model_id}")
     print(f"  Layer: {layer}")
@@ -4872,7 +5019,6 @@ def introspect_circuit_invoke(args):
         print("ERROR: No valid arithmetic entries in circuit")
         return
 
-    valid_activations = activations[valid_indices]
     valid_a = [operands_a[i] for i in valid_indices]
     valid_b = [operands_b[i] for i in valid_indices]
     valid_results = [results[i] for i in valid_indices]
@@ -4944,10 +5090,6 @@ def introspect_circuit_invoke(args):
             print("ERROR: 'steer' method requires --prompts or --operands")
             return
 
-        # Get intercept and scale from direction stats
-        intercept = direction_stats.get("intercept", 0)
-        scale = direction_stats.get("scale", 1)
-
         print(f"\n{'=' * 70}")
         print("CIRCUIT STEERING RESULTS")
         print(f"{'=' * 70}")
@@ -4962,6 +5104,7 @@ def introspect_circuit_invoke(args):
         for prompt in test_prompts:
             # Parse the prompt to get expected result
             import re
+
             match = re.search(r"(\d+)\s*([+\-*/x×])\s*(\d+)", prompt)
             if match:
                 a, op_char, b = match.groups()
@@ -4977,10 +5120,12 @@ def introspect_circuit_invoke(args):
                 output = steerer.generate(prompt, config, coefficient=coef)
                 print(f"  coef={coef:3d}: {output!r}")
 
-            results_table.append({
-                "prompt": prompt,
-                "expected": expected,
-            })
+            results_table.append(
+                {
+                    "prompt": prompt,
+                    "expected": expected,
+                }
+            )
 
     # Method: linear or interpolate or extrapolate (original behavior)
     else:
@@ -5026,13 +5171,15 @@ def introspect_circuit_invoke(args):
                     pred_result = np.sum(weights * known_results)
 
                 true_result = compute_true(a, b, op)
-                results_table.append({
-                    "operand_a": a,
-                    "operand_b": b,
-                    "predicted": float(pred_result),
-                    "true": true_result,
-                    "error": float(pred_result) - true_result if true_result else None,
-                })
+                results_table.append(
+                    {
+                        "operand_a": a,
+                        "operand_b": b,
+                        "predicted": float(pred_result),
+                        "true": true_result,
+                        "error": float(pred_result) - true_result if true_result else None,
+                    }
+                )
 
         elif method == "extrapolate":
             try:
@@ -5045,13 +5192,15 @@ def introspect_circuit_invoke(args):
                     query = np.array([[a, b]], dtype=np.float32)
                     pred_result = float(reg.predict(query)[0])
                     true_result = compute_true(a, b, op)
-                    results_table.append({
-                        "operand_a": a,
-                        "operand_b": b,
-                        "predicted": pred_result,
-                        "true": true_result,
-                        "error": pred_result - true_result if true_result else None,
-                    })
+                    results_table.append(
+                        {
+                            "operand_a": a,
+                            "operand_b": b,
+                            "predicted": pred_result,
+                            "true": true_result,
+                            "error": pred_result - true_result if true_result else None,
+                        }
+                    )
             except ImportError:
                 print("ERROR: sklearn required for extrapolate method")
                 return
@@ -5074,13 +5223,15 @@ def introspect_circuit_invoke(args):
                     pred_result = np.sum(weights * known_results[nearest_idx])
 
                 true_result = compute_true(a, b, op)
-                results_table.append({
-                    "operand_a": a,
-                    "operand_b": b,
-                    "predicted": float(pred_result),
-                    "true": true_result,
-                    "error": float(pred_result) - true_result if true_result else None,
-                })
+                results_table.append(
+                    {
+                        "operand_a": a,
+                        "operand_b": b,
+                        "predicted": float(pred_result),
+                        "true": true_result,
+                        "error": float(pred_result) - true_result if true_result else None,
+                    }
+                )
 
         else:
             print(f"ERROR: Unknown method '{method}'")
@@ -5096,11 +5247,11 @@ def introspect_circuit_invoke(args):
         for r in results_table:
             expr = f"{r['operand_a']} {op} {r['operand_b']}"
             pred_str = f"{r['predicted']:.1f}"
-            true_str = str(r['true']) if r['true'] is not None else "N/A"
-            error_str = f"{r['error']:+.1f}" if r['error'] is not None else "N/A"
+            true_str = str(r["true"]) if r["true"] is not None else "N/A"
+            error_str = f"{r['error']:+.1f}" if r["error"] is not None else "N/A"
             print(f"{expr:<15} {pred_str:<12} {true_str:<12} {error_str:<10}")
 
-        errors = [r['error'] for r in results_table if r.get('error') is not None]
+        errors = [r["error"] for r in results_table if r.get("error") is not None]
         if errors:
             mae = np.mean(np.abs(errors))
             rmse = np.sqrt(np.mean(np.array(errors) ** 2))
@@ -5161,7 +5312,9 @@ def introspect_circuit_test(args):
     direction = trained["direction"]
     train_activations = trained["activations"]
     train_results = np.array([r for r in trained["results"] if r is not None])
-    train_prompts = set(str(p).strip().rstrip("=") for p in trained["prompts"]) if "prompts" in trained else set()
+    train_prompts = (
+        {str(p).strip().rstrip("=") for p in trained["prompts"]} if "prompts" in trained else set()
+    )
     layer = int(trained["layer"])
     model_id = str(trained["model_id"])
 
@@ -5241,11 +5394,13 @@ def introspect_circuit_test(args):
         test_activations = []
         for prompt in test_prompts:
             hooks = ModelHooks(model, model_config=config)
-            hooks.configure(CaptureConfig(
-                layers=[layer],
-                capture_hidden_states=True,
-                positions=PositionSelection.LAST,
-            ))
+            hooks.configure(
+                CaptureConfig(
+                    layers=[layer],
+                    capture_hidden_states=True,
+                    positions=PositionSelection.LAST,
+                )
+            )
 
             input_ids = tokenizer.encode(prompt, return_tensors="np")
             hooks.forward(mx.array(input_ids))
@@ -5298,48 +5453,52 @@ def introspect_circuit_test(args):
 
         print(f"{prompt_clean:<12} {true_val:<10} {pred:<12.1f} {error:+.1f}      {status}")
 
-        results_table.append({
-            "prompt": prompt,
-            "true": float(true_val),
-            "predicted": float(pred),
-            "error": float(error),
-            "in_training": i in overlapping,
-        })
+        results_table.append(
+            {
+                "prompt": prompt,
+                "true": float(true_val),
+                "predicted": float(pred),
+                "error": float(error),
+                "in_training": i in overlapping,
+            }
+        )
 
     print("-" * 62)
 
     # Verdict depends on whether we have novel examples
     if len(novel) == 0:
         print(f"\n⚠️  WARNING: All {len(test_prompts)} test inputs were in the training data!")
-        print(f"This doesn't test generalization - try inputs the model hasn't seen.")
-        print(f"\nSuggested test (two-digit numbers not in training):")
+        print("This doesn't test generalization - try inputs the model hasn't seen.")
+        print("\nSuggested test (two-digit numbers not in training):")
         print(f"  lazarus introspect circuit test -c {circuit_path} -m {model_id} \\")
-        print(f"    -p \"12*13=|25*4=|11*11=\" -r \"156|100|121\"")
+        print('    -p "12*13=|25*4=|11*11=" -r "156|100|121"')
     elif len(overlapping) > 0:
         novel_mae = np.mean(novel_errors)
-        print(f"\n⚠️  {len(overlapping)} of {len(test_prompts)} inputs were in training data (marked above)")
+        print(
+            f"\n⚠️  {len(overlapping)} of {len(test_prompts)} inputs were in training data (marked above)"
+        )
         print(f"Average error on NOVEL inputs only: {novel_mae:.1f}")
         if novel_mae > 10:
-            print(f"\nThe circuit FAILS on new inputs.")
-            print(f"It memorized the training examples - it didn't learn the operation.")
+            print("\nThe circuit FAILS on new inputs.")
+            print("It memorized the training examples - it didn't learn the operation.")
         elif novel_mae > 3:
-            print(f"\nThe circuit PARTIALLY works on new inputs.")
-            print(f"Some generalization, but not reliable.")
+            print("\nThe circuit PARTIALLY works on new inputs.")
+            print("Some generalization, but not reliable.")
         else:
-            print(f"\nThe circuit WORKS on new inputs!")
-            print(f"It learned the operation, not just memorized examples.")
+            print("\nThe circuit WORKS on new inputs!")
+            print("It learned the operation, not just memorized examples.")
     else:
         mae = np.mean(errors)
         print(f"Average error: {mae:.1f}")
         if mae > 10:
-            print(f"\nThe circuit FAILS on new inputs.")
-            print(f"It memorized the training examples - it didn't learn the operation.")
+            print("\nThe circuit FAILS on new inputs.")
+            print("It memorized the training examples - it didn't learn the operation.")
         elif mae > 3:
-            print(f"\nThe circuit PARTIALLY works on new inputs.")
-            print(f"Some generalization, but not reliable.")
+            print("\nThe circuit PARTIALLY works on new inputs.")
+            print("Some generalization, but not reliable.")
         else:
-            print(f"\nThe circuit WORKS on new inputs!")
-            print(f"It learned the operation, not just memorized examples.")
+            print("\nThe circuit WORKS on new inputs!")
+            print("It learned the operation, not just memorized examples.")
 
     # Save if requested
     if args.output:
@@ -5367,8 +5526,9 @@ def introspect_circuit_view(args):
         lazarus introspect circuit view -c mult_complete_table.npz --table
         lazarus introspect circuit view -c mult_complete_table.npz --stats
     """
-    import numpy as np
     from pathlib import Path
+
+    import numpy as np
 
     circuit_path = args.circuit
     if not circuit_path:
@@ -5406,7 +5566,11 @@ def introspect_circuit_view(args):
 
     # Direction stats if available
     if "direction_stats" in data and getattr(args, "stats", False):
-        stats = data["direction_stats"].item() if hasattr(data["direction_stats"], "item") else dict(data["direction_stats"])
+        stats = (
+            data["direction_stats"].item()
+            if hasattr(data["direction_stats"], "item")
+            else dict(data["direction_stats"])
+        )
         print(f"\n{'=' * 70}")
         print("DIRECTION STATS")
         print(f"{'=' * 70}")
@@ -5463,7 +5627,12 @@ def introspect_circuit_view(args):
                     result_map[(a, b)] = r
 
                 # Print as grid
-                op_name = {"*": "Multiplication", "+": "Addition", "-": "Subtraction", "/": "Division"}.get(operator, "Arithmetic")
+                op_name = {
+                    "*": "Multiplication",
+                    "+": "Addition",
+                    "-": "Subtraction",
+                    "/": "Division",
+                }.get(operator, "Arithmetic")
                 print(f"\n{op_name} Table:")
                 print()
 
@@ -5494,7 +5663,7 @@ def introspect_circuit_view(args):
                 if i >= limit and limit > 0:
                     remaining = len(prompts) - limit
                     print(f"  ... and {remaining} more entries")
-                    print(f"  (use --limit 0 to show all, or --table for grid view)")
+                    print("  (use --limit 0 to show all, or --table for grid view)")
                     break
                 result_str = f" = {r}" if r is not None else ""
                 print(f"  {i:3}: {p}{result_str}")
@@ -5543,19 +5712,23 @@ def introspect_circuit_compare(args):
 
         data = np.load(circuit_file, allow_pickle=True)
         if "direction" not in data:
-            print(f"ERROR: {circuit_file} has no direction (use --extract-direction during capture)")
+            print(
+                f"ERROR: {circuit_file} has no direction (use --extract-direction during capture)"
+            )
             return
 
         # Extract name from filename (e.g., "mult_circuit.npz" -> "mult")
         name = path.stem.replace("_circuit", "").replace("_neurons", "")
 
-        circuits.append({
-            "name": name,
-            "file": circuit_file,
-            "direction": data["direction"],
-            "layer": int(data["layer"]) if "layer" in data else None,
-            "training_samples": len(data["results"]) if "results" in data else 0,
-        })
+        circuits.append(
+            {
+                "name": name,
+                "file": circuit_file,
+                "direction": data["direction"],
+                "layer": int(data["layer"]) if "layer" in data else None,
+                "training_samples": len(data["results"]) if "results" in data else 0,
+            }
+        )
 
     print(f"Comparing {len(circuits)} circuits:\n")
 
@@ -5564,7 +5737,7 @@ def introspect_circuit_compare(args):
     print("CIRCUITS")
     print("=" * 70)
     for c in circuits:
-        layer_str = f"L{c['layer']}" if c['layer'] is not None else "?"
+        layer_str = f"L{c['layer']}" if c["layer"] is not None else "?"
         print(f"  {c['name']:<12} {c['file']:<30} ({layer_str}, {c['training_samples']} samples)")
     print()
 
@@ -5641,7 +5814,11 @@ def introspect_circuit_compare(args):
 
         print(f"\n{c['name']}:")
         for idx, weight in top_weights:
-            bar = "+" * min(int(abs(weight) / 10), 20) if weight > 0 else "-" * min(int(abs(weight) / 10), 20)
+            bar = (
+                "+" * min(int(abs(weight) / 10), 20)
+                if weight > 0
+                else "-" * min(int(abs(weight) / 10), 20)
+            )
             print(f"  N{idx:>4}: {weight:+8.1f} {bar}")
 
     # Find shared top neurons
@@ -5670,10 +5847,12 @@ def introspect_circuit_compare(args):
     # Save if requested
     if args.output:
         output_data = {
-            "circuits": [{"name": c["name"], "file": c["file"], "layer": c["layer"]} for c in circuits],
+            "circuits": [
+                {"name": c["name"], "file": c["file"], "layer": c["layer"]} for c in circuits
+            ],
             "similarity_matrix": similarity_matrix.tolist(),
-            "top_neurons": {name: neurons for name, neurons in all_top_neurons.items()},
-            "shared_neurons": [(idx, apps) for idx, apps in shared],
+            "top_neurons": dict(all_top_neurons.items()),
+            "shared_neurons": list(shared),
         }
         with open(args.output, "w") as f:
             json.dump(output_data, f, indent=2)
@@ -5696,7 +5875,6 @@ def introspect_circuit_decode(args):
     """
     import json
 
-    import mlx.core as mx
     import numpy as np
 
     from ...introspection import ActivationSteering, SteeringConfig
@@ -5807,13 +5985,15 @@ def introspect_circuit_decode(args):
         injected_output = steerer.generate(prompt, config)
         print(f"  Injected:  {injected_output!r}")
 
-        results_table.append({
-            "prompt": prompt,
-            "baseline": baseline_output,
-            "injected": injected_output,
-            "inject_source": inject_prompt,
-            "blend": strength,
-        })
+        results_table.append(
+            {
+                "prompt": prompt,
+                "baseline": baseline_output,
+                "injected": injected_output,
+                "inject_source": inject_prompt,
+                "blend": strength,
+            }
+        )
 
     # Save if requested
     output_path = getattr(args, "output", None)
@@ -5933,18 +6113,20 @@ def introspect_memory_inject(args):
         if result.used_injection:
             print(f"  Injected: '{result.injected_answer}' ({result.injected_confidence:.1%})")
             if result.matched_entry:
-                print(f"  Matched:  '{result.matched_entry.query}' -> {result.matched_entry.answer}")
+                print(
+                    f"  Matched:  '{result.matched_entry.query}' -> {result.matched_entry.answer}"
+                )
                 print(f"  Similarity: {result.similarity:.3f}")
 
             # Show if it was rescued
             if result.baseline_answer.strip() != result.injected_answer.strip():
-                print(f"  Status: MODIFIED")
+                print("  Status: MODIFIED")
         else:
             if result.matched_entry:
                 print(f"  Matched:  '{result.matched_entry.query}' (sim={result.similarity:.3f})")
                 print(f"  Status: Below threshold ({threshold}), no injection")
             else:
-                print(f"  Status: No match found")
+                print("  Status: No match found")
 
     # Evaluate mode
     if getattr(args, "evaluate", False):
@@ -5954,11 +6136,17 @@ def introspect_memory_inject(args):
 
         # Build test set from the facts
         if fact_type == "multiplication":
-            test_facts = [{"query": f"{a}*{b}=", "answer": str(a * b)}
-                         for a in range(2, 10) for b in range(2, 10)]
+            test_facts = [
+                {"query": f"{a}*{b}=", "answer": str(a * b)}
+                for a in range(2, 10)
+                for b in range(2, 10)
+            ]
         elif fact_type == "addition":
-            test_facts = [{"query": f"{a}+{b}=", "answer": str(a + b)}
-                         for a in range(1, 10) for b in range(1, 10)]
+            test_facts = [
+                {"query": f"{a}+{b}=", "answer": str(a + b)}
+                for a in range(1, 10)
+                for b in range(1, 10)
+            ]
         else:
             test_facts = facts
 

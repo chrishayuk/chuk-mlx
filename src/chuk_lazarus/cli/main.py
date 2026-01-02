@@ -122,13 +122,13 @@ from .commands.introspect import (
     introspect_circuit_test,
     introspect_circuit_view,
     introspect_compare,
-    introspect_memory,
-    introspect_memory_inject,
     introspect_directions,
     introspect_format_sensitivity,
     introspect_generate,
     introspect_hooks,
     introspect_layer,
+    introspect_memory,
+    introspect_memory_inject,
     introspect_metacognitive,
     introspect_neurons,
     introspect_probe,
@@ -1946,17 +1946,20 @@ Examples:
         """,
     )
     memory_parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         required=True,
         help="Model name or HuggingFace ID",
     )
     memory_parser.add_argument(
-        "--facts", "-f",
+        "--facts",
+        "-f",
         required=True,
         help="Fact type: 'multiplication', 'addition', 'capitals', 'elements', or @file.json",
     )
     memory_parser.add_argument(
-        "--layer", "-l",
+        "--layer",
+        "-l",
         type=int,
         help="Layer to analyze (default: ~80%% of model depth)",
     )
@@ -1967,7 +1970,8 @@ Examples:
         help="Number of top predictions to capture per query (default: 30)",
     )
     memory_parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         help="Save detailed results to JSON file",
     )
     memory_parser.add_argument(
@@ -2016,17 +2020,20 @@ Examples:
         """,
     )
     memory_inject_parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         required=True,
         help="Model name or HuggingFace ID",
     )
     memory_inject_parser.add_argument(
-        "--facts", "-f",
+        "--facts",
+        "-f",
         required=True,
         help="Fact type: 'multiplication', 'addition', or @file.json",
     )
     memory_inject_parser.add_argument(
-        "--query", "-q",
+        "--query",
+        "-q",
         help="Single query to test",
     )
     memory_inject_parser.add_argument(
@@ -2140,27 +2147,38 @@ Examples:
         help="Capture circuit activations for known computations",
     )
     capture_parser.add_argument(
-        "--model", "-m", required=True,
+        "--model",
+        "-m",
+        required=True,
         help="Model name or HuggingFace ID",
     )
     capture_parser.add_argument(
-        "--prompts", "-p", required=True,
+        "--prompts",
+        "-p",
+        required=True,
         help="Computation prompts (pipe-separated, e.g., '7*4=|6*8=' or '7*4=28|6*8=48')",
     )
     capture_parser.add_argument(
-        "--results", "-r",
+        "--results",
+        "-r",
         help="Expected results (pipe-separated, e.g., '28|48') - use with prompts like '7*4=|6*8='",
     )
     capture_parser.add_argument(
-        "--layer", "-l", type=int, required=True,
+        "--layer",
+        "-l",
+        type=int,
+        required=True,
         help="Layer to capture activations from",
     )
     capture_parser.add_argument(
-        "--save", "-o", required=True,
+        "--save",
+        "-o",
+        required=True,
         help="Save captured circuit to .npz file",
     )
     capture_parser.add_argument(
-        "--extract-direction", action="store_true",
+        "--extract-direction",
+        action="store_true",
         help="Extract and save the direction that encodes the result value",
     )
     capture_parser.add_argument(
@@ -2177,11 +2195,14 @@ Examples:
         help="Invoke circuit with new operands via interpolation",
     )
     invoke_parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         help="Model name or HuggingFace ID (required for 'steer' method)",
     )
     invoke_parser.add_argument(
-        "--circuit", "-c", required=True,
+        "--circuit",
+        "-c",
+        required=True,
         help="Captured circuit file (.npz)",
     )
     invoke_parser.add_argument(
@@ -2189,11 +2210,15 @@ Examples:
         help="New operands to compute (pipe-separated pairs, e.g., '5,6|8,9')",
     )
     invoke_parser.add_argument(
-        "--prompts", "-p", dest="invoke_prompts",
+        "--prompts",
+        "-p",
+        dest="invoke_prompts",
         help="Prompts to run through circuit (for 'steer' method, e.g., '5*6=|8*9=')",
     )
     invoke_parser.add_argument(
-        "--layer", "-l", type=int,
+        "--layer",
+        "-l",
+        type=int,
         help="Layer for circuit (default: from circuit file)",
     )
     invoke_parser.add_argument(
@@ -2203,7 +2228,8 @@ Examples:
         help="How to invoke circuit: steer (uses direction), linear/interpolate/extrapolate (uses activations)",
     )
     invoke_parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         help="Save result to file",
     )
     invoke_parser.set_defaults(func=introspect_circuit_invoke)
@@ -2214,31 +2240,46 @@ Examples:
         help="Decode circuit activations to see what answer they produce",
     )
     decode_parser.add_argument(
-        "--model", "-m", required=True,
+        "--model",
+        "-m",
+        required=True,
         help="Model name or HuggingFace ID",
     )
     decode_parser.add_argument(
-        "--prompt", "-p", required=True,
+        "--prompt",
+        "-p",
+        required=True,
         help="Base prompt to inject activations into",
     )
     decode_parser.add_argument(
-        "--inject", "-i", required=True,
+        "--inject",
+        "-i",
+        required=True,
         help="Activations to inject (.npz file)",
     )
     decode_parser.add_argument(
-        "--inject-idx", type=int, default=0,
+        "--inject-idx",
+        type=int,
+        default=0,
         help="Index of activation to inject (default: 0)",
     )
     decode_parser.add_argument(
-        "--layer", "-l", type=int,
+        "--layer",
+        "-l",
+        type=int,
         help="Layer to inject at",
     )
     decode_parser.add_argument(
-        "--blend", type=float, default=1.0,
+        "--blend",
+        type=float,
+        default=1.0,
         help="Blend factor (0=original, 1=full injection)",
     )
     decode_parser.add_argument(
-        "-n", "--max-tokens", type=int, default=20,
+        "-n",
+        "--max-tokens",
+        type=int,
+        default=20,
         help="Max tokens to generate",
     )
     decode_parser.set_defaults(func=introspect_circuit_decode)
@@ -2249,29 +2290,36 @@ Examples:
         help="Test if a circuit generalizes to new inputs",
     )
     test_parser.add_argument(
-        "--circuit", "-c", required=True,
+        "--circuit",
+        "-c",
+        required=True,
         help="Trained circuit file (.npz from 'circuit capture --extract-direction')",
     )
     # Option 1: Provide pre-captured activations
     test_parser.add_argument(
-        "--test-activations", "-t",
+        "--test-activations",
+        "-t",
         help="Pre-captured test activations (.npz file)",
     )
     # Option 2: Capture on the fly with model + prompts
     test_parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         help="Model to use for capturing test activations",
     )
     test_parser.add_argument(
-        "--prompts", "-p",
+        "--prompts",
+        "-p",
         help="Test prompts (e.g., '1*1=|11*11=|10*5=')",
     )
     test_parser.add_argument(
-        "--results", "-r",
+        "--results",
+        "-r",
         help="Expected results (e.g., '1|121|50')",
     )
     test_parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         help="Save results to JSON file",
     )
     test_parser.set_defaults(func=introspect_circuit_test)
@@ -2293,7 +2341,8 @@ Example:
         """,
     )
     compare_circuit_parser.add_argument(
-        "--circuits", "-c",
+        "--circuits",
+        "-c",
         nargs="+",
         required=True,
         help="Circuit files to compare (.npz files from 'circuit capture --extract-direction')",
@@ -2305,7 +2354,8 @@ Example:
         help="Number of top neurons to show per circuit (default: 10)",
     )
     compare_circuit_parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         help="Save comparison results to JSON file",
     )
     compare_circuit_parser.set_defaults(func=introspect_circuit_compare)
@@ -2331,21 +2381,26 @@ Examples:
         """,
     )
     view_parser.add_argument(
-        "--circuit", "-c", required=True,
+        "--circuit",
+        "-c",
+        required=True,
         help="Circuit file to view (.npz)",
     )
     view_parser.add_argument(
-        "--table", "-t",
+        "--table",
+        "-t",
         action="store_true",
         help="Display as a formatted grid (for arithmetic circuits)",
     )
     view_parser.add_argument(
-        "--stats", "-s",
+        "--stats",
+        "-s",
         action="store_true",
         help="Show direction statistics and top neurons",
     )
     view_parser.add_argument(
-        "--limit", "-n",
+        "--limit",
+        "-n",
         type=int,
         default=20,
         help="Max entries to show in list view (0 for all, default: 20)",

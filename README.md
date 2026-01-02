@@ -161,7 +161,7 @@ async with TelnetGymClient(config) as client:
     buffer.add(sample)
 ```
 
-**Supported puzzles:** Sudoku, KenKen, Nonogram, Lights Out, Sokoban, Minesweeper, and [16 others](docs/gym.md).
+**Supported puzzles:** Sudoku, KenKen, Kakuro, Binary, Futoshiki, Nonogram, Logic Grid, Killer Sudoku, Lights Out, Mastermind, Slitherlink, Bridges, Hitori, Shikaku, Hidato, Tents, Fillomino, Star Battle, Sokoban, Knapsack, Nurikabe, Minesweeper.
 
 ### BatchPlan-Driven Training
 
@@ -277,7 +277,7 @@ See [docs/inference.md](docs/inference.md) for detailed inference documentation.
 
 ### Introspection (Model Analysis)
 
-Analyze model behavior using logit lens, ablation studies, and attention visualization:
+Analyze model behavior using logit lens, ablation studies, attention visualization, and MoE expert identification:
 
 ```bash
 # Run logit lens analysis - see how predictions evolve across layers
@@ -295,17 +295,59 @@ chuk-lazarus introspect ablate -m model -p "What's the weather?" -c function_cal
 # Multi-layer ablation - test layers together
 chuk-lazarus introspect ablate -m model -p "45 * 45 = " -c "2025" --layers 22,23 --multi
 
-# Difficulty gradient - find differential causality
-chuk-lazarus introspect ablate -m openai/gpt-oss-20b \
-    -p x -c x \
-    --prompts "10*10=:100|45*45=:2025|47*47=:2209" \
-    --layers 20-23
-
 # Low-level hook demonstration
 chuk-lazarus introspect hooks -m model -p "Test" --layers 0,4,8 --capture-attention
 ```
 
-Python API:
+**MoE Expert Identification** - Discover what each expert specializes in:
+
+```python
+from mlx_lm import load
+from chuk_lazarus.introspection import ExpertIdentifier, identify_experts
+
+# Load any MoE model
+model, tokenizer = load("openai/gpt-oss-20b")
+
+# Identify all experts in a layer
+result = identify_experts(model, tokenizer, layer_idx=12)
+print(result.summary())
+
+# Results show expert specializations:
+# CODE: Experts [1, 14, 22, 23, 27, 28]
+# MATH: Experts [6, 7, 19, 24, 30, 31]
+# CONTENT_WORDS: Experts [0, 2, 3, 4, 5, 8, 9, ...]
+# NAMES: Experts [15, 26]
+
+# Get detailed identity for specific expert
+expert_6 = result.expert_identities[6]
+print(expert_6.detailed_report())
+# Expert 6: math (52% confidence)
+# Top tokens: ['+', '2', 'x', '3', ...]
+# Semantic clusters: ['numeric_values']
+```
+
+**MoE Routing Analysis** - Capture and analyze routing decisions:
+
+```python
+from chuk_lazarus.introspection import MoEHooks, MoECaptureConfig
+
+hooks = MoEHooks(model)
+hooks.configure(MoECaptureConfig(
+    capture_router_logits=True,
+    capture_selected_experts=True,
+))
+
+logits = hooks.forward(input_ids)
+
+# Analyze routing
+utilization = hooks.get_expert_utilization(layer_idx=12)
+print(f"Load balance: {utilization.load_balance_score:.2%}")
+
+entropy = hooks.get_router_entropy(layer_idx=12)
+print(f"Router confidence: {1 - entropy.normalized_entropy:.2%}")
+```
+
+**Logit Lens and Ablation:**
 
 ```python
 from chuk_lazarus.introspection import ModelAnalyzer, AnalysisConfig, LayerStrategy
@@ -400,6 +442,8 @@ src/chuk_lazarus/
 │   ├── hooks.py            # ModelHooks for capturing intermediate states
 │   ├── logit_lens.py       # Layer-by-layer prediction analysis
 │   ├── attention.py        # Attention pattern analysis
+│   ├── moe.py              # MoE introspection (routing, expert identification)
+│   ├── ablation/           # Ablation studies for causal discovery
 │   └── visualizers/        # Heatmaps and evolution plots
 ├── distributed/            # Distributed training utilities
 └── utils/                  # Utilities
@@ -411,7 +455,7 @@ src/chuk_lazarus/
 |--------|-------------|
 | **Models** | Composable architecture: components, blocks, backbones, heads, families (Llama, Gemma, Granite) |
 | **Inference** | `UnifiedPipeline` with auto-detection, chat history, streaming generation |
-| **Introspection** | Model analysis: logit lens, attention visualization, hooks for intermediate states |
+| **Introspection** | Model analysis: logit lens, attention visualization, MoE expert identification, ablation studies |
 | **Tokenizers** | Comprehensive toolkit for analysis, preprocessing, and runtime management |
 | **Batching** | Token-budget batching, sequence packing, distributed batch planning |
 | **Streaming** | Puzzle arcade integration, replay buffers, online learning |
@@ -419,7 +463,7 @@ src/chuk_lazarus/
 
 ## Features
 
-- **Introspection**: Logit lens analysis, attention visualization, hooks for intermediate states, token evolution tracking
+- **Introspection**: Logit lens, attention visualization, MoE expert identification, ablation studies, token evolution tracking
 - **Tokenizer Toolkit**: Encode, decode, analyze, compare, fingerprint, and debug any tokenizer
 - **Character Tokenizer**: Built-in character-level tokenizer for classification experiments
 - **Tokenizer Doctor**: Health check with auto-fix for missing chat templates

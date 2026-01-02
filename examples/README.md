@@ -60,23 +60,22 @@ examples/
 ### Load and Generate
 
 ```python
-from chuk_lazarus.models import load_model, generate_response
+from chuk_lazarus.inference import UnifiedPipeline
 
-model, tokenizer = load_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-response = generate_response(model, tokenizer, "Hello, ", max_tokens=50)
+# One-liner model loading - auto-detects family
+pipeline = UnifiedPipeline.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+
+# Generate text
+result = pipeline.chat("Hello!")
+print(result.text)
+print(result.stats.summary)  # "25 tokens in 0.42s (59.5 tok/s)"
 ```
 
 ### Fine-tune with SFT
 
-```python
-from chuk_lazarus.models import load_model
-from chuk_lazarus.training import SFTTrainer, SFTConfig
-from chuk_lazarus.data import SFTDataset
-
-model, tokenizer = load_model("model-name", use_lora=True)
-dataset = SFTDataset("./data/train.jsonl", tokenizer)
-trainer = SFTTrainer(model, tokenizer, SFTConfig())
-trainer.train(dataset)
+```bash
+# Train with CLI (recommended)
+lazarus train sft --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --data train.jsonl --use-lora
 ```
 
 ### Generate Training Data

@@ -16,51 +16,31 @@ pip install -e .
 
 ## Quick Start
 
-### Load a Model
+### Load a Model and Generate Text
 
 ```python
-from chuk_lazarus.models import load_model
+from chuk_lazarus.inference import UnifiedPipeline
 
-model, tokenizer = load_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-```
+# One-liner model loading - auto-detects family
+pipeline = UnifiedPipeline.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 
-### Generate Text
-
-```python
-from chuk_lazarus.models import load_model, generate_response
-
-model, tokenizer = load_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-
-response = generate_response(
-    model=model,
-    tokenizer=tokenizer,
-    prompt="Once upon a time",
-    max_tokens=100,
-    temperature=0.7,
-)
-print(response)
+# Generate text
+result = pipeline.chat("Once upon a time")
+print(result.text)
+print(result.stats.summary)  # "25 tokens in 0.42s (59.5 tok/s)"
 ```
 
 ### Fine-tune with LoRA
 
 ```python
-from chuk_lazarus.models import load_model
 from chuk_lazarus.training import SFTTrainer, SFTConfig
 from chuk_lazarus.data import SFTDataset
-
-# Load model with LoRA
-model, tokenizer = load_model(
-    "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-    use_lora=True,
-)
 
 # Create dataset
 dataset = SFTDataset("./data/train.jsonl", tokenizer)
 
-# Train
-config = SFTConfig(num_epochs=3, learning_rate=1e-5)
-trainer = SFTTrainer(model, tokenizer, config)
-trainer.train(dataset)
+# Train with CLI (recommended)
+# lazarus train sft --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --data train.jsonl --use-lora
 ```
 
 ## Using the CLI

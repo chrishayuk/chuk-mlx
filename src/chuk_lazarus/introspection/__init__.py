@@ -8,6 +8,7 @@ This module provides tools for understanding model behavior:
 - Logit lens for layer-by-layer prediction analysis
 - Ablation studies for causal circuit discovery
 - Activation steering for behavior modification
+- MoE introspection for router analysis and expert utilization
 
 Example - Async Analyzer (Recommended):
     >>> from chuk_lazarus.introspection import ModelAnalyzer, AnalysisConfig, LayerStrategy
@@ -37,6 +38,24 @@ Example - Low-level Hook Usage:
     ... ))
     >>> logits = hooks.forward(input_ids)
     >>> hidden = hooks.state.hidden_states[4]
+
+Example - MoE Analysis (GPT-OSS, Mixtral, Llama4):
+    >>> from chuk_lazarus.introspection import MoEHooks, MoECaptureConfig
+    >>>
+    >>> hooks = MoEHooks(model)
+    >>> hooks.configure(MoECaptureConfig(
+    ...     capture_router_logits=True,
+    ...     capture_selected_experts=True,
+    ... ))
+    >>> logits = hooks.forward(input_ids)
+    >>>
+    >>> # Analyze routing decisions
+    >>> utilization = hooks.get_expert_utilization(layer_idx=4)
+    >>> print(f"Load balance: {utilization.load_balance_score:.2%}")
+    >>>
+    >>> # Check router entropy (confidence)
+    >>> entropy = hooks.get_router_entropy(layer_idx=4)
+    >>> print(f"Routing confidence: {1 - entropy.normalized_entropy:.2%}")
 
 Example - Logit Lens:
     >>> from chuk_lazarus.introspection import LogitLens
@@ -105,6 +124,40 @@ from .logit_lens import (
     LogitLens,
     TokenEvolution,
     run_logit_lens,
+)
+
+# MoE introspection
+from .moe import (
+    CompressedMoEConfig,
+    CompressionPlan,
+    ExpertAblationResult,
+    ExpertCategory,
+    ExpertCompressor,
+    ExpertContribution,
+    ExpertIdentificationResult,
+    ExpertIdentifier,
+    ExpertIdentity,
+    ExpertMergeResult,
+    ExpertSpecialization,
+    ExpertUtilization,
+    MoEAblation,
+    MoEArchitecture,
+    MoECapturedState,
+    MoECaptureConfig,
+    MoEHooks,
+    MoELayerInfo,
+    MoELayerPrediction,
+    MoELogitLens,
+    RouterEntropy,
+    analyze_compression,
+    analyze_expert_specialization,
+    analyze_moe_model,
+    detect_moe_architecture,
+    get_moe_layer_info,
+    identify_experts,
+    plan_expert_compression,
+    print_expert_identities,
+    print_moe_analysis,
 )
 
 # Activation steering - from subpackage
@@ -178,4 +231,30 @@ __all__ = [
     "steer_model",
     "compare_steering_effects",
     "format_functiongemma_prompt",
+    # MoE introspection
+    "MoEHooks",
+    "MoECaptureConfig",
+    "MoECapturedState",
+    "MoEArchitecture",
+    "MoELayerInfo",
+    "ExpertUtilization",
+    "RouterEntropy",
+    "ExpertSpecialization",
+    "ExpertContribution",
+    "ExpertAblationResult",
+    "MoEAblation",
+    "MoELogitLens",
+    "MoELayerPrediction",
+    "detect_moe_architecture",
+    "get_moe_layer_info",
+    "analyze_moe_model",
+    "analyze_expert_specialization",
+    "print_moe_analysis",
+    # Expert identification
+    "ExpertIdentifier",
+    "ExpertIdentity",
+    "ExpertIdentificationResult",
+    "ExpertCategory",
+    "identify_experts",
+    "print_expert_identities",
 ]

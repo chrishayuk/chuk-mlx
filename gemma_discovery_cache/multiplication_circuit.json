@@ -1,0 +1,359 @@
+{
+  "probe_results": {
+    "-1": {
+      "first_digit": 0.2,
+      "tens_digit": 0.2,
+      "ones_digit": 0.0
+    },
+    "0": {
+      "first_digit": 0.1,
+      "tens_digit": 0.1,
+      "ones_digit": 0.1
+    },
+    "1": {
+      "first_digit": 0.2,
+      "tens_digit": 0.4,
+      "ones_digit": 0.0
+    },
+    "2": {
+      "first_digit": 0.3,
+      "tens_digit": 0.3,
+      "ones_digit": 0.2
+    },
+    "3": {
+      "first_digit": 0.5,
+      "tens_digit": 0.4,
+      "ones_digit": 0.1
+    },
+    "4": {
+      "first_digit": 0.5,
+      "tens_digit": 0.5,
+      "ones_digit": 0.2
+    },
+    "5": {
+      "first_digit": 0.4,
+      "tens_digit": 0.4,
+      "ones_digit": 0.1
+    },
+    "6": {
+      "first_digit": 0.4,
+      "tens_digit": 0.4,
+      "ones_digit": 0.0
+    },
+    "7": {
+      "first_digit": 0.4,
+      "tens_digit": 0.4,
+      "ones_digit": 0.1
+    },
+    "8": {
+      "first_digit": 0.4,
+      "tens_digit": 0.4,
+      "ones_digit": 0.2
+    },
+    "9": {
+      "first_digit": 0.4,
+      "tens_digit": 0.4,
+      "ones_digit": 0.1
+    },
+    "10": {
+      "first_digit": 0.3,
+      "tens_digit": 0.5,
+      "ones_digit": 0.1
+    },
+    "11": {
+      "first_digit": 0.3,
+      "tens_digit": 0.4,
+      "ones_digit": 0.2
+    },
+    "12": {
+      "first_digit": 0.3,
+      "tens_digit": 0.3,
+      "ones_digit": 0.2
+    },
+    "13": {
+      "first_digit": 0.2,
+      "tens_digit": 0.3,
+      "ones_digit": 0.2
+    },
+    "14": {
+      "first_digit": 0.3,
+      "tens_digit": 0.4,
+      "ones_digit": 0.1
+    },
+    "15": {
+      "first_digit": 0.4,
+      "tens_digit": 0.4,
+      "ones_digit": 0.1
+    },
+    "16": {
+      "first_digit": 0.4,
+      "tens_digit": 0.5,
+      "ones_digit": 0.2
+    },
+    "17": {
+      "first_digit": 0.4,
+      "tens_digit": 0.4,
+      "ones_digit": 0.1
+    },
+    "18": {
+      "first_digit": 0.3,
+      "tens_digit": 0.5,
+      "ones_digit": 0.2
+    },
+    "19": {
+      "first_digit": 0.4,
+      "tens_digit": 0.5,
+      "ones_digit": 0.2
+    },
+    "20": {
+      "first_digit": 0.4,
+      "tens_digit": 0.5,
+      "ones_digit": 0.2
+    },
+    "21": {
+      "first_digit": 0.7,
+      "tens_digit": 0.7,
+      "ones_digit": 0.6
+    },
+    "22": {
+      "first_digit": 0.7,
+      "tens_digit": 0.7,
+      "ones_digit": 0.7
+    },
+    "23": {
+      "first_digit": 0.7,
+      "tens_digit": 0.7,
+      "ones_digit": 0.7
+    },
+    "24": {
+      "first_digit": 0.7,
+      "tens_digit": 0.7,
+      "ones_digit": 0.7
+    },
+    "25": {
+      "first_digit": 0.8,
+      "tens_digit": 0.8,
+      "ones_digit": 0.7
+    },
+    "26": {
+      "first_digit": 1.0,
+      "tens_digit": 0.9,
+      "ones_digit": 0.7
+    },
+    "27": {
+      "first_digit": 1.0,
+      "tens_digit": 0.9,
+      "ones_digit": 0.7
+    },
+    "28": {
+      "first_digit": 1.0,
+      "tens_digit": 0.9,
+      "ones_digit": 0.7
+    },
+    "29": {
+      "first_digit": 1.0,
+      "tens_digit": 0.9,
+      "ones_digit": 0.7
+    },
+    "30": {
+      "first_digit": 1.0,
+      "tens_digit": 0.9,
+      "ones_digit": 0.7
+    },
+    "31": {
+      "first_digit": 1.0,
+      "tens_digit": 0.9,
+      "ones_digit": 0.7
+    },
+    "32": {
+      "first_digit": 1.0,
+      "tens_digit": 0.9,
+      "ones_digit": 0.7
+    },
+    "33": {
+      "first_digit": 1.0,
+      "tens_digit": 0.9,
+      "ones_digit": 0.7
+    }
+  },
+  "attention": {
+    "critical_layers": [
+      {
+        "layer": 0,
+        "attn_to_op1": 0.029927256371593103,
+        "attn_to_op2": 0.13298797607421875
+      },
+      {
+        "layer": 4,
+        "attn_to_op1": 0.08155075274407864,
+        "attn_to_op2": 0.1759803742170334
+      },
+      {
+        "layer": 8,
+        "attn_to_op1": 0.06449127197265625,
+        "attn_to_op2": 0.2242431640625
+      },
+      {
+        "layer": 16,
+        "attn_to_op1": 0.0064563751220703125,
+        "attn_to_op2": 0.15435791015625
+      },
+      {
+        "layer": 21,
+        "attn_to_op1": 0.01661968231201172,
+        "attn_to_op2": 0.11373710632324219
+      },
+      {
+        "layer": 22,
+        "attn_to_op1": 0.011077165603637695,
+        "attn_to_op2": 0.192047119140625
+      },
+      {
+        "layer": 28,
+        "attn_to_op1": 0.02948474884033203,
+        "attn_to_op2": 0.11950302124023438
+      },
+      {
+        "layer": 33,
+        "attn_to_op1": 0.1119232177734375,
+        "attn_to_op2": 0.08717918395996094
+      }
+    ],
+    "tokens": [
+      "<bos>",
+      "7",
+      " *",
+      " ",
+      "8",
+      " =",
+      " "
+    ]
+  },
+  "patching": {
+    "results": [
+      {
+        "layer": 0,
+        "output": "5",
+        "interpretation": "Source answer (56) transferred!"
+      },
+      {
+        "layer": 4,
+        "output": "5",
+        "interpretation": "Source answer (56) transferred!"
+      },
+      {
+        "layer": 8,
+        "output": "5",
+        "interpretation": "Source answer (56) transferred!"
+      },
+      {
+        "layer": 12,
+        "output": "5",
+        "interpretation": "Source answer (56) transferred!"
+      },
+      {
+        "layer": 16,
+        "output": "5",
+        "interpretation": "Source answer (56) transferred!"
+      },
+      {
+        "layer": 20,
+        "output": "5",
+        "interpretation": "Source answer (56) transferred!"
+      },
+      {
+        "layer": 24,
+        "output": "5",
+        "interpretation": "Source answer (56) transferred!"
+      },
+      {
+        "layer": 28,
+        "output": "5",
+        "interpretation": "Source answer (56) transferred!"
+      },
+      {
+        "layer": 32,
+        "output": "5",
+        "interpretation": "Source answer (56) transferred!"
+      }
+    ]
+  },
+  "phases": {
+    "phase_1_encoding": {
+      "layers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "description": "Operand encoding",
+      "evidence": "L0, L1 critical for accuracy (90-100% drop when skipped)",
+      "what_happens": "Tokenized operands transformed into semantic representations"
+    },
+    "phase_2_recognition": {
+      "layers": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "description": "Arithmetic task recognition",
+      "evidence": "L4 critical (100% drop), probes show arithmetic detection here",
+      "what_happens": "Model recognizes this is a multiplication task"
+    },
+    "phase_3_retrieval": {
+      "layers": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "description": "Lookup table retrieval",
+      "evidence": "Probe accuracy reaches 100% by L16, commutativity perfect in early layers",
+      "what_happens": "Model retrieves multiplication fact from lookup-like structure"
+    },
+    "phase_4_computation": {
+      "layers": [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+      ],
+      "description": "Answer computation/refinement",
+      "evidence": "L21 shows 70% drop when skipped, steering effective at L20/L24",
+      "what_happens": "Final answer computed and prepared for output"
+    },
+    "phase_5_formatting": {
+      "layers": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+      ],
+      "description": "Output formatting",
+      "evidence": "Skipping L24-L33 causes 60% drop",
+      "what_happens": "Answer formatted for token generation"
+    },
+    "phase_6_optional": {
+      "layers": [
+        29,
+        30,
+        31,
+        32,
+        33
+      ],
+      "description": "Non-essential processing",
+      "evidence": "Skipping these layers causes 0% drop!",
+      "what_happens": "General language modeling (not needed for simple arithmetic)"
+    }
+  }
+}
