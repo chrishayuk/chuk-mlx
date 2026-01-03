@@ -112,17 +112,15 @@ class TestIntrospectActivationCluster:
 
     def test_cluster_legacy_syntax(self, cluster_args, capsys):
         """Test clustering with legacy two-class syntax."""
-        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
-
         import mlx.core as mx
         import numpy as np
+
+        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
 
         with patch("chuk_lazarus.inference.loader.HFLoader") as mock_loader:
             mock_result = MagicMock()
             mock_result.model_path = MagicMock()
-            mock_result.model_path.__truediv__ = MagicMock(
-                return_value=MagicMock()
-            )
+            mock_result.model_path.__truediv__ = MagicMock(return_value=MagicMock())
             mock_loader.download.return_value = mock_result
 
             with patch("builtins.open", MagicMock()):
@@ -153,7 +151,13 @@ class TestIntrospectActivationCluster:
 
                             mock_loader.apply_weights_to_model = MagicMock()
                             mock_tokenizer = MagicMock()
-                            mock_tokenizer.encode.return_value = [1, 2, 3, 4, 5]  # Return proper list
+                            mock_tokenizer.encode.return_value = [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]  # Return proper list
                             mock_loader.load_tokenizer.return_value = mock_tokenizer
 
                             with patch(
@@ -161,9 +165,7 @@ class TestIntrospectActivationCluster:
                             ) as mock_accessor_cls:
                                 mock_accessor = MagicMock()
                                 mock_accessor.layers = [MagicMock() for _ in range(12)]
-                                mock_accessor.embed = MagicMock(
-                                    return_value=mx.zeros((1, 5, 768))
-                                )
+                                mock_accessor.embed = MagicMock(return_value=mx.zeros((1, 5, 768)))
                                 mock_accessor.embedding_scale = None
 
                                 # Make layers return proper outputs
@@ -174,8 +176,8 @@ class TestIntrospectActivationCluster:
 
                                 with patch("sklearn.decomposition.PCA") as mock_pca:
                                     mock_pca_instance = MagicMock()
-                                    mock_pca_instance.fit_transform.return_value = (
-                                        np.random.randn(6, 2)
+                                    mock_pca_instance.fit_transform.return_value = np.random.randn(
+                                        6, 2
                                     )
                                     mock_pca_instance.explained_variance_ratio_ = [
                                         0.6,
@@ -187,23 +189,20 @@ class TestIntrospectActivationCluster:
 
                                     captured = capsys.readouterr()
                                     assert (
-                                        "Loading model" in captured.out
-                                        or "Classes" in captured.out
+                                        "Loading model" in captured.out or "Classes" in captured.out
                                     )
 
     def test_cluster_multi_class_syntax(self, multi_class_args, capsys):
         """Test clustering with multi-class syntax."""
-        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
-
         import mlx.core as mx
         import numpy as np
+
+        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
 
         with patch("chuk_lazarus.inference.loader.HFLoader") as mock_loader:
             mock_result = MagicMock()
             mock_result.model_path = MagicMock()
-            mock_result.model_path.__truediv__ = MagicMock(
-                return_value=MagicMock()
-            )
+            mock_result.model_path.__truediv__ = MagicMock(return_value=MagicMock())
             mock_loader.download.return_value = mock_result
 
             with patch("builtins.open", MagicMock()):
@@ -234,7 +233,13 @@ class TestIntrospectActivationCluster:
 
                             mock_loader.apply_weights_to_model = MagicMock()
                             mock_tokenizer = MagicMock()
-                            mock_tokenizer.encode.return_value = [1, 2, 3, 4, 5]  # Return proper list
+                            mock_tokenizer.encode.return_value = [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]  # Return proper list
                             mock_loader.load_tokenizer.return_value = mock_tokenizer
 
                             with patch(
@@ -242,9 +247,7 @@ class TestIntrospectActivationCluster:
                             ) as mock_accessor_cls:
                                 mock_accessor = MagicMock()
                                 mock_accessor.layers = [MagicMock() for _ in range(12)]
-                                mock_accessor.embed = MagicMock(
-                                    return_value=mx.zeros((1, 5, 768))
-                                )
+                                mock_accessor.embed = MagicMock(return_value=mx.zeros((1, 5, 768)))
                                 mock_accessor.embedding_scale = None
 
                                 for layer in mock_accessor.layers:
@@ -254,8 +257,8 @@ class TestIntrospectActivationCluster:
 
                                 with patch("sklearn.decomposition.PCA") as mock_pca:
                                     mock_pca_instance = MagicMock()
-                                    mock_pca_instance.fit_transform.return_value = (
-                                        np.random.randn(4, 2)
+                                    mock_pca_instance.fit_transform.return_value = np.random.randn(
+                                        4, 2
                                     )
                                     mock_pca_instance.explained_variance_ratio_ = [
                                         0.6,
@@ -267,25 +270,22 @@ class TestIntrospectActivationCluster:
 
                                     captured = capsys.readouterr()
                                     assert (
-                                        "Loading model" in captured.out
-                                        or "Classes" in captured.out
+                                        "Loading model" in captured.out or "Classes" in captured.out
                                     )
 
     def test_cluster_with_specific_layer(self, cluster_args, capsys):
         """Test clustering at specific layer."""
-        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
-
         import mlx.core as mx
         import numpy as np
+
+        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
 
         cluster_args.layer = 8
 
         with patch("chuk_lazarus.inference.loader.HFLoader") as mock_loader:
             mock_result = MagicMock()
             mock_result.model_path = MagicMock()
-            mock_result.model_path.__truediv__ = MagicMock(
-                return_value=MagicMock()
-            )
+            mock_result.model_path.__truediv__ = MagicMock(return_value=MagicMock())
             mock_loader.download.return_value = mock_result
 
             with patch("builtins.open", MagicMock()):
@@ -313,7 +313,13 @@ class TestIntrospectActivationCluster:
 
                             mock_loader.apply_weights_to_model = MagicMock()
                             mock_tokenizer = MagicMock()
-                            mock_tokenizer.encode.return_value = [1, 2, 3, 4, 5]  # Return proper list
+                            mock_tokenizer.encode.return_value = [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]  # Return proper list
                             mock_loader.load_tokenizer.return_value = mock_tokenizer
 
                             with patch(
@@ -321,9 +327,7 @@ class TestIntrospectActivationCluster:
                             ) as mock_accessor_cls:
                                 mock_accessor = MagicMock()
                                 mock_accessor.layers = [MagicMock() for _ in range(12)]
-                                mock_accessor.embed = MagicMock(
-                                    return_value=mx.zeros((1, 5, 768))
-                                )
+                                mock_accessor.embed = MagicMock(return_value=mx.zeros((1, 5, 768)))
                                 mock_accessor.embedding_scale = None
 
                                 for layer in mock_accessor.layers:
@@ -333,8 +337,8 @@ class TestIntrospectActivationCluster:
 
                                 with patch("sklearn.decomposition.PCA") as mock_pca:
                                     mock_pca_instance = MagicMock()
-                                    mock_pca_instance.fit_transform.return_value = (
-                                        np.random.randn(6, 2)
+                                    mock_pca_instance.fit_transform.return_value = np.random.randn(
+                                        6, 2
                                     )
                                     mock_pca_instance.explained_variance_ratio_ = [
                                         0.6,
@@ -350,19 +354,17 @@ class TestIntrospectActivationCluster:
 
     def test_cluster_multiple_layers(self, cluster_args, capsys):
         """Test clustering at multiple layers."""
-        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
-
         import mlx.core as mx
         import numpy as np
+
+        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
 
         cluster_args.layer = "4,8,12"
 
         with patch("chuk_lazarus.inference.loader.HFLoader") as mock_loader:
             mock_result = MagicMock()
             mock_result.model_path = MagicMock()
-            mock_result.model_path.__truediv__ = MagicMock(
-                return_value=MagicMock()
-            )
+            mock_result.model_path.__truediv__ = MagicMock(return_value=MagicMock())
             mock_loader.download.return_value = mock_result
 
             with patch("builtins.open", MagicMock()):
@@ -390,7 +392,13 @@ class TestIntrospectActivationCluster:
 
                             mock_loader.apply_weights_to_model = MagicMock()
                             mock_tokenizer = MagicMock()
-                            mock_tokenizer.encode.return_value = [1, 2, 3, 4, 5]  # Return proper list
+                            mock_tokenizer.encode.return_value = [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]  # Return proper list
                             mock_loader.load_tokenizer.return_value = mock_tokenizer
 
                             with patch(
@@ -398,9 +406,7 @@ class TestIntrospectActivationCluster:
                             ) as mock_accessor_cls:
                                 mock_accessor = MagicMock()
                                 mock_accessor.layers = [MagicMock() for _ in range(16)]
-                                mock_accessor.embed = MagicMock(
-                                    return_value=mx.zeros((1, 5, 768))
-                                )
+                                mock_accessor.embed = MagicMock(return_value=mx.zeros((1, 5, 768)))
                                 mock_accessor.embedding_scale = None
 
                                 for layer in mock_accessor.layers:
@@ -410,8 +416,8 @@ class TestIntrospectActivationCluster:
 
                                 with patch("sklearn.decomposition.PCA") as mock_pca:
                                     mock_pca_instance = MagicMock()
-                                    mock_pca_instance.fit_transform.return_value = (
-                                        np.random.randn(6, 2)
+                                    mock_pca_instance.fit_transform.return_value = np.random.randn(
+                                        6, 2
                                     )
                                     mock_pca_instance.explained_variance_ratio_ = [
                                         0.6,
@@ -423,14 +429,16 @@ class TestIntrospectActivationCluster:
 
                                     captured = capsys.readouterr()
                                     # Should process multiple layers
-                                    assert "Loading" in captured.out or "layer" in captured.out.lower()
+                                    assert (
+                                        "Loading" in captured.out or "layer" in captured.out.lower()
+                                    )
 
     def test_cluster_from_file(self, cluster_args, capsys):
         """Test clustering with prompts from file."""
-        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
-
         import mlx.core as mx
         import numpy as np
+
+        from chuk_lazarus.cli.commands.introspect import introspect_activation_cluster
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("2+2=\n3+3=\n4+4=\n")
@@ -441,9 +449,7 @@ class TestIntrospectActivationCluster:
             with patch("chuk_lazarus.inference.loader.HFLoader") as mock_loader:
                 mock_result = MagicMock()
                 mock_result.model_path = MagicMock()
-                mock_result.model_path.__truediv__ = MagicMock(
-                    return_value=MagicMock()
-                )
+                mock_result.model_path.__truediv__ = MagicMock(return_value=MagicMock())
                 mock_loader.download.return_value = mock_result
 
                 # Need to handle the file read for class_a but mock the config read
@@ -471,24 +477,28 @@ class TestIntrospectActivationCluster:
                                 "chuk_lazarus.models_v2.families.registry.get_family_info"
                             ) as mock_family:
                                 mock_family_info = MagicMock()
-                                mock_family_info.config_class.from_hf_config.return_value = MagicMock(
-                                    num_hidden_layers=12
+                                mock_family_info.config_class.from_hf_config.return_value = (
+                                    MagicMock(num_hidden_layers=12)
                                 )
                                 mock_family_info.model_class.return_value = MagicMock()
                                 mock_family.return_value = mock_family_info
 
                                 mock_loader.apply_weights_to_model = MagicMock()
                                 mock_tokenizer = MagicMock()
-                                mock_tokenizer.encode.return_value = [1, 2, 3, 4, 5]  # Return proper list
+                                mock_tokenizer.encode.return_value = [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                ]  # Return proper list
                                 mock_loader.load_tokenizer.return_value = mock_tokenizer
 
                                 with patch(
                                     "chuk_lazarus.introspection.ModelAccessor"
                                 ) as mock_accessor_cls:
                                     mock_accessor = MagicMock()
-                                    mock_accessor.layers = [
-                                        MagicMock() for _ in range(12)
-                                    ]
+                                    mock_accessor.layers = [MagicMock() for _ in range(12)]
                                     mock_accessor.embed = MagicMock(
                                         return_value=mx.zeros((1, 5, 768))
                                     )
@@ -499,9 +509,7 @@ class TestIntrospectActivationCluster:
 
                                     mock_accessor_cls.return_value = mock_accessor
 
-                                    with patch(
-                                        "sklearn.decomposition.PCA"
-                                    ) as mock_pca:
+                                    with patch("sklearn.decomposition.PCA") as mock_pca:
                                         mock_pca_instance = MagicMock()
                                         mock_pca_instance.fit_transform.return_value = (
                                             np.random.randn(6, 2)
@@ -516,6 +524,5 @@ class TestIntrospectActivationCluster:
 
                                         captured = capsys.readouterr()
                                         assert (
-                                            "Loading" in captured.out
-                                            or "Classes" in captured.out
+                                            "Loading" in captured.out or "Classes" in captured.out
                                         )

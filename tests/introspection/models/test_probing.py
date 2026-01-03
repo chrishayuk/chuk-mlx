@@ -345,8 +345,7 @@ class TestProbeResult:
     def test_multiple_layer_results(self):
         """Test probe result with multiple layer results."""
         layer_results = [
-            ProbeLayerResult(layer=i, accuracy=0.5 + i * 0.05, std=0.02)
-            for i in range(10)
+            ProbeLayerResult(layer=i, accuracy=0.5 + i * 0.05, std=0.02) for i in range(10)
         ]
         result = ProbeResult(
             model_id="test",

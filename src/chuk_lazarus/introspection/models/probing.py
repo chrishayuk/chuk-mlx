@@ -66,7 +66,7 @@ class ProbeResult(BaseModel):
         )
 
     @classmethod
-    def load_direction(cls, path: str | Path) -> "ProbeResult":
+    def load_direction(cls, path: str | Path) -> ProbeResult:
         """Load probe result from npz file."""
         data = np.load(path, allow_pickle=True)
         return cls(

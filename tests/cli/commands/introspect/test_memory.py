@@ -1,11 +1,8 @@
 """Tests for introspect memory CLI commands."""
 
-import tempfile
 from argparse import Namespace
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import numpy as np
 import pytest
 
 
@@ -45,7 +42,6 @@ class TestIntrospectMemory:
 
     def test_memory_multiplication_facts(self, memory_args, capsys):
         """Test memory analysis with multiplication facts."""
-        from chuk_lazarus.cli.commands.introspect import introspect_memory
 
         import mlx.core as mx
 
@@ -72,20 +68,16 @@ class TestIntrospectMemory:
                             "chuk_lazarus.models_v2.families.registry.get_family_info"
                         ) as mock_family:
                             mock_family_info = MagicMock()
-                            mock_family_info.config_class.from_hf_config.return_value = (
-                                MagicMock(num_hidden_layers=12)
+                            mock_family_info.config_class.from_hf_config.return_value = MagicMock(
+                                num_hidden_layers=12
                             )
                             mock_model = MagicMock()
                             mock_model.model.layers = [MagicMock() for _ in range(12)]
                             mock_model.model.embed_tokens = MagicMock(
                                 return_value=mx.zeros((1, 5, 768))
                             )
-                            mock_model.model.norm = MagicMock(
-                                return_value=mx.zeros((1, 5, 768))
-                            )
-                            mock_model.lm_head = MagicMock(
-                                return_value=mx.zeros((1, 5, 32000))
-                            )
+                            mock_model.model.norm = MagicMock(return_value=mx.zeros((1, 5, 768)))
+                            mock_model.lm_head = MagicMock(return_value=mx.zeros((1, 5, 32000)))
 
                             for layer in mock_model.model.layers:
                                 layer.return_value = mx.zeros((1, 5, 768))
@@ -97,9 +89,7 @@ class TestIntrospectMemory:
                             mock_loader.load_tokenizer.return_value = MagicMock()
 
                             # Only run on a small subset of facts
-                            with patch.object(
-                                memory_args, "facts", "addition"
-                            ):  # Smaller fact set
+                            with patch.object(memory_args, "facts", "addition"):  # Smaller fact set
                                 # This test is complex due to the full model loading
                                 # Just verify the command can be called
                                 pass
@@ -179,9 +169,7 @@ class TestIntrospectMemoryInject:
         """Test basic memory injection."""
         from chuk_lazarus.cli.commands.introspect import introspect_memory_inject
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 64
 
@@ -207,9 +195,7 @@ class TestIntrospectMemoryInject:
         inject_args.query_layer = 20
         inject_args.inject_layer = 19
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 64
 
@@ -237,9 +223,7 @@ class TestIntrospectMemoryInject:
         inject_args.query = None
         inject_args.queries = "7*8=|9*6="
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 64
 
@@ -266,9 +250,7 @@ class TestIntrospectMemoryInject:
         inject_args.query = None
         inject_args.queries = None
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 64
             mock_memory_cls.from_pretrained.return_value = mock_memory
@@ -284,9 +266,7 @@ class TestIntrospectMemoryInject:
 
         inject_args.force = True
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 64
 
@@ -314,9 +294,7 @@ class TestIntrospectMemoryInject:
         store_path = tmp_path / "memory_store.npz"
         inject_args.save_store = str(store_path)
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 64
 
@@ -342,9 +320,7 @@ class TestIntrospectMemoryInject:
         store_path = tmp_path / "memory_store.npz"
         inject_args.load_store = str(store_path)
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 64
 
@@ -370,9 +346,7 @@ class TestIntrospectMemoryInject:
         inject_args.evaluate = True
         inject_args.query = None  # Clear single query for evaluation
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 64
 
@@ -397,9 +371,7 @@ class TestIntrospectMemoryInject:
         inject_args.facts = "addition"
         inject_args.query = "5+7="
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 81
 
@@ -435,9 +407,7 @@ class TestIntrospectMemoryInject:
         inject_args.facts = f"@{facts_file}"
         inject_args.query = "What is 2+2?"
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory.num_entries = 2
 
@@ -462,9 +432,7 @@ class TestIntrospectMemoryInject:
 
         inject_args.facts = "unknown_type"
 
-        with patch(
-            "chuk_lazarus.introspection.external_memory.ExternalMemory"
-        ) as mock_memory_cls:
+        with patch("chuk_lazarus.introspection.external_memory.ExternalMemory") as mock_memory_cls:
             mock_memory = MagicMock()
             mock_memory_cls.from_pretrained.return_value = mock_memory
 

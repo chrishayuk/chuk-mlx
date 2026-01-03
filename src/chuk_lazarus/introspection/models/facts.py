@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Literal
-
 from pydantic import BaseModel, Field
 
 from ..enums import FactType, Region
@@ -66,12 +64,20 @@ class ElementFact(Fact):
 class FactNeighborhood(BaseModel):
     """Analysis of what facts appear near a queried fact."""
 
-    correct_rank: int | None = Field(default=None, description="Rank of correct answer in predictions")
+    correct_rank: int | None = Field(
+        default=None, description="Rank of correct answer in predictions"
+    )
     correct_prob: float | None = Field(default=None, description="Probability of correct answer")
-    same_category: list[dict] = Field(default_factory=list, description="Other facts from same category")
-    same_category_alt: list[dict] = Field(default_factory=list, description="Other facts from alt category")
+    same_category: list[dict] = Field(
+        default_factory=list, description="Other facts from same category"
+    )
+    same_category_alt: list[dict] = Field(
+        default_factory=list, description="Other facts from alt category"
+    )
     other_answers: list[dict] = Field(default_factory=list, description="Other known answers")
-    non_answers: list[dict] = Field(default_factory=list, description="Tokens that aren't known answers")
+    non_answers: list[dict] = Field(
+        default_factory=list, description="Tokens that aren't known answers"
+    )
 
 
 class FactSet(BaseModel):
@@ -81,7 +87,7 @@ class FactSet(BaseModel):
     facts: list[Fact] = Field(default_factory=list, description="The facts")
 
     @classmethod
-    def multiplication_table(cls, start: int = 2, end: int = 9) -> "FactSet":
+    def multiplication_table(cls, start: int = 2, end: int = 9) -> FactSet:
         """Generate single-digit multiplication facts."""
         facts = []
         for a in range(start, end + 1):
@@ -100,7 +106,7 @@ class FactSet(BaseModel):
         return cls(fact_type=FactType.MULTIPLICATION, facts=facts)
 
     @classmethod
-    def addition_table(cls, start: int = 1, end: int = 9) -> "FactSet":
+    def addition_table(cls, start: int = 1, end: int = 9) -> FactSet:
         """Generate single-digit addition facts."""
         facts = []
         for a in range(start, end + 1):
@@ -119,7 +125,7 @@ class FactSet(BaseModel):
         return cls(fact_type=FactType.ADDITION, facts=facts)
 
     @classmethod
-    def world_capitals(cls) -> "FactSet":
+    def world_capitals(cls) -> FactSet:
         """Generate country capital facts."""
         capitals_data = [
             ("France", "Paris", Region.EUROPE),
@@ -168,7 +174,7 @@ class FactSet(BaseModel):
         return cls(fact_type=FactType.CAPITALS, facts=facts)
 
     @classmethod
-    def periodic_elements(cls, max_number: int = 20) -> "FactSet":
+    def periodic_elements(cls, max_number: int = 20) -> FactSet:
         """Generate periodic table element facts."""
         elements_data = [
             (1, "H", "Hydrogen"),
@@ -211,7 +217,7 @@ class FactSet(BaseModel):
         return cls(fact_type=FactType.ELEMENTS, facts=facts)
 
     @classmethod
-    def from_type(cls, fact_type: FactType | str) -> "FactSet":
+    def from_type(cls, fact_type: FactType | str) -> FactSet:
         """Create a fact set from a type identifier."""
         if isinstance(fact_type, str):
             fact_type = FactType(fact_type)

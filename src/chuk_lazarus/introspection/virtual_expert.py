@@ -22,11 +22,9 @@ For demos and analysis:
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 import mlx.nn as nn
-import numpy as np
 
 # Re-export core classes from inference
 from chuk_lazarus.inference.virtual_expert import (
@@ -104,7 +102,9 @@ def demo_virtual_expert(
         used = "YES" if result.used_virtual_expert else "no"
         correct = "✓" if result.is_correct else "✗"
 
-        print(f"{result.prompt:<25} {model_answer:<15} {virtual_answer:<15} {plugin:<10} {used:<5} {correct}")
+        print(
+            f"{result.prompt:<25} {model_answer:<15} {virtual_answer:<15} {plugin:<10} {used:<5} {correct}"
+        )
 
     print("\n" + "-" * 75)
     print(f"Model-only accuracy:   {analysis.model_accuracy:.1%}")
@@ -113,7 +113,7 @@ def demo_virtual_expert(
     print(f"Virtual expert used:   {analysis.times_virtual_used}/{analysis.total_problems}")
 
     if analysis.plugins_used:
-        print(f"Plugins used:")
+        print("Plugins used:")
         for name, count in analysis.plugins_used.items():
             print(f"  - {name}: {count}")
 

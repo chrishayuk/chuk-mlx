@@ -18,82 +18,12 @@ Example:
 """
 
 # Enums
-from .enums import ExpertCategory, ExpertRole, MoEArchitecture
-
-# Config
-from .config import MoEAblationConfig, MoECaptureConfig
-
-# Models
-from .models import (
-    CoactivationAnalysis,
-    CompressionPlan,
-    ExpertAblationResult,
-    ExpertIdentity,
-    ExpertPair,
-    ExpertUtilization,
-    MoELayerInfo,
-    RouterEntropy,
-)
-
-# Detection
-from .detector import (
-    detect_moe_architecture,
-    get_moe_layer_info,
-    get_moe_layers,
-    is_moe_model,
-)
-
-# Hooks
-from .hooks import MoECapturedState, MoEHooks
-
-# Router analysis
-from .router import (
-    analyze_coactivation,
-    compare_routing,
-    compute_routing_diversity,
-    get_dominant_experts,
-    get_rare_experts,
-)
-
-# Datasets
-from .datasets import (
-    CATEGORY_GROUPS,
-    CategoryPrompts,
-    PromptCategory,
-    PromptCategoryGroup,
-    get_all_prompts,
-    get_category_prompts,
-    get_prompts_by_group,
-    get_prompts_flat,
-    get_grouped_prompts,
-)
-
 # Ablation
 from .ablation import (
     ablate_expert,
     ablate_expert_batch,
     find_causal_experts,
     sweep_layer_experts,
-)
-
-# Logit Lens
-from .logit_lens import (
-    ExpertLogitContribution,
-    LayerRoutingSnapshot,
-    MoELogitLens,
-    analyze_expert_vocabulary,
-)
-
-# Identification
-from .identification import (
-    CategoryActivation,
-    ExpertProfile,
-    cluster_experts_by_specialization,
-    find_generalists,
-    find_specialists,
-    identify_all_experts,
-    identify_expert,
-    print_expert_summary,
 )
 
 # Compression
@@ -109,16 +39,103 @@ from .compression import (
     print_compression_summary,
 )
 
+# Config
+from .config import MoEAblationConfig, MoECaptureConfig
+
+# Datasets
+from .datasets import (
+    CATEGORY_GROUPS,
+    CategoryPrompts,
+    PromptCategory,
+    PromptCategoryGroup,
+    get_all_prompts,
+    get_category_prompts,
+    get_grouped_prompts,
+    get_prompts_by_group,
+    get_prompts_flat,
+)
+
+# Detection
+from .detector import (
+    detect_moe_architecture,
+    get_moe_layer_info,
+    get_moe_layers,
+    is_moe_model,
+)
+from .enums import ExpertCategory, ExpertRole, MoEAction, MoEArchitecture
+
+# Expert Router
+from .expert_router import ExpertRouter
+
+# Hooks
+from .hooks import MoECapturedState, MoEHooks
+
+# Identification
+from .identification import (
+    CategoryActivation,
+    ExpertProfile,
+    cluster_experts_by_specialization,
+    find_generalists,
+    find_specialists,
+    identify_all_experts,
+    identify_expert,
+    print_expert_summary,
+)
+
+# Logit Lens
+from .logit_lens import (
+    ExpertLogitContribution,
+    LayerRoutingSnapshot,
+    MoELogitLens,
+    analyze_expert_vocabulary,
+)
+
+# Models
+from .models import (
+    CoactivationAnalysis,
+    CompressionPlan,
+    ExpertAblationResult,
+    ExpertChatResult,
+    ExpertComparisonResult,
+    ExpertIdentity,
+    ExpertPair,
+    ExpertPattern,
+    ExpertTaxonomy,
+    ExpertUtilization,
+    GenerationStats,
+    LayerDivergenceResult,
+    LayerRouterWeights,
+    LayerRoutingAnalysis,
+    MoELayerInfo,
+    MoEModelInfo,
+    RouterEntropy,
+    RouterWeightCapture,
+    TokenExpertMapping,
+    TopKVariationResult,
+    VocabExpertAnalysis,
+)
+
+# Router analysis
+from .router import (
+    analyze_coactivation,
+    compare_routing,
+    compute_routing_diversity,
+    get_dominant_experts,
+    get_rare_experts,
+)
+
 __all__ = [
     # Enums
     "MoEArchitecture",
+    "MoEAction",
     "ExpertCategory",
     "ExpertRole",
     # Config
     "MoECaptureConfig",
     "MoEAblationConfig",
-    # Models
+    # Models - Core
     "MoELayerInfo",
+    "MoEModelInfo",
     "RouterEntropy",
     "ExpertUtilization",
     "ExpertIdentity",
@@ -126,6 +143,23 @@ __all__ = [
     "CoactivationAnalysis",
     "ExpertAblationResult",
     "CompressionPlan",
+    # Models - Generation
+    "GenerationStats",
+    "ExpertChatResult",
+    "ExpertComparisonResult",
+    "TopKVariationResult",
+    # Models - Router Weights
+    "RouterWeightCapture",
+    "LayerRouterWeights",
+    # Models - Layer Analysis
+    "LayerRoutingAnalysis",
+    "LayerDivergenceResult",
+    # Models - Pattern Discovery
+    "ExpertPattern",
+    "ExpertTaxonomy",
+    # Models - Tokenizer Analysis
+    "TokenExpertMapping",
+    "VocabExpertAnalysis",
     # Detection
     "detect_moe_architecture",
     "get_moe_layer_info",
@@ -179,4 +213,6 @@ __all__ = [
     "create_compression_plan",
     "analyze_compression_opportunities",
     "print_compression_summary",
+    # Expert Router
+    "ExpertRouter",
 ]

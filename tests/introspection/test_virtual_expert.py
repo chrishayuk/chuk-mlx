@@ -3,6 +3,7 @@
 import mlx.nn as nn
 import pytest
 
+from chuk_lazarus.inference.virtual_experts.registry import reset_default_registry
 from chuk_lazarus.introspection.virtual_expert import (
     ExpertHijacker,
     HybridEmbeddingInjector,
@@ -22,7 +23,6 @@ from chuk_lazarus.introspection.virtual_expert import (
     demo_virtual_expert,
     get_default_registry,
 )
-from chuk_lazarus.inference.virtual_experts.registry import reset_default_registry
 
 
 class MockTokenizer:
@@ -535,6 +535,7 @@ class TestVirtualRouter:
     def test_is_nn_module(self):
         """VirtualRouter should be an nn.Module subclass."""
         import mlx.nn as nn
+
         assert issubclass(VirtualRouter, nn.Module)
 
 
@@ -724,7 +725,7 @@ class TestDemoVirtualExpert:
             lambda m, t, mid: mock_wrapper,
         )
 
-        result = demo_virtual_expert(mock_model, mock_tokenizer)
+        demo_virtual_expert(mock_model, mock_tokenizer)
 
         # Verify all results were processed
         captured = capsys.readouterr()
@@ -816,7 +817,7 @@ class TestDemoAllApproaches:
             mock_demo,
         )
 
-        result = demo_all_approaches(
+        demo_all_approaches(
             mock_model,
             mock_tokenizer,
             "test",
@@ -910,7 +911,7 @@ class TestCreateVirtualExpert:
             mock_wrapper_class,
         )
 
-        result = create_virtual_expert(
+        create_virtual_expert(
             mock_model,
             mock_tokenizer,
             model_id="custom_model",
@@ -938,7 +939,7 @@ class TestCreateVirtualExpert:
 
         mock_registry = MagicMock()
 
-        result = create_virtual_expert(
+        create_virtual_expert(
             mock_model,
             mock_tokenizer,
             registry=mock_registry,

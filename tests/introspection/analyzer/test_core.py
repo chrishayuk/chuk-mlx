@@ -1,8 +1,6 @@
 """Comprehensive tests for ModelAnalyzer core functionality."""
 
-import asyncio
-import math
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import patch
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -20,7 +18,6 @@ from chuk_lazarus.introspection.analyzer.models import (
     LayerTransition,
     ModelInfo,
     ResidualContribution,
-    TokenEvolutionResult,
     TokenPrediction,
 )
 from chuk_lazarus.introspection.hooks import CaptureConfig, ModelHooks
@@ -880,7 +877,7 @@ class TestFromPretrained:
             "chuk_lazarus.introspection.analyzer.core._load_model_sync",
             return_value=(mock_model, mock_tokenizer, mock_config),
         ):
-            async with ModelAnalyzer.from_pretrained("test-model") as analyzer:
+            async with ModelAnalyzer.from_pretrained("test-model") as _analyzer:
                 pass
             # Should exit cleanly without errors
 
@@ -963,10 +960,12 @@ class TestEdgeCases:
         # Create a tokenizer that returns at least one token for empty string
         class SafeTokenizer:
             vocab_size = 100
+
             def encode(self, text: str) -> list[int]:
                 if not text:
                     return [0]  # Return padding/bos token
                 return [ord(c) % 100 for c in text[:5]]
+
             def decode(self, ids: list[int]) -> str:
                 return f"[{ids[0]}]" if ids else ""
 

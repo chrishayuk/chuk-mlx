@@ -1,7 +1,5 @@
 """Tests for MoE datasets and prompts."""
 
-import pytest
-
 from chuk_lazarus.introspection.moe.datasets import (
     CATEGORY_GROUPS,
     CategoryPrompts,

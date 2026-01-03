@@ -381,7 +381,7 @@ class TestLogitLensNoneLogits:
 
     def test_get_layer_predictions_skips_none_logits(self):
         """Test that get_layer_predictions skips layers with None logits."""
-        from unittest.mock import MagicMock, Mock
+        from unittest.mock import Mock
 
         # Create mock hooks that return None for some layers
         hooks = Mock()
@@ -569,6 +569,7 @@ class TestTokenTrackingEdgeCases:
         from unittest.mock import Mock
 
         tokenizer = Mock()
+
         # Simulate tokenizer that raises TypeError for add_special_tokens
         def encode_side_effect(*args, **kwargs):
             if "add_special_tokens" in kwargs:

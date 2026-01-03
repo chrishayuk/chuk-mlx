@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import mlx.core as mx
 import mlx.nn as nn
 
 from ..hooks import CaptureConfig, CapturedState, ModelHooks
 from .config import MoECaptureConfig
 from .detector import detect_moe_architecture, get_moe_layer_info, get_moe_layers
-from .enums import MoEArchitecture
 from .models import ExpertUtilization, MoELayerInfo, RouterEntropy
 
 
@@ -56,7 +53,7 @@ class MoEHooks:
         # Cache layer info
         self._layer_info: dict[int, MoELayerInfo] = {}
 
-    def configure(self, config: MoECaptureConfig) -> "MoEHooks":
+    def configure(self, config: MoECaptureConfig) -> MoEHooks:
         """Configure what to capture."""
         self.config = config
 
@@ -64,10 +61,12 @@ class MoEHooks:
         layers = config.layers if config.layers else self.moe_layers
 
         # Configure underlying hooks for hidden states
-        self._hooks.configure(CaptureConfig(
-            layers=layers,
-            capture_hidden_states=True,
-        ))
+        self._hooks.configure(
+            CaptureConfig(
+                layers=layers,
+                capture_hidden_states=True,
+            )
+        )
 
         return self
 
@@ -108,6 +107,7 @@ class MoEHooks:
                 def capture_fn(x):
                     self._capture_moe_routing(idx, x, mlp)
                     return orig_fn(x)
+
                 return capture_fn
 
             mlp.__call__ = make_capture_fn(layer_idx, mlp.__call__)

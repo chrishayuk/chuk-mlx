@@ -433,7 +433,9 @@ class TestArithmeticTestSuite:
 
     def test_generate_test_cases_expected_answers(self):
         """Test generated test cases have correct expected answers."""
-        suite = ArithmeticTestSuite.generate_test_cases(operations=["add"], difficulty=Difficulty.EASY)
+        suite = ArithmeticTestSuite.generate_test_cases(
+            operations=["add"], difficulty=Difficulty.EASY
+        )
         # Check a few specific cases
         case_1_plus_1 = next((tc for tc in suite.test_cases if tc.prompt == "1 + 1 = "), None)
         if case_1_plus_1:

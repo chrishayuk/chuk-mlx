@@ -3,7 +3,7 @@
 Centralizes all enum types to eliminate magic strings throughout the codebase.
 """
 
-from enum import Enum, auto
+from enum import Enum
 
 
 class FactType(str, Enum):

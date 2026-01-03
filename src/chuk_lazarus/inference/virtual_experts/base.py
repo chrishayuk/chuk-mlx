@@ -109,6 +109,7 @@ class VirtualExpertPlugin(ABC):
 
 class VirtualExpertApproach(str, Enum):
     """Which approach was used to generate the answer."""
+
     VIRTUAL_EXPERT = "virtual_expert"
     MODEL_DIRECT = "model_direct"
 
@@ -132,7 +133,7 @@ class VirtualExpertResult:
         """Check if answer matches expected value."""
         if self.correct_answer is not None:
             try:
-                match = re.search(r'-?\d+(?:\.\d+)?', self.answer)
+                match = re.search(r"-?\d+(?:\.\d+)?", self.answer)
                 if match:
                     answer_num = float(match.group())
                     self.is_correct = abs(answer_num - self.correct_answer) < 0.01
@@ -171,19 +172,19 @@ class VirtualExpertAnalysis:
     def summary(self) -> str:
         """Generate a human-readable summary."""
         lines = [
-            f"Virtual Expert Analysis",
+            "Virtual Expert Analysis",
             f"{'=' * 50}",
             f"Model: {self.model_name}",
             f"Problems: {self.total_problems}",
-            f"",
+            "",
             f"Model-only accuracy:   {self.model_accuracy:.1%}",
             f"With virtual expert:   {self.virtual_accuracy:.1%}",
             f"Improvement:           {self.improvement:+.1%}",
-            f"",
+            "",
             f"Virtual expert used:   {self.times_virtual_used}/{self.total_problems}",
         ]
         if self.plugins_used:
-            lines.append(f"Plugins used:")
+            lines.append("Plugins used:")
             for name, count in sorted(self.plugins_used.items(), key=lambda x: -x[1]):
                 lines.append(f"  - {name}: {count}")
         return "\n".join(lines)

@@ -2,7 +2,6 @@
 
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock
 
 import mlx.core as mx
 import numpy as np
@@ -20,14 +19,14 @@ from chuk_lazarus.introspection.circuit.directions import (
 
 # Check if sklearn is available and working
 try:
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis  # noqa: F401
+
     SKLEARN_AVAILABLE = True
 except ImportError:
     SKLEARN_AVAILABLE = False
 
 sklearn_required = pytest.mark.skipif(
-    not SKLEARN_AVAILABLE,
-    reason="sklearn not available or incompatible with numpy version"
+    not SKLEARN_AVAILABLE, reason="sklearn not available or incompatible with numpy version"
 )
 
 
@@ -319,9 +318,7 @@ class TestDirectionExtractor:
     def test_extract_direction_diff_means(self, sample_activations):
         """Test extracting direction using difference of means."""
         extractor = DirectionExtractor(sample_activations)
-        direction = extractor.extract_direction(
-            layer=0, method=DirectionMethod.DIFFERENCE_OF_MEANS
-        )
+        direction = extractor.extract_direction(layer=0, method=DirectionMethod.DIFFERENCE_OF_MEANS)
         assert direction.layer == 0
         assert direction.method == DirectionMethod.DIFFERENCE_OF_MEANS
         assert direction.direction.shape == (64,)
@@ -340,9 +337,7 @@ class TestDirectionExtractor:
     def test_extract_direction_probe_weights(self, sample_activations):
         """Test extracting direction using probe weights."""
         extractor = DirectionExtractor(sample_activations)
-        direction = extractor.extract_direction(
-            layer=0, method=DirectionMethod.PROBE_WEIGHTS
-        )
+        direction = extractor.extract_direction(layer=0, method=DirectionMethod.PROBE_WEIGHTS)
         assert direction.method == DirectionMethod.PROBE_WEIGHTS
         assert direction.direction.shape == (64,)
 
@@ -363,9 +358,7 @@ class TestDirectionExtractor:
     def test_extract_direction_custom_labels(self, sample_activations):
         """Test extracting direction with custom label values."""
         extractor = DirectionExtractor(sample_activations)
-        direction = extractor.extract_direction(
-            layer=0, positive_label=1, negative_label=0
-        )
+        direction = extractor.extract_direction(layer=0, positive_label=1, negative_label=0)
         assert direction.positive_label == "positive"
         assert direction.negative_label == "negative"
 
@@ -483,9 +476,7 @@ class TestConvenienceFunctions:
     @sklearn_required
     def test_extract_direction_with_method(self, sample_activations):
         """Test extract_direction with custom method."""
-        direction = extract_direction(
-            sample_activations, layer=0, method=DirectionMethod.LDA
-        )
+        direction = extract_direction(sample_activations, layer=0, method=DirectionMethod.LDA)
         assert direction.method == DirectionMethod.LDA
 
     def test_extract_all_directions(self, sample_activations):
@@ -497,8 +488,6 @@ class TestConvenienceFunctions:
     @sklearn_required
     def test_extract_all_directions_with_method(self, sample_activations):
         """Test extract_all_directions with custom method."""
-        bundle = extract_all_directions(
-            sample_activations, method=DirectionMethod.PROBE_WEIGHTS
-        )
+        bundle = extract_all_directions(sample_activations, method=DirectionMethod.PROBE_WEIGHTS)
         for direction in bundle.directions.values():
             assert direction.method == DirectionMethod.PROBE_WEIGHTS

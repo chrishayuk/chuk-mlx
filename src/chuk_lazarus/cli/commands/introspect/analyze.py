@@ -72,7 +72,6 @@ def _load_external_chat_template(tokenizer, model_path: str) -> None:
     Some models (like GPT-OSS) store the chat template in a separate
     chat_template.jinja file rather than in tokenizer_config.json.
     """
-    from pathlib import Path
 
     from huggingface_hub import snapshot_download
 
@@ -231,7 +230,9 @@ def introspect_analyze(args):
                     pos_label = steer_config.get("positive", "positive")
                     neg_label = steer_config.get("negative", "negative")
                     direction_str = (
-                        f"{neg_label}->{pos_label}" if steer_coef > 0 else f"{pos_label}->{neg_label}"
+                        f"{neg_label}->{pos_label}"
+                        if steer_coef > 0
+                        else f"{pos_label}->{neg_label}"
                     )
                     print(f"\n  Steering: {steer_config['file']}")
                     print(f"    Layer: {steer_layer}")

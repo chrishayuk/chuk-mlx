@@ -166,8 +166,7 @@ def introspect_patch(args):
 
         # Summary
         transferred_layers = [
-            r.layer for r in result.layer_results
-            if r.effect.value == "transferred"
+            r.layer for r in result.layer_results if r.effect.value == "transferred"
         ]
         if transferred_layers:
             print(f"\n=> Source answer transferred at layers: {transferred_layers}")

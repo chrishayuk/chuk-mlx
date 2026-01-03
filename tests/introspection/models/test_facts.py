@@ -1,7 +1,6 @@
 """Tests for facts Pydantic models."""
 
 import pytest
-from pydantic import ValidationError
 
 from chuk_lazarus.introspection.enums import FactType, Region
 from chuk_lazarus.introspection.models.facts import (

@@ -8,8 +8,8 @@ from chuk_lazarus.introspection.moe import (
     ExpertAblationResult,
     ExpertUtilization,
     MoEArchitecture,
-    MoECapturedState,
     MoECaptureConfig,
+    MoECapturedState,
     MoEHooks,
     MoELayerInfo,
     RouterEntropy,
@@ -21,7 +21,6 @@ from chuk_lazarus.introspection.moe.logit_lens import (
     LayerRoutingSnapshot,
     MoELogitLens,
 )
-
 
 # =============================================================================
 # Test MoE Components
@@ -61,9 +60,7 @@ class SimpleMoEExperts(nn.Module):
         # Simple linear for each expert
         self.experts = [nn.Linear(hidden_size, hidden_size) for _ in range(num_experts)]
 
-    def __call__(
-        self, x: mx.array, indices: mx.array, weights: mx.array
-    ) -> mx.array:
+    def __call__(self, x: mx.array, indices: mx.array, weights: mx.array) -> mx.array:
         """Apply experts to input."""
         output = mx.zeros_like(x)
         for expert_idx, expert in enumerate(self.experts):
@@ -323,11 +320,13 @@ class TestMoEHooks:
     def test_forward_captures_state(self, moe_model):
         """Test that forward pass captures MoE state."""
         hooks = MoEHooks(moe_model)
-        hooks.configure(MoECaptureConfig(
-            capture_router_logits=True,
-            capture_router_weights=True,
-            capture_selected_experts=True,
-        ))
+        hooks.configure(
+            MoECaptureConfig(
+                capture_router_logits=True,
+                capture_router_weights=True,
+                capture_selected_experts=True,
+            )
+        )
 
         input_ids = mx.array([[1, 2, 3, 4, 5]])
         logits = hooks.forward(input_ids)
@@ -440,6 +439,7 @@ class TestMoELogitLens:
         class MockTokenizer:
             def encode(self, text):
                 return [1, 2, 3, 4, 5]
+
             def decode(self, ids):
                 return "token"
 
@@ -451,10 +451,12 @@ class TestMoELogitLens:
     def test_get_routing_evolution(self, moe_model):
         """Test routing evolution analysis."""
         hooks = MoEHooks(moe_model)
-        hooks.configure(MoECaptureConfig(
-            capture_router_logits=True,
-            capture_selected_experts=True,
-        ))
+        hooks.configure(
+            MoECaptureConfig(
+                capture_router_logits=True,
+                capture_selected_experts=True,
+            )
+        )
 
         input_ids = mx.array([[1, 2, 3, 4, 5]])
         hooks.forward(input_ids)
@@ -471,11 +473,13 @@ class TestMoELogitLens:
     def test_get_expert_contributions(self, moe_model):
         """Test expert contribution analysis."""
         hooks = MoEHooks(moe_model)
-        hooks.configure(MoECaptureConfig(
-            capture_router_logits=True,
-            capture_router_weights=True,
-            capture_selected_experts=True,
-        ))
+        hooks.configure(
+            MoECaptureConfig(
+                capture_router_logits=True,
+                capture_router_weights=True,
+                capture_selected_experts=True,
+            )
+        )
 
         input_ids = mx.array([[1, 2, 3, 4, 5]])
         hooks.forward(input_ids)

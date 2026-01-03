@@ -311,7 +311,9 @@ def introspect_activation_cluster(args):
                 plt.close()
 
             except ImportError:
-                print("ERROR: matplotlib required for plotting. Install with: pip install matplotlib")
+                print(
+                    "ERROR: matplotlib required for plotting. Install with: pip install matplotlib"
+                )
 
 
 __all__ = [

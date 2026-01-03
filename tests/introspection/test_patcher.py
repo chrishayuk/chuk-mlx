@@ -218,9 +218,7 @@ class TestActivationPatcher:
         # Use numpy array directly
         source_activation = np.random.randn(64).astype(np.float32)
 
-        top_token, top_prob = await patcher.patch_and_predict(
-            "target", source_activation, layer=1
-        )
+        top_token, top_prob = await patcher.patch_and_predict("target", source_activation, layer=1)
 
         assert isinstance(top_token, str)
         assert isinstance(top_prob, float)

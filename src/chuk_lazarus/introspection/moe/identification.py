@@ -13,8 +13,6 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
 import mlx.core as mx
-import mlx.nn as nn
-
 from pydantic import BaseModel, ConfigDict, Field
 
 from .config import MoECaptureConfig
@@ -54,7 +52,7 @@ class ExpertProfile(BaseModel):
 
 
 def identify_expert(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     layer_idx: int,
     expert_idx: int,
     tokenizer: Any,
@@ -85,10 +83,12 @@ def identify_expert(
         for prompt in prompts.prompts[:prompts_per_category]:
             input_ids = mx.array(tokenizer.encode(prompt))[None, :]
 
-            hooks.configure(MoECaptureConfig(
-                layers=[layer_idx],
-                capture_selected_experts=True,
-            ))
+            hooks.configure(
+                MoECaptureConfig(
+                    layers=[layer_idx],
+                    capture_selected_experts=True,
+                )
+            )
             hooks.forward(input_ids)
 
             selected = hooks.moe_state.selected_experts.get(layer_idx)
@@ -193,7 +193,7 @@ def identify_expert(
 
 
 def identify_all_experts(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     layer_idx: int,
     tokenizer: Any,
     prompts_per_category: int = 3,
@@ -216,9 +216,7 @@ def identify_all_experts(
 
     identities = []
     for expert_idx in range(info.num_experts):
-        identity = identify_expert(
-            hooks, layer_idx, expert_idx, tokenizer, prompts_per_category
-        )
+        identity = identify_expert(hooks, layer_idx, expert_idx, tokenizer, prompts_per_category)
         identities.append(identity)
 
     return identities

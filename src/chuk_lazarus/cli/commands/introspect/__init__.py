@@ -1,27 +1,16 @@
 """Introspection CLI commands organized by category."""
 
 # Core analysis commands
-from .analyze import (
-    introspect_analyze,
-    introspect_compare,
-    introspect_hooks,
-)
-
 # Ablation study commands
 from .ablation import (
     introspect_ablate,
     introspect_activation_diff,
     introspect_weight_diff,
 )
-
-# Steering commands
-from .steering import introspect_steer
-
-# Neuron and direction analysis commands
-from .neurons import (
-    introspect_directions,
-    introspect_neurons,
-    introspect_operand_directions,
+from .analyze import (
+    introspect_analyze,
+    introspect_compare,
+    introspect_hooks,
 )
 
 # Arithmetic study commands
@@ -37,18 +26,6 @@ from .circuit import (
     introspect_circuit_view,
 )
 
-# Causal intervention commands
-from .patching import (
-    introspect_commutativity,
-    introspect_patch,
-)
-
-# Layer analysis commands
-from .layer import (
-    introspect_format_sensitivity,
-    introspect_layer,
-)
-
 # Clustering commands
 from .clustering import introspect_activation_cluster
 
@@ -58,14 +35,36 @@ from .embedding import (
     introspect_embedding,
 )
 
+# Generation commands
+from .generation import introspect_generate
+
+# Layer analysis commands
+from .layer import (
+    introspect_format_sensitivity,
+    introspect_layer,
+)
+
 # Memory commands
 from .memory import (
     introspect_memory,
     introspect_memory_inject,
 )
 
-# Generation commands
-from .generation import introspect_generate
+# MoE expert manipulation commands (modular package)
+from .moe_expert import introspect_moe_expert
+
+# Neuron and direction analysis commands
+from .neurons import (
+    introspect_directions,
+    introspect_neurons,
+    introspect_operand_directions,
+)
+
+# Causal intervention commands
+from .patching import (
+    introspect_commutativity,
+    introspect_patch,
+)
 
 # Probing and uncertainty detection commands
 from .probing import (
@@ -74,11 +73,11 @@ from .probing import (
     introspect_uncertainty,
 )
 
+# Steering commands
+from .steering import introspect_steer
+
 # Virtual expert commands
 from .virtual_expert import introspect_virtual_expert
-
-# MoE expert manipulation commands
-from .moe_expert import introspect_moe_expert
 
 __all__ = [
     # Core analysis

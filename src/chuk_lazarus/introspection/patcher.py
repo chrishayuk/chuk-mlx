@@ -7,7 +7,7 @@ to test causal relationships in neural network computations.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -18,13 +18,15 @@ from .models.patching import PatchingLayerResult, PatchingResult
 if TYPE_CHECKING:
     import mlx.core as mx
 
+    from .models.patching import CommutativityResult
+
 
 @dataclass
 class LayerPatch:
     """A patch to apply at a specific layer."""
 
     layer: int
-    activation: np.ndarray | "mx.array"
+    activation: np.ndarray | mx.array
     blend: float = 1.0
     position: int = -1  # -1 means last position
 
@@ -88,7 +90,7 @@ class ActivationPatcher:
     def _create_patched_layer(
         self,
         original_layer: Any,
-        source_activation: "mx.array",
+        source_activation: mx.array,
         blend: float,
         position: int = -1,
     ) -> Any:
@@ -102,7 +104,13 @@ class ActivationPatcher:
                 self._blend = blend
                 self._position = pos
                 # Copy attributes for compatibility
-                for attr in ["mlp", "attn", "self_attn", "input_layernorm", "post_attention_layernorm"]:
+                for attr in [
+                    "mlp",
+                    "attn",
+                    "self_attn",
+                    "input_layernorm",
+                    "post_attention_layernorm",
+                ]:
                     if hasattr(layer, attr):
                         setattr(self, attr, getattr(layer, attr))
 
@@ -122,7 +130,9 @@ class ActivationPatcher:
 
                 # Patch: blend original with source activation
                 original = hs[:, pos : pos + 1, :]
-                patched = (1 - self._blend) * original + self._blend * self._activation.reshape(1, 1, -1)
+                patched = (1 - self._blend) * original + self._blend * self._activation.reshape(
+                    1, 1, -1
+                )
                 new_hs = mx.concatenate([hs[:, :pos, :], patched, hs[:, pos + 1 :, :]], axis=1)
 
                 if hasattr(result, "hidden_states"):
@@ -140,7 +150,7 @@ class ActivationPatcher:
     async def patch_and_predict(
         self,
         target_prompt: str,
-        source_activation: np.ndarray | "mx.array",
+        source_activation: np.ndarray | mx.array,
         layer: int,
         blend: float = 1.0,
         position: int = -1,
@@ -167,7 +177,9 @@ class ActivationPatcher:
         original_layer = self._accessor.get_layer(layer)
 
         # Install patched layer
-        patched_layer = self._create_patched_layer(original_layer, source_activation, blend, position)
+        patched_layer = self._create_patched_layer(
+            original_layer, source_activation, blend, position
+        )
         self._accessor.set_layer(layer, patched_layer)
 
         try:
@@ -305,7 +317,7 @@ class CommutativityAnalyzer:
         self,
         layer: int | None = None,
         pairs: list[tuple[str, str]] | None = None,
-    ) -> "CommutativityResult":
+    ) -> CommutativityResult:
         """Analyze commutativity at a specific layer.
 
         Args:

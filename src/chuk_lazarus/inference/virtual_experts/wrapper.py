@@ -13,7 +13,12 @@ import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 
-from .base import VirtualExpertAnalysis, VirtualExpertApproach, VirtualExpertPlugin, VirtualExpertResult
+from .base import (
+    VirtualExpertAnalysis,
+    VirtualExpertApproach,
+    VirtualExpertPlugin,
+    VirtualExpertResult,
+)
 from .plugins.math import MathExpertPlugin
 from .registry import VirtualExpertRegistry, get_default_registry
 from .router import VirtualRouter
@@ -193,16 +198,10 @@ class VirtualMoEWrapper:
 
             # Calibrate each virtual router at each layer
             for layer_idx, virtual_router in self.virtual_routers.items():
-                pos_activations = [
-                    self._get_hidden_state(p, layer_idx) for p in pos_prompts
-                ]
-                neg_activations = [
-                    self._get_hidden_state(p, layer_idx) for p in neg_prompts
-                ]
+                pos_activations = [self._get_hidden_state(p, layer_idx) for p in pos_prompts]
+                neg_activations = [self._get_hidden_state(p, layer_idx) for p in neg_prompts]
 
-                virtual_router.calibrate_expert(
-                    plugin_idx, pos_activations, neg_activations
-                )
+                virtual_router.calibrate_expert(plugin_idx, pos_activations, neg_activations)
 
             # Store calibration data
             self.registry.set_calibration_data(
@@ -235,7 +234,7 @@ class VirtualMoEWrapper:
 
         # Use middle router for scoring
         primary_layer = self.target_layers[len(self.target_layers) // 2]
-        primary_router = self.virtual_routers[primary_layer]
+        _ = self.virtual_routers[primary_layer]  # Reserved for future use
         plugins = self.registry.get_all()
 
         for step in range(max_tokens):
@@ -364,8 +363,9 @@ class VirtualMoEWrapper:
             _, correct_answer = plugin.extract_and_evaluate(prompt)
 
         # Generate with virtual expert checking
-        gen_text, used_virtual, v_count, total, score, plugin_name = \
+        gen_text, used_virtual, v_count, total, score, plugin_name = (
             self._generate_with_virtual_expert(prompt, max_tokens)
+        )
 
         # If virtual expert selected and we can compute, use plugin
         if used_virtual and plugin and correct_answer is not None:
@@ -405,12 +405,14 @@ class VirtualMoEWrapper:
         print(f"\n{'=' * 60}")
         print(f"Prompt: {prompt}")
         print(f"Correct answer: {correct}")
-        print(f"-" * 60)
+        print("-" * 60)
         print(f"Model alone:      {model_answer}")
         print(f"Virtual expert:   {result.answer}")
         if result.plugin_name:
             print(f"Plugin used:      {result.plugin_name}")
-        print(f"Virtual selected: {result.virtual_expert_selected_count}/{result.total_tokens} tokens")
+        print(
+            f"Virtual selected: {result.virtual_expert_selected_count}/{result.total_tokens} tokens"
+        )
         print(f"Correct:          {result.is_correct}")
         print(f"{'=' * 60}")
 
@@ -445,7 +447,7 @@ class VirtualMoEWrapper:
             model_correct = False
             if correct is not None:
                 try:
-                    match = re.search(r'-?\d+(?:\.\d+)?', model_answer)
+                    match = re.search(r"-?\d+(?:\.\d+)?", model_answer)
                     if match:
                         model_correct = abs(float(match.group()) - correct) < 0.01
                 except (ValueError, TypeError):

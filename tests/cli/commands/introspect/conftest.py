@@ -9,8 +9,6 @@ import pytest
 # Check if sklearn is available and working
 SKLEARN_AVAILABLE = False
 try:
-    from sklearn.linear_model import LogisticRegression
-
     SKLEARN_AVAILABLE = True
 except Exception:
     # Catch any exception - numpy incompatibility raises various errors
@@ -64,12 +62,11 @@ def _create_introspection_mock():
     mock_parsed.result = 28
 
     mock.ParsedArithmeticPrompt = MagicMock()
-    mock.ParsedArithmeticPrompt.parse = MagicMock(side_effect=lambda p, r: MagicMock(
-        prompt=p,
-        operand_a=7,
-        operand_b=4,
-        result=r if r else 28
-    ))
+    mock.ParsedArithmeticPrompt.parse = MagicMock(
+        side_effect=lambda p, r: MagicMock(
+            prompt=p, operand_a=7, operand_b=4, result=r if r else 28
+        )
+    )
 
     # Mock CaptureConfig and PositionSelection
     mock.CaptureConfig = MagicMock()
@@ -98,6 +95,24 @@ def setup_introspection_module():
     mock_external_memory.ExternalMemoryStore = MagicMock()
     mock_external_memory.ExternalMemory = MagicMock()
 
+    # Mock moe submodules to allow moe_expert imports to succeed
+    mock_moe = MagicMock()
+    mock_moe.ExpertRouter = MagicMock()
+    mock_moe.MoEModelInfo = MagicMock()
+    mock_moe.MoEArchitecture = MagicMock()
+
+    mock_moe_enums = MagicMock()
+    mock_moe_enums.MoEArchitecture = MagicMock()
+    mock_moe_enums.MoEArchitecture.GPT_OSS = "gpt_oss"
+
+    mock_moe_models = MagicMock()
+    mock_moe_models.MoEModelInfo = MagicMock()
+    mock_moe_models.LayerRouterWeights = MagicMock()
+    mock_moe_models.RouterWeightCapture = MagicMock()
+
+    mock_moe_router = MagicMock()
+    mock_moe_router.ExpertRouter = MagicMock()
+
     # Pre-populate sys.modules so patch() calls can resolve the module path
     original_modules = {}
     modules_to_add = {
@@ -105,6 +120,10 @@ def setup_introspection_module():
         "chuk_lazarus.introspection.ablation": mock_ablation,
         "chuk_lazarus.introspection.hooks": mock_hooks,
         "chuk_lazarus.introspection.external_memory": mock_external_memory,
+        "chuk_lazarus.introspection.moe": mock_moe,
+        "chuk_lazarus.introspection.moe.enums": mock_moe_enums,
+        "chuk_lazarus.introspection.moe.models": mock_moe_models,
+        "chuk_lazarus.introspection.moe.router": mock_moe_router,
     }
 
     for mod_name in modules_to_add:
@@ -259,8 +278,10 @@ def mock_model_analyzer():
 def mock_ablation_study():
     """Mock AblationStudy for ablation commands."""
     # Patch at both locations - where it's defined and where it's imported
-    with patch("chuk_lazarus.introspection.AblationStudy") as mock_cls1, \
-         patch("chuk_lazarus.introspection.ablation.AblationStudy") as mock_cls2:
+    with (
+        patch("chuk_lazarus.introspection.AblationStudy") as mock_cls1,
+        patch("chuk_lazarus.introspection.ablation.AblationStudy") as mock_cls2,
+    ):
         mock_study = MagicMock()
         mock_study.adapter.model = MagicMock()
         mock_study.adapter.tokenizer = MagicMock()

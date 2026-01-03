@@ -19,7 +19,12 @@ import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 
-from .base import VirtualExpertAnalysis, VirtualExpertApproach, VirtualExpertPlugin, VirtualExpertResult
+from .base import (
+    VirtualExpertAnalysis,
+    VirtualExpertApproach,
+    VirtualExpertPlugin,
+    VirtualExpertResult,
+)
 from .plugins.math import MathExpertPlugin
 from .registry import VirtualExpertRegistry, get_default_registry
 
@@ -361,7 +366,7 @@ class VirtualDenseWrapper:
         print(f"\n{'=' * 60}")
         print(f"Prompt: {prompt}")
         print(f"Correct answer: {correct}")
-        print(f"-" * 60)
+        print("-" * 60)
         print(f"Model alone:      {model_answer}")
         print(f"Virtual expert:   {result.answer}")
         if result.plugin_name:
@@ -395,7 +400,7 @@ class VirtualDenseWrapper:
             model_correct = False
             if correct is not None:
                 try:
-                    match = re.search(r'-?\d+(?:\.\d+)?', model_answer)
+                    match = re.search(r"-?\d+(?:\.\d+)?", model_answer)
                     if match:
                         model_correct = abs(float(match.group()) - correct) < 0.01
                 except (ValueError, TypeError):

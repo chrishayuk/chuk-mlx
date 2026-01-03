@@ -25,7 +25,6 @@ def introspect_metacognitive(args):
     """
     import asyncio
     import json
-    import re
 
     from ....introspection import (
         AnalysisConfig,
@@ -87,7 +86,9 @@ def introspect_metacognitive(args):
             cot_count = 0
 
             print(f"\n{'=' * 90}")
-            print(f"{'Prompt':<25} {'L{:<3} Top':<12} {'Prob':>6} {'Strategy':<12} {'Digit?':<6} {'Match?':<6}")
+            print(
+                f"{'Prompt':<25} {'L{:<3} Top':<12} {'Prob':>6} {'Strategy':<12} {'Digit?':<6} {'Match?':<6}"
+            )
             print("-" * 90)
 
             for prompt in test_prompts:
@@ -126,18 +127,20 @@ def introspect_metacognitive(args):
                 if expected and is_digit:
                     correct_start = expected.startswith(top_token.strip())
 
-                results.append({
-                    "prompt": prompt,
-                    "expected": expected,
-                    "decision_layer": decision_layer,
-                    "decision_token": top_token,
-                    "decision_prob": top_prob,
-                    "strategy": strategy,
-                    "is_digit": is_digit,
-                    "correct_start": correct_start,
-                    "final_token": result.predicted_token,
-                    "final_prob": result.final_probability,
-                })
+                results.append(
+                    {
+                        "prompt": prompt,
+                        "expected": expected,
+                        "decision_layer": decision_layer,
+                        "decision_token": top_token,
+                        "decision_prob": top_prob,
+                        "strategy": strategy,
+                        "is_digit": is_digit,
+                        "correct_start": correct_start,
+                        "final_token": result.predicted_token,
+                        "final_prob": result.final_probability,
+                    }
+                )
 
                 # Print row
                 short_prompt = prompt[:23] + ".." if len(prompt) > 25 else prompt
@@ -152,15 +155,19 @@ def introspect_metacognitive(args):
             # Summary
             print("-" * 90)
             total = len(results)
-            print(f"\nSummary:")
-            print(f"  Direct computation: {direct_count}/{total} ({100*direct_count/total:.0f}%)")
-            print(f"  Chain-of-thought: {cot_count}/{total} ({100*cot_count/total:.0f}%)")
+            print("\nSummary:")
+            print(
+                f"  Direct computation: {direct_count}/{total} ({100 * direct_count / total:.0f}%)"
+            )
+            print(f"  Chain-of-thought: {cot_count}/{total} ({100 * cot_count / total:.0f}%)")
 
             # Accuracy among direct answers
             direct_results = [r for r in results if r["strategy"] == "DIRECT"]
             if direct_results:
                 correct = sum(1 for r in direct_results if r["correct_start"])
-                print(f"  Direct accuracy: {correct}/{len(direct_results)} ({100*correct/len(direct_results):.0f}%)")
+                print(
+                    f"  Direct accuracy: {correct}/{len(direct_results)} ({100 * correct / len(direct_results):.0f}%)"
+                )
 
             # Save if requested
             if args.output:
@@ -193,7 +200,6 @@ def introspect_uncertainty(args):
     async def run():
         # Lazy imports for heavy dependencies
         import mlx.core as mx
-        import mlx.nn as nn
         import numpy as np
 
         from ....inference.loader import DType, HFLoader
@@ -356,7 +362,6 @@ def introspect_probe(args):
 
     # Lazy imports for heavy dependencies
     import mlx.core as mx
-    import mlx.nn as nn
     import numpy as np
 
     from ....inference.loader import DType, HFLoader

@@ -10,7 +10,7 @@ Supports virtual expert plugins for tool-augmented generation.
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import mlx.core as mx
 from pydantic import BaseModel, Field
@@ -18,8 +18,8 @@ from pydantic import BaseModel, Field
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
 
-    from chuk_lazarus.models_v2.base import CausalLMProtocol
     from chuk_lazarus.inference.virtual_experts.base import VirtualExpertPlugin
+    from chuk_lazarus.models_v2.base import CausalLMProtocol
 
 
 class GenerationConfig(BaseModel):

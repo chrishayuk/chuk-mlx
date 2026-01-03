@@ -1,13 +1,12 @@
 """Tests for MoE hooks."""
 
-import pytest
 import mlx.core as mx
 import mlx.nn as nn
+import pytest
 
 from chuk_lazarus.introspection.moe.config import MoECaptureConfig
 from chuk_lazarus.introspection.moe.enums import MoEArchitecture
 from chuk_lazarus.introspection.moe.hooks import MoECapturedState, MoEHooks
-
 
 # =============================================================================
 # Mock Models
@@ -87,9 +86,7 @@ class MockModelWithModel(nn.Module):
 
     def __init__(self, num_layers: int = 2):
         super().__init__()
-        self.model = type("Model", (), {
-            "layers": [MockLayer() for _ in range(num_layers)]
-        })()
+        self.model = type("Model", (), {"layers": [MockLayer() for _ in range(num_layers)]})()
         self.lm_head = nn.Linear(32, 100)
 
     def __call__(self, input_ids: mx.array) -> mx.array:
@@ -285,7 +282,6 @@ class TestMoEHooks:
 
         # Get original function
         layer = moe_model.layers[0]
-        original_call = layer.mlp.__call__
 
         # Run forward
         input_ids = mx.array([[1, 2, 3]])
@@ -337,6 +333,7 @@ class TestMoEHooks:
 
     def test_forward_with_model_having_logits_attribute(self):
         """Test forward with model that returns object with logits attribute."""
+
         class OutputWithLogits:
             def __init__(self, logits):
                 self.logits = logits
@@ -364,6 +361,7 @@ class TestMoEHooks:
 
     def test_forward_skips_non_moe_layers(self):
         """Test forward skips layers without MLP or router."""
+
         class LayerWithoutMLP(nn.Module):
             def __call__(self, x: mx.array) -> mx.array:
                 return x
@@ -378,7 +376,7 @@ class TestMoEHooks:
             def __call__(self, input_ids: mx.array):
                 x = self.embed(input_ids)
                 for layer in self.layers:
-                    x = layer(x) if hasattr(layer, 'mlp') else x
+                    x = layer(x) if hasattr(layer, "mlp") else x
                 return self.lm_head(x)
 
         model = ModelWithMixedLayers()
@@ -401,6 +399,7 @@ class TestMoEHooks:
 
     def test_capture_moe_routing_without_bias(self):
         """Test routing capture when router has no bias."""
+
         class RouterNoBias(nn.Module):
             def __init__(self, num_experts: int = 4, num_experts_per_tok: int = 2):
                 super().__init__()
@@ -451,9 +450,7 @@ class TestMoEHooks:
 
         # Manually populate selected experts data
         # Shape: (batch=1, seq_len=5, num_experts_per_tok=2)
-        hooks.moe_state.selected_experts[0] = mx.array([
-            [[0, 1], [1, 2], [0, 2], [1, 3], [0, 1]]
-        ])
+        hooks.moe_state.selected_experts[0] = mx.array([[[0, 1], [1, 2], [0, 2], [1, 3], [0, 1]]])
 
         # Get utilization for layer 0
         util = hooks.get_expert_utilization(0)
@@ -486,13 +483,15 @@ class TestMoEHooks:
 
         # Manually populate router logits data
         # Shape: (batch * seq_len, num_experts)
-        hooks.moe_state.router_logits[0] = mx.array([
-            [1.0, 2.0, 3.0, 4.0],
-            [2.0, 1.0, 4.0, 3.0],
-            [3.0, 4.0, 1.0, 2.0],
-            [4.0, 3.0, 2.0, 1.0],
-            [1.5, 2.5, 3.5, 4.5],
-        ])
+        hooks.moe_state.router_logits[0] = mx.array(
+            [
+                [1.0, 2.0, 3.0, 4.0],
+                [2.0, 1.0, 4.0, 3.0],
+                [3.0, 4.0, 1.0, 2.0],
+                [4.0, 3.0, 2.0, 1.0],
+                [1.5, 2.5, 3.5, 4.5],
+            ]
+        )
 
         entropy = hooks.get_router_entropy(0)
 
@@ -516,6 +515,7 @@ class TestMoEHooks:
 
     def test_get_model_layers_transformer_attribute(self):
         """Test getting layers from model with transformer attribute (line 168-170)."""
+
         class Transformer:
             def __init__(self):
                 self.layers = [MockLayer() for _ in range(2)]
@@ -537,6 +537,7 @@ class TestMoEHooks:
 
     def test_get_model_layers_decoder_attribute(self):
         """Test getting layers from model with decoder attribute (line 168-170)."""
+
         class Decoder:
             def __init__(self):
                 self.layers = [MockLayer() for _ in range(2)]
@@ -576,6 +577,7 @@ class TestMoEHooks:
 
     def test_forward_with_layer_without_router(self):
         """Test forward when MLP exists but has no router (line 102)."""
+
         class MLPWithoutRouter(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -714,6 +716,7 @@ class TestMoEHooks:
 
     def test_get_model_layers_fallback(self):
         """Test getting layers when model has no standard attributes."""
+
         class ModelWithDirectLayers(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -734,6 +737,7 @@ class TestMoEHooks:
 
     def test_get_expert_utilization_no_layer_info(self):
         """Test expert utilization when layer info cannot be retrieved."""
+
         # Create a model where layer info will be None
         class MinimalModel(nn.Module):
             def __init__(self):
@@ -771,6 +775,7 @@ class TestMoEHooks:
 
     def test_get_router_entropy_no_layer_info(self):
         """Test router entropy when layer info cannot be retrieved."""
+
         # Create a model where layer info will be None
         class MinimalModel(nn.Module):
             def __init__(self):

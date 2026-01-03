@@ -60,7 +60,9 @@ def introspect_embedding(args):
         "It was a dark and",
     ]
 
-    print(f"\nCollecting embeddings for {len(arith_prompts)} arithmetic + {len(lang_prompts)} language prompts...")
+    print(
+        f"\nCollecting embeddings for {len(arith_prompts)} arithmetic + {len(lang_prompts)} language prompts..."
+    )
 
     # Parse layers to analyze
     if args.layers:
@@ -517,12 +519,16 @@ def introspect_early_layers(args):
     if answer_layer is not None:
         print(f"Answer becomes extractable (R2 > {answer_threshold}) at layer {answer_layer}")
     else:
-        best_layer = max(layers, key=lambda l: probe_results[l]["answer_r2"])
-        print(f"Best answer extraction at layer {best_layer} (R2 = {probe_results[best_layer]['answer_r2']:.3f})")
+        best_layer = max(layers, key=lambda layer: probe_results[layer]["answer_r2"])
+        print(
+            f"Best answer extraction at layer {best_layer} (R2 = {probe_results[best_layer]['answer_r2']:.3f})"
+        )
 
     # Check if early layers are "doing the work"
     if layers[0] in probe_results and probe_results[layers[0]]["answer_r2"] > 0.9:
-        print(f"! Computation mostly complete by layer {layers[0]} (R2 = {probe_results[layers[0]]['answer_r2']:.3f})")
+        print(
+            f"! Computation mostly complete by layer {layers[0]} (R2 = {probe_results[layers[0]]['answer_r2']:.3f})"
+        )
         print("  -> Later layers may be formatting/output, not computation")
 
     # Check similarity vs extractability paradox

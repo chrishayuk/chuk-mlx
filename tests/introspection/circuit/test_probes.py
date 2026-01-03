@@ -24,9 +24,10 @@ from chuk_lazarus.introspection.circuit.probes import (
 
 # Check if sklearn is available and working (not just importable)
 try:
-    from sklearn.linear_model import LogisticRegression
     # Actually test if sklearn works with current numpy version
     import numpy as np
+    from sklearn.linear_model import LogisticRegression
+
     _test_lr = LogisticRegression()
     _test_lr.fit(np.random.randn(10, 5), [0, 1, 0, 1, 0, 1, 0, 1, 0, 1])
     SKLEARN_AVAILABLE = True
@@ -35,8 +36,7 @@ except (ImportError, Exception):
     SKLEARN_AVAILABLE = False
 
 sklearn_required = pytest.mark.skipif(
-    not SKLEARN_AVAILABLE,
-    reason="sklearn not available or incompatible with numpy version"
+    not SKLEARN_AVAILABLE, reason="sklearn not available or incompatible with numpy version"
 )
 
 
@@ -58,9 +58,7 @@ class TestProbeDataset:
 
     def test_len(self):
         """Test dataset length."""
-        dataset = ProbeDataset(
-            name="test", description="", prompts=["p1", "p2"], labels=[0, 1]
-        )
+        dataset = ProbeDataset(name="test", description="", prompts=["p1", "p2"], labels=[0, 1])
         assert len(dataset) == 2
 
     def test_from_dict(self):
@@ -267,9 +265,7 @@ class TestStratigraphyResult:
     def test_save_and_load(self):
         """Test saving and loading stratigraphy results."""
         result = StratigraphyResult(model_id="test-model", num_layers=10)
-        result.probes["probe1"] = {
-            0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)
-        }
+        result.probes["probe1"] = {0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)}
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "results.json"
             result.save(path)
@@ -330,9 +326,7 @@ class TestProbeBattery:
     def test_add_dataset(self, mock_model, mock_tokenizer):
         """Test adding a probe dataset."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
-        dataset = ProbeDataset(
-            name="test", description="", prompts=["p1"], labels=[0]
-        )
+        dataset = ProbeDataset(name="test", description="", prompts=["p1"], labels=[0])
         battery.add_dataset(dataset)
         assert "test" in battery.datasets
 
@@ -395,9 +389,7 @@ class TestProbeBattery:
         assert acts.shape == (64,)
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
-    def test_collect_dataset_activations(
-        self, mock_hooks_cls, mock_model, mock_tokenizer
-    ):
+    def test_collect_dataset_activations(self, mock_hooks_cls, mock_model, mock_tokenizer):
         """Test collecting activations for a dataset."""
         mock_hooks = Mock()
         mock_state = Mock()
@@ -405,9 +397,7 @@ class TestProbeBattery:
         mock_hooks.state = mock_state
         mock_hooks_cls.return_value = mock_hooks
         battery = ProbeBattery(mock_model, mock_tokenizer)
-        dataset = ProbeDataset(
-            name="test", description="", prompts=["p1", "p2"], labels=[0, 1]
-        )
+        dataset = ProbeDataset(name="test", description="", prompts=["p1", "p2"], labels=[0, 1])
         X, y = battery.collect_dataset_activations(dataset, layer=0)
         assert X.shape == (2, 64)
         assert y.shape == (2,)
@@ -444,9 +434,10 @@ class TestProbeBattery:
         battery = ProbeBattery(mock_model, mock_tokenizer)
         # Need at least 5 samples per class for cv_folds=5 (default)
         dataset = ProbeDataset(
-            name="test", description="",
+            name="test",
+            description="",
             prompts=[f"p{i}" for i in range(10)],
-            labels=[0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+            labels=[0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
         )
         battery.add_dataset(dataset)
         result = battery.run_probe("test", layer=0)
@@ -465,9 +456,10 @@ class TestProbeBattery:
         battery = ProbeBattery(mock_model, mock_tokenizer)
         # Need at least 5 samples per class for cv_folds=5 (default)
         dataset = ProbeDataset(
-            name="test", description="",
+            name="test",
+            description="",
             prompts=[f"p{i}" for i in range(10)],
-            labels=[0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+            labels=[0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
         )
         battery.add_dataset(dataset)
         results = battery.run_all_probes(layers=[0], progress=False)
@@ -475,9 +467,7 @@ class TestProbeBattery:
         assert "test" in results.probes
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
-    def test_run_all_probes_with_category_filter(
-        self, mock_hooks_cls, mock_model, mock_tokenizer
-    ):
+    def test_run_all_probes_with_category_filter(self, mock_hooks_cls, mock_model, mock_tokenizer):
         """Test running probes with category filter."""
         mock_hooks = Mock()
         mock_state = Mock()
@@ -501,9 +491,7 @@ class TestProbeBattery:
         )
         battery.add_dataset(dataset1)
         battery.add_dataset(dataset2)
-        results = battery.run_all_probes(
-            layers=[0], categories=["cat1"], progress=False
-        )
+        results = battery.run_all_probes(layers=[0], categories=["cat1"], progress=False)
         assert "test1" in results.probes
         assert "test2" not in results.probes
 
@@ -511,9 +499,7 @@ class TestProbeBattery:
         """Test printing results table."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
         results = StratigraphyResult(model_id="test", num_layers=4)
-        results.probes["probe1"] = {
-            0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)
-        }
+        results.probes["probe1"] = {0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)}
         battery.print_results_table(results)
         captured = capsys.readouterr()
         assert "PROBE ACCURACY BY LAYER" in captured.out
@@ -531,9 +517,7 @@ class TestProbeBattery:
             )
         )
         results = StratigraphyResult(model_id="test-model", num_layers=4)
-        results.probes["probe1"] = {
-            0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)
-        }
+        results.probes["probe1"] = {0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)}
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
         assert "COMPUTATIONAL STRATIGRAPHY" in captured.out
@@ -610,9 +594,7 @@ class TestProbeDatasetEdgeCases:
 
     def test_baseline_accuracy_balanced(self):
         """Test baseline accuracy with balanced classes."""
-        dataset = ProbeDataset(
-            name="test", description="", prompts=["p1", "p2"], labels=[0, 1]
-        )
+        dataset = ProbeDataset(name="test", description="", prompts=["p1", "p2"], labels=[0, 1])
         assert dataset.baseline_accuracy == 0.5
 
     def test_baseline_accuracy_all_same(self):
@@ -624,9 +606,7 @@ class TestProbeDatasetEdgeCases:
 
     def test_num_classes_binary(self):
         """Test num_classes with binary classification."""
-        dataset = ProbeDataset(
-            name="test", description="", prompts=["p1", "p2"], labels=[0, 1]
-        )
+        dataset = ProbeDataset(name="test", description="", prompts=["p1", "p2"], labels=[0, 1])
         assert dataset.num_classes == 2
 
     def test_num_classes_multiclass(self):
@@ -638,9 +618,7 @@ class TestProbeDatasetEdgeCases:
 
     def test_default_label_names(self):
         """Test default label names are set correctly."""
-        dataset = ProbeDataset(
-            name="test", description="", prompts=["p1"], labels=[0]
-        )
+        dataset = ProbeDataset(name="test", description="", prompts=["p1"], labels=[0])
         assert dataset.label_names == ["class_0", "class_1"]
 
     def test_from_dict_with_defaults(self):
@@ -922,9 +900,7 @@ class TestProbeBatteryEdgeCases:
         except ImportError:
             pytest.skip("PyYAML not available")
 
-    def test_load_datasets_from_directory_yaml_and_json(
-        self, mock_model, mock_tokenizer
-    ):
+    def test_load_datasets_from_directory_yaml_and_json(self, mock_model, mock_tokenizer):
         """Test loading both YAML and JSON files from directory."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
 
@@ -984,9 +960,7 @@ class TestProbeBatteryEdgeCases:
         assert acts.shape == (64,)
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
-    def test_get_activations_custom_position(
-        self, mock_hooks_cls, mock_model, mock_tokenizer
-    ):
+    def test_get_activations_custom_position(self, mock_hooks_cls, mock_model, mock_tokenizer):
         """Test getting activations at a custom position."""
         mock_hooks = Mock()
         mock_state = Mock()
@@ -1020,24 +994,21 @@ class TestProbeBatteryEdgeCases:
         assert 0.0 <= accuracy <= 1.0
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
-    def test_run_all_probes_default_layers(
-        self, mock_hooks_cls, mock_model, mock_tokenizer
-    ):
+    def test_run_all_probes_default_layers(self, mock_hooks_cls, mock_model, mock_tokenizer):
         """Test running all probes with default layer selection."""
         mock_hooks = Mock()
         mock_state = Mock()
-        mock_state.hidden_states = {
-            i: mx.ones((1, 5, 64), dtype=mx.float32) for i in range(4)
-        }
+        mock_state.hidden_states = {i: mx.ones((1, 5, 64), dtype=mx.float32) for i in range(4)}
         mock_hooks.state = mock_state
         mock_hooks_cls.return_value = mock_hooks
 
         battery = ProbeBattery(mock_model, mock_tokenizer)
         # Need at least 5 samples per class for cv_folds=5 (default)
         dataset = ProbeDataset(
-            name="test", description="",
+            name="test",
+            description="",
             prompts=[f"p{i}" for i in range(10)],
-            labels=[0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+            labels=[0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
         )
         battery.add_dataset(dataset)
 
@@ -1048,9 +1019,7 @@ class TestProbeBatteryEdgeCases:
         assert 3 in results.probes["test"]
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
-    def test_run_all_probes_with_progress(
-        self, mock_hooks_cls, mock_model, mock_tokenizer, capsys
-    ):
+    def test_run_all_probes_with_progress(self, mock_hooks_cls, mock_model, mock_tokenizer, capsys):
         """Test running all probes with progress output."""
         mock_hooks = Mock()
         mock_state = Mock()
@@ -1061,20 +1030,19 @@ class TestProbeBatteryEdgeCases:
         battery = ProbeBattery(mock_model, mock_tokenizer)
         # Need at least 5 samples per class for cv_folds=5 (default)
         dataset = ProbeDataset(
-            name="test", description="",
+            name="test",
+            description="",
             prompts=[f"p{i}" for i in range(10)],
-            labels=[0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+            labels=[0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
         )
         battery.add_dataset(dataset)
 
-        results = battery.run_all_probes(layers=[0], progress=True)
+        battery.run_all_probes(layers=[0], progress=True)
         captured = capsys.readouterr()
         assert "Probing:" in captured.out
         assert "test" in captured.out
 
-    def test_print_results_table_multiple_probes(
-        self, mock_model, mock_tokenizer, capsys
-    ):
+    def test_print_results_table_multiple_probes(self, mock_model, mock_tokenizer, capsys):
         """Test printing results table with multiple probes."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
         results = StratigraphyResult(model_id="test", num_layers=4)
@@ -1094,9 +1062,7 @@ class TestProbeBatteryEdgeCases:
         assert "0.80" in captured.out or "0.8" in captured.out
         assert "0.90*" in captured.out or "0.9*" in captured.out  # > 0.85
 
-    def test_print_results_table_missing_layer(
-        self, mock_model, mock_tokenizer, capsys
-    ):
+    def test_print_results_table_missing_layer(self, mock_model, mock_tokenizer, capsys):
         """Test printing results table with missing layer data."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
         results = StratigraphyResult(model_id="test", num_layers=4)
@@ -1110,9 +1076,7 @@ class TestProbeBatteryEdgeCases:
         captured = capsys.readouterr()
         assert "-" in captured.out  # Should show - for missing layer
 
-    def test_print_stratigraphy_multiple_categories(
-        self, mock_model, mock_tokenizer, capsys
-    ):
+    def test_print_stratigraphy_multiple_categories(self, mock_model, mock_tokenizer, capsys):
         """Test printing stratigraphy with multiple categories."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
         battery.add_dataset(
@@ -1135,12 +1099,8 @@ class TestProbeBatteryEdgeCases:
         )
 
         results = StratigraphyResult(model_id="test-model", num_layers=4)
-        results.probes["probe1"] = {
-            0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)
-        }
-        results.probes["probe2"] = {
-            2: ProbeResult("probe2", 2, 0.85, 0.02, 0.5, 0.35, 100)
-        }
+        results.probes["probe1"] = {0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)}
+        results.probes["probe2"] = {2: ProbeResult("probe2", 2, 0.85, 0.02, 0.5, 0.35, 100)}
 
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
@@ -1149,9 +1109,7 @@ class TestProbeBatteryEdgeCases:
         assert "probe1" in captured.out
         assert "probe2" in captured.out
 
-    def test_print_stratigraphy_never_emerges(
-        self, mock_model, mock_tokenizer, capsys
-    ):
+    def test_print_stratigraphy_never_emerges(self, mock_model, mock_tokenizer, capsys):
         """Test printing stratigraphy when probe never emerges."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
         battery.add_dataset(
@@ -1165,17 +1123,13 @@ class TestProbeBatteryEdgeCases:
         )
 
         results = StratigraphyResult(model_id="test-model", num_layers=4)
-        results.probes["probe1"] = {
-            0: ProbeResult("probe1", 0, 0.5, 0.02, 0.5, 0.0, 100)
-        }
+        results.probes["probe1"] = {0: ProbeResult("probe1", 0, 0.5, 0.02, 0.5, 0.0, 100)}
 
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
         assert "Never" in captured.out
 
-    def test_print_stratigraphy_sorted_by_emergence(
-        self, mock_model, mock_tokenizer, capsys
-    ):
+    def test_print_stratigraphy_sorted_by_emergence(self, mock_model, mock_tokenizer, capsys):
         """Test that stratigraphy prints probes sorted by emergence layer."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
         battery.add_dataset(
@@ -1190,12 +1144,8 @@ class TestProbeBatteryEdgeCases:
         )
 
         results = StratigraphyResult(model_id="test-model", num_layers=10)
-        results.probes["late"] = {
-            5: ProbeResult("late", 5, 0.8, 0.02, 0.5, 0.3, 100)
-        }
-        results.probes["early"] = {
-            1: ProbeResult("early", 1, 0.8, 0.02, 0.5, 0.3, 100)
-        }
+        results.probes["late"] = {5: ProbeResult("late", 5, 0.8, 0.02, 0.5, 0.3, 100)}
+        results.probes["early"] = {1: ProbeResult("early", 1, 0.8, 0.02, 0.5, 0.3, 100)}
 
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
@@ -1228,12 +1178,12 @@ class TestProbeBatteryWithMockedSklearn:
             mock_preprocessing = MagicMock()
 
             # Assign provided mocks
-            if 'LogisticRegression' in mocks:
-                mock_linear_model.LogisticRegression = mocks['LogisticRegression']
-            if 'cross_val_score' in mocks:
-                mock_model_selection.cross_val_score = mocks['cross_val_score']
-            if 'StandardScaler' in mocks:
-                mock_preprocessing.StandardScaler = mocks['StandardScaler']
+            if "LogisticRegression" in mocks:
+                mock_linear_model.LogisticRegression = mocks["LogisticRegression"]
+            if "cross_val_score" in mocks:
+                mock_model_selection.cross_val_score = mocks["cross_val_score"]
+            if "StandardScaler" in mocks:
+                mock_preprocessing.StandardScaler = mocks["StandardScaler"]
 
             # Link submodules
             mock_sklearn.linear_model = mock_linear_model
@@ -1243,17 +1193,19 @@ class TestProbeBatteryWithMockedSklearn:
             # Save original modules
             original_modules = {}
             modules_to_mock = [
-                'sklearn', 'sklearn.linear_model',
-                'sklearn.model_selection', 'sklearn.preprocessing'
+                "sklearn",
+                "sklearn.linear_model",
+                "sklearn.model_selection",
+                "sklearn.preprocessing",
             ]
             for mod in modules_to_mock:
                 original_modules[mod] = sys.modules.get(mod)
 
             # Install mocks
-            sys.modules['sklearn'] = mock_sklearn
-            sys.modules['sklearn.linear_model'] = mock_linear_model
-            sys.modules['sklearn.model_selection'] = mock_model_selection
-            sys.modules['sklearn.preprocessing'] = mock_preprocessing
+            sys.modules["sklearn"] = mock_sklearn
+            sys.modules["sklearn.linear_model"] = mock_linear_model
+            sys.modules["sklearn.model_selection"] = mock_model_selection
+            sys.modules["sklearn.preprocessing"] = mock_preprocessing
 
             try:
                 yield
@@ -1296,7 +1248,7 @@ class TestProbeBatteryWithMockedSklearn:
         model = Mock()
         model.layers = [Mock() for _ in range(8)]
         # Ensure model.model doesn't exist
-        delattr(model, 'model') if hasattr(model, 'model') else None
+        delattr(model, "model") if hasattr(model, "model") else None
         battery = ProbeBattery(model, mock_tokenizer)
         assert battery.num_layers == 8
         assert battery._layers is model.layers
@@ -1305,10 +1257,10 @@ class TestProbeBatteryWithMockedSklearn:
         """Test _detect_structure raises ValueError when layers not found (lines 252-253)."""
         model = Mock()
         # Remove both layers attributes
-        if hasattr(model, 'model'):
-            delattr(model, 'model')
-        if hasattr(model, 'layers'):
-            delattr(model, 'layers')
+        if hasattr(model, "model"):
+            delattr(model, "model")
+        if hasattr(model, "layers"):
+            delattr(model, "layers")
         with pytest.raises(ValueError, match="Cannot detect model layer structure"):
             ProbeBattery(model, mock_tokenizer)
 
@@ -1365,6 +1317,7 @@ class TestProbeBatteryWithMockedSklearn:
             # Create YAML file if PyYAML is available
             try:
                 import yaml
+
                 yaml_data = {"description": "YAML probe", "prompts": ["p2"], "labels": [1]}
                 with open(path / "probe2.yaml", "w") as f:
                     yaml.dump(yaml_data, f)
@@ -1403,7 +1356,7 @@ class TestProbeBatteryWithMockedSklearn:
             name="custom_probe",
             description="Custom test probe",
             prompts=["test prompt"],
-            labels=[1]
+            labels=[1],
         )
         battery.add_dataset(dataset)
         assert "custom_probe" in battery.datasets
@@ -1481,10 +1434,7 @@ class TestProbeBatteryWithMockedSklearn:
 
         battery = ProbeBattery(mock_model, mock_tokenizer)
         dataset = ProbeDataset(
-            name="test",
-            description="",
-            prompts=["p1", "p2", "p3"],
-            labels=[0, 1, 0]
+            name="test", description="", prompts=["p1", "p2", "p3"], labels=[0, 1, 0]
         )
 
         X, y = battery.collect_dataset_activations(dataset, layer=0)
@@ -1514,7 +1464,7 @@ class TestProbeBatteryWithMockedSklearn:
         with self._mock_sklearn_modules(
             LogisticRegression=MagicMock(return_value=mock_probe_instance),
             cross_val_score=mock_cross_val_score,
-            StandardScaler=mock_scaler_class
+            StandardScaler=mock_scaler_class,
         ):
             accuracy, std = battery.train_probe(X, y, cv_folds=5)
 
@@ -1533,9 +1483,7 @@ class TestProbeBatteryWithMockedSklearn:
         # Even though we won't use sklearn when n_samples < 2,
         # we still need to mock it because the import happens at function call
         with self._mock_sklearn_modules(
-            LogisticRegression=MagicMock(),
-            cross_val_score=MagicMock(),
-            StandardScaler=MagicMock()
+            LogisticRegression=MagicMock(), cross_val_score=MagicMock(), StandardScaler=MagicMock()
         ):
             accuracy, std = battery.train_probe(X, y, cv_folds=5)
 
@@ -1546,8 +1494,9 @@ class TestProbeBatteryWithMockedSklearn:
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
     def test_run_probe(self, mock_hooks_cls, mock_model, mock_tokenizer):
         """Test run_probe method (lines 409-415)."""
-        import mlx.core as mx
         from unittest.mock import MagicMock
+
+        import mlx.core as mx
 
         mock_hooks = Mock()
         mock_state = Mock()
@@ -1560,7 +1509,7 @@ class TestProbeBatteryWithMockedSklearn:
             name="test_probe",
             description="Test",
             prompts=["p1", "p2", "p3", "p4", "p5"],
-            labels=[0, 1, 0, 1, 0]
+            labels=[0, 1, 0, 1, 0],
         )
         battery.add_dataset(dataset)
 
@@ -1574,7 +1523,7 @@ class TestProbeBatteryWithMockedSklearn:
         with self._mock_sklearn_modules(
             LogisticRegression=MagicMock(),
             cross_val_score=mock_cross_val_score,
-            StandardScaler=mock_scaler_class
+            StandardScaler=mock_scaler_class,
         ):
             result = battery.run_probe("test_probe", layer=0)
 
@@ -1585,8 +1534,9 @@ class TestProbeBatteryWithMockedSklearn:
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
     def test_run_all_probes_default_layers(self, mock_hooks_cls, mock_model, mock_tokenizer):
         """Test run_all_probes with default layer selection (lines 442-472)."""
-        import mlx.core as mx
         from unittest.mock import MagicMock
+
+        import mlx.core as mx
 
         mock_hooks = Mock()
         mock_state = Mock()
@@ -1601,7 +1551,7 @@ class TestProbeBatteryWithMockedSklearn:
             description="",
             prompts=["p1", "p2", "p3", "p4", "p5"],
             labels=[0, 1, 0, 1, 0],
-            category="test_cat"
+            category="test_cat",
         )
         battery.add_dataset(dataset)
 
@@ -1615,7 +1565,7 @@ class TestProbeBatteryWithMockedSklearn:
         with self._mock_sklearn_modules(
             LogisticRegression=MagicMock(),
             cross_val_score=mock_cross_val_score,
-            StandardScaler=mock_scaler_class
+            StandardScaler=mock_scaler_class,
         ):
             # Don't specify layers - should use default (evenly spaced)
             result = battery.run_all_probes(layers=None, progress=False)
@@ -1628,8 +1578,9 @@ class TestProbeBatteryWithMockedSklearn:
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
     def test_run_all_probes_with_categories(self, mock_hooks_cls, mock_model, mock_tokenizer):
         """Test run_all_probes with category filtering (lines 454-457)."""
-        import mlx.core as mx
         from unittest.mock import MagicMock
+
+        import mlx.core as mx
 
         mock_hooks = Mock()
         mock_state = Mock()
@@ -1644,14 +1595,14 @@ class TestProbeBatteryWithMockedSklearn:
             description="",
             prompts=["p1", "p2", "p3"],
             labels=[0, 1, 0],
-            category="cat1"
+            category="cat1",
         )
         dataset2 = ProbeDataset(
             name="cat2_probe",
             description="",
             prompts=["p4", "p5", "p6"],
             labels=[1, 0, 1],
-            category="cat2"
+            category="cat2",
         )
         battery.add_dataset(dataset1)
         battery.add_dataset(dataset2)
@@ -1666,7 +1617,7 @@ class TestProbeBatteryWithMockedSklearn:
         with self._mock_sklearn_modules(
             LogisticRegression=MagicMock(),
             cross_val_score=mock_cross_val_score,
-            StandardScaler=mock_scaler_class
+            StandardScaler=mock_scaler_class,
         ):
             # Filter by category
             result = battery.run_all_probes(layers=[0], categories=["cat1"], progress=False)
@@ -1677,8 +1628,9 @@ class TestProbeBatteryWithMockedSklearn:
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
     def test_run_all_probes_with_progress(self, mock_hooks_cls, mock_model, mock_tokenizer, capsys):
         """Test run_all_probes with progress output (lines 460-470)."""
-        import mlx.core as mx
         from unittest.mock import MagicMock
+
+        import mlx.core as mx
 
         mock_hooks = Mock()
         mock_state = Mock()
@@ -1692,7 +1644,7 @@ class TestProbeBatteryWithMockedSklearn:
             description="",
             prompts=["p1", "p2", "p3"],
             labels=[0, 1, 0],
-            category="test_cat"
+            category="test_cat",
         )
         battery.add_dataset(dataset)
 
@@ -1706,9 +1658,9 @@ class TestProbeBatteryWithMockedSklearn:
         with self._mock_sklearn_modules(
             LogisticRegression=MagicMock(),
             cross_val_score=mock_cross_val_score,
-            StandardScaler=mock_scaler_class
+            StandardScaler=mock_scaler_class,
         ):
-            result = battery.run_all_probes(layers=[0], progress=True)
+            battery.run_all_probes(layers=[0], progress=True)
 
         captured = capsys.readouterr()
         assert "Probing:" in captured.out
@@ -1741,14 +1693,12 @@ class TestProbeBatteryWithMockedSklearn:
             description="This is a detailed description",
             prompts=["p1"],
             labels=[0],
-            category="test"
+            category="test",
         )
         battery.add_dataset(dataset)
 
         results = StratigraphyResult(model_id="test-model", num_layers=4)
-        results.probes["probe1"] = {
-            0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)
-        }
+        results.probes["probe1"] = {0: ProbeResult("probe1", 0, 0.8, 0.02, 0.5, 0.3, 100)}
 
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
@@ -1759,8 +1709,9 @@ class TestProbeBatteryWithMockedSklearn:
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
     def test_run_all_probes_adds_last_layer(self, mock_hooks_cls, mock_tokenizer):
         """Test run_all_probes appends last layer when needed (line 446)."""
-        import mlx.core as mx
         from unittest.mock import MagicMock
+
+        import mlx.core as mx
 
         # Create a model with 25 layers
         # num_layers // 10 = 2, so range(0, 25, 2) = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
@@ -1796,7 +1747,7 @@ class TestProbeBatteryWithMockedSklearn:
         with self._mock_sklearn_modules(
             LogisticRegression=MagicMock(),
             cross_val_score=mock_cross_val_score,
-            StandardScaler=mock_scaler_class
+            StandardScaler=mock_scaler_class,
         ):
             # Don't specify layers - should use default and add last layer
             result = battery.run_all_probes(layers=None, progress=False)
@@ -1825,7 +1776,7 @@ class TestProbeBatteryWithMockedSklearn:
 
         # The layers will be [0, 1, 2] (union of all probe layers)
         # probe1 is missing layer 1, so it should show a dash
-        lines = captured.out.split('\n')
+        lines = captured.out.split("\n")
         # Find the probe1 row
         probe1_row = None
         for line in lines:
@@ -1920,9 +1871,7 @@ class TestProbeBatteryWithoutSklearn:
         captured = capsys.readouterr()
         assert "PROBE ACCURACY BY LAYER" in captured.out
 
-    def test_print_stratigraphy_probe_not_in_datasets(
-        self, mock_model, mock_tokenizer, capsys
-    ):
+    def test_print_stratigraphy_probe_not_in_datasets(self, mock_model, mock_tokenizer, capsys):
         """Test printing stratigraphy when probe is in results but not in battery datasets."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
         results = StratigraphyResult(model_id="test-model", num_layers=4)
@@ -1976,9 +1925,7 @@ class TestProbeBatteryWithoutSklearn:
     def test_stratigraphy_result_save_with_path_object(self):
         """Test saving StratigraphyResult using Path object."""
         result = StratigraphyResult(model_id="test", num_layers=5)
-        result.probes["test"] = {
-            0: ProbeResult("test", 0, 0.8, 0.02, 0.5, 0.3, 100)
-        }
+        result.probes["test"] = {0: ProbeResult("test", 0, 0.8, 0.02, 0.5, 0.3, 100)}
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "result.json"
@@ -1993,9 +1940,7 @@ class TestProbeBatteryWithoutSklearn:
     def test_stratigraphy_result_load_with_path_object(self):
         """Test loading StratigraphyResult using Path object."""
         result = StratigraphyResult(model_id="test", num_layers=5)
-        result.probes["test"] = {
-            0: ProbeResult("test", 0, 0.8, 0.02, 0.5, 0.3, 100)
-        }
+        result.probes["test"] = {0: ProbeResult("test", 0, 0.8, 0.02, 0.5, 0.3, 100)}
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "result.json"
@@ -2007,9 +1952,7 @@ class TestProbeBatteryWithoutSklearn:
 
     def test_probe_dataset_num_classes_single_class(self):
         """Test num_classes with only one class."""
-        dataset = ProbeDataset(
-            name="test", description="", prompts=["p1", "p2"], labels=[0, 0]
-        )
+        dataset = ProbeDataset(name="test", description="", prompts=["p1", "p2"], labels=[0, 0])
         assert dataset.num_classes == 1
 
     def test_find_emergence_layer_exact_threshold(self):

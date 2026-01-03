@@ -52,3 +52,75 @@ class ExpertRole(str, Enum):
 
     RARE = "rare"
     """Expert rarely activates."""
+
+
+class MoEAction(str, Enum):
+    """Available MoE expert CLI actions."""
+
+    ANALYZE = "analyze"
+    """Analyze expert routing patterns across prompts."""
+
+    CHAT = "chat"
+    """Chat with a specific expert (force all routing to one expert)."""
+
+    COMPARE = "compare"
+    """Compare multiple experts on the same prompt."""
+
+    ABLATE = "ablate"
+    """Ablate (remove) an expert from routing."""
+
+    TOPK = "topk"
+    """Vary top-k expert selection."""
+
+    COLLABORATION = "collab"
+    """Analyze expert co-activation patterns."""
+
+    PAIRS = "pairs"
+    """Test specific expert pairs/groups."""
+
+    INTERACTIVE = "interactive"
+    """Interactive expert explorer mode."""
+
+    WEIGHTS = "weights"
+    """Show router weights for a prompt."""
+
+    TOKENIZER = "tokenizer"
+    """Analyze tokenizer-expert relationships."""
+
+    CONTROL_TOKENS = "control-tokens"
+    """Analyze control token expert assignments."""
+
+    TRACE = "trace"
+    """Trace token-level expert assignments."""
+
+    ENTROPY = "entropy"
+    """Analyze routing entropy across layers."""
+
+    DIVERGENCE = "divergence"
+    """Analyze layer divergence in routing."""
+
+    ROLE = "role"
+    """Analyze layer-specific roles."""
+
+    CONTEXT_TEST = "context-test"
+    """Test context independence of routing."""
+
+    VOCAB_MAP = "vocab-map"
+    """Map vocabulary to expert assignments."""
+
+    ROUTER_PROBE = "router-probe"
+    """Probe router inputs and outputs."""
+
+    PATTERN_DISCOVERY = "pattern-discovery"
+    """Discover expert activation patterns."""
+
+    FULL_TAXONOMY = "full-taxonomy"
+    """Generate full expert taxonomy."""
+
+    LAYER_SWEEP = "layer-sweep"
+    """Sweep analysis across all layers."""
+
+    @property
+    def handler_name(self) -> str:
+        """Get the handler function/module name for this action."""
+        return self.value.replace("-", "_")

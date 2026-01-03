@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "description": "Arithmetic benchmark problems for expert ablation and routing analysis",
+  "problems": {
+    "simple": [
+      {"prompt": "2 + 2 = ", "answer": 4, "operation": "addition"},
+      {"prompt": "5 * 5 = ", "answer": 25, "operation": "multiplication"},
+      {"prompt": "10 - 3 = ", "answer": 7, "operation": "subtraction"},
+      {"prompt": "6 * 7 = ", "answer": 42, "operation": "multiplication"},
+      {"prompt": "25 + 17 = ", "answer": 42, "operation": "addition"}
+    ],
+    "medium": [
+      {"prompt": "23 * 17 = ", "answer": 391, "operation": "multiplication"},
+      {"prompt": "456 + 789 = ", "answer": 1245, "operation": "addition"},
+      {"prompt": "100 - 37 = ", "answer": 63, "operation": "subtraction"},
+      {"prompt": "50 + 25 = ", "answer": 75, "operation": "addition"},
+      {"prompt": "10 * 10 = ", "answer": 100, "operation": "multiplication"},
+      {"prompt": "200 - 50 = ", "answer": 150, "operation": "subtraction"},
+      {"prompt": "25 * 4 = ", "answer": 100, "operation": "multiplication"}
+    ],
+    "hard": [
+      {"prompt": "127 * 89 = ", "answer": 11303, "operation": "multiplication"},
+      {"prompt": "999 * 888 = ", "answer": 887112, "operation": "multiplication"},
+      {"prompt": "1234 + 5678 = ", "answer": 6912, "operation": "addition"},
+      {"prompt": "9876 - 5432 = ", "answer": 4444, "operation": "subtraction"},
+      {"prompt": "256 * 256 = ", "answer": 65536, "operation": "multiplication"}
+    ]
+  }
+}

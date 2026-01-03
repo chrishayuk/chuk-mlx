@@ -52,33 +52,33 @@ class MathExpertPlugin(VirtualExpertPlugin):
     }
 
     FUNCTIONS = {
-        'abs': abs,
-        'round': round,
-        'min': min,
-        'max': max,
-        'sum': sum,
-        'sqrt': math.sqrt,
-        'sin': math.sin,
-        'cos': math.cos,
-        'tan': math.tan,
-        'log': math.log,
-        'log10': math.log10,
-        'exp': math.exp,
-        'pow': pow,
-        'floor': math.floor,
-        'ceil': math.ceil,
+        "abs": abs,
+        "round": round,
+        "min": min,
+        "max": max,
+        "sum": sum,
+        "sqrt": math.sqrt,
+        "sin": math.sin,
+        "cos": math.cos,
+        "tan": math.tan,
+        "log": math.log,
+        "log10": math.log10,
+        "exp": math.exp,
+        "pow": pow,
+        "floor": math.floor,
+        "ceil": math.ceil,
     }
 
     CONSTANTS = {
-        'pi': math.pi,
-        'e': math.e,
-        'inf': float('inf'),
+        "pi": math.pi,
+        "e": math.e,
+        "inf": float("inf"),
     }
 
     def can_handle(self, prompt: str) -> bool:
         """Check if prompt contains a computable math expression."""
         # Look for patterns like "X op Y =" or "X op Y"
-        pattern = r'\d+\s*[+\-*/]\s*\d+\s*=?\s*$'
+        pattern = r"\d+\s*[+\-*/]\s*\d+\s*=?\s*$"
         return bool(re.search(pattern, prompt.strip()))
 
     def execute(self, prompt: str) -> str | None:
@@ -121,7 +121,7 @@ class MathExpertPlugin(VirtualExpertPlugin):
             expr = self._clean_expression(expr)
             if not expr:
                 return None
-            tree = ast.parse(expr, mode='eval')
+            tree = ast.parse(expr, mode="eval")
             return self._eval_node(tree.body)
         except Exception:
             return None
@@ -129,15 +129,15 @@ class MathExpertPlugin(VirtualExpertPlugin):
     def _clean_expression(self, expr: str) -> str:
         """Clean and normalize expression."""
         # Remove common prefixes
-        expr = re.sub(r'(?:what is|calculate|compute|evaluate|=\s*$)', '', expr, flags=re.I)
+        expr = re.sub(r"(?:what is|calculate|compute|evaluate|=\s*$)", "", expr, flags=re.I)
 
         # Normalize operators
-        replacements = {'×': '*', '÷': '/', '^': '**', '√': 'sqrt'}
+        replacements = {"×": "*", "÷": "/", "^": "**", "√": "sqrt"}
         for old, new in replacements.items():
             expr = expr.replace(old, new)
 
         # Extract numeric expression
-        match = re.search(r'[\d\s+\-*/().]+', expr)
+        match = re.search(r"[\d\s+\-*/().]+", expr)
         if match:
             return match.group().strip()
         return expr.strip()
@@ -191,9 +191,9 @@ class MathExpertPlugin(VirtualExpertPlugin):
             (expression, result) tuple
         """
         patterns = [
-            r'(\d+(?:\.\d+)?)\s*([+\-*/^×÷])\s*(\d+(?:\.\d+)?)',
-            r'what\s+is\s+(\d+(?:\.\d+)?)\s*([+\-*/^×÷])\s*(\d+(?:\.\d+)?)',
-            r'calculate\s+(\d+(?:\.\d+)?)\s*([+\-*/^×÷])\s*(\d+(?:\.\d+)?)',
+            r"(\d+(?:\.\d+)?)\s*([+\-*/^×÷])\s*(\d+(?:\.\d+)?)",
+            r"what\s+is\s+(\d+(?:\.\d+)?)\s*([+\-*/^×÷])\s*(\d+(?:\.\d+)?)",
+            r"calculate\s+(\d+(?:\.\d+)?)\s*([+\-*/^×÷])\s*(\d+(?:\.\d+)?)",
         ]
         for pattern in patterns:
             match = re.search(pattern, text, re.IGNORECASE)

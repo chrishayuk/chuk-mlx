@@ -1,6 +1,5 @@
 """Tests for MoE architecture detection."""
 
-import pytest
 import mlx.core as mx
 import mlx.nn as nn
 
@@ -11,7 +10,6 @@ from chuk_lazarus.introspection.moe.detector import (
     is_moe_model,
 )
 from chuk_lazarus.introspection.moe.enums import MoEArchitecture
-
 
 # =============================================================================
 # Mock Models for Testing
@@ -170,12 +168,14 @@ class TestDetectMoEArchitecture:
 
     def test_generic_moe(self):
         """Test detection of generic MoE with router only (no experts list)."""
+
         # A model with just a router but no experts list returns GENERIC
         class RouterOnlyMoE(nn.Module):
             def __init__(self):
                 super().__init__()
                 self.router = MockRouter()
                 # No experts list, so not MIXTRAL
+
             def __call__(self, x):
                 return x
 
@@ -183,6 +183,7 @@ class TestDetectMoEArchitecture:
             def __init__(self):
                 super().__init__()
                 self.mlp = RouterOnlyMoE()
+
             def __call__(self, x):
                 return x
 

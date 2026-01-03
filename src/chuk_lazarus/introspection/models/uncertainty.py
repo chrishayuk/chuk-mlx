@@ -19,7 +19,9 @@ class MetacognitiveResult(BaseModel):
     decision_prob: float = Field(description="Probability of decision token")
     strategy: ComputeStrategy = Field(description="Detected strategy")
     is_digit: bool = Field(default=False, description="Whether decision token is a digit")
-    correct_start: bool = Field(default=False, description="Whether digit matches expected answer start")
+    correct_start: bool = Field(
+        default=False, description="Whether digit matches expected answer start"
+    )
     final_token: str = Field(default="", description="Final layer top token")
     final_prob: float = Field(default=0.0, description="Final layer top probability")
 

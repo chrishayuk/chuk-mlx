@@ -47,9 +47,9 @@ class TestIntrospectCircuitCapture:
 
     def test_capture_basic(self, capture_args, mock_ablation_study, capsys):
         """Test basic circuit capture."""
-        from chuk_lazarus.cli.commands.introspect import introspect_circuit_capture
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_capture
 
         with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
             mock_hooks = MagicMock()
@@ -65,9 +65,9 @@ class TestIntrospectCircuitCapture:
 
     def test_capture_with_results(self, capture_args, mock_ablation_study, capsys):
         """Test capture with explicit results."""
-        from chuk_lazarus.cli.commands.introspect import introspect_circuit_capture
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_capture
 
         capture_args.results = "28|48|27"
 
@@ -95,9 +95,9 @@ class TestIntrospectCircuitCapture:
     @requires_sklearn
     def test_capture_with_extract_direction(self, capture_args, mock_ablation_study, capsys):
         """Test capture with direction extraction."""
-        from chuk_lazarus.cli.commands.introspect import introspect_circuit_capture
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_capture
 
         capture_args.results = "28|48|27"
         capture_args.extract_direction = True
@@ -122,9 +122,9 @@ class TestIntrospectCircuitCapture:
 
     def test_capture_save_output(self, capture_args, mock_ablation_study):
         """Test saving captured circuit."""
-        from chuk_lazarus.cli.commands.introspect import introspect_circuit_capture
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_capture
 
         with tempfile.NamedTemporaryFile(suffix=".npz", delete=False) as f:
             capture_args.output = f.name
@@ -387,9 +387,7 @@ class TestIntrospectCircuitTest:
         assert "Loading circuit" in captured.out
         assert "Testing" in captured.out
 
-    def test_test_identifies_training_overlap(
-        self, circuit_file_with_direction, tmp_path, capsys
-    ):
+    def test_test_identifies_training_overlap(self, circuit_file_with_direction, tmp_path, capsys):
         """Test that overlapping prompts are identified."""
         from chuk_lazarus.cli.commands.introspect import introspect_circuit_test
 
@@ -761,3 +759,298 @@ class TestIntrospectCircuitDecode:
             except TypeError as e:
                 if "not JSON serializable" in str(e):
                     pytest.skip("Known numpy int64 JSON serialization issue")
+
+
+class TestCircuitCaptureAdditional:
+    """Additional tests for circuit capture to improve coverage."""
+
+    @pytest.fixture
+    def capture_args(self):
+        """Create arguments for circuit capture command."""
+        return Namespace(
+            model="test-model",
+            prompts="7*4=|6*8=|9*3=",
+            layer=19,
+            results=None,
+            extract_direction=False,
+            save=None,
+            output=None,
+        )
+
+    def test_capture_results_from_file(self, capture_args, mock_ablation_study, tmp_path, capsys):
+        """Test loading results from file (covers lines 77-79)."""
+        import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_capture
+
+        # Create results file
+        results_file = tmp_path / "results.txt"
+        results_file.write_text("28\n48\n27\n")
+
+        capture_args.results = f"@{results_file}"
+
+        with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
+            mock_hooks = MagicMock()
+            mock_hooks.state.hidden_states = {19: mx.zeros((1, 1, 768))}
+            mock_hooks_cls.return_value = mock_hooks
+
+            introspect_circuit_capture(capture_args)
+
+            captured = capsys.readouterr()
+            assert "Loading model" in captured.out
+
+
+class TestCircuitViewAdditional:
+    """Additional tests for circuit view to improve coverage."""
+
+    @pytest.fixture
+    def circuit_no_direction(self, tmp_path):
+        """Create circuit file without direction."""
+        circuit_path = tmp_path / "no_dir.npz"
+        np.savez(
+            circuit_path,
+            activations=np.random.randn(3, 768).astype(np.float32),
+            layer=19,
+            model_id="test-model",
+            prompts=["7*4=", "6*8=", "9*3="],
+            operands_a=[7, 6, 9],
+            operands_b=[4, 8, 3],
+            operators=["*", "*", "*"],
+            results=[28, 48, 27],
+        )
+        return str(circuit_path)
+
+    def test_view_without_direction_stats(self, circuit_no_direction, capsys):
+        """Test view stats when no direction exists (covers error paths)."""
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_view
+
+        args = Namespace(
+            circuit=circuit_no_direction,
+            table=False,
+            stats=True,  # Request stats but no direction
+            limit=20,
+            top_k=10,
+        )
+
+        introspect_circuit_view(args)
+
+        captured = capsys.readouterr()
+        assert "Loading circuit" in captured.out
+
+    def test_view_limited_entries(self, tmp_path, capsys):
+        """Test view with limit parameter."""
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_view
+
+        # Create circuit with many entries
+        circuit_path = tmp_path / "many_entries.npz"
+        n_entries = 50
+        np.savez(
+            circuit_path,
+            activations=np.random.randn(n_entries, 768).astype(np.float32),
+            layer=19,
+            model_id="test-model",
+            prompts=[f"{i}*{j}=" for i in range(1, 8) for j in range(1, 8)][:n_entries],
+            results=[i * j for i in range(1, 8) for j in range(1, 8)][:n_entries],
+        )
+
+        args = Namespace(
+            circuit=str(circuit_path),
+            table=False,
+            stats=False,
+            limit=5,  # Only show 5 entries
+            top_k=10,
+        )
+
+        introspect_circuit_view(args)
+
+        captured = capsys.readouterr()
+        assert "Loading circuit" in captured.out
+
+
+class TestCircuitInvokeAdditional:
+    """Additional tests for circuit invoke to improve coverage."""
+
+    @pytest.fixture
+    def circuit_file(self, tmp_path):
+        """Create a mock circuit file."""
+        circuit_path = tmp_path / "test_circuit.npz"
+        np.savez(
+            circuit_path,
+            activations=np.random.randn(3, 768).astype(np.float32),
+            layer=19,
+            model_id="test-model",
+            prompts=["7*4=", "6*8=", "9*3="],
+            operands_a=[7, 6, 9],
+            operands_b=[4, 8, 3],
+            operators=["*", "*", "*"],
+            results=[28, 48, 27],
+        )
+        return str(circuit_path)
+
+    def test_invoke_knn_method(self, circuit_file, capsys):
+        """Test KNN interpolation method (covers lines for KNN)."""
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_invoke
+
+        args = Namespace(
+            circuit=circuit_file,
+            model=None,
+            method="knn",  # Use KNN method
+            operands="5,6",
+            invoke_prompts=None,
+            output=None,
+            k=3,  # Number of neighbors
+        )
+
+        introspect_circuit_invoke(args)
+
+        captured = capsys.readouterr()
+        assert "Loading circuit" in captured.out
+
+
+class TestCircuitTestAdditional:
+    """Additional tests for circuit test to improve coverage."""
+
+    @pytest.fixture
+    def circuit_file_with_intercept(self, tmp_path):
+        """Create a mock circuit file with direction and intercept."""
+        circuit_path = tmp_path / "test_circuit.npz"
+        np.savez(
+            circuit_path,
+            activations=np.random.randn(3, 768).astype(np.float32),
+            layer=19,
+            model_id="test-model",
+            prompts=["7*4=", "6*8=", "9*3="],
+            operands_a=[7, 6, 9],
+            operands_b=[4, 8, 3],
+            operators=["*", "*", "*"],
+            results=[28, 48, 27],
+            direction=np.random.randn(768).astype(np.float32),
+            direction_intercept=10.0,  # Include intercept
+            direction_scale=2.0,  # Include scale
+        )
+        return str(circuit_path)
+
+    def test_test_no_inputs_error(self, circuit_file_with_intercept, capsys):
+        """Test error when no test inputs provided (covers line 677-679)."""
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_test
+
+        args = Namespace(
+            circuit=circuit_file_with_intercept,
+            test_activations=None,  # No test file
+            model=None,  # No model
+            prompts=None,  # No prompts
+            results=None,
+            output=None,
+        )
+
+        introspect_circuit_test(args)
+
+        captured = capsys.readouterr()
+        assert "ERROR" in captured.out
+
+
+class TestCircuitDecodeAdditional:
+    """Additional tests for circuit decode to improve coverage."""
+
+    @pytest.fixture
+    def circuit_file_with_direction(self, tmp_path):
+        """Create a mock circuit file with direction."""
+        circuit_path = tmp_path / "decode_circuit.npz"
+        np.savez(
+            circuit_path,
+            activations=np.random.randn(3, 768).astype(np.float32),
+            layer=19,
+            model_id="test-model",
+            prompts=["7*4=", "6*8=", "9*3="],
+            operands_a=[7, 6, 9],
+            operands_b=[4, 8, 3],
+            operators=["*", "*", "*"],
+            results=[28, 48, 27],
+            direction=np.random.randn(768).astype(np.float32),
+        )
+        return str(circuit_path)
+
+    def test_decode_with_strength_param(self, circuit_file_with_direction, capsys):
+        """Test decode with strength parameter (covers strength vs blend logic)."""
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_decode
+
+        args = Namespace(
+            inject=circuit_file_with_direction,
+            circuit=None,
+            model="test-model",
+            layer=None,
+            prompt="What is 5 * 6?",
+            blend=None,  # No blend
+            strength=2.0,  # Use strength instead
+            max_tokens=20,
+            inject_idx=0,
+            output=None,
+        )
+
+        with patch("chuk_lazarus.introspection.ActivationSteering") as mock_steer_cls:
+            mock_steerer = MagicMock()
+            mock_steerer.generate.return_value = "30"
+            mock_steer_cls.from_pretrained.return_value = mock_steerer
+
+            introspect_circuit_decode(args)
+
+            captured = capsys.readouterr()
+            assert "Loading circuit" in captured.out or "INJECTION" in captured.out
+
+
+class TestCircuitCompareAdditional:
+    """Additional tests for circuit compare to improve coverage."""
+
+    @pytest.fixture
+    def circuit_many_dims(self, tmp_path):
+        """Create circuit with varied activation patterns."""
+        circuit_path = tmp_path / "varied_circuit.npz"
+        # Create activations with specific patterns for top neurons
+        activations = np.zeros((3, 768), dtype=np.float32)
+        activations[0, :10] = 1.0  # High values in first 10 neurons
+        activations[1, 5:15] = 1.0  # High values in neurons 5-15
+        activations[2, :10] = -1.0  # Negative in first 10
+
+        direction = np.zeros(768, dtype=np.float32)
+        direction[:10] = 1.0  # Direction emphasizes first 10 neurons
+
+        np.savez(
+            circuit_path,
+            activations=activations,
+            layer=19,
+            model_id="test-model",
+            prompts=["a", "b", "c"],
+            results=[1, 2, 3],
+            direction=direction,
+        )
+        return str(circuit_path)
+
+    def test_compare_three_circuits(self, circuit_many_dims, tmp_path, capsys):
+        """Test comparing three circuits."""
+        from chuk_lazarus.cli.commands.introspect import introspect_circuit_compare
+
+        # Create two more circuits
+        circuit2_path = tmp_path / "circuit2.npz"
+        circuit3_path = tmp_path / "circuit3.npz"
+
+        for path in [circuit2_path, circuit3_path]:
+            np.savez(
+                path,
+                activations=np.random.randn(3, 768).astype(np.float32),
+                layer=19,
+                model_id="test-model",
+                prompts=["x", "y", "z"],
+                results=[10, 20, 30],
+                direction=np.random.randn(768).astype(np.float32),
+            )
+
+        args = Namespace(
+            circuits=[circuit_many_dims, str(circuit2_path), str(circuit3_path)],
+            top_k=5,
+            output=None,
+        )
+
+        introspect_circuit_compare(args)
+
+        captured = capsys.readouterr()
+        assert "Comparing" in captured.out

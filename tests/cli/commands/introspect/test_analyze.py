@@ -100,8 +100,8 @@ class TestIntrospectAnalyze:
 
         introspect_analyze(analyze_args)
 
-        captured = capsys.readouterr()
-        # Check that raw mode is being used
+        _ = capsys.readouterr()
+        # Raw mode test - just verify no errors
 
     def test_analyze_save_output(self, analyze_args, mock_model_analyzer):
         """Test saving analysis results."""

@@ -3,7 +3,7 @@
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -498,13 +498,17 @@ class TestAblationStudyLoadModel:
         mock_gemma_convert_module.load_hf_config = mock_load_hf_config
         mock_gemma_convert_module.load_weights = mock_load_weights
 
-        with patch.dict(
-            "sys.modules",
-            {
-                "chuk_lazarus.models_v2.families.gemma": mock_gemma_module,
-                "chuk_lazarus.models_v2.families.gemma.convert": mock_gemma_convert_module,
-            },
-        ), patch("mlx.utils.tree_unflatten", mock_tree_unflatten), patch("mlx.core.eval"):
+        with (
+            patch.dict(
+                "sys.modules",
+                {
+                    "chuk_lazarus.models_v2.families.gemma": mock_gemma_module,
+                    "chuk_lazarus.models_v2.families.gemma.convert": mock_gemma_convert_module,
+                },
+            ),
+            patch("mlx.utils.tree_unflatten", mock_tree_unflatten),
+            patch("mlx.core.eval"),
+        ):
             model, config = AblationStudy._load_model("/fake/path", "gemma")
 
         assert model is mock_model
@@ -552,13 +556,20 @@ class TestAblationStudyLoadModel:
         mock_loader_module.StandardWeightConverter = mock_converter_cls
 
         m = patch("builtins.open", create=True)
-        with m as mock_open, \
-             patch.dict("sys.modules", {
-                 "chuk_lazarus.models_v2.families.llama": mock_llama_module,
-                 "chuk_lazarus.inference.loader": mock_loader_module,
-             }), \
-             patch("mlx.core.eval"):
-            mock_open.return_value.__enter__.return_value.read.return_value = json.dumps(mock_config_data)
+        with (
+            m as mock_open,
+            patch.dict(
+                "sys.modules",
+                {
+                    "chuk_lazarus.models_v2.families.llama": mock_llama_module,
+                    "chuk_lazarus.inference.loader": mock_loader_module,
+                },
+            ),
+            patch("mlx.core.eval"),
+        ):
+            mock_open.return_value.__enter__.return_value.read.return_value = json.dumps(
+                mock_config_data
+            )
             model, config = AblationStudy._load_model("/fake/path", "llama")
 
         assert model is mock_model
@@ -593,7 +604,7 @@ class TestAblationStudyEdgeCases:
     def test_ablate_and_generate_restores_weights_on_error(self):
         """Test that weights are restored even if generation fails."""
         # Store original weights using mx.array() to copy
-        original_mlp_weight = mx.array(self.adapter.get_mlp_down_weight(0))
+        _ = mx.array(self.adapter.get_mlp_down_weight(0))  # Verify weights exist
 
         # Create a model that will fail during generation
         class FailingModel(MockModel):
@@ -610,7 +621,9 @@ class TestAblationStudyEdgeCases:
 
         # Try to ablate and generate (should fail)
         try:
-            failing_study.ablate_and_generate("test prompt", layers=[0], component=ComponentType.MLP)
+            failing_study.ablate_and_generate(
+                "test prompt", layers=[0], component=ComponentType.MLP
+            )
         except RuntimeError:
             pass  # Expected
 
@@ -630,6 +643,7 @@ class TestAblationStudyEdgeCases:
 
     def test_run_layer_sweep_criterion_name_from_named_function(self):
         """Test that criterion name is extracted from named functions."""
+
         def my_criterion(text):
             return "test" in text
 
@@ -877,6 +891,7 @@ class TestAblationStudyEdgeCases:
 
     def test_run_layer_sweep_all_layers_default(self):
         """Test that run_layer_sweep uses all layers when layers=None."""
+
         def criterion(text):
             return True
 
@@ -972,6 +987,7 @@ class TestAblationStudyEdgeCases:
 
     def test_run_layer_sweep_component_stored_in_results(self):
         """Test that component type is stored in results."""
+
         def criterion(text):
             return True
 
@@ -1012,6 +1028,7 @@ class TestAblationStudyEdgeCases:
 
     def test_run_layer_sweep_coherence_check(self):
         """Test that coherence is checked in layer sweep."""
+
         def criterion(text):
             return True
 
@@ -1022,7 +1039,9 @@ class TestAblationStudyEdgeCases:
         )
 
         # Results should have coherence checked
-        assert result.results[0].output_coherent is True or result.results[0].output_coherent is False
+        assert (
+            result.results[0].output_coherent is True or result.results[0].output_coherent is False
+        )
 
 
 class TestAblationStudyMultipleComponents:
@@ -1038,9 +1057,9 @@ class TestAblationStudyMultipleComponents:
 
     def test_ablate_both_components_restores_both(self):
         """Test that both MLP and attention weights are restored."""
-        # Store original weights using mx.array() to copy
-        original_mlp = mx.array(self.adapter.get_mlp_down_weight(0))
-        original_attn = mx.array(self.adapter.get_attn_o_weight(0))
+        # Store original weights using mx.array() to copy (verify weights exist)
+        _ = mx.array(self.adapter.get_mlp_down_weight(0))
+        _ = mx.array(self.adapter.get_attn_o_weight(0))
 
         # Ablate both
         self.study.ablate_and_generate(
@@ -1358,6 +1377,7 @@ class TestAblationStudyConfigHandling:
 
     def test_run_layer_sweep_with_different_components(self):
         """Test layer sweep with different component types."""
+
         def criterion(text):
             return True
 
@@ -1425,6 +1445,7 @@ class TestAblationStudyLayerSweepDetails:
 
     def test_run_layer_sweep_tracks_original_vs_ablated(self):
         """Test that layer sweep correctly tracks original vs ablated outputs."""
+
         def criterion(text):
             return "generated" in text.lower()
 
@@ -1442,6 +1463,7 @@ class TestAblationStudyLayerSweepDetails:
 
     def test_run_layer_sweep_criterion_changes_detected(self):
         """Test that criterion changes are properly detected."""
+
         def always_true(text):
             return True
 

@@ -2,7 +2,6 @@
 
 import numpy as np
 import pytest
-from pydantic import ValidationError
 
 from chuk_lazarus.introspection.enums import ComputeStrategy, ConfidenceLevel
 from chuk_lazarus.introspection.models.uncertainty import (

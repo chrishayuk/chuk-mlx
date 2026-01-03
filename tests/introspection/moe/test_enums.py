@@ -1,10 +1,9 @@
 """Tests for MoE enums."""
 
-import pytest
-
 from chuk_lazarus.introspection.moe.enums import (
     ExpertCategory,
     ExpertRole,
+    MoEAction,
     MoEArchitecture,
 )
 
@@ -128,3 +127,86 @@ class TestExpertRole:
         """Test all roles are defined."""
         roles = list(ExpertRole)
         assert len(roles) == 4
+
+
+class TestMoEAction:
+    """Tests for MoEAction enum."""
+
+    def test_chat_value(self):
+        """Test CHAT enum value."""
+        assert MoEAction.CHAT.value == "chat"
+
+    def test_compare_value(self):
+        """Test COMPARE enum value."""
+        assert MoEAction.COMPARE.value == "compare"
+
+    def test_ablate_value(self):
+        """Test ABLATE enum value."""
+        assert MoEAction.ABLATE.value == "ablate"
+
+    def test_control_tokens_value(self):
+        """Test CONTROL_TOKENS enum value with hyphen."""
+        assert MoEAction.CONTROL_TOKENS.value == "control-tokens"
+
+    def test_full_taxonomy_value(self):
+        """Test FULL_TAXONOMY enum value with hyphen."""
+        assert MoEAction.FULL_TAXONOMY.value == "full-taxonomy"
+
+    def test_handler_name_simple(self):
+        """Test handler_name for simple actions."""
+        assert MoEAction.CHAT.handler_name == "chat"
+        assert MoEAction.ABLATE.handler_name == "ablate"
+
+    def test_handler_name_with_hyphen(self):
+        """Test handler_name converts hyphens to underscores."""
+        assert MoEAction.CONTROL_TOKENS.handler_name == "control_tokens"
+        assert MoEAction.CONTEXT_TEST.handler_name == "context_test"
+        assert MoEAction.FULL_TAXONOMY.handler_name == "full_taxonomy"
+        assert MoEAction.LAYER_SWEEP.handler_name == "layer_sweep"
+        assert MoEAction.VOCAB_MAP.handler_name == "vocab_map"
+        assert MoEAction.ROUTER_PROBE.handler_name == "router_probe"
+        assert MoEAction.PATTERN_DISCOVERY.handler_name == "pattern_discovery"
+
+    def test_all_actions_count(self):
+        """Test that we have exactly 21 actions."""
+        actions = list(MoEAction)
+        assert len(actions) == 21
+
+    def test_all_expected_actions_exist(self):
+        """Test all 21 expected actions are defined."""
+        expected_actions = [
+            "analyze",
+            "chat",
+            "compare",
+            "ablate",
+            "topk",
+            "collab",
+            "pairs",
+            "interactive",
+            "weights",
+            "tokenizer",
+            "control-tokens",
+            "trace",
+            "entropy",
+            "divergence",
+            "role",
+            "context-test",
+            "vocab-map",
+            "router-probe",
+            "pattern-discovery",
+            "full-taxonomy",
+            "layer-sweep",
+        ]
+        actual_values = [a.value for a in MoEAction]
+        for expected in expected_actions:
+            assert expected in actual_values, f"Missing action: {expected}"
+
+    def test_enum_from_string(self):
+        """Test creating enum from string value."""
+        assert MoEAction("chat") == MoEAction.CHAT
+        assert MoEAction("control-tokens") == MoEAction.CONTROL_TOKENS
+
+    def test_string_comparison(self):
+        """Test string comparison works."""
+        assert MoEAction.CHAT == "chat"
+        assert "chat" == MoEAction.CHAT

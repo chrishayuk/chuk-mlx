@@ -3,7 +3,7 @@
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -17,9 +17,7 @@ class TestLoadModelForAblation:
     @patch("chuk_lazarus.models_v2.families.registry.detect_model_family")
     @patch("chuk_lazarus.models_v2.families.registry.get_family_info")
     @patch("chuk_lazarus.introspection.ablation.adapter.ModelAdapter")
-    def test_load_model_success(
-        self, mock_adapter, mock_get_family, mock_detect, mock_loader
-    ):
+    def test_load_model_success(self, mock_adapter, mock_get_family, mock_detect, mock_loader):
         """Test successful model loading."""
         # Setup mock model path with config
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -88,9 +86,7 @@ class TestLoadModelForAblation:
     @patch("chuk_lazarus.models_v2.families.registry.detect_model_family")
     @patch("chuk_lazarus.models_v2.families.registry.get_family_info")
     @patch("chuk_lazarus.introspection.ablation.adapter.ModelAdapter")
-    def test_load_with_local_path(
-        self, mock_adapter, mock_get_family, mock_detect, mock_loader
-    ):
+    def test_load_with_local_path(self, mock_adapter, mock_get_family, mock_detect, mock_loader):
         """Test loading from local path."""
         with tempfile.TemporaryDirectory() as tmpdir:
             model_path = Path(tmpdir)

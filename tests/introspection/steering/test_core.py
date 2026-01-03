@@ -637,9 +637,7 @@ class TestLayerProbabilities:
 
         # Call method
         config = SteeringConfig(layers=[0])
-        result = steerer.get_layer_probabilities(
-            "test prompt", "token", config=config
-        )
+        result = steerer.get_layer_probabilities("test prompt", "token", config=config)
 
         # Verify
         assert isinstance(result, dict)
@@ -649,9 +647,7 @@ class TestLayerProbabilities:
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
     @patch("chuk_lazarus.introspection.logit_lens.LogitLens")
-    def test_get_layer_probabilities_with_overrides(
-        self, mock_lens_class, mock_hooks_class
-    ):
+    def test_get_layer_probabilities_with_overrides(self, mock_lens_class, mock_hooks_class):
         """Test get_layer_probabilities with parameter overrides."""
         mock_hooks = Mock()
         mock_hooks_class.return_value = mock_hooks
@@ -710,9 +706,7 @@ class TestLayerProbabilities:
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
     @patch("chuk_lazarus.introspection.logit_lens.LogitLens")
-    def test_compare_layer_dynamics_default_coefficients(
-        self, mock_lens_class, mock_hooks_class
-    ):
+    def test_compare_layer_dynamics_default_coefficients(self, mock_lens_class, mock_hooks_class):
         """Test compare_layer_dynamics with default coefficients."""
         mock_hooks = Mock()
         mock_hooks_class.return_value = mock_hooks
@@ -760,9 +754,7 @@ class TestPrintMethods:
         steerer.add_direction(layer=0, direction=direction)
 
         config = SteeringConfig(layers=[0])
-        steerer.print_layer_dynamics(
-            "test prompt", "token", coefficients=[0.0], config=config
-        )
+        steerer.print_layer_dynamics("test prompt", "token", coefficients=[0.0], config=config)
 
         captured = capsys.readouterr()
         assert "LAYER DYNAMICS WITH STEERING" in captured.out
@@ -771,9 +763,7 @@ class TestPrintMethods:
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
     @patch("chuk_lazarus.introspection.logit_lens.LogitLens")
-    def test_print_layer_dynamics_with_key_layers(
-        self, mock_lens_class, mock_hooks_class, capsys
-    ):
+    def test_print_layer_dynamics_with_key_layers(self, mock_lens_class, mock_hooks_class, capsys):
         """Test print_layer_dynamics with custom key_layers."""
         mock_hooks = Mock()
         mock_hooks_class.return_value = mock_hooks
@@ -799,9 +789,7 @@ class TestPrintMethods:
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
     @patch("chuk_lazarus.introspection.logit_lens.LogitLens")
-    def test_print_layer_dynamics_auto_sampling(
-        self, mock_lens_class, mock_hooks_class, capsys
-    ):
+    def test_print_layer_dynamics_auto_sampling(self, mock_lens_class, mock_hooks_class, capsys):
         """Test that print_layer_dynamics auto-samples when many layers."""
         mock_hooks = Mock()
         mock_hooks_class.return_value = mock_hooks

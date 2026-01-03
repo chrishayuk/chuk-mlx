@@ -1,8 +1,8 @@
 """Tests for MoE compression analysis."""
 
-import pytest
 import mlx.core as mx
 import mlx.nn as nn
+import pytest
 
 from chuk_lazarus.introspection.moe.compression import (
     CompressionAnalysis,
@@ -17,7 +17,6 @@ from chuk_lazarus.introspection.moe.compression import (
 )
 from chuk_lazarus.introspection.moe.config import MoECaptureConfig
 from chuk_lazarus.introspection.moe.hooks import MoEHooks
-
 
 # =============================================================================
 # Mock Models
@@ -111,9 +110,11 @@ def hooks_with_data(moe_model):
     hooks.configure(MoECaptureConfig())
 
     # Populate state
-    hooks.moe_state.selected_experts[0] = mx.array([
-        [[0, 1], [0, 2], [1, 3], [0, 1], [0, 1]],
-    ])
+    hooks.moe_state.selected_experts[0] = mx.array(
+        [
+            [[0, 1], [0, 2], [1, 3], [0, 1], [0, 1]],
+        ]
+    )
 
     return hooks
 
@@ -210,6 +211,7 @@ class TestComputeExpertSimilarity:
 
     def test_layer_without_mlp(self):
         """Test with layer that has no MLP."""
+
         # Create a layer without mlp attribute
         class LayerWithoutMLP(nn.Module):
             def __init__(self):
@@ -223,6 +225,7 @@ class TestComputeExpertSimilarity:
 
     def test_mlp_without_experts(self):
         """Test with MLP that has no experts list."""
+
         # Create MLP without experts attribute
         class MLPWithoutExperts(nn.Module):
             def __init__(self):
@@ -241,6 +244,7 @@ class TestComputeExpertSimilarity:
 
     def test_experts_without_down_proj(self, moe_model):
         """Test with experts that don't have down_proj."""
+
         # Create experts without down_proj
         class ExpertWithoutDownProj(nn.Module):
             def __init__(self):
@@ -277,6 +281,7 @@ class TestComputeSimilarityMatrix:
 
     def test_layer_without_mlp(self):
         """Test layer without MLP returns empty list."""
+
         class LayerWithoutMLP(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -289,6 +294,7 @@ class TestComputeSimilarityMatrix:
 
     def test_mlp_without_experts(self):
         """Test MLP without experts returns empty list."""
+
         class MLPWithoutExperts(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -331,19 +337,25 @@ class TestFindMergeCandidates:
         # Create mock similarities with known values
         similarities = [
             ExpertSimilarity(
-                expert_a=0, expert_b=1, layer_idx=0,
+                expert_a=0,
+                expert_b=1,
+                layer_idx=0,
                 weight_cosine_similarity=0.9,
-                activation_overlap=0.5
+                activation_overlap=0.5,
             ),
             ExpertSimilarity(
-                expert_a=0, expert_b=2, layer_idx=0,
+                expert_a=0,
+                expert_b=2,
+                layer_idx=0,
                 weight_cosine_similarity=0.7,
-                activation_overlap=0.5
+                activation_overlap=0.5,
             ),
             ExpertSimilarity(
-                expert_a=1, expert_b=2, layer_idx=0,
+                expert_a=1,
+                expert_b=2,
+                layer_idx=0,
                 weight_cosine_similarity=0.85,
-                activation_overlap=0.5
+                activation_overlap=0.5,
             ),
         ]
 
@@ -385,6 +397,7 @@ class TestFindPruneCandidates:
         # Mock utilization with some low-frequency experts
         # Expert 0: 50%, Expert 1: 30%, Expert 2: 0.5%, Expert 3: 19.5%
         from unittest.mock import Mock
+
         mock_util = ExpertUtilization(
             layer_idx=0,
             num_experts=4,
@@ -427,7 +440,6 @@ class TestCreateCompressionPlan:
 
     def test_returns_empty_plan_for_invalid_layer(self, moe_model):
         """Test returns empty plan when layer info is None."""
-        from chuk_lazarus.introspection.moe.models import CompressionPlan
         from unittest.mock import Mock
 
         hooks = MoEHooks(moe_model)
@@ -442,7 +454,7 @@ class TestCreateCompressionPlan:
         # The function returns a plan with 0 experts which violates Pydantic validation
         # This means line 218 is covered when it tries to create this invalid plan
         with pytest.raises(Exception):  # Will be ValidationError from Pydantic
-            plan = create_compression_plan(
+            create_compression_plan(
                 hooks,
                 layer_idx=0,
                 target_experts=2,
@@ -450,14 +462,16 @@ class TestCreateCompressionPlan:
 
     def test_merge_group_extension(self, moe_model):
         """Test that merge groups are extended correctly."""
-        from chuk_lazarus.introspection.moe.models import ExpertUtilization
         from unittest.mock import Mock, patch
+
+        from chuk_lazarus.introspection.moe.models import ExpertUtilization
 
         hooks = MoEHooks(moe_model)
         hooks.configure(MoECaptureConfig())
 
         # Mock layer info
         from chuk_lazarus.introspection.moe.models import MoELayerInfo
+
         mock_info = MoELayerInfo(
             layer_idx=0,
             num_experts=4,
@@ -483,20 +497,32 @@ class TestCreateCompressionPlan:
         # Which should be grouped as: (0,1,2,3)
         mock_similarities = [
             ExpertSimilarity(
-                expert_a=0, expert_b=1, layer_idx=0,
-                weight_cosine_similarity=0.9, activation_overlap=0.5
+                expert_a=0,
+                expert_b=1,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,
+                activation_overlap=0.5,
             ),
             ExpertSimilarity(
-                expert_a=1, expert_b=2, layer_idx=0,
-                weight_cosine_similarity=0.9, activation_overlap=0.5
+                expert_a=1,
+                expert_b=2,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,
+                activation_overlap=0.5,
             ),
             ExpertSimilarity(
-                expert_a=2, expert_b=3, layer_idx=0,
-                weight_cosine_similarity=0.9, activation_overlap=0.5
+                expert_a=2,
+                expert_b=3,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,
+                activation_overlap=0.5,
             ),
         ]
 
-        with patch('chuk_lazarus.introspection.moe.compression.compute_similarity_matrix', return_value=mock_similarities):
+        with patch(
+            "chuk_lazarus.introspection.moe.compression.compute_similarity_matrix",
+            return_value=mock_similarities,
+        ):
             plan = create_compression_plan(
                 hooks,
                 layer_idx=0,
@@ -510,8 +536,9 @@ class TestCreateCompressionPlan:
 
     def test_merge_groups_with_new_pairs(self, moe_model):
         """Test creating new merge groups for unmerged pairs."""
-        from chuk_lazarus.introspection.moe.models import ExpertUtilization, MoELayerInfo
         from unittest.mock import Mock, patch
+
+        from chuk_lazarus.introspection.moe.models import ExpertUtilization, MoELayerInfo
 
         hooks = MoEHooks(moe_model)
         hooks.configure(MoECaptureConfig())
@@ -538,16 +565,25 @@ class TestCreateCompressionPlan:
         # Create separate merge pairs: (0,1) and (2,3)
         mock_similarities = [
             ExpertSimilarity(
-                expert_a=0, expert_b=1, layer_idx=0,
-                weight_cosine_similarity=0.9, activation_overlap=0.5
+                expert_a=0,
+                expert_b=1,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,
+                activation_overlap=0.5,
             ),
             ExpertSimilarity(
-                expert_a=2, expert_b=3, layer_idx=0,
-                weight_cosine_similarity=0.85, activation_overlap=0.5
+                expert_a=2,
+                expert_b=3,
+                layer_idx=0,
+                weight_cosine_similarity=0.85,
+                activation_overlap=0.5,
             ),
         ]
 
-        with patch('chuk_lazarus.introspection.moe.compression.compute_similarity_matrix', return_value=mock_similarities):
+        with patch(
+            "chuk_lazarus.introspection.moe.compression.compute_similarity_matrix",
+            return_value=mock_similarities,
+        ):
             plan = create_compression_plan(
                 hooks,
                 layer_idx=0,
@@ -559,8 +595,9 @@ class TestCreateCompressionPlan:
 
     def test_extend_existing_merge_group(self, moe_model):
         """Test extending an existing merge group (lines 245-249)."""
-        from chuk_lazarus.introspection.moe.models import ExpertUtilization, MoELayerInfo
         from unittest.mock import Mock, patch
+
+        from chuk_lazarus.introspection.moe.models import ExpertUtilization, MoELayerInfo
 
         hooks = MoEHooks(moe_model)
         hooks.configure(MoECaptureConfig())
@@ -588,16 +625,25 @@ class TestCreateCompressionPlan:
         # First (0,1) creates a group, then (1,2) should extend it to (0,1,2)
         mock_similarities = [
             ExpertSimilarity(
-                expert_a=0, expert_b=1, layer_idx=0,
-                weight_cosine_similarity=0.9, activation_overlap=0.5
+                expert_a=0,
+                expert_b=1,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,
+                activation_overlap=0.5,
             ),
             ExpertSimilarity(
-                expert_a=1, expert_b=2, layer_idx=0,
-                weight_cosine_similarity=0.85, activation_overlap=0.5
+                expert_a=1,
+                expert_b=2,
+                layer_idx=0,
+                weight_cosine_similarity=0.85,
+                activation_overlap=0.5,
             ),
         ]
 
-        with patch('chuk_lazarus.introspection.moe.compression.compute_similarity_matrix', return_value=mock_similarities):
+        with patch(
+            "chuk_lazarus.introspection.moe.compression.compute_similarity_matrix",
+            return_value=mock_similarities,
+        ):
             plan = create_compression_plan(
                 hooks,
                 layer_idx=0,
@@ -709,9 +755,9 @@ class TestGetModelLayers:
         class TransformerModel(nn.Module):
             def __init__(self):
                 super().__init__()
-                self.transformer = type("Transformer", (), {
-                    "layers": [MockLayer() for _ in range(2)]
-                })()
+                self.transformer = type(
+                    "Transformer", (), {"layers": [MockLayer() for _ in range(2)]}
+                )()
 
         model = TransformerModel()
         layers = _get_model_layers(model)
@@ -725,9 +771,7 @@ class TestGetModelLayers:
         class DecoderModel(nn.Module):
             def __init__(self):
                 super().__init__()
-                self.decoder = type("Decoder", (), {
-                    "layers": [MockLayer() for _ in range(2)]
-                })()
+                self.decoder = type("Decoder", (), {"layers": [MockLayer() for _ in range(2)]})()
 
         model = DecoderModel()
         layers = _get_model_layers(model)

@@ -27,9 +27,9 @@ class TestIntrospectEmbedding:
 
     def test_embedding_basic(self, embedding_args, mock_ablation_study, capsys):
         """Test basic embedding analysis."""
-        from chuk_lazarus.cli.commands.introspect import introspect_embedding
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_embedding
 
         with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
             mock_hooks = MagicMock()
@@ -72,9 +72,9 @@ class TestIntrospectEmbedding:
 
     def test_embedding_specific_layers(self, embedding_args, mock_ablation_study, capsys):
         """Test embedding analysis at specific layers."""
-        from chuk_lazarus.cli.commands.introspect import introspect_embedding
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_embedding
 
         embedding_args.layers = "0,4,8"
 
@@ -116,9 +116,9 @@ class TestIntrospectEmbedding:
 
     def test_embedding_specific_operation(self, embedding_args, mock_ablation_study, capsys):
         """Test embedding analysis with specific operation."""
-        from chuk_lazarus.cli.commands.introspect import introspect_embedding
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_embedding
 
         embedding_args.operation = "mult"
 
@@ -160,9 +160,9 @@ class TestIntrospectEmbedding:
 
     def test_embedding_save_output(self, embedding_args, mock_ablation_study):
         """Test saving embedding analysis results."""
-        from chuk_lazarus.cli.commands.introspect import introspect_embedding
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_embedding
 
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             embedding_args.output = f.name
@@ -226,9 +226,9 @@ class TestIntrospectEarlyLayers:
 
     def test_early_layers_basic(self, early_layers_args, mock_ablation_study, capsys):
         """Test basic early layers analysis."""
-        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
 
         mock_study = mock_ablation_study.from_pretrained.return_value
         mock_study.adapter.num_layers = 12
@@ -267,9 +267,9 @@ class TestIntrospectEarlyLayers:
 
     def test_early_layers_specific_layers(self, early_layers_args, mock_ablation_study, capsys):
         """Test early layers analysis at specific layers."""
-        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
 
         early_layers_args.layers = "0,2,4"
 
@@ -307,9 +307,9 @@ class TestIntrospectEarlyLayers:
 
     def test_early_layers_specific_operations(self, early_layers_args, mock_ablation_study, capsys):
         """Test early layers analysis with specific operations."""
-        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
 
         early_layers_args.operations = "*,+"
 
@@ -349,9 +349,9 @@ class TestIntrospectEarlyLayers:
 
     def test_early_layers_custom_digits(self, early_layers_args, mock_ablation_study, capsys):
         """Test early layers analysis with custom digit range."""
-        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
 
         early_layers_args.digits = "2-5"
 
@@ -393,9 +393,9 @@ class TestIntrospectEarlyLayers:
         self, early_layers_args, mock_ablation_study, capsys
     ):
         """Test early layers analysis with position analysis."""
-        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
 
         early_layers_args.analyze_positions = True
 
@@ -436,9 +436,9 @@ class TestIntrospectEarlyLayers:
 
     def test_early_layers_save_output(self, early_layers_args, mock_ablation_study):
         """Test saving early layers analysis results."""
-        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
-
         import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
 
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             early_layers_args.output = f.name

@@ -208,13 +208,15 @@ def generate_arithmetic_prompts(
             else:
                 prompt = f"{a}{operation}{b}="
 
-            prompts.append({
-                "prompt": prompt,
-                "operand_a": a,
-                "operand_b": b,
-                "result": result,
-                "difficulty": diff,
-            })
+            prompts.append(
+                {
+                    "prompt": prompt,
+                    "operand_a": a,
+                    "operand_b": b,
+                    "result": result,
+                    "difficulty": diff,
+                }
+            )
 
     return prompts
 
@@ -342,7 +344,7 @@ def find_discriminative_neurons(
                     else:
                         separation = 0.0
                 else:
-                    pooled_std = np.sqrt((group_stds[i]**2 + group_stds[j]**2) / 2)
+                    pooled_std = np.sqrt((group_stds[i] ** 2 + group_stds[j] ** 2) / 2)
                     if pooled_std > 1e-6:
                         separation = mean_diff / pooled_std
                     else:
@@ -354,14 +356,16 @@ def find_discriminative_neurons(
 
         mean_range = max(group_means) - min(group_means)
 
-        neuron_scores.append({
-            "idx": neuron_idx,
-            "separation": max_separation,
-            "best_pair": best_pair,
-            "overall_std": overall_std,
-            "mean_range": mean_range,
-            "group_means": {lbl: group_means[i] for i, lbl in enumerate(unique_labels)},
-        })
+        neuron_scores.append(
+            {
+                "idx": neuron_idx,
+                "separation": max_separation,
+                "best_pair": best_pair,
+                "overall_std": overall_std,
+                "mean_range": mean_range,
+                "group_means": {lbl: group_means[i] for i, lbl in enumerate(unique_labels)},
+            }
+        )
 
     # Sort by separation score and take top-k
     neuron_scores.sort(key=lambda x: -x["separation"])
@@ -374,6 +378,7 @@ def normalize_number_string(s: str) -> str:
     Removes commas, thin spaces, regular spaces, and other separators.
     """
     import re
+
     return re.sub(r"[\s,\u202f\u00a0]+", "", s)
 
 

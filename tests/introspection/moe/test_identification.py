@@ -1,11 +1,11 @@
 """Tests for MoE expert identification."""
 
-import pytest
+from unittest.mock import MagicMock, patch
+
 import mlx.core as mx
 import mlx.nn as nn
-from unittest.mock import patch, MagicMock
+import pytest
 
-from chuk_lazarus.introspection.moe.config import MoECaptureConfig
 from chuk_lazarus.introspection.moe.datasets import PromptCategory
 from chuk_lazarus.introspection.moe.enums import ExpertCategory, ExpertRole
 from chuk_lazarus.introspection.moe.hooks import MoEHooks
@@ -20,7 +20,6 @@ from chuk_lazarus.introspection.moe.identification import (
     print_expert_summary,
 )
 from chuk_lazarus.introspection.moe.models import ExpertIdentity
-
 
 # =============================================================================
 # Mock Models
@@ -381,11 +380,13 @@ class TestPrintExpertSummary:
 
         captured = capsys.readouterr()
         # Higher confidence should appear first
-        lines = captured.out.split('\n')
-        expert_lines = [l for l in lines if 'Expert' in l and 'conf=' in l]
+        lines = captured.out.split("\n")
+        expert_lines = [l for l in lines if "Expert" in l and "conf=" in l]
         if len(expert_lines) >= 2:
             # First expert line should have higher confidence
-            assert '0.95' in expert_lines[0] or expert_lines[0].index('conf=0.95') < expert_lines[1].index('conf=0.7')
+            assert "0.95" in expert_lines[0] or expert_lines[0].index("conf=0.95") < expert_lines[
+                1
+            ].index("conf=0.7")
 
 
 class TestIdentifyExpert:
@@ -569,9 +570,11 @@ class TestIdentifyExpert:
             # Create a known pattern: expert 0 appears multiple times
             # Shape: (batch, seq_len, experts_per_tok)
             if 0 in hooks.moe_state.selected_experts:
-                hooks.moe_state.selected_experts[0] = mx.array([
-                    [[0, 1], [0, 2], [0, 3]]  # Expert 0 appears 3 times
-                ])
+                hooks.moe_state.selected_experts[0] = mx.array(
+                    [
+                        [[0, 1], [0, 2], [0, 3]]  # Expert 0 appears 3 times
+                    ]
+                )
             return result
 
         hooks.forward = mock_forward
@@ -602,9 +605,7 @@ class TestIdentifyExpert:
             if 0 in hooks.moe_state.selected_experts:
                 # Different expert for each category call
                 expert = category_idx[0] % 4
-                hooks.moe_state.selected_experts[0] = mx.array([
-                    [[expert, (expert + 1) % 4]]
-                ])
+                hooks.moe_state.selected_experts[0] = mx.array([[[expert, (expert + 1) % 4]]])
                 category_idx[0] += 1
             return result
 
@@ -631,9 +632,7 @@ class TestIdentifyExpert:
             result = original_forward(input_ids)
             if 0 in hooks.moe_state.selected_experts:
                 # Expert 1 appears more frequently
-                hooks.moe_state.selected_experts[0] = mx.array([
-                    [[1, 1], [1, 2], [1, 0]]
-                ])
+                hooks.moe_state.selected_experts[0] = mx.array([[[1, 1], [1, 2], [1, 0]]])
             return result
 
         hooks.forward = mock_forward
@@ -650,7 +649,9 @@ class TestIdentifyExpert:
         assert identity.expert_idx == 1
         assert 0 <= identity.confidence <= 1
 
-    @pytest.mark.skip(reason="Source code has bug - uses PromptCategory.GEOMETRY which triggers AttributeError in category_mapping")
+    @pytest.mark.skip(
+        reason="Source code has bug - uses PromptCategory.GEOMETRY which triggers AttributeError in category_mapping"
+    )
     def test_identify_expert_role_rare_low_activation(self, moe_model, tokenizer):
         """Test RARE role assignment for activation_rate < 0.01."""
         hooks = MoEHooks(moe_model)
@@ -1212,9 +1213,12 @@ class TestExpertProfile:
 class TestEdgeCasesWithMocking:
     """Tests for edge cases using mocking."""
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_empty_prompts_for_category(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_empty_prompts_for_category(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test handling when get_category_prompts returns empty prompts for a category (line 83)."""
+
         # Create a mock that returns None or empty prompts for some categories
         def side_effect(category):
             if category == PromptCategory.PYTHON:
@@ -1242,7 +1246,7 @@ class TestEdgeCasesWithMocking:
         # Should likely return UNKNOWN since no prompts were processed
         assert identity.expert_idx == 0
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
     def test_identify_expert_all_categories_empty(self, mock_get_prompts, moe_model, tokenizer):
         """Test when all categories return empty prompts."""
         # All categories return None
@@ -1272,10 +1276,9 @@ class TestEdgeCasesWithMocking:
             result = original_forward(input_ids)
             if 0 in hooks.moe_state.selected_experts:
                 # Create 3D array that needs reshaping
-                hooks.moe_state.selected_experts[0] = mx.array([
-                    [[0, 1], [2, 0]],
-                    [[0, 3], [1, 0]]
-                ])  # Shape: (2, 2, 2) - batch=2, seq_len=2, experts_per_tok=2
+                hooks.moe_state.selected_experts[0] = mx.array(
+                    [[[0, 1], [2, 0]], [[0, 3], [1, 0]]]
+                )  # Shape: (2, 2, 2) - batch=2, seq_len=2, experts_per_tok=2
             return result
 
         hooks.forward = mock_forward
@@ -1458,11 +1461,11 @@ class TestEdgeCasesWithMocking:
 
         captured = capsys.readouterr()
         # Should show first 2 secondary categories
-        lines = captured.out.split('\n')
-        expert_line = [l for l in lines if 'Expert  0' in l or 'Expert 0' in l]
+        lines = captured.out.split("\n")
+        expert_line = [l for l in lines if "Expert  0" in l or "Expert 0" in l]
         if expert_line:
             # Should have secondary categories in brackets
-            assert '[' in expert_line[0]
+            assert "[" in expert_line[0]
 
 
 class TestIdentifyExpertRealDataCoverage:
@@ -1514,9 +1517,12 @@ class TestIdentifyExpertRealDataCoverage:
 class TestIdentifyExpertCoverageEdgeCases:
     """Additional tests to cover lines 96-100 and 114-184."""
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_96_100_with_actual_counts(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_96_100_with_actual_counts(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 96-100: flat = selected.reshape(-1).tolist() and counting."""
+
         # Create controlled prompt data - need to return different prompts per category
         def get_prompts_side_effect(category):
             mock_prompts = MagicMock()
@@ -1539,9 +1545,11 @@ class TestIdentifyExpertCoverageEdgeCases:
             if 0 in hooks.moe_state.selected_experts:
                 # Make expert 0 appear multiple times in different shapes
                 # This tests the reshape(-1).tolist() and count logic
-                hooks.moe_state.selected_experts[0] = mx.array([
-                    [[0, 1], [0, 2], [0, 3], [1, 2]]  # Expert 0 appears 3 times
-                ])
+                hooks.moe_state.selected_experts[0] = mx.array(
+                    [
+                        [[0, 1], [0, 2], [0, 3], [1, 2]]  # Expert 0 appears 3 times
+                    ]
+                )
             return result
 
         hooks.forward = mock_forward
@@ -1562,8 +1570,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         assert isinstance(identity.activation_rate, float)
         assert identity.activation_rate >= 0  # May be 0 if not counted in actual categories
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_category_mapping_all_categories(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_category_mapping_all_categories(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 114-144: category_mapping for all PromptCategory values."""
         # Create prompts for each category to ensure mapping is exercised
         call_idx = [0]
@@ -1602,8 +1612,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         assert isinstance(identity, ExpertIdentity)
         assert isinstance(identity.primary_category, ExpertCategory)
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_146_162_expert_category_scores(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_146_162_expert_category_scores(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 146-162: expert_category_scores aggregation and confidence calculation."""
         # Create specific pattern to test aggregation logic
         categories_called = []
@@ -1634,9 +1646,9 @@ class TestIdentifyExpertCoverageEdgeCases:
                 current_category = categories_called[-1]
                 expert = category_to_expert.get(current_category, 2)
                 # Create consistent selections for testing
-                hooks.moe_state.selected_experts[0] = mx.array([
-                    [[expert, expert], [expert, (expert + 1) % 4]]
-                ])
+                hooks.moe_state.selected_experts[0] = mx.array(
+                    [[[expert, expert], [expert, (expert + 1) % 4]]]
+                )
             return result
 
         hooks.forward = mock_forward
@@ -1653,8 +1665,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         assert 0 <= identity.confidence <= 1
         assert isinstance(identity.primary_category, ExpertCategory)
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_155_162_empty_scores_handling(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_155_162_empty_scores_handling(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 155-162: empty expert_category_scores edge case."""
         # Return prompts but set up scenario where expert never activates
         mock_prompts = MagicMock()
@@ -1685,8 +1699,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         assert identity.confidence >= 0
         assert isinstance(identity.primary_category, ExpertCategory)
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_163_175_role_determination(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_163_175_role_determination(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 163-175: role determination based on activation_rate and confidence."""
         mock_prompts = MagicMock()
         mock_prompts.prompts = ["test1", "test2", "test3"]
@@ -1716,8 +1732,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         # Should have determined a role
         assert identity.role in [ExpertRole.SPECIALIST, ExpertRole.GENERALIST, ExpertRole.RARE]
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_171_174_generalist_role(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_171_174_generalist_role(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 171-174: GENERALIST role when active in 3+ categories."""
         call_count = [0]
 
@@ -1739,7 +1757,7 @@ class TestIdentifyExpertCoverageEdgeCases:
                 # Expert 1 appears in varying patterns to activate across categories
                 expert = 1
                 # Vary the second expert to create category diversity
-                second = (call_count[0] % 4)
+                second = call_count[0] % 4
                 hooks.moe_state.selected_experts[0] = mx.array([[[expert, second]]])
             return result
 
@@ -1757,8 +1775,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         assert identity.expert_idx == 1
         assert identity.role in [ExpertRole.SPECIALIST, ExpertRole.GENERALIST, ExpertRole.RARE]
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_177_182_secondary_categories(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_177_182_secondary_categories(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 177-182: secondary categories extraction and filtering."""
         mock_prompts = MagicMock()
         mock_prompts.prompts = ["p1", "p2", "p3"]
@@ -1798,8 +1818,10 @@ class TestIdentifyExpertCoverageEdgeCases:
             for secondary in identity.secondary_categories:
                 assert secondary != identity.primary_category
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_184_192_return_statement(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_184_192_return_statement(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 184-192: ExpertIdentity return with all fields populated."""
         mock_prompts = MagicMock()
         mock_prompts.prompts = ["test"]
@@ -1833,8 +1855,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         assert isinstance(identity.confidence, float)
         assert isinstance(identity.activation_rate, float)
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_167_168_rare_role_threshold(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_167_168_rare_role_threshold(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 167-168: RARE role when activation_rate < 0.01."""
         mock_prompts = MagicMock()
         # Use many prompts to create low activation rate
@@ -1852,14 +1876,14 @@ class TestIdentifyExpertCoverageEdgeCases:
             if 0 in hooks.moe_state.selected_experts:
                 # Expert 3 activates only on first call out of many
                 if call_count[0] == 1:
-                    hooks.moe_state.selected_experts[0] = mx.array([
-                        [[3, 0]] * 100  # Many positions to make ratio low
-                    ])
+                    hooks.moe_state.selected_experts[0] = mx.array(
+                        [
+                            [[3, 0]] * 100  # Many positions to make ratio low
+                        ]
+                    )
                 else:
                     # Other experts selected
-                    hooks.moe_state.selected_experts[0] = mx.array([
-                        [[0, 1]] * 100
-                    ])
+                    hooks.moe_state.selected_experts[0] = mx.array([[[0, 1]] * 100])
             return result
 
         hooks.forward = mock_forward
@@ -1877,8 +1901,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         # Role determination depends on actual activation pattern
         assert identity.role in [ExpertRole.RARE, ExpertRole.GENERALIST, ExpertRole.SPECIALIST]
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_169_170_specialist_confidence_threshold(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_169_170_specialist_confidence_threshold(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 169-170: SPECIALIST role when confidence > 0.7."""
         # Focus on single category to maximize confidence
         categories_seen = []
@@ -1902,9 +1928,7 @@ class TestIdentifyExpertCoverageEdgeCases:
             result = original_forward(input_ids)
             if 0 in hooks.moe_state.selected_experts:
                 # Expert 0 always selected to maximize confidence
-                hooks.moe_state.selected_experts[0] = mx.array([
-                    [[0, 0], [0, 0], [0, 0]]
-                ])
+                hooks.moe_state.selected_experts[0] = mx.array([[[0, 0], [0, 0], [0, 0]]])
             return result
 
         hooks.forward = mock_forward
@@ -1922,8 +1946,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         # Confidence should be > 0 with this pattern
         assert identity.confidence >= 0
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_total_score_division_coverage(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_total_score_division_coverage(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test line 161: confidence calculation with total_score division."""
         mock_prompts = MagicMock()
         mock_prompts.prompts = ["test1", "test2"]
@@ -1961,8 +1987,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         # Should have calculated confidence based on score distribution
         assert 0 <= identity.confidence <= 1
 
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_activation_rate_calculation_line_165(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_activation_rate_calculation_line_165(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test line 165: activation_rate = total_activations / total_possible."""
         mock_prompts = MagicMock()
         mock_prompts.prompts = ["p1", "p2", "p3"]
@@ -1975,9 +2003,11 @@ class TestIdentifyExpertCoverageEdgeCases:
             result = original_forward(input_ids)
             if 0 in hooks.moe_state.selected_experts:
                 # Create known pattern: expert 1 in 2 out of 4 positions
-                hooks.moe_state.selected_experts[0] = mx.array([
-                    [[1, 0], [2, 3]]  # Expert 1 appears once, total 4 positions
-                ])
+                hooks.moe_state.selected_experts[0] = mx.array(
+                    [
+                        [[1, 0], [2, 3]]  # Expert 1 appears once, total 4 positions
+                    ]
+                )
             return result
 
         hooks.forward = mock_forward
@@ -1995,9 +2025,12 @@ class TestIdentifyExpertCoverageEdgeCases:
         assert identity.expert_idx == 1
 
     @pytest.mark.skip(reason="Source code bug: PromptCategory.GEOMETRY doesn't exist")
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_96_100_direct_execution(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_96_100_direct_execution(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Direct test of lines 96-100: reshape, tolist, and count logic."""
+
         # Set up a scenario where selected_experts is populated
         def get_prompts_side_effect(category):
             mock_prompts = MagicMock()
@@ -2011,9 +2044,11 @@ class TestIdentifyExpertCoverageEdgeCases:
         # Pre-populate selected_experts before configure to ensure it persists
         def mock_forward_with_experts(input_ids):
             # Simulate the hooks forward but manually set selected_experts
-            hooks.moe_state.selected_experts[0] = mx.array([
-                [[2, 1], [2, 0], [3, 2]]  # Expert 2 appears 3 times
-            ])
+            hooks.moe_state.selected_experts[0] = mx.array(
+                [
+                    [[2, 1], [2, 0], [3, 2]]  # Expert 2 appears 3 times
+                ]
+            )
             return mx.zeros((1, input_ids.shape[1], 100))  # Dummy output
 
         # Replace forward entirely
@@ -2034,8 +2069,10 @@ class TestIdentifyExpertCoverageEdgeCases:
         assert isinstance(identity, ExpertIdentity)
 
     @pytest.mark.skip(reason="Source code bug: PromptCategory.GEOMETRY doesn't exist")
-    @patch('chuk_lazarus.introspection.moe.identification.get_category_prompts')
-    def test_identify_expert_lines_114_184_with_populated_counts(self, mock_get_prompts, moe_model, tokenizer):
+    @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
+    def test_identify_expert_lines_114_184_with_populated_counts(
+        self, mock_get_prompts, moe_model, tokenizer
+    ):
         """Test lines 114-184: category mapping and role/confidence logic with actual counts."""
         # Create scenario where category_counts is non-empty to bypass early return
         categories_processed = []
@@ -2055,6 +2092,7 @@ class TestIdentifyExpertCoverageEdgeCases:
         hooks = MoEHooks(moe_model)
 
         call_index = [0]
+
         def mock_forward_varied(input_ids):
             call_index[0] += 1
             # Vary expert selection based on which category we're processing

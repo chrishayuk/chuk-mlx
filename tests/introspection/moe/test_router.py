@@ -1,12 +1,11 @@
 """Tests for MoE router analysis."""
 
-import pytest
 import mlx.core as mx
 import mlx.nn as nn
+import pytest
 
 from chuk_lazarus.introspection.moe.config import MoECaptureConfig
-from chuk_lazarus.introspection.moe.hooks import MoECapturedState, MoEHooks
-from chuk_lazarus.introspection.moe.models import ExpertUtilization
+from chuk_lazarus.introspection.moe.hooks import MoEHooks
 from chuk_lazarus.introspection.moe.router import (
     analyze_coactivation,
     compare_routing,
@@ -14,7 +13,6 @@ from chuk_lazarus.introspection.moe.router import (
     get_dominant_experts,
     get_rare_experts,
 )
-
 
 # =============================================================================
 # Mock Models
@@ -102,21 +100,27 @@ def hooks_with_data(moe_model):
     hooks.configure(MoECaptureConfig())
 
     # Manually populate state for testing
-    hooks.moe_state.selected_experts[0] = mx.array([
-        [[0, 1], [0, 2], [1, 3], [0, 1], [0, 1]],
-    ])  # batch=1, seq=5, k=2
+    hooks.moe_state.selected_experts[0] = mx.array(
+        [
+            [[0, 1], [0, 2], [1, 3], [0, 1], [0, 1]],
+        ]
+    )  # batch=1, seq=5, k=2
 
-    hooks.moe_state.selected_experts[1] = mx.array([
-        [[2, 3], [1, 2], [0, 3], [2, 3], [1, 2]],
-    ])
+    hooks.moe_state.selected_experts[1] = mx.array(
+        [
+            [[2, 3], [1, 2], [0, 3], [2, 3], [1, 2]],
+        ]
+    )
 
-    hooks.moe_state.router_logits[0] = mx.array([
-        [1.0, 2.0, 0.5, 0.3],
-        [1.5, 1.5, 1.0, 0.5],
-        [0.5, 2.0, 1.0, 1.5],
-        [1.0, 2.0, 0.5, 0.3],
-        [1.0, 2.0, 0.5, 0.3],
-    ])
+    hooks.moe_state.router_logits[0] = mx.array(
+        [
+            [1.0, 2.0, 0.5, 0.3],
+            [1.5, 1.5, 1.0, 0.5],
+            [0.5, 2.0, 1.0, 1.5],
+            [1.0, 2.0, 0.5, 0.3],
+            [1.0, 2.0, 0.5, 0.3],
+        ]
+    )
 
     return hooks
 
@@ -145,8 +149,9 @@ class TestAnalyzeCoactivation:
         assert len(analysis.top_pairs) > 0
         # (0, 1) appears 3 times, should be top pair
         top_pair = analysis.top_pairs[0]
-        assert (top_pair.expert_a == 0 and top_pair.expert_b == 1) or \
-               (top_pair.expert_a == 1 and top_pair.expert_b == 0)
+        assert (top_pair.expert_a == 0 and top_pair.expert_b == 1) or (
+            top_pair.expert_a == 1 and top_pair.expert_b == 0
+        )
 
     def test_missing_layer(self, hooks_with_data):
         """Test with layer not in state."""
@@ -238,9 +243,11 @@ class TestCompareRouting:
         # Create second hooks with different data
         hooks2 = MoEHooks(MockMoEModel())
         hooks2.configure(MoECaptureConfig())
-        hooks2.moe_state.selected_experts[0] = mx.array([
-            [[2, 3], [2, 3], [2, 3], [2, 3], [2, 3]],
-        ])
+        hooks2.moe_state.selected_experts[0] = mx.array(
+            [
+                [[2, 3], [2, 3], [2, 3], [2, 3], [2, 3]],
+            ]
+        )
 
         result = compare_routing(hooks_with_data, hooks2, layer_idx=0)
 
@@ -260,9 +267,11 @@ class TestCompareRouting:
         hooks2 = MoEHooks(moe_model)
         hooks2.configure(MoECaptureConfig())
         # Different shape
-        hooks2.moe_state.selected_experts[0] = mx.array([
-            [[0, 1], [0, 1]],  # Only 2 positions
-        ])
+        hooks2.moe_state.selected_experts[0] = mx.array(
+            [
+                [[0, 1], [0, 1]],  # Only 2 positions
+            ]
+        )
 
         result = compare_routing(hooks_with_data, hooks2, layer_idx=0)
         assert result.get("shape_mismatch") == 1.0

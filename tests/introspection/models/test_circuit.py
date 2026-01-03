@@ -4,8 +4,6 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-import pytest
-from pydantic import ValidationError
 
 from chuk_lazarus.introspection.enums import InvocationMethod, TestStatus
 from chuk_lazarus.introspection.models.circuit import (

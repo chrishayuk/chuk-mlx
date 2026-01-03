@@ -12,7 +12,6 @@ import mlx.core as mx
 import mlx.nn as nn
 
 from .config import MoEAblationConfig
-from .detector import get_moe_layers
 from .models import ExpertAblationResult
 
 if TYPE_CHECKING:
@@ -57,14 +56,16 @@ def ablate_expert(
     baseline_output = _generate(model, input_ids, tokenizer, config.max_new_tokens)
 
     # Check if expert would have been selected
-    from .hooks import MoEHooks
     from .config import MoECaptureConfig
+    from .hooks import MoEHooks
 
     hooks = MoEHooks(model)
-    hooks.configure(MoECaptureConfig(
-        layers=[layer_idx],
-        capture_selected_experts=True,
-    ))
+    hooks.configure(
+        MoECaptureConfig(
+            layers=[layer_idx],
+            capture_selected_experts=True,
+        )
+    )
     hooks.forward(input_ids)
 
     selected = hooks.moe_state.selected_experts.get(layer_idx)
@@ -116,9 +117,7 @@ def ablate_expert_batch(
     """
     results = []
     for expert_idx in expert_indices:
-        result = ablate_expert(
-            model, layer_idx, expert_idx, input_ids, tokenizer, config
-        )
+        result = ablate_expert(model, layer_idx, expert_idx, input_ids, tokenizer, config)
         results.append(result)
     return results
 
@@ -162,7 +161,7 @@ def find_causal_experts(
 
 
 def sweep_layer_experts(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     input_ids: mx.array,
     tokenizer: Any,
     config: MoEAblationConfig | None = None,
@@ -220,7 +219,7 @@ def _generate(
         if hasattr(tokenizer, "eos_token_id") and next_token == tokenizer.eos_token_id:
             break
 
-    return tokenizer.decode(output_ids[input_ids.shape[-1]:])
+    return tokenizer.decode(output_ids[input_ids.shape[-1] :])
 
 
 def _generate_with_ablation(

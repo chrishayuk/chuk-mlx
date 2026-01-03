@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from chuk_lazarus.introspection.enums import ArithmeticOperator
 from chuk_lazarus.introspection.utils import (
     analyze_orthogonality,
     apply_chat_template,
@@ -229,16 +228,12 @@ class TestGenerateArithmeticPrompts:
         assert all(str(p["result"]) in p["prompt"] for p in prompts)
 
     def test_difficulty_easy(self):
-        prompts = generate_arithmetic_prompts(
-            operation="*", digit_range=(2, 9), difficulty="easy"
-        )
+        prompts = generate_arithmetic_prompts(operation="*", digit_range=(2, 9), difficulty="easy")
         # Easy: at least one operand <= 3
         assert all(p["operand_a"] <= 3 or p["operand_b"] <= 3 for p in prompts)
 
     def test_difficulty_hard(self):
-        prompts = generate_arithmetic_prompts(
-            operation="*", digit_range=(2, 9), difficulty="hard"
-        )
+        prompts = generate_arithmetic_prompts(operation="*", digit_range=(2, 9), difficulty="hard")
         # Hard: both operands >= 7
         assert all(p["operand_a"] >= 7 and p["operand_b"] >= 7 for p in prompts)
 
@@ -355,12 +350,14 @@ class TestFindDiscriminativeNeurons:
 
     def test_single_discriminative_neuron(self):
         # Create activations where neuron 0 discriminates
-        activations = np.array([
-            [10.0, 0.0, 0.0],  # Class A
-            [11.0, 0.0, 0.0],  # Class A (slight variation)
-            [0.0, 0.0, 0.0],  # Class B
-            [1.0, 0.0, 0.0],  # Class B (slight variation)
-        ])
+        activations = np.array(
+            [
+                [10.0, 0.0, 0.0],  # Class A
+                [11.0, 0.0, 0.0],  # Class A (slight variation)
+                [0.0, 0.0, 0.0],  # Class B
+                [1.0, 0.0, 0.0],  # Class B (slight variation)
+            ]
+        )
         labels = ["A", "A", "B", "B"]
 
         neurons = find_discriminative_neurons(activations, labels, top_k=3)
@@ -379,10 +376,12 @@ class TestFindDiscriminativeNeurons:
         assert len(neurons) == 5
 
     def test_single_sample_per_group(self):
-        activations = np.array([
-            [1.0, 0.0],
-            [0.0, 1.0],
-        ])
+        activations = np.array(
+            [
+                [1.0, 0.0],
+                [0.0, 1.0],
+            ]
+        )
         labels = ["A", "B"]
 
         neurons = find_discriminative_neurons(activations, labels, top_k=2)
@@ -390,12 +389,14 @@ class TestFindDiscriminativeNeurons:
         assert len(neurons) == 2
 
     def test_group_means(self):
-        activations = np.array([
-            [10.0, 5.0],
-            [12.0, 5.0],  # Class A
-            [0.0, 20.0],
-            [0.0, 22.0],  # Class B
-        ])
+        activations = np.array(
+            [
+                [10.0, 5.0],
+                [12.0, 5.0],  # Class A
+                [0.0, 20.0],
+                [0.0, 22.0],  # Class B
+            ]
+        )
         labels = ["A", "A", "B", "B"]
 
         neurons = find_discriminative_neurons(activations, labels, top_k=2)

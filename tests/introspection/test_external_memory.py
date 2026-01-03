@@ -67,7 +67,7 @@ class MockModel(nn.Module):
         super().__init__()
 
         # Support both config object and direct parameters
-        if hasattr(config_or_vocab_size, 'hidden_size'):
+        if hasattr(config_or_vocab_size, "hidden_size"):
             # It's a config object
             vocab_size = 100
             hidden_size = config_or_vocab_size.hidden_size
@@ -616,7 +616,7 @@ class TestExternalMemory:
             {"query": "test", "answer": "expected"},
         ]
 
-        metrics = memory.evaluate(test_facts, verbose=True)
+        memory.evaluate(test_facts, verbose=True)
 
         # Check verbose output was generated
         captured = capsys.readouterr()
@@ -663,7 +663,7 @@ class TestExternalMemory:
             {"query": "test", "answer": "some_answer"},
         ]
 
-        metrics = memory.evaluate(test_facts, verbose=True)
+        memory.evaluate(test_facts, verbose=True)
 
         # Check verbose output was generated
         captured = capsys.readouterr()
@@ -690,7 +690,7 @@ class TestExternalMemory:
             {"query": "query3", "answer": "answer3"},
         ]
 
-        metrics = memory.evaluate(test_facts, verbose=True)
+        memory.evaluate(test_facts, verbose=True)
 
         # Check verbose output was generated
         captured = capsys.readouterr()
@@ -820,6 +820,7 @@ class TestModelStructureVariants:
 
     def test_get_layers_direct(self):
         """Test _get_layers when model.layers exists directly."""
+
         # Create model without nested structure
         class DirectModel(nn.Module):
             def __init__(self):
@@ -838,6 +839,7 @@ class TestModelStructureVariants:
 
     def test_get_embed_direct(self):
         """Test _get_embed when embed_tokens is at top level."""
+
         class DirectModel(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -856,6 +858,7 @@ class TestModelStructureVariants:
 
     def test_get_norm_at_model_level(self):
         """Test _get_norm when norm is at model level."""
+
         class ModelWithNorm(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -881,6 +884,7 @@ class TestModelStructureVariants:
 
     def test_get_norm_returns_none(self):
         """Test _get_norm when no norm exists."""
+
         class NoNormModel(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -899,6 +903,7 @@ class TestModelStructureVariants:
 
     def test_get_lm_head_none(self):
         """Test _get_lm_head when lm_head doesn't exist."""
+
         class NoLMHeadModel(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -929,6 +934,7 @@ class TestModelStructureVariants:
 
     def test_extract_representation_tuple_output(self):
         """Test _extract_representation when layer returns tuple."""
+
         class TupleOutputLayer(nn.Module):
             def __init__(self, hidden_size):
                 super().__init__()
@@ -969,6 +975,7 @@ class TestModelStructureVariants:
 
     def test_extract_representation_no_mask_support(self):
         """Test _extract_representation when layer doesn't accept mask."""
+
         class NoMaskLayer(nn.Module):
             def __init__(self, hidden_size):
                 super().__init__()
@@ -1034,6 +1041,7 @@ class TestForwardWithInjectionEdgeCases:
 
     def test_forward_with_injection_norm_none(self):
         """Test _forward_with_injection when model has no norm."""
+
         class NoNormModel(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1063,6 +1071,7 @@ class TestForwardWithInjectionEdgeCases:
 
     def test_forward_with_injection_no_lm_head(self):
         """Test _forward_with_injection when model has no lm_head."""
+
         class NoLMHeadModel(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1093,6 +1102,7 @@ class TestForwardWithInjectionEdgeCases:
 
     def test_forward_with_injection_lm_head_with_logits_attr(self):
         """Test when lm_head output has .logits attribute."""
+
         class LogitsOutput:
             def __init__(self, logits):
                 self.logits = logits
@@ -1153,6 +1163,7 @@ class TestForwardWithInjectionEdgeCases:
 
     def test_forward_no_mask_support(self):
         """Test _forward_with_injection with layers that don't support mask."""
+
         class NoMaskLayer(nn.Module):
             def __init__(self, hidden_size):
                 super().__init__()
@@ -1296,8 +1307,8 @@ class TestFromPretrainedErrors:
 
     def test_from_pretrained_unsupported_model(self, monkeypatch):
         """Test from_pretrained with unsupported model family."""
-        import tempfile
         import json
+        import tempfile
 
         # Create temp directory with unsupported config
         tmpdir = Path(tempfile.mkdtemp())
@@ -1330,22 +1341,26 @@ class TestFromPretrainedErrors:
 
         # Cleanup
         import shutil
+
         shutil.rmtree(tmpdir, ignore_errors=True)
 
     def test_from_pretrained_auto_config(self, monkeypatch):
         """Test from_pretrained with auto-configuration of memory layers."""
-        import tempfile
         import json
+        import tempfile
 
         # Create temp directory with model config
         tmpdir = Path(tempfile.mkdtemp())
         config_path = tmpdir / "config.json"
         with open(config_path, "w") as f:
-            json.dump({
-                "model_type": "gpt2",
-                "hidden_size": 64,
-                "num_hidden_layers": 24,
-            }, f)
+            json.dump(
+                {
+                    "model_type": "gpt2",
+                    "hidden_size": 64,
+                    "num_hidden_layers": 24,
+                },
+                f,
+            )
 
         # Mock the HFLoader.download to return our temp directory
         class MockDownloadResult:
@@ -1399,22 +1414,26 @@ class TestFromPretrainedErrors:
 
         # Cleanup
         import shutil
+
         shutil.rmtree(tmpdir, ignore_errors=True)
 
     def test_from_pretrained_explicit_config(self, monkeypatch):
         """Test from_pretrained with explicit memory config."""
-        import tempfile
         import json
+        import tempfile
 
         # Create temp directory with model config
         tmpdir = Path(tempfile.mkdtemp())
         config_path = tmpdir / "config.json"
         with open(config_path, "w") as f:
-            json.dump({
-                "model_type": "gpt2",
-                "hidden_size": 64,
-                "num_hidden_layers": 24,
-            }, f)
+            json.dump(
+                {
+                    "model_type": "gpt2",
+                    "hidden_size": 64,
+                    "num_hidden_layers": 24,
+                },
+                f,
+            )
 
         # Mock the HFLoader.download to return our temp directory
         class MockDownloadResult:
@@ -1466,6 +1485,7 @@ class TestFromPretrainedErrors:
 
         # Cleanup
         import shutil
+
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
@@ -1474,19 +1494,23 @@ class TestDemo:
 
     def test_demo_function(self, monkeypatch, capsys):
         """Test the demo function runs without errors."""
-        import tempfile
         import json
+        import tempfile
+
         from chuk_lazarus.introspection import external_memory
 
         # Create temp directory with model config
         tmpdir = Path(tempfile.mkdtemp())
         config_path = tmpdir / "config.json"
         with open(config_path, "w") as f:
-            json.dump({
-                "model_type": "gpt2",
-                "hidden_size": 64,
-                "num_hidden_layers": 24,
-            }, f)
+            json.dump(
+                {
+                    "model_type": "gpt2",
+                    "hidden_size": 64,
+                    "num_hidden_layers": 24,
+                },
+                f,
+            )
 
         # Mock the HFLoader.download to return our temp directory
         class MockDownloadResult:
@@ -1539,4 +1563,5 @@ class TestDemo:
 
         # Cleanup
         import shutil
+
         shutil.rmtree(tmpdir, ignore_errors=True)

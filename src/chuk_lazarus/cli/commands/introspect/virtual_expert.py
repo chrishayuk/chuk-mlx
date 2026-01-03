@@ -85,10 +85,11 @@ def _is_moe_model(model) -> bool:
 
 def _analyze_experts(args):
     """Analyze which experts activate for different prompt categories."""
+    from collections import defaultdict
+
     import mlx.core as mx
 
-    from collections import defaultdict
-    from ....introspection.moe import MoEHooks, MoECaptureConfig, get_moe_layer_info
+    from ....introspection.moe import MoECaptureConfig, MoEHooks, get_moe_layer_info
 
     model, tokenizer = _load_model(args.model)
 
@@ -150,10 +151,12 @@ def _analyze_experts(args):
     category_expert_counts = {cat: defaultdict(int) for cat in categories}
 
     hooks = MoEHooks(model)
-    hooks.configure(MoECaptureConfig(
-        capture_selected_experts=True,
-        layers=[target_layer],
-    ))
+    hooks.configure(
+        MoECaptureConfig(
+            capture_selected_experts=True,
+            layers=[target_layer],
+        )
+    )
 
     for category, prompts in categories.items():
         for prompt in prompts:
@@ -212,9 +215,11 @@ def _solve_with_expert(args):
 
     if _is_moe_model(model):
         from ....inference import VirtualMoEWrapper
+
         wrapper = VirtualMoEWrapper(model, tokenizer, args.model)
     else:
         from ....inference import VirtualDenseWrapper
+
         wrapper = VirtualDenseWrapper(model, tokenizer, args.model)
 
     print("Calibrating virtual expert...")
@@ -242,9 +247,11 @@ def _run_benchmark(args):
 
     if _is_moe_model(model):
         from ....inference import VirtualMoEWrapper
+
         wrapper = VirtualMoEWrapper(model, tokenizer, args.model)
     else:
         from ....inference import VirtualDenseWrapper
+
         wrapper = VirtualDenseWrapper(model, tokenizer, args.model)
 
     print("Calibrating virtual expert...")
@@ -282,8 +289,12 @@ def _run_benchmark(args):
     print("=" * 70)
     print(f"Model: {analysis.model_name}")
     print(f"Total problems: {analysis.total_problems}")
-    print(f"Correct without virtual: {analysis.correct_without_virtual} ({analysis.accuracy_without:.1%})")
-    print(f"Correct with virtual:    {analysis.correct_with_virtual} ({analysis.accuracy_with:.1%})")
+    print(
+        f"Correct without virtual: {analysis.correct_without_virtual} ({analysis.accuracy_without:.1%})"
+    )
+    print(
+        f"Correct with virtual:    {analysis.correct_with_virtual} ({analysis.accuracy_with:.1%})"
+    )
     print(f"Improvement: {analysis.improvement:+.1%}")
     print(f"Times virtual used: {analysis.times_virtual_used}")
     print(f"Average routing score: {analysis.avg_routing_score:.3f}")
@@ -298,12 +309,15 @@ def _run_benchmark(args):
     for result in analysis.results:
         status = "OK" if result.is_correct else "X"
         virtual = "V" if result.used_virtual_expert else "M"
-        print(f"  {status} [{virtual}] {result.prompt:<20} -> {result.answer:<15} (expected: {result.correct_answer})")
+        print(
+            f"  {status} [{virtual}] {result.prompt:<20} -> {result.answer:<15} (expected: {result.correct_answer})"
+        )
 
     print("=" * 70)
 
     if args.output:
         import json
+
         with open(args.output, "w") as f:
             json.dump(analysis.model_dump(), f, indent=2)
         print(f"\nResults saved to: {args.output}")
@@ -315,9 +329,11 @@ def _compare_approaches(args):
 
     if _is_moe_model(model):
         from ....inference import VirtualMoEWrapper
+
         wrapper = VirtualMoEWrapper(model, tokenizer, args.model)
     else:
         from ....inference import VirtualDenseWrapper
+
         wrapper = VirtualDenseWrapper(model, tokenizer, args.model)
 
     print("Calibrating virtual expert...")
@@ -336,10 +352,12 @@ def _interactive_mode(args):
 
     if _is_moe_model(model):
         from ....inference import VirtualMoEWrapper
+
         wrapper = VirtualMoEWrapper(model, tokenizer, args.model)
         model_type = "MoE"
     else:
         from ....inference import VirtualDenseWrapper
+
         wrapper = VirtualDenseWrapper(model, tokenizer, args.model)
         model_type = "Dense"
 
@@ -393,7 +411,9 @@ def _interactive_mode(args):
                 except ValueError:
                     print("Invalid threshold")
             else:
-                print("Unknown command. Try !quit, !model <expr>, !compare <expr>, or !threshold <n>")
+                print(
+                    "Unknown command. Try !quit, !model <expr>, !compare <expr>, or !threshold <n>"
+                )
             continue
 
         # Add "= " if missing

@@ -1,8 +1,8 @@
 """Tests for MoE ablation functionality."""
 
-import pytest
 import mlx.core as mx
 import mlx.nn as nn
+import pytest
 
 from chuk_lazarus.introspection.moe.ablation import (
     ablate_expert,
@@ -13,7 +13,6 @@ from chuk_lazarus.introspection.moe.ablation import (
 from chuk_lazarus.introspection.moe.config import MoEAblationConfig
 from chuk_lazarus.introspection.moe.hooks import MoEHooks
 from chuk_lazarus.introspection.moe.models import ExpertAblationResult
-
 
 # =============================================================================
 # Mock Models
@@ -276,6 +275,7 @@ class TestAblationHelpers:
 
     def test_layer_not_moe(self, tokenizer):
         """Test ablating a non-MoE layer raises error."""
+
         class NonMoELayer(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -300,6 +300,7 @@ class TestAblationHelpers:
 
     def test_generate_with_eos_token(self):
         """Test generation stops at EOS token."""
+
         class SimpleModel(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -311,7 +312,7 @@ class TestAblationHelpers:
                 seq_len = input_ids.shape[1]
                 logits = mx.zeros((batch_size, seq_len, 100))
                 # Set high score for EOS token using proper MLX syntax
-                high_eos = mx.zeros((batch_size, seq_len, 100))
+                mx.zeros((batch_size, seq_len, 100))
                 high_eos_slice = mx.ones((batch_size, seq_len, 1)) * 10.0
                 logits = mx.concatenate([high_eos_slice, logits[:, :, 1:]], axis=-1)
                 return logits
@@ -351,6 +352,7 @@ class TestAblationHelpers:
 
     def test_ablation_with_batched_experts(self):
         """Test ablation with batched expert implementation."""
+
         class BatchedExperts(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -398,6 +400,7 @@ class TestAblationHelpers:
 
     def test_ablation_expert_without_down_proj(self):
         """Test ablation when expert doesn't have expected structure."""
+
         class SimpleExpert(nn.Module):
             # No down_proj attribute
             def __call__(self, x: mx.array) -> mx.array:
@@ -441,6 +444,7 @@ class TestAblationHelpers:
 
     def test_find_causal_experts_no_moe_layer(self, tokenizer):
         """Test find_causal_experts with non-existent MoE layer."""
+
         class SimpleModel(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -493,8 +497,8 @@ class TestAblationHelpers:
         )
 
         # These fields should be populated by lines 75-77
-        assert hasattr(result, 'would_have_activated')
-        assert hasattr(result, 'activation_count')
+        assert hasattr(result, "would_have_activated")
+        assert hasattr(result, "activation_count")
         assert isinstance(result.activation_count, int)
         assert result.activation_count >= 0
         # If would_have_activated is True, activation_count should be > 0
@@ -503,8 +507,10 @@ class TestAblationHelpers:
 
     def test_generate_with_logits_attribute(self, tokenizer):
         """Test _generate handles model outputs with .logits attribute (line 216)."""
+
         class ModelWithLogitsAttr(nn.Module):
             """Model that returns object with .logits attribute."""
+
             def __init__(self):
                 super().__init__()
                 self.lm_head = nn.Linear(32, 100)
@@ -514,7 +520,7 @@ class TestAblationHelpers:
                 seq_len = input_ids.shape[1]
                 logits = mx.random.normal((batch_size, seq_len, 100))
                 # Return object with .logits attribute
-                return type('Output', (), {'logits': logits})()
+                return type("Output", (), {"logits": logits})()
 
         from chuk_lazarus.introspection.moe.ablation import _generate
 
@@ -527,6 +533,7 @@ class TestAblationHelpers:
 
     def test_generate_with_ablation_complex_routing(self, tokenizer):
         """Test _generate_with_ablation routing logic (lines 244-268)."""
+
         # Create a model with router that has bias
         class RouterWithBias(nn.Module):
             def __init__(self):
@@ -571,15 +578,16 @@ class TestAblationHelpers:
 
         # This should exercise the routing logic with bias (lines 244-268)
         output = _generate_with_ablation(
-            model, input_ids, tokenizer,
-            layer_idx=0, expert_idx=1, max_new_tokens=2
+            model, input_ids, tokenizer, layer_idx=0, expert_idx=1, max_new_tokens=2
         )
         assert isinstance(output, str)
 
     def test_ablation_weight_restoration(self, tokenizer):
         """Test that expert weights are properly restored after ablation."""
+
         class TrackableExpert(nn.Module):
             """Expert that tracks weight modifications."""
+
             def __init__(self):
                 super().__init__()
                 self.up_proj = nn.Linear(32, 64)
@@ -624,8 +632,7 @@ class TestAblationHelpers:
 
         # Run ablation
         result = ablate_expert(
-            model, layer_idx=0, expert_idx=0,
-            input_ids=input_ids, tokenizer=tokenizer
+            model, layer_idx=0, expert_idx=0, input_ids=input_ids, tokenizer=tokenizer
         )
 
         # Weight should be restored
@@ -634,6 +641,7 @@ class TestAblationHelpers:
 
     def test_ablation_expert_out_of_range(self, tokenizer):
         """Test ablation when expert index is out of range."""
+
         class SmallMoE(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -668,13 +676,17 @@ class TestAblationHelpers:
         # Try to ablate expert beyond available experts
         # Should handle gracefully (expert won't have weight modified)
         result = ablate_expert(
-            model, layer_idx=0, expert_idx=5,  # Out of range
-            input_ids=input_ids, tokenizer=tokenizer
+            model,
+            layer_idx=0,
+            expert_idx=5,  # Out of range
+            input_ids=input_ids,
+            tokenizer=tokenizer,
         )
         assert isinstance(result, ExpertAblationResult)
 
     def test_generate_1d_input_ids(self, tokenizer):
         """Test _generate handles 1D input_ids correctly."""
+
         class Simple1DModel(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -696,6 +708,7 @@ class TestAblationHelpers:
 
     def test_ablation_with_no_experts_attr(self, tokenizer):
         """Test ablation when MLP has no experts attribute."""
+
         class NoExpertsMLP(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -729,13 +742,13 @@ class TestAblationHelpers:
 
         # Should handle missing experts attribute gracefully
         result = ablate_expert(
-            model, layer_idx=0, expert_idx=0,
-            input_ids=input_ids, tokenizer=tokenizer
+            model, layer_idx=0, expert_idx=0, input_ids=input_ids, tokenizer=tokenizer
         )
         assert isinstance(result, ExpertAblationResult)
 
     def test_router_without_bias(self, tokenizer):
         """Test ablation with router that has no bias."""
+
         class RouterNoBias(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -779,8 +792,7 @@ class TestAblationHelpers:
 
         # Should handle router without bias
         output = _generate_with_ablation(
-            model, input_ids, tokenizer,
-            layer_idx=0, expert_idx=0, max_new_tokens=2
+            model, input_ids, tokenizer, layer_idx=0, expert_idx=0, max_new_tokens=2
         )
         assert isinstance(output, str)
 
@@ -857,8 +869,7 @@ class TestAblationHelpers:
 
         # This will exercise the routing logic similar to lines 244-268
         output = _generate_with_ablation(
-            model, input_ids, tokenizer,
-            layer_idx=0, expert_idx=1, max_new_tokens=1
+            model, input_ids, tokenizer, layer_idx=0, expert_idx=1, max_new_tokens=1
         )
         assert isinstance(output, str)
 
@@ -866,9 +877,6 @@ class TestAblationHelpers:
         """Test expert activation tracking when selected experts is not None (lines 75-77)."""
         # This specifically targets the code path where selected is not None
         # and we compute activation_count and would_activate
-
-        from chuk_lazarus.introspection.moe.hooks import MoEHooks
-        from chuk_lazarus.introspection.moe.config import MoECaptureConfig
 
         # Use a longer input to increase chance of expert selection
         input_ids = mx.array([[1, 2, 3, 4, 5, 6, 7, 8]])
@@ -884,14 +892,15 @@ class TestAblationHelpers:
 
         # The result should have activation tracking populated
         # If selected was not None, these would be set by lines 75-77
-        assert hasattr(result, 'would_have_activated')
-        assert hasattr(result, 'activation_count')
+        assert hasattr(result, "would_have_activated")
+        assert hasattr(result, "activation_count")
         assert isinstance(result.would_have_activated, bool)
         assert isinstance(result.activation_count, int)
         assert result.activation_count >= 0
 
     def test_multiple_expert_activations(self, tokenizer):
         """Test counting multiple activations of same expert (line 76)."""
+
         # Create a model that will definitely select expert 0 multiple times
         class DeterministicRouter(nn.Module):
             def __init__(self):
@@ -950,6 +959,7 @@ class TestAblationHelpers:
 
     def test_hooks_capture_selected_experts(self, tokenizer):
         """Test that MoE hooks properly capture selected experts to exercise lines 75-77."""
+
         # Create a model with a functioning MoE forward pass
         class FunctionalRouter(nn.Module):
             def __init__(self):
@@ -978,7 +988,7 @@ class TestAblationHelpers:
 
                 # Get top-k experts
                 k = router.num_experts_per_tok
-                topk_indices = mx.argpartition(router_logits, kth=-k, axis=-1)[..., -k:]
+                mx.argpartition(router_logits, kth=-k, axis=-1)[..., -k:]
 
                 # Simple pass-through for now
                 return x
@@ -1024,7 +1034,8 @@ class TestAblationHelpers:
 
     def test_expert_activation_with_mock_hook_state(self, tokenizer):
         """Test lines 75-77 by directly mocking the hook state."""
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
+
         from chuk_lazarus.introspection.moe.hooks import MoECapturedState
 
         # Create a simple mock model
@@ -1061,15 +1072,17 @@ class TestAblationHelpers:
         mock_hooks_instance = MagicMock()
         mock_state = MoECapturedState()
         # Set selected_experts to have expert 0 appearing 3 times
-        mock_state.selected_experts[0] = mx.array([
-            [[0, 1], [0, 2], [1, 2], [0, 3], [1, 3]]  # Expert 0 appears 3 times
-        ])
+        mock_state.selected_experts[0] = mx.array(
+            [
+                [[0, 1], [0, 2], [1, 2], [0, 3], [1, 3]]  # Expert 0 appears 3 times
+            ]
+        )
         mock_hooks_instance.moe_state = mock_state
         mock_hooks_instance.configure.return_value = mock_hooks_instance
         mock_hooks_instance.forward.return_value = model(input_ids)
 
         # Patch MoEHooks class at the location it's imported from
-        with patch('chuk_lazarus.introspection.moe.hooks.MoEHooks') as mock_hooks_class:
+        with patch("chuk_lazarus.introspection.moe.hooks.MoEHooks") as mock_hooks_class:
             mock_hooks_class.return_value = mock_hooks_instance
 
             # Now run ablate_expert - it should hit lines 75-77

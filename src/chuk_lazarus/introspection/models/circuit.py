@@ -45,7 +45,9 @@ class CapturedCircuit(BaseModel):
     model_id: str = Field(description="Model identifier")
     layer: int = Field(description="Layer where activations were captured")
     entries: list[CircuitEntry] = Field(default_factory=list, description="Circuit entries")
-    direction: CircuitDirection | None = Field(default=None, description="Extracted direction if available")
+    direction: CircuitDirection | None = Field(
+        default=None, description="Extracted direction if available"
+    )
     activations: np.ndarray | None = Field(default=None, description="Stacked activation matrix")
 
     @property
@@ -89,7 +91,7 @@ class CapturedCircuit(BaseModel):
         np.savez(path, **save_data)
 
     @classmethod
-    def load(cls, path: str | Path) -> "CapturedCircuit":
+    def load(cls, path: str | Path) -> CapturedCircuit:
         """Load circuit from npz file."""
         path = Path(path)
         data = np.load(path, allow_pickle=True)
@@ -163,7 +165,9 @@ class CircuitComparisonResult(BaseModel):
 
     circuit_names: list[str] = Field(description="Names of compared circuits")
     similarity_matrix: np.ndarray = Field(description="Pairwise cosine similarities")
-    angles: dict[tuple[str, str], float] = Field(default_factory=dict, description="Pairwise angles in degrees")
+    angles: dict[tuple[str, str], float] = Field(
+        default_factory=dict, description="Pairwise angles in degrees"
+    )
     shared_neurons: list[tuple[int, list[tuple[str, float]]]] = Field(
         default_factory=list,
         description="Neurons that appear in multiple circuits with their weights",

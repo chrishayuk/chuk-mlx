@@ -75,6 +75,9 @@ from .ablation import (
     LayerSweepResult,
     ModelAdapter,
 )
+
+# Model accessor for unified model component access
+from .accessor import AsyncModelAccessor, ModelAccessor
 from .analyzer import (
     AnalysisConfig,
     AnalysisResult,
@@ -97,6 +100,26 @@ from .attention import (
     AttentionFocus,
     AttentionPattern,
     extract_attention_weights,
+)
+
+# Enums for type-safe values
+from .enums import (
+    ArithmeticOperator,
+    CommutativityLevel,
+    ComputeStrategy,
+    ConfidenceLevel,
+    CriterionType,
+    Difficulty,
+    DirectionMethod,
+    FactType,
+    FormatDiagnosis,
+    InvocationMethod,
+    MemorizationLevel,
+    NeuronRole,
+    OverrideMode,
+    PatchEffect,
+    Region,
+    TestStatus,
 )
 
 # Low-level hooks with enums
@@ -126,76 +149,137 @@ from .logit_lens import (
     run_logit_lens,
 )
 
+# Pydantic models for structured results
+from .models import (
+    # Arithmetic
+    ArithmeticStats,
+    ArithmeticTestCase,
+    ArithmeticTestResult,
+    ArithmeticTestSuite,
+    # Memory
+    AttractorNode,
+    # Uncertainty
+    CalibrationResult,
+    # Facts
+    CapitalFact,
+    # Circuit
+    CapturedCircuit,
+    CircuitComparisonResult,
+    CircuitDirection,
+    CircuitEntry,
+    CircuitInvocationResult,
+    CircuitTestResult,
+    # Patching
+    CommutativityPair,
+    CommutativityResult,
+    ElementFact,
+    Fact,
+    FactNeighborhood,
+    FactSet,
+    MathFact,
+    MemoryAnalysisResult,
+    MemoryStats,
+    MetacognitiveResult,
+    ParsedArithmeticPrompt,
+    PatchingLayerResult,
+    PatchingResult,
+    # Probing
+    ProbeLayerResult,
+    ProbeResult,
+    ProbeTopNeuron,
+    RetrievalResult,
+    UncertaintyResult,
+)
+
 # MoE introspection - from modular subpackage
 from .moe import (
-    # Enums
-    ExpertCategory,
-    ExpertRole,
-    MoEArchitecture,
-    # Config
-    MoEAblationConfig,
-    MoECaptureConfig,
+    # Identification
+    CategoryActivation,
+    # Datasets
+    CategoryPrompts,
     # Models
     CoactivationAnalysis,
+    # Compression
+    CompressionAnalysis,
     CompressionPlan,
     ExpertAblationResult,
+    # Enums
+    ExpertCategory,
     ExpertIdentity,
+    # Logit Lens
+    ExpertLogitContribution,
     ExpertPair,
+    ExpertProfile,
+    ExpertRole,
+    ExpertSimilarity,
     ExpertUtilization,
-    MoELayerInfo,
-    RouterEntropy,
-    # Detection
-    detect_moe_architecture,
-    get_moe_layer_info,
-    get_moe_layers,
-    is_moe_model,
+    LayerRoutingSnapshot,
+    # Config
+    MoEAblationConfig,
+    MoEArchitecture,
+    MoECaptureConfig,
     # Hooks
     MoECapturedState,
     MoEHooks,
-    # Router analysis
-    analyze_coactivation,
-    compare_routing,
-    compute_routing_diversity,
-    get_dominant_experts,
-    get_rare_experts,
-    # Datasets
-    CategoryPrompts,
+    MoELayerInfo,
+    MoELogitLens,
     PromptCategory,
     PromptCategoryGroup,
-    get_all_prompts,
-    get_category_prompts,
-    get_grouped_prompts,
-    get_prompts_by_group,
-    get_prompts_flat,
+    RouterEntropy,
     # Ablation
     ablate_expert,
     ablate_expert_batch,
-    find_causal_experts,
-    sweep_layer_experts,
-    # Logit Lens
-    ExpertLogitContribution,
-    LayerRoutingSnapshot,
-    MoELogitLens,
-    analyze_expert_vocabulary,
-    # Identification
-    CategoryActivation,
-    ExpertProfile,
-    cluster_experts_by_specialization,
-    find_generalists,
-    find_specialists,
-    identify_all_experts,
-    identify_expert,
-    print_expert_summary,
-    # Compression
-    CompressionAnalysis,
-    ExpertSimilarity,
+    # Router analysis
+    analyze_coactivation,
     analyze_compression_opportunities,
+    analyze_expert_vocabulary,
+    cluster_experts_by_specialization,
+    compare_routing,
     compute_expert_similarity,
-    compute_similarity_matrix as moe_compute_similarity_matrix,
+    compute_routing_diversity,
     create_compression_plan,
+    # Detection
+    detect_moe_architecture,
+    find_causal_experts,
+    find_generalists,
     find_merge_candidates,
     find_prune_candidates,
+    find_specialists,
+    get_all_prompts,
+    get_category_prompts,
+    get_dominant_experts,
+    get_grouped_prompts,
+    get_moe_layer_info,
+    get_moe_layers,
+    get_prompts_by_group,
+    get_prompts_flat,
+    get_rare_experts,
+    identify_all_experts,
+    identify_expert,
+    is_moe_model,
     print_compression_summary,
+    print_expert_summary,
+    sweep_layer_experts,
+)
+from .moe import (
+    compute_similarity_matrix as moe_compute_similarity_matrix,
+)
+
+# Activation patching for causal interventions
+from .patcher import ActivationPatcher, CommutativityAnalyzer
+
+# Activation steering - from subpackage
+from .steering import (
+    ActivationSteering,
+    LegacySteeringConfig,
+    SteeredGemmaMLP,
+    SteeringConfig,
+    SteeringHook,
+    SteeringMode,
+    ToolCallingSteering,
+    compare_steering_effects,
+    format_functiongemma_prompt,
+    steer_model,
 )
 
 # Utilities for CLI and programmatic use
@@ -212,74 +296,6 @@ from .utils import (
     normalize_number_string,
     parse_layers_arg,
     parse_prompts_from_arg,
-)
-
-# Model accessor for unified model component access
-from .accessor import AsyncModelAccessor, ModelAccessor
-
-# Activation patching for causal interventions
-from .patcher import ActivationPatcher, CommutativityAnalyzer
-
-# Enums for type-safe values
-from .enums import (
-    ArithmeticOperator,
-    CommutativityLevel,
-    ComputeStrategy,
-    ConfidenceLevel,
-    CriterionType,
-    Difficulty,
-    DirectionMethod,
-    FactType,
-    FormatDiagnosis,
-    InvocationMethod,
-    MemorizationLevel,
-    NeuronRole,
-    OverrideMode,
-    PatchEffect,
-    Region,
-    TestStatus,
-)
-
-# Pydantic models for structured results
-from .models import (
-    # Arithmetic
-    ArithmeticStats,
-    ArithmeticTestCase,
-    ArithmeticTestResult,
-    ArithmeticTestSuite,
-    ParsedArithmeticPrompt,
-    # Circuit
-    CapturedCircuit,
-    CircuitComparisonResult,
-    CircuitDirection,
-    CircuitEntry,
-    CircuitInvocationResult,
-    CircuitTestResult,
-    # Facts
-    CapitalFact,
-    ElementFact,
-    Fact,
-    FactNeighborhood,
-    FactSet,
-    MathFact,
-    # Memory
-    AttractorNode,
-    MemoryAnalysisResult,
-    MemoryStats,
-    RetrievalResult,
-    # Patching
-    CommutativityPair,
-    CommutativityResult,
-    PatchingLayerResult,
-    PatchingResult,
-    # Probing
-    ProbeLayerResult,
-    ProbeResult,
-    ProbeTopNeuron,
-    # Uncertainty
-    CalibrationResult,
-    MetacognitiveResult,
-    UncertaintyResult,
 )
 
 # Virtual expert system (re-exported from inference, with demo functions)
@@ -301,20 +317,6 @@ from .virtual_expert import (
     demo_all_approaches,
     demo_virtual_expert,
     get_default_registry,
-)
-
-# Activation steering - from subpackage
-from .steering import (
-    ActivationSteering,
-    LegacySteeringConfig,
-    SteeredGemmaMLP,
-    SteeringConfig,
-    SteeringHook,
-    SteeringMode,
-    ToolCallingSteering,
-    compare_steering_effects,
-    format_functiongemma_prompt,
-    steer_model,
 )
 
 __all__ = [

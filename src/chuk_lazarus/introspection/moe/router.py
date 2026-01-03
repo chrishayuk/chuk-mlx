@@ -5,18 +5,14 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-import mlx.core as mx
-import mlx.nn as nn
-
-from .detector import get_moe_layers
-from .models import CoactivationAnalysis, ExpertPair, ExpertUtilization
+from .models import CoactivationAnalysis, ExpertPair
 
 if TYPE_CHECKING:
     from .hooks import MoEHooks
 
 
 def analyze_coactivation(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     layer_idx: int,
 ) -> CoactivationAnalysis | None:
     """Analyze which experts frequently co-activate together.
@@ -52,19 +48,21 @@ def analyze_coactivation(
                 expert_counts[exp] += 1
 
             for i, exp1 in enumerate(experts):
-                for exp2 in experts[i + 1:]:
+                for exp2 in experts[i + 1 :]:
                     pair_counts[(exp1, exp2)] += 1
 
     # Build sorted pairs
     sorted_pairs = sorted(pair_counts.items(), key=lambda x: x[1], reverse=True)
     top_pairs = []
     for (exp_a, exp_b), count in sorted_pairs[:20]:
-        top_pairs.append(ExpertPair(
-            expert_a=exp_a,
-            expert_b=exp_b,
-            coactivation_count=count,
-            coactivation_rate=count / total if total > 0 else 0,
-        ))
+        top_pairs.append(
+            ExpertPair(
+                expert_a=exp_a,
+                expert_b=exp_b,
+                coactivation_count=count,
+                coactivation_rate=count / total if total > 0 else 0,
+            )
+        )
 
     # Find specialists (high coactivation with specific partners)
     specialist_pairs = [p for p in top_pairs if p.coactivation_rate > 0.3]
@@ -76,8 +74,7 @@ def analyze_coactivation(
         expert_pair_counts[exp_b] += 1
 
     generalists = [
-        exp for exp, count in expert_pair_counts.items()
-        if count >= info.num_experts // 2
+        exp for exp, count in expert_pair_counts.items() if count >= info.num_experts // 2
     ]
 
     return CoactivationAnalysis(
@@ -90,7 +87,7 @@ def analyze_coactivation(
 
 
 def compute_routing_diversity(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     layer_idx: int,
 ) -> float:
     """Compute routing diversity score (0=always same experts, 1=uniform).
@@ -111,7 +108,7 @@ def compute_routing_diversity(
 
 
 def get_dominant_experts(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     layer_idx: int,
     top_k: int = 5,
 ) -> list[tuple[int, float]]:
@@ -137,7 +134,7 @@ def get_dominant_experts(
 
 
 def get_rare_experts(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     layer_idx: int,
     threshold: float = 0.01,
 ) -> list[int]:
@@ -155,15 +152,12 @@ def get_rare_experts(
     if utilization is None:
         return []
 
-    return [
-        idx for idx, freq in enumerate(utilization.expert_frequencies)
-        if freq < threshold
-    ]
+    return [idx for idx, freq in enumerate(utilization.expert_frequencies) if freq < threshold]
 
 
 def compare_routing(
-    hooks_a: "MoEHooks",
-    hooks_b: "MoEHooks",
+    hooks_a: MoEHooks,
+    hooks_b: MoEHooks,
     layer_idx: int,
 ) -> dict[str, float]:
     """Compare routing patterns between two forward passes.

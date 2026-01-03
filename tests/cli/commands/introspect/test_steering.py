@@ -94,9 +94,9 @@ class TestIntrospectSteer:
 
     def test_steer_apply_from_file(self, steer_args, mock_activation_steering, capsys):
         """Test applying steering from saved direction."""
-        from chuk_lazarus.cli.commands.introspect import introspect_steer
-
         import numpy as np
+
+        from chuk_lazarus.cli.commands.introspect import introspect_steer
 
         # Create a direction file
         with tempfile.NamedTemporaryFile(suffix=".npz", delete=False) as f:
@@ -155,9 +155,9 @@ class TestIntrospectSteer:
 
     def test_steer_from_json_direction(self, steer_args, mock_activation_steering, capsys):
         """Test loading direction from JSON file."""
-        from chuk_lazarus.cli.commands.introspect import introspect_steer
-
         import json
+
+        from chuk_lazarus.cli.commands.introspect import introspect_steer
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump({"direction": [0.1] * 768, "layer": 6}, f)

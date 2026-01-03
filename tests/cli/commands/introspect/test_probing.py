@@ -11,11 +11,9 @@ For manual testing, you can run:
     python -m chuk_lazarus.cli.main introspect probe --model <model> --class-a "easy1" --class-b "hard1"
 """
 
-import tempfile
 from argparse import Namespace
 
 import pytest
-
 
 # Mark all tests as skipped - these require integration testing
 pytestmark = pytest.mark.skip(

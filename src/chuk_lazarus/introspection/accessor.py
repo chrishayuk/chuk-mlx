@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     import mlx.core as mx
-    import mlx.nn as nn
 
 
 @runtime_checkable
@@ -151,6 +150,7 @@ class ModelAccessor:
             # Check if they share the same weight tensor
             try:
                 import mlx.core as mx
+
                 return mx.array_equal(lm_head.weight, embed.weight)
             except Exception:
                 return False
@@ -174,9 +174,8 @@ class ModelAccessor:
         else:
             raise AttributeError("Cannot set layer in model")
 
-    def embed(self, input_ids: "mx.array") -> "mx.array":
+    def embed(self, input_ids: mx.array) -> mx.array:
         """Embed input tokens with optional scaling."""
-        import mlx.core as mx
 
         h = self.embed_tokens(input_ids)
         scale = self.embedding_scale
@@ -184,7 +183,7 @@ class ModelAccessor:
             h = h * scale
         return h
 
-    def apply_norm_and_head(self, hidden_states: "mx.array") -> "mx.array":
+    def apply_norm_and_head(self, hidden_states: mx.array) -> mx.array:
         """Apply final norm and lm_head to get logits."""
         h = hidden_states
         if self.norm is not None:
@@ -201,7 +200,7 @@ class ModelAccessor:
             # Tied embeddings
             return h @ self.embed_tokens.weight.T
 
-    def create_causal_mask(self, seq_len: int, dtype: "mx.Dtype | None" = None) -> "mx.array":
+    def create_causal_mask(self, seq_len: int, dtype: mx.Dtype | None = None) -> mx.array:
         """Create a causal attention mask."""
         import mlx.nn as nn
 
@@ -220,10 +219,10 @@ class AsyncModelAccessor(ModelAccessor):
 
     async def forward_through_layers(
         self,
-        input_ids: "mx.array",
+        input_ids: mx.array,
         layers: list[int] | None = None,
         capture_hidden_states: bool = True,
-    ) -> dict[int, "mx.array"]:
+    ) -> dict[int, mx.array]:
         """Run forward pass and capture hidden states at specified layers.
 
         Args:

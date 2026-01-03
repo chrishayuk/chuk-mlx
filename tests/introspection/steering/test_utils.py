@@ -1,12 +1,10 @@
 """Tests for steering utils module."""
 
 import json
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import mlx.core as mx
 import mlx.nn as nn
-import numpy as np
-import pytest
 
 from chuk_lazarus.introspection.steering.utils import (
     compare_steering_effects,
@@ -299,9 +297,7 @@ class TestSteerModel:
 
         bundle = MockDirectionBundle(layers=[0, 1, 2])
 
-        result = steer_model(
-            "test-model", "test prompt", bundle, layers=[1], coefficient=3.0
-        )
+        result = steer_model("test-model", "test prompt", bundle, layers=[1], coefficient=3.0)
 
         mock_steering_class.from_pretrained.assert_called_once_with("test-model")
         mock_steerer.add_directions.assert_called_once_with(bundle)

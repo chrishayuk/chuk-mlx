@@ -4,7 +4,6 @@ Commands for analyzing individual neuron activations, comparing direction
 vectors, and extracting operand directions.
 """
 
-import sys
 from pathlib import Path
 
 
@@ -548,7 +547,6 @@ def introspect_directions(args):
     Orthogonal directions (cosine ~ 0) indicate independent features.
     """
     import json
-    from pathlib import Path
 
     import numpy as np
 
@@ -740,7 +738,7 @@ def introspect_directions(args):
             "similarity_matrix": similarity.tolist(),
             "threshold": threshold,
             "pairs": [
-                {"a": a, "b": b, "cosine": s, "orthogonal": abs(s) < threshold}
+                {"a": a, "b": b, "cosine": float(s), "orthogonal": bool(abs(s) < threshold)}
                 for a, b, s in off_diag
             ]
             if off_diag
@@ -796,14 +794,12 @@ def introspect_operand_directions(args):
         # Default: key layers at 25%, 50%, 75%, and specific ones for Gemma-like models
         num_layers = study.adapter.num_layers
         layers = sorted(
-            set(
-                [
-                    int(num_layers * 0.25),
-                    int(num_layers * 0.5),
-                    int(num_layers * 0.6),
-                    int(num_layers * 0.75),
-                ]
-            )
+            {
+                int(num_layers * 0.25),
+                int(num_layers * 0.5),
+                int(num_layers * 0.6),
+                int(num_layers * 0.75),
+            }
         )
 
     print(f"Analyzing layers: {layers}")
@@ -897,14 +893,18 @@ def introspect_operand_directions(args):
             a_vs_b_same.append(sim)
 
         # Print results
-        print(f"\n--- Orthogonality Analysis ---")
+        print("\n--- Orthogonality Analysis ---")
         print(f"A_i vs A_j (diff first operands): {np.mean(a_vs_a):.3f} +/- {np.std(a_vs_a):.3f}")
         print(f"B_i vs B_j (diff second operands): {np.mean(b_vs_b):.3f} +/- {np.std(b_vs_b):.3f}")
-        print(f"A_i vs B_j (cross A/B, diff digits): {np.mean(a_vs_b_cross):.3f} +/- {np.std(a_vs_b_cross):.3f}")
-        print(f"A_i vs B_i (same digit, diff role): {np.mean(a_vs_b_same):.3f} +/- {np.std(a_vs_b_same):.3f}")
+        print(
+            f"A_i vs B_j (cross A/B, diff digits): {np.mean(a_vs_b_cross):.3f} +/- {np.std(a_vs_b_cross):.3f}"
+        )
+        print(
+            f"A_i vs B_i (same digit, diff role): {np.mean(a_vs_b_same):.3f} +/- {np.std(a_vs_b_same):.3f}"
+        )
 
         # Interpretation
-        print(f"\n--- Interpretation ---")
+        print("\n--- Interpretation ---")
         if np.mean(a_vs_a) < 0.5 and np.mean(b_vs_b) < 0.5:
             print("Distinct operand directions (compositional encoding)")
         else:
@@ -933,7 +933,9 @@ def introspect_operand_directions(args):
     print(f"\n{'=' * 70}")
     print("SUMMARY ACROSS LAYERS")
     print(f"{'=' * 70}")
-    print(f"{'Layer':<8} {'A vs A':<12} {'B vs B':<12} {'A vs B (cross)':<14} {'A vs B (same)':<14}")
+    print(
+        f"{'Layer':<8} {'A vs A':<12} {'B vs B':<12} {'A vs B (cross)':<14} {'A vs B (same)':<14}"
+    )
     print("-" * 60)
     for layer in layers:
         r = results_by_layer[layer]

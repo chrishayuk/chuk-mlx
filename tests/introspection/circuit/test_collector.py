@@ -2,7 +2,7 @@
 
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -323,10 +323,11 @@ class TestCollectedActivations:
 
             # Test the actual fallback by temporarily making safetensors unavailable
             import sys
-            safetensors_module = sys.modules.get('safetensors.numpy')
+
+            _ = sys.modules.get("safetensors.numpy")  # Check if module exists
 
             # Mock the import to fail
-            with patch.dict('sys.modules', {'safetensors.numpy': None}):
+            with patch.dict("sys.modules", {"safetensors.numpy": None}):
                 CollectedActivations._save_safetensors(tensors, path.with_suffix(".safetensors"))
 
                 # Should create npz file instead
@@ -352,23 +353,27 @@ class TestCollectedActivations:
 
             # Save metadata
             import json
+
             json_path = path.with_suffix(".json")
             with open(json_path, "w") as f:
-                json.dump({
-                    "model_id": "test",
-                    "hidden_size": 64,
-                    "num_layers": 4,
-                    "num_samples": 2,
-                    "captured_layers": [0],
-                    "labels": [0, 1],
-                    "prompts": ["p1", "p2"],
-                    "expected_outputs": [None, None],
-                    "dataset_label_names": {}
-                }, f)
+                json.dump(
+                    {
+                        "model_id": "test",
+                        "hidden_size": 64,
+                        "num_layers": 4,
+                        "num_samples": 2,
+                        "captured_layers": [0],
+                        "labels": [0, 1],
+                        "prompts": ["p1", "p2"],
+                        "expected_outputs": [None, None],
+                        "dataset_label_names": {},
+                    },
+                    f,
+                )
 
             # Test loading when safetensors.load_file fails
-            import sys
-            with patch.dict('sys.modules', {'safetensors.numpy': None}):
+
+            with patch.dict("sys.modules", {"safetensors.numpy": None}):
                 loaded = CollectedActivations.load(path)
                 assert len(loaded) == 2
 
@@ -432,7 +437,7 @@ class TestActivationCollector:
         model = SimpleMockModel(hidden_size=64, num_layers=4)
         config = Mock(spec=[])  # Mock with no attributes
 
-        collector = ActivationCollector(model, mock_tokenizer, config)
+        _ = ActivationCollector(model, mock_tokenizer, config)
         # Should use fallback value of 768 when config doesn't have hidden_size
         # and backbone doesn't have it either
         # But in our SimpleMockModel, it does have hidden_size, so let's test differently
@@ -454,18 +459,14 @@ class TestActivationCollector:
         layers = collector._get_layers_to_capture(config)
         assert layers == [0, 1, 2, 3]
 
-    def test_get_layers_to_capture_specific(
-        self, mock_model, mock_tokenizer, mock_config
-    ):
+    def test_get_layers_to_capture_specific(self, mock_model, mock_tokenizer, mock_config):
         """Test getting specific layers."""
         collector = ActivationCollector(mock_model, mock_tokenizer, mock_config)
         config = CollectorConfig(layers=[0, 2])
         layers = collector._get_layers_to_capture(config)
         assert layers == [0, 2]
 
-    def test_get_layers_to_capture_decision(
-        self, mock_model, mock_tokenizer, mock_config
-    ):
+    def test_get_layers_to_capture_decision(self, mock_model, mock_tokenizer, mock_config):
         """Test getting decision layers."""
         # Create model with more layers
         model = SimpleMockModel(hidden_size=64, num_layers=16)
@@ -474,18 +475,14 @@ class TestActivationCollector:
         layers = collector._get_layers_to_capture(config)
         assert layers == [8, 9, 10, 11, 12, 13]
 
-    def test_get_layers_to_capture_decision_clamps(
-        self, mock_model, mock_tokenizer, mock_config
-    ):
+    def test_get_layers_to_capture_decision_clamps(self, mock_model, mock_tokenizer, mock_config):
         """Test decision layers clamps to model size."""
         collector = ActivationCollector(mock_model, mock_tokenizer, mock_config)
         config = CollectorConfig(layers="decision", decision_layer_range=(0, 100))
         layers = collector._get_layers_to_capture(config)
         assert max(layers) < 4
 
-    def test_get_layers_to_capture_fallback(
-        self, mock_model, mock_tokenizer, mock_config
-    ):
+    def test_get_layers_to_capture_fallback(self, mock_model, mock_tokenizer, mock_config):
         """Test fallback when layers value is unknown."""
         collector = ActivationCollector(mock_model, mock_tokenizer, mock_config)
         config = CollectorConfig(layers="unknown_value")
@@ -507,9 +504,7 @@ class TestActivationCollector:
         assert collector.model_id == "test-model"
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
-    def test_collect_single(
-        self, mock_hooks_cls, mock_model, mock_tokenizer, mock_config
-    ):
+    def test_collect_single(self, mock_hooks_cls, mock_model, mock_tokenizer, mock_config):
         """Test collecting activations for a single prompt."""
         # Setup mock hooks
         mock_hooks = Mock()
@@ -564,9 +559,7 @@ class TestActivationCollector:
         assert result[0].shape == (64,)
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
-    def test_collect_dataset(
-        self, mock_hooks_cls, mock_model, mock_tokenizer, mock_config
-    ):
+    def test_collect_dataset(self, mock_hooks_cls, mock_model, mock_tokenizer, mock_config):
         """Test collecting activations for a dataset."""
         # Setup mock hooks
         mock_hooks = Mock()
@@ -584,9 +577,7 @@ class TestActivationCollector:
         assert result.dataset_name == "circuit_dataset"
 
     @patch("chuk_lazarus.introspection.hooks.ModelHooks")
-    def test_collect_list_of_prompts(
-        self, mock_hooks_cls, mock_model, mock_tokenizer, mock_config
-    ):
+    def test_collect_list_of_prompts(self, mock_hooks_cls, mock_model, mock_tokenizer, mock_config):
         """Test collecting from list of prompts."""
         mock_hooks = Mock()
         mock_state = Mock()
@@ -643,7 +634,7 @@ class TestActivationCollector:
             dataset.add(LabeledPrompt(text=f"Test {i}", label=i % 2, category="test"))
 
         config = CollectorConfig(layers=[0])
-        result = collector.collect(dataset, config, progress=True)
+        _ = collector.collect(dataset, config, progress=True)
 
         # Check that progress was printed
         captured = capsys.readouterr()

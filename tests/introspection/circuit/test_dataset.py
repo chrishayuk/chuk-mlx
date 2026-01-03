@@ -1,10 +1,7 @@
 """Tests for circuit dataset module."""
 
-import json
 import tempfile
 from pathlib import Path
-
-import pytest
 
 from chuk_lazarus.introspection.circuit.dataset import (
     CircuitDataset,
@@ -297,9 +294,7 @@ class TestCircuitDataset:
 
     def test_save_and_load(self):
         """Test saving and loading dataset."""
-        dataset = CircuitDataset(
-            name="test", version="1.0", label_names={0: "neg", 1: "pos"}
-        )
+        dataset = CircuitDataset(name="test", version="1.0", label_names={0: "neg", 1: "pos"})
         dataset.add(LabeledPrompt(text="Test", label=1, category="test"))
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "dataset.json"
@@ -340,9 +335,7 @@ class TestBinaryDatasetFactory:
         """Test creating binary dataset with custom labels."""
         pos = ["Yes"]
         neg = ["No"]
-        dataset = create_binary_dataset(
-            pos, neg, positive_label="yes", negative_label="no"
-        )
+        dataset = create_binary_dataset(pos, neg, positive_label="yes", negative_label="no")
         assert dataset.label_names[1] == "yes"
         assert dataset.label_names[0] == "no"
 
@@ -482,9 +475,7 @@ class TestToolPrompt:
 
     def test_to_labeled_prompt(self):
         """Test converting to LabeledPrompt."""
-        prompt = ToolPrompt(
-            text="Test", category=PromptCategory.FACTUAL, should_call_tool=False
-        )
+        prompt = ToolPrompt(text="Test", category=PromptCategory.FACTUAL, should_call_tool=False)
         labeled = prompt.to_labeled_prompt()
         assert labeled.text == "Test"
         assert labeled.label == 0
@@ -528,18 +519,14 @@ class TestToolPromptDataset:
     def test_add_prompt(self):
         """Test adding a tool prompt."""
         dataset = ToolPromptDataset()
-        prompt = ToolPrompt(
-            text="Test", category=PromptCategory.FACTUAL, should_call_tool=False
-        )
+        prompt = ToolPrompt(text="Test", category=PromptCategory.FACTUAL, should_call_tool=False)
         dataset.add(prompt)
         assert len(dataset) == 1
 
     def test_iteration(self):
         """Test iterating over tool prompts."""
         dataset = ToolPromptDataset()
-        prompt = ToolPrompt(
-            text="Test", category=PromptCategory.FACTUAL, should_call_tool=False
-        )
+        prompt = ToolPrompt(text="Test", category=PromptCategory.FACTUAL, should_call_tool=False)
         dataset.add(prompt)
         for p in dataset:
             assert p.text == "Test"
@@ -547,15 +534,9 @@ class TestToolPromptDataset:
     def test_get_tool_prompts(self):
         """Test getting only tool-calling prompts."""
         dataset = ToolPromptDataset()
+        dataset.add(ToolPrompt(text="Tool", category=PromptCategory.WEATHER, should_call_tool=True))
         dataset.add(
-            ToolPrompt(
-                text="Tool", category=PromptCategory.WEATHER, should_call_tool=True
-            )
-        )
-        dataset.add(
-            ToolPrompt(
-                text="NoTool", category=PromptCategory.FACTUAL, should_call_tool=False
-            )
+            ToolPrompt(text="NoTool", category=PromptCategory.FACTUAL, should_call_tool=False)
         )
         tool_prompts = dataset.get_tool_prompts()
         assert len(tool_prompts) == 1
@@ -564,15 +545,9 @@ class TestToolPromptDataset:
     def test_get_no_tool_prompts(self):
         """Test getting only no-tool prompts."""
         dataset = ToolPromptDataset()
+        dataset.add(ToolPrompt(text="Tool", category=PromptCategory.WEATHER, should_call_tool=True))
         dataset.add(
-            ToolPrompt(
-                text="Tool", category=PromptCategory.WEATHER, should_call_tool=True
-            )
-        )
-        dataset.add(
-            ToolPrompt(
-                text="NoTool", category=PromptCategory.FACTUAL, should_call_tool=False
-            )
+            ToolPrompt(text="NoTool", category=PromptCategory.FACTUAL, should_call_tool=False)
         )
         no_tool = dataset.get_no_tool_prompts()
         assert len(no_tool) == 1
@@ -581,11 +556,7 @@ class TestToolPromptDataset:
     def test_to_circuit_dataset(self):
         """Test converting to CircuitDataset."""
         dataset = ToolPromptDataset()
-        dataset.add(
-            ToolPrompt(
-                text="Test", category=PromptCategory.FACTUAL, should_call_tool=True
-            )
-        )
+        dataset.add(ToolPrompt(text="Test", category=PromptCategory.FACTUAL, should_call_tool=True))
         circuit_ds = dataset.to_circuit_dataset()
         assert isinstance(circuit_ds, CircuitDataset)
         assert len(circuit_ds) == 1
@@ -596,9 +567,7 @@ class TestCreateToolCallingDataset:
 
     def test_create_tool_calling_dataset(self):
         """Test creating tool calling dataset."""
-        dataset = create_tool_calling_dataset(
-            prompts_per_tool=5, no_tool_prompts=10, seed=42
-        )
+        dataset = create_tool_calling_dataset(prompts_per_tool=5, no_tool_prompts=10, seed=42)
         assert isinstance(dataset, ToolPromptDataset)
         assert len(dataset) > 0
 

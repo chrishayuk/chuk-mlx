@@ -1,7 +1,5 @@
 """Tests for introspect CLI __init__.py imports."""
 
-import pytest
-
 
 class TestIntrospectImports:
     """Tests that all introspect commands can be imported."""

@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Any
 
 import mlx.core as mx
 import mlx.nn as nn
-
 from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
@@ -55,7 +54,7 @@ class MoELogitLens:
 
     def __init__(
         self,
-        hooks: "MoEHooks",
+        hooks: MoEHooks,
         tokenizer: Any | None = None,
     ):
         """
@@ -106,14 +105,16 @@ class MoELogitLens:
         for expert_idx, weight in zip(sel_at_pos, w_at_pos):
             # Get expert's vocabulary preference
             # This requires capturing expert outputs, which may not be available
-            contributions.append(ExpertLogitContribution(
-                layer_idx=layer_idx,
-                expert_idx=expert_idx,
-                top_tokens=(),
-                top_logits=(),
-                top_token_ids=(),
-                activation_weight=weight,
-            ))
+            contributions.append(
+                ExpertLogitContribution(
+                    layer_idx=layer_idx,
+                    expert_idx=expert_idx,
+                    top_tokens=(),
+                    top_logits=(),
+                    top_token_ids=(),
+                    activation_weight=weight,
+                )
+            )
 
         return contributions
 
@@ -159,14 +160,16 @@ class MoELogitLens:
             top_token = ""
             top_prob = 0.0
 
-            snapshots.append(LayerRoutingSnapshot(
-                layer_idx=layer_idx,
-                selected_experts=tuple(sel_at_pos),
-                expert_weights=tuple(w_at_pos),
-                router_entropy=entropy,
-                top_token=top_token,
-                top_token_prob=top_prob,
-            ))
+            snapshots.append(
+                LayerRoutingSnapshot(
+                    layer_idx=layer_idx,
+                    selected_experts=tuple(sel_at_pos),
+                    expert_weights=tuple(w_at_pos),
+                    router_entropy=entropy,
+                    top_token=top_token,
+                    top_token_prob=top_prob,
+                )
+            )
 
         return snapshots
 
@@ -210,8 +213,7 @@ class MoELogitLens:
 
         for snap in snapshots:
             experts_str = ", ".join(
-                f"E{e}({w:.2f})"
-                for e, w in zip(snap.selected_experts, snap.expert_weights)
+                f"E{e}({w:.2f})" for e, w in zip(snap.selected_experts, snap.expert_weights)
             )
             print(f"Layer {snap.layer_idx:2d}: [{experts_str}] entropy={snap.router_entropy:.3f}")
 

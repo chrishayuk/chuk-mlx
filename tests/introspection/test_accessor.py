@@ -6,11 +6,6 @@ import pytest
 
 from chuk_lazarus.introspection.accessor import (
     AsyncModelAccessor,
-    HasEmbedTokens,
-    HasLayers,
-    HasLMHead,
-    HasModel,
-    HasNorm,
     ModelAccessor,
 )
 
@@ -266,7 +261,7 @@ class TestModelAccessor:
         accessor = ModelAccessor(model)
         # Different weight tensors - the result may be an mx.array or bool
         result = accessor.has_tied_embeddings
-        if hasattr(result, 'item'):
+        if hasattr(result, "item"):
             result = result.item()
         assert result is False
 

@@ -120,6 +120,7 @@ def parse_prompts(prompts_arg: str) -> list[str]:
 def normalize_number(s: str) -> str:
     """Normalize a number string by removing formatting characters."""
     import re
+
     return re.sub(r"[\s,\u202f\u00a0]+", "", s)
 
 

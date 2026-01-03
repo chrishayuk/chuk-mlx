@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "description": "Calibration prompts for uncertainty detection - working prompts have trailing space, broken prompts do not",
+  "working_prompts": {
+    "description": "Prompts that should trigger compute pathway (with trailing space)",
+    "prompts": [
+      "100 - 37 = ",
+      "50 + 25 = ",
+      "10 * 10 = ",
+      "200 - 50 = ",
+      "25 * 4 = "
+    ]
+  },
+  "broken_prompts": {
+    "description": "Prompts that may trigger refusal/uncertainty (without trailing space)",
+    "prompts": [
+      "100 - 37 =",
+      "50 + 25 =",
+      "10 * 10 =",
+      "200 - 50 =",
+      "25 * 4 ="
+    ]
+  }
+}

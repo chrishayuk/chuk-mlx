@@ -2,23 +2,22 @@
 
 import argparse
 import json
-import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
 from chuk_lazarus.introspection.circuit.cli import (
+    cmd_analyze,
+    cmd_collect,
     cmd_dataset_create,
     cmd_dataset_show,
-    cmd_collect,
-    cmd_analyze,
     cmd_directions,
-    cmd_visualize,
-    cmd_steer,
     cmd_probes,
     cmd_probes_init,
+    cmd_steer,
+    cmd_visualize,
     main,
 )
 
@@ -207,7 +206,9 @@ class TestCmdCollect:
     @patch("chuk_lazarus.introspection.circuit.collector.ActivationCollector")
     @patch("chuk_lazarus.introspection.circuit.dataset.ToolPromptDataset")
     @patch("chuk_lazarus.introspection.circuit.collector.CollectorConfig")
-    def test_collect_with_decision_layers(self, mock_config, mock_dataset_class, mock_collector_class):
+    def test_collect_with_decision_layers(
+        self, mock_config, mock_dataset_class, mock_collector_class
+    ):
         """Test collecting with decision layers."""
         mock_dataset = Mock()
         mock_dataset.__len__ = Mock(return_value=5)
@@ -240,7 +241,9 @@ class TestCmdCollect:
     @patch("chuk_lazarus.introspection.circuit.collector.ActivationCollector")
     @patch("chuk_lazarus.introspection.circuit.dataset.ToolPromptDataset")
     @patch("chuk_lazarus.introspection.circuit.collector.CollectorConfig")
-    def test_collect_with_specific_layers(self, mock_config, mock_dataset_class, mock_collector_class):
+    def test_collect_with_specific_layers(
+        self, mock_config, mock_dataset_class, mock_collector_class
+    ):
         """Test collecting with specific layer numbers."""
         mock_dataset = Mock()
         mock_dataset.__len__ = Mock(return_value=3)
@@ -529,9 +532,12 @@ class TestCmdDirections:
 
     @patch("chuk_lazarus.introspection.circuit.directions.DirectionExtractor")
     @patch("chuk_lazarus.introspection.circuit.collector.CollectedActivations")
-    def test_extract_directions_with_output_per_tool(self, mock_activations_class, mock_extractor_class):
+    def test_extract_directions_with_output_per_tool(
+        self, mock_activations_class, mock_extractor_class
+    ):
         """Test extracting directions with per-tool flag and saving bundle."""
         import numpy as np
+
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "directions.safetensors"
 
@@ -589,6 +595,7 @@ class TestCmdVisualize:
     def test_visualize_pca(self, mock_activations_class, mock_analyzer_class, mock_plt):
         """Test PCA visualization."""
         import numpy as np
+
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir)
 
@@ -642,6 +649,7 @@ class TestCmdVisualize:
     def test_visualize_umap(self, mock_activations_class, mock_analyzer_class, mock_plt):
         """Test UMAP visualization."""
         import numpy as np
+
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir)
 
@@ -692,7 +700,9 @@ class TestCmdVisualize:
     @patch("matplotlib.pyplot")
     @patch("chuk_lazarus.introspection.circuit.geometry.GeometryAnalyzer")
     @patch("chuk_lazarus.introspection.circuit.collector.CollectedActivations")
-    def test_visualize_umap_import_error(self, mock_activations_class, mock_analyzer_class, mock_plt):
+    def test_visualize_umap_import_error(
+        self, mock_activations_class, mock_analyzer_class, mock_plt
+    ):
         """Test UMAP visualization with ImportError."""
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir)
@@ -744,10 +754,14 @@ class TestCmdVisualize:
 
             mock_analyzer = Mock()
             mock_analyzer.train_probe.side_effect = [
-                mock_binary_probe, mock_cat_probe,
-                mock_binary_probe, mock_cat_probe,
-                mock_binary_probe, mock_cat_probe,
-                mock_binary_probe, mock_cat_probe,
+                mock_binary_probe,
+                mock_cat_probe,
+                mock_binary_probe,
+                mock_cat_probe,
+                mock_binary_probe,
+                mock_cat_probe,
+                mock_binary_probe,
+                mock_cat_probe,
             ]
             mock_analyzer_class.return_value = mock_analyzer
 
@@ -781,6 +795,7 @@ class TestCmdVisualize:
     def test_visualize_all(self, mock_activations_class, mock_analyzer_class, mock_plt):
         """Test all visualizations together."""
         import numpy as np
+
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir)
 
@@ -813,8 +828,10 @@ class TestCmdVisualize:
             mock_analyzer.compute_pca.return_value = mock_pca
             mock_analyzer.compute_umap.return_value = mock_umap
             mock_analyzer.train_probe.side_effect = [
-                mock_binary_probe, mock_cat_probe,
-                mock_binary_probe, mock_cat_probe,
+                mock_binary_probe,
+                mock_cat_probe,
+                mock_binary_probe,
+                mock_cat_probe,
             ]
             mock_analyzer_class.return_value = mock_analyzer
 
@@ -846,7 +863,9 @@ class TestCmdVisualize:
     @patch("matplotlib.pyplot")
     @patch("chuk_lazarus.introspection.circuit.geometry.GeometryAnalyzer")
     @patch("chuk_lazarus.introspection.circuit.collector.CollectedActivations")
-    def test_visualize_default_output_dir(self, mock_activations_class, mock_analyzer_class, mock_plt):
+    def test_visualize_default_output_dir(
+        self, mock_activations_class, mock_analyzer_class, mock_plt
+    ):
         """Test visualization with default output directory."""
         mock_activations = Mock()
         mock_activations.captured_layers = [10]
@@ -877,6 +896,7 @@ class TestCmdVisualize:
     def test_visualize_default_layer(self, mock_activations_class, mock_analyzer_class, mock_plt):
         """Test visualization with default layer (last captured layer)."""
         import numpy as np
+
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir)
 
@@ -1120,8 +1140,11 @@ class TestMain:
         """Test main routes to dataset create."""
         mock_dataset = Mock()
         mock_dataset.summary.return_value = {
-            "total": 10, "tool_calling": 5, "no_tool": 5,
-            "by_category": {}, "by_tool": {}
+            "total": 10,
+            "tool_calling": 5,
+            "no_tool": 5,
+            "by_category": {},
+            "by_tool": {},
         }
         mock_create.return_value = mock_dataset
 
@@ -1137,9 +1160,7 @@ class TestMain:
         mock_dataset.name = "test"
         mock_dataset.version = "1.0"
         mock_dataset.__len__ = Mock(return_value=10)
-        mock_dataset.summary.return_value = {
-            "total": 10, "tool_calling": 5, "no_tool": 5
-        }
+        mock_dataset.summary.return_value = {"total": 10, "tool_calling": 5, "no_tool": 5}
         mock_dataset.sample.return_value = []
         mock_dataset_class.load.return_value = mock_dataset
 

@@ -1,8 +1,8 @@
 """Tests for MoE logit lens analysis."""
 
-import pytest
 import mlx.core as mx
 import mlx.nn as nn
+import pytest
 
 from chuk_lazarus.introspection.moe.config import MoECaptureConfig
 from chuk_lazarus.introspection.moe.hooks import MoEHooks
@@ -12,7 +12,6 @@ from chuk_lazarus.introspection.moe.logit_lens import (
     MoELogitLens,
     analyze_expert_vocabulary,
 )
-
 
 # =============================================================================
 # Mock Models
@@ -115,22 +114,34 @@ def hooks_with_data(moe_model):
     hooks.configure(MoECaptureConfig())
 
     # Populate state
-    hooks.moe_state.selected_experts[0] = mx.array([
-        [[0, 1], [0, 2], [1, 3], [0, 1], [0, 1]],
-    ])
-    hooks.moe_state.selected_experts[1] = mx.array([
-        [[2, 3], [1, 2], [0, 3], [2, 3], [1, 2]],
-    ])
-    hooks.moe_state.router_weights[0] = mx.array([
-        [0.6, 0.4], [0.5, 0.5], [0.7, 0.3], [0.6, 0.4], [0.6, 0.4],
-    ])
-    hooks.moe_state.router_logits[0] = mx.array([
-        [1.0, 2.0, 0.5, 0.3],
-        [1.5, 1.5, 1.0, 0.5],
-        [0.5, 2.0, 1.0, 1.5],
-        [1.0, 2.0, 0.5, 0.3],
-        [1.0, 2.0, 0.5, 0.3],
-    ])
+    hooks.moe_state.selected_experts[0] = mx.array(
+        [
+            [[0, 1], [0, 2], [1, 3], [0, 1], [0, 1]],
+        ]
+    )
+    hooks.moe_state.selected_experts[1] = mx.array(
+        [
+            [[2, 3], [1, 2], [0, 3], [2, 3], [1, 2]],
+        ]
+    )
+    hooks.moe_state.router_weights[0] = mx.array(
+        [
+            [0.6, 0.4],
+            [0.5, 0.5],
+            [0.7, 0.3],
+            [0.6, 0.4],
+            [0.6, 0.4],
+        ]
+    )
+    hooks.moe_state.router_logits[0] = mx.array(
+        [
+            [1.0, 2.0, 0.5, 0.3],
+            [1.5, 1.5, 1.0, 0.5],
+            [0.5, 2.0, 1.0, 1.5],
+            [1.0, 2.0, 0.5, 0.3],
+            [1.0, 2.0, 0.5, 0.3],
+        ]
+    )
 
     return hooks
 

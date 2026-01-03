@@ -1,6 +1,6 @@
 """Tests for geometry analysis module."""
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import mlx.core as mx
 import numpy as np
@@ -22,9 +22,10 @@ from chuk_lazarus.introspection.circuit.geometry import (
 
 # Check if sklearn is available and working (not just importable)
 try:
-    from sklearn.decomposition import PCA
     # Actually test if sklearn works with current numpy version
     import numpy as np
+    from sklearn.decomposition import PCA
+
     _test_pca = PCA(n_components=2)
     _test_pca.fit(np.random.randn(10, 5))
     SKLEARN_AVAILABLE = True
@@ -33,8 +34,7 @@ except (ImportError, Exception):
     SKLEARN_AVAILABLE = False
 
 sklearn_required = pytest.mark.skipif(
-    not SKLEARN_AVAILABLE,
-    reason="sklearn not available or incompatible with numpy version"
+    not SKLEARN_AVAILABLE, reason="sklearn not available or incompatible with numpy version"
 )
 
 
@@ -505,9 +505,7 @@ class TestConvenienceFunctions:
 
     def test_train_linear_probe_with_type(self, sample_activations):
         """Test train_linear_probe with custom probe type."""
-        result = train_linear_probe(
-            sample_activations, layer=0, probe_type=ProbeType.MULTICLASS
-        )
+        result = train_linear_probe(sample_activations, layer=0, probe_type=ProbeType.MULTICLASS)
         assert result.probe_type == ProbeType.MULTICLASS
 
 
@@ -808,8 +806,18 @@ class TestGeometryAnalyzerEdgeCases:
         acts.labels = [0, 1] * 5
         acts.category_labels = ["cat1", "cat2"] * 5
         # Only one sample per tool - insufficient for stratified split
-        acts.tool_labels = ["tool1", "tool2", "tool3", "tool4", "tool5",
-                           "tool6", "tool7", "tool8", "tool9", "tool10"]
+        acts.tool_labels = [
+            "tool1",
+            "tool2",
+            "tool3",
+            "tool4",
+            "tool5",
+            "tool6",
+            "tool7",
+            "tool8",
+            "tool9",
+            "tool10",
+        ]
         return acts
 
     def test_compute_pca_very_small_dataset(self, minimal_activations):
@@ -879,7 +887,7 @@ class TestGeometryAnalyzerEdgeCases:
     def test_compare_layers_with_print(self, minimal_activations, capsys):
         """Test compare_layers prints progress."""
         analyzer = GeometryAnalyzer(minimal_activations)
-        results = analyzer.compare_layers(layers=[0])
+        analyzer.compare_layers(layers=[0])
         captured = capsys.readouterr()
         assert "Analyzing layer 0" in captured.out
 
@@ -958,8 +966,12 @@ class TestGeometryAnalyzerProbeVariations:
         acts.category_labels = ["cat1", "cat2", "cat3"] * 10
         # Mix of tools and None
         acts.tool_labels = (
-            ["tool1"] * 5 + ["tool2"] * 5 + ["tool3"] * 5 +
-            [None] * 5 + ["tool1"] * 5 + ["tool2"] * 5
+            ["tool1"] * 5
+            + ["tool2"] * 5
+            + ["tool3"] * 5
+            + [None] * 5
+            + ["tool1"] * 5
+            + ["tool2"] * 5
         )
         return acts
 
@@ -1064,7 +1076,7 @@ class TestGeometryAnalyzerMocked:
         return acts
 
     @pytest.mark.skipif(not SKLEARN_AVAILABLE, reason="sklearn required for mocking")
-    @patch('sklearn.decomposition.PCA')
+    @patch("sklearn.decomposition.PCA")
     def test_compute_pca_mocked(self, mock_pca_class, sample_activations):
         """Test compute_pca with mocked sklearn."""
         # Setup mock
@@ -1090,7 +1102,7 @@ class TestGeometryAnalyzerMocked:
         except ImportError:
             pytest.skip("UMAP not installed")
 
-        with patch('umap.UMAP') as mock_umap_class:
+        with patch("umap.UMAP") as mock_umap_class:
             # Setup mock
             mock_umap_instance = MagicMock()
             mock_umap_instance.fit_transform.return_value = np.random.randn(20, 2)
@@ -1103,11 +1115,13 @@ class TestGeometryAnalyzerMocked:
             assert result.layer == 0
             assert result.embedding.shape == (20, 2)
 
-    @patch('sklearn.linear_model.LogisticRegression')
-    @patch('sklearn.model_selection.cross_val_score')
-    @patch('sklearn.metrics.precision_recall_fscore_support')
-    @patch('sklearn.model_selection.train_test_split')
-    def test_train_probe_mocked(self, mock_split, mock_metrics, mock_cv, mock_lr_class, sample_activations):
+    @patch("sklearn.linear_model.LogisticRegression")
+    @patch("sklearn.model_selection.cross_val_score")
+    @patch("sklearn.metrics.precision_recall_fscore_support")
+    @patch("sklearn.model_selection.train_test_split")
+    def test_train_probe_mocked(
+        self, mock_split, mock_metrics, mock_cv, mock_lr_class, sample_activations
+    ):
         """Test train_probe with mocked sklearn."""
         # Setup mocks
         X = sample_activations.get_activations_numpy(0)
@@ -1134,7 +1148,7 @@ class TestGeometryAnalyzerMocked:
             np.array([0.8, 0.9]),  # precision
             np.array([0.85, 0.85]),  # recall
             np.array([0.825, 0.875]),  # f1
-            None
+            None,
         )
 
         analyzer = GeometryAnalyzer(sample_activations)
@@ -1145,8 +1159,8 @@ class TestGeometryAnalyzerMocked:
         assert result.accuracy == 0.85
         assert result.train_accuracy == 0.9
 
-    @patch('sklearn.cluster.KMeans')
-    @patch('sklearn.metrics.silhouette_score')
+    @patch("sklearn.cluster.KMeans")
+    @patch("sklearn.metrics.silhouette_score")
     def test_compute_clusters_mocked(self, mock_silhouette, mock_kmeans_class, sample_activations):
         """Test compute_clusters with mocked sklearn."""
         # Setup mocks
@@ -1165,7 +1179,7 @@ class TestGeometryAnalyzerMocked:
         assert result.n_clusters == 3
         assert result.silhouette_score == 0.6
 
-    @patch('sklearn.metrics.pairwise.cosine_similarity')
+    @patch("sklearn.metrics.pairwise.cosine_similarity")
     def test_compute_category_similarities_mocked(self, mock_cosine, sample_activations):
         """Test compute_category_similarities with mocked sklearn."""
         mock_cosine.return_value = np.array([[1.0, 0.5], [0.5, 1.0]])
@@ -1176,40 +1190,49 @@ class TestGeometryAnalyzerMocked:
         assert result.shape == (2, 2)
         mock_cosine.assert_called_once()
 
-    @patch('chuk_lazarus.introspection.circuit.geometry.GeometryAnalyzer.compute_pca')
-    @patch('chuk_lazarus.introspection.circuit.geometry.GeometryAnalyzer.train_probe')
-    @patch('chuk_lazarus.introspection.circuit.geometry.GeometryAnalyzer.compute_category_similarities')
+    @patch("chuk_lazarus.introspection.circuit.geometry.GeometryAnalyzer.compute_pca")
+    @patch("chuk_lazarus.introspection.circuit.geometry.GeometryAnalyzer.train_probe")
+    @patch(
+        "chuk_lazarus.introspection.circuit.geometry.GeometryAnalyzer.compute_category_similarities"
+    )
     def test_analyze_layer_mocked(self, mock_sim, mock_probe, mock_pca, sample_activations):
         """Test analyze_layer with mocked components."""
         # Setup mocks
         mock_pca.return_value = PCAResult(
-            layer=0, n_components=10,
+            layer=0,
+            n_components=10,
             explained_variance_ratio=np.array([0.2] * 10),
             cumulative_variance=np.cumsum([0.2] * 10),
             components=np.random.randn(10, 64),
-            mean=np.random.randn(64)
+            mean=np.random.randn(64),
         )
         mock_probe.side_effect = [
             ProbeResult(
-                layer=0, probe_type=ProbeType.BINARY,
-                accuracy=0.85, train_accuracy=0.9,
+                layer=0,
+                probe_type=ProbeType.BINARY,
+                accuracy=0.85,
+                train_accuracy=0.9,
                 weights=np.array([[1.0, 2.0]]),
                 bias=np.array([0.5]),
-                classes=["0", "1"]
+                classes=["0", "1"],
             ),
             ProbeResult(
-                layer=0, probe_type=ProbeType.MULTICLASS,
-                accuracy=0.75, train_accuracy=0.8,
+                layer=0,
+                probe_type=ProbeType.MULTICLASS,
+                accuracy=0.75,
+                train_accuracy=0.8,
                 weights=np.array([[1.0, 2.0]]),
                 bias=np.array([0.5]),
-                classes=["cat1", "cat2"]
+                classes=["cat1", "cat2"],
             ),
             ProbeResult(
-                layer=0, probe_type=ProbeType.TOOL_TYPE,
-                accuracy=0.7, train_accuracy=0.75,
+                layer=0,
+                probe_type=ProbeType.TOOL_TYPE,
+                accuracy=0.7,
+                train_accuracy=0.75,
                 weights=np.array([[1.0, 2.0]]),
                 bias=np.array([0.5]),
-                classes=["tool1", "tool2"]
+                classes=["tool1", "tool2"],
             ),
         ]
         mock_sim.return_value = np.array([[1.0, 0.5], [0.5, 1.0]])
@@ -1361,7 +1384,10 @@ class TestGeometryAnalyzerWithMockedSklearn:
         """Create mock activations for testing."""
         acts = CollectedActivations()
         # Use hidden_states (not _hidden_states) with mx.array values
-        acts.hidden_states = {layer: mx.array(np.random.randn(n_samples, hidden_size).astype(np.float32)) for layer in layers}
+        acts.hidden_states = {
+            layer: mx.array(np.random.randn(n_samples, hidden_size).astype(np.float32))
+            for layer in layers
+        }
         acts.labels = [1 if i < n_samples // 2 else 0 for i in range(n_samples)]
         # Set both categories (dataclass field) and category_labels (used by geometry.py)
         acts.categories = ["search" if i < n_samples // 2 else "general" for i in range(n_samples)]
@@ -1394,22 +1420,24 @@ class TestGeometryAnalyzerWithMockedSklearn:
             mock_cluster = MagicMock()
 
             # Assign provided mocks
-            if 'PCA' in mocks:
-                mock_decomposition.PCA = mocks['PCA']
-            if 'LogisticRegression' in mocks:
-                mock_linear_model.LogisticRegression = mocks['LogisticRegression']
-            if 'train_test_split' in mocks:
-                mock_model_selection.train_test_split = mocks['train_test_split']
-            if 'cross_val_score' in mocks:
-                mock_model_selection.cross_val_score = mocks['cross_val_score']
-            if 'precision_recall_fscore_support' in mocks:
-                mock_metrics.precision_recall_fscore_support = mocks['precision_recall_fscore_support']
-            if 'silhouette_score' in mocks:
-                mock_metrics.silhouette_score = mocks['silhouette_score']
-            if 'cosine_similarity' in mocks:
-                mock_metrics_pairwise.cosine_similarity = mocks['cosine_similarity']
-            if 'KMeans' in mocks:
-                mock_cluster.KMeans = mocks['KMeans']
+            if "PCA" in mocks:
+                mock_decomposition.PCA = mocks["PCA"]
+            if "LogisticRegression" in mocks:
+                mock_linear_model.LogisticRegression = mocks["LogisticRegression"]
+            if "train_test_split" in mocks:
+                mock_model_selection.train_test_split = mocks["train_test_split"]
+            if "cross_val_score" in mocks:
+                mock_model_selection.cross_val_score = mocks["cross_val_score"]
+            if "precision_recall_fscore_support" in mocks:
+                mock_metrics.precision_recall_fscore_support = mocks[
+                    "precision_recall_fscore_support"
+                ]
+            if "silhouette_score" in mocks:
+                mock_metrics.silhouette_score = mocks["silhouette_score"]
+            if "cosine_similarity" in mocks:
+                mock_metrics_pairwise.cosine_similarity = mocks["cosine_similarity"]
+            if "KMeans" in mocks:
+                mock_cluster.KMeans = mocks["KMeans"]
 
             mock_sklearn.decomposition = mock_decomposition
             mock_sklearn.linear_model = mock_linear_model
@@ -1421,21 +1449,25 @@ class TestGeometryAnalyzerWithMockedSklearn:
             # Save original modules
             original_modules = {}
             modules_to_mock = [
-                'sklearn', 'sklearn.decomposition', 'sklearn.linear_model',
-                'sklearn.model_selection', 'sklearn.metrics', 'sklearn.metrics.pairwise',
-                'sklearn.cluster'
+                "sklearn",
+                "sklearn.decomposition",
+                "sklearn.linear_model",
+                "sklearn.model_selection",
+                "sklearn.metrics",
+                "sklearn.metrics.pairwise",
+                "sklearn.cluster",
             ]
             for mod in modules_to_mock:
                 original_modules[mod] = sys.modules.get(mod)
 
             # Install mocks
-            sys.modules['sklearn'] = mock_sklearn
-            sys.modules['sklearn.decomposition'] = mock_decomposition
-            sys.modules['sklearn.linear_model'] = mock_linear_model
-            sys.modules['sklearn.model_selection'] = mock_model_selection
-            sys.modules['sklearn.metrics'] = mock_metrics
-            sys.modules['sklearn.metrics.pairwise'] = mock_metrics_pairwise
-            sys.modules['sklearn.cluster'] = mock_cluster
+            sys.modules["sklearn"] = mock_sklearn
+            sys.modules["sklearn.decomposition"] = mock_decomposition
+            sys.modules["sklearn.linear_model"] = mock_linear_model
+            sys.modules["sklearn.model_selection"] = mock_model_selection
+            sys.modules["sklearn.metrics"] = mock_metrics
+            sys.modules["sklearn.metrics.pairwise"] = mock_metrics_pairwise
+            sys.modules["sklearn.cluster"] = mock_cluster
 
             try:
                 yield
@@ -1502,31 +1534,33 @@ class TestGeometryAnalyzerWithMockedSklearn:
 
     def test_compute_umap_import_error(self):
         """Test compute_umap raises ImportError when umap not available."""
-        import sys
         import builtins
+        import sys
+
         acts = self._create_mock_activations()
         analyzer = GeometryAnalyzer(acts)
 
         # Remove umap from sys.modules if present and mock import to raise
-        original_umap = sys.modules.pop('umap', None)
+        original_umap = sys.modules.pop("umap", None)
         real_import = builtins.__import__
 
         def mock_import(name, *args, **kwargs):
-            if name == 'umap':
+            if name == "umap":
                 raise ImportError("No module named 'umap'")
             return real_import(name, *args, **kwargs)
 
         try:
-            with patch.object(builtins, '__import__', side_effect=mock_import):
+            with patch.object(builtins, "__import__", side_effect=mock_import):
                 with pytest.raises(ImportError, match="umap-learn"):
                     analyzer.compute_umap(layer=10)
         finally:
             if original_umap is not None:
-                sys.modules['umap'] = original_umap
+                sys.modules["umap"] = original_umap
 
     def test_compute_umap_invalid_layer(self):
         """Test compute_umap with invalid layer."""
         import sys
+
         acts = self._create_mock_activations()
         analyzer = GeometryAnalyzer(acts)
 
@@ -1536,16 +1570,16 @@ class TestGeometryAnalyzerWithMockedSklearn:
         mock_umap_class = MagicMock(return_value=mock_umap_instance)
         mock_umap_module = MagicMock(UMAP=mock_umap_class)
 
-        original_umap = sys.modules.get('umap')
-        sys.modules['umap'] = mock_umap_module
+        original_umap = sys.modules.get("umap")
+        sys.modules["umap"] = mock_umap_module
         try:
             with pytest.raises(ValueError, match="Layer 99 not in activations"):
                 analyzer.compute_umap(layer=99)
         finally:
             if original_umap is not None:
-                sys.modules['umap'] = original_umap
+                sys.modules["umap"] = original_umap
             else:
-                sys.modules.pop('umap', None)
+                sys.modules.pop("umap", None)
 
     def test_train_probe_with_mock(self):
         """Test train_probe with mocked sklearn."""
@@ -1570,7 +1604,12 @@ class TestGeometryAnalyzerWithMockedSklearn:
             return np.array([0.85, 0.80, 0.82, 0.88, 0.85])
 
         def mock_prfs(y_true, y_pred, average=None, labels=None, zero_division=0):
-            return np.array([0.8, 0.9]), np.array([0.85, 0.82]), np.array([0.82, 0.86]), np.array([10, 10])
+            return (
+                np.array([0.8, 0.9]),
+                np.array([0.85, 0.82]),
+                np.array([0.82, 0.86]),
+                np.array([10, 10]),
+            )
 
         with self._mock_sklearn_modules(
             LogisticRegression=mock_lr_class,
@@ -1606,7 +1645,12 @@ class TestGeometryAnalyzerWithMockedSklearn:
             return np.array([0.75] * 5)
 
         def mock_prfs(y_true, y_pred, average=None, labels=None, zero_division=0):
-            return np.array([0.7, 0.8]), np.array([0.75, 0.78]), np.array([0.72, 0.79]), np.array([10, 10])
+            return (
+                np.array([0.7, 0.8]),
+                np.array([0.75, 0.78]),
+                np.array([0.72, 0.79]),
+                np.array([10, 10]),
+            )
 
         with self._mock_sklearn_modules(
             LogisticRegression=mock_lr_class,
@@ -1641,7 +1685,12 @@ class TestGeometryAnalyzerWithMockedSklearn:
             return np.array([0.80] * 5)
 
         def mock_prfs(y_true, y_pred, average=None, labels=None, zero_division=0):
-            return np.array([0.75, 0.85]), np.array([0.78, 0.82]), np.array([0.76, 0.83]), np.array([10, 10])
+            return (
+                np.array([0.75, 0.85]),
+                np.array([0.78, 0.82]),
+                np.array([0.76, 0.83]),
+                np.array([10, 10]),
+            )
 
         with self._mock_sklearn_modules(
             LogisticRegression=mock_lr_class,
@@ -1747,7 +1796,12 @@ class TestGeometryAnalyzerWithMockedSklearn:
             return np.array([0.85] * 5)
 
         def mock_prfs(y_true, y_pred, average=None, labels=None, zero_division=0):
-            return np.array([0.8, 0.9]), np.array([0.85, 0.82]), np.array([0.82, 0.86]), np.array([10, 10])
+            return (
+                np.array([0.8, 0.9]),
+                np.array([0.85, 0.82]),
+                np.array([0.82, 0.86]),
+                np.array([10, 10]),
+            )
 
         with self._mock_sklearn_modules(
             PCA=mock_pca_class,
@@ -1791,7 +1845,12 @@ class TestGeometryAnalyzerWithMockedSklearn:
             return np.array([0.85] * 5)
 
         def mock_prfs(y_true, y_pred, average=None, labels=None, zero_division=0):
-            return np.array([0.8, 0.9]), np.array([0.85, 0.82]), np.array([0.82, 0.86]), np.array([10, 10])
+            return (
+                np.array([0.8, 0.9]),
+                np.array([0.85, 0.82]),
+                np.array([0.82, 0.86]),
+                np.array([10, 10]),
+            )
 
         with self._mock_sklearn_modules(
             PCA=mock_pca_class,

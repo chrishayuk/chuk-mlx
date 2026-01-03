@@ -14,9 +14,9 @@ rather than semantic domain.
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from enum import Enum
 from pathlib import Path
-from typing import Sequence
 
 from pydantic import BaseModel, ConfigDict, Field
 

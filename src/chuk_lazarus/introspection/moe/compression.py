@@ -6,16 +6,13 @@ to reduce model size while preserving quality.
 
 from __future__ import annotations
 
-from collections import defaultdict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import mlx.core as mx
 import mlx.nn as nn
-
 from pydantic import BaseModel, ConfigDict, Field
 
-from .models import CompressionPlan, ExpertIdentity
-from .router import analyze_coactivation
+from .models import CompressionPlan
 
 if TYPE_CHECKING:
     from .hooks import MoEHooks
@@ -79,7 +76,7 @@ def compute_expert_similarity(
         raise ValueError(f"Layer {layer_idx} has no experts list")
 
     if expert_a >= len(experts) or expert_b >= len(experts):
-        raise ValueError(f"Expert index out of range")
+        raise ValueError("Expert index out of range")
 
     # Get weight matrices
     exp_a = experts[expert_a]
@@ -166,7 +163,7 @@ def find_merge_candidates(
 
 
 def find_prune_candidates(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     layer_idx: int,
     threshold: float = 0.01,
 ) -> list[int]:
@@ -194,7 +191,7 @@ def find_prune_candidates(
 
 
 def create_compression_plan(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     layer_idx: int,
     target_experts: int | None = None,
     merge_threshold: float = 0.8,
@@ -281,7 +278,7 @@ def create_compression_plan(
 
 
 def analyze_compression_opportunities(
-    hooks: "MoEHooks",
+    hooks: MoEHooks,
     merge_threshold: float = 0.8,
     prune_threshold: float = 0.01,
 ) -> list[CompressionAnalysis]:
@@ -303,23 +300,21 @@ def analyze_compression_opportunities(
         if info is None:
             continue
 
-        plan = create_compression_plan(
-            hooks, layer_idx, None, merge_threshold, prune_threshold
-        )
+        plan = create_compression_plan(hooks, layer_idx, None, merge_threshold, prune_threshold)
 
-        merge_pairs = [
-            (g[0], g[1]) for g in plan.merge_groups if len(g) >= 2
-        ]
+        merge_pairs = [(g[0], g[1]) for g in plan.merge_groups if len(g) >= 2]
         prune_list = find_prune_candidates(hooks, layer_idx, prune_threshold)
 
-        analyses.append(CompressionAnalysis(
-            layer_idx=layer_idx,
-            num_experts=info.num_experts,
-            merge_candidates=tuple(merge_pairs),
-            prune_candidates=tuple(prune_list),
-            estimated_size_reduction=plan.estimated_size_reduction,
-            estimated_quality_loss=plan.estimated_quality_loss,
-        ))
+        analyses.append(
+            CompressionAnalysis(
+                layer_idx=layer_idx,
+                num_experts=info.num_experts,
+                merge_candidates=tuple(merge_pairs),
+                prune_candidates=tuple(prune_list),
+                estimated_size_reduction=plan.estimated_size_reduction,
+                estimated_quality_loss=plan.estimated_quality_loss,
+            )
+        )
 
     return analyses
 
