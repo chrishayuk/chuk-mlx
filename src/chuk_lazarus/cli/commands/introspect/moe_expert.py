@@ -4517,15 +4517,15 @@ def _sweep_all_layers(args):
     num_experts = router.info["num_experts"]
     num_experts_per_tok = router.info["num_experts_per_tok"]
 
-    print(f"\n{'=' * 70}")
-    print(f"LAYER SWEEP: EXPERT TAXONOMY ACROSS ALL {len(all_moe_layers)} LAYERS")
-    print(f"{'=' * 70}")
-    print(f"Model: {args.model}")
-    print(f"MoE Layers: {all_moe_layers[0]}-{all_moe_layers[-1]}")
-    print(f"Experts per layer: {num_experts}")
-    print(f"Top-k routing: {num_experts_per_tok}")
-    print(f"Total expert MLPs: {num_experts} × {len(all_moe_layers)} = {num_experts * len(all_moe_layers)}")
-    print(f"{'=' * 70}")
+    print(f"\n{'=' * 70}", flush=True)
+    print(f"LAYER SWEEP: EXPERT TAXONOMY ACROSS ALL {len(all_moe_layers)} LAYERS", flush=True)
+    print(f"{'=' * 70}", flush=True)
+    print(f"Model: {args.model}", flush=True)
+    print(f"MoE Layers: {all_moe_layers[0]}-{all_moe_layers[-1]}", flush=True)
+    print(f"Experts per layer: {num_experts}", flush=True)
+    print(f"Top-k routing: {num_experts_per_tok}", flush=True)
+    print(f"Total expert MLPs: {num_experts} × {len(all_moe_layers)} = {num_experts * len(all_moe_layers)}", flush=True)
+    print(f"{'=' * 70}", flush=True)
 
     # Test prompts covering diverse patterns
     test_prompts = {
@@ -4542,9 +4542,10 @@ def _sweep_all_layers(args):
     layer_results = {}
     expert_lifecycle = defaultdict(list)  # expert_id -> [(layer, pattern, count), ...]
 
-    print(f"\nSweeping {len(all_moe_layers)} layers...")
+    print(f"\nSweeping {len(all_moe_layers)} layers...", flush=True)
 
     for layer_idx in all_moe_layers:
+        print(f"    Starting layer {layer_idx}...", flush=True)
         expert_activations = defaultdict(list)
         total_tokens = 0
 
@@ -4699,7 +4700,7 @@ def _sweep_all_layers(args):
         }
 
         # Progress indicator
-        print(f"  Layer {layer_idx:2d}: {len(workhorses):2d} workhorses, {len(spectators):2d} spectators, {avg_confidence:.2f} avg confidence")
+        print(f"  Layer {layer_idx:2d}: {len(workhorses):2d} workhorses, {len(spectators):2d} spectators, {avg_confidence:.2f} avg confidence", flush=True)
 
     # Summary Report
     print(f"\n{'=' * 70}")
