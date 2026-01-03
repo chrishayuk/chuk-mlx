@@ -17,9 +17,7 @@ class SteeringConfig(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    layers: list[int] = Field(
-        default_factory=lambda: [24], description="Which layers to steer"
-    )
+    layers: list[int] = Field(default_factory=lambda: [24], description="Which layers to steer")
     coefficient: float = Field(
         default=1.0, description="Steering coefficient (positive = toward positive class)"
     )

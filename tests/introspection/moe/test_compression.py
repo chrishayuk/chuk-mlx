@@ -453,7 +453,7 @@ class TestCreateCompressionPlan:
         # we need to verify the code path is covered
         # The function returns a plan with 0 experts which violates Pydantic validation
         # This means line 218 is covered when it tries to create this invalid plan
-        with pytest.raises(Exception):  # Will be ValidationError from Pydantic
+        with pytest.raises(ValueError):  # Pydantic ValidationError
             create_compression_plan(
                 hooks,
                 layer_idx=0,

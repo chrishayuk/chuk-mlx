@@ -105,9 +105,7 @@ class CircuitDataset(BaseModel):
     )
     name: str = Field(default="circuit_dataset", description="Dataset name")
     version: str = Field(default="1.0", description="Version string")
-    label_names: dict[int, str] = Field(
-        default_factory=dict, description="Maps label int -> name"
-    )
+    label_names: dict[int, str] = Field(default_factory=dict, description="Maps label int -> name")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
     def __len__(self) -> int:

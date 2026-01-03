@@ -190,12 +190,44 @@ class TestStratigraphyResult:
         """Test getting accuracy matrix."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["probe1"] = {
-            0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100),
-            2: ProbeResult(probe_name="probe1", layer=2, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="probe1",
+                layer=2,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
         }
         result.probes["probe2"] = {
-            0: ProbeResult(probe_name="probe2", layer=0, accuracy=0.6, cv_std=0.02, baseline=0.5, above_chance=0.1, n_samples=100),
-            2: ProbeResult(probe_name="probe2", layer=2, accuracy=0.7, cv_std=0.02, baseline=0.5, above_chance=0.2, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe2",
+                layer=0,
+                accuracy=0.6,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.1,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="probe2",
+                layer=2,
+                accuracy=0.7,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.2,
+                n_samples=100,
+            ),
         }
         matrix = result.get_accuracy_matrix(layers=[0, 2])
         assert matrix["probe1"] == [0.5, 0.8]
@@ -205,9 +237,33 @@ class TestStratigraphyResult:
         """Test finding emergence layer."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["test_probe"] = {
-            0: ProbeResult(probe_name="test", layer=0, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100),
-            2: ProbeResult(probe_name="test", layer=2, accuracy=0.6, cv_std=0.02, baseline=0.5, above_chance=0.1, n_samples=100),
-            4: ProbeResult(probe_name="test", layer=4, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="test",
+                layer=2,
+                accuracy=0.6,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.1,
+                n_samples=100,
+            ),
+            4: ProbeResult(
+                probe_name="test",
+                layer=4,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
         }
         emergence = result.find_emergence_layer("test_probe", threshold=0.75)
         assert emergence == 4
@@ -216,8 +272,24 @@ class TestStratigraphyResult:
         """Test finding emergence layer when threshold never met."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["test_probe"] = {
-            0: ProbeResult(probe_name="test", layer=0, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100),
-            2: ProbeResult(probe_name="test", layer=2, accuracy=0.6, cv_std=0.02, baseline=0.5, above_chance=0.1, n_samples=100),
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="test",
+                layer=2,
+                accuracy=0.6,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.1,
+                n_samples=100,
+            ),
         }
         emergence = result.find_emergence_layer("test_probe", threshold=0.9)
         assert emergence is None
@@ -231,9 +303,33 @@ class TestStratigraphyResult:
         """Test finding destruction layer."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["test_probe"] = {
-            0: ProbeResult(probe_name="test", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
-            2: ProbeResult(probe_name="test", layer=2, accuracy=0.9, cv_std=0.02, baseline=0.5, above_chance=0.4, n_samples=100),
-            4: ProbeResult(probe_name="test", layer=4, accuracy=0.4, cv_std=0.02, baseline=0.5, above_chance=-0.1, n_samples=100),
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="test",
+                layer=2,
+                accuracy=0.9,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.4,
+                n_samples=100,
+            ),
+            4: ProbeResult(
+                probe_name="test",
+                layer=4,
+                accuracy=0.4,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=-0.1,
+                n_samples=100,
+            ),
         }
         destruction = result.find_destruction_layer("test_probe", threshold=0.5)
         assert destruction == 4
@@ -242,8 +338,24 @@ class TestStratigraphyResult:
         """Test finding destruction layer when no drop occurs."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["test_probe"] = {
-            0: ProbeResult(probe_name="test", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
-            2: ProbeResult(probe_name="test", layer=2, accuracy=0.9, cv_std=0.02, baseline=0.5, above_chance=0.4, n_samples=100),
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="test",
+                layer=2,
+                accuracy=0.9,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.4,
+                n_samples=100,
+            ),
         }
         destruction = result.find_destruction_layer("test_probe")
         assert destruction is None
@@ -252,11 +364,35 @@ class TestStratigraphyResult:
         """Test getting emergence layers for all probes."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["probe1"] = {
-            0: ProbeResult(probe_name="p1", layer=0, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100),
-            2: ProbeResult(probe_name="p1", layer=2, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
+            0: ProbeResult(
+                probe_name="p1",
+                layer=0,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="p1",
+                layer=2,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
         }
         result.probes["probe2"] = {
-            0: ProbeResult(probe_name="p2", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
+            0: ProbeResult(
+                probe_name="p2",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
         }
         emergence = result.get_all_emergence_layers(threshold=0.75)
         assert emergence["probe1"] == 2
@@ -265,7 +401,17 @@ class TestStratigraphyResult:
     def test_save_and_load(self):
         """Test saving and loading stratigraphy results."""
         result = StratigraphyResult(model_id="test-model", num_layers=10)
-        result.probes["probe1"] = {0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)}
+        result.probes["probe1"] = {
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
+        }
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "results.json"
             result.save(path)
@@ -499,7 +645,17 @@ class TestProbeBattery:
         """Test printing results table."""
         battery = ProbeBattery(mock_model, mock_tokenizer)
         results = StratigraphyResult(model_id="test", num_layers=4)
-        results.probes["probe1"] = {0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)}
+        results.probes["probe1"] = {
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
+        }
         battery.print_results_table(results)
         captured = capsys.readouterr()
         assert "PROBE ACCURACY BY LAYER" in captured.out
@@ -517,7 +673,17 @@ class TestProbeBattery:
             )
         )
         results = StratigraphyResult(model_id="test-model", num_layers=4)
-        results.probes["probe1"] = {0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)}
+        results.probes["probe1"] = {
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
+        }
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
         assert "COMPUTATIONAL STRATIGRAPHY" in captured.out
@@ -694,8 +860,24 @@ class TestStratigraphyResultEdgeCases:
         """Test accuracy matrix with missing layer data."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["probe1"] = {
-            0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100),
-            2: ProbeResult(probe_name="probe1", layer=2, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="probe1",
+                layer=2,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
         }
         matrix = result.get_accuracy_matrix(layers=[0, 1, 2])
         assert matrix["probe1"][0] == 0.5
@@ -706,12 +888,44 @@ class TestStratigraphyResultEdgeCases:
         """Test accuracy matrix with automatic layer detection."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["probe1"] = {
-            0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100),
-            5: ProbeResult(probe_name="probe1", layer=5, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            ),
+            5: ProbeResult(
+                probe_name="probe1",
+                layer=5,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
         }
         result.probes["probe2"] = {
-            0: ProbeResult(probe_name="probe2", layer=0, accuracy=0.6, cv_std=0.02, baseline=0.5, above_chance=0.1, n_samples=100),
-            3: ProbeResult(probe_name="probe2", layer=3, accuracy=0.7, cv_std=0.02, baseline=0.5, above_chance=0.2, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe2",
+                layer=0,
+                accuracy=0.6,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.1,
+                n_samples=100,
+            ),
+            3: ProbeResult(
+                probe_name="probe2",
+                layer=3,
+                accuracy=0.7,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.2,
+                n_samples=100,
+            ),
         }
         matrix = result.get_accuracy_matrix()
         assert len(matrix["probe1"]) == 3  # Layers 0, 3, 5
@@ -721,7 +935,15 @@ class TestStratigraphyResultEdgeCases:
         """Test emergence not found when above_chance is too low."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["test_probe"] = {
-            0: ProbeResult(probe_name="test", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.75, above_chance=0.05, n_samples=100),  # Low above_chance
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.75,
+                above_chance=0.05,
+                n_samples=100,
+            ),  # Low above_chance
         }
         emergence = result.find_emergence_layer("test_probe", threshold=0.75)
         assert emergence is None
@@ -735,8 +957,24 @@ class TestStratigraphyResultEdgeCases:
         """Test destruction layer when accuracy never gets high."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["test_probe"] = {
-            0: ProbeResult(probe_name="test", layer=0, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100),
-            2: ProbeResult(probe_name="test", layer=2, accuracy=0.6, cv_std=0.02, baseline=0.5, above_chance=0.1, n_samples=100),
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="test",
+                layer=2,
+                accuracy=0.6,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.1,
+                n_samples=100,
+            ),
         }
         destruction = result.find_destruction_layer("test_probe")
         assert destruction is None
@@ -745,11 +983,35 @@ class TestStratigraphyResultEdgeCases:
         """Test saving and loading with multiple probes and layers."""
         result = StratigraphyResult(model_id="test-model", num_layers=10)
         result.probes["probe1"] = {
-            0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
-            2: ProbeResult(probe_name="probe1", layer=2, accuracy=0.9, cv_std=0.03, baseline=0.5, above_chance=0.4, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="probe1",
+                layer=2,
+                accuracy=0.9,
+                cv_std=0.03,
+                baseline=0.5,
+                above_chance=0.4,
+                n_samples=100,
+            ),
         }
         result.probes["probe2"] = {
-            0: ProbeResult(probe_name="probe2", layer=0, accuracy=0.7, cv_std=0.01, baseline=0.5, above_chance=0.2, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe2",
+                layer=0,
+                accuracy=0.7,
+                cv_std=0.01,
+                baseline=0.5,
+                above_chance=0.2,
+                n_samples=100,
+            ),
         }
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -1047,12 +1309,44 @@ class TestProbeBatteryEdgeCases:
         battery = ProbeBattery(mock_model, mock_tokenizer)
         results = StratigraphyResult(model_id="test", num_layers=4)
         results.probes["probe1"] = {
-            0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
-            2: ProbeResult(probe_name="probe1", layer=2, accuracy=0.9, cv_std=0.02, baseline=0.5, above_chance=0.4, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="probe1",
+                layer=2,
+                accuracy=0.9,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.4,
+                n_samples=100,
+            ),
         }
         results.probes["probe2"] = {
-            0: ProbeResult(probe_name="probe2", layer=0, accuracy=0.7, cv_std=0.02, baseline=0.5, above_chance=0.2, n_samples=100),
-            2: ProbeResult(probe_name="probe2", layer=2, accuracy=0.6, cv_std=0.02, baseline=0.5, above_chance=0.1, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe2",
+                layer=0,
+                accuracy=0.7,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.2,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="probe2",
+                layer=2,
+                accuracy=0.6,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.1,
+                n_samples=100,
+            ),
         }
 
         battery.print_results_table(results)
@@ -1067,9 +1361,25 @@ class TestProbeBatteryEdgeCases:
         battery = ProbeBattery(mock_model, mock_tokenizer)
         results = StratigraphyResult(model_id="test", num_layers=4)
         results.probes["probe1"] = {
-            0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
             # Layer 1 missing
-            2: ProbeResult(probe_name="probe1", layer=2, accuracy=0.9, cv_std=0.02, baseline=0.5, above_chance=0.4, n_samples=100),
+            2: ProbeResult(
+                probe_name="probe1",
+                layer=2,
+                accuracy=0.9,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.4,
+                n_samples=100,
+            ),
         }
 
         battery.print_results_table(results)
@@ -1099,8 +1409,28 @@ class TestProbeBatteryEdgeCases:
         )
 
         results = StratigraphyResult(model_id="test-model", num_layers=4)
-        results.probes["probe1"] = {0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)}
-        results.probes["probe2"] = {2: ProbeResult(probe_name="probe2", layer=2, accuracy=0.85, cv_std=0.02, baseline=0.5, above_chance=0.35, n_samples=100)}
+        results.probes["probe1"] = {
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
+        }
+        results.probes["probe2"] = {
+            2: ProbeResult(
+                probe_name="probe2",
+                layer=2,
+                accuracy=0.85,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.35,
+                n_samples=100,
+            )
+        }
 
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
@@ -1123,7 +1453,17 @@ class TestProbeBatteryEdgeCases:
         )
 
         results = StratigraphyResult(model_id="test-model", num_layers=4)
-        results.probes["probe1"] = {0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100)}
+        results.probes["probe1"] = {
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            )
+        }
 
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
@@ -1144,8 +1484,28 @@ class TestProbeBatteryEdgeCases:
         )
 
         results = StratigraphyResult(model_id="test-model", num_layers=10)
-        results.probes["late"] = {5: ProbeResult(probe_name="late", layer=5, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)}
-        results.probes["early"] = {1: ProbeResult(probe_name="early", layer=1, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)}
+        results.probes["late"] = {
+            5: ProbeResult(
+                probe_name="late",
+                layer=5,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
+        }
+        results.probes["early"] = {
+            1: ProbeResult(
+                probe_name="early",
+                layer=1,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
+        }
 
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
@@ -1672,8 +2032,24 @@ class TestProbeBatteryWithMockedSklearn:
         battery = ProbeBattery(mock_model, mock_tokenizer)
         results = StratigraphyResult(model_id="test", num_layers=4)
         results.probes["probe1"] = {
-            0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.90, cv_std=0.02, baseline=0.5, above_chance=0.4, n_samples=100),  # > 0.85
-            2: ProbeResult(probe_name="probe1", layer=2, accuracy=0.75, cv_std=0.02, baseline=0.5, above_chance=0.25, n_samples=100),  # < 0.85
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.90,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.4,
+                n_samples=100,
+            ),  # > 0.85
+            2: ProbeResult(
+                probe_name="probe1",
+                layer=2,
+                accuracy=0.75,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.25,
+                n_samples=100,
+            ),  # < 0.85
         }
 
         battery.print_results_table(results)
@@ -1698,7 +2074,17 @@ class TestProbeBatteryWithMockedSklearn:
         battery.add_dataset(dataset)
 
         results = StratigraphyResult(model_id="test-model", num_layers=4)
-        results.probes["probe1"] = {0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)}
+        results.probes["probe1"] = {
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
+        }
 
         battery.print_stratigraphy(results, threshold=0.75)
         captured = capsys.readouterr()
@@ -1761,14 +2147,54 @@ class TestProbeBatteryWithMockedSklearn:
         results = StratigraphyResult(model_id="test", num_layers=4)
         # probe1 has layers 0 and 2
         results.probes["probe1"] = {
-            0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.80, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
-            2: ProbeResult(probe_name="probe1", layer=2, accuracy=0.75, cv_std=0.02, baseline=0.5, above_chance=0.25, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.80,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="probe1",
+                layer=2,
+                accuracy=0.75,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.25,
+                n_samples=100,
+            ),
         }
         # probe2 has layers 0, 1, and 2
         results.probes["probe2"] = {
-            0: ProbeResult(probe_name="probe2", layer=0, accuracy=0.85, cv_std=0.02, baseline=0.5, above_chance=0.35, n_samples=100),
-            1: ProbeResult(probe_name="probe2", layer=1, accuracy=0.70, cv_std=0.02, baseline=0.5, above_chance=0.20, n_samples=100),
-            2: ProbeResult(probe_name="probe2", layer=2, accuracy=0.65, cv_std=0.02, baseline=0.5, above_chance=0.15, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe2",
+                layer=0,
+                accuracy=0.85,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.35,
+                n_samples=100,
+            ),
+            1: ProbeResult(
+                probe_name="probe2",
+                layer=1,
+                accuracy=0.70,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.20,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="probe2",
+                layer=2,
+                accuracy=0.65,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.15,
+                n_samples=100,
+            ),
         }
 
         battery.print_results_table(results)
@@ -1877,7 +2303,15 @@ class TestProbeBatteryWithoutSklearn:
         results = StratigraphyResult(model_id="test-model", num_layers=4)
         # Add a probe to results that isn't in battery.datasets
         results.probes["unknown_probe"] = {
-            0: ProbeResult(probe_name="unknown_probe", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)
+            0: ProbeResult(
+                probe_name="unknown_probe",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
         }
 
         battery.print_stratigraphy(results, threshold=0.75)
@@ -1898,7 +2332,15 @@ class TestProbeBatteryWithoutSklearn:
         """Test getting accuracy matrix with empty layer list."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["probe1"] = {
-            0: ProbeResult(probe_name="probe1", layer=0, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100),
+            0: ProbeResult(
+                probe_name="probe1",
+                layer=0,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            ),
         }
         matrix = result.get_accuracy_matrix(layers=[])
         assert matrix["probe1"] == []
@@ -1925,7 +2367,17 @@ class TestProbeBatteryWithoutSklearn:
     def test_stratigraphy_result_save_with_path_object(self):
         """Test saving StratigraphyResult using Path object."""
         result = StratigraphyResult(model_id="test", num_layers=5)
-        result.probes["test"] = {0: ProbeResult(probe_name="test", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)}
+        result.probes["test"] = {
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
+        }
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "result.json"
@@ -1940,7 +2392,17 @@ class TestProbeBatteryWithoutSklearn:
     def test_stratigraphy_result_load_with_path_object(self):
         """Test loading StratigraphyResult using Path object."""
         result = StratigraphyResult(model_id="test", num_layers=5)
-        result.probes["test"] = {0: ProbeResult(probe_name="test", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100)}
+        result.probes["test"] = {
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            )
+        }
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "result.json"
@@ -1959,7 +2421,15 @@ class TestProbeBatteryWithoutSklearn:
         """Test finding emergence layer when accuracy exactly matches threshold."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["test_probe"] = {
-            0: ProbeResult(probe_name="test", layer=0, accuracy=0.75, cv_std=0.02, baseline=0.5, above_chance=0.25, n_samples=100),
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.75,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.25,
+                n_samples=100,
+            ),
         }
         # Threshold is 0.75, accuracy is 0.75, above_chance is 0.25 (> 0.1)
         emergence = result.find_emergence_layer("test_probe", threshold=0.75)
@@ -1969,8 +2439,24 @@ class TestProbeBatteryWithoutSklearn:
         """Test finding destruction layer when accuracy exactly matches threshold."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["test_probe"] = {
-            0: ProbeResult(probe_name="test", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
-            2: ProbeResult(probe_name="test", layer=2, accuracy=0.5, cv_std=0.02, baseline=0.5, above_chance=0.0, n_samples=100),  # Exactly at threshold
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="test",
+                layer=2,
+                accuracy=0.5,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.0,
+                n_samples=100,
+            ),  # Exactly at threshold
         }
         # Should not count as destruction since it's not < threshold
         destruction = result.find_destruction_layer("test_probe", threshold=0.5)
@@ -1980,8 +2466,24 @@ class TestProbeBatteryWithoutSklearn:
         """Test finding destruction layer when it goes below threshold."""
         result = StratigraphyResult(model_id="test", num_layers=10)
         result.probes["test_probe"] = {
-            0: ProbeResult(probe_name="test", layer=0, accuracy=0.8, cv_std=0.02, baseline=0.5, above_chance=0.3, n_samples=100),
-            2: ProbeResult(probe_name="test", layer=2, accuracy=0.49, cv_std=0.02, baseline=0.5, above_chance=-0.01, n_samples=100),  # Below threshold
+            0: ProbeResult(
+                probe_name="test",
+                layer=0,
+                accuracy=0.8,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=0.3,
+                n_samples=100,
+            ),
+            2: ProbeResult(
+                probe_name="test",
+                layer=2,
+                accuracy=0.49,
+                cv_std=0.02,
+                baseline=0.5,
+                above_chance=-0.01,
+                n_samples=100,
+            ),  # Below threshold
         }
         destruction = result.find_destruction_layer("test_probe", threshold=0.5)
         assert destruction == 2

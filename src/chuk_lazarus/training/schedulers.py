@@ -55,7 +55,9 @@ def schedule_learning_rate(
         current_lr: The updated learning rate after applying the schedule.
     """
     # Normalize scheduler type to string for comparison
-    sched_type = scheduler_type.value if isinstance(scheduler_type, SchedulerType) else scheduler_type
+    sched_type = (
+        scheduler_type.value if isinstance(scheduler_type, SchedulerType) else scheduler_type
+    )
 
     # Determine the initial learning rate
     if iteration_count == 0:

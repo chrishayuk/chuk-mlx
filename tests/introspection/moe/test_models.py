@@ -70,7 +70,7 @@ class TestMoELayerInfo:
     def test_frozen(self):
         """Test model is frozen."""
         info = MoELayerInfo(layer_idx=0, num_experts=8, num_experts_per_tok=2)
-        with pytest.raises(Exception):
+        with pytest.raises((TypeError, ValueError)):
             info.layer_idx = 1
 
 

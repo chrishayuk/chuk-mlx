@@ -90,9 +90,7 @@ class CollectedActivations(BaseModel):
     label_names: list[str] = Field(default_factory=list, description="Label name per sample")
     categories: list[str] = Field(default_factory=list, description="Category per sample")
     prompts: list[str] = Field(default_factory=list, description="Prompt texts")
-    expected_outputs: list[str | None] = Field(
-        default_factory=list, description="Expected outputs"
-    )
+    expected_outputs: list[str | None] = Field(default_factory=list, description="Expected outputs")
     model_outputs: list[str] = Field(default_factory=list, description="Model outputs")
 
     # Model info

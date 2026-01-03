@@ -922,11 +922,11 @@ class TestFindSpecialistsExtended:
         assert specialists[0].confidence >= specialists[1].confidence
 
 
-class TestFindGeneralists:
-    """Tests for find_generalists function."""
+class TestFindGeneralistsExtended:
+    """Extended tests for find_generalists function."""
 
-    def test_returns_generalists(self, sample_identities):
-        """Test returns list of generalists."""
+    def test_returns_generalists_extended(self, sample_identities):
+        """Test returns list of generalists (extended)."""
         generalists = find_generalists(sample_identities)
 
         assert isinstance(generalists, list)
@@ -950,11 +950,11 @@ class TestFindGeneralists:
         assert generalists == []
 
 
-class TestClusterExpertsBySpecialization:
-    """Tests for cluster_experts_by_specialization function."""
+class TestClusterExpertsBySpecializationExtended:
+    """Extended tests for cluster_experts_by_specialization function."""
 
-    def test_returns_clusters(self, sample_identities):
-        """Test returns clustering dictionary."""
+    def test_returns_clusters_extended(self, sample_identities):
+        """Test returns clustering dictionary (extended)."""
         clusters = cluster_experts_by_specialization(sample_identities)
 
         assert isinstance(clusters, dict)
@@ -994,11 +994,11 @@ class TestClusterExpertsBySpecialization:
         assert clusters == {}
 
 
-class TestCategoryActivation:
-    """Tests for CategoryActivation model."""
+class TestCategoryActivationValidation:
+    """Validation tests for CategoryActivation model."""
 
-    def test_creation(self):
-        """Test model creation."""
+    def test_creation_validation(self):
+        """Test model creation with validation."""
         activation = CategoryActivation(
             category=PromptCategory.PYTHON,
             expert_idx=0,
@@ -1012,7 +1012,7 @@ class TestCategoryActivation:
 
     def test_validation(self):
         """Test field validation."""
-        with pytest.raises(Exception):  # Pydantic validation error
+        with pytest.raises((TypeError, ValueError)):  # Pydantic validation error
             CategoryActivation(
                 category=PromptCategory.PYTHON,
                 expert_idx=-1,  # Should be >= 0
@@ -1024,7 +1024,7 @@ class TestCategoryActivation:
 
     def test_validation_activation_rate_bounds(self):
         """Test activation_rate must be between 0 and 1."""
-        with pytest.raises(Exception):
+        with pytest.raises((TypeError, ValueError)):
             CategoryActivation(
                 category=PromptCategory.PYTHON,
                 expert_idx=0,
@@ -1036,7 +1036,7 @@ class TestCategoryActivation:
 
     def test_validation_negative_activation_count(self):
         """Test activation_count must be >= 0."""
-        with pytest.raises(Exception):
+        with pytest.raises((TypeError, ValueError)):
             CategoryActivation(
                 category=PromptCategory.PYTHON,
                 expert_idx=0,
@@ -1048,7 +1048,7 @@ class TestCategoryActivation:
 
     def test_validation_avg_weight_bounds(self):
         """Test avg_weight must be between 0 and 1."""
-        with pytest.raises(Exception):
+        with pytest.raises((TypeError, ValueError)):
             CategoryActivation(
                 category=PromptCategory.PYTHON,
                 expert_idx=0,
@@ -1068,7 +1068,7 @@ class TestCategoryActivation:
             activation_rate=0.5,
             avg_weight=0.6,
         )
-        with pytest.raises(Exception):  # Pydantic frozen error
+        with pytest.raises((TypeError, ValueError)):  # Pydantic frozen error
             activation.activation_rate = 0.8
 
 
@@ -1117,7 +1117,7 @@ class TestExpertProfileValidation:
 
     def test_validation_negative_expert_idx(self):
         """Test expert_idx validation."""
-        with pytest.raises(Exception):
+        with pytest.raises((TypeError, ValueError)):
             ExpertProfile(
                 expert_idx=-1,  # Invalid: < 0
                 layer_idx=0,
@@ -1129,7 +1129,7 @@ class TestExpertProfileValidation:
 
     def test_validation_negative_total_activations(self):
         """Test total_activations validation."""
-        with pytest.raises(Exception):
+        with pytest.raises((TypeError, ValueError)):
             ExpertProfile(
                 expert_idx=0,
                 layer_idx=0,
@@ -1141,7 +1141,7 @@ class TestExpertProfileValidation:
 
     def test_validation_confidence_bounds(self):
         """Test confidence must be between 0 and 1."""
-        with pytest.raises(Exception):
+        with pytest.raises((TypeError, ValueError)):
             ExpertProfile(
                 expert_idx=0,
                 layer_idx=0,
@@ -1161,7 +1161,7 @@ class TestExpertProfileValidation:
             role=ExpertRole.SPECIALIST,
             confidence=0.9,
         )
-        with pytest.raises(Exception):  # Pydantic frozen error
+        with pytest.raises((TypeError, ValueError)):  # Pydantic frozen error
             profile.confidence = 0.5
 
     def test_default_category_breakdown(self):

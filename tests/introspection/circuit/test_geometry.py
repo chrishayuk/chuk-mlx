@@ -803,8 +803,16 @@ class TestGeometryAnalyzerEdgeCases:
         acts.labels = [0, 1] * 5
         # Use unique categories for tool-type probe testing
         acts.categories = [
-            "tool1", "tool2", "tool3", "tool4", "tool5",
-            "tool6", "tool7", "tool8", "tool9", "tool10",
+            "tool1",
+            "tool2",
+            "tool3",
+            "tool4",
+            "tool5",
+            "tool6",
+            "tool7",
+            "tool8",
+            "tool9",
+            "tool10",
         ]
         return acts
 

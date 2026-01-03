@@ -48,8 +48,6 @@ class AblationConfig(BaseModel):
     ablation_type: AblationType = Field(
         default=AblationType.ZERO, description="Type of ablation to perform"
     )
-    component: ComponentType = Field(
-        default=ComponentType.MLP, description="Component to ablate"
-    )
+    component: ComponentType = Field(default=ComponentType.MLP, description="Component to ablate")
     max_new_tokens: int = Field(default=60, ge=1, description="Maximum tokens to generate")
     temperature: float = Field(default=0.0, ge=0.0, description="Sampling temperature")

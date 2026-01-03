@@ -57,7 +57,7 @@ class TestMoECaptureConfig:
     def test_config_is_frozen(self):
         """Test config is frozen (immutable)."""
         config = MoECaptureConfig()
-        with pytest.raises(Exception):  # ValidationError for frozen model
+        with pytest.raises((TypeError, ValueError)):  # Pydantic frozen model error
             config.capture_router_logits = False
 
 
@@ -94,5 +94,5 @@ class TestMoEAblationConfig:
     def test_config_is_frozen(self):
         """Test config is frozen (immutable)."""
         config = MoEAblationConfig()
-        with pytest.raises(Exception):
+        with pytest.raises((TypeError, ValueError)):
             config.ablation_method = "mean"

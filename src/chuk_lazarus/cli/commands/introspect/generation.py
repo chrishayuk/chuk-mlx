@@ -15,7 +15,9 @@ class AnswerOnsetResult(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    onset_index: int | None = Field(default=None, description="Token index where answer first appears")
+    onset_index: int | None = Field(
+        default=None, description="Token index where answer first appears"
+    )
     onset_token: str | None = Field(default=None, description="Token at onset position")
     is_answer_first: bool | None = Field(
         default=None, description="Whether answer appears in first token"
