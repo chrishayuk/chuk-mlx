@@ -21,6 +21,7 @@ class LayerStrategy(str, Enum):
     EVENLY_SPACED = "evenly_spaced"
     FIRST_LAST = "first_last"
     CUSTOM = "custom"
+    SPECIFIC = "specific"
 
 
 class TrackStrategy(str, Enum):

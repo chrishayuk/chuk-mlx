@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "description": "Token category keywords for expert specialization analysis.",
+  "code_keywords": {
+    "python": ["def", "class", "import", "from", "return", "if", "else", "elif", "for", "while", "try", "except", "with", "as", "yield", "async", "await", "lambda", "pass", "break", "continue", "raise", "finally", "global", "nonlocal", "assert", "del", "in", "is", "not", "and", "or", "True", "False", "None"],
+    "javascript": ["function", "const", "let", "var", "return", "if", "else", "for", "while", "try", "catch", "async", "await", "class", "extends", "import", "export", "default", "new", "this", "super", "typeof", "instanceof", "null", "undefined", "true", "false"],
+    "rust": ["fn", "let", "mut", "const", "if", "else", "match", "for", "while", "loop", "return", "struct", "enum", "impl", "trait", "pub", "mod", "use", "self", "super", "crate", "async", "await", "move", "ref", "where", "dyn", "Box", "Vec", "Option", "Result", "Some", "None", "Ok", "Err"],
+    "sql": ["SELECT", "FROM", "WHERE", "INSERT", "UPDATE", "DELETE", "CREATE", "DROP", "ALTER", "TABLE", "INDEX", "JOIN", "LEFT", "RIGHT", "INNER", "OUTER", "ON", "AND", "OR", "NOT", "NULL", "IN", "LIKE", "ORDER", "BY", "GROUP", "HAVING", "LIMIT", "OFFSET", "AS", "DISTINCT", "COUNT", "SUM", "AVG", "MAX", "MIN"],
+    "go": ["func", "package", "import", "var", "const", "type", "struct", "interface", "map", "chan", "go", "defer", "return", "if", "else", "for", "range", "switch", "case", "default", "break", "continue", "select", "make", "new", "len", "cap", "append", "copy", "nil", "true", "false"],
+    "typescript": ["interface", "type", "enum", "class", "extends", "implements", "readonly", "private", "public", "protected", "static", "abstract", "async", "await", "keyof", "typeof", "infer", "never", "unknown", "any", "void", "null", "undefined"]
+  },
+  "code_symbols": {
+    "brackets": ["{", "}", "[", "]", "(", ")"],
+    "operators": ["+", "-", "*", "/", "=", "==", "===", "!=", "!==", "<", ">", "<=", ">=", "&&", "||", "!", "&", "|", "^", "~", "<<", ">>", ">>>"],
+    "punctuation": [".", ",", ";", ":", "?", "!", "@", "#", "$", "%", "\\", "'", "\"", "`"],
+    "python_specific": [":", "->", "@", "**", "//", "..."],
+    "rust_specific": ["::", "->", "=>", "&", "*", "?", "'"],
+    "sql_specific": ["*", ",", ";", "(", ")", "=", "<>"]
+  },
+  "math_patterns": {
+    "operators": ["+", "-", "*", "/", "=", "^", "√", "∫", "∑", "∏", "±", "×", "÷"],
+    "symbols": ["π", "∞", "∂", "∇", "∈", "∉", "⊂", "⊃", "∪", "∩", "≈", "≠", "≤", "≥"],
+    "functions": ["sin", "cos", "tan", "log", "ln", "exp", "sqrt", "abs", "lim", "max", "min"]
+  },
+  "function_words": {
+    "articles": ["the", "a", "an"],
+    "prepositions": ["in", "on", "at", "to", "for", "with", "by", "from", "of", "about", "into", "through", "during", "before", "after", "above", "below", "between", "under", "over"],
+    "conjunctions": ["and", "or", "but", "so", "yet", "for", "nor", "if", "then", "because", "although", "while", "when", "where", "unless", "since", "until"],
+    "pronouns": ["I", "you", "he", "she", "it", "we", "they", "me", "him", "her", "us", "them", "my", "your", "his", "its", "our", "their", "this", "that", "these", "those", "who", "whom", "whose", "which", "what"],
+    "auxiliary_verbs": ["is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "do", "does", "did", "will", "would", "could", "should", "may", "might", "must", "can", "shall"]
+  },
+  "semantic_clusters": {
+    "python_patterns": ["def ", "class ", "import ", "from ", "__", "self.", ".py"],
+    "javascript_patterns": ["function ", "const ", "let ", "var ", "=> ", "require(", "module."],
+    "sql_patterns": ["SELECT ", "FROM ", "WHERE ", "INSERT ", "UPDATE ", "DELETE ", "CREATE ", "DROP "],
+    "json_patterns": ["{\"", "\": ", "\":\"", "\",\"", "[{", "}]"],
+    "html_patterns": ["<div", "<span", "<p>", "</", "/>", "class=\"", "id=\""]
+  }
+}

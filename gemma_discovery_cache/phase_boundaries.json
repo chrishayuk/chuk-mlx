@@ -352,4 +352,214 @@
     "26": {
       "accuracy": 0.9166666666666666,
       "entropy": 0.10207408820742413,
-      "crystallized": 
+      "crystallized": true
+    },
+    "27": {
+      "accuracy": 0.9166666666666666,
+      "entropy": 0.06731273539529864,
+      "crystallized": true
+    },
+    "28": {
+      "accuracy": 0.9166666666666666,
+      "entropy": 0.03379100402479187,
+      "crystallized": true
+    },
+    "29": {
+      "accuracy": 0.9166666666666666,
+      "entropy": 0.0026722107653714897,
+      "crystallized": true
+    },
+    "30": {
+      "accuracy": 0.9166666666666666,
+      "entropy": 0.00377963890704102,
+      "crystallized": true
+    },
+    "31": {
+      "accuracy": 0.9166666666666666,
+      "entropy": 0.005433780572857966,
+      "crystallized": true
+    },
+    "32": {
+      "accuracy": 0.9166666666666666,
+      "entropy": 0.004552779627505939,
+      "crystallized": true
+    },
+    "33": {
+      "accuracy": 0.9166666666666666,
+      "entropy": 0.00851497754964744,
+      "crystallized": true
+    }
+  },
+  "phase_boundaries": {
+    "0": {
+      "cos_sim_to_prev": 0.02305683372769023,
+      "major_boundary": true,
+      "minor_boundary": true
+    },
+    "1": {
+      "cos_sim_to_prev": 0.9982679797747298,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "2": {
+      "cos_sim_to_prev": 0.9940677096147897,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "3": {
+      "cos_sim_to_prev": 0.9979517462858929,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "4": {
+      "cos_sim_to_prev": 0.9832339360464621,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "5": {
+      "cos_sim_to_prev": 0.9960497110068488,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "6": {
+      "cos_sim_to_prev": 0.995896133328065,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "7": {
+      "cos_sim_to_prev": 0.9937346161110135,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "8": {
+      "cos_sim_to_prev": 0.9976834017138687,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "9": {
+      "cos_sim_to_prev": 0.999138831343673,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "10": {
+      "cos_sim_to_prev": 0.9991866763435474,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "11": {
+      "cos_sim_to_prev": 0.9995448626675659,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "12": {
+      "cos_sim_to_prev": 0.9995750663089558,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "13": {
+      "cos_sim_to_prev": 0.9995718436823149,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "14": {
+      "cos_sim_to_prev": 0.9996013323528705,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "15": {
+      "cos_sim_to_prev": 0.9993236438329954,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "16": {
+      "cos_sim_to_prev": 0.9991963304861697,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "17": {
+      "cos_sim_to_prev": 0.9989299254554503,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "18": {
+      "cos_sim_to_prev": 0.9990694672660719,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "19": {
+      "cos_sim_to_prev": 0.9987221652636349,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "20": {
+      "cos_sim_to_prev": 0.9983590494087262,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "21": {
+      "cos_sim_to_prev": 0.9960452963175768,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "22": {
+      "cos_sim_to_prev": 0.9972467127869132,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "23": {
+      "cos_sim_to_prev": 0.9964276850033061,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "24": {
+      "cos_sim_to_prev": 0.9968212959011439,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "25": {
+      "cos_sim_to_prev": 0.9952930848290193,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "26": {
+      "cos_sim_to_prev": 0.9964616078891374,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "27": {
+      "cos_sim_to_prev": 0.9967978144600763,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "28": {
+      "cos_sim_to_prev": 0.9964386132498593,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "29": {
+      "cos_sim_to_prev": 0.9979675568725194,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "30": {
+      "cos_sim_to_prev": 0.9964627367170725,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "31": {
+      "cos_sim_to_prev": 0.9955600474350177,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "32": {
+      "cos_sim_to_prev": 0.9963958115222754,
+      "major_boundary": false,
+      "minor_boundary": false
+    },
+    "33": {
+      "cos_sim_to_prev": 0.9969345962943875,
+      "major_boundary": false,
+      "minor_boundary": false
+    }
+  }
+}

@@ -9,6 +9,7 @@ from chuk_lazarus.introspection.logit_lens import (
     LayerPrediction,
     LogitLens,
     TokenEvolution,
+    run_logit_lens,
 )
 
 
@@ -373,3 +374,358 @@ class TestLogitLensAdvanced:
 
         # compare_tokens returns a dict with token_id -> evolution
         assert len(evolutions) == 3
+
+
+class TestLogitLensNoneLogits:
+    """Test handling of None logits (line 176, 276)."""
+
+    def test_get_layer_predictions_skips_none_logits(self):
+        """Test that get_layer_predictions skips layers with None logits."""
+        from unittest.mock import MagicMock, Mock
+
+        # Create mock hooks that return None for some layers
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock(), 1: Mock(), 2: Mock()}
+
+        # Mock get_layer_logits to return None for layer 1
+        def mock_get_layer_logits(layer_idx, normalize=True):
+            if layer_idx == 1:
+                return None
+            # Return valid logits for other layers
+            return mx.random.normal((1, 5, 100))
+
+        hooks.get_layer_logits = mock_get_layer_logits
+
+        lens = LogitLens(hooks, tokenizer=MockTokenizer())
+        predictions = lens.get_layer_predictions()
+
+        # Should only have predictions for layers 0 and 2 (layer 1 returned None)
+        assert len(predictions) == 2
+        assert predictions[0].layer_idx == 0
+        assert predictions[1].layer_idx == 2
+
+    def test_track_token_skips_none_logits(self):
+        """Test that track_token skips layers with None logits."""
+        from unittest.mock import Mock
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock(), 1: Mock(), 2: Mock()}
+
+        # Mock get_layer_logits to return None for layer 1
+        def mock_get_layer_logits(layer_idx, normalize=True):
+            if layer_idx == 1:
+                return None
+            return mx.random.normal((1, 5, 100))
+
+        hooks.get_layer_logits = mock_get_layer_logits
+
+        lens = LogitLens(hooks, tokenizer=MockTokenizer())
+        evolution = lens.track_token(10)
+
+        # Should only have data for layers 0 and 2
+        assert len(evolution.layers) == 2
+        assert 1 not in evolution.layers
+
+
+class TestLogitLens2DLogits:
+    """Test handling of 2D logits (lines 182, 282)."""
+
+    def test_get_layer_predictions_2d_logits(self):
+        """Test get_layer_predictions with 2D logits (no batch dimension)."""
+        from unittest.mock import Mock
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock()}
+
+        # Return 2D logits [seq_len, vocab_size]
+        def mock_get_layer_logits(layer_idx, normalize=True):
+            return mx.random.normal((5, 100))  # 2D instead of 3D
+
+        hooks.get_layer_logits = mock_get_layer_logits
+
+        lens = LogitLens(hooks, tokenizer=MockTokenizer())
+        predictions = lens.get_layer_predictions(position=-1, top_k=5)
+
+        assert len(predictions) == 1
+        assert len(predictions[0].top_tokens) == 5
+
+    def test_track_token_2d_logits(self):
+        """Test track_token with 2D logits (no batch dimension)."""
+        from unittest.mock import Mock
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock()}
+
+        # Return 2D logits
+        def mock_get_layer_logits(layer_idx, normalize=True):
+            return mx.random.normal((5, 100))
+
+        hooks.get_layer_logits = mock_get_layer_logits
+
+        lens = LogitLens(hooks, tokenizer=MockTokenizer())
+        evolution = lens.track_token(10, position=-1)
+
+        assert len(evolution.layers) == 1
+        assert len(evolution.probabilities) == 1
+
+
+class TestTokenTrackingEdgeCases:
+    """Test edge cases in token tracking."""
+
+    def test_track_token_empty_encoding(self):
+        """Test tracking a token that encodes to empty list (line 250)."""
+        from unittest.mock import Mock
+
+        # Create a tokenizer that returns empty list for certain tokens
+        tokenizer = Mock()
+        tokenizer.encode = Mock(return_value=[])
+        tokenizer.get_vocab = Mock(return_value={})  # Return empty dict instead of Mock
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock()}
+
+        lens = LogitLens(hooks, tokenizer)
+
+        with pytest.raises(ValueError, match="not in vocabulary"):
+            lens.track_token("invalid_token")
+
+    def test_track_token_multitoken_warning(self):
+        """Test warning when tracking a multi-token string."""
+        import warnings
+        from unittest.mock import Mock
+
+        # Create a tokenizer that returns multiple tokens
+        tokenizer = Mock()
+        tokenizer.encode = Mock(return_value=[10, 20, 30])
+        tokenizer.decode = Mock(return_value="first")
+        tokenizer.get_vocab = Mock(return_value={})
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock()}
+        hooks.get_layer_logits = Mock(return_value=mx.random.normal((1, 5, 100)))
+
+        lens = LogitLens(hooks, tokenizer)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            evolution = lens.track_token("multi token string")
+
+            # Should have issued a warning
+            assert len(w) == 1
+            assert "not a single token" in str(w[0].message)
+
+        # Should still track the first token
+        assert evolution.token_id == 10
+
+    def test_track_token_with_get_vocab(self):
+        """Test token tracking using get_vocab method."""
+        from unittest.mock import Mock
+
+        tokenizer = Mock()
+        tokenizer.get_vocab = Mock(return_value={"test": 42})
+        tokenizer.decode = Mock(return_value="test")
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock()}
+        hooks.get_layer_logits = Mock(return_value=mx.random.normal((1, 5, 100)))
+
+        lens = LogitLens(hooks, tokenizer)
+        evolution = lens.track_token("test")
+
+        # Should use the vocab lookup
+        assert evolution.token_id == 42
+        tokenizer.get_vocab.assert_called_once()
+
+    def test_track_token_rank_none_when_not_in_topk(self):
+        """Test that rank is None when token is not in top-k (line 294)."""
+        from unittest.mock import Mock
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock()}
+
+        # Create logits where token 99 has very low probability
+        logits = mx.zeros((1, 5, 100))
+        logits[0, -1, :10] = 10.0  # Make first 10 tokens have high logits
+        logits[0, -1, 99] = -10.0  # Make token 99 have very low logit
+
+        hooks.get_layer_logits = Mock(return_value=logits)
+
+        lens = LogitLens(hooks, tokenizer=MockTokenizer())
+        evolution = lens.track_token(99, position=-1, top_k_for_rank=50)
+
+        # Token 99 should not be in top 50, so rank should be None
+        assert evolution.ranks[0] is None
+
+    def test_track_token_encode_without_add_special_tokens(self):
+        """Test token encoding when tokenizer doesn't support add_special_tokens."""
+        from unittest.mock import Mock
+
+        tokenizer = Mock()
+        # Simulate tokenizer that raises TypeError for add_special_tokens
+        def encode_side_effect(*args, **kwargs):
+            if "add_special_tokens" in kwargs:
+                raise TypeError("encode() got an unexpected keyword argument 'add_special_tokens'")
+            return [42]
+
+        tokenizer.encode = Mock(side_effect=encode_side_effect)
+        tokenizer.get_vocab = Mock(return_value={})
+        tokenizer.decode = Mock(return_value="test")
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock()}
+        hooks.get_layer_logits = Mock(return_value=mx.random.normal((1, 5, 100)))
+
+        lens = LogitLens(hooks, tokenizer)
+        evolution = lens.track_token("test")
+
+        # Should fall back to encode without add_special_tokens
+        assert evolution.token_id == 42
+
+
+class TestFindEmergencePoint:
+    """Test find_emergence_point method (lines 327-331)."""
+
+    def test_find_emergence_point_found(self):
+        """Test finding emergence point when threshold is exceeded."""
+        from unittest.mock import Mock
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock(), 1: Mock(), 2: Mock()}
+
+        # Create logits where token 10 has increasing probability
+        def mock_get_layer_logits(layer_idx, normalize=True):
+            logits = mx.zeros((1, 5, 100))
+            # Probability increases with layer
+            logits[0, -1, 10] = layer_idx * 2.0
+            return logits
+
+        hooks.get_layer_logits = mock_get_layer_logits
+
+        lens = LogitLens(hooks, tokenizer=MockTokenizer())
+
+        # Should find layer 1 or 2 depending on threshold
+        emergence = lens.find_emergence_point(10, threshold=0.3)
+        assert emergence is not None
+        assert emergence in [0, 1, 2]
+
+    def test_find_emergence_point_not_found(self):
+        """Test when threshold is never exceeded."""
+        from unittest.mock import Mock
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock(), 1: Mock()}
+
+        # Create logits where token 10 always has low probability
+        def mock_get_layer_logits(layer_idx, normalize=True):
+            logits = mx.zeros((1, 5, 100))
+            logits[0, -1, 10] = -10.0  # Very low
+            return logits
+
+        hooks.get_layer_logits = mock_get_layer_logits
+
+        lens = LogitLens(hooks, tokenizer=MockTokenizer())
+
+        # Should return None
+        emergence = lens.find_emergence_point(10, threshold=0.5)
+        assert emergence is None
+
+    def test_find_emergence_point_custom_threshold(self):
+        """Test find_emergence_point with custom threshold."""
+        from unittest.mock import Mock
+
+        hooks = Mock()
+        hooks.state = Mock()
+        hooks.state.hidden_states = {0: Mock(), 1: Mock(), 2: Mock()}
+
+        def mock_get_layer_logits(layer_idx, normalize=True):
+            logits = mx.ones((1, 5, 100)) * -100.0  # Very low for all tokens
+            if layer_idx == 2:
+                logits[0, -1, 10] = 10.0  # Very high probability at layer 2 (softmax will be ~1.0)
+            return logits
+
+        hooks.get_layer_logits = mock_get_layer_logits
+
+        lens = LogitLens(hooks, tokenizer=MockTokenizer())
+        emergence = lens.find_emergence_point(10, threshold=0.9)
+
+        assert emergence == 2
+
+
+class TestRunLogitLens:
+    """Test run_logit_lens convenience function (lines 433-458)."""
+
+    def test_run_logit_lens_basic(self):
+        """Test basic usage of run_logit_lens."""
+        model = SimpleForCausalLM(vocab_size=100, hidden_size=64, num_layers=4)
+        tokenizer = MockTokenizer()
+
+        result = run_logit_lens(
+            model=model,
+            tokenizer=tokenizer,
+            prompt="test",
+            top_k=3,
+        )
+
+        assert "position" in result
+        assert "layers" in result
+        assert len(result["layers"]) > 0
+
+    def test_run_logit_lens_with_tracked_token(self):
+        """Test run_logit_lens with token tracking (line 454-456)."""
+        model = SimpleForCausalLM(vocab_size=100, hidden_size=64, num_layers=4)
+        tokenizer = MockTokenizer()
+
+        result = run_logit_lens(
+            model=model,
+            tokenizer=tokenizer,
+            prompt="test",
+            track_token="A",
+            top_k=3,
+        )
+
+        assert "tracked_token" in result
+        assert "token" in result["tracked_token"]
+        assert "probabilities" in result["tracked_token"]
+
+    def test_run_logit_lens_with_specific_layers(self):
+        """Test run_logit_lens with specific layers."""
+        model = SimpleForCausalLM(vocab_size=100, hidden_size=64, num_layers=4)
+        tokenizer = MockTokenizer()
+
+        result = run_logit_lens(
+            model=model,
+            tokenizer=tokenizer,
+            prompt="test",
+            layers=[0, 2],
+            top_k=5,
+        )
+
+        # Should only have specified layers
+        layer_indices = [layer["layer"] for layer in result["layers"]]
+        assert set(layer_indices).issubset({0, 2})
+
+    def test_run_logit_lens_all_layers(self):
+        """Test run_logit_lens with all layers (default)."""
+        model = SimpleForCausalLM(vocab_size=100, hidden_size=64, num_layers=4)
+        tokenizer = MockTokenizer()
+
+        result = run_logit_lens(
+            model=model,
+            tokenizer=tokenizer,
+            prompt="test",
+            layers=None,  # Explicitly test None case
+            top_k=3,
+        )
+
+        assert len(result["layers"]) > 0

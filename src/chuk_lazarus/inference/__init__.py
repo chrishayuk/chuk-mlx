@@ -63,6 +63,24 @@ from .unified import (
     UnifiedPipelineState,
 )
 
+# Virtual expert system for MoE and dense models
+from .virtual_expert import (
+    MathExpertPlugin,
+    SafeMathEvaluator,
+    VirtualDenseRouter,
+    VirtualDenseWrapper,
+    VirtualExpertAnalysis,
+    VirtualExpertApproach,
+    VirtualExpertPlugin,
+    VirtualExpertRegistry,
+    VirtualExpertResult,
+    VirtualMoEWrapper,
+    VirtualRouter,
+    create_virtual_dense_wrapper,
+    create_virtual_expert_wrapper,
+    get_default_registry,
+)
+
 __all__ = [
     # Loader
     "DownloadConfig",
@@ -92,4 +110,21 @@ __all__ = [
     "UnifiedPipelineConfig",
     "UnifiedPipelineState",
     "IntrospectionResult",
+    # Virtual Expert System (MoE)
+    "VirtualExpertPlugin",
+    "VirtualExpertRegistry",
+    "VirtualExpertResult",
+    "VirtualExpertAnalysis",
+    "VirtualExpertApproach",
+    "VirtualMoEWrapper",
+    "VirtualRouter",
+    "create_virtual_expert_wrapper",
+    # Virtual Expert System (Dense)
+    "VirtualDenseWrapper",
+    "VirtualDenseRouter",
+    "create_virtual_dense_wrapper",
+    # Built-in plugins
+    "MathExpertPlugin",
+    "SafeMathEvaluator",
+    "get_default_registry",
 ]

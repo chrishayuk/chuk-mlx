@@ -295,6 +295,18 @@ chuk-lazarus introspect ablate -m model -p "What's the weather?" -c function_cal
 # Multi-layer ablation - test layers together
 chuk-lazarus introspect ablate -m model -p "45 * 45 = " -c "2025" --layers 22,23 --multi
 
+# Test if task type is baked into embeddings (RLVF hypothesis)
+chuk-lazarus introspect embedding -m model
+
+# Analyze operand encoding structure (holistic vs compositional)
+chuk-lazarus introspect operand-directions -m model
+
+# Test commutativity (lookup table vs algorithm)
+chuk-lazarus introspect commutativity -m model
+
+# Activation patching between prompts
+chuk-lazarus introspect patch -m model --source "7*8=" --target "7+8="
+
 # Low-level hook demonstration
 chuk-lazarus introspect hooks -m model -p "Test" --layers 0,4,8 --capture-attention
 ```

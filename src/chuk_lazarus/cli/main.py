@@ -121,8 +121,10 @@ from .commands.introspect import (
     introspect_circuit_invoke,
     introspect_circuit_test,
     introspect_circuit_view,
+    introspect_commutativity,
     introspect_compare,
     introspect_directions,
+    introspect_embedding,
     introspect_format_sensitivity,
     introspect_generate,
     introspect_hooks,
@@ -131,9 +133,14 @@ from .commands.introspect import (
     introspect_memory_inject,
     introspect_metacognitive,
     introspect_neurons,
+    introspect_operand_directions,
+    introspect_patch,
+    introspect_early_layers,
     introspect_probe,
     introspect_steer,
     introspect_uncertainty,
+    introspect_virtual_expert,
+    introspect_moe_expert,
     introspect_weight_diff,
 )
 from .commands.tokenizer import (
@@ -2114,6 +2121,279 @@ Example:
     )
     directions_parser.set_defaults(func=introspect_directions)
 
+    # Operand-directions command - analyze how operands are encoded
+    operand_directions_parser = introspect_subparsers.add_parser(
+        "operand-directions",
+        help="Analyze how operands A and B are encoded in activation space",
+        description="""Extract operand directions (A_d and B_d) to analyze encoding structure.
+
+This is useful for understanding if a model uses:
+- Compositional encoding (like GPT-OSS): A and B in separate orthogonal subspaces
+- Holistic encoding (like Gemma): entire expression encoded together
+
+Examples:
+    # Analyze multiplication operand encoding
+    lazarus introspect operand-directions -m model \\
+        --digits 2,3,4,5,6,7,8,9 --operation "*" --layers 8,16,20,24
+
+    # Save directions for later analysis
+    lazarus introspect operand-directions -m model \\
+        --output operand_dirs.npz
+        """,
+    )
+    operand_directions_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    operand_directions_parser.add_argument(
+        "--digits",
+        help="Digits to use (comma-separated, default: 2,3,4,5,6,7,8,9)",
+    )
+    operand_directions_parser.add_argument(
+        "--operation",
+        default="*",
+        help="Operation to test (default: '*')",
+    )
+    operand_directions_parser.add_argument(
+        "--layers",
+        help="Layers to analyze (comma-separated, default: auto key layers)",
+    )
+    operand_directions_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to file (.json or .npz)",
+    )
+    operand_directions_parser.set_defaults(func=introspect_operand_directions)
+
+    # Embedding command - analyze what's encoded at embedding level
+    embedding_parser = introspect_subparsers.add_parser(
+        "embedding",
+        help="Analyze what information is encoded at embedding level vs after layers",
+        description="""Test the RLVF backprop hypothesis: does task information exist in raw embeddings?
+
+Tests:
+1. Task type detection (arithmetic vs language) from embeddings
+2. Operation type detection (mult vs add) from embeddings
+3. Answer correlation with embeddings vs after layers
+
+If task type is 100% detectable from embeddings, this suggests RLVF gradients
+backpropagate all the way to the embedding layer.
+
+Examples:
+    # Test embedding analysis
+    lazarus introspect embedding -m model
+
+    # Test with specific operation
+    lazarus introspect embedding -m model --operation mult
+
+    # Analyze specific layers
+    lazarus introspect embedding -m model --layers 0,1,2,4
+        """,
+    )
+    embedding_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    embedding_parser.add_argument(
+        "--operation",
+        choices=["mult", "add", "all", "*", "+"],
+        help="Operation type to test (default: all)",
+    )
+    embedding_parser.add_argument(
+        "--layers",
+        help="Layers to compare against embeddings (comma-separated, default: 0,1,2)",
+    )
+    embedding_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    embedding_parser.set_defaults(func=introspect_embedding)
+
+    # Commutativity command - test if representations respect A*B = B*A
+    commutativity_parser = introspect_subparsers.add_parser(
+        "commutativity",
+        help="Test if internal representations respect commutativity (A*B = B*A)",
+        description="""Test commutativity in internal representations.
+
+For multiplication, A*B and B*A should produce the same answer. This test checks
+whether the internal representations for commutative pairs are similar, which
+would indicate a lookup table structure rather than an algorithm.
+
+High commutativity similarity (>0.99) suggests the model memorizes individual facts
+rather than computing them algorithmically.
+
+Examples:
+    # Test all commutative pairs (2-9)
+    lazarus introspect commutativity -m model
+
+    # Test specific pairs
+    lazarus introspect commutativity -m model \\
+        --pairs "2*3,3*2|7*8,8*7|4*5,5*4"
+
+    # Analyze at specific layer
+    lazarus introspect commutativity -m model --layer 20
+        """,
+    )
+    commutativity_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    commutativity_parser.add_argument(
+        "--pairs",
+        help="Explicit commutative pairs to test (e.g., '2*3,3*2|7*8,8*7')",
+    )
+    commutativity_parser.add_argument(
+        "--layer",
+        "-l",
+        type=int,
+        help="Layer to analyze (default: ~60%% of model depth)",
+    )
+    commutativity_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    commutativity_parser.set_defaults(func=introspect_commutativity)
+
+    # Patch command - activation patching between prompts
+    patch_parser = introspect_subparsers.add_parser(
+        "patch",
+        help="Perform activation patching between source and target prompts",
+        description="""Activation patching: transfer activations from source to target prompt.
+
+This is a causal intervention technique that tests whether activations from
+one prompt can transfer computation to another prompt.
+
+For example, patching activations from "7*8=" into "7+8=" at the right layer
+should cause the model to output "56" instead of "15".
+
+Examples:
+    # Patch multiplication into addition
+    lazarus introspect patch -m model \\
+        --source "7*8=" --target "7+8="
+
+    # Patch at specific layer
+    lazarus introspect patch -m model \\
+        --source "7*8=" --target "7+8=" --layer 20
+
+    # Patch with partial blend
+    lazarus introspect patch -m model \\
+        --source "7*8=" --target "7+8=" --blend 0.5
+        """,
+    )
+    patch_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    patch_parser.add_argument(
+        "--source",
+        "-s",
+        required=True,
+        help="Source prompt to patch FROM",
+    )
+    patch_parser.add_argument(
+        "--target",
+        "-t",
+        required=True,
+        help="Target prompt to patch INTO",
+    )
+    patch_parser.add_argument(
+        "--layer",
+        "-l",
+        type=int,
+        help="Single layer to patch at",
+    )
+    patch_parser.add_argument(
+        "--layers",
+        help="Multiple layers to sweep (comma-separated, default: all key layers)",
+    )
+    patch_parser.add_argument(
+        "--blend",
+        type=float,
+        default=1.0,
+        help="Blend factor: 0=no change, 1=full replacement (default: 1.0)",
+    )
+    patch_parser.add_argument(
+        "--max-tokens",
+        "-n",
+        type=int,
+        default=10,
+        help="Max tokens to generate (default: 10)",
+    )
+    patch_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    patch_parser.set_defaults(func=introspect_patch)
+
+    # Early layers command - analyze what information is encoded in early layers
+    early_layers_parser = introspect_subparsers.add_parser(
+        "early-layers",
+        help="Analyze what information is encoded in early layers",
+        description="""Analyze early layer information encoding using linear probes.
+
+This command reveals how information is organized in early transformer layers:
+- Cross-expression similarity at the '=' position
+- Linear probe extraction of operation type, operands, and answer
+- The "orthogonal subspaces paradox": high similarity but separable information
+
+Key insight: Even when cosine similarity is high (0.997), information can be
+linearly extracted because it's encoded in orthogonal directions.
+
+Examples:
+    # Basic analysis with default settings
+    lazarus introspect early-layers -m model
+
+    # Analyze specific layers
+    lazarus introspect early-layers -m model --layers 0,1,2,4,8
+
+    # Include position-wise analysis
+    lazarus introspect early-layers -m model --analyze-positions
+
+    # Test specific operations
+    lazarus introspect early-layers -m model --operations "*,+,-"
+        """,
+    )
+    early_layers_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    early_layers_parser.add_argument(
+        "--layers",
+        help="Layers to analyze (comma-separated, default: 0,1,2,4,8,12)",
+    )
+    early_layers_parser.add_argument(
+        "--operations",
+        help="Operations to test (comma-separated, default: *,+)",
+    )
+    early_layers_parser.add_argument(
+        "--digits",
+        help="Digit range for operands (e.g., 2-8, default: 2-8)",
+    )
+    early_layers_parser.add_argument(
+        "--analyze-positions",
+        action="store_true",
+        help="Include position-wise analysis (slower but more detailed)",
+    )
+    early_layers_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    early_layers_parser.set_defaults(func=introspect_early_layers)
+
     # Circuit command - direct circuit invocation and manipulation
     circuit_parser = introspect_subparsers.add_parser(
         "circuit",
@@ -2412,6 +2692,197 @@ Examples:
         help="Number of top neurons to show with --stats (default: 10)",
     )
     view_parser.set_defaults(func=introspect_circuit_view)
+
+    # Virtual Expert command - add virtual experts to models
+    virtual_expert_parser = introspect_subparsers.add_parser(
+        "virtual-expert",
+        help="Add virtual expert (tool) capabilities to models",
+        description="""Virtual Expert System - route to external tools via MoE routing.
+
+For MoE models (like GPT-OSS), intercepts actual router decisions.
+For dense models (like LLaMA), creates virtual routing in activation space.
+
+Actions:
+  analyze   - Analyze which experts activate for different prompt categories (MoE only)
+  solve     - Solve a single problem with virtual expert
+  benchmark - Run benchmark comparing model vs virtual expert
+  compare   - Compare model-only vs virtual expert on a prompt
+  interactive - Interactive REPL mode
+
+Examples:
+    # Analyze expert routing (MoE models)
+    lazarus introspect virtual-expert analyze -m openai/gpt-oss-20b
+
+    # Solve with virtual expert
+    lazarus introspect virtual-expert solve -m model -p "127 * 89 = "
+
+    # Run benchmark
+    lazarus introspect virtual-expert benchmark -m model
+
+    # Compare approaches
+    lazarus introspect virtual-expert compare -m model -p "127 * 89 = "
+
+    # Interactive mode
+    lazarus introspect virtual-expert interactive -m model
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    virtual_expert_parser.add_argument(
+        "action",
+        nargs="?",
+        choices=["analyze", "solve", "benchmark", "compare", "interactive"],
+        default="solve",
+        help="Action to perform (default: solve)",
+    )
+    virtual_expert_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    virtual_expert_parser.add_argument(
+        "--prompt",
+        "-p",
+        help="Prompt to solve/compare (required for solve/compare)",
+    )
+    virtual_expert_parser.add_argument(
+        "--problems",
+        help="Problems for benchmark (pipe-separated or @file.txt)",
+    )
+    virtual_expert_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    virtual_expert_parser.set_defaults(func=introspect_virtual_expert)
+
+    # MoE Expert command - direct expert manipulation
+    moe_expert_parser = introspect_subparsers.add_parser(
+        "moe-expert",
+        help="Direct manipulation of MoE expert routing",
+        description="""MoE Expert Explorer - Talk to individual experts, compare them, or ablate them.
+
+Actions:
+  analyze       - Identify expert specializations across all categories
+  chat          - Force all routing to a specific expert
+  compare       - Compare multiple experts on the same prompt
+  ablate        - Remove an expert and see what breaks
+  topk          - Experiment with different top-k values
+  collab        - Analyze expert co-activation patterns
+  pairs         - Test specific expert pairs/groups together
+  interactive   - Interactive explorer REPL
+  weights       - Show router confidence/weights for expert selections
+  tokenizer     - Analyze control tokens in the tokenizer
+  control-tokens - Analyze which experts handle control tokens
+  trace         - Trace expert routing across ALL layers for a prompt
+  entropy       - Analyze routing entropy (confidence) by layer
+  divergence    - Compare routing distributions between prompt groups
+  role          - Analyze what layers are most confident on (single tokens vs mixed)
+  context-test  - Test if same token routes to same expert regardless of context
+  vocab-map     - Map which expert 'owns' which tokens in vocabulary
+  layer-sweep   - Sweep all 24 layers in one command, analyze expert patterns across model
+
+Examples:
+    # Analyze expert specializations (find the "math expert", "code expert", etc.)
+    lazarus introspect moe-expert analyze -m openai/gpt-oss-20b
+
+    # Chat with Expert 6 (force all tokens through it)
+    lazarus introspect moe-expert chat -m openai/gpt-oss-20b --expert 6 -p "127 * 89 = "
+
+    # Compare Experts 6, 7, and 20 on the same prompt
+    lazarus introspect moe-expert compare -m model --experts 6,7,20 -p "def fibonacci(n):"
+
+    # Kill the math expert and see what breaks
+    lazarus introspect moe-expert ablate -m model --expert 6 -p "127 * 89 = " --benchmark
+
+    # Try k=1 (pure specialist) vs k=8 (more collaboration)
+    lazarus introspect moe-expert topk -m model --k 1 -p "Hello world" --compare-k "1,2,4,8"
+
+    # Analyze expert collaboration patterns
+    lazarus introspect moe-expert collab -m model -p "127 * 89 = "
+
+    # Test specific expert pairs together
+    lazarus introspect moe-expert pairs -m model --experts 6,7 -p "127 * 89 = " --benchmark
+
+    # Interactive explorer
+    lazarus introspect moe-expert interactive -m model
+
+    # Sweep all layers to analyze expert taxonomy across the entire model
+    lazarus introspect moe-expert layer-sweep -m openai/gpt-oss-20b
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    moe_expert_parser.add_argument(
+        "action",
+        nargs="?",
+        choices=["chat", "compare", "ablate", "topk", "collab", "pairs", "interactive", "analyze", "weights", "tokenizer", "control-tokens", "trace", "entropy", "divergence", "role", "context-test", "vocab-map", "router-probe", "pattern-discovery", "full-taxonomy", "layer-sweep"],
+        default="chat",
+        help="Action to perform (default: chat)",
+    )
+    moe_expert_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID (must be MoE model)",
+    )
+    moe_expert_parser.add_argument(
+        "--expert",
+        "-e",
+        type=int,
+        help="Expert index for chat/ablate (0-based)",
+    )
+    moe_expert_parser.add_argument(
+        "--experts",
+        help="Expert indices for compare (comma-separated, e.g., '6,7,20')",
+    )
+    moe_expert_parser.add_argument(
+        "--prompt",
+        "-p",
+        help="Prompt to test",
+    )
+    moe_expert_parser.add_argument(
+        "--k",
+        type=int,
+        help="Top-k value for topk action",
+    )
+    moe_expert_parser.add_argument(
+        "--compare-k",
+        help="Compare multiple k values (comma-separated, e.g., '1,2,4,8')",
+    )
+    moe_expert_parser.add_argument(
+        "--benchmark",
+        action="store_true",
+        help="Run ablation/pairs on multiple problems",
+    )
+    moe_expert_parser.add_argument(
+        "--layer",
+        type=int,
+        help="Target MoE layer for collab analysis (default: middle layer)",
+    )
+    moe_expert_parser.add_argument(
+        "--compare-singles",
+        action="store_true",
+        help="For pairs: also compare individual experts in the group",
+    )
+    moe_expert_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    moe_expert_parser.add_argument(
+        "--compare-prompts",
+        help="For divergence: comma-separated prompts for group B comparison",
+    )
+    moe_expert_parser.add_argument(
+        "--token",
+        "-t",
+        help="Target token for context-test (e.g., 'the', 'def', '127')",
+    )
+    moe_expert_parser.add_argument(
+        "--contexts",
+        help="Comma-separated contexts to test (e.g., 'the cat,the dog,under the bridge')",
+    )
+    moe_expert_parser.set_defaults(func=introspect_moe_expert)
 
     return parser
 

@@ -226,6 +226,34 @@ lazarus tokenizer compare \
   --text "The quick brown fox jumps over the lazy dog."
 ```
 
+### introspect
+
+Mechanistic interpretability tools for understanding model internals. See [introspection.md](introspection.md) for full documentation.
+
+**Quick Examples:**
+
+```bash
+# Logit lens analysis
+lazarus introspect analyze -m model -p "The capital of France is"
+
+# Activation steering
+lazarus introspect steer -m model --extract --positive "good" --negative "bad" -o direction.npz
+
+# Ablation study
+lazarus introspect ablate -m model -p "45 * 45 =" -c "2025" --layers 20-23
+
+# Linear probe
+lazarus introspect probe -m model --class-a "hard problems" --class-b "easy problems"
+
+# Systematic arithmetic testing
+lazarus introspect arithmetic -m model --hard-only
+
+# Uncertainty detection
+lazarus introspect uncertainty -m model --prompts "test prompts"
+```
+
+**All introspect subcommands:** analyze, compare, generate, hooks, probe, neurons, directions, operand-directions, embedding, early-layers, activation-cluster, steer, ablate, patch, weight-diff, activation-diff, layer, format-sensitivity, arithmetic, commutativity, metacognitive, uncertainty, memory, memory-inject, circuit (capture, invoke, test, view, compare, decode).
+
 ## Data Formats
 
 ### SFT Data (JSONL)
