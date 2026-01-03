@@ -132,3 +132,48 @@ class TestAsyncCollaboration:
             mock_router.analyze_coactivation.assert_called_once()
             call_args = mock_router.analyze_coactivation.call_args
             assert len(call_args[0][0]) == 3
+
+    @pytest.mark.asyncio
+    async def test_collaboration_with_prompts_from_file(self, capsys, tmp_path):
+        """Test collaboration with prompts from file."""
+        # Create a temp file with prompts
+        prompts_file = tmp_path / "prompts.txt"
+        prompts_file.write_text("prompt1\nprompt2\nprompt3\n")
+
+        args = Namespace(
+            model="test/model",
+            prompts=f"@{prompts_file}",
+        )
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0,),
+            num_experts=32,
+            num_experts_per_tok=4,
+            total_layers=1,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        mock_analysis = CoactivationAnalysis(
+            layer_idx=0,
+            total_activations=150,
+            top_pairs=(),
+            generalist_experts=(),
+        )
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        mock_router.analyze_coactivation = AsyncMock(return_value=mock_analysis)
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        with patch(
+            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.collaboration.ExpertRouter"
+        ) as MockRouter:
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+
+            await _async_collaboration(args)
+
+            # Verify all 3 prompts from file were passed
+            mock_router.analyze_coactivation.assert_called_once()
+            call_args = mock_router.analyze_coactivation.call_args
+            assert len(call_args[0][0]) == 3

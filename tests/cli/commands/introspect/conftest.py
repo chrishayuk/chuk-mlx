@@ -95,6 +95,9 @@ def setup_introspection_module():
     mock_external_memory.ExternalMemoryStore = MagicMock()
     mock_external_memory.ExternalMemory = MagicMock()
 
+    mock_steering = MagicMock()
+    mock_steering.SteeringHook = MagicMock()
+
     # Mock moe submodules to allow moe_expert imports to succeed
     mock_moe = MagicMock()
     mock_moe.ExpertRouter = MagicMock()
@@ -113,6 +116,12 @@ def setup_introspection_module():
     mock_moe_router = MagicMock()
     mock_moe_router.ExpertRouter = MagicMock()
 
+    # Mock introspection.enums
+    mock_enums = MagicMock()
+    mock_enums.OverrideMode = MagicMock()
+    mock_enums.OverrideMode.REPLACE = "replace"
+    mock_enums.OverrideMode.ADD = "add"
+
     # Pre-populate sys.modules so patch() calls can resolve the module path
     original_modules = {}
     modules_to_add = {
@@ -120,6 +129,8 @@ def setup_introspection_module():
         "chuk_lazarus.introspection.ablation": mock_ablation,
         "chuk_lazarus.introspection.hooks": mock_hooks,
         "chuk_lazarus.introspection.external_memory": mock_external_memory,
+        "chuk_lazarus.introspection.steering": mock_steering,
+        "chuk_lazarus.introspection.enums": mock_enums,
         "chuk_lazarus.introspection.moe": mock_moe,
         "chuk_lazarus.introspection.moe.enums": mock_moe_enums,
         "chuk_lazarus.introspection.moe.models": mock_moe_models,

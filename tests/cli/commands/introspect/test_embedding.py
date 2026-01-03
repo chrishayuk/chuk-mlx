@@ -479,3 +479,307 @@ class TestIntrospectEarlyLayers:
                         with open(early_layers_args.output) as f:
                             data = json.load(f)
                             assert "probe_results" in data
+
+
+@requires_sklearn
+class TestIntrospectEmbeddingEdgeCases:
+    """Additional tests for edge cases and error handling."""
+
+    @pytest.fixture
+    def embedding_args(self):
+        """Create arguments for embedding command."""
+        return Namespace(
+            model="test-model",
+            layers=None,
+            operation=None,
+            output=None,
+        )
+
+    @pytest.fixture
+    def early_layers_args(self):
+        """Create arguments for early layers command."""
+        return Namespace(
+            model="test-model",
+            layers=None,
+            operations=None,
+            digits=None,
+            analyze_positions=False,
+            output=None,
+        )
+
+    def test_embedding_alternative_embed_access(self, embedding_args, mock_ablation_study, capsys):
+        """Test alternative embedding layer access path (model.embed_tokens)."""
+        import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_embedding
+
+        with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
+            mock_hooks = MagicMock()
+            mock_hooks.state.hidden_states = {
+                0: mx.zeros((1, 1, 768)),
+                1: mx.zeros((1, 1, 768)),
+                2: mx.zeros((1, 1, 768)),
+            }
+            mock_hooks_cls.return_value = mock_hooks
+
+            # Mock model without nested model.embed_tokens
+            mock_study = mock_ablation_study.from_pretrained.return_value
+            mock_model = MagicMock()
+            # Remove model.model.embed_tokens, only have embed_tokens at top level
+            delattr(mock_model, "model")
+            mock_model.embed_tokens.return_value = mx.zeros((1, 5, 768))
+            mock_study.adapter.model = mock_model
+
+            with patch("sklearn.linear_model.LogisticRegression") as mock_lr:
+                mock_probe = MagicMock()
+                mock_probe.fit.return_value = mock_probe
+                mock_probe.score.return_value = 0.95
+                mock_lr.return_value = mock_probe
+
+                with patch("sklearn.linear_model.LinearRegression") as mock_lin:
+                    mock_reg = MagicMock()
+                    mock_reg.fit.return_value = mock_reg
+                    mock_reg.predict.side_effect = lambda X: np.ones(len(X)) * 5
+                    mock_lin.return_value = mock_reg
+
+                    with patch("sklearn.model_selection.cross_val_score") as mock_cv:
+                        mock_cv.return_value = np.array([0.9, 0.95, 0.92])
+
+                        introspect_embedding(embedding_args)
+
+                        captured = capsys.readouterr()
+                        assert "Loading model" in captured.out
+
+    def test_embedding_no_embed_layer_raises_error(self, embedding_args, mock_ablation_study):
+        """Test error when embedding layer cannot be found."""
+        import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_embedding
+
+        with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
+            mock_hooks = MagicMock()
+            mock_hooks.state.hidden_states = {
+                0: mx.zeros((1, 1, 768)),
+                1: mx.zeros((1, 1, 768)),
+                2: mx.zeros((1, 1, 768)),
+            }
+            mock_hooks_cls.return_value = mock_hooks
+
+            # Mock model without any embed_tokens
+            mock_study = mock_ablation_study.from_pretrained.return_value
+            mock_model = MagicMock(spec=[])  # Empty spec, no attributes
+            mock_study.adapter.model = mock_model
+
+            with pytest.raises(AttributeError, match="Cannot find embedding layer"):
+                introspect_embedding(embedding_args)
+
+    def test_embedding_cross_val_score_value_error(
+        self, embedding_args, mock_ablation_study, capsys
+    ):
+        """Test fallback when cross_val_score raises ValueError."""
+        import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_embedding
+
+        with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
+            mock_hooks = MagicMock()
+            mock_hooks.state.hidden_states = {
+                0: mx.zeros((1, 1, 768)),
+                1: mx.zeros((1, 1, 768)),
+                2: mx.zeros((1, 1, 768)),
+            }
+            mock_hooks_cls.return_value = mock_hooks
+
+            mock_study = mock_ablation_study.from_pretrained.return_value
+            mock_model = MagicMock()
+            mock_model.model.embed_tokens.return_value = mx.zeros((1, 5, 768))
+            mock_study.adapter.model = mock_model
+
+            with patch("sklearn.linear_model.LogisticRegression") as mock_lr:
+                mock_probe = MagicMock()
+                mock_probe.fit.return_value = mock_probe
+                mock_probe.score.return_value = 0.75
+                mock_lr.return_value = mock_probe
+
+                with patch("sklearn.linear_model.LinearRegression") as mock_lin:
+                    mock_reg = MagicMock()
+                    mock_reg.fit.return_value = mock_reg
+                    mock_reg.predict.side_effect = lambda X: np.ones(len(X)) * 5
+                    mock_lin.return_value = mock_reg
+
+                    with patch("sklearn.model_selection.cross_val_score") as mock_cv:
+                        # Raise ValueError to trigger fallback
+                        mock_cv.side_effect = ValueError("Not enough samples")
+
+                        introspect_embedding(embedding_args)
+
+                        captured = capsys.readouterr()
+                        assert "Loading model" in captured.out
+                        # Should use probe.score fallback
+                        assert mock_probe.fit.called
+
+    def test_embedding_partial_task_encoding(self, embedding_args, mock_ablation_study, capsys):
+        """Test interpretation output for partial task encoding."""
+        import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_embedding
+
+        with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
+            mock_hooks = MagicMock()
+            mock_hooks.state.hidden_states = {
+                0: mx.zeros((1, 1, 768)),
+                1: mx.zeros((1, 1, 768)),
+                2: mx.zeros((1, 1, 768)),
+            }
+            mock_hooks_cls.return_value = mock_hooks
+
+            mock_study = mock_ablation_study.from_pretrained.return_value
+            mock_model = MagicMock()
+            mock_model.model.embed_tokens.return_value = mx.zeros((1, 5, 768))
+            mock_study.adapter.model = mock_model
+
+            with patch("sklearn.linear_model.LogisticRegression") as mock_lr:
+                mock_probe = MagicMock()
+                mock_probe.fit.return_value = mock_probe
+                # Return low accuracy to trigger partial encoding message
+                mock_probe.score.return_value = 0.65
+                mock_lr.return_value = mock_probe
+
+                with patch("sklearn.linear_model.LinearRegression") as mock_lin:
+                    mock_reg = MagicMock()
+                    mock_reg.fit.return_value = mock_reg
+                    mock_reg.predict.side_effect = lambda X: np.ones(len(X)) * 5
+                    mock_lin.return_value = mock_reg
+
+                    with patch("sklearn.model_selection.cross_val_score") as mock_cv:
+                        mock_cv.return_value = np.array([0.6, 0.65, 0.7])
+
+                        introspect_embedding(embedding_args)
+
+                        captured = capsys.readouterr()
+                        assert "Task type partially encoded" in captured.out
+                        assert "May need more layer computation" in captured.out
+
+    def test_embedding_operations_add_and_mult(self, embedding_args, mock_ablation_study, capsys):
+        """Test with both add and mult operations."""
+        import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_embedding
+
+        embedding_args.operation = "add"  # Will also include mult in line 45
+
+        with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
+            mock_hooks = MagicMock()
+            mock_hooks.state.hidden_states = {
+                0: mx.zeros((1, 1, 768)),
+                1: mx.zeros((1, 1, 768)),
+                2: mx.zeros((1, 1, 768)),
+            }
+            mock_hooks_cls.return_value = mock_hooks
+
+            mock_study = mock_ablation_study.from_pretrained.return_value
+            mock_model = MagicMock()
+            mock_model.model.embed_tokens.return_value = mx.zeros((1, 5, 768))
+            mock_study.adapter.model = mock_model
+
+            with patch("sklearn.linear_model.LogisticRegression") as mock_lr:
+                mock_probe = MagicMock()
+                mock_probe.fit.return_value = mock_probe
+                mock_probe.score.return_value = 0.95
+                mock_lr.return_value = mock_probe
+
+                with patch("sklearn.linear_model.LinearRegression") as mock_lin:
+                    mock_reg = MagicMock()
+                    mock_reg.fit.return_value = mock_reg
+                    mock_reg.predict.side_effect = lambda X: np.ones(len(X)) * 10
+                    mock_lin.return_value = mock_reg
+
+                    with patch("sklearn.model_selection.cross_val_score") as mock_cv:
+                        mock_cv.return_value = np.array([0.9, 0.95, 0.92])
+
+                        introspect_embedding(embedding_args)
+
+                        captured = capsys.readouterr()
+                        assert "Loading model" in captured.out
+
+    def test_early_layers_single_operation(self, early_layers_args, mock_ablation_study, capsys):
+        """Test early layers with only one operation (triggers op_acc=1.0 branch)."""
+        import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
+
+        early_layers_args.operations = "*"
+
+        mock_study = mock_ablation_study.from_pretrained.return_value
+        mock_study.adapter.num_layers = 12
+
+        with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
+            mock_hooks = MagicMock()
+            mock_hooks.state.hidden_states = {
+                0: mx.zeros((1, 1, 768)),
+                1: mx.zeros((1, 1, 768)),
+                2: mx.zeros((1, 1, 768)),
+                4: mx.zeros((1, 1, 768)),
+                8: mx.zeros((1, 1, 768)),
+            }
+            mock_hooks_cls.return_value = mock_hooks
+
+            with patch("sklearn.linear_model.LogisticRegression") as mock_lr:
+                mock_probe = MagicMock()
+                mock_probe.fit.return_value = mock_probe
+                mock_probe.score.return_value = 0.95
+                mock_lr.return_value = mock_probe
+
+                with patch("sklearn.linear_model.Ridge") as mock_ridge:
+                    mock_reg = MagicMock()
+                    mock_reg.fit.return_value = mock_reg
+                    mock_reg.predict.side_effect = lambda X: np.ones(len(X)) * 5
+                    mock_ridge.return_value = mock_reg
+
+                    introspect_early_layers(early_layers_args)
+
+                    captured = capsys.readouterr()
+                    # When only one operation, op_acc should be set to 1.0
+                    assert "Loading model" in captured.out
+
+    def test_early_layers_fewer_than_two_operations_fallback(
+        self, early_layers_args, mock_ablation_study, capsys
+    ):
+        """Test fallback sample expressions when fewer than 2 operations."""
+        import mlx.core as mx
+
+        from chuk_lazarus.cli.commands.introspect import introspect_early_layers
+
+        # Only one operation
+        early_layers_args.operations = "*"
+
+        mock_study = mock_ablation_study.from_pretrained.return_value
+        mock_study.adapter.num_layers = 12
+
+        with patch("chuk_lazarus.introspection.ModelHooks") as mock_hooks_cls:
+            mock_hooks = MagicMock()
+            mock_hooks.state.hidden_states = {
+                0: mx.zeros((1, 1, 768)),
+                1: mx.zeros((1, 1, 768)),
+                2: mx.zeros((1, 1, 768)),
+                4: mx.zeros((1, 1, 768)),
+                8: mx.zeros((1, 1, 768)),
+            }
+            mock_hooks_cls.return_value = mock_hooks
+
+            with patch("sklearn.linear_model.LogisticRegression") as mock_lr:
+                mock_probe = MagicMock()
+                mock_probe.fit.return_value = mock_probe
+                mock_probe.score.return_value = 0.95
+                mock_lr.return_value = mock_probe
+
+                with patch("sklearn.linear_model.Ridge") as mock_ridge:
+                    mock_reg = MagicMock()
+                    mock_reg.fit.return_value = mock_reg
+                    mock_reg.predict.side_effect = lambda X: np.ones(len(X)) * 5
+                    mock_ridge.return_value = mock_reg
+
+                    introspect_early_layers(early_layers_args)
+
+                    captured = capsys.readouterr()
+                    assert "REPRESENTATION SIMILARITY" in captured.out

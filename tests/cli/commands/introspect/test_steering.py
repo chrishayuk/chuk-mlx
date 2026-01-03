@@ -195,3 +195,150 @@ class TestIntrospectSteer:
                 with open(steer_args.output) as f:
                     data = json.load(f)
                     assert isinstance(data, list)
+
+    def test_steer_load_direction_with_metadata(self, steer_args, mock_activation_steering, capsys):
+        """Test loading direction with all metadata fields (lines 131, 133, 136)."""
+        import numpy as np
+
+        from chuk_lazarus.cli.commands.introspect import introspect_steer
+
+        # Create a direction file with full metadata
+        with tempfile.NamedTemporaryFile(suffix=".npz", delete=False) as f:
+            np.savez(
+                f.name,
+                direction=np.random.randn(768).astype(np.float32),
+                layer=6,
+                positive_prompt="good example",
+                negative_prompt="bad example",
+                norm=1.234,
+                cosine_similarity=0.456,
+            )
+            steer_args.direction = f.name
+
+        introspect_steer(steer_args)
+
+        captured = capsys.readouterr()
+        # Verify all metadata was printed
+        assert "Loaded direction from" in captured.out
+        assert "Positive: good example" in captured.out  # Line 131
+        assert "Negative: bad example" in captured.out  # Line 133
+        assert "Norm: 1.234" in captured.out  # Line 136
+
+    def test_steer_unsupported_direction_format(self, steer_args, mock_activation_steering, capsys):
+        """Test error handling for unsupported direction file format (lines 143-144)."""
+        from chuk_lazarus.cli.commands.introspect import introspect_steer
+
+        # Create a file with unsupported extension
+        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
+            f.write(b"test content")
+            steer_args.direction = f.name
+
+        with pytest.raises(SystemExit):
+            introspect_steer(steer_args)
+
+        captured = capsys.readouterr()
+        assert "Unsupported direction format" in captured.out
+
+    def test_steer_prompts_from_file(self, steer_args, mock_activation_steering, capsys):
+        """Test loading prompts from file (lines 199-200)."""
+        from chuk_lazarus.cli.commands.introspect import introspect_steer
+
+        # Create a prompts file
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("prompt 1\n")
+            f.write("prompt 2\n")
+            f.write("\n")  # Empty line to test stripping
+            f.write("prompt 3\n")
+            prompts_file = f.name
+
+        steer_args.prompts = f"@{prompts_file}"
+        steer_args.positive = "good"
+        steer_args.negative = "bad"
+
+        with patch("chuk_lazarus.introspection.hooks.ModelHooks") as mock_hooks:
+            mock_hook_instance = MagicMock()
+            mock_hooks.return_value = mock_hook_instance
+
+            import mlx.core as mx
+
+            mock_hook_instance.state.hidden_states = {6: mx.zeros((1, 1, 768))}
+
+            introspect_steer(steer_args)
+
+            captured = capsys.readouterr()
+            # Verify prompts were loaded from file
+            assert "prompt 1" in captured.out
+            assert "prompt 2" in captured.out
+            assert "prompt 3" in captured.out
+
+    def test_steer_load_npz_without_layer(self, steer_args, mock_activation_steering):
+        """Test loading npz direction without layer metadata."""
+        import numpy as np
+
+        from chuk_lazarus.cli.commands.introspect import introspect_steer
+
+        # Create a direction file without layer
+        with tempfile.NamedTemporaryFile(suffix=".npz", delete=False) as f:
+            np.savez(
+                f.name,
+                direction=np.random.randn(768).astype(np.float32),
+                # No layer metadata
+            )
+            steer_args.direction = f.name
+
+        steer_args.layer = 10  # Should use this as fallback
+
+        introspect_steer(steer_args)
+
+        # Test passes if no exception is raised
+
+    def test_steer_apply_on_the_fly_direction(self, steer_args, mock_activation_steering, capsys):
+        """Test generating direction on-the-fly from positive/negative."""
+        from chuk_lazarus.cli.commands.introspect import introspect_steer
+
+        steer_args.positive = "happy"
+        steer_args.negative = "sad"
+        # No direction file or neuron
+
+        with patch("chuk_lazarus.introspection.hooks.ModelHooks") as mock_hooks:
+            mock_hook_instance = MagicMock()
+            mock_hooks.return_value = mock_hook_instance
+
+            import mlx.core as mx
+
+            mock_hook_instance.state.hidden_states = {6: mx.zeros((1, 1, 768))}
+
+            introspect_steer(steer_args)
+
+            captured = capsys.readouterr()
+            assert "Using on-the-fly direction" in captured.out
+
+    def test_steer_compare_with_file_prompts(self, steer_args, mock_activation_steering, capsys):
+        """Test compare mode with prompts from file."""
+        from chuk_lazarus.cli.commands.introspect import introspect_steer
+
+        # Create a prompts file
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("test prompt 1\n")
+            f.write("test prompt 2\n")
+            prompts_file = f.name
+
+        steer_args.prompts = f"@{prompts_file}"
+        steer_args.compare = "-1,0,1"
+        steer_args.positive = "positive"
+        steer_args.negative = "negative"
+
+        with patch("chuk_lazarus.introspection.hooks.ModelHooks") as mock_hooks:
+            mock_hook_instance = MagicMock()
+            mock_hooks.return_value = mock_hook_instance
+
+            import mlx.core as mx
+
+            mock_hook_instance.state.hidden_states = {6: mx.zeros((1, 1, 768))}
+
+            introspect_steer(steer_args)
+
+            captured = capsys.readouterr()
+            assert "Comparing steering" in captured.out
+            assert "test prompt 1" in captured.out
+            assert "test prompt 2" in captured.out

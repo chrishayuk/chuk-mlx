@@ -135,3 +135,72 @@ class TestAsyncVocabMap:
 
             captured = capsys.readouterr()
             assert "10 tokens" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_vocab_map_skips_empty_tokens(self, capsys):
+        """Test that empty tokens are skipped."""
+        args = Namespace(model="test/model")
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0,),
+            num_experts=4,
+            num_experts_per_tok=2,
+            total_layers=1,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        mock_tokenizer = MagicMock()
+        mock_tokenizer.vocab_size = 100
+        # Return empty string
+        mock_tokenizer.decode.return_value = ""
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        mock_router.tokenizer = mock_tokenizer
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        with patch(
+            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.vocab_map.ExpertRouter"
+        ) as MockRouter:
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+
+            await _async_vocab_map(args)
+
+            # Should complete without errors even though all tokens are empty
+            captured = capsys.readouterr()
+            assert "VOCABULARY-EXPERT MAPPING" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_vocab_map_handles_exceptions(self, capsys):
+        """Test that exceptions during token processing are handled."""
+        args = Namespace(model="test/model")
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0,),
+            num_experts=4,
+            num_experts_per_tok=2,
+            total_layers=1,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        mock_tokenizer = MagicMock()
+        mock_tokenizer.vocab_size = 100
+        mock_tokenizer.decode.side_effect = Exception("Decode error")
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        mock_router.tokenizer = mock_tokenizer
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        with patch(
+            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.vocab_map.ExpertRouter"
+        ) as MockRouter:
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+
+            await _async_vocab_map(args)
+
+            # Should complete without crashing
+            captured = capsys.readouterr()
+            assert "VOCABULARY-EXPERT MAPPING" in captured.out

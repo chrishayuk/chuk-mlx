@@ -92,3 +92,128 @@ class TestAsyncPatternDiscovery:
             captured = capsys.readouterr()
             assert "EXPERT PATTERN DISCOVERY" in captured.out
             assert "Pattern-Expert associations" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_pattern_discovery_with_null_category(self, capsys):
+        """Test pattern discovery when get_category returns None."""
+        args = Namespace(model="test/model")
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0,),
+            num_experts=32,
+            num_experts_per_tok=4,
+            total_layers=1,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        # Mock pattern data
+        mock_patterns_data = MagicMock()
+        mock_patterns_data.get_category_names.return_value = ["numeric"]
+        # Return None for the category
+        mock_patterns_data.get_category.return_value = None
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        with (
+            patch(
+                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.pattern_discovery.ExpertRouter"
+            ) as MockRouter,
+            patch(
+                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.pattern_discovery.get_pattern_discovery_prompts"
+            ) as mock_get_patterns,
+        ):
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+            mock_get_patterns.return_value = mock_patterns_data
+
+            await _async_pattern_discovery(args)
+
+            captured = capsys.readouterr()
+            assert "EXPERT PATTERN DISCOVERY" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_pattern_discovery_handles_exceptions(self, capsys):
+        """Test that exceptions during pattern processing are handled."""
+        args = Namespace(model="test/model")
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0,),
+            num_experts=32,
+            num_experts_per_tok=4,
+            total_layers=1,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        mock_patterns_data = MagicMock()
+        mock_patterns_data.get_category_names.return_value = ["numeric"]
+
+        mock_category = MagicMock()
+        mock_category.prompts = ["123"]
+        mock_patterns_data.get_category.return_value = mock_category
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        # Raise exception on capture
+        mock_router.capture_router_weights = AsyncMock(side_effect=Exception("Test error"))
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        with (
+            patch(
+                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.pattern_discovery.ExpertRouter"
+            ) as MockRouter,
+            patch(
+                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.pattern_discovery.get_pattern_discovery_prompts"
+            ) as mock_get_patterns,
+        ):
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+            mock_get_patterns.return_value = mock_patterns_data
+
+            await _async_pattern_discovery(args)
+
+            # Should complete without crashing
+            captured = capsys.readouterr()
+            assert "EXPERT PATTERN DISCOVERY" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_pattern_discovery_with_empty_counts(self, capsys):
+        """Test pattern discovery displays correctly with empty expert counts."""
+        args = Namespace(model="test/model")
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0,),
+            num_experts=32,
+            num_experts_per_tok=4,
+            total_layers=1,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        mock_patterns_data = MagicMock()
+        mock_patterns_data.get_category_names.return_value = ["numeric"]
+
+        mock_category = MagicMock()
+        mock_category.prompts = []  # No prompts to process
+        mock_patterns_data.get_category.return_value = mock_category
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        with (
+            patch(
+                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.pattern_discovery.ExpertRouter"
+            ) as MockRouter,
+            patch(
+                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.pattern_discovery.get_pattern_discovery_prompts"
+            ) as mock_get_patterns,
+        ):
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+            mock_get_patterns.return_value = mock_patterns_data
+
+            await _async_pattern_discovery(args)
+
+            captured = capsys.readouterr()
+            assert "EXPERT PATTERN DISCOVERY" in captured.out

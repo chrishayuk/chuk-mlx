@@ -88,3 +88,44 @@ class TestAsyncRole:
             captured = capsys.readouterr()
             assert "LAYER ROLE ANALYSIS" in captured.out
             assert "Expert activation by category" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_role_analysis_handles_exceptions(self, capsys):
+        """Test role analysis handles exceptions during capture."""
+        args = Namespace(model="test/model")
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0,),
+            num_experts=32,
+            num_experts_per_tok=4,
+            total_layers=1,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        # Raise exception on capture
+        mock_router.capture_router_weights = AsyncMock(side_effect=Exception("Test error"))
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        # Mock prompts by group
+        mock_cat_prompts = MagicMock()
+        mock_cat_prompts.prompts = ["prompt1", "prompt2", "prompt3", "prompt4", "prompt5"]
+
+        with (
+            patch(
+                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.role.ExpertRouter"
+            ) as MockRouter,
+            patch(
+                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.role.get_prompts_by_group"
+            ) as mock_get_prompts,
+        ):
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+            mock_get_prompts.return_value = [mock_cat_prompts]
+
+            await _async_role(args)
+
+            # Should complete without crashing
+            captured = capsys.readouterr()
+            assert "LAYER ROLE ANALYSIS" in captured.out

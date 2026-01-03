@@ -300,3 +300,11 @@ class TestAblationBenchmark:
 
         captured = capsys.readouterr()
         assert "ABLATION BENCHMARK" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_check_answer_with_value_error(self):
+        """Test that ValueError in int conversion is handled."""
+        # This would occur if match.group() returns something that can't be converted to int
+        # Although unlikely with the regex pattern, we test the exception handler
+        result = _check_answer("not a valid number at all", 42)
+        assert result is False

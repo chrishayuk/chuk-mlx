@@ -151,3 +151,18 @@ class TestDispatchLogging:
             dispatch(args)
 
             assert "Dispatching to handler for action: chat" in caplog.text
+
+    def test_dispatch_handler_none_prints_error(self, capsys):
+        """Test that handler not implemented error is printed when handler is None."""
+        args = Namespace(action="chat", model="test/model")
+
+        with patch(
+            "chuk_lazarus.cli.commands.introspect.moe_expert.dispatcher._get_handlers"
+        ) as mock_get_handlers:
+            # Return dict with None handler
+            mock_get_handlers.return_value = {MoEAction.CHAT: None}
+
+            dispatch(args)
+
+            captured = capsys.readouterr()
+            assert "Handler not implemented for action: chat" in captured.out

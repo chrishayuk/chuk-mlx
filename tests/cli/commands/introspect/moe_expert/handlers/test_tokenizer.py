@@ -135,3 +135,72 @@ class TestAsyncTokenizer:
 
             # Should have analyzed only 10 tokens
             assert mock_router.capture_router_weights.call_count <= 10
+
+    @pytest.mark.asyncio
+    async def test_tokenizer_skips_whitespace_tokens(self, capsys):
+        """Test that whitespace tokens are skipped."""
+        args = Namespace(model="test/model")
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0,),
+            num_experts=8,
+            num_experts_per_tok=2,
+            total_layers=1,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        mock_tokenizer = MagicMock()
+        mock_tokenizer.vocab_size = 100
+        # Return whitespace
+        mock_tokenizer.decode.return_value = "   "
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        mock_router.tokenizer = mock_tokenizer
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        with patch(
+            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.tokenizer.ExpertRouter"
+        ) as MockRouter:
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+
+            await _async_tokenizer(args)
+
+            # Should complete without errors even though all tokens are whitespace
+            captured = capsys.readouterr()
+            assert "TOKENIZER-EXPERT ANALYSIS" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_tokenizer_handles_exceptions(self, capsys):
+        """Test that exceptions during token processing are handled."""
+        args = Namespace(model="test/model")
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0,),
+            num_experts=8,
+            num_experts_per_tok=2,
+            total_layers=1,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        mock_tokenizer = MagicMock()
+        mock_tokenizer.vocab_size = 100
+        mock_tokenizer.decode.side_effect = Exception("Decode error")
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        mock_router.tokenizer = mock_tokenizer
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        with patch(
+            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.tokenizer.ExpertRouter"
+        ) as MockRouter:
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+
+            await _async_tokenizer(args)
+
+            # Should complete without crashing
+            captured = capsys.readouterr()
+            assert "TOKENIZER-EXPERT ANALYSIS" in captured.out

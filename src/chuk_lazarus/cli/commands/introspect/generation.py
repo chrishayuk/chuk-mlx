@@ -148,7 +148,7 @@ def introspect_generate(args):
                 "has_trailing_space": has_space,
                 "output": output,
                 "expected_answer": expected,
-                **onset_info,
+                **dict(onset_info),
             }
         )
 
