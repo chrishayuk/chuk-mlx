@@ -22,76 +22,106 @@ Example:
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field
 
 from .dataset import CircuitDataset, LabeledPrompt
 
 
-@dataclass
-class CollectorConfig:
+class CollectorConfig(BaseModel):
     """Configuration for activation collection."""
 
+    model_config = ConfigDict(frozen=True)
+
     # Which layers to capture
-    layers: list[int] | str = "all"  # "all", "decision", or explicit list
-    decision_layer_range: tuple[int, int] = (8, 14)  # For "decision" mode
+    layers: list[int] | str = Field(
+        default="all", description="'all', 'decision', or explicit list"
+    )
+    decision_layer_range: tuple[int, int] = Field(
+        default=(8, 14), description="Layer range for 'decision' mode"
+    )
 
     # What to capture
-    capture_hidden_states: bool = True
-    capture_attention_weights: bool = False
-    capture_mlp_intermediate: bool = False
+    capture_hidden_states: bool = Field(default=True, description="Capture hidden states")
+    capture_attention_weights: bool = Field(default=False, description="Capture attention")
+    capture_mlp_intermediate: bool = Field(default=False, description="Capture MLP intermediate")
 
     # Position to capture (usually last token for next-token prediction)
-    position: int = -1
+    position: int = Field(default=-1, description="Position to capture")
 
     # Storage settings
-    dtype: str = "float32"  # float32, float16, bfloat16
+    dtype: str = Field(default="float32", description="float32, float16, bfloat16")
 
     # Generation settings for criterion evaluation
-    max_new_tokens: int = 30
-    temperature: float = 0.0
+    max_new_tokens: int = Field(default=30, ge=1, description="Max tokens to generate")
+    temperature: float = Field(default=0.0, ge=0.0, description="Sampling temperature")
 
 
-@dataclass
-class CollectedActivations:
+class CollectedActivations(BaseModel):
     """Container for collected activations with metadata.
 
     Generic container that works with any label scheme.
     """
 
+    model_config = ConfigDict(arbitrary_types_allowed=True, validate_default=True)
+
     # Activations: shape [num_samples, hidden_size] per layer
-    hidden_states: dict[int, mx.array] = field(default_factory=dict)
+    hidden_states: dict[int, mx.array] = Field(
+        default_factory=dict, description="Hidden states per layer"
+    )
 
     # Optional: attention weights per layer
-    attention_weights: dict[int, mx.array] = field(default_factory=dict)
+    attention_weights: dict[int, mx.array] = Field(
+        default_factory=dict, description="Attention weights per layer"
+    )
 
     # Optional: MLP intermediate activations
-    mlp_intermediates: dict[int, mx.array] = field(default_factory=dict)
+    mlp_intermediates: dict[int, mx.array] = Field(
+        default_factory=dict, description="MLP intermediates per layer"
+    )
 
     # Labels and metadata (generic)
-    labels: list[int] = field(default_factory=list)
-    label_names: list[str] = field(default_factory=list)
-    categories: list[str] = field(default_factory=list)
-    prompts: list[str] = field(default_factory=list)
-    expected_outputs: list[str | None] = field(default_factory=list)
-    model_outputs: list[str] = field(default_factory=list)
+    labels: list[int] = Field(default_factory=list, description="Sample labels")
+    label_names: list[str] = Field(default_factory=list, description="Label name per sample")
+    categories: list[str] = Field(default_factory=list, description="Category per sample")
+    prompts: list[str] = Field(default_factory=list, description="Prompt texts")
+    expected_outputs: list[str | None] = Field(
+        default_factory=list, description="Expected outputs"
+    )
+    model_outputs: list[str] = Field(default_factory=list, description="Model outputs")
 
     # Model info
-    model_id: str = ""
-    hidden_size: int = 0
-    num_layers: int = 0
+    model_id: str = Field(default="", description="Model identifier")
+    hidden_size: int = Field(default=0, description="Hidden dimension size")
+    num_layers: int = Field(default=0, description="Number of layers")
 
     # Dataset metadata
-    dataset_name: str = ""
-    dataset_label_names: dict[int, str] = field(default_factory=dict)
+    dataset_name: str = Field(default="", description="Dataset name")
+    dataset_label_names: dict[int, str] = Field(
+        default_factory=dict, description="Label int to name mapping"
+    )
 
     def __len__(self) -> int:
         return len(self.labels)
+
+    @property
+    def category_labels(self) -> list[str]:
+        """Alias for categories (backwards compatibility)."""
+        return self.categories
+
+    @property
+    def tool_labels(self) -> list[str | None]:
+        """Extract tool labels from categories for tool-type probing."""
+        # Return categories as tool labels (None for generic categories)
+        return [
+            cat if cat not in ("default", "positive", "negative", "") else None
+            for cat in self.categories
+        ]
 
     @property
     def captured_layers(self) -> list[int]:

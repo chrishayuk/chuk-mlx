@@ -10,9 +10,9 @@ from chuk_lazarus.introspection.circuit.collector import CollectedActivations
 from chuk_lazarus.introspection.circuit.geometry import (
     ClusterResult,
     GeometryAnalyzer,
+    GeometryProbeResult,
     GeometryResult,
     PCAResult,
-    ProbeResult,
     ProbeType,
     UMAPResult,
     compute_pca,
@@ -161,12 +161,12 @@ class TestUMAPResult:
         assert coords.shape == (3, 2)
 
 
-class TestProbeResult:
-    """Tests for ProbeResult."""
+class TestGeometryProbeResult:
+    """Tests for GeometryProbeResult."""
 
     def test_create_probe_result(self):
         """Test creating a probe result."""
-        result = ProbeResult(
+        result = GeometryProbeResult(
             layer=5,
             probe_type=ProbeType.BINARY,
             accuracy=0.85,
@@ -181,7 +181,7 @@ class TestProbeResult:
 
     def test_get_direction(self):
         """Test getting direction from binary probe."""
-        result = ProbeResult(
+        result = GeometryProbeResult(
             layer=0,
             probe_type=ProbeType.BINARY,
             accuracy=0.8,
@@ -195,7 +195,7 @@ class TestProbeResult:
 
     def test_get_direction_raises_for_multiclass(self):
         """Test get_direction raises for non-binary probe."""
-        result = ProbeResult(
+        result = GeometryProbeResult(
             layer=0,
             probe_type=ProbeType.MULTICLASS,
             accuracy=0.8,
@@ -209,7 +209,7 @@ class TestProbeResult:
 
     def test_summary(self):
         """Test probe result summary."""
-        result = ProbeResult(
+        result = GeometryProbeResult(
             layer=5,
             probe_type=ProbeType.BINARY,
             accuracy=0.85,
@@ -299,8 +299,7 @@ class TestGeometryAnalyzer:
             2: mx.array(np.random.randn(20, 64).astype(np.float32)),
         }
         acts.labels = [0, 1] * 10
-        acts.category_labels = ["cat1", "cat2"] * 10
-        acts.tool_labels = ["tool1", "tool2"] * 10
+        acts.categories = ["cat1", "cat2"] * 10
         return acts
 
     def test_init(self, sample_activations):
@@ -379,7 +378,7 @@ class TestGeometryAnalyzer:
         """Test training binary probe."""
         analyzer = GeometryAnalyzer(sample_activations)
         result = analyzer.train_probe(layer=0, probe_type=ProbeType.BINARY)
-        assert isinstance(result, ProbeResult)
+        assert isinstance(result, GeometryProbeResult)
         assert result.probe_type == ProbeType.BINARY
         assert 0.0 <= result.accuracy <= 1.0
 
@@ -481,7 +480,7 @@ class TestConvenienceFunctions:
         acts = CollectedActivations()
         acts.hidden_states = {0: mx.array(np.random.randn(20, 64).astype(np.float32))}
         acts.labels = [0, 1] * 10
-        acts.category_labels = ["cat1", "cat2"] * 10
+        acts.categories = ["cat1", "cat2"] * 10
         return acts
 
     def test_compute_pca(self, sample_activations):
@@ -500,7 +499,7 @@ class TestConvenienceFunctions:
     def test_train_linear_probe(self, sample_activations):
         """Test train_linear_probe convenience function."""
         result = train_linear_probe(sample_activations, layer=0)
-        assert isinstance(result, ProbeResult)
+        assert isinstance(result, GeometryProbeResult)
         assert result.probe_type == ProbeType.BINARY
 
     def test_train_linear_probe_with_type(self, sample_activations):
@@ -626,12 +625,12 @@ class TestUMAPResultEdgeCases:
         assert coords.shape == (0, 2)
 
 
-class TestProbeResultEdgeCases:
-    """Edge case tests for ProbeResult."""
+class TestGeometryProbeResultEdgeCases:
+    """Edge case tests for GeometryProbeResult."""
 
     def test_probe_result_with_all_metrics(self):
         """Test probe result with all optional metrics."""
-        result = ProbeResult(
+        result = GeometryProbeResult(
             layer=5,
             probe_type=ProbeType.BINARY,
             accuracy=0.85,
@@ -653,7 +652,7 @@ class TestProbeResultEdgeCases:
 
     def test_summary_with_multiclass(self):
         """Test summary for multiclass probe."""
-        result = ProbeResult(
+        result = GeometryProbeResult(
             layer=5,
             probe_type=ProbeType.MULTICLASS,
             accuracy=0.75,
@@ -670,7 +669,7 @@ class TestProbeResultEdgeCases:
 
     def test_get_direction_tool_type_raises(self):
         """Test get_direction raises for tool_type probe."""
-        result = ProbeResult(
+        result = GeometryProbeResult(
             layer=0,
             probe_type=ProbeType.TOOL_TYPE,
             accuracy=0.8,
@@ -729,7 +728,7 @@ class TestGeometryResultEdgeCases:
             components=np.random.randn(10, 64),
             mean=np.random.randn(64),
         )
-        binary_probe = ProbeResult(
+        binary_probe = GeometryProbeResult(
             layer=5,
             probe_type=ProbeType.BINARY,
             accuracy=0.85,
@@ -738,7 +737,7 @@ class TestGeometryResultEdgeCases:
             bias=np.array([0.5]),
             classes=["0", "1"],
         )
-        category_probe = ProbeResult(
+        category_probe = GeometryProbeResult(
             layer=5,
             probe_type=ProbeType.MULTICLASS,
             accuracy=0.75,
@@ -780,8 +779,7 @@ class TestGeometryAnalyzerEdgeCases:
             0: mx.array(np.random.randn(20, 32).astype(np.float32)),
         }
         acts.labels = [0] * 10 + [1] * 10
-        acts.category_labels = ["cat1"] * 10 + ["cat2"] * 10
-        acts.tool_labels = ["tool1"] * 10 + ["tool2"] * 10
+        acts.categories = ["cat1"] * 10 + ["cat2"] * 10
         return acts
 
     @pytest.fixture
@@ -792,8 +790,7 @@ class TestGeometryAnalyzerEdgeCases:
             0: mx.array(np.random.randn(10, 32).astype(np.float32)),
         }
         acts.labels = [1] * 10
-        acts.category_labels = ["cat1"] * 10
-        acts.tool_labels = ["tool1"] * 10
+        acts.categories = ["cat1"] * 10
         return acts
 
     @pytest.fixture
@@ -804,19 +801,10 @@ class TestGeometryAnalyzerEdgeCases:
             0: mx.array(np.random.randn(10, 32).astype(np.float32)),
         }
         acts.labels = [0, 1] * 5
-        acts.category_labels = ["cat1", "cat2"] * 5
-        # Only one sample per tool - insufficient for stratified split
-        acts.tool_labels = [
-            "tool1",
-            "tool2",
-            "tool3",
-            "tool4",
-            "tool5",
-            "tool6",
-            "tool7",
-            "tool8",
-            "tool9",
-            "tool10",
+        # Use unique categories for tool-type probe testing
+        acts.categories = [
+            "tool1", "tool2", "tool3", "tool4", "tool5",
+            "tool6", "tool7", "tool8", "tool9", "tool10",
         ]
         return acts
 
@@ -861,19 +849,20 @@ class TestGeometryAnalyzerEdgeCases:
             pytest.skip("UMAP not installed")
 
     def test_analyze_layer_single_tool(self):
-        """Test analyze_layer when there's only one tool type."""
-        # Create activations with only one tool type but TWO label classes for binary probe
+        """Test analyze_layer when there's only one tool type (but multiple categories for multiclass)."""
+        # Create activations with only one tool type but two categories for multiclass
         acts = CollectedActivations()
         acts.hidden_states = {
             0: mx.array(np.random.randn(20, 32).astype(np.float32)),
         }
         acts.labels = [0] * 10 + [1] * 10  # Two label classes
-        acts.category_labels = ["cat1"] * 10 + ["cat2"] * 10  # Two categories
-        acts.tool_labels = ["tool1"] * 20  # Only one tool type
+        # Two categories for multiclass probe, but using default category for tool_labels
+        # which means only one "tool" type (since "default" becomes None in tool_labels)
+        acts.categories = ["default"] * 10 + ["positive"] * 10
 
         analyzer = GeometryAnalyzer(acts)
         result = analyzer.analyze_layer(layer=0, include_umap=False, include_clusters=False)
-        # tool_probe should be None because only one unique tool
+        # tool_probe should be None because only one unique valid tool (both map to None)
         assert result.tool_probe is None
 
     def test_analyze_layer_with_umap_import_error(self, minimal_activations):
@@ -938,8 +927,7 @@ class TestGeometryAnalyzerNonStratifiedSplit:
         }
         # 9 samples of class 0, 1 sample of class 1 (cannot stratify)
         acts.labels = [0] * 9 + [1]
-        acts.category_labels = ["cat1"] * 9 + ["cat2"]
-        acts.tool_labels = ["tool1"] * 9 + [None]
+        acts.categories = ["cat1"] * 9 + ["cat2"]
         return acts
 
     def test_train_probe_non_stratified(self, imbalanced_activations):
@@ -963,16 +951,8 @@ class TestGeometryAnalyzerProbeVariations:
             0: mx.array(np.random.randn(30, 32).astype(np.float32)),
         }
         acts.labels = [0, 1] * 15
-        acts.category_labels = ["cat1", "cat2", "cat3"] * 10
-        # Mix of tools and None
-        acts.tool_labels = (
-            ["tool1"] * 5
-            + ["tool2"] * 5
-            + ["tool3"] * 5
-            + [None] * 5
-            + ["tool1"] * 5
-            + ["tool2"] * 5
-        )
+        # Mix of categories for multiclass and tool-type probe testing
+        acts.categories = ["cat1", "cat2", "cat3"] * 10
         return acts
 
     def test_train_probe_multiclass_multiple_categories(self, varied_tools_activations):
@@ -1025,8 +1005,7 @@ class TestConvenienceFunctionsExtended:
             5: mx.array(np.random.randn(50, 128).astype(np.float32)),
         }
         acts.labels = [0, 1] * 25
-        acts.category_labels = ["cat1", "cat2", "cat3", "cat4"] * 12 + ["cat1", "cat2"]
-        acts.tool_labels = ["tool1", "tool2"] * 25
+        acts.categories = ["cat1", "cat2", "cat3", "cat4"] * 12 + ["cat1", "cat2"]
         return acts
 
     def test_compute_pca_default_params(self, large_activations):
@@ -1071,8 +1050,7 @@ class TestGeometryAnalyzerMocked:
             2: mx.array(np.random.randn(20, 64).astype(np.float32)),
         }
         acts.labels = [0, 1] * 10
-        acts.category_labels = ["cat1", "cat2"] * 10
-        acts.tool_labels = ["tool1", "tool2"] * 10
+        acts.categories = ["cat1", "cat2"] * 10
         return acts
 
     @pytest.mark.skipif(not SKLEARN_AVAILABLE, reason="sklearn required for mocking")
@@ -1154,7 +1132,7 @@ class TestGeometryAnalyzerMocked:
         analyzer = GeometryAnalyzer(sample_activations)
         result = analyzer.train_probe(layer=0, probe_type=ProbeType.BINARY)
 
-        assert isinstance(result, ProbeResult)
+        assert isinstance(result, GeometryProbeResult)
         assert result.probe_type == ProbeType.BINARY
         assert result.accuracy == 0.85
         assert result.train_accuracy == 0.9
@@ -1207,7 +1185,7 @@ class TestGeometryAnalyzerMocked:
             mean=np.random.randn(64),
         )
         mock_probe.side_effect = [
-            ProbeResult(
+            GeometryProbeResult(
                 layer=0,
                 probe_type=ProbeType.BINARY,
                 accuracy=0.85,
@@ -1216,7 +1194,7 @@ class TestGeometryAnalyzerMocked:
                 bias=np.array([0.5]),
                 classes=["0", "1"],
             ),
-            ProbeResult(
+            GeometryProbeResult(
                 layer=0,
                 probe_type=ProbeType.MULTICLASS,
                 accuracy=0.75,
@@ -1225,7 +1203,7 @@ class TestGeometryAnalyzerMocked:
                 bias=np.array([0.5]),
                 classes=["cat1", "cat2"],
             ),
-            ProbeResult(
+            GeometryProbeResult(
                 layer=0,
                 probe_type=ProbeType.TOOL_TYPE,
                 accuracy=0.7,
@@ -1292,8 +1270,8 @@ class TestDataclassDefaults:
         assert result.transformed is None
 
     def test_probe_result_default_fields(self):
-        """Test ProbeResult with default field values."""
-        result = ProbeResult(
+        """Test GeometryProbeResult with default field values."""
+        result = GeometryProbeResult(
             layer=0,
             probe_type=ProbeType.BINARY,
             accuracy=0.8,
@@ -1391,9 +1369,8 @@ class TestGeometryAnalyzerWithMockedSklearn:
         acts.labels = [1 if i < n_samples // 2 else 0 for i in range(n_samples)]
         # Set both categories (dataclass field) and category_labels (used by geometry.py)
         acts.categories = ["search" if i < n_samples // 2 else "general" for i in range(n_samples)]
-        acts.category_labels = acts.categories  # geometry.py uses this
+        acts.categories = acts.categories  # geometry.py uses this
         # Set tool_labels for TOOL_TYPE probe
-        acts.tool_labels = ["web_search" if i < n_samples // 2 else None for i in range(n_samples)]
         # Set label_names for tool_type probe
         acts.label_names = ["no_tool", "web_search"]
         return acts
@@ -1879,7 +1856,7 @@ class TestGeometryAnalyzerWithMockedSklearn:
             mean=np.random.randn(64),
         )
 
-        probe_result = ProbeResult(
+        probe_result = GeometryProbeResult(
             layer=10,
             probe_type=ProbeType.BINARY,
             accuracy=0.85,

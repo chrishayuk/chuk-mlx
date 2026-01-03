@@ -392,6 +392,7 @@ class TestActivationCollector:
         """Create a mock tokenizer."""
         tokenizer = Mock()
         tokenizer.encode = Mock(return_value=np.array([[1, 2, 3, 4, 5]]))
+        tokenizer.decode = Mock(return_value="mock_output")
         return tokenizer
 
     @pytest.fixture

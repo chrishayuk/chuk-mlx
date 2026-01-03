@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..enums import FactType, Region
 
 
 class Fact(BaseModel):
     """Base class for a fact that can be queried."""
+
+    model_config = ConfigDict(frozen=True)
 
     query: str = Field(description="The query prompt")
     answer: str = Field(description="The expected answer")
@@ -63,6 +65,8 @@ class ElementFact(Fact):
 
 class FactNeighborhood(BaseModel):
     """Analysis of what facts appear near a queried fact."""
+
+    model_config = ConfigDict(frozen=True)
 
     correct_rank: int | None = Field(
         default=None, description="Rank of correct answer in predictions"

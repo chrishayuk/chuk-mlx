@@ -4,6 +4,8 @@ import logging
 import sys
 from pathlib import Path
 
+from ....introspection.enums import OverrideMode
+
 logger = logging.getLogger(__name__)
 
 
@@ -133,7 +135,7 @@ def introspect_analyze(args):
     # Parse compute override config if provided
     compute_override_config = None
     compute_override = getattr(args, "compute_override", "none")
-    if compute_override and compute_override != "none":
+    if compute_override and compute_override != OverrideMode.NONE.value:
         compute_layer = getattr(args, "compute_layer", None)
         compute_override_config = {
             "mode": compute_override,
@@ -406,7 +408,7 @@ def introspect_analyze(args):
                 prompt_to_check = args.prompt if args.prompt else args.prefix
                 computed_answer = None
 
-                if override_mode == "arithmetic":
+                if override_mode == OverrideMode.ARITHMETIC.value:
                     # Match patterns like "7*6=", "123+456=", "10-3=", "81/9="
                     arith_pattern = r"(\d+)\s*([+\-*/x*])\s*(\d+)\s*=\s*$"
                     match = re.search(arith_pattern, prompt_to_check)
@@ -559,7 +561,7 @@ def introspect_analyze(args):
                             f"\n  WARNING: Answer '{answer_str}' requires {len(answer_token_ids)} tokens, skipping override"
                         )
                 else:
-                    if override_mode == "arithmetic":
+                    if override_mode == OverrideMode.ARITHMETIC.value:
                         print(
                             f"\n  WARNING: Could not parse arithmetic from prompt: {prompt_to_check}"
                         )

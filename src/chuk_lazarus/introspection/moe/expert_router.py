@@ -6,7 +6,7 @@ in Mixture of Experts models.
 Example:
     >>> from chuk_lazarus.introspection.moe import ExpertRouter
     >>>
-    >>> async with ExpertRouter.from_pretrained("openai/gpt-oss-20b") as router:
+    >>> async with await ExpertRouter.from_pretrained("openai/gpt-oss-20b") as router:
     ...     result = await router.generate_with_forced_expert(
     ...         prompt="127 * 89 = ",
     ...         expert_idx=6,
@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Any
 import mlx.core as mx
 import mlx.nn as nn
 
-from .enums import MoEArchitecture
+from .enums import MoEArchitecture, MoEImplementationType
 from .models import (
     CoactivationAnalysis,
     ExpertChatResult,
@@ -55,7 +55,7 @@ class ExpertRouter:
     - Analyze expert co-activation patterns
 
     Example:
-        >>> async with ExpertRouter.from_pretrained("openai/gpt-oss-20b") as router:
+        >>> async with await ExpertRouter.from_pretrained("openai/gpt-oss-20b") as router:
         ...     # Chat with a specific expert
         ...     result = await router.chat_with_expert("127 * 89 = ", expert_idx=6)
         ...     print(result.response)
@@ -177,10 +177,10 @@ class ExpertRouter:
             has_shared_expert=has_shared_expert,
         )
 
-    def _detect_moe_type(self) -> str:
+    def _detect_moe_type(self) -> MoEImplementationType:
         """Detect the MoE type based on model structure."""
         if not self._info.moe_layers:
-            return "none"
+            return MoEImplementationType.NONE
 
         layer_idx = self._info.moe_layers[0]
         layer = self._model.model.layers[layer_idx]
@@ -188,9 +188,9 @@ class ExpertRouter:
 
         # Check for GPT-OSS batched experts style
         if hasattr(mlp, "experts") and hasattr(mlp.experts, "gate_up_proj"):
-            return "gpt_oss_batched"
+            return MoEImplementationType.GPT_OSS_BATCHED
 
-        return "standard"
+        return MoEImplementationType.STANDARD
 
     async def __aenter__(self) -> ExpertRouter:
         """Async context manager entry."""
@@ -286,7 +286,7 @@ class ExpertRouter:
                 layer = self._model.model.layers[layer_idx]
                 original_forwards[layer_idx] = layer.mlp.__call__
 
-                if self._moe_type == "gpt_oss_batched":
+                if self._moe_type == MoEImplementationType.GPT_OSS_BATCHED:
                     layer.mlp.__call__ = self._make_forced_expert_forward_gpt_oss(
                         layer.mlp, expert_idx
                     )

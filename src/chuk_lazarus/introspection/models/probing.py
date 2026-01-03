@@ -13,6 +13,8 @@ from ..enums import DirectionMethod
 class ProbeLayerResult(BaseModel):
     """Result of probing at a single layer."""
 
+    model_config = ConfigDict(frozen=True)
+
     layer: int = Field(description="Layer index")
     accuracy: float = Field(description="Cross-validation accuracy")
     std: float = Field(default=0.0, description="Standard deviation of accuracy")
@@ -20,6 +22,8 @@ class ProbeLayerResult(BaseModel):
 
 class ProbeTopNeuron(BaseModel):
     """A top neuron from probe weights."""
+
+    model_config = ConfigDict(frozen=True)
 
     index: int = Field(description="Neuron index")
     weight: float = Field(description="Weight in probe direction")

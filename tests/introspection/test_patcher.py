@@ -127,7 +127,7 @@ class TestActivationPatcher:
         tokenizer = MockTokenizer()
         config = MockConfig()
 
-        patcher = ActivationPatcher(model, tokenizer, config)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer, config=config)
         assert patcher.model is model
         assert patcher.tokenizer is tokenizer
         assert patcher.config is config
@@ -137,7 +137,7 @@ class TestActivationPatcher:
         model = MockModel()
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
         assert patcher.config is None
 
     @pytest.mark.asyncio
@@ -146,7 +146,7 @@ class TestActivationPatcher:
         tokenizer = MockTokenizer()
         config = MockConfig()
 
-        patcher = ActivationPatcher(model, tokenizer, config)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer, config=config)
         activation = await patcher.capture_activation("test", layer=2)
 
         assert isinstance(activation, np.ndarray)
@@ -158,7 +158,7 @@ class TestActivationPatcher:
         model = MockModel()
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
         # Capture at specific position
         activation = await patcher.capture_activation("test", layer=1, position=0)
 
@@ -171,7 +171,7 @@ class TestActivationPatcher:
         tokenizer = MockTokenizer()
         config = MockConfig()
 
-        patcher = ActivationPatcher(model, tokenizer, config)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer, config=config)
 
         # Get source activation
         source_activation = await patcher.capture_activation("source", layer=2)
@@ -193,7 +193,7 @@ class TestActivationPatcher:
         model = MockModel()
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
         source_activation = await patcher.capture_activation("source", layer=1)
 
         # Test different blend factors
@@ -214,7 +214,7 @@ class TestActivationPatcher:
         model = MockModel()
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
         # Use numpy array directly
         source_activation = np.random.randn(64).astype(np.float32)
 
@@ -229,7 +229,7 @@ class TestActivationPatcher:
         tokenizer = MockTokenizer()
         config = MockConfig()
 
-        patcher = ActivationPatcher(model, tokenizer, config)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer, config=config)
 
         result = await patcher.sweep_layers(
             target_prompt="target",
@@ -256,7 +256,7 @@ class TestActivationPatcher:
         model = MockModel(num_layers=20)
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
 
         result = await patcher.sweep_layers(
             target_prompt="target",
@@ -272,7 +272,7 @@ class TestActivationPatcher:
         model = MockModel(num_layers=4)
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
 
         result = await patcher.sweep_layers(
             target_prompt="2+2=",
@@ -290,7 +290,7 @@ class TestActivationPatcher:
         model = MockModel(num_layers=4)
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
 
         result = await patcher.sweep_layers(
             target_prompt="target",
@@ -317,7 +317,7 @@ class TestCommutativityAnalyzer:
         tokenizer = MockTokenizer()
         config = MockConfig()
 
-        analyzer = CommutativityAnalyzer(model, tokenizer, config)
+        analyzer = CommutativityAnalyzer(model=model, tokenizer=tokenizer, config=config)
         assert analyzer.model is model
         assert analyzer.tokenizer is tokenizer
         assert analyzer.config is config
@@ -327,7 +327,7 @@ class TestCommutativityAnalyzer:
         model = MockModel()
         tokenizer = MockTokenizer()
 
-        analyzer = CommutativityAnalyzer(model, tokenizer)
+        analyzer = CommutativityAnalyzer(model=model, tokenizer=tokenizer)
         activation = await analyzer.get_activation("test", layer=2)
 
         assert isinstance(activation, np.ndarray)
@@ -339,7 +339,7 @@ class TestCommutativityAnalyzer:
         tokenizer = MockTokenizer()
         config = MockConfig()
 
-        analyzer = CommutativityAnalyzer(model, tokenizer, config)
+        analyzer = CommutativityAnalyzer(model=model, tokenizer=tokenizer, config=config)
 
         # Test with small set of pairs
         pairs = [
@@ -363,7 +363,7 @@ class TestCommutativityAnalyzer:
         model = MockModel(num_layers=8)
         tokenizer = MockTokenizer()
 
-        analyzer = CommutativityAnalyzer(model, tokenizer)
+        analyzer = CommutativityAnalyzer(model=model, tokenizer=tokenizer)
 
         pairs = [("2*3=", "3*2=")]
         result = await analyzer.analyze(layer=5, pairs=pairs)
@@ -376,7 +376,7 @@ class TestCommutativityAnalyzer:
         model = MockModel()
         tokenizer = MockTokenizer()
 
-        analyzer = CommutativityAnalyzer(model, tokenizer)
+        analyzer = CommutativityAnalyzer(model=model, tokenizer=tokenizer)
 
         # Use default pairs (all single-digit multiplication)
         result = await analyzer.analyze(layer=2)
@@ -390,7 +390,7 @@ class TestCommutativityAnalyzer:
         model = MockModel()
         tokenizer = MockTokenizer()
 
-        analyzer = CommutativityAnalyzer(model, tokenizer)
+        analyzer = CommutativityAnalyzer(model=model, tokenizer=tokenizer)
 
         pairs = [
             ("2*3=", "3*2="),
@@ -411,7 +411,7 @@ class TestCommutativityAnalyzer:
         model = MockModel()
         tokenizer = MockTokenizer()
 
-        analyzer = CommutativityAnalyzer(model, tokenizer)
+        analyzer = CommutativityAnalyzer(model=model, tokenizer=tokenizer)
 
         pairs = [("a", "b"), ("c", "d"), ("e", "f")]
         result = await analyzer.analyze(layer=0, pairs=pairs)
@@ -434,7 +434,7 @@ class TestPatchedLayerWrapper:
         model = MockModel(num_layers=2)
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
 
         original_layer = patcher._accessor.get_layer(0)
         source_activation = mx.random.normal((64,))
@@ -452,7 +452,7 @@ class TestPatchedLayerWrapper:
         model = MockModel(num_layers=2)
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
         original_layer = patcher._accessor.get_layer(0)
 
         # Create known source activation
@@ -474,7 +474,7 @@ class TestPatchedLayerWrapper:
         model = MockModel(num_layers=2)
         tokenizer = MockTokenizer()
 
-        patcher = ActivationPatcher(model, tokenizer)
+        patcher = ActivationPatcher(model=model, tokenizer=tokenizer)
         original_layer = patcher._accessor.get_layer(0)
         source_activation = mx.random.normal((64,))
 

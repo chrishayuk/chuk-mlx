@@ -22,6 +22,19 @@ class MoEArchitecture(str, Enum):
     """Generic MoE: Uses standard MoE component."""
 
 
+class MoEImplementationType(str, Enum):
+    """Internal MoE implementation type for expert routing."""
+
+    NONE = "none"
+    """No MoE layers detected."""
+
+    GPT_OSS_BATCHED = "gpt_oss_batched"
+    """GPT-OSS style with batched experts (gate_up_proj on experts)."""
+
+    STANDARD = "standard"
+    """Standard MoE implementation."""
+
+
 class ExpertCategory(str, Enum):
     """Categories of expert specialization."""
 

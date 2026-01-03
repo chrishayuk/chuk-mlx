@@ -120,26 +120,26 @@ class TestModelAccessor:
     def test_init_with_direct_model(self):
         model = MockModel()
         config = MockConfig()
-        accessor = ModelAccessor(model, config)
+        accessor = ModelAccessor(model=model, config=config)
         assert accessor.model is model
         assert accessor.config is config
 
     def test_init_without_config(self):
         model = MockModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         assert accessor.model is model
         assert accessor.config is None
 
     def test_layers_property_direct(self):
         model = MockModel(num_layers=4)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         layers = accessor.layers
         assert isinstance(layers, list)
         assert len(layers) == 4
 
     def test_layers_property_nested(self):
         model = MockNestedModel(num_layers=6)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         layers = accessor.layers
         assert isinstance(layers, list)
         assert len(layers) == 6
@@ -147,118 +147,118 @@ class TestModelAccessor:
     def test_layers_property_missing(self):
         # Create a model without layers
         model = nn.Module()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         with pytest.raises(AttributeError, match="Cannot find layers"):
             _ = accessor.layers
 
     def test_num_layers_property(self):
         model = MockModel(num_layers=8)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         assert accessor.num_layers == 8
 
     def test_embed_tokens_property_direct(self):
         model = MockModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         embed = accessor.embed_tokens
         assert embed is model.embed_tokens
 
     def test_embed_tokens_property_nested(self):
         model = MockNestedModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         embed = accessor.embed_tokens
         assert embed is model.model.embed_tokens
 
     def test_embed_tokens_property_missing(self):
         model = nn.Module()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         with pytest.raises(AttributeError, match="Cannot find embed_tokens"):
             _ = accessor.embed_tokens
 
     def test_norm_property_direct(self):
         model = MockModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         norm = accessor.norm
         assert norm is model.norm
 
     def test_norm_property_nested(self):
         model = MockNestedModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         norm = accessor.norm
         assert norm is model.model.norm
 
     def test_norm_property_missing(self):
         model = nn.Module()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         norm = accessor.norm
         assert norm is None
 
     def test_lm_head_property_present(self):
         model = MockNestedModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         lm_head = accessor.lm_head
         assert lm_head is model.lm_head
 
     def test_lm_head_property_missing(self):
         model = MockModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         lm_head = accessor.lm_head
         assert lm_head is None
 
     def test_embedding_scale_from_config(self):
         config = MockConfig(embedding_scale=2.0)
         model = MockModel()
-        accessor = ModelAccessor(model, config)
+        accessor = ModelAccessor(model=model, config=config)
         assert accessor.embedding_scale == 2.0
 
     def test_embedding_scale_none(self):
         config = MockConfig()
         model = MockModel()
-        accessor = ModelAccessor(model, config)
+        accessor = ModelAccessor(model=model, config=config)
         assert accessor.embedding_scale is None
 
     def test_embedding_scale_no_config(self):
         model = MockModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         assert accessor.embedding_scale is None
 
     def test_hidden_size_from_config(self):
         config = MockConfig(hidden_size=128)
         model = MockModel(hidden_size=128)
-        accessor = ModelAccessor(model, config)
+        accessor = ModelAccessor(model=model, config=config)
         assert accessor.hidden_size == 128
 
     def test_hidden_size_from_d_model(self):
         config = MockConfig(d_model=256)
         delattr(config, "hidden_size")
         model = MockModel(hidden_size=256)
-        accessor = ModelAccessor(model, config)
+        accessor = ModelAccessor(model=model, config=config)
         assert accessor.hidden_size == 256
 
     def test_hidden_size_from_embeddings(self):
         model = MockModel(hidden_size=64)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         assert accessor.hidden_size == 64
 
     def test_vocab_size_from_config(self):
         config = MockConfig(vocab_size=5000)
         model = MockModel(vocab_size=5000)
-        accessor = ModelAccessor(model, config)
+        accessor = ModelAccessor(model=model, config=config)
         assert accessor.vocab_size == 5000
 
     def test_vocab_size_from_embeddings(self):
         model = MockModel(vocab_size=3000)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         assert accessor.vocab_size == 3000
 
     def test_has_tied_embeddings_no_lm_head(self):
         model = MockModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         # Should return True when no explicit head
         assert accessor.has_tied_embeddings is True
 
     def test_has_tied_embeddings_with_lm_head(self):
         model = MockNestedModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         # Different weight tensors - the result may be an mx.array or bool
         result = accessor.has_tied_embeddings
         if hasattr(result, "item"):
@@ -267,51 +267,51 @@ class TestModelAccessor:
 
     def test_get_layer_positive_index(self):
         model = MockModel(num_layers=4)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         layer = accessor.get_layer(2)
         assert layer is model.layers[2]
 
     def test_get_layer_negative_index(self):
         model = MockModel(num_layers=4)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         layer = accessor.get_layer(-1)
         assert layer is model.layers[-1]
 
     def test_get_layer_out_of_range(self):
         model = MockModel(num_layers=4)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         with pytest.raises(IndexError, match="Layer index .* out of range"):
             accessor.get_layer(10)
 
     def test_get_layer_negative_out_of_range(self):
         model = MockModel(num_layers=4)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         with pytest.raises(IndexError, match="Layer index .* out of range"):
             accessor.get_layer(-10)
 
     def test_set_layer_direct(self):
         model = MockModel(num_layers=4)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         new_layer = MockLayer(64)
         accessor.set_layer(2, new_layer)
         assert model.layers[2] is new_layer
 
     def test_set_layer_nested(self):
         model = MockNestedModel(num_layers=4)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         new_layer = MockLayer(64)
         accessor.set_layer(1, new_layer)
         assert model.model.layers[1] is new_layer
 
     def test_set_layer_missing(self):
         model = nn.Module()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         with pytest.raises(AttributeError, match="Cannot set layer"):
             accessor.set_layer(0, MockLayer(64))
 
     def test_embed(self):
         model = MockModel(vocab_size=100, hidden_size=64)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         input_ids = mx.array([[1, 2, 3]])
         h = accessor.embed(input_ids)
         assert h.shape == (1, 3, 64)
@@ -319,12 +319,12 @@ class TestModelAccessor:
     def test_embed_with_scale(self):
         config = MockConfig(embedding_scale=2.0)
         model = MockModel(vocab_size=100, hidden_size=64)
-        accessor = ModelAccessor(model, config)
+        accessor = ModelAccessor(model=model, config=config)
         input_ids = mx.array([[1, 2, 3]])
         h_scaled = accessor.embed(input_ids)
 
         # Compare with unscaled
-        accessor_unscaled = ModelAccessor(model)
+        accessor_unscaled = ModelAccessor(model=model)
         h_unscaled = accessor_unscaled.embed(input_ids)
 
         # Scaled should be 2x unscaled
@@ -332,14 +332,14 @@ class TestModelAccessor:
 
     def test_apply_norm_and_head_with_lm_head(self):
         model = MockNestedModel(vocab_size=100, hidden_size=64)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         hidden_states = mx.random.normal((1, 5, 64))
         logits = accessor.apply_norm_and_head(hidden_states)
         assert logits.shape == (1, 5, 100)
 
     def test_apply_norm_and_head_tied_embeddings(self):
         model = MockModel(vocab_size=100, hidden_size=64)
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         hidden_states = mx.random.normal((1, 5, 64))
         logits = accessor.apply_norm_and_head(hidden_states)
         assert logits.shape == (1, 5, 100)
@@ -348,14 +348,14 @@ class TestModelAccessor:
         # Model without norm
         model = MockModel(vocab_size=100, hidden_size=64)
         delattr(model, "norm")
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         hidden_states = mx.random.normal((1, 5, 64))
         logits = accessor.apply_norm_and_head(hidden_states)
         assert logits.shape == (1, 5, 100)
 
     def test_create_causal_mask(self):
         model = MockModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         mask = accessor.create_causal_mask(5)
         assert mask.shape == (5, 5)
         # Check causality: future positions should be masked
@@ -364,7 +364,7 @@ class TestModelAccessor:
 
     def test_create_causal_mask_with_dtype(self):
         model = MockModel()
-        accessor = ModelAccessor(model)
+        accessor = ModelAccessor(model=model)
         mask = accessor.create_causal_mask(3, dtype=mx.float32)
         assert mask.dtype == mx.float32
 
@@ -374,14 +374,14 @@ class TestAsyncModelAccessor:
 
     def test_inherits_from_model_accessor(self):
         model = MockModel()
-        accessor = AsyncModelAccessor(model)
+        accessor = AsyncModelAccessor(model=model)
         assert isinstance(accessor, ModelAccessor)
         assert accessor.num_layers == 4
 
     @pytest.mark.asyncio
     async def test_forward_through_layers_all(self):
         model = MockModel(num_layers=4)
-        accessor = AsyncModelAccessor(model)
+        accessor = AsyncModelAccessor(model=model)
         input_ids = mx.array([[1, 2, 3, 4]])
 
         captured = await accessor.forward_through_layers(input_ids)
@@ -398,7 +398,7 @@ class TestAsyncModelAccessor:
     @pytest.mark.asyncio
     async def test_forward_through_layers_subset(self):
         model = MockModel(num_layers=6)
-        accessor = AsyncModelAccessor(model)
+        accessor = AsyncModelAccessor(model=model)
         input_ids = mx.array([[1, 2, 3]])
 
         captured = await accessor.forward_through_layers(
@@ -414,7 +414,7 @@ class TestAsyncModelAccessor:
     @pytest.mark.asyncio
     async def test_forward_through_layers_no_capture(self):
         model = MockModel(num_layers=4)
-        accessor = AsyncModelAccessor(model)
+        accessor = AsyncModelAccessor(model=model)
         input_ids = mx.array([[1, 2, 3]])
 
         captured = await accessor.forward_through_layers(
@@ -428,7 +428,7 @@ class TestAsyncModelAccessor:
     async def test_forward_through_layers_with_scale(self):
         config = MockConfig(embedding_scale=1.5)
         model = MockModel()
-        accessor = AsyncModelAccessor(model, config)
+        accessor = AsyncModelAccessor(model=model, config=config)
         input_ids = mx.array([[1, 2]])
 
         captured = await accessor.forward_through_layers(input_ids, layers=[0])

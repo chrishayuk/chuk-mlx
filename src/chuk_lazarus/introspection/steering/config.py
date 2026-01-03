@@ -1,40 +1,41 @@
 """
 Configuration classes for activation steering.
 
-This module contains the configuration dataclasses used
+This module contains the configuration classes used
 to configure steering behavior.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import Enum
 
+from pydantic import BaseModel, ConfigDict, Field
 
-@dataclass
-class SteeringConfig:
+
+class SteeringConfig(BaseModel):
     """Configuration for activation steering."""
 
-    # Which layers to steer
-    layers: list[int] = field(default_factory=lambda: [24])
+    model_config = ConfigDict(frozen=True)
 
-    # Steering coefficient (positive = toward positive class)
-    coefficient: float = 1.0
+    layers: list[int] = Field(
+        default_factory=lambda: [24], description="Which layers to steer"
+    )
+    coefficient: float = Field(
+        default=1.0, description="Steering coefficient (positive = toward positive class)"
+    )
+    position: int | None = Field(
+        default=None, description="Apply only at specific position (None = all)"
+    )
+    normalize_direction: bool = Field(default=True, description="Normalize direction vector")
+    scale_by_activation_norm: bool = Field(
+        default=False, description="Scale steering by activation norm"
+    )
+    max_new_tokens: int = Field(default=50, ge=1, description="Maximum tokens to generate")
+    temperature: float = Field(default=0.0, ge=0.0, description="Sampling temperature")
 
-    # Apply only at specific positions
-    position: int | None = None  # None = all positions
 
-    # Normalization
-    normalize_direction: bool = True
-    scale_by_activation_norm: bool = False
-
-    # Generation settings
-    max_new_tokens: int = 50
-    temperature: float = 0.0
-
-
-class SteeringMode(Enum):
-    """Steering modes for tool-calling control (backwards compatibility)."""
+class SteeringMode(str, Enum):
+    """Steering modes for tool-calling control."""
 
     NORMAL = "normal"
     FORCE_TOOL = "force_tool"
@@ -43,20 +44,20 @@ class SteeringMode(Enum):
     SUPPRESS_TOOL = "suppress_tool"
 
 
-@dataclass
-class LegacySteeringConfig:
+class LegacySteeringConfig(BaseModel):
     """Configuration for legacy tool-calling steering."""
 
-    mode: SteeringMode = SteeringMode.NORMAL
-    steering_scale: float = 1.0
-    neuron_boost_scale: float = 5000.0
-    use_kill_switch: bool = False
-    kill_switch_boost: float = 0.0
-    tool_promoters: list[int] | None = None
-    tool_suppressors: list[int] | None = None
+    model_config = ConfigDict(frozen=True)
 
-    def __post_init__(self):
-        if self.tool_promoters is None:
-            self.tool_promoters = [803, 2036, 831]
-        if self.tool_suppressors is None:
-            self.tool_suppressors = [1237, 821, 1347]
+    mode: SteeringMode = Field(default=SteeringMode.NORMAL, description="Steering mode")
+    steering_scale: float = Field(default=1.0, description="Scale for steering")
+    neuron_boost_scale: float = Field(default=5000.0, description="Scale for neuron boost")
+    use_kill_switch: bool = Field(default=False, description="Use kill switch")
+    kill_switch_boost: float = Field(default=0.0, description="Kill switch boost value")
+    tool_promoters: list[int] = Field(
+        default_factory=lambda: [803, 2036, 831], description="Neuron indices that promote tool use"
+    )
+    tool_suppressors: list[int] = Field(
+        default_factory=lambda: [1237, 821, 1347],
+        description="Neuron indices that suppress tool use",
+    )

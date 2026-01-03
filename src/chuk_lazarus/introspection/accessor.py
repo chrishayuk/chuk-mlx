@@ -6,8 +6,9 @@ and other components regardless of the specific model architecture.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+
+from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     import mlx.core as mx
@@ -48,23 +49,24 @@ class HasLMHead(Protocol):
     lm_head: Any
 
 
-@dataclass
-class ModelAccessor:
+class ModelAccessor(BaseModel):
     """Unified accessor for model components.
 
     Handles different model architectures by providing a consistent
     interface to access layers, embeddings, and other components.
 
     Example:
-        >>> accessor = ModelAccessor(model, config)
+        >>> accessor = ModelAccessor(model=model, config=config)
         >>> layers = accessor.layers
         >>> embed = accessor.embed_tokens
         >>> for layer in layers:
         ...     output = layer(hidden_states)
     """
 
-    model: Any
-    config: Any = None
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    model: Any = Field(description="The neural network model")
+    config: Any = Field(default=None, description="Optional model configuration")
 
     @property
     def layers(self) -> list:

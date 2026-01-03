@@ -4,6 +4,8 @@ Commands for capturing, viewing, invoking, testing, comparing, and
 decoding computational circuits within neural networks.
 """
 
+from ....introspection.enums import InvocationMethod
+
 __all__ = [
     "introspect_circuit_capture",
     "introspect_circuit_invoke",
@@ -308,7 +310,7 @@ def introspect_circuit_invoke(args):
     results_table = []
 
     # Method: steer - use direction to steer model generation
-    if method == "steer":
+    if method == InvocationMethod.STEER.value:
         if not has_direction:
             print("ERROR: 'steer' method requires --extract-direction during capture")
             return
@@ -420,7 +422,7 @@ def introspect_circuit_invoke(args):
         known_operands = np.array(list(zip(valid_a, valid_b)), dtype=np.float32)
         known_results = np.array(valid_results, dtype=np.float32)
 
-        if method == "linear":
+        if method == InvocationMethod.LINEAR.value:
             for a, b in new_operands:
                 query = np.array([a, b], dtype=np.float32)
                 distances = np.linalg.norm(known_operands - query, axis=1)
@@ -444,7 +446,7 @@ def introspect_circuit_invoke(args):
                     }
                 )
 
-        elif method == "extrapolate":
+        elif method == InvocationMethod.EXTRAPOLATE.value:
             try:
                 from sklearn.linear_model import LinearRegression
 
@@ -468,7 +470,7 @@ def introspect_circuit_invoke(args):
                 print("ERROR: sklearn required for extrapolate method")
                 return
 
-        elif method == "interpolate":
+        elif method == InvocationMethod.INTERPOLATE.value:
             k = min(3, len(valid_results))
 
             for a, b in new_operands:

@@ -8,6 +8,8 @@ Commands for:
 
 import logging
 
+from ....introspection.enums import DirectionMethod
+
 logger = logging.getLogger(__name__)
 
 
@@ -518,8 +520,8 @@ def introspect_probe(args):
     final_probe.fit(X_best, y)
 
     # Extract direction based on method
-    method = getattr(args, "method", "logistic")
-    if method == "difference":
+    method = getattr(args, "method", DirectionMethod.LOGISTIC.value)
+    if method == DirectionMethod.MEAN_DIFFERENCE.value:
         # Difference of means (simpler, often works well)
         class_a_mean = X_best[y == 1].mean(axis=0)
         class_b_mean = X_best[y == 0].mean(axis=0)

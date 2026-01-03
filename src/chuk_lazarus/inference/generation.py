@@ -13,7 +13,7 @@ import time
 from typing import TYPE_CHECKING
 
 import mlx.core as mx
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
@@ -25,6 +25,8 @@ if TYPE_CHECKING:
 class GenerationConfig(BaseModel):
     """Configuration for text generation."""
 
+    model_config = ConfigDict(frozen=True)
+
     max_new_tokens: int = Field(100, ge=1, description="Maximum tokens to generate")
     temperature: float = Field(0.7, ge=0.0, description="Sampling temperature")
     top_p: float = Field(0.9, ge=0.0, le=1.0, description="Nucleus sampling threshold")
@@ -35,6 +37,8 @@ class GenerationConfig(BaseModel):
 
 class GenerationStats(BaseModel):
     """Statistics from a generation run."""
+
+    model_config = ConfigDict(frozen=True)
 
     input_tokens: int = Field(..., description="Number of input tokens")
     output_tokens: int = Field(..., description="Number of generated tokens")
@@ -52,6 +56,8 @@ class GenerationStats(BaseModel):
 
 class GenerationResult(BaseModel):
     """Result of text generation."""
+
+    model_config = ConfigDict(frozen=True)
 
     text: str = Field(..., description="Generated text")
     stats: GenerationStats = Field(..., description="Generation statistics")

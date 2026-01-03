@@ -5,7 +5,22 @@ This module contains functions for token generation analysis.
 
 import logging
 
+from pydantic import BaseModel, ConfigDict, Field
+
 logger = logging.getLogger(__name__)
+
+
+class AnswerOnsetResult(BaseModel):
+    """Result of finding answer onset in generated output."""
+
+    model_config = ConfigDict(frozen=True)
+
+    onset_index: int | None = Field(default=None, description="Token index where answer first appears")
+    onset_token: str | None = Field(default=None, description="Token at onset position")
+    is_answer_first: bool | None = Field(
+        default=None, description="Whether answer appears in first token"
+    )
+    answer_found: bool = Field(default=False, description="Whether answer was found at all")
 
 
 def introspect_generate(args):
@@ -95,9 +110,9 @@ def introspect_generate(args):
 
         # Show answer onset info
         if expected:
-            if onset_info["answer_found"]:
-                onset_str = f"onset={onset_info['onset_index']}"
-                if onset_info["is_answer_first"]:
+            if onset_info.answer_found:
+                onset_str = f"onset={onset_info.onset_index}"
+                if onset_info.is_answer_first:
                     onset_str += " (answer-first)"
                 else:
                     onset_str += " (delayed)"
@@ -115,7 +130,7 @@ def introspect_generate(args):
             for i, tid in enumerate(gen_ids[:10]):
                 tok = tokenizer.decode([tid])
                 # Highlight the onset token
-                if expected and onset_info["onset_index"] == i:
+                if expected and onset_info.onset_index == i:
                     print(f"[{tok!r}] ", end="")
                 else:
                     print(f"{tok!r} ", end="")
@@ -197,19 +212,14 @@ def _normalize_number(s: str) -> str:
     return re.sub(r"[\s,\u202f\u00a0]+", "", s)
 
 
-def _find_answer_onset(output: str, expected_answer: str | None, tokenizer) -> dict:
+def _find_answer_onset(output: str, expected_answer: str | None, tokenizer) -> AnswerOnsetResult:
     """Find where the answer first appears in the output.
 
     Returns:
-        dict with onset_index, onset_token, is_answer_first, answer_found
+        AnswerOnsetResult with onset information
     """
     if expected_answer is None:
-        return {
-            "onset_index": None,
-            "onset_token": None,
-            "is_answer_first": None,
-            "answer_found": False,
-        }
+        return AnswerOnsetResult()
 
     # Normalize expected answer (remove any formatting)
     expected_normalized = _normalize_number(expected_answer)
@@ -227,19 +237,14 @@ def _find_answer_onset(output: str, expected_answer: str | None, tokenizer) -> d
         cumulative += tok
         # Check if answer appears in cumulative output (normalized)
         if expected_normalized in _normalize_number(cumulative):
-            return {
-                "onset_index": i,
-                "onset_token": tok,
-                "is_answer_first": i <= 1,  # Answer in first 2 tokens
-                "answer_found": True,
-            }
+            return AnswerOnsetResult(
+                onset_index=i,
+                onset_token=tok,
+                is_answer_first=i <= 1,  # Answer in first 2 tokens
+                answer_found=True,
+            )
 
-    return {
-        "onset_index": None,
-        "onset_token": None,
-        "is_answer_first": False,
-        "answer_found": False,
-    }
+    return AnswerOnsetResult(is_answer_first=False)
 
 
 def _load_external_chat_template(tokenizer, model_path: str) -> None:

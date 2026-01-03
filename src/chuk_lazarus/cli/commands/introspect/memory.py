@@ -3,6 +3,8 @@
 import json
 from collections import defaultdict
 
+from ....introspection.enums import FactType
+
 
 def introspect_memory(args):
     """Extract memory organization structure for facts.
@@ -185,17 +187,18 @@ def introspect_memory(args):
         # Load from file
         with open(fact_type[1:]) as f:
             facts = json.load(f)
-    elif fact_type == "multiplication":
+    elif fact_type == FactType.MULTIPLICATION.value:
         facts = generate_multiplication_facts()
-    elif fact_type == "addition":
+    elif fact_type == FactType.ADDITION.value:
         facts = generate_addition_facts()
-    elif fact_type == "capitals":
+    elif fact_type == FactType.CAPITALS.value:
         facts = generate_capital_facts()
-    elif fact_type == "elements":
+    elif fact_type == FactType.ELEMENTS.value:
         facts = generate_element_facts()
     else:
         print(f"ERROR: Unknown fact type: {fact_type}")
-        print("Use: multiplication, addition, capitals, elements, or @file.json")
+        valid_types = ", ".join(t.value for t in FactType if t != FactType.CUSTOM)
+        print(f"Use: {valid_types}, or @file.json")
         return
 
     print(f"Loading model: {args.model}")

@@ -381,7 +381,7 @@ class TestPrintExpertSummary:
         captured = capsys.readouterr()
         # Higher confidence should appear first
         lines = captured.out.split("\n")
-        expert_lines = [l for l in lines if "Expert" in l and "conf=" in l]
+        expert_lines = [line for line in lines if "Expert" in line and "conf=" in line]
         if len(expert_lines) >= 2:
             # First expert line should have higher confidence
             assert "0.95" in expert_lines[0] or expert_lines[0].index("conf=0.95") < expert_lines[
@@ -828,11 +828,11 @@ class TestIdentifyExpert:
         assert identity.layer_idx == 0
 
 
-class TestIdentifyAllExperts:
-    """Tests for identify_all_experts function."""
+class TestIdentifyAllExpertsExtended:
+    """Extended tests for identify_all_experts function."""
 
-    def test_returns_list(self, moe_model, tokenizer):
-        """Test returns list of identities."""
+    def test_returns_list_extended(self, moe_model, tokenizer):
+        """Test returns list of identities (extended)."""
         hooks = MoEHooks(moe_model)
         identities = identify_all_experts(
             hooks,
@@ -872,18 +872,18 @@ class TestIdentifyAllExperts:
         assert identities == []
 
 
-class TestFindSpecialists:
-    """Tests for find_specialists function."""
+class TestFindSpecialistsExtended:
+    """Extended tests for find_specialists function."""
 
-    def test_returns_specialists(self, sample_identities):
-        """Test returns list of specialists."""
+    def test_returns_specialists_extended(self, sample_identities):
+        """Test returns list of specialists (extended)."""
         specialists = find_specialists(sample_identities)
 
         assert isinstance(specialists, list)
         assert len(specialists) == 1
         assert specialists[0].role == ExpertRole.SPECIALIST
 
-    def test_filter_by_category(self, sample_identities):
+    def test_filter_by_category_extended(self, sample_identities):
         """Test filtering by category."""
         specialists = find_specialists(sample_identities, category=ExpertCategory.CODE)
 
@@ -1072,11 +1072,11 @@ class TestCategoryActivation:
             activation.activation_rate = 0.8
 
 
-class TestExpertProfile:
-    """Tests for ExpertProfile model."""
+class TestExpertProfileValidation:
+    """Validation tests for ExpertProfile model."""
 
-    def test_creation(self):
-        """Test profile creation."""
+    def test_creation_validation(self):
+        """Test profile creation with validation."""
         profile = ExpertProfile(
             expert_idx=0,
             layer_idx=4,
@@ -1462,7 +1462,7 @@ class TestEdgeCasesWithMocking:
         captured = capsys.readouterr()
         # Should show first 2 secondary categories
         lines = captured.out.split("\n")
-        expert_line = [l for l in lines if "Expert  0" in l or "Expert 0" in l]
+        expert_line = [line for line in lines if "Expert  0" in line or "Expert 0" in line]
         if expert_line:
             # Should have secondary categories in brackets
             assert "[" in expert_line[0]

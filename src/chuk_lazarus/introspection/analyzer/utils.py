@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import mlx.core as mx
 
+from .config import LayerStrategy
+
 
 def compute_entropy(probs: mx.array) -> float:
     """
@@ -62,7 +64,7 @@ def compute_js_divergence(p: mx.array, q: mx.array) -> float:
 
 def get_layers_to_capture(
     num_layers: int,
-    layer_strategy: str,
+    layer_strategy: LayerStrategy | str,
     layer_step: int = 4,
     custom_layers: list[int] | None = None,
 ) -> list[int]:
@@ -71,25 +73,28 @@ def get_layers_to_capture(
 
     Args:
         num_layers: Total number of layers in the model
-        layer_strategy: Strategy name ('all', 'evenly_spaced', 'first_last', 'custom')
+        layer_strategy: Strategy enum or string value
         layer_step: Step size for evenly spaced capture
         custom_layers: Specific layers when using 'custom' strategy
 
     Returns:
         Sorted list of layer indices to capture
     """
-    if layer_strategy == "all":
+    # Normalize to enum value for comparison
+    strategy = layer_strategy.value if isinstance(layer_strategy, LayerStrategy) else layer_strategy
+
+    if strategy == LayerStrategy.ALL.value:
         return list(range(num_layers))
 
-    if layer_strategy == "first_last":
+    if strategy == LayerStrategy.FIRST_LAST.value:
         return [0, num_layers - 1]
 
-    if layer_strategy == "custom":
+    if strategy == LayerStrategy.CUSTOM.value:
         if custom_layers:
             return sorted(set(custom_layers))
         return [0, num_layers - 1]
 
-    # evenly_spaced
+    # evenly_spaced (default)
     layers = list(range(0, num_layers, layer_step))
     if (num_layers - 1) not in layers:
         layers.append(num_layers - 1)

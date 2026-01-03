@@ -7,22 +7,25 @@ Handles loading and batching of prompt-response pairs.
 import json
 import logging
 from collections.abc import Iterator
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
+from pydantic import BaseModel, ConfigDict, Field
+
+from .tokenizers.types import ChatRole
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class SFTSample:
+class SFTSample(BaseModel):
     """A single SFT training sample."""
 
-    prompt: str
-    response: str
-    metadata: dict | None = None
+    model_config = ConfigDict(frozen=True)
+
+    prompt: str = Field(description="The input prompt")
+    response: str = Field(description="The expected response")
+    metadata: dict[str, Any] | None = Field(default=None, description="Optional metadata")
 
 
 class SFTDataset:
@@ -63,9 +66,10 @@ class SFTDataset:
                     prompt = ""
                     response = ""
                     for msg in messages:
-                        if msg["role"] in ["user", "system"]:
+                        role = msg["role"]
+                        if role in (ChatRole.USER.value, ChatRole.SYSTEM.value):
                             prompt += msg["content"] + "\n"
-                        elif msg["role"] == "assistant":
+                        elif role == ChatRole.ASSISTANT.value:
                             response = msg["content"]
                 else:
                     # Simple format

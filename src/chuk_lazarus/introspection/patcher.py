@@ -6,10 +6,10 @@ to test causal relationships in neural network computations.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from .accessor import AsyncModelAccessor
 from .enums import PatchEffect
@@ -21,22 +21,22 @@ if TYPE_CHECKING:
     from .models.patching import CommutativityResult
 
 
-@dataclass
-class LayerPatch:
+class LayerPatch(BaseModel):
     """A patch to apply at a specific layer."""
 
-    layer: int
-    activation: np.ndarray | mx.array
-    blend: float = 1.0
-    position: int = -1  # -1 means last position
+    model_config = ConfigDict(arbitrary_types_allowed=True, frozen=True)
+
+    layer: int = Field(description="Layer index to patch")
+    activation: Any = Field(description="Activation to patch (numpy or mlx array)")
+    blend: float = Field(default=1.0, ge=0.0, le=1.0, description="Blend factor")
+    position: int = Field(default=-1, description="Token position (-1 for last)")
 
 
-@dataclass
-class ActivationPatcher:
+class ActivationPatcher(BaseModel):
     """Activation patching for causal intervention experiments.
 
     Example:
-        >>> patcher = ActivationPatcher(model, tokenizer, config)
+        >>> patcher = ActivationPatcher(model=model, tokenizer=tokenizer, config=config)
         >>> # Capture source activation
         >>> source_activation = await patcher.capture_activation("7*8=", layer=22)
         >>> # Patch into target
@@ -48,13 +48,16 @@ class ActivationPatcher:
         ... )
     """
 
-    model: Any
-    tokenizer: Any
-    config: Any = None
-    _accessor: AsyncModelAccessor = field(init=False)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def __post_init__(self) -> None:
-        self._accessor = AsyncModelAccessor(self.model, self.config)
+    model: Any = Field(description="The neural network model")
+    tokenizer: Any = Field(description="The tokenizer")
+    config: Any = Field(default=None, description="Optional configuration")
+    _accessor: AsyncModelAccessor = PrivateAttr()
+
+    def model_post_init(self, __context: Any) -> None:
+        """Initialize private attributes after model creation."""
+        self._accessor = AsyncModelAccessor(model=self.model, config=self.config)
 
     async def capture_activation(
         self,
@@ -286,23 +289,25 @@ class ActivationPatcher:
         )
 
 
-@dataclass
-class CommutativityAnalyzer:
+class CommutativityAnalyzer(BaseModel):
     """Analyze whether representations respect commutativity (A*B = B*A).
 
     Example:
-        >>> analyzer = CommutativityAnalyzer(model, tokenizer, config)
+        >>> analyzer = CommutativityAnalyzer(model=model, tokenizer=tokenizer, config=config)
         >>> result = await analyzer.analyze(layer=22)
         >>> print(f"Mean similarity: {result.mean_similarity:.4f}")
     """
 
-    model: Any
-    tokenizer: Any
-    config: Any = None
-    _accessor: AsyncModelAccessor = field(init=False)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def __post_init__(self) -> None:
-        self._accessor = AsyncModelAccessor(self.model, self.config)
+    model: Any = Field(description="The neural network model")
+    tokenizer: Any = Field(description="The tokenizer")
+    config: Any = Field(default=None, description="Optional configuration")
+    _accessor: AsyncModelAccessor = PrivateAttr()
+
+    def model_post_init(self, __context: Any) -> None:
+        """Initialize private attributes after model creation."""
+        self._accessor = AsyncModelAccessor(model=self.model, config=self.config)
 
     async def get_activation(self, prompt: str, layer: int) -> np.ndarray:
         """Get last-token hidden state for a prompt at a given layer."""

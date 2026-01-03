@@ -170,8 +170,8 @@ class TestFindAnswerOnset:
         tokenizer = MagicMock()
         result = _find_answer_onset("some output", None, tokenizer)
 
-        assert result["answer_found"] is False
-        assert result["onset_index"] is None
+        assert result.answer_found is False
+        assert result.onset_index is None
 
     def test_find_onset_answer_found(self):
         """Test when answer is found."""
@@ -183,8 +183,8 @@ class TestFindAnswerOnset:
 
         result = _find_answer_onset("42", "4", tokenizer)
 
-        assert result["answer_found"] is True
-        assert result["onset_index"] == 0
+        assert result.answer_found is True
+        assert result.onset_index == 0
 
     def test_find_onset_answer_not_found(self):
         """Test when answer is not in output."""
@@ -196,7 +196,7 @@ class TestFindAnswerOnset:
 
         result = _find_answer_onset("xxx", "42", tokenizer)
 
-        assert result["answer_found"] is False
+        assert result.answer_found is False
 
     def test_find_onset_is_answer_first(self):
         """Test is_answer_first flag when answer is in first 2 tokens."""
@@ -208,9 +208,9 @@ class TestFindAnswerOnset:
 
         result = _find_answer_onset("42", "42", tokenizer)
 
-        assert result["answer_found"] is True
-        assert result["is_answer_first"] is True
-        assert result["onset_index"] == 0
+        assert result.answer_found is True
+        assert result.is_answer_first is True
+        assert result.onset_index == 0
 
     def test_find_onset_delayed_answer(self):
         """Test is_answer_first is False when answer comes later."""
@@ -227,9 +227,9 @@ class TestFindAnswerOnset:
 
         result = _find_answer_onset("The answer is 42", "42", tokenizer)
 
-        assert result["answer_found"] is True
-        assert result["is_answer_first"] is False
-        assert result["onset_index"] == 2
+        assert result.answer_found is True
+        assert result.is_answer_first is False
+        assert result.onset_index == 2
 
 
 class TestNormalizeNumber:

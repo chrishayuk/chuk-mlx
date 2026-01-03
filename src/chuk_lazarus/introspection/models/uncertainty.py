@@ -11,6 +11,8 @@ from ..enums import ComputeStrategy, ConfidenceLevel
 class MetacognitiveResult(BaseModel):
     """Result of metacognitive strategy detection for a single problem."""
 
+    model_config = ConfigDict(frozen=True)
+
     problem: str = Field(description="The problem prompt")
     expected: str | None = Field(default=None, description="Expected answer")
     generated: str = Field(default="", description="Generated output (first 50 chars)")
@@ -28,6 +30,8 @@ class MetacognitiveResult(BaseModel):
 
 class MetacognitiveAnalysis(BaseModel):
     """Complete metacognitive analysis results."""
+
+    model_config = ConfigDict(frozen=True)
 
     model_id: str = Field(description="Model identifier")
     decision_layer: int = Field(description="Layer used for detection")
@@ -54,6 +58,8 @@ class MetacognitiveAnalysis(BaseModel):
 class UncertaintyResult(BaseModel):
     """Result of uncertainty detection for a single prompt."""
 
+    model_config = ConfigDict(frozen=True)
+
     prompt: str = Field(description="The prompt")
     score: float = Field(description="Uncertainty score (positive = confident)")
     prediction: ConfidenceLevel = Field(description="Predicted confidence level")
@@ -77,6 +83,8 @@ class CalibrationResult(BaseModel):
 
 class UncertaintyAnalysis(BaseModel):
     """Complete uncertainty analysis results."""
+
+    model_config = ConfigDict(frozen=True)
 
     model_id: str = Field(description="Model identifier")
     detection_layer: int = Field(description="Layer used for detection")

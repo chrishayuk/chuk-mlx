@@ -8,12 +8,13 @@ This module contains the data structures used by generators:
 - TrainingSample: Complete training sample with correct and incorrect responses
 """
 
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from pydantic import BaseModel, ConfigDict, Field
 
-class ProblemType(Enum):
+
+class ProblemType(str, Enum):
     """Types of math problems."""
 
     ARITHMETIC = "arithmetic"
@@ -24,36 +25,39 @@ class ProblemType(Enum):
     COMPARISON = "comparison"
 
 
-@dataclass
-class MathProblem:
+class MathProblem(BaseModel):
     """A generated math problem."""
 
-    id: str
-    problem_type: ProblemType
-    problem_text: str
-    expression: str  # The mathematical expression
-    answer: float
-    answer_exact: str | None = None  # For fractions, etc.
-    unit: str | None = None
-    difficulty: int = 1  # 1-5
-    metadata: dict[str, Any] = field(default_factory=dict)
+    model_config = ConfigDict(frozen=True)
+
+    id: str = Field(description="Unique problem ID")
+    problem_type: ProblemType = Field(description="Type of math problem")
+    problem_text: str = Field(description="Problem description")
+    expression: str = Field(description="The mathematical expression")
+    answer: float = Field(description="Numeric answer")
+    answer_exact: str | None = Field(default=None, description="Exact answer for fractions, etc.")
+    unit: str | None = Field(default=None, description="Unit of measurement")
+    difficulty: int = Field(default=1, ge=1, le=5, description="Difficulty level (1-5)")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
 
-@dataclass
-class ToolCallTrace:
+class ToolCallTrace(BaseModel):
     """A trace showing how to solve the problem with tools."""
 
-    tool_name: str
-    tool_args: dict[str, Any]
-    tool_result: Any
-    thought: str | None = None
+    model_config = ConfigDict(frozen=True)
+
+    tool_name: str = Field(description="Name of the tool called")
+    tool_args: dict[str, Any] = Field(description="Arguments passed to the tool")
+    tool_result: Any = Field(description="Result returned by the tool")
+    thought: str | None = Field(default=None, description="Chain of thought reasoning")
 
 
-@dataclass
-class TrainingSample:
+class TrainingSample(BaseModel):
     """A complete training sample."""
 
-    problem: MathProblem
-    correct_trace: list[ToolCallTrace]
-    correct_response: str
-    incorrect_responses: list[str] = field(default_factory=list)
+    model_config = ConfigDict(frozen=True)
+
+    problem: MathProblem = Field(description="The math problem")
+    correct_trace: list[ToolCallTrace] = Field(description="Correct tool call trace")
+    correct_response: str = Field(description="Correct response text")
+    incorrect_responses: list[str] = Field(default_factory=list, description="Incorrect responses")
