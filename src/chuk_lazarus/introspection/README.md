@@ -11,6 +11,8 @@ This module provides reusable tools for:
 - **Ablation studies** - Identify causal circuits by zeroing components
 - **Activation steering** - Modify behavior by adding directions to activations
 - **Circuit analysis** - Full pipeline for mechanistic interpretability research
+- **MoE introspection** - Expert identification, routing analysis, compression planning (25 CLI commands)
+- **Circuit export** - Export circuit graphs to DOT, JSON, Mermaid, HTML formats
 
 ## Quick Start
 
@@ -251,7 +253,66 @@ introspection/
     └── attention_heatmap.py
 ```
 
+## MoE Introspection
+
+Analyze Mixture of Experts models (GPT-OSS, Mixtral, Llama 4, Granite MoE):
+
+### CLI Commands
+
+```bash
+# Expert analysis - identify what each expert specializes in
+lazarus introspect moe-expert analyze -m openai/gpt-oss-20b
+
+# Generate routing heatmap visualization
+lazarus introspect moe-expert heatmap -m openai/gpt-oss-20b -p "def fib(n):"
+
+# Track expert pipelines across layers
+lazarus introspect moe-expert pipeline -m openai/gpt-oss-20b --num-prompts 20
+
+# Analyze expert vocabulary contributions
+lazarus introspect moe-expert vocab-contrib -m openai/gpt-oss-20b --top-k 30
+
+# Analyze compression opportunities
+lazarus introspect moe-expert compression -m openai/gpt-oss-20b --threshold 0.8
+
+# Export circuit graph
+lazarus introspect circuit export -i ablation_results.json -o circuit.html -f html
+```
+
+### Python API
+
+```python
+from chuk_lazarus.introspection.moe import ExpertRouter
+
+async with await ExpertRouter.from_pretrained("openai/gpt-oss-20b") as router:
+    # Get model info
+    info = router.info
+    print(f"Experts: {info.num_experts}, Active: {info.num_active_experts}")
+
+    # Analyze compression opportunities
+    analysis = await router.analyze_compression(prompts, layer_idx=12)
+    print(f"Merge candidates: {len(analysis.merge_candidates)}")
+```
+
+## Circuit Export
+
+Export ablation results or extracted directions as circuit graphs:
+
+```bash
+# Export to interactive HTML
+lazarus introspect circuit export -i ablation.json -o circuit.html -f html
+
+# Export to DOT (Graphviz)
+lazarus introspect circuit export -i ablation.json -o circuit.dot -f dot
+# Then render: dot -Tpng circuit.dot -o circuit.png
+
+# Export to Mermaid (for markdown docs)
+lazarus introspect circuit export -i ablation.json -o circuit.md -f mermaid
+```
+
 ## See Also
 
 - `examples/introspection/` - Research experiments and demos
 - `docs/introspection.md` - Conceptual documentation
+- `docs/tools/circuit-cli.md` - Circuit CLI documentation
+- `docs/roadmap-introspection-moe.md` - MoE roadmap and features

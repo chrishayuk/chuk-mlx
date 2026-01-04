@@ -309,6 +309,17 @@ chuk-lazarus introspect patch -m model --source "7*8=" --target "7+8="
 
 # Low-level hook demonstration
 chuk-lazarus introspect hooks -m model -p "Test" --layers 0,4,8 --capture-attention
+
+# MoE Expert Analysis (for MoE models like GPT-OSS, Mixtral, Llama 4)
+chuk-lazarus introspect moe-expert analyze -m openai/gpt-oss-20b
+chuk-lazarus introspect moe-expert heatmap -m openai/gpt-oss-20b -p "def fib(n):"
+chuk-lazarus introspect moe-expert pipeline -m openai/gpt-oss-20b --num-prompts 20
+chuk-lazarus introspect moe-expert vocab-contrib -m openai/gpt-oss-20b --top-k 30
+chuk-lazarus introspect moe-expert compression -m openai/gpt-oss-20b --threshold 0.8
+
+# Circuit Graph Export
+chuk-lazarus introspect circuit export -i ablation_results.json -o circuit.html -f html
+chuk-lazarus introspect circuit export -i ablation_results.json -o circuit.dot -f dot
 ```
 
 **MoE Expert Identification** - Discover what each expert specializes in:

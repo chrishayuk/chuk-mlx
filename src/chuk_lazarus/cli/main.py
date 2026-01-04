@@ -118,6 +118,7 @@ from .commands.introspect import (
     introspect_circuit_capture,
     introspect_circuit_compare,
     introspect_circuit_decode,
+    introspect_circuit_export,
     introspect_circuit_invoke,
     introspect_circuit_test,
     introspect_circuit_view,
@@ -2693,6 +2694,73 @@ Examples:
     )
     view_parser.set_defaults(func=introspect_circuit_view)
 
+    # Circuit export - export circuit to various formats
+    export_parser = circuit_subparsers.add_parser(
+        "export",
+        help="Export circuit graph to DOT, JSON, Mermaid, or HTML format",
+        description="""Export ablation or direction results as a circuit graph.
+
+Supports multiple output formats:
+- DOT (Graphviz): For rendering with graphviz tools
+- JSON: For programmatic processing
+- Mermaid: For embedding in documentation
+- HTML: Interactive visualization using vis.js
+
+Examples:
+    # Export ablation results to DOT
+    lazarus introspect circuit export -i ablation_results.json -o circuit.dot --format dot
+
+    # Export to interactive HTML
+    lazarus introspect circuit export -i ablation_results.json -o circuit.html --format html
+
+    # Export directions to Mermaid diagram
+    lazarus introspect circuit export -i directions.json -o circuit.md --format mermaid
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    export_parser.add_argument(
+        "--input",
+        "-i",
+        required=True,
+        help="Input file (ablation results JSON or directions JSON)",
+    )
+    export_parser.add_argument(
+        "--output",
+        "-o",
+        required=True,
+        help="Output file path",
+    )
+    export_parser.add_argument(
+        "--format",
+        "-f",
+        choices=["dot", "json", "mermaid", "html"],
+        default="json",
+        help="Output format (default: json)",
+    )
+    export_parser.add_argument(
+        "--type",
+        choices=["ablation", "directions"],
+        default="ablation",
+        help="Input data type: ablation results or extracted directions (default: ablation)",
+    )
+    export_parser.add_argument(
+        "--name",
+        help="Circuit name (default: derived from input file)",
+    )
+    export_parser.add_argument(
+        "--threshold",
+        type=float,
+        default=0.1,
+        help="Minimum effect threshold for ablation circuits (default: 0.1)",
+    )
+    export_parser.add_argument(
+        "--direction",
+        choices=["TB", "LR", "BT", "RL"],
+        default="TB",
+        help="Graph direction: TB (top-bottom), LR (left-right), etc. (default: TB)",
+    )
+    export_parser.set_defaults(func=introspect_circuit_export)
+
     # Virtual Expert command - add virtual experts to models
     virtual_expert_parser = introspect_subparsers.add_parser(
         "virtual-expert",
@@ -2781,6 +2849,10 @@ Actions:
   context-test  - Test if same token routes to same expert regardless of context
   vocab-map     - Map which expert 'owns' which tokens in vocabulary
   layer-sweep   - Sweep all 24 layers in one command, analyze expert patterns across model
+  heatmap       - Generate routing heatmap visualization
+  pipeline      - Track expert pipelines across layers
+  vocab-contrib - Analyze expert vocabulary contributions via LM head projection
+  compression   - Analyze compression opportunities with activation overlap
 
 Examples:
     # Analyze expert specializations (find the "math expert", "code expert", etc.)
@@ -2809,6 +2881,18 @@ Examples:
 
     # Sweep all layers to analyze expert taxonomy across the entire model
     lazarus introspect moe-expert layer-sweep -m openai/gpt-oss-20b
+
+    # Generate routing heatmap visualization
+    lazarus introspect moe-expert heatmap -m model -p "def fibonacci(n):"
+
+    # Track expert pipelines across layers
+    lazarus introspect moe-expert pipeline -m model --num-prompts 20
+
+    # Analyze expert vocabulary contributions
+    lazarus introspect moe-expert vocab-contrib -m model --top-k 30
+
+    # Analyze compression opportunities
+    lazarus introspect moe-expert compression -m model --threshold 0.8
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -2837,6 +2921,10 @@ Examples:
             "pattern-discovery",
             "full-taxonomy",
             "layer-sweep",
+            "heatmap",
+            "pipeline",
+            "vocab-contrib",
+            "compression",
         ],
         default="chat",
         help="Action to perform (default: chat)",
@@ -2907,6 +2995,60 @@ Examples:
     moe_expert_parser.add_argument(
         "--contexts",
         help="Comma-separated contexts to test (e.g., 'the cat,the dog,under the bridge')",
+    )
+    # Arguments for heatmap action
+    moe_expert_parser.add_argument(
+        "--prompts",
+        nargs="+",
+        help="Multiple prompts for heatmap/pipeline (e.g., --prompts 'Hello' 'World')",
+    )
+    moe_expert_parser.add_argument(
+        "--show-weights",
+        action="store_true",
+        help="For heatmap: show raw weight values in addition to expert indices",
+    )
+    # Arguments for vocab-contrib action
+    moe_expert_parser.add_argument(
+        "--top-k",
+        type=int,
+        default=50,
+        help="Top-k tokens per expert for vocab-contrib (default: 50)",
+    )
+    moe_expert_parser.add_argument(
+        "--vocab-sample",
+        type=int,
+        default=5000,
+        help="Number of vocabulary tokens to sample for vocab-contrib (default: 5000)",
+    )
+    moe_expert_parser.add_argument(
+        "--show-tokens",
+        action="store_true",
+        help="For vocab-contrib: show token-to-expert mapping details",
+    )
+    # Arguments for compression action
+    moe_expert_parser.add_argument(
+        "--threshold",
+        type=float,
+        default=0.8,
+        help="Similarity threshold for compression merge candidates (default: 0.8)",
+    )
+    moe_expert_parser.add_argument(
+        "--num-prompts",
+        type=int,
+        default=30,
+        help="Number of prompts for compression/pipeline analysis (default: 30)",
+    )
+    moe_expert_parser.add_argument(
+        "--show-overlap",
+        action="store_true",
+        help="For compression: show activation overlap matrix",
+    )
+    # Arguments for pipeline action
+    moe_expert_parser.add_argument(
+        "--min-coverage",
+        type=float,
+        default=0.3,
+        help="Minimum coverage for pipeline identification (default: 0.3)",
     )
     moe_expert_parser.set_defaults(func=introspect_moe_expert)
 

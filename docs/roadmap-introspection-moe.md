@@ -22,7 +22,7 @@ Position Lazarus as **"The only framework that understands your experts"** - the
 | Token-Level Router Transparency | `moe/expert_router.py` | Most tools show sequence-level only |
 | Co-activation Pair Analysis | `moe/router.py` | Reveals collaboration patterns |
 | Compression Planning | `moe/compression.py` | Actionable size/quality estimates |
-| 22+ CLI Handlers | `cli/commands/introspect/moe_expert/` | Unmatched UX |
+| 25 CLI Handlers | `cli/commands/introspect/moe_expert/` | Unmatched UX |
 
 ---
 
@@ -220,8 +220,20 @@ Transfer experts between models:
 pytest tests/introspection/moe/ -v
 
 # Example: Test top-k variation
-lazarus introspect moe-expert topk --model openai/gpt-oss-20b --k 1 --prompt "127 * 89 ="
+lazarus introspect moe-expert topk -m openai/gpt-oss-20b --k 1 -p "127 * 89 ="
 
 # Example: Generate routing heatmap
-lazarus introspect moe-expert heatmap --model openai/gpt-oss-20b --prompt "def fib(n):" --output heatmap.png
+lazarus introspect moe-expert heatmap -m openai/gpt-oss-20b -p "def fib(n):" -o heatmap.png
+
+# Example: Track expert pipelines across layers
+lazarus introspect moe-expert pipeline -m openai/gpt-oss-20b --num-prompts 20
+
+# Example: Analyze expert vocabulary contributions
+lazarus introspect moe-expert vocab-contrib -m openai/gpt-oss-20b --top-k 30
+
+# Example: Analyze compression opportunities
+lazarus introspect moe-expert compression -m openai/gpt-oss-20b --threshold 0.8
+
+# Example: Export circuit graph
+lazarus introspect circuit export -i ablation_results.json -o circuit.html -f html
 ```

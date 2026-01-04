@@ -13,6 +13,7 @@ __all__ = [
     "introspect_circuit_view",
     "introspect_circuit_compare",
     "introspect_circuit_decode",
+    "introspect_circuit_export",
 ]
 
 
@@ -1276,3 +1277,124 @@ def introspect_circuit_decode(args):
         with open(output_path, "w") as f:
             json.dump(output_data, f, indent=2)
         print(f"\nResults saved to: {output_path}")
+
+
+def introspect_circuit_export(args):
+    """Export circuit graph to various visualization formats.
+
+    Supports exporting ablation results or extracted directions as circuit
+    graphs in DOT (Graphviz), JSON, Mermaid, or interactive HTML format.
+
+    Example:
+        # Export ablation results to DOT
+        lazarus introspect circuit export -i ablation_results.json -o circuit.dot -f dot
+
+        # Export to interactive HTML
+        lazarus introspect circuit export -i ablation_results.json -o circuit.html -f html
+
+        # Export directions to Mermaid
+        lazarus introspect circuit export -i directions.json -o circuit.md -f mermaid --type directions
+    """
+    import json
+    from pathlib import Path
+
+    from ....introspection.circuit.export import (
+        create_circuit_from_ablation,
+        create_circuit_from_directions,
+        save_circuit,
+    )
+
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    output_format = getattr(args, "format", "json")
+    input_type = getattr(args, "type", "ablation")
+    circuit_name = getattr(args, "name", None) or input_path.stem
+    threshold = getattr(args, "threshold", 0.1)
+    direction = getattr(args, "direction", "TB")
+
+    # Load input data
+    if not input_path.exists():
+        print(f"Error: Input file not found: {input_path}")
+        return
+
+    print(f"Loading input from: {input_path}")
+
+    with open(input_path) as f:
+        data = json.load(f)
+
+    # Create circuit based on input type
+    if input_type == "ablation":
+        # Handle different ablation result formats
+        if isinstance(data, list):
+            ablation_results = data
+        elif "results" in data:
+            ablation_results = data["results"]
+        elif "ablations" in data:
+            ablation_results = data["ablations"]
+        else:
+            # Try to extract from any list-like field
+            for key, value in data.items():
+                if isinstance(value, list) and len(value) > 0:
+                    if isinstance(value[0], dict) and "layer" in value[0]:
+                        ablation_results = value
+                        break
+            else:
+                print("Error: Could not find ablation results in input file")
+                print("Expected a list of {layer, component, effect} dicts")
+                return
+
+        circuit = create_circuit_from_ablation(
+            ablation_results,
+            name=circuit_name,
+            threshold=threshold,
+        )
+        print(f"Created circuit from {len(ablation_results)} ablation results")
+        print(f"  Nodes: {circuit.num_nodes}, Edges: {circuit.num_edges}")
+        print(f"  Layers: {circuit.get_layers()}")
+
+    else:  # directions
+        if isinstance(data, list):
+            directions = data
+        elif "directions" in data:
+            directions = data["directions"]
+        else:
+            print("Error: Could not find directions in input file")
+            print("Expected a list of {layer, separation_score, name} dicts")
+            return
+
+        circuit = create_circuit_from_directions(
+            directions,
+            name=circuit_name,
+        )
+        print(f"Created circuit from {len(directions)} directions")
+        print(f"  Nodes: {circuit.num_nodes}, Edges: {circuit.num_edges}")
+
+    # Export to specified format
+    print(f"\nExporting to {output_format.upper()} format...")
+
+    # For DOT and Mermaid, we need to handle direction parameter
+    if output_format == "dot":
+        from ....introspection.circuit.export import export_circuit_to_dot
+
+        content = export_circuit_to_dot(circuit, rankdir=direction)
+        output_path.write_text(content)
+    elif output_format == "mermaid":
+        from ....introspection.circuit.export import export_circuit_to_mermaid
+
+        content = export_circuit_to_mermaid(circuit, direction=direction)
+        output_path.write_text(content)
+    else:
+        save_circuit(circuit, output_path, format=output_format)
+
+    print(f"Circuit exported to: {output_path}")
+
+    # Show usage hints
+    if output_format == "dot":
+        print("\nTo render as PNG:")
+        print(f"  dot -Tpng {output_path} -o circuit.png")
+        print("\nTo render as SVG:")
+        print(f"  dot -Tsvg {output_path} -o circuit.svg")
+    elif output_format == "html":
+        print(f"\nOpen {output_path} in a browser to view interactive graph")
+    elif output_format == "mermaid":
+        print("\nPaste the contents into a Mermaid-enabled editor or GitHub markdown")

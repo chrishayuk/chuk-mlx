@@ -133,6 +133,18 @@ class MoEAction(str, Enum):
     LAYER_SWEEP = "layer-sweep"
     """Sweep analysis across all layers."""
 
+    HEATMAP = "heatmap"
+    """Generate routing heatmap visualization."""
+
+    PIPELINE = "pipeline"
+    """Track expert pipelines across layers."""
+
+    VOCAB_CONTRIB = "vocab-contrib"
+    """Analyze expert vocabulary contributions."""
+
+    COMPRESSION = "compression"
+    """Analyze compression opportunities with activation overlap."""
+
     @property
     def handler_name(self) -> str:
         """Get the handler function/module name for this action."""

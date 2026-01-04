@@ -80,6 +80,14 @@ The introspection module provides tools for:
 | `lazarus introspect moe-expert collab` | Analyze expert co-activation patterns |
 | `lazarus introspect moe-expert pairs` | Test specific expert pairs/groups together |
 | `lazarus introspect moe-expert interactive` | Interactive expert explorer REPL |
+| `lazarus introspect moe-expert analyze` | Identify expert specializations across categories |
+| `lazarus introspect moe-expert trace` | Trace expert routing across ALL layers |
+| `lazarus introspect moe-expert entropy` | Analyze routing entropy (confidence) by layer |
+| `lazarus introspect moe-expert layer-sweep` | Sweep all layers, analyze expert patterns |
+| `lazarus introspect moe-expert heatmap` | Generate routing heatmap visualization |
+| `lazarus introspect moe-expert pipeline` | Track expert pipelines across layers |
+| `lazarus introspect moe-expert vocab-contrib` | Analyze expert vocabulary contributions |
+| `lazarus introspect moe-expert compression` | Analyze compression opportunities |
 
 ### Circuit Commands
 
@@ -91,6 +99,7 @@ The introspection module provides tools for:
 | `lazarus introspect circuit view` | View captured circuit contents |
 | `lazarus introspect circuit compare` | Compare multiple circuits for similarity |
 | `lazarus introspect circuit decode` | Decode circuit activations by injection |
+| `lazarus introspect circuit export` | Export circuit graph to DOT/JSON/Mermaid/HTML |
 
 ### Standalone Circuit CLI
 

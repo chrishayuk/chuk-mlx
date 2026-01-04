@@ -168,12 +168,12 @@ class TestMoEAction:
         assert MoEAction.PATTERN_DISCOVERY.handler_name == "pattern_discovery"
 
     def test_all_actions_count(self):
-        """Test that we have exactly 21 actions."""
+        """Test that we have exactly 25 actions."""
         actions = list(MoEAction)
-        assert len(actions) == 21
+        assert len(actions) == 25
 
     def test_all_expected_actions_exist(self):
-        """Test all 21 expected actions are defined."""
+        """Test all 25 expected actions are defined."""
         expected_actions = [
             "analyze",
             "chat",
@@ -196,6 +196,10 @@ class TestMoEAction:
             "pattern-discovery",
             "full-taxonomy",
             "layer-sweep",
+            "heatmap",
+            "pipeline",
+            "vocab-contrib",
+            "compression",
         ]
         actual_values = [a.value for a in MoEAction]
         for expected in expected_actions:

@@ -21,6 +21,7 @@ from .circuit import (
     introspect_circuit_capture,
     introspect_circuit_compare,
     introspect_circuit_decode,
+    introspect_circuit_export,
     introspect_circuit_invoke,
     introspect_circuit_test,
     introspect_circuit_view,
@@ -103,6 +104,7 @@ __all__ = [
     "introspect_circuit_view",
     "introspect_circuit_compare",
     "introspect_circuit_decode",
+    "introspect_circuit_export",
     # Layer
     "introspect_layer",
     "introspect_format_sensitivity",
