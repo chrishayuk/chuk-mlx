@@ -40,6 +40,7 @@ def _get_handlers() -> dict[MoEAction, HandlerFunc]:
         handle_layer_sweep,
         handle_pairs,
         handle_pattern_discovery,
+        handle_pattern_track,
         handle_pipeline,
         handle_role,
         handle_router_probe,
@@ -77,6 +78,7 @@ def _get_handlers() -> dict[MoEAction, HandlerFunc]:
         MoEAction.PIPELINE: handle_pipeline,
         MoEAction.VOCAB_CONTRIB: handle_vocab_contrib,
         MoEAction.COMPRESSION: handle_compression,
+        MoEAction.PATTERN_TRACK: handle_pattern_track,
     }
 
 

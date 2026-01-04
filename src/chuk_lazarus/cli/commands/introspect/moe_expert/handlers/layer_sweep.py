@@ -167,13 +167,15 @@ async def _async_layer_sweep(args: Namespace) -> None:
                 ("code", "def foo():"),
             ]
 
-        print(f"Testing with {len(prompts)} prompts...")
+        total_prompts = len(prompts)
+        batch_size = 50  # Report progress every 50 prompts
+        print(f"Testing with {total_prompts} prompts...")
         print()
 
         # Analyze each layer
         layer_profiles: list[LayerPatternProfile] = []
 
-        for layer_idx in target_layers:
+        for layer_num, layer_idx in enumerate(target_layers, 1):
             layer_fraction = layer_idx / max(info.moe_layers) if info.moe_layers else 0
 
             profile = LayerPatternProfile(
@@ -182,7 +184,11 @@ async def _async_layer_sweep(args: Namespace) -> None:
                 total_activations=0,
             )
 
-            for subcat, prompt in prompts:
+            print(f"[Layer {layer_num}/{len(target_layers)}] L{layer_idx}: ", end="", flush=True)
+            processed = 0
+            errors = 0
+
+            for i, (subcat, prompt) in enumerate(prompts):
                 try:
                     weights = await router.capture_router_weights(prompt, layers=[layer_idx])
                     if not weights:
@@ -210,8 +216,21 @@ async def _async_layer_sweep(args: Namespace) -> None:
                                     profile.pattern_experts[subcat] = Counter()
                                 profile.pattern_experts[subcat][exp_idx] += 1
 
+                    processed += 1
+
                 except Exception:
+                    errors += 1
                     continue
+
+                # Progress indicator every batch_size prompts
+                if (i + 1) % batch_size == 0:
+                    print(".", end="", flush=True)
+
+            # Summary for this layer
+            print(f" {processed}/{total_prompts} OK", end="")
+            if errors > 0:
+                print(f" ({errors} errors)", end="")
+            print(f" | {profile.total_activations} activations, {len(profile.workhorses)} workhorses")
 
             layer_profiles.append(profile)
 

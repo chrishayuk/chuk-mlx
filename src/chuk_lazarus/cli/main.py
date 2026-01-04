@@ -2853,6 +2853,7 @@ Actions:
   pipeline      - Track expert pipelines across layers
   vocab-contrib - Analyze expert vocabulary contributions via LM head projection
   compression   - Analyze compression opportunities with activation overlap
+  pattern-track - Track a specific pattern (e.g., SEQUENCE_START) across all layers
 
 Examples:
     # Analyze expert specializations (find the "math expert", "code expert", etc.)
@@ -2925,6 +2926,7 @@ Examples:
             "pipeline",
             "vocab-contrib",
             "compression",
+            "pattern-track",
         ],
         default="chat",
         help="Action to perform (default: chat)",
@@ -2972,6 +2974,16 @@ Examples:
     moe_expert_parser.add_argument(
         "--layers",
         help="Layers to analyze (comma-separated or 'all'). For layer-sweep: specific layers to test",
+    )
+    moe_expert_parser.add_argument(
+        "--pattern",
+        help="Pattern to track for pattern-track command (e.g., SEQUENCE_START, AFTER_NUMBER, AFTER_WORD)",
+    )
+    moe_expert_parser.add_argument(
+        "--examples",
+        type=int,
+        default=4,
+        help="Number of example prompts to show per pattern (default: 4)",
     )
     moe_expert_parser.add_argument(
         "--compare-singles",

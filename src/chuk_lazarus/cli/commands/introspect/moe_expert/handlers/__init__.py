@@ -25,6 +25,7 @@ from .interactive import handle_interactive
 from .layer_sweep import handle_layer_sweep
 from .pairs import handle_pairs
 from .pattern_discovery import handle_pattern_discovery
+from .pattern_track import handle_pattern_track
 from .pipeline import handle_pipeline
 from .role import handle_role
 from .router_probe import handle_router_probe
@@ -52,6 +53,7 @@ __all__ = [
     "handle_layer_sweep",
     "handle_pairs",
     "handle_pattern_discovery",
+    "handle_pattern_track",
     "handle_pipeline",
     "handle_role",
     "handle_router_probe",

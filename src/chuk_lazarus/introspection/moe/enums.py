@@ -145,6 +145,9 @@ class MoEAction(str, Enum):
     COMPRESSION = "compression"
     """Analyze compression opportunities with activation overlap."""
 
+    PATTERN_TRACK = "pattern-track"
+    """Track a specific pattern across all layers."""
+
     @property
     def handler_name(self) -> str:
         """Get the handler function/module name for this action."""
