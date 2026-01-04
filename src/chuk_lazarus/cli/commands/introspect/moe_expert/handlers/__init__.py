@@ -11,56 +11,34 @@ framework calls, and output formatting.
 
 from .ablate import handle_ablate
 from .analyze import handle_analyze
+from .attention_pattern import handle_attention_pattern
+from .attention_routing import handle_attention_routing
 from .chat import handle_chat
-from .collaboration import handle_collaboration
 from .compare import handle_compare
-from .compression import handle_compression
 from .context_test import handle_context_test
-from .control_tokens import handle_control_tokens
-from .divergence import handle_divergence
-from .entropy import handle_entropy
+from .context_window import handle_context_window
+from .domain_test import handle_domain_test
+from .explore import handle_explore
 from .full_taxonomy import handle_full_taxonomy
 from .heatmap import handle_heatmap
-from .interactive import handle_interactive
-from .layer_sweep import handle_layer_sweep
-from .pairs import handle_pairs
-from .pattern_discovery import handle_pattern_discovery
-from .pattern_track import handle_pattern_track
-from .pipeline import handle_pipeline
-from .role import handle_role
-from .router_probe import handle_router_probe
-from .tokenizer import handle_tokenizer
-from .topk import handle_topk
+from .token_routing import handle_token_routing
 from .trace import handle_trace
-from .vocab_contrib import handle_vocab_contrib
-from .vocab_map import handle_vocab_map
 from .weights import handle_weights
 
 __all__ = [
     "handle_ablate",
     "handle_analyze",
+    "handle_attention_pattern",
+    "handle_attention_routing",
     "handle_chat",
-    "handle_collaboration",
     "handle_compare",
-    "handle_compression",
     "handle_context_test",
-    "handle_control_tokens",
-    "handle_divergence",
-    "handle_entropy",
+    "handle_context_window",
+    "handle_domain_test",
+    "handle_explore",
     "handle_full_taxonomy",
     "handle_heatmap",
-    "handle_interactive",
-    "handle_layer_sweep",
-    "handle_pairs",
-    "handle_pattern_discovery",
-    "handle_pattern_track",
-    "handle_pipeline",
-    "handle_role",
-    "handle_router_probe",
-    "handle_tokenizer",
-    "handle_topk",
+    "handle_token_routing",
     "handle_trace",
-    "handle_vocab_contrib",
-    "handle_vocab_map",
     "handle_weights",
 ]

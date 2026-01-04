@@ -2828,72 +2828,47 @@ Examples:
     moe_expert_parser = introspect_subparsers.add_parser(
         "moe-expert",
         help="Direct manipulation of MoE expert routing",
-        description="""MoE Expert Explorer - Talk to individual experts, compare them, or ablate them.
+        description="""MoE Expert Explorer - Analyze how MoE models route tokens to experts.
 
 Actions:
+  explore       - Interactive REPL for real-time expert analysis (default)
   analyze       - Identify expert specializations across all categories
-  chat          - Force all routing to a specific expert
-  compare       - Compare multiple experts on the same prompt
-  ablate        - Remove an expert and see what breaks
-  topk          - Experiment with different top-k values
-  collab        - Analyze expert co-activation patterns
-  pairs         - Test specific expert pairs/groups together
-  interactive   - Interactive explorer REPL
-  weights       - Show router confidence/weights for expert selections
-  tokenizer     - Analyze control tokens in the tokenizer
-  control-tokens - Analyze which experts handle control tokens
-  trace         - Trace expert routing across ALL layers for a prompt
-  entropy       - Analyze routing entropy (confidence) by layer
-  divergence    - Compare routing distributions between prompt groups
-  role          - Analyze what layers are most confident on (single tokens vs mixed)
-  context-test  - Test if same token routes to same expert regardless of context
-  vocab-map     - Map which expert 'owns' which tokens in vocabulary
-  layer-sweep   - Sweep all 24 layers in one command, analyze expert patterns across model
+  chat          - Force all routing through a single expert
+  compare       - Compare outputs from multiple specific experts
+  ablate        - Remove an expert from routing (see what breaks)
+  weights       - Show router weights for a prompt
+  trace         - Trace expert assignments across layers
   heatmap       - Generate routing heatmap visualization
-  pipeline      - Track expert pipelines across layers
-  vocab-contrib - Analyze expert vocabulary contributions via LM head projection
-  compression   - Analyze compression opportunities with activation overlap
-  pattern-track - Track a specific pattern (e.g., SEQUENCE_START) across all layers
+  full-taxonomy  - Semantic trigram pattern analysis across categories
+  domain-test    - Demonstrate that domain experts don't exist
+  token-routing  - Demonstrate that single token routing is context-dependent
+  context-test   - Test context independence of routing
+  context-window   - Test how much context the router uses (trigram vs attention)
+  attention-routing - Analyze how attention patterns drive expert routing
+  attention-pattern - Show attention weights for a specific position
+
+Quick Start:
+    # Interactive explorer (recommended starting point)
+    lazarus introspect moe-expert explore -m openai/gpt-oss-20b
 
 Examples:
-    # Analyze expert specializations (find the "math expert", "code expert", etc.)
-    lazarus introspect moe-expert analyze -m openai/gpt-oss-20b
+    # Prove domain experts don't exist (7+ experts handle ALL domains)
+    lazarus introspect moe-expert domain-test -m openai/gpt-oss-20b
 
-    # Chat with Expert 6 (force all tokens through it)
-    lazarus introspect moe-expert chat -m openai/gpt-oss-20b --expert 6 -p "127 * 89 = "
+    # Show same token routes to different experts based on context
+    lazarus introspect moe-expert token-routing -m openai/gpt-oss-20b
 
-    # Compare Experts 6, 7, and 20 on the same prompt
-    lazarus introspect moe-expert compare -m model --experts 6,7,20 -p "def fibonacci(n):"
-
-    # Kill the math expert and see what breaks
-    lazarus introspect moe-expert ablate -m model --expert 6 -p "127 * 89 = " --benchmark
-
-    # Try k=1 (pure specialist) vs k=8 (more collaboration)
-    lazarus introspect moe-expert topk -m model --k 1 -p "Hello world" --compare-k "1,2,4,8"
-
-    # Analyze expert collaboration patterns
-    lazarus introspect moe-expert collab -m model -p "127 * 89 = "
-
-    # Test specific expert pairs together
-    lazarus introspect moe-expert pairs -m model --experts 6,7 -p "127 * 89 = " --benchmark
-
-    # Interactive explorer
-    lazarus introspect moe-expert interactive -m model
-
-    # Sweep all layers to analyze expert taxonomy across the entire model
-    lazarus introspect moe-expert layer-sweep -m openai/gpt-oss-20b
+    # Full semantic trigram taxonomy analysis
+    lazarus introspect moe-expert full-taxonomy -m openai/gpt-oss-20b
 
     # Generate routing heatmap visualization
     lazarus introspect moe-expert heatmap -m model -p "def fibonacci(n):"
 
-    # Track expert pipelines across layers
-    lazarus introspect moe-expert pipeline -m model --num-prompts 20
+    # Chat with Expert 6 (force all tokens through it)
+    lazarus introspect moe-expert chat -m openai/gpt-oss-20b --expert 6 -p "127 * 89 = "
 
-    # Analyze expert vocabulary contributions
-    lazarus introspect moe-expert vocab-contrib -m model --top-k 30
-
-    # Analyze compression opportunities
-    lazarus introspect moe-expert compression -m model --threshold 0.8
+    # Kill an expert and see what breaks
+    lazarus introspect moe-expert ablate -m model --expert 6 -p "127 * 89 = " --benchmark
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -2901,35 +2876,28 @@ Examples:
         "action",
         nargs="?",
         choices=[
+            # Interactive
+            "explore",
+            # Core analysis
+            "analyze",
             "chat",
             "compare",
             "ablate",
-            "topk",
-            "collab",
-            "pairs",
-            "interactive",
-            "analyze",
+            # Routing visualization
             "weights",
-            "tokenizer",
-            "control-tokens",
             "trace",
-            "entropy",
-            "divergence",
-            "role",
-            "context-test",
-            "vocab-map",
-            "router-probe",
-            "pattern-discovery",
-            "full-taxonomy",
-            "layer-sweep",
             "heatmap",
-            "pipeline",
-            "vocab-contrib",
-            "compression",
-            "pattern-track",
+            # Semantic trigram methodology
+            "full-taxonomy",
+            "domain-test",
+            "token-routing",
+            "context-test",
+            "context-window",
+            "attention-routing",
+            "attention-pattern",
         ],
-        default="chat",
-        help="Action to perform (default: chat)",
+        default="explore",
+        help="Action to perform (default: explore)",
     )
     moe_expert_parser.add_argument(
         "--model",
@@ -2953,31 +2921,18 @@ Examples:
         help="Prompt to test",
     )
     moe_expert_parser.add_argument(
-        "--k",
-        type=int,
-        help="Top-k value for topk action",
-    )
-    moe_expert_parser.add_argument(
-        "--compare-k",
-        help="Compare multiple k values (comma-separated, e.g., '1,2,4,8')",
-    )
-    moe_expert_parser.add_argument(
         "--benchmark",
         action="store_true",
-        help="Run ablation/pairs on multiple problems",
+        help="Run ablation benchmark on multiple problems",
     )
     moe_expert_parser.add_argument(
         "--layer",
         type=int,
-        help="Target MoE layer for collab analysis (default: middle layer)",
+        help="Target MoE layer for analysis (default: middle layer)",
     )
     moe_expert_parser.add_argument(
         "--layers",
-        help="Layers to analyze (comma-separated or 'all'). For layer-sweep: specific layers to test",
-    )
-    moe_expert_parser.add_argument(
-        "--pattern",
-        help="Pattern to track for pattern-track command (e.g., SEQUENCE_START, AFTER_NUMBER, AFTER_WORD)",
+        help="Layers to analyze for trace (comma-separated or 'all')",
     )
     moe_expert_parser.add_argument(
         "--examples",
@@ -2986,18 +2941,9 @@ Examples:
         help="Number of example prompts to show per pattern (default: 4)",
     )
     moe_expert_parser.add_argument(
-        "--compare-singles",
-        action="store_true",
-        help="For pairs: also compare individual experts in the group",
-    )
-    moe_expert_parser.add_argument(
         "--output",
         "-o",
         help="Save results to JSON file",
-    )
-    moe_expert_parser.add_argument(
-        "--compare-prompts",
-        help="For divergence: comma-separated prompts for group B comparison",
     )
     moe_expert_parser.add_argument(
         "--token",
@@ -3012,55 +2958,23 @@ Examples:
     moe_expert_parser.add_argument(
         "--prompts",
         nargs="+",
-        help="Multiple prompts for heatmap/pipeline (e.g., --prompts 'Hello' 'World')",
+        help="Multiple prompts for heatmap (e.g., --prompts 'Hello' 'World')",
     )
     moe_expert_parser.add_argument(
         "--show-weights",
         action="store_true",
         help="For heatmap: show raw weight values in addition to expert indices",
     )
-    # Arguments for vocab-contrib action
+    # Arguments for full-taxonomy action
     moe_expert_parser.add_argument(
-        "--top-k",
-        type=int,
-        default=50,
-        help="Top-k tokens per expert for vocab-contrib (default: 50)",
+        "--categories",
+        help="Comma-separated categories for full-taxonomy (e.g., 'arithmetic,code,analogy')",
     )
     moe_expert_parser.add_argument(
-        "--vocab-sample",
-        type=int,
-        default=5000,
-        help="Number of vocabulary tokens to sample for vocab-contrib (default: 5000)",
-    )
-    moe_expert_parser.add_argument(
-        "--show-tokens",
+        "--verbose",
+        "-v",
         action="store_true",
-        help="For vocab-contrib: show token-to-expert mapping details",
-    )
-    # Arguments for compression action
-    moe_expert_parser.add_argument(
-        "--threshold",
-        type=float,
-        default=0.8,
-        help="Similarity threshold for compression merge candidates (default: 0.8)",
-    )
-    moe_expert_parser.add_argument(
-        "--num-prompts",
-        type=int,
-        default=30,
-        help="Number of prompts for compression/pipeline analysis (default: 30)",
-    )
-    moe_expert_parser.add_argument(
-        "--show-overlap",
-        action="store_true",
-        help="For compression: show activation overlap matrix",
-    )
-    # Arguments for pipeline action
-    moe_expert_parser.add_argument(
-        "--min-coverage",
-        type=float,
-        default=0.3,
-        help="Minimum coverage for pipeline identification (default: 0.3)",
+        help="Show detailed output (e.g., expert specializations for full-taxonomy)",
     )
     moe_expert_parser.set_defaults(func=introspect_moe_expert)
 

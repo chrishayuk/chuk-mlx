@@ -70,6 +70,7 @@ class ExpertRole(str, Enum):
 class MoEAction(str, Enum):
     """Available MoE expert CLI actions."""
 
+    # Core analysis
     ANALYZE = "analyze"
     """Analyze expert routing patterns across prompts."""
 
@@ -82,71 +83,41 @@ class MoEAction(str, Enum):
     ABLATE = "ablate"
     """Ablate (remove) an expert from routing."""
 
-    TOPK = "topk"
-    """Vary top-k expert selection."""
-
-    COLLABORATION = "collab"
-    """Analyze expert co-activation patterns."""
-
-    PAIRS = "pairs"
-    """Test specific expert pairs/groups."""
-
-    INTERACTIVE = "interactive"
-    """Interactive expert explorer mode."""
-
+    # Routing visualization
     WEIGHTS = "weights"
     """Show router weights for a prompt."""
 
-    TOKENIZER = "tokenizer"
-    """Analyze tokenizer-expert relationships."""
-
-    CONTROL_TOKENS = "control-tokens"
-    """Analyze control token expert assignments."""
-
     TRACE = "trace"
-    """Trace token-level expert assignments."""
-
-    ENTROPY = "entropy"
-    """Analyze routing entropy across layers."""
-
-    DIVERGENCE = "divergence"
-    """Analyze layer divergence in routing."""
-
-    ROLE = "role"
-    """Analyze layer-specific roles."""
-
-    CONTEXT_TEST = "context-test"
-    """Test context independence of routing."""
-
-    VOCAB_MAP = "vocab-map"
-    """Map vocabulary to expert assignments."""
-
-    ROUTER_PROBE = "router-probe"
-    """Probe router inputs and outputs."""
-
-    PATTERN_DISCOVERY = "pattern-discovery"
-    """Discover expert activation patterns."""
-
-    FULL_TAXONOMY = "full-taxonomy"
-    """Generate full expert taxonomy."""
-
-    LAYER_SWEEP = "layer-sweep"
-    """Sweep analysis across all layers."""
+    """Trace token-level expert assignments across layers."""
 
     HEATMAP = "heatmap"
     """Generate routing heatmap visualization."""
 
-    PIPELINE = "pipeline"
-    """Track expert pipelines across layers."""
+    # Semantic trigram methodology
+    FULL_TAXONOMY = "full-taxonomy"
+    """Semantic trigram pattern analysis across categories."""
 
-    VOCAB_CONTRIB = "vocab-contrib"
-    """Analyze expert vocabulary contributions."""
+    DOMAIN_TEST = "domain-test"
+    """Demonstrate that domain experts don't exist."""
 
-    COMPRESSION = "compression"
-    """Analyze compression opportunities with activation overlap."""
+    TOKEN_ROUTING = "token-routing"
+    """Demonstrate that single token routing is context-dependent."""
 
-    PATTERN_TRACK = "pattern-track"
-    """Track a specific pattern across all layers."""
+    CONTEXT_TEST = "context-test"
+    """Test context independence of routing."""
+
+    CONTEXT_WINDOW = "context-window"
+    """Test how much context the router actually uses (trigram vs full attention)."""
+
+    ATTENTION_ROUTING = "attention-routing"
+    """Analyze how attention patterns drive expert routing decisions."""
+
+    ATTENTION_PATTERN = "attention-pattern"
+    """Show attention weights for a specific position."""
+
+    # Interactive
+    EXPLORE = "explore"
+    """Interactive expert explorer for real-time analysis."""
 
     @property
     def handler_name(self) -> str:

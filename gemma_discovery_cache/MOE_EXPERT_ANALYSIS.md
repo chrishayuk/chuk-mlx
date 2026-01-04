@@ -2,7 +2,46 @@
 
 ## Executive Summary
 
-We analyzed the 32 experts in GPT-OSS-20B (a Mixture-of-Experts model with top-4 routing) to understand expert specialization patterns. The key finding: **experts don't specialize by semantic domain (math, code, facts) - they specialize by token type within those domains**.
+We analyzed the 32 experts in GPT-OSS-20B (a Mixture-of-Experts model with top-4 routing) to understand expert specialization patterns. The key finding: **experts don't specialize by semantic domain (math, code, facts) - they specialize by token context type**.
+
+---
+
+## IMPORTANT: Stability Assessment
+
+### What's Stable (Survived All Tests)
+
+| Finding | Evidence | Confidence |
+|---------|----------|------------|
+| **Attention dominates router input** | 96% of router signal from attention output | HIGH |
+| **Context changes routing** | "111 127" → E15, "abc 127" → E16 | HIGH |
+| **No domain specialists** | No expert >60% concentrated in math/code/etc | HIGH |
+| **768 independent MLPs** | Each layer has its own 32 experts | CONFIRMED |
+| **Expert IDs layer-local** | E31@L9 ≠ E31@L12 | CONFIRMED |
+
+### What's Unstable (Changed With Sample Size)
+
+| Finding | 50 prompts | 520 prompts | Status |
+|---------|------------|-------------|--------|
+| "E31 is SEQUENCE_START specialist" | 100% confidence | 17-25% confidence | **UNSTABLE** |
+| "3 workhorses per layer" | 3 | 6-7 | **UNSTABLE** |
+| Specific expert IDs | E31 | E5, E18, E23 (varies by layer) | **UNSTABLE** |
+| "78% to 3 experts" | Measured at L9 | Different at other layers | **LAYER-SPECIFIC** |
+
+### Why Results Change With Sample Size
+
+1. **We only track top-1 expert** - Model uses top-4 per token
+2. **Pattern classification may be too narrow** - SEQUENCE_START is just position 0
+3. **Confidence percentages are distributed** - 25% top-expert doesn't mean "specialist"
+4. **Layer 9 is not representative** - Other layers have different distributions
+
+### Open Questions (Need More Research)
+
+1. **Top-1 vs Top-4 distribution** - What's the full 4-expert routing pattern?
+2. **Token position confounds** - Are we conflating position effects with pattern effects?
+3. **Cross-model validation** - Does GPT-OSS behave like Mixtral? Like Gemma?
+4. **Ablation impact** - What happens when we knock out specific experts?
+
+---
 
 ## Model Configuration
 
@@ -352,6 +391,13 @@ lazarus introspect moe-expert entropy -m openai/gpt-oss-20b -p "127 * 89 = "
 lazarus introspect moe-expert divergence -m openai/gpt-oss-20b \
   -p "127 * 89 = ,2 + 2 = ,456 + 789 = " \
   --compare-prompts "The quick brown fox,Hello world,Once upon a time"
+
+# PART 13: Layer sweep with concentration metrics
+lazarus introspect moe-expert layer-sweep -m openai/gpt-oss-20b --layers all
+
+# PART 14: Track specific pattern across layers (video-ready output)
+lazarus introspect moe-expert pattern-track -m openai/gpt-oss-20b \
+  --pattern SEQUENCE_START --layers all
 ```
 
 ---
@@ -1446,6 +1492,8 @@ lazarus introspect moe-expert trace -m openai/gpt-oss-20b -p "127 * 89"
 | `router-probe` | Decompose router input | 96% signal from attention |
 | `pattern-discovery` | Find routing rules | E31=start, E15=num, E16=word |
 | `full-taxonomy` | Complete 32-expert mapping | 3 handle 78%, 18 unused |
+| `layer-sweep` | Sweep all layers with metrics | Gini coefficient, concentration |
+| `pattern-track` | Track pattern across layers | Expert handoffs, specialist→generalist |
 
 ### Test Prompts Used
 

@@ -1,21 +1,18 @@
-"""Handler for 'full-taxonomy' action - semantic trigram pattern analysis.
+"""Complete Semantic Trigram Taxonomy for MoE Expert Analysis.
 
-This implements the validated semantic trigram methodology for expert analysis:
-- Classifies tokens into 20+ semantic types (NUM, OP, KW, NOUN, ADJ, VERB, etc.)
-- Analyzes trigram patterns (PREV→CURR→NEXT) for expert specialization
-- Groups patterns into categories (arithmetic, code, semantic relationships, etc.)
-- Shows layer evolution for each category
+This implements a comprehensive token classification and pattern detection
+system to analyze what sequence patterns each expert specializes on.
 """
-
-from __future__ import annotations
 
 import asyncio
 import re
-from argparse import Namespace
+import sys
 from collections import Counter, defaultdict
+from pathlib import Path
 
-from ......introspection.moe import ExpertRouter
-from ..formatters import format_header
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from chuk_lazarus.introspection.moe import ExpertRouter
 
 
 # =============================================================================
@@ -89,6 +86,9 @@ COMPARISON_WORDS = {"than", "more", "less", "most", "least", "better", "worse", 
 
 # Coordination
 COORD_WORDS = {"and", "or", "but", "nor", "yet", "so"}
+
+# Prepositions (for context switching)
+PREPOSITIONS = {"in", "on", "at", "to", "for", "with", "by", "from", "about", "into", "through", "during"}
 
 
 def classify_token(token: str) -> str:
@@ -174,6 +174,10 @@ def classify_token(token: str) -> str:
     if clean in COORD_WORDS:
         return "COORD"
 
+    # Prepositions
+    if clean in PREPOSITIONS:
+        return "PREP"
+
     # Parts of speech
     if clean in NOUNS:
         return "NOUN"
@@ -213,16 +217,14 @@ TEST_PROMPTS = {
         "20 / 4 = 5",
     ],
     "code": [
-        "def hello(name):",
+        "def fibonacci(n):",
         "for i in range(10):",
         "if x > 0: return x",
         "async def fetch():",
         "class MyClass:",
         "while True: break",
-        "try: x = 1",
+        "try: x = 1 except: pass",
         "lambda x: x * 2",
-        "import os",
-        "from sys import path",
     ],
     "synonym": [
         "Happy means joyful.",
@@ -301,6 +303,18 @@ TEST_PROMPTS = {
         "Many people attended.",
         "Few options remain.",
     ],
+    "code": [
+        "def hello(name):",
+        "for i in range(10):",
+        "if x > 0: return x",
+        "class MyClass:",
+        "while True: break",
+        "async def fetch():",
+        "import os",
+        "from sys import path",
+        "try: x = 1",
+        "lambda x: x * 2",
+    ],
     "context_switch": [
         "The result is 42.",
         "Calculate x + y first.",
@@ -340,7 +354,7 @@ TEST_PROMPTS = {
 
 PATTERN_CATEGORIES = {
     "arithmetic": ["NUM→OP", "OP→WS→NUM", "OP→NUM", "NUM→WS→NUM"],
-    "code": ["^→KW", "KW→CW→BR", "KW→VAR", "BR→VAR→BR", "VAR→OP→VAR", "KW→BR", "CW→OP→CW"],
+    "code_structure": ["^→KW", "KW→CW", "KW→BR", "BR→CW→BR", "CW→OP→CW"],
     "synonym": ["→SYN→", "ADJ→SYN", "NOUN→SYN"],
     "antonym": ["→ANT→", "ADJ→ANT", "NOUN→ANT"],
     "analogy": ["→AS→", "→TO→", "NOUN→AS", "FUNC→TO→NOUN"],
@@ -353,38 +367,18 @@ PATTERN_CATEGORIES = {
     "temporal": ["^→TIME", "→TIME→", "VERB→TIME"],
     "quantification": ["^→QUANT", "QUANT→NOUN", "QUANT→FUNC"],
     "position": ["^→CW", "^→NOUN", "^→NUM", "CW→PN→$", "NUM→PN→$", "^→CAP", "^→FUNC"],
+    "code": ["^→KW", "KW→CW→BR", "KW→VAR", "BR→VAR→BR", "VAR→OP→VAR", "KW→BR", "CW→OP→CW"],
     "context_switch": ["CW→WS→NUM", "NUM→WS→CW", "FUNC→NUM", "NUM→FUNC", "PN→WS→NUM", "CW→PN→NUM"],
     "coordination": ["NOUN→COORD→NOUN", "ADJ→COORD→ADJ", "VERB→COORD→VERB", "CW→COORD→CW", "→COORD→"],
 }
 
 
-def handle_full_taxonomy(args: Namespace) -> None:
-    """Handle the 'full-taxonomy' action - semantic trigram pattern analysis.
+# =============================================================================
+# MAIN ANALYSIS
+# =============================================================================
 
-    Analyzes expert routing using semantic trigram patterns to reveal:
-    - What token sequence patterns each expert specializes in
-    - How specialization evolves across layers
-    - Which categories (arithmetic, code, semantic relations) peak at which layers
-
-    Args:
-        args: Parsed CLI arguments. Required:
-            - model: Model ID
-        Optional:
-            - categories: Comma-separated list of categories (default: all)
-            - verbose: Show detailed per-pattern breakdown
-
-    Example:
-        lazarus introspect moe-expert full-taxonomy -m openai/gpt-oss-20b
-        lazarus introspect moe-expert full-taxonomy -m openai/gpt-oss-20b --categories code,arithmetic
-    """
-    asyncio.run(_async_full_taxonomy(args))
-
-
-async def _async_full_taxonomy(args: Namespace) -> None:
-    """Async implementation of semantic trigram taxonomy analysis."""
-    model_id = args.model
-    verbose = getattr(args, "verbose", False)
-    categories_arg = getattr(args, "categories", None)
+async def analyze_semantic_taxonomy(model_id: str, categories: list[str] | None = None):
+    """Run comprehensive semantic trigram analysis."""
 
     print(f"Loading model: {model_id}")
     async with await ExpertRouter.from_pretrained(model_id) as router:
@@ -392,9 +386,7 @@ async def _async_full_taxonomy(args: Namespace) -> None:
         print(f"Model: {info.num_experts} experts, {len(info.moe_layers)} MoE layers\n")
 
         # Select categories to analyze
-        if categories_arg:
-            categories = [c.strip() for c in categories_arg.split(",")]
-        else:
+        if categories is None:
             categories = list(TEST_PROMPTS.keys())
 
         # Collect all prompts
@@ -452,7 +444,9 @@ async def _async_full_taxonomy(args: Namespace) -> None:
         # OUTPUT RESULTS
         # =================================================================
 
-        print(format_header("SEMANTIC TRIGRAM TAXONOMY ANALYSIS"))
+        print("=" * 80)
+        print("SEMANTIC TRIGRAM TAXONOMY ANALYSIS")
+        print("=" * 80)
 
         # Per-category pattern analysis
         for cat in categories:
@@ -491,9 +485,10 @@ async def _async_full_taxonomy(args: Namespace) -> None:
                           f"{pe['trigram']:<24} (n={pe['count']:2d})  {ex}")
 
         # Layer evolution summary
-        print("\n" + format_header("LAYER EVOLUTION BY CATEGORY"))
-        layer_labels = " ".join(f"L{i:02d}" for i in range(0, 24, 4))
-        print(f"\n{'Category':<16} | {layer_labels}")
+        print("\n" + "=" * 80)
+        print("LAYER EVOLUTION BY CATEGORY")
+        print("=" * 80)
+        print(f"\n{'Category':<16} | " + " ".join(f"L{i:02d}" for i in range(0, 24, 4)))
         print("-" * 80)
 
         for cat in categories:
@@ -508,7 +503,9 @@ async def _async_full_taxonomy(args: Namespace) -> None:
             print(f"{cat:<16} | {bars}")
 
         # Find peak layers for each category
-        print("\n" + format_header("PEAK LAYERS BY CATEGORY"))
+        print("\n" + "=" * 80)
+        print("PEAK LAYERS BY CATEGORY")
+        print("=" * 80)
 
         for cat in categories:
             if cat not in PATTERN_CATEGORIES:
@@ -522,28 +519,13 @@ async def _async_full_taxonomy(args: Namespace) -> None:
                 peak_str = ", ".join(f"L{l}({c})" for l, c in peak_layers)
                 print(f"  {cat:<16}: {peak_str}")
 
-        # Expert specialization summary
-        if verbose:
-            print("\n" + format_header("TOP EXPERT SPECIALIZATIONS"))
 
-            # Aggregate trigrams across all layers for top experts
-            expert_total: Counter[tuple[int, int]] = Counter()
-            for key, counts in expert_trigrams.items():
-                expert_total[key] = sum(counts.values())
+if __name__ == "__main__":
+    model = sys.argv[1] if len(sys.argv) > 1 else "openai/gpt-oss-20b"
 
-            print(f"\n{'Expert':<10} {'Activations':<12} {'Top Pattern':<24} {'Category'}")
-            print("-" * 70)
+    # Parse categories if provided
+    categories = None
+    if len(sys.argv) > 2:
+        categories = sys.argv[2].split(",")
 
-            for (layer, exp), total in expert_total.most_common(20):
-                top_trigram = expert_trigrams[(layer, exp)].most_common(1)
-                if top_trigram:
-                    pattern, count = top_trigram[0]
-                    # Find which category this pattern belongs to
-                    cat_match = "general"
-                    for cat, patterns in PATTERN_CATEGORIES.items():
-                        if any(p in pattern for p in patterns):
-                            cat_match = cat
-                            break
-                    print(f"L{layer:02d} E{exp:02d}   {total:<12} {pattern:<24} {cat_match}")
-
-        print("\n" + "=" * 80)
+    asyncio.run(analyze_semantic_taxonomy(model, categories))

@@ -71,23 +71,68 @@ The introspection module provides tools for:
 
 ### MoE Expert Commands
 
+#### Interactive & Exploration
+
 | Command | Description |
 |---------|-------------|
+| `lazarus introspect moe-expert explore` | Interactive REPL for exploring expert routing in real-time |
 | `lazarus introspect moe-expert chat` | Force routing to a specific expert |
+| `lazarus introspect moe-expert interactive` | Interactive expert explorer REPL (legacy) |
+
+#### Analysis & Hypothesis Testing
+
+| Command | Description |
+|---------|-------------|
+| `lazarus introspect moe-expert domain-test` | Test if domain experts exist (demonstrates they don't) |
+| `lazarus introspect moe-expert token-routing` | Test if single tokens have stable routing (demonstrates context-dependence) |
+| `lazarus introspect moe-expert full-taxonomy` | Semantic trigram pattern analysis across categories |
+| `lazarus introspect moe-expert analyze` | Identify expert specializations across categories |
+
+#### Routing Visualization
+
+| Command | Description |
+|---------|-------------|
+| `lazarus introspect moe-expert trace` | Trace expert routing across ALL layers |
+| `lazarus introspect moe-expert weights` | Show router weights for a prompt |
+| `lazarus introspect moe-expert heatmap` | Generate routing heatmap visualization |
+| `lazarus introspect moe-expert entropy` | Analyze routing entropy (confidence) by layer |
+
+#### Expert Comparison & Ablation
+
+| Command | Description |
+|---------|-------------|
 | `lazarus introspect moe-expert compare` | Compare multiple experts on the same prompt |
 | `lazarus introspect moe-expert ablate` | Remove an expert and see what breaks |
 | `lazarus introspect moe-expert topk` | Experiment with different top-k values |
 | `lazarus introspect moe-expert collab` | Analyze expert co-activation patterns |
 | `lazarus introspect moe-expert pairs` | Test specific expert pairs/groups together |
-| `lazarus introspect moe-expert interactive` | Interactive expert explorer REPL |
-| `lazarus introspect moe-expert analyze` | Identify expert specializations across categories |
-| `lazarus introspect moe-expert trace` | Trace expert routing across ALL layers |
-| `lazarus introspect moe-expert entropy` | Analyze routing entropy (confidence) by layer |
+
+#### Advanced Analysis
+
+| Command | Description |
+|---------|-------------|
 | `lazarus introspect moe-expert layer-sweep` | Sweep all layers, analyze expert patterns |
-| `lazarus introspect moe-expert heatmap` | Generate routing heatmap visualization |
 | `lazarus introspect moe-expert pipeline` | Track expert pipelines across layers |
 | `lazarus introspect moe-expert vocab-contrib` | Analyze expert vocabulary contributions |
 | `lazarus introspect moe-expert compression` | Analyze compression opportunities |
+
+#### Quick Start: Video Demo Workflow
+
+```bash
+# 1. Show that "domain experts" don't exist
+lazarus introspect moe-expert domain-test -m openai/gpt-oss-20b
+
+# 2. Show that single token routing is context-dependent
+lazarus introspect moe-expert token-routing -m openai/gpt-oss-20b --token 127
+
+# 3. Show the semantic trigram breakthrough
+lazarus introspect moe-expert full-taxonomy -m openai/gpt-oss-20b --categories arithmetic,analogy
+
+# 4. Interactive exploration
+lazarus introspect moe-expert explore -m openai/gpt-oss-20b
+# Then type: King is to queen as man is to woman
+# Compare: c "2 + 3 = 5"
+```
 
 ### Circuit Commands
 

@@ -187,7 +187,8 @@ class ExpertRouter:
         mlp = layer.mlp
 
         # Check for GPT-OSS batched experts style
-        if hasattr(mlp, "experts") and hasattr(mlp.experts, "gate_up_proj"):
+        # GPT-OSS uses quantized weights: gate_up_proj_blocks, down_proj_blocks
+        if hasattr(mlp, "experts") and hasattr(mlp.experts, "gate_up_proj_blocks"):
             return MoEImplementationType.GPT_OSS_BATCHED
 
         return MoEImplementationType.STANDARD
@@ -265,7 +266,11 @@ class ExpertRouter:
         temperature: float,
         apply_chat_template: bool,
     ) -> tuple[str, GenerationStats]:
-        """Synchronous implementation of forced expert generation."""
+        """Synchronous implementation of forced expert generation.
+
+        Uses router patching to force all tokens to route to a specific expert,
+        letting the model's own expert code handle the actual computation.
+        """
         # Apply chat template if requested
         if apply_chat_template and hasattr(self._tokenizer, "apply_chat_template"):
             if self._tokenizer.chat_template:
@@ -275,32 +280,60 @@ class ExpertRouter:
                 )
 
         input_ids = mx.array(self._tokenizer.encode(prompt))[None, :]
-        target_layers = layers if layers else list(self._info.moe_layers)
+        target_layers = set(layers) if layers else set(self._info.moe_layers)
+        forced_expert = expert_idx
 
-        # Store original forward functions
-        original_forwards: dict[int, Any] = {}
+        # Patch the router class to force routing to specific expert
+        # This lets the MoE layer's existing expert code handle everything
+        sample_layer = self._model.model.layers[list(target_layers)[0]]
+        router_class = type(sample_layer.mlp.router)
+        original_router_call = router_class.__call__
+
+        def patched_router_call(router_self: Any, x: mx.array) -> tuple[mx.array, mx.array]:
+            # Find which layer this router belongs to
+            layer_idx = -1
+            for i, layer in enumerate(self._model.model.layers):
+                if hasattr(layer, "mlp") and hasattr(layer.mlp, "router"):
+                    if layer.mlp.router is router_self:
+                        layer_idx = i
+                        break
+
+            # Only force routing for target layers
+            if layer_idx not in target_layers:
+                return original_router_call(router_self, x)
+
+            # Handle both 2D and 3D inputs
+            if x.ndim == 3:
+                x = x.reshape(-1, x.shape[-1])
+
+            num_tokens = x.shape[0]
+
+            # Force all tokens to route to the specified expert with weight 1.0
+            # Use k=1 to route to single expert
+            indices = mx.full((num_tokens, 1), forced_expert, dtype=mx.int32)
+            weights = mx.ones((num_tokens, 1), dtype=x.dtype)
+
+            return weights, indices
 
         try:
-            # Patch MoE layers to force expert
-            for layer_idx in target_layers:
-                layer = self._model.model.layers[layer_idx]
-                original_forwards[layer_idx] = layer.mlp.__call__
-
-                if self._moe_type == MoEImplementationType.GPT_OSS_BATCHED:
-                    layer.mlp.__call__ = self._make_forced_expert_forward_gpt_oss(
-                        layer.mlp, expert_idx
-                    )
-                else:
-                    layer.mlp.__call__ = self._make_forced_expert_forward_standard(
-                        layer.mlp, expert_idx
-                    )
+            # Apply class-level patch to router
+            router_class.__call__ = patched_router_call
 
             # Generate
             generated: list[int] = []
             cache = None
 
             for _ in range(max_tokens):
-                logits, cache = self._model(input_ids, cache=cache)
+                output = self._model(input_ids, cache=cache)
+                # Handle both tuple and ModelOutput returns
+                if hasattr(output, "logits"):
+                    logits = output.logits
+                    cache = getattr(output, "cache", None)
+                elif isinstance(output, tuple):
+                    logits, cache = output
+                else:
+                    logits = output
+                    cache = None
                 next_token = self._sample_token(logits, temperature)
                 generated.append(next_token)
 
@@ -312,9 +345,8 @@ class ExpertRouter:
             text = self._tokenizer.decode(generated)
 
         finally:
-            # Restore original forwards
-            for layer_idx, original in original_forwards.items():
-                self._model.model.layers[layer_idx].mlp.__call__ = original
+            # Restore original router class __call__
+            router_class.__call__ = original_router_call
 
         stats = GenerationStats(
             expert_idx=expert_idx,
@@ -325,44 +357,6 @@ class ExpertRouter:
         )
 
         return text, stats
-
-    def _make_forced_expert_forward_gpt_oss(self, mlp: nn.Module, expert_idx: int) -> Any:
-        """Create a forward function that forces routing to one expert (GPT-OSS style)."""
-
-        def forced_forward(x: mx.array) -> mx.array:
-            # Get the expert weights
-            experts = mlp.experts
-            gate_up = experts.gate_up_proj  # Shape: [num_experts, hidden, 2*intermediate]
-            down = experts.down_proj  # Shape: [num_experts, intermediate, hidden]
-
-            # Extract single expert weights
-            expert_gate_up = gate_up[expert_idx]  # [hidden, 2*intermediate]
-            expert_down = down[expert_idx]  # [intermediate, hidden]
-
-            # Apply SwiGLU
-            intermediate_size = expert_gate_up.shape[-1] // 2
-            gate_up_out = x @ expert_gate_up
-            gate = gate_up_out[..., :intermediate_size]
-            up = gate_up_out[..., intermediate_size:]
-
-            # SwiGLU activation
-            hidden = nn.silu(gate) * up
-
-            # Down projection
-            output = hidden @ expert_down.T
-
-            return output
-
-        return forced_forward
-
-    def _make_forced_expert_forward_standard(self, mlp: nn.Module, expert_idx: int) -> Any:
-        """Create a forward function that forces routing to one expert (standard MoE)."""
-
-        def forced_forward(x: mx.array) -> mx.array:
-            expert = mlp.experts[expert_idx]
-            return expert(x)
-
-        return forced_forward
 
     def _sample_token(self, logits: mx.array, temperature: float) -> int:
         """Sample a token from logits."""
@@ -446,24 +440,79 @@ class ExpertRouter:
         max_tokens: int,
         layers: list[int] | None,
     ) -> tuple[str, GenerationStats]:
-        """Synchronous implementation of ablated generation."""
+        """Synchronous implementation of ablated generation.
+
+        Uses router patching to exclude specific experts from routing,
+        letting the model's own expert code handle everything else.
+        """
         input_ids = mx.array(self._tokenizer.encode(prompt))[None, :]
-        target_layers = layers if layers else list(self._info.moe_layers)
+        target_layers = set(layers) if layers else set(self._info.moe_layers)
         ablate_set = set(expert_indices)
 
-        original_forwards: dict[int, Any] = {}
+        # Patch the router class to exclude ablated experts
+        sample_layer = self._model.model.layers[list(target_layers)[0]]
+        router_class = type(sample_layer.mlp.router)
+        original_router_call = router_class.__call__
+
+        def patched_router_call(router_self: Any, x: mx.array) -> tuple[mx.array, mx.array]:
+            # Find which layer this router belongs to
+            layer_idx = -1
+            for i, layer in enumerate(self._model.model.layers):
+                if hasattr(layer, "mlp") and hasattr(layer.mlp, "router"):
+                    if layer.mlp.router is router_self:
+                        layer_idx = i
+                        break
+
+            # Only modify routing for target layers
+            if layer_idx not in target_layers:
+                return original_router_call(router_self, x)
+
+            # Handle both 2D and 3D inputs
+            if x.ndim == 3:
+                x = x.reshape(-1, x.shape[-1])
+
+            # Compute router logits using router's own weights
+            logits = x @ router_self.weight.T
+            if hasattr(router_self, "bias") and router_self.bias is not None:
+                logits = logits + router_self.bias
+
+            # Mask out ablated experts with very negative value
+            num_experts = logits.shape[-1]
+            mask_values = [
+                -1e9 if i in ablate_set else 0.0 for i in range(num_experts)
+            ]
+            mask = mx.array(mask_values, dtype=logits.dtype)
+            logits = logits + mask
+
+            # Get top-k experts (using original k value)
+            k = router_self.num_experts_per_tok
+            partitioned_indices = mx.argpartition(logits, kth=-k, axis=-1)
+            top_k_indices = partitioned_indices[..., -k:]
+
+            # Get corresponding logits and apply softmax
+            top_k_logits = mx.take_along_axis(logits, top_k_indices, axis=-1)
+            top_k_weights = mx.softmax(top_k_logits, axis=-1)
+
+            return top_k_weights, top_k_indices
 
         try:
-            for layer_idx in target_layers:
-                layer = self._model.model.layers[layer_idx]
-                original_forwards[layer_idx] = layer.mlp.__call__
-                layer.mlp.__call__ = self._make_ablated_forward(layer.mlp, ablate_set)
+            # Apply class-level patch to router
+            router_class.__call__ = patched_router_call
 
             generated: list[int] = []
             cache = None
 
             for _ in range(max_tokens):
-                logits, cache = self._model(input_ids, cache=cache)
+                output = self._model(input_ids, cache=cache)
+                # Handle both tuple and ModelOutput returns
+                if hasattr(output, "logits"):
+                    logits = output.logits
+                    cache = getattr(output, "cache", None)
+                elif isinstance(output, tuple):
+                    logits, cache = output
+                else:
+                    logits = output
+                    cache = None
                 next_token = self._sample_token(logits, 0.0)
                 generated.append(next_token)
 
@@ -475,8 +524,8 @@ class ExpertRouter:
             text = self._tokenizer.decode(generated)
 
         finally:
-            for layer_idx, original in original_forwards.items():
-                self._model.model.layers[layer_idx].mlp.__call__ = original
+            # Restore original router class __call__
+            router_class.__call__ = original_router_call
 
         stats = GenerationStats(
             expert_idx=-1,  # No specific expert forced
@@ -487,18 +536,6 @@ class ExpertRouter:
         )
 
         return text, stats
-
-    def _make_ablated_forward(self, mlp: nn.Module, ablate_set: set[int]) -> Any:
-        """Create a forward function that ablates specific experts."""
-        original_call = mlp.__call__
-
-        def ablated_forward(x: mx.array) -> mx.array:
-            # For now, fall back to original - proper ablation requires
-            # modifying router weights before selection
-            # This is a placeholder for the full implementation
-            return original_call(x)
-
-        return ablated_forward
 
     async def generate_with_topk(
         self,
@@ -544,7 +581,16 @@ class ExpertRouter:
         cache = None
 
         for _ in range(max_tokens):
-            logits, cache = self._model(input_ids, cache=cache)
+            output = self._model(input_ids, cache=cache)
+            # Handle both tuple and ModelOutput returns
+            if hasattr(output, "logits"):
+                logits = output.logits
+                cache = getattr(output, "cache", None)
+            elif isinstance(output, tuple):
+                logits, cache = output
+            else:
+                logits = output
+                cache = None
             next_token = self._sample_token(logits, 0.0)
             generated.append(next_token)
 
@@ -570,141 +616,71 @@ class ExpertRouter:
             Generated text with modified top-k routing.
         """
         input_ids = mx.array(self._tokenizer.encode(prompt))[None, :]
-        target_layers = list(self._info.moe_layers)
+        target_layers = set(self._info.moe_layers)
+        new_k = k
 
-        # Store original router forwards and num_experts_per_tok
-        original_router_calls: dict[int, Any] = {}
-        original_k_values: dict[int, int] = {}
+        # Patch the router class to return different k
+        # This lets the MoE layer's existing expert code handle everything else
+        sample_layer = self._model.model.layers[list(target_layers)[0]]
+        router_class = type(sample_layer.mlp.router)
+        original_router_call = router_class.__call__
 
-        def make_modified_topk_router(router: Any, new_k: int) -> Any:
-            """Create a router forward that uses a different k value."""
+        def patched_router_call(router_self: Any, x: mx.array) -> tuple[mx.array, mx.array]:
+            # Find which layer this router belongs to
+            layer_idx = -1
+            for i, layer in enumerate(self._model.model.layers):
+                if hasattr(layer, "mlp") and hasattr(layer.mlp, "router"):
+                    if layer.mlp.router is router_self:
+                        layer_idx = i
+                        break
 
-            def modified_router_call(x: mx.array) -> tuple[mx.array, mx.array]:
-                # Compute router logits
-                logits = router.gate(x)
+            # Only modify routing for target layers
+            if layer_idx not in target_layers:
+                return original_router_call(router_self, x)
 
-                # Clamp k to valid range
-                effective_k = min(new_k, router.num_experts)
-                effective_k = max(1, effective_k)
-
-                # Get top-k experts with modified k
-                indices = mx.argsort(logits, axis=-1)[:, :, -effective_k:]
-                indices = indices[:, :, ::-1]  # Descending order
-
-                # Get corresponding weights
-                weights = mx.softmax(logits, axis=-1)
-
-                # Gather top-k weights
-                top_k_weights = mx.take_along_axis(weights, indices, axis=-1)
-
-                # Renormalize weights to sum to 1
-                top_k_weights = top_k_weights / (
-                    mx.sum(top_k_weights, axis=-1, keepdims=True) + 1e-6
-                )
-
-                return top_k_weights, indices
-
-            return modified_router_call
-
-        def make_modified_moe_forward(mlp: nn.Module, new_k: int, original_forward: Any) -> Any:
-            """Create an MoE forward that uses modified router k."""
-
-            def modified_forward(x: mx.array) -> mx.array:
+            # Handle both 2D and 3D inputs
+            if x.ndim == 3:
                 batch_size, seq_len, hidden_size = x.shape
+                x = x.reshape(-1, hidden_size)
 
-                # Get routing with modified k
-                weights, indices = make_modified_topk_router(mlp.router, new_k)(x)
+            # Compute router logits using router's own weights
+            logits = x @ router_self.weight.T
+            if hasattr(router_self, "bias") and router_self.bias is not None:
+                logits = logits + router_self.bias
 
-                # Effective k may differ from requested k
-                effective_k = indices.shape[-1]
+            # Clamp k to valid range
+            effective_k = min(new_k, router_self.num_experts)
+            effective_k = max(1, effective_k)
 
-                # Flatten for processing
-                x_flat = x.reshape(-1, hidden_size)
-                indices_flat = indices.reshape(-1, effective_k)
-                weights_flat = weights.reshape(-1, effective_k)
+            # Get top-k experts with modified k (using argpartition like original)
+            partitioned_indices = mx.argpartition(logits, kth=-effective_k, axis=-1)
+            top_k_indices = partitioned_indices[..., -effective_k:]
 
-                # Compute expert outputs
-                output = mx.zeros_like(x_flat)
+            # Get corresponding logits and apply softmax
+            top_k_logits = mx.take_along_axis(logits, top_k_indices, axis=-1)
+            top_k_weights = mx.softmax(top_k_logits, axis=-1)
 
-                # Handle different MoE architectures
-                if self._moe_type == MoEImplementationType.GPT_OSS_BATCHED:
-                    # GPT-OSS style with batched experts
-                    experts = mlp.experts
-                    gate_up = experts.gate_up_proj
-                    down = experts.down_proj
-
-                    for k_idx in range(effective_k):
-                        expert_indices = indices_flat[:, k_idx]
-                        expert_weights = weights_flat[:, k_idx]
-
-                        # Process each unique expert
-                        for exp_idx in range(mlp.router.num_experts):
-                            mask = expert_indices == exp_idx
-                            if not mx.any(mask):
-                                continue
-
-                            # Extract expert weights
-                            expert_gate_up = gate_up[exp_idx]
-                            expert_down = down[exp_idx]
-
-                            # Apply SwiGLU
-                            intermediate_size = expert_gate_up.shape[-1] // 2
-                            gate_up_out = x_flat @ expert_gate_up
-                            gate = gate_up_out[..., :intermediate_size]
-                            up = gate_up_out[..., intermediate_size:]
-                            hidden = nn.silu(gate) * up
-                            expert_out = hidden @ expert_down.T
-
-                            # Weight and accumulate
-                            weight_masked = mx.where(
-                                mask[:, None],
-                                expert_weights[:, None],
-                                mx.zeros_like(expert_weights[:, None]),
-                            )
-                            output = output + expert_out * weight_masked
-
-                else:
-                    # Standard MoE with separate expert modules
-                    experts = getattr(mlp, "experts", [])
-
-                    for expert_idx, expert in enumerate(experts):
-                        # Find tokens routed to this expert
-                        expert_mask = indices_flat == expert_idx
-                        expert_weights = mx.sum(
-                            weights_flat * expert_mask.astype(weights_flat.dtype),
-                            axis=-1,
-                        )
-
-                        if mx.any(expert_weights > 0):
-                            expert_out = expert(x_flat)
-                            output = output + expert_out * expert_weights[:, None]
-
-                # Reshape back
-                output = output.reshape(batch_size, seq_len, hidden_size)
-                return output
-
-            return modified_forward
+            return top_k_weights, top_k_indices
 
         try:
-            # Patch MoE layers with modified top-k
-            for layer_idx in target_layers:
-                layer = self._model.model.layers[layer_idx]
-                mlp = layer.mlp
-
-                # Store originals
-                original_router_calls[layer_idx] = mlp.__call__
-                if hasattr(mlp, "router"):
-                    original_k_values[layer_idx] = mlp.router.num_experts_per_tok
-
-                # Apply modified forward
-                mlp.__call__ = make_modified_moe_forward(mlp, k, mlp.__call__)
+            # Apply class-level patch to router
+            router_class.__call__ = patched_router_call
 
             # Generate with modified routing
             generated: list[int] = []
             cache = None
 
             for _ in range(max_tokens):
-                logits, cache = self._model(input_ids, cache=cache)
+                output = self._model(input_ids, cache=cache)
+                # Handle both tuple and ModelOutput returns
+                if hasattr(output, "logits"):
+                    logits = output.logits
+                    cache = getattr(output, "cache", None)
+                elif isinstance(output, tuple):
+                    logits, cache = output
+                else:
+                    logits = output
+                    cache = None
                 next_token = self._sample_token(logits, 0.0)
                 generated.append(next_token)
 
@@ -716,9 +692,8 @@ class ExpertRouter:
             text = self._tokenizer.decode(generated)
 
         finally:
-            # Restore original forwards
-            for layer_idx, original in original_router_calls.items():
-                self._model.model.layers[layer_idx].mlp.__call__ = original
+            # Restore original router class __call__
+            router_class.__call__ = original_router_call
 
         return text
 

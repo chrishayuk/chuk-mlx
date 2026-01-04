@@ -56,8 +56,8 @@ class ExpertIdentity(BaseModel):
 
     expert_idx: int = Field(ge=0)
     layer_idx: int = Field(ge=0)
-    primary_category: ExpertCategory
-    secondary_categories: tuple[ExpertCategory, ...] = Field(default_factory=tuple)
+    primary_category: str  # e.g., "python", "arithmetic", "geography"
+    secondary_categories: tuple[str, ...] = Field(default_factory=tuple)
     role: ExpertRole = ExpertRole.GENERALIST
     confidence: float = Field(ge=0, le=1)
     activation_rate: float = Field(ge=0, le=1)
