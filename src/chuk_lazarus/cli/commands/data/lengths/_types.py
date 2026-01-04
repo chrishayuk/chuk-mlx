@@ -18,7 +18,7 @@ class LengthBuildConfig(CommandConfig):
     output: Path = Field(..., description="Output path for length cache")
 
     @classmethod
-    def from_args(cls, args: Namespace) -> "LengthBuildConfig":
+    def from_args(cls, args: Namespace) -> LengthBuildConfig:
         """Create config from argparse namespace."""
         return cls(
             tokenizer=args.tokenizer,
@@ -58,7 +58,7 @@ class LengthStatsConfig(CommandConfig):
     cache: Path = Field(..., description="Path to length cache file")
 
     @classmethod
-    def from_args(cls, args: Namespace) -> "LengthStatsConfig":
+    def from_args(cls, args: Namespace) -> LengthStatsConfig:
         """Create config from argparse namespace."""
         return cls(cache=Path(args.cache))
 

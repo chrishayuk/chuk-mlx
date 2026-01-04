@@ -1,0 +1,175 @@
+{
+  "version": "1.0.0",
+  "description": "Comprehensive test suite for layer-sweep analysis - model independent",
+  "categories": {
+    "structural": {
+      "description": "Early layers - position and token type patterns",
+      "subcategories": {
+        "position_0": {
+          "description": "Sequence start tokens",
+          "prompts": ["the", "127", "def", "Hello", "(", "A", "1", "import"]
+        },
+        "num_after_num": {
+          "description": "Number following number",
+          "prompts": ["111 127", "222 333", "1 2 3", "100 200 300", "42 99", "7 8 9"]
+        },
+        "word_after_word": {
+          "description": "Word following word",
+          "prompts": ["the cat", "big dog", "hello world", "red car", "quick fox", "lazy dog"]
+        },
+        "num_after_word": {
+          "description": "Number following word",
+          "prompts": ["abc 127", "the 42", "x 3", "hello 999", "count 5", "page 10"]
+        },
+        "word_after_num": {
+          "description": "Word following number",
+          "prompts": ["127 abc", "42 cats", "999 items", "3 apples", "100 dollars"]
+        },
+        "after_operator": {
+          "description": "Token following operator",
+          "prompts": ["x + y", "a * b", "n - 1", "x = y", "a / b", "x == y"]
+        },
+        "after_punct": {
+          "description": "Token following punctuation",
+          "prompts": ["hello, world", "wait... what", "end.", "why?", "ok; next", "done!"]
+        }
+      }
+    },
+    "task_type": {
+      "description": "Middle layers - task classification",
+      "subcategories": {
+        "math_expr": {
+          "description": "Mathematical expressions",
+          "prompts": ["127 * 89 =", "2 + 2 =", "45 * 45 =", "100 / 4 =", "sqrt(16) =", "3^2 ="]
+        },
+        "code": {
+          "description": "Code patterns",
+          "prompts": ["def fib(n):", "for i in range(", "import numpy", "return x + y", "class Foo:", "if x > 0:"]
+        },
+        "language": {
+          "description": "Language/vocabulary tasks",
+          "prompts": ["A synonym for happy is", "The opposite of cold is", "Translate hello to French", "Define the word"]
+        },
+        "factual": {
+          "description": "Factual recall",
+          "prompts": ["The capital of France is", "Water boils at", "The year 1776 marks", "Einstein discovered"]
+        },
+        "creative": {
+          "description": "Creative generation",
+          "prompts": ["Once upon a time", "Write a poem about", "Imagine a world where", "In a galaxy far"]
+        }
+      }
+    },
+    "magnitude": {
+      "description": "Middle layers - numerical scale",
+      "subcategories": {
+        "small": {
+          "description": "Small numbers (1-10)",
+          "prompts": ["2 + 2 =", "3 * 3 =", "1 + 1 =", "5 - 2 =", "4 * 2 =", "9 / 3 ="]
+        },
+        "medium": {
+          "description": "Medium numbers (10-1000)",
+          "prompts": ["45 * 45 =", "127 + 89 =", "256 - 128 =", "100 * 5 =", "500 / 10 ="]
+        },
+        "large": {
+          "description": "Large numbers (1000+)",
+          "prompts": ["9999 * 9999 =", "123456 + 789 =", "1000000 / 1000 =", "50000 + 50000 ="]
+        },
+        "decimal": {
+          "description": "Decimal numbers",
+          "prompts": ["3.14 * 2 =", "0.5 + 0.5 =", "2.718 * 3.14 =", "1.5 * 2 =", "0.1 + 0.2 ="]
+        }
+      }
+    },
+    "difficulty": {
+      "description": "Routing confidence layers",
+      "subcategories": {
+        "easy": {
+          "description": "Memorized/simple results",
+          "prompts": ["2 + 2 =", "10 * 10 =", "100 / 10 =", "5 * 5 =", "1 + 0 ="]
+        },
+        "medium": {
+          "description": "Moderate computation",
+          "prompts": ["25 * 4 =", "144 / 12 =", "7 * 8 =", "13 * 7 =", "99 + 11 ="]
+        },
+        "hard": {
+          "description": "Requires computation",
+          "prompts": ["47 * 47 =", "127 * 89 =", "1234 + 5678 =", "89 * 73 =", "456 + 789 ="]
+        },
+        "very_hard": {
+          "description": "Multi-step computation",
+          "prompts": ["47 * 89 * 3 =", "sqrt(144) + 17 =", "(25 + 75) * 4 =", "100 / 4 + 50 ="]
+        }
+      }
+    },
+    "output_type": {
+      "description": "Late layers - output formatting",
+      "subcategories": {
+        "expects_number": {
+          "description": "Expects numeric output",
+          "prompts": ["127 * 89 =", "The year is", "Count:", "Total:", "Result:"]
+        },
+        "expects_word": {
+          "description": "Expects word output",
+          "prompts": ["Hello, my name is", "The color is", "A synonym for", "The answer is"]
+        },
+        "expects_code": {
+          "description": "Expects code output",
+          "prompts": ["def fibonacci(n):\n    return", "print(", "import", "class MyClass:\n    def"]
+        },
+        "expects_punct": {
+          "description": "Expects punctuation",
+          "prompts": ["Wait", "Hello world", "The end", "Goodbye", "Thanks"]
+        }
+      }
+    },
+    "context_switch": {
+      "description": "All layers - context transitions",
+      "subcategories": {
+        "num_to_word": {
+          "description": "Number followed by word",
+          "prompts": ["127 hello", "42 world", "999 the", "7 cats", "100 dollars"]
+        },
+        "word_to_num": {
+          "description": "Word followed by number",
+          "prompts": ["hello 127", "the 42", "world 999", "page 7", "chapter 3"]
+        },
+        "code_to_english": {
+          "description": "Code followed by natural language",
+          "prompts": ["def hello world", "return the cat", "import the library", "class the thing"]
+        },
+        "english_to_code": {
+          "description": "Natural language followed by code",
+          "prompts": ["the def fib", "hello import os", "world class Foo", "cat return x"]
+        }
+      }
+    }
+  },
+  "layer_expectations": {
+    "early": {
+      "layer_fraction": [0.0, 0.25],
+      "expected_patterns": ["POSITION_0", "TOKEN_TYPE"],
+      "description": "Token-level patterns, position encoding"
+    },
+    "early_mid": {
+      "layer_fraction": [0.25, 0.4],
+      "expected_patterns": ["SEQUENCE_START", "AFTER_WORD", "AFTER_NUMBER", "AFTER_OPERATOR"],
+      "description": "Context-aware structural patterns"
+    },
+    "middle": {
+      "layer_fraction": [0.4, 0.6],
+      "expected_patterns": ["TASK_MATH", "TASK_CODE", "TASK_LANGUAGE", "MAGNITUDE"],
+      "description": "Task classification, scale detection"
+    },
+    "late_mid": {
+      "layer_fraction": [0.6, 0.8],
+      "expected_patterns": ["DIFFICULTY", "CONFIDENCE", "ROUTE_DECISION"],
+      "description": "Computation routing, confidence"
+    },
+    "late": {
+      "layer_fraction": [0.8, 1.0],
+      "expected_patterns": ["OUTPUT_NUMBER", "OUTPUT_WORD", "OUTPUT_CODE", "FINAL_FORMAT"],
+      "description": "Output type preparation"
+    }
+  }
+}

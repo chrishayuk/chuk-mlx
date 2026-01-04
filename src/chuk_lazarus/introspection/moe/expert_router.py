@@ -556,9 +556,171 @@ class ExpertRouter:
         return self._tokenizer.decode(generated)
 
     def _generate_with_topk_sync(self, prompt: str, k: int, max_tokens: int) -> str:
-        """Synchronous top-k modified generation."""
-        # Placeholder - full implementation would modify router selection
-        return self._generate_normal_sync(prompt, max_tokens)
+        """Synchronous top-k modified generation.
+
+        Modifies the router to use a different k value during generation.
+        This allows testing how model behavior changes with more or fewer experts.
+
+        Args:
+            prompt: The input prompt.
+            k: Number of experts to select per token.
+            max_tokens: Maximum tokens to generate.
+
+        Returns:
+            Generated text with modified top-k routing.
+        """
+        input_ids = mx.array(self._tokenizer.encode(prompt))[None, :]
+        target_layers = list(self._info.moe_layers)
+
+        # Store original router forwards and num_experts_per_tok
+        original_router_calls: dict[int, Any] = {}
+        original_k_values: dict[int, int] = {}
+
+        def make_modified_topk_router(router: Any, new_k: int) -> Any:
+            """Create a router forward that uses a different k value."""
+
+            def modified_router_call(x: mx.array) -> tuple[mx.array, mx.array]:
+                # Compute router logits
+                logits = router.gate(x)
+
+                # Clamp k to valid range
+                effective_k = min(new_k, router.num_experts)
+                effective_k = max(1, effective_k)
+
+                # Get top-k experts with modified k
+                indices = mx.argsort(logits, axis=-1)[:, :, -effective_k:]
+                indices = indices[:, :, ::-1]  # Descending order
+
+                # Get corresponding weights
+                weights = mx.softmax(logits, axis=-1)
+
+                # Gather top-k weights
+                top_k_weights = mx.take_along_axis(weights, indices, axis=-1)
+
+                # Renormalize weights to sum to 1
+                top_k_weights = top_k_weights / (
+                    mx.sum(top_k_weights, axis=-1, keepdims=True) + 1e-6
+                )
+
+                return top_k_weights, indices
+
+            return modified_router_call
+
+        def make_modified_moe_forward(mlp: nn.Module, new_k: int, original_forward: Any) -> Any:
+            """Create an MoE forward that uses modified router k."""
+
+            def modified_forward(x: mx.array) -> mx.array:
+                batch_size, seq_len, hidden_size = x.shape
+
+                # Get routing with modified k
+                weights, indices = make_modified_topk_router(mlp.router, new_k)(x)
+
+                # Effective k may differ from requested k
+                effective_k = indices.shape[-1]
+
+                # Flatten for processing
+                x_flat = x.reshape(-1, hidden_size)
+                indices_flat = indices.reshape(-1, effective_k)
+                weights_flat = weights.reshape(-1, effective_k)
+
+                # Compute expert outputs
+                output = mx.zeros_like(x_flat)
+
+                # Handle different MoE architectures
+                if self._moe_type == MoEImplementationType.GPT_OSS_BATCHED:
+                    # GPT-OSS style with batched experts
+                    experts = mlp.experts
+                    gate_up = experts.gate_up_proj
+                    down = experts.down_proj
+
+                    for k_idx in range(effective_k):
+                        expert_indices = indices_flat[:, k_idx]
+                        expert_weights = weights_flat[:, k_idx]
+
+                        # Process each unique expert
+                        for exp_idx in range(mlp.router.num_experts):
+                            mask = expert_indices == exp_idx
+                            if not mx.any(mask):
+                                continue
+
+                            # Extract expert weights
+                            expert_gate_up = gate_up[exp_idx]
+                            expert_down = down[exp_idx]
+
+                            # Apply SwiGLU
+                            intermediate_size = expert_gate_up.shape[-1] // 2
+                            gate_up_out = x_flat @ expert_gate_up
+                            gate = gate_up_out[..., :intermediate_size]
+                            up = gate_up_out[..., intermediate_size:]
+                            hidden = nn.silu(gate) * up
+                            expert_out = hidden @ expert_down.T
+
+                            # Weight and accumulate
+                            weight_masked = mx.where(
+                                mask[:, None],
+                                expert_weights[:, None],
+                                mx.zeros_like(expert_weights[:, None]),
+                            )
+                            output = output + expert_out * weight_masked
+
+                else:
+                    # Standard MoE with separate expert modules
+                    experts = getattr(mlp, "experts", [])
+
+                    for expert_idx, expert in enumerate(experts):
+                        # Find tokens routed to this expert
+                        expert_mask = indices_flat == expert_idx
+                        expert_weights = mx.sum(
+                            weights_flat * expert_mask.astype(weights_flat.dtype),
+                            axis=-1,
+                        )
+
+                        if mx.any(expert_weights > 0):
+                            expert_out = expert(x_flat)
+                            output = output + expert_out * expert_weights[:, None]
+
+                # Reshape back
+                output = output.reshape(batch_size, seq_len, hidden_size)
+                return output
+
+            return modified_forward
+
+        try:
+            # Patch MoE layers with modified top-k
+            for layer_idx in target_layers:
+                layer = self._model.model.layers[layer_idx]
+                mlp = layer.mlp
+
+                # Store originals
+                original_router_calls[layer_idx] = mlp.__call__
+                if hasattr(mlp, "router"):
+                    original_k_values[layer_idx] = mlp.router.num_experts_per_tok
+
+                # Apply modified forward
+                mlp.__call__ = make_modified_moe_forward(mlp, k, mlp.__call__)
+
+            # Generate with modified routing
+            generated: list[int] = []
+            cache = None
+
+            for _ in range(max_tokens):
+                logits, cache = self._model(input_ids, cache=cache)
+                next_token = self._sample_token(logits, 0.0)
+                generated.append(next_token)
+
+                if next_token == self._tokenizer.eos_token_id:
+                    break
+
+                input_ids = mx.array([[next_token]])
+
+            text = self._tokenizer.decode(generated)
+
+        finally:
+            # Restore original forwards
+            for layer_idx, original in original_router_calls.items():
+                self._model.model.layers[layer_idx].mlp.__call__ = original
+
+        return text
 
     # =========================================================================
     # Analysis Methods
@@ -597,48 +759,57 @@ class ExpertRouter:
             layer_idx: [] for layer_idx in target_layers
         }
 
-        # Hook to capture router outputs
-        original_calls: dict[int, Any] = {}
+        # Get the MLP class for class-level patching (instance patching doesn't work)
+        mlp_class = type(self._model.model.layers[0].mlp)
+        original_call = mlp_class.__call__
 
-        def make_capture_forward(layer_idx: int, original: Any) -> Any:
-            def capture_forward(x: mx.array) -> mx.array:
-                # Get router weights before applying MoE
-                mlp = self._model.model.layers[layer_idx].mlp
-                router = mlp.router
+        def patched_call(mlp_self: Any, x: mx.array) -> mx.array:
+            # Find which layer this MLP belongs to
+            layer_idx = -1
+            for i, layer in enumerate(self._model.model.layers):
+                if layer.mlp is mlp_self:
+                    layer_idx = i
+                    break
 
-                # Compute router logits
-                if hasattr(router, "weight"):
-                    router_logits = x @ router.weight.T
-                    if hasattr(router, "bias") and router.bias is not None:
-                        router_logits = router_logits + router.bias
+            # Only capture for target layers
+            if layer_idx in target_layers:
+                router = mlp_self.router
+                k = self._info.num_experts_per_tok
 
-                    # Get top-k
-                    k = self._info.num_experts_per_tok
+                # Router may return (weights, indices) tuple or just logits
+                router_result = router(x)
+
+                if isinstance(router_result, tuple):
+                    # Router already computed weights and indices
+                    weights, indices = router_result
+                    # weights: (batch * seq_len, k), indices: (batch * seq_len, k)
+                    seq_len = x.shape[1] if x.ndim == 3 else 1
+                    for pos in range(seq_len):
+                        pos_indices = indices[pos].tolist()
+                        pos_weights = [float(weights[pos, i]) for i in range(k)]
+                        captured_weights[layer_idx].append((pos_indices, pos_weights))
+                else:
+                    # Router returned logits, compute weights ourselves
+                    router_logits = router_result
                     weights = mx.softmax(router_logits, axis=-1)
-
-                    # For each position
                     for pos in range(x.shape[1]):
                         pos_weights = weights[0, pos]
                         top_indices = mx.argsort(pos_weights)[-k:][::-1].tolist()
                         top_weights = [float(pos_weights[i]) for i in top_indices]
                         captured_weights[layer_idx].append((top_indices, top_weights))
 
-                return original(x)
-
-            return capture_forward
+            return original_call(mlp_self, x)
 
         try:
-            for layer_idx in target_layers:
-                mlp = self._model.model.layers[layer_idx].mlp
-                original_calls[layer_idx] = mlp.__call__
-                mlp.__call__ = make_capture_forward(layer_idx, mlp.__call__)
+            # Patch at class level
+            mlp_class.__call__ = patched_call
 
             # Run forward pass
             self._model(input_ids)
 
         finally:
-            for layer_idx, original in original_calls.items():
-                self._model.model.layers[layer_idx].mlp.__call__ = original
+            # Restore original
+            mlp_class.__call__ = original_call
 
         # Convert to structured results
         for layer_idx in target_layers:

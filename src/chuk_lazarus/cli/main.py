@@ -2882,6 +2882,10 @@ Examples:
         help="Target MoE layer for collab analysis (default: middle layer)",
     )
     moe_expert_parser.add_argument(
+        "--layers",
+        help="Layers to analyze (comma-separated or 'all'). For layer-sweep: specific layers to test",
+    )
+    moe_expert_parser.add_argument(
         "--compare-singles",
         action="store_true",
         help="For pairs: also compare individual experts in the group",

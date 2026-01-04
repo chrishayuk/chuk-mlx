@@ -23,6 +23,10 @@ from .models import (
     ArithmeticProblem,
     ContextTest,
     ContextTestDataset,
+    LayerExpectation,
+    LayerSweepCategory,
+    LayerSweepDataset,
+    LayerSweepSubcategory,
     PatternCategory,
     PatternDiscoveryDataset,
     UncertaintyDataset,
@@ -144,6 +148,21 @@ def get_pattern_discovery_prompts() -> PatternDiscoveryDataset:
     return DatasetLoader.load_model("moe/pattern_discovery.json", PatternDiscoveryDataset)
 
 
+def get_layer_sweep_tests() -> LayerSweepDataset:
+    """Load layer sweep test prompts.
+
+    Returns:
+        LayerSweepDataset with categorized prompts for layer sweep analysis.
+
+    Example:
+        >>> tests = get_layer_sweep_tests()
+        >>> for cat_name in tests.get_category_names():
+        ...     cat = tests.get_category(cat_name)
+        ...     print(f"{cat_name}: {len(cat.get_all_prompts())} prompts")
+    """
+    return DatasetLoader.load_model("moe/layer_sweep_tests.json", LayerSweepDataset)
+
+
 __all__ = [
     # Loader
     "DatasetLoader",
@@ -152,6 +171,7 @@ __all__ = [
     "get_uncertainty_prompts",
     "get_context_tests",
     "get_pattern_discovery_prompts",
+    "get_layer_sweep_tests",
     # Models
     "ArithmeticBenchmark",
     "ArithmeticProblem",
@@ -161,4 +181,8 @@ __all__ = [
     "ContextTest",
     "PatternDiscoveryDataset",
     "PatternCategory",
+    "LayerSweepDataset",
+    "LayerSweepCategory",
+    "LayerSweepSubcategory",
+    "LayerExpectation",
 ]

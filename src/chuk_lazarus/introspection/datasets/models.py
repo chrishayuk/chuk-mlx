@@ -168,3 +168,109 @@ class PatternDiscoveryDataset(BaseModel):
         """Get prompts for a specific category."""
         cat = self.categories.get(category)
         return cat.prompts if cat else []
+
+
+# =============================================================================
+# Layer Sweep Tests
+# =============================================================================
+
+
+class LayerSweepSubcategory(BaseModel):
+    """A subcategory of test prompts within a layer sweep category."""
+
+    model_config = ConfigDict(frozen=True)
+
+    description: str = Field(description="Description of this subcategory")
+    prompts: list[str] = Field(description="List of prompts in this subcategory")
+
+
+class LayerSweepCategory(BaseModel):
+    """A category of test prompts for layer sweep analysis."""
+
+    model_config = ConfigDict(frozen=True)
+
+    description: str = Field(description="Description of this category")
+    subcategories: dict[str, LayerSweepSubcategory] = Field(description="Subcategories of prompts")
+
+    def get_all_prompts(self) -> list[tuple[str, str]]:
+        """Get all (subcategory_name, prompt) tuples."""
+        result: list[tuple[str, str]] = []
+        for subcat_name, subcat in self.subcategories.items():
+            for prompt in subcat.prompts:
+                result.append((subcat_name, prompt))
+        return result
+
+    def get_subcategory_names(self) -> list[str]:
+        """Get all subcategory names."""
+        return list(self.subcategories.keys())
+
+
+class LayerExpectation(BaseModel):
+    """Expected patterns for a layer range."""
+
+    model_config = ConfigDict(frozen=True)
+
+    layer_fraction: tuple[float, float] = Field(
+        description="Layer fraction range [start, end] as fraction of total MoE layers"
+    )
+    expected_patterns: list[str] = Field(description="Expected pattern types for this layer range")
+    description: str = Field(description="Description of what this layer range does")
+
+
+class LayerSweepDataset(BaseModel):
+    """Comprehensive test suite for layer sweep analysis."""
+
+    model_config = ConfigDict(frozen=True)
+
+    version: str = Field(description="Dataset version")
+    description: str = Field(description="Dataset description")
+    categories: dict[str, LayerSweepCategory] = Field(
+        description="Test categories (structural, task_type, magnitude, etc.)"
+    )
+    layer_expectations: dict[str, LayerExpectation] = Field(
+        description="Expected patterns by layer position"
+    )
+
+    def get_category(self, name: str) -> LayerSweepCategory | None:
+        """Get a specific category by name."""
+        return self.categories.get(name)
+
+    def get_category_names(self) -> list[str]:
+        """Get all category names."""
+        return list(self.categories.keys())
+
+    def get_all_prompts(self) -> list[tuple[str, str, str]]:
+        """Get all (category, subcategory, prompt) tuples."""
+        result: list[tuple[str, str, str]] = []
+        for cat_name, cat in self.categories.items():
+            for subcat_name, subcat in cat.subcategories.items():
+                for prompt in subcat.prompts:
+                    result.append((cat_name, subcat_name, prompt))
+        return result
+
+    def get_layer_expectation(self, layer_fraction: float) -> LayerExpectation | None:
+        """Get expected patterns for a layer at given fraction of total."""
+        for exp in self.layer_expectations.values():
+            start, end = exp.layer_fraction
+            if start <= layer_fraction < end:
+                return exp
+        return None
+
+    def get_prompts_by_category(self, category: str) -> list[tuple[str, str]]:
+        """Get (subcategory, prompt) tuples for a category."""
+        cat = self.categories.get(category)
+        if not cat:
+            return []
+        return cat.get_all_prompts()
+
+    def get_structural_prompts(self) -> list[tuple[str, str]]:
+        """Get structural test prompts."""
+        return self.get_prompts_by_category("structural")
+
+    def get_task_prompts(self) -> list[tuple[str, str]]:
+        """Get task type test prompts."""
+        return self.get_prompts_by_category("task_type")
+
+    def get_output_prompts(self) -> list[tuple[str, str]]:
+        """Get output type test prompts."""
+        return self.get_prompts_by_category("output_type")

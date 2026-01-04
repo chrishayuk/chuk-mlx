@@ -18,6 +18,40 @@ if TYPE_CHECKING:
     from .hooks import MoEHooks
 
 
+class ExpertActivationStats(BaseModel):
+    """Activation statistics for an expert across a dataset."""
+
+    model_config = ConfigDict(frozen=True)
+
+    expert_idx: int = Field(ge=0)
+    layer_idx: int = Field(ge=0)
+    activation_count: int = Field(ge=0)
+    token_positions: tuple[int, ...] = Field(default_factory=tuple)
+    total_samples: int = Field(ge=0)
+
+    @property
+    def activation_rate(self) -> float:
+        """Compute activation rate as fraction of total samples."""
+        if self.total_samples == 0:
+            return 0.0
+        return self.activation_count / self.total_samples
+
+
+class ActivationOverlapResult(BaseModel):
+    """Result of computing activation overlap between two experts."""
+
+    model_config = ConfigDict(frozen=True)
+
+    expert_a: int = Field(ge=0)
+    expert_b: int = Field(ge=0)
+    layer_idx: int = Field(ge=0)
+    jaccard_similarity: float = Field(ge=0, le=1)
+    overlap_count: int = Field(ge=0, description="Number of samples where both activate")
+    union_count: int = Field(ge=0, description="Number of samples where either activates")
+    a_only_count: int = Field(ge=0, description="Samples where only A activates")
+    b_only_count: int = Field(ge=0, description="Samples where only B activates")
+
+
 class ExpertSimilarity(BaseModel):
     """Similarity between two experts."""
 
@@ -356,3 +390,297 @@ def _get_model_layers(model: nn.Module) -> list[nn.Module]:
             if layers is not None:
                 return list(layers)
     return list(getattr(model, "layers", []))
+
+
+# =============================================================================
+# Activation Overlap Analysis
+# =============================================================================
+
+
+def collect_expert_activations(
+    hooks: MoEHooks,
+    prompts: list[str],
+    layer_idx: int,
+    tokenizer: object,
+) -> dict[int, set[int]]:
+    """
+    Collect which experts activate for each prompt.
+
+    Args:
+        hooks: MoEHooks with model reference
+        prompts: List of prompts to analyze
+        layer_idx: Layer to analyze
+        tokenizer: Tokenizer for encoding prompts
+
+    Returns:
+        Dict mapping expert_idx -> set of prompt indices where it activated
+    """
+    info = hooks.get_layer_info(layer_idx)
+    if info is None:
+        return {}
+
+    num_experts = info.num_experts
+    expert_activations: dict[int, set[int]] = {i: set() for i in range(num_experts)}
+
+    for prompt_idx, prompt in enumerate(prompts):
+        # Encode prompt
+        input_ids = mx.array(tokenizer.encode(prompt))[None, :]
+
+        # Capture router weights for this prompt
+        captured = hooks.capture_router_weights(input_ids, [layer_idx])
+
+        if layer_idx in captured:
+            for position_data in captured[layer_idx]:
+                # position_data contains selected expert indices
+                for expert_idx in position_data.get("selected_experts", []):
+                    if 0 <= expert_idx < num_experts:
+                        expert_activations[expert_idx].add(prompt_idx)
+
+    return expert_activations
+
+
+def compute_activation_overlap(
+    expert_a_activations: set[int],
+    expert_b_activations: set[int],
+    expert_a: int,
+    expert_b: int,
+    layer_idx: int,
+) -> ActivationOverlapResult:
+    """
+    Compute Jaccard similarity between two experts' activation patterns.
+
+    Args:
+        expert_a_activations: Set of sample indices where expert A activated
+        expert_b_activations: Set of sample indices where expert B activated
+        expert_a: Index of expert A
+        expert_b: Index of expert B
+        layer_idx: Layer index
+
+    Returns:
+        ActivationOverlapResult with Jaccard similarity and counts
+    """
+    intersection = expert_a_activations & expert_b_activations
+    union = expert_a_activations | expert_b_activations
+
+    overlap_count = len(intersection)
+    union_count = len(union)
+    a_only = len(expert_a_activations - expert_b_activations)
+    b_only = len(expert_b_activations - expert_a_activations)
+
+    jaccard = overlap_count / union_count if union_count > 0 else 0.0
+
+    return ActivationOverlapResult(
+        expert_a=expert_a,
+        expert_b=expert_b,
+        layer_idx=layer_idx,
+        jaccard_similarity=jaccard,
+        overlap_count=overlap_count,
+        union_count=union_count,
+        a_only_count=a_only,
+        b_only_count=b_only,
+    )
+
+
+def compute_expert_similarity_with_activations(
+    model: nn.Module,
+    layer_idx: int,
+    expert_a: int,
+    expert_b: int,
+    expert_activations: dict[int, set[int]] | None = None,
+) -> ExpertSimilarity:
+    """
+    Compute similarity between two experts including activation overlap.
+
+    Args:
+        model: The model
+        layer_idx: Layer containing experts
+        expert_a: First expert index
+        expert_b: Second expert index
+        expert_activations: Optional pre-computed activation sets per expert
+
+    Returns:
+        ExpertSimilarity with weight similarity and activation overlap
+    """
+    layers = _get_model_layers(model)
+    if layer_idx >= len(layers):
+        raise ValueError(f"Layer {layer_idx} out of range")
+
+    layer = layers[layer_idx]
+    mlp = getattr(layer, "mlp", None)
+    if mlp is None:
+        raise ValueError(f"Layer {layer_idx} has no MLP")
+
+    experts = getattr(mlp, "experts", None)
+    if experts is None or not isinstance(experts, list):
+        raise ValueError(f"Layer {layer_idx} has no experts list")
+
+    if expert_a >= len(experts) or expert_b >= len(experts):
+        raise ValueError("Expert index out of range")
+
+    # Compute weight cosine similarity
+    exp_a = experts[expert_a]
+    exp_b = experts[expert_b]
+
+    if hasattr(exp_a, "down_proj") and hasattr(exp_b, "down_proj"):
+        w_a = exp_a.down_proj.weight.reshape(-1)
+        w_b = exp_b.down_proj.weight.reshape(-1)
+
+        dot = mx.sum(w_a * w_b)
+        norm_a = mx.linalg.norm(w_a)
+        norm_b = mx.linalg.norm(w_b)
+        cosine_sim = float(dot / (norm_a * norm_b + 1e-10))
+    else:
+        cosine_sim = 0.0
+
+    # Compute activation overlap if activations provided
+    activation_overlap = 0.0
+    if expert_activations is not None:
+        a_acts = expert_activations.get(expert_a, set())
+        b_acts = expert_activations.get(expert_b, set())
+        if a_acts or b_acts:
+            intersection = len(a_acts & b_acts)
+            union = len(a_acts | b_acts)
+            activation_overlap = intersection / union if union > 0 else 0.0
+
+    # Merge candidate considers both weight similarity and activation overlap
+    # High weight similarity + high activation overlap = strong merge candidate
+    combined_score = (cosine_sim + activation_overlap) / 2 if activation_overlap > 0 else cosine_sim
+    merge_candidate = combined_score > 0.7
+
+    return ExpertSimilarity(
+        expert_a=expert_a,
+        expert_b=expert_b,
+        layer_idx=layer_idx,
+        weight_cosine_similarity=cosine_sim,
+        activation_overlap=activation_overlap,
+        merge_candidate=merge_candidate,
+    )
+
+
+def compute_similarity_matrix_with_activations(
+    model: nn.Module,
+    layer_idx: int,
+    expert_activations: dict[int, set[int]] | None = None,
+) -> list[ExpertSimilarity]:
+    """
+    Compute pairwise similarity between all experts with activation overlap.
+
+    Args:
+        model: The model
+        layer_idx: Layer to analyze
+        expert_activations: Optional pre-computed activation sets per expert
+
+    Returns:
+        List of ExpertSimilarity for all pairs
+    """
+    layers = _get_model_layers(model)
+    if layer_idx >= len(layers):
+        return []
+
+    layer = layers[layer_idx]
+    mlp = getattr(layer, "mlp", None)
+    if mlp is None:
+        return []
+
+    experts = getattr(mlp, "experts", None)
+    if experts is None or not isinstance(experts, list):
+        return []
+
+    similarities = []
+    for i in range(len(experts)):
+        for j in range(i + 1, len(experts)):
+            sim = compute_expert_similarity_with_activations(
+                model, layer_idx, i, j, expert_activations
+            )
+            similarities.append(sim)
+
+    return similarities
+
+
+def find_merge_candidates_with_activations(
+    similarities: list[ExpertSimilarity],
+    weight_threshold: float = 0.8,
+    activation_threshold: float = 0.5,
+    require_both: bool = False,
+) -> list[tuple[int, int, float, float]]:
+    """
+    Find expert pairs that are good merge candidates using both metrics.
+
+    Args:
+        similarities: List of ExpertSimilarity
+        weight_threshold: Minimum weight cosine similarity
+        activation_threshold: Minimum activation overlap
+        require_both: If True, both thresholds must be met
+
+    Returns:
+        List of (expert_a, expert_b, weight_sim, activation_overlap) tuples
+    """
+    candidates = []
+    for sim in similarities:
+        weight_ok = sim.weight_cosine_similarity >= weight_threshold
+        activation_ok = sim.activation_overlap >= activation_threshold
+
+        if require_both:
+            if weight_ok and activation_ok:
+                candidates.append(
+                    (
+                        sim.expert_a,
+                        sim.expert_b,
+                        sim.weight_cosine_similarity,
+                        sim.activation_overlap,
+                    )
+                )
+        else:
+            # Either high weight similarity OR high activation overlap
+            if weight_ok or activation_ok:
+                candidates.append(
+                    (
+                        sim.expert_a,
+                        sim.expert_b,
+                        sim.weight_cosine_similarity,
+                        sim.activation_overlap,
+                    )
+                )
+
+    # Sort by combined score (average of both metrics)
+    return sorted(
+        candidates,
+        key=lambda x: (x[2] + x[3]) / 2,
+        reverse=True,
+    )
+
+
+def print_activation_overlap_matrix(
+    similarities: list[ExpertSimilarity],
+    num_experts: int,
+) -> None:
+    """Print a matrix showing activation overlap between experts."""
+    print("\nActivation Overlap Matrix")
+    print("=" * 60)
+
+    # Header row
+    header = "     " + " ".join(f"{i:5d}" for i in range(num_experts))
+    print(header)
+    print("-" * len(header))
+
+    # Build matrix
+    matrix: dict[tuple[int, int], float] = {}
+    for sim in similarities:
+        matrix[(sim.expert_a, sim.expert_b)] = sim.activation_overlap
+        matrix[(sim.expert_b, sim.expert_a)] = sim.activation_overlap
+
+    # Print rows
+    for i in range(num_experts):
+        row = f"{i:3d}: "
+        for j in range(num_experts):
+            if i == j:
+                row += "  1.0 "
+            else:
+                overlap = matrix.get((i, j), 0.0)
+                if overlap > 0.7:
+                    row += f" {overlap:.2f}*"
+                elif overlap > 0.3:
+                    row += f" {overlap:.2f} "
+                else:
+                    row += f" {overlap:.2f} "
+        print(row)

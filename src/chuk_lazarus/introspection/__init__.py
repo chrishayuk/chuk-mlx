@@ -131,6 +131,22 @@ from .hooks import (
     PositionSelection,
 )
 
+# Counterfactual interventions for causal analysis
+from .interventions import (
+    CausalTraceResult,
+    ComponentTarget,
+    CounterfactualIntervention,
+    FullCausalTrace,
+    InterventionConfig,
+    InterventionResult,
+    InterventionType,
+    patch_activations,
+    trace_causal_path,
+)
+from .interventions import (
+    PatchingResult as CounterfactualPatchingResult,
+)
+
 # Layer analysis
 from .layer_analysis import (
     AttentionResult,
@@ -537,4 +553,15 @@ __all__ = [
     "ExpertHijacker",
     "VirtualExpertSlot",
     "HybridEmbeddingInjector",
+    # Counterfactual interventions
+    "CounterfactualIntervention",
+    "InterventionConfig",
+    "InterventionResult",
+    "InterventionType",
+    "ComponentTarget",
+    "CounterfactualPatchingResult",
+    "CausalTraceResult",
+    "FullCausalTrace",
+    "patch_activations",
+    "trace_causal_path",
 ]

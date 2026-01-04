@@ -28,14 +28,22 @@ from .ablation import (
 
 # Compression
 from .compression import (
+    ActivationOverlapResult,
     CompressionAnalysis,
+    ExpertActivationStats,
     ExpertSimilarity,
     analyze_compression_opportunities,
+    collect_expert_activations,
+    compute_activation_overlap,
     compute_expert_similarity,
+    compute_expert_similarity_with_activations,
     compute_similarity_matrix,
+    compute_similarity_matrix_with_activations,
     create_compression_plan,
     find_merge_candidates,
+    find_merge_candidates_with_activations,
     find_prune_candidates,
+    print_activation_overlap_matrix,
     print_compression_summary,
 )
 
@@ -85,9 +93,18 @@ from .identification import (
 # Logit Lens
 from .logit_lens import (
     ExpertLogitContribution,
+    ExpertVocabContribution,
     LayerRoutingSnapshot,
+    LayerVocabAnalysis,
     MoELogitLens,
+    TokenExpertPreference,
+    VocabExpertMapping,
     analyze_expert_vocabulary,
+    compute_expert_vocab_contribution,
+    compute_token_expert_mapping,
+    find_expert_specialists,
+    print_expert_vocab_summary,
+    print_token_expert_preferences,
 )
 
 # Models
@@ -122,6 +139,35 @@ from .router import (
     compute_routing_diversity,
     get_dominant_experts,
     get_rare_experts,
+)
+
+# Cross-layer tracking
+from .tracking import (
+    CrossLayerAnalysis,
+    ExpertPipeline,
+    ExpertPipelineNode,
+    LayerAlignmentResult,
+    analyze_cross_layer_routing,
+    compute_expert_activation_profile,
+    compute_layer_alignment,
+    identify_functional_pipelines,
+    print_alignment_matrix,
+    print_pipeline_summary,
+    track_expert_across_layers,
+)
+
+# Visualization
+from .visualization import (
+    multi_layer_routing_matrix,
+    plot_expert_utilization,
+    plot_multi_layer_heatmap,
+    plot_routing_flow,
+    plot_routing_heatmap,
+    routing_heatmap_ascii,
+    routing_weights_to_matrix,
+    save_routing_heatmap,
+    save_utilization_chart,
+    utilization_bar_ascii,
 )
 
 __all__ = [
@@ -191,9 +237,18 @@ __all__ = [
     "sweep_layer_experts",
     # Logit Lens
     "ExpertLogitContribution",
+    "ExpertVocabContribution",
     "LayerRoutingSnapshot",
+    "LayerVocabAnalysis",
     "MoELogitLens",
+    "TokenExpertPreference",
+    "VocabExpertMapping",
     "analyze_expert_vocabulary",
+    "compute_expert_vocab_contribution",
+    "compute_token_expert_mapping",
+    "find_expert_specialists",
+    "print_expert_vocab_summary",
+    "print_token_expert_preferences",
     # Identification
     "CategoryActivation",
     "ExpertProfile",
@@ -205,14 +260,45 @@ __all__ = [
     "print_expert_summary",
     # Compression
     "ExpertSimilarity",
+    "ExpertActivationStats",
+    "ActivationOverlapResult",
     "CompressionAnalysis",
     "compute_expert_similarity",
+    "compute_expert_similarity_with_activations",
     "compute_similarity_matrix",
+    "compute_similarity_matrix_with_activations",
+    "collect_expert_activations",
+    "compute_activation_overlap",
     "find_merge_candidates",
+    "find_merge_candidates_with_activations",
     "find_prune_candidates",
     "create_compression_plan",
     "analyze_compression_opportunities",
     "print_compression_summary",
+    "print_activation_overlap_matrix",
     # Expert Router
     "ExpertRouter",
+    # Visualization
+    "routing_weights_to_matrix",
+    "multi_layer_routing_matrix",
+    "plot_routing_heatmap",
+    "plot_multi_layer_heatmap",
+    "plot_expert_utilization",
+    "plot_routing_flow",
+    "routing_heatmap_ascii",
+    "utilization_bar_ascii",
+    "save_routing_heatmap",
+    "save_utilization_chart",
+    # Cross-layer tracking
+    "ExpertPipelineNode",
+    "ExpertPipeline",
+    "LayerAlignmentResult",
+    "CrossLayerAnalysis",
+    "compute_expert_activation_profile",
+    "compute_layer_alignment",
+    "track_expert_across_layers",
+    "identify_functional_pipelines",
+    "analyze_cross_layer_routing",
+    "print_pipeline_summary",
+    "print_alignment_matrix",
 ]
