@@ -246,8 +246,7 @@ def track_expert_across_layers(
     nodes: list[ExpertPipelineNode] = []
     layers = sorted(profiles.keys())
 
-    # Start with the initial expert
-    current_expert = start_expert
+    # Start tracking from the start layer
     current_layer_idx = layers.index(start_layer)
 
     # Add starting node

@@ -13,7 +13,6 @@ from collections import Counter, defaultdict
 from ......introspection.moe import ExpertRouter
 from ..formatters import format_header
 
-
 # Domain-specific prompts
 DOMAIN_PROMPTS = {
     "math": [
@@ -84,7 +83,7 @@ async def _async_domain_test(args: Namespace) -> None:
     print()
     print(f"  Model: {model_id}")
     print(f"  Layer: {layer} (middle layer where semantic routing is strongest)")
-    print(f"  Experts: 32 total, 4 active per token (top-k=4)")
+    print("  Experts: 32 total, 4 active per token (top-k=4)")
     print()
     print("  We'll test 4 domains with 4 prompts each:")
     print()
@@ -92,7 +91,7 @@ async def _async_domain_test(args: Namespace) -> None:
     for domain, prompts in DOMAIN_PROMPTS.items():
         print(f"  {domain.upper()}:")
         for prompt in prompts:
-            print(f"    - \"{prompt}\"")
+            print(f'    - "{prompt}"')
     print()
 
     print("=" * 70)

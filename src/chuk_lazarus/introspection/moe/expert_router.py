@@ -478,9 +478,7 @@ class ExpertRouter:
 
             # Mask out ablated experts with very negative value
             num_experts = logits.shape[-1]
-            mask_values = [
-                -1e9 if i in ablate_set else 0.0 for i in range(num_experts)
-            ]
+            mask_values = [-1e9 if i in ablate_set else 0.0 for i in range(num_experts)]
             mask = mx.array(mask_values, dtype=logits.dtype)
             logits = logits + mask
 

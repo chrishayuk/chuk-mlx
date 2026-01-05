@@ -73,9 +73,9 @@ async def _async_attention_pattern(args: Namespace) -> None:
     print("=" * 70)
     print()
     print(f"  Model: {model_id}")
-    print(f"  Prompt: \"{prompt}\"")
+    print(f'  Prompt: "{prompt}"')
     print()
-    print(f"  Loading model...")
+    print("  Loading model...")
 
     async with await ExpertRouter.from_pretrained(model_id) as router:
         info = router.info
@@ -98,7 +98,7 @@ async def _async_attention_pattern(args: Namespace) -> None:
 
         print("  Tokens:")
         for i, tok in enumerate(tokens):
-            print(f"    [{i}] \"{tok}\"")
+            print(f'    [{i}] "{tok}"')
         print()
 
         # Determine query position
@@ -109,7 +109,7 @@ async def _async_attention_pattern(args: Namespace) -> None:
         else:
             query_pos = min(position, len(tokens) - 1)
 
-        print(f"  Analyzing position {query_pos}: \"{tokens[query_pos]}\"")
+        print(f'  Analyzing position {query_pos}: "{tokens[query_pos]}"')
         if head is not None:
             print(f"  Using head {head} only")
         else:
@@ -219,7 +219,7 @@ async def _async_attention_pattern(args: Namespace) -> None:
         print("ATTENTION WEIGHTS")
         print("=" * 70)
         print()
-        print(f"  Position {query_pos}: \"{tokens[query_pos]}\"")
+        print(f'  Position {query_pos}: "{tokens[query_pos]}"')
         print()
         print("  Top attended positions:")
         print()
@@ -230,7 +230,7 @@ async def _async_attention_pattern(args: Namespace) -> None:
             bar_len = int(weight * 40)
             bar = "█" * bar_len + "░" * (40 - bar_len)
             marker = " (self)" if pos_idx == query_pos else ""
-            print(f"    {weight:.3f} [{bar}] \"{tok}\"{marker}")
+            print(f'    {weight:.3f} [{bar}] "{tok}"{marker}')
 
         print()
 
@@ -253,7 +253,7 @@ async def _async_attention_pattern(args: Namespace) -> None:
             experts = pos_weights.expert_indices[:4]
             expert_weights = pos_weights.weights[:4]
 
-            print(f"  Token \"{tokens[query_pos]}\" at layer {target_layer}:")
+            print(f'  Token "{tokens[query_pos]}" at layer {target_layer}:')
             print()
             for exp, w in zip(experts, expert_weights):
                 bar_len = int(w * 40)

@@ -777,3 +777,537 @@ class TestGetModelLayers:
         layers = _get_model_layers(model)
 
         assert len(layers) == 2
+
+
+# =============================================================================
+# Tests for activation-based functions (lines 418-439, 504-550, 576-597, 625, 658-686)
+# =============================================================================
+
+
+class TestComputeActivationOverlap:
+    """Tests for compute_activation_overlap function."""
+
+    def test_basic_overlap(self):
+        """Test basic overlap calculation."""
+        from chuk_lazarus.introspection.moe.compression import compute_activation_overlap
+
+        a_acts = {0, 1, 2, 3}
+        b_acts = {2, 3, 4, 5}
+
+        result = compute_activation_overlap(a_acts, b_acts, expert_a=0, expert_b=1, layer_idx=0)
+
+        assert result.expert_a == 0
+        assert result.expert_b == 1
+        assert result.layer_idx == 0
+        assert result.overlap_count == 2  # {2, 3}
+        assert result.union_count == 6  # {0, 1, 2, 3, 4, 5}
+        assert result.a_only_count == 2  # {0, 1}
+        assert result.b_only_count == 2  # {4, 5}
+        assert 0.3 < result.jaccard_similarity < 0.4  # 2/6 = 0.333
+
+    def test_no_overlap(self):
+        """Test when there is no overlap."""
+        from chuk_lazarus.introspection.moe.compression import compute_activation_overlap
+
+        a_acts = {0, 1}
+        b_acts = {2, 3}
+
+        result = compute_activation_overlap(a_acts, b_acts, expert_a=0, expert_b=1, layer_idx=0)
+
+        assert result.jaccard_similarity == 0.0
+        assert result.overlap_count == 0
+        assert result.union_count == 4
+
+    def test_complete_overlap(self):
+        """Test when sets are identical."""
+        from chuk_lazarus.introspection.moe.compression import compute_activation_overlap
+
+        acts = {0, 1, 2}
+
+        result = compute_activation_overlap(acts, acts.copy(), expert_a=0, expert_b=1, layer_idx=0)
+
+        assert result.jaccard_similarity == 1.0
+        assert result.overlap_count == 3
+        assert result.a_only_count == 0
+        assert result.b_only_count == 0
+
+    def test_empty_sets(self):
+        """Test with empty sets."""
+        from chuk_lazarus.introspection.moe.compression import compute_activation_overlap
+
+        result = compute_activation_overlap(set(), set(), expert_a=0, expert_b=1, layer_idx=0)
+
+        assert result.jaccard_similarity == 0.0
+        assert result.overlap_count == 0
+        assert result.union_count == 0
+
+
+class TestComputeExpertSimilarityWithActivations:
+    """Tests for compute_expert_similarity_with_activations function."""
+
+    def test_basic_similarity(self, moe_model):
+        """Test basic similarity computation with activations."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_expert_similarity_with_activations,
+        )
+
+        activations = {
+            0: {0, 1, 2},
+            1: {1, 2, 3},
+            2: {4, 5},
+            3: {6, 7, 8, 9},
+        }
+
+        result = compute_expert_similarity_with_activations(
+            moe_model, layer_idx=0, expert_a=0, expert_b=1, expert_activations=activations
+        )
+
+        assert result.expert_a == 0
+        assert result.expert_b == 1
+        assert result.layer_idx == 0
+        assert -1 <= result.weight_cosine_similarity <= 1
+        assert 0 <= result.activation_overlap <= 1
+        assert isinstance(result.merge_candidate, bool)
+
+    def test_without_activations(self, moe_model):
+        """Test similarity computation without activation data."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_expert_similarity_with_activations,
+        )
+
+        result = compute_expert_similarity_with_activations(
+            moe_model, layer_idx=0, expert_a=0, expert_b=1, expert_activations=None
+        )
+
+        assert result.activation_overlap == 0.0
+        assert isinstance(result.weight_cosine_similarity, float)
+
+    def test_layer_out_of_range(self, moe_model):
+        """Test with invalid layer index."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_expert_similarity_with_activations,
+        )
+
+        with pytest.raises(ValueError, match="out of range"):
+            compute_expert_similarity_with_activations(
+                moe_model, layer_idx=100, expert_a=0, expert_b=1
+            )
+
+    def test_expert_out_of_range(self, moe_model):
+        """Test with invalid expert index."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_expert_similarity_with_activations,
+        )
+
+        with pytest.raises(ValueError, match="out of range"):
+            compute_expert_similarity_with_activations(
+                moe_model, layer_idx=0, expert_a=0, expert_b=100
+            )
+
+    def test_layer_without_mlp(self):
+        """Test with layer that has no MLP."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_expert_similarity_with_activations,
+        )
+
+        class NoMlpLayer(nn.Module):
+            def __call__(self, x):
+                return x
+
+        class NoMlpModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.model = type("Model", (), {"layers": [NoMlpLayer()]})()
+
+        model = NoMlpModel()
+        with pytest.raises(ValueError, match="has no MLP"):
+            compute_expert_similarity_with_activations(model, layer_idx=0, expert_a=0, expert_b=1)
+
+    def test_mlp_without_experts(self):
+        """Test with MLP that has no experts list."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_expert_similarity_with_activations,
+        )
+
+        class MlpWithoutExperts(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = nn.Linear(32, 32)
+
+            def __call__(self, x):
+                return x
+
+        class LayerWithMlp(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.mlp = MlpWithoutExperts()
+
+            def __call__(self, x):
+                return x
+
+        class ModelWithMlp(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.model = type("Model", (), {"layers": [LayerWithMlp()]})()
+
+        model = ModelWithMlp()
+        with pytest.raises(ValueError, match="has no experts list"):
+            compute_expert_similarity_with_activations(model, layer_idx=0, expert_a=0, expert_b=1)
+
+
+class TestComputeSimilarityMatrixWithActivations:
+    """Tests for compute_similarity_matrix_with_activations function."""
+
+    def test_returns_list(self, moe_model):
+        """Test returns list of similarities."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_similarity_matrix_with_activations,
+        )
+
+        activations = {i: {i, i + 1} for i in range(4)}
+        result = compute_similarity_matrix_with_activations(
+            moe_model, layer_idx=0, expert_activations=activations
+        )
+
+        assert isinstance(result, list)
+        # 4 experts => 4*3/2 = 6 pairs
+        assert len(result) == 6
+
+    def test_invalid_layer(self, moe_model):
+        """Test with invalid layer returns empty list."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_similarity_matrix_with_activations,
+        )
+
+        result = compute_similarity_matrix_with_activations(moe_model, layer_idx=100)
+
+        assert result == []
+
+    def test_layer_without_mlp(self):
+        """Test with layer that has no MLP."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_similarity_matrix_with_activations,
+        )
+
+        class NoMlpLayer(nn.Module):
+            def __call__(self, x):
+                return x
+
+        class NoMlpModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.model = type("Model", (), {"layers": [NoMlpLayer()]})()
+
+        model = NoMlpModel()
+        result = compute_similarity_matrix_with_activations(model, layer_idx=0)
+
+        assert result == []
+
+    def test_mlp_without_experts(self):
+        """Test with MLP that has no experts list."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_similarity_matrix_with_activations,
+        )
+
+        class MlpWithoutExperts(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = nn.Linear(32, 32)
+
+            def __call__(self, x):
+                return x
+
+        class LayerWithMlp(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.mlp = MlpWithoutExperts()
+
+            def __call__(self, x):
+                return x
+
+        class ModelWithMlp(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.model = type("Model", (), {"layers": [LayerWithMlp()]})()
+
+        model = ModelWithMlp()
+        result = compute_similarity_matrix_with_activations(model, layer_idx=0)
+
+        assert result == []
+
+    def test_without_activations(self, moe_model):
+        """Test similarity computation without activation data."""
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_similarity_matrix_with_activations,
+        )
+
+        result = compute_similarity_matrix_with_activations(
+            moe_model, layer_idx=0, expert_activations=None
+        )
+
+        assert isinstance(result, list)
+        assert len(result) == 6  # 4 experts => 6 pairs
+        for sim in result:
+            assert sim.activation_overlap == 0.0
+
+
+class TestFindMergeCandidatesWithActivations:
+    """Tests for find_merge_candidates_with_activations function."""
+
+    def test_basic_finding(self):
+        """Test basic merge candidate finding."""
+        from chuk_lazarus.introspection.moe.compression import (
+            ExpertSimilarity,
+            find_merge_candidates_with_activations,
+        )
+
+        similarities = [
+            ExpertSimilarity(
+                expert_a=0,
+                expert_b=1,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,
+                activation_overlap=0.8,
+                merge_candidate=True,
+            ),
+            ExpertSimilarity(
+                expert_a=2,
+                expert_b=3,
+                layer_idx=0,
+                weight_cosine_similarity=0.5,
+                activation_overlap=0.3,
+                merge_candidate=False,
+            ),
+        ]
+
+        result = find_merge_candidates_with_activations(
+            similarities, weight_threshold=0.8, activation_threshold=0.5
+        )
+
+        assert len(result) >= 1
+        # First candidate should be (0, 1, 0.9, 0.8)
+        assert any(c[0] == 0 and c[1] == 1 for c in result)
+
+    def test_require_both_thresholds(self):
+        """Test with require_both=True."""
+        from chuk_lazarus.introspection.moe.compression import (
+            ExpertSimilarity,
+            find_merge_candidates_with_activations,
+        )
+
+        similarities = [
+            ExpertSimilarity(
+                expert_a=0,
+                expert_b=1,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,  # Above weight threshold
+                activation_overlap=0.3,  # Below activation threshold
+                merge_candidate=False,
+            ),
+        ]
+
+        result = find_merge_candidates_with_activations(
+            similarities,
+            weight_threshold=0.8,
+            activation_threshold=0.5,
+            require_both=True,
+        )
+
+        assert len(result) == 0
+
+    def test_either_threshold(self):
+        """Test with require_both=False (default)."""
+        from chuk_lazarus.introspection.moe.compression import (
+            ExpertSimilarity,
+            find_merge_candidates_with_activations,
+        )
+
+        similarities = [
+            ExpertSimilarity(
+                expert_a=0,
+                expert_b=1,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,  # Above weight threshold
+                activation_overlap=0.3,  # Below activation threshold
+                merge_candidate=False,
+            ),
+        ]
+
+        result = find_merge_candidates_with_activations(
+            similarities,
+            weight_threshold=0.8,
+            activation_threshold=0.5,
+            require_both=False,
+        )
+
+        # Should find candidate because weight is above threshold
+        assert len(result) >= 1
+
+
+class TestPrintActivationOverlapMatrix:
+    """Tests for print_activation_overlap_matrix function."""
+
+    def test_basic_print(self, capsys):
+        """Test basic matrix printing."""
+        from chuk_lazarus.introspection.moe.compression import (
+            ExpertSimilarity,
+            print_activation_overlap_matrix,
+        )
+
+        similarities = [
+            ExpertSimilarity(
+                expert_a=0,
+                expert_b=1,
+                layer_idx=0,
+                weight_cosine_similarity=0.8,
+                activation_overlap=0.6,
+                merge_candidate=True,
+            ),
+            ExpertSimilarity(
+                expert_a=0,
+                expert_b=2,
+                layer_idx=0,
+                weight_cosine_similarity=0.3,
+                activation_overlap=0.2,
+                merge_candidate=False,
+            ),
+            ExpertSimilarity(
+                expert_a=1,
+                expert_b=2,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,
+                activation_overlap=0.8,  # High overlap - should get *
+                merge_candidate=True,
+            ),
+        ]
+
+        print_activation_overlap_matrix(similarities, num_experts=3)
+
+        captured = capsys.readouterr()
+        assert "Activation Overlap Matrix" in captured.out
+        assert "1.0" in captured.out  # Diagonal values
+
+    def test_high_overlap_marker(self, capsys):
+        """Test that high overlap values are marked with *."""
+        from chuk_lazarus.introspection.moe.compression import (
+            ExpertSimilarity,
+            print_activation_overlap_matrix,
+        )
+
+        similarities = [
+            ExpertSimilarity(
+                expert_a=0,
+                expert_b=1,
+                layer_idx=0,
+                weight_cosine_similarity=0.9,
+                activation_overlap=0.75,  # Above 0.7 threshold
+                merge_candidate=True,
+            ),
+        ]
+
+        print_activation_overlap_matrix(similarities, num_experts=2)
+
+        captured = capsys.readouterr()
+        assert "*" in captured.out  # High overlap marker
+
+    def test_empty_similarities(self, capsys):
+        """Test with empty similarities list."""
+        from chuk_lazarus.introspection.moe.compression import print_activation_overlap_matrix
+
+        print_activation_overlap_matrix([], num_experts=2)
+
+        captured = capsys.readouterr()
+        assert "Activation Overlap Matrix" in captured.out
+
+
+class TestCollectExpertActivations:
+    """Tests for collect_expert_activations function."""
+
+    def test_returns_dict_with_mock_hooks(self, moe_model):
+        """Test returns dictionary of activations with mocked hooks."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.introspection.moe.compression import collect_expert_activations
+        from chuk_lazarus.introspection.moe.models import MoELayerInfo
+
+        class MockTokenizer:
+            def encode(self, text):
+                return [1, 2, 3]
+
+        # Create mock hooks with required methods
+        mock_hooks = MagicMock()
+        mock_hooks.get_layer_info.return_value = MoELayerInfo(
+            layer_idx=0,
+            num_experts=4,
+            num_experts_per_tok=2,
+        )
+        mock_hooks.capture_router_weights.return_value = {
+            0: [{"selected_experts": [0, 1]}],
+        }
+
+        result = collect_expert_activations(
+            mock_hooks,
+            prompts=["test1", "test2"],
+            layer_idx=0,
+            tokenizer=MockTokenizer(),
+        )
+
+        # Result should be a dict with expert activations
+        assert isinstance(result, dict)
+        assert len(result) == 4  # 4 experts
+
+    def test_invalid_layer_returns_empty(self, moe_model):
+        """Test with invalid layer returns empty dict."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.introspection.moe.compression import collect_expert_activations
+
+        class MockTokenizer:
+            def encode(self, text):
+                return [1, 2, 3]
+
+        # Create mock hooks that returns None for layer info
+        mock_hooks = MagicMock()
+        mock_hooks.get_layer_info.return_value = None
+
+        result = collect_expert_activations(
+            mock_hooks,
+            prompts=["test"],
+            layer_idx=100,  # Invalid layer
+            tokenizer=MockTokenizer(),
+        )
+
+        assert result == {}
+
+    def test_layer_not_in_captured(self, moe_model):
+        """Test when captured result doesn't have the layer."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.introspection.moe.compression import collect_expert_activations
+        from chuk_lazarus.introspection.moe.models import MoELayerInfo
+
+        class MockTokenizer:
+            def encode(self, text):
+                return [1, 2, 3]
+
+        mock_hooks = MagicMock()
+        mock_hooks.get_layer_info.return_value = MoELayerInfo(
+            layer_idx=0,
+            num_experts=4,
+            num_experts_per_tok=2,
+        )
+        # Return empty captured dict
+        mock_hooks.capture_router_weights.return_value = {}
+
+        result = collect_expert_activations(
+            mock_hooks,
+            prompts=["test"],
+            layer_idx=0,
+            tokenizer=MockTokenizer(),
+        )
+
+        # Should return dict with empty sets for each expert
+        assert isinstance(result, dict)
+        assert len(result) == 4
+        for expert_acts in result.values():
+            assert len(expert_acts) == 0

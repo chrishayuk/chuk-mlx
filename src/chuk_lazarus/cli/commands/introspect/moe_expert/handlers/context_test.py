@@ -12,7 +12,6 @@ from argparse import Namespace
 
 from ......introspection.moe import ExpertRouter
 
-
 # Default context tests for "127"
 DEFAULT_CONTEXTS = {
     "numeric": [
@@ -99,7 +98,7 @@ async def _async_context_test(args: Namespace) -> None:
     for context_type, prompts in context_prompts.items():
         print(f"  {context_type.upper().replace('_', ' ')}:")
         for prompt in prompts:
-            print(f"    - \"{prompt}\"")
+            print(f'    - "{prompt}"')
     print()
 
     print("=" * 70)
@@ -142,9 +141,7 @@ async def _async_context_test(args: Namespace) -> None:
                 experts_seen: set[int] = set()
 
                 for prompt in prompts:
-                    weights = await router.capture_router_weights(
-                        prompt, layers=[test_layer]
-                    )
+                    weights = await router.capture_router_weights(prompt, layers=[test_layer])
 
                     if weights and weights[0].positions:
                         last_pos = weights[0].positions[-1]
@@ -213,7 +210,7 @@ async def _async_context_test(args: Namespace) -> None:
         late_varies = len(late_experts) > 1
 
         if early_varies and not late_varies:
-            print(f"  FINDING: Routing STABILIZES across layers!")
+            print("  FINDING: Routing STABILIZES across layers!")
             print()
             print(f"    Early layers (L{early_layer}): Context-dependent")
             print(f"      '{target_token}' routes to {len(early_experts)} different experts")
@@ -227,7 +224,7 @@ async def _async_context_test(args: Namespace) -> None:
             print("    The model resolves ambiguity as processing deepens.")
 
         elif early_varies and late_varies:
-            print(f"  FINDING: Routing is CONTEXT-DEPENDENT at all layers!")
+            print("  FINDING: Routing is CONTEXT-DEPENDENT at all layers!")
             print()
             print(f"    The token '{target_token}' routes to different experts")
             print("    depending on context, even in late layers.")
@@ -237,7 +234,7 @@ async def _async_context_test(args: Namespace) -> None:
             print("    The model treats it differently throughout the entire forward pass.")
 
         elif not early_varies and not late_varies:
-            print(f"  FINDING: Routing is CONSISTENT at all layers!")
+            print("  FINDING: Routing is CONSISTENT at all layers!")
             print()
             print(f"    The token '{target_token}' routes to the same expert")
             print("    regardless of context.")
@@ -248,7 +245,7 @@ async def _async_context_test(args: Namespace) -> None:
 
         else:
             # late_varies but not early_varies - unusual
-            print(f"  FINDING: Routing DIVERGES in later layers!")
+            print("  FINDING: Routing DIVERGES in later layers!")
             print()
             print(f"    Early: Consistent routing to E{list(early_experts)[0]}")
             print(f"    Late:  Routes to {len(late_experts)} different experts")

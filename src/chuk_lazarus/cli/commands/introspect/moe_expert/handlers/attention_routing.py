@@ -14,12 +14,10 @@ from __future__ import annotations
 import asyncio
 import math
 from argparse import Namespace
-from collections import defaultdict
 
 import mlx.core as mx
 
 from ......introspection.moe import ExpertRouter
-
 
 # Default test contexts: same trigram, different attention patterns expected
 DEFAULT_CONTEXTS = [
@@ -201,7 +199,7 @@ async def _async_attention_routing(args: Namespace) -> None:
 
     print("  Contexts to analyze:")
     for name, ctx in test_contexts:
-        print(f"    {name:<12}: \"{ctx}\"")
+        print(f'    {name:<12}: "{ctx}"')
     print()
 
     print("=" * 70)
@@ -295,14 +293,14 @@ async def _async_attention_routing(args: Namespace) -> None:
         for layer in target_layers:
             results = results_by_layer[layer]
             label = layer_labels.get(layer, "")
-            unique_experts = set(r["primary_expert"] for r in results)
+            unique_experts = {r["primary_expert"] for r in results}
 
             print(f"  Layer {layer} ({label}):")
             for r in results:
                 print(f"    {r['context_name']:<12} → E{r['primary_expert']}")
 
             if len(unique_experts) == 1:
-                print(f"    → Same expert for all contexts (low differentiation)")
+                print("    → Same expert for all contexts (low differentiation)")
             else:
                 print(f"    → {len(unique_experts)} different experts (context-sensitive)")
             print()
@@ -314,14 +312,16 @@ async def _async_attention_routing(args: Namespace) -> None:
         print()
 
         # Show attention for middle layer
-        middle_layer = target_layers[len(target_layers) // 2] if len(target_layers) >= 2 else target_layers[0]
+        middle_layer = (
+            target_layers[len(target_layers) // 2] if len(target_layers) >= 2 else target_layers[0]
+        )
         for r in results_by_layer[middle_layer]:
             print(f"  {r['context_name']:<12} → E{r['primary_expert']}")
             if r["attn_summary"]:
                 for tok, weight in r["attn_summary"]:
                     bar_len = int(weight * 30)
                     bar = "█" * bar_len
-                    print(f"    {weight:.2f} {bar} \"{tok}\"")
+                    print(f'    {weight:.2f} {bar} "{tok}"')
             print()
 
         # Analysis
@@ -334,9 +334,9 @@ async def _async_attention_routing(args: Namespace) -> None:
         early_layer = target_layers[0]
         late_layer = target_layers[-1]
 
-        early_unique = len(set(r["primary_expert"] for r in results_by_layer[early_layer]))
-        middle_unique = len(set(r["primary_expert"] for r in results_by_layer[middle_layer]))
-        late_unique = len(set(r["primary_expert"] for r in results_by_layer[late_layer]))
+        early_unique = len({r["primary_expert"] for r in results_by_layer[early_layer]})
+        middle_unique = len({r["primary_expert"] for r in results_by_layer[middle_layer]})
+        late_unique = len({r["primary_expert"] for r in results_by_layer[late_layer]})
 
         print(f"  Early  (L{early_layer:2d}): {early_unique} unique experts")
         print(f"  Middle (L{middle_layer:2d}): {middle_unique} unique experts")

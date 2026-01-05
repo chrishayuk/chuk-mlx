@@ -30,10 +30,10 @@ class TestGetHandlers:
         for action, handler in handlers.items():
             assert callable(handler), f"Handler for {action.value} is not callable"
 
-    def test_has_21_handlers(self):
-        """Test that we have exactly 21 handlers."""
+    def test_has_15_handlers(self):
+        """Test that we have exactly 15 handlers."""
         handlers = _get_handlers()
-        assert len(handlers) == 21
+        assert len(handlers) == 15
 
 
 class TestDispatch:
@@ -94,13 +94,13 @@ class TestDispatch:
     def test_dispatch_hyphenated_actions(self):
         """Test dispatching actions with hyphens in value."""
         hyphenated_actions = [
-            ("control-tokens", MoEAction.CONTROL_TOKENS),
             ("context-test", MoEAction.CONTEXT_TEST),
-            ("vocab-map", MoEAction.VOCAB_MAP),
-            ("router-probe", MoEAction.ROUTER_PROBE),
-            ("pattern-discovery", MoEAction.PATTERN_DISCOVERY),
             ("full-taxonomy", MoEAction.FULL_TAXONOMY),
-            ("layer-sweep", MoEAction.LAYER_SWEEP),
+            ("domain-test", MoEAction.DOMAIN_TEST),
+            ("token-routing", MoEAction.TOKEN_ROUTING),
+            ("context-window", MoEAction.CONTEXT_WINDOW),
+            ("attention-routing", MoEAction.ATTENTION_ROUTING),
+            ("attention-pattern", MoEAction.ATTENTION_PATTERN),
         ]
 
         for action_str, action_enum in hyphenated_actions:

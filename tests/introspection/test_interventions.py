@@ -72,7 +72,7 @@ class TestInterventionConfig:
     def test_frozen(self):
         """Test config is frozen."""
         config = InterventionConfig()
-        with pytest.raises(Exception):  # Pydantic validation error
+        with pytest.raises((TypeError, ValueError)):  # Pydantic validation error
             config.layers = (1, 2, 3)
 
 

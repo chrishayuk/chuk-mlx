@@ -350,7 +350,6 @@ class CounterfactualIntervention:
             original_layers[layer_idx] = self._layers[layer_idx]
 
             layer = self._layers[layer_idx]
-            capture_idx = layer_idx
 
             class CaptureWrapper:
                 def __init__(wrapper_self, wrapped, idx, captured_dict):

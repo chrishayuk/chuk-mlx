@@ -4,11 +4,9 @@ from __future__ import annotations
 
 import asyncio
 from argparse import Namespace
-from pathlib import Path
 
 from ......introspection.moe import ExpertRouter
 from ......introspection.moe.visualization import (
-    plot_routing_heatmap,
     routing_heatmap_ascii,
     save_routing_heatmap,
 )
@@ -59,8 +57,7 @@ async def _async_heatmap(args: Namespace) -> None:
         # Determine target layer
         target_layer = layer if layer is not None else info.moe_layers[0]
         layer_weights = next(
-            (w for w in all_weights if w.layer_idx == target_layer),
-            all_weights[0]
+            (w for w in all_weights if w.layer_idx == target_layer), all_weights[0]
         )
 
         if ascii_mode or output_path is None:

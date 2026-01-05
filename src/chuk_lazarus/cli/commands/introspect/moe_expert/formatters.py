@@ -273,22 +273,28 @@ def format_taxonomy(taxonomy: ExpertTaxonomy, *, verbose: bool = False) -> str:
         by_layer[identity.layer_idx].append(identity)
 
     # Overall statistics
-    all_categories = Counter(
-        identity.primary_category for identity in taxonomy.expert_identities
-    )
-    all_roles = Counter(
-        identity.role.value for identity in taxonomy.expert_identities
-    )
+    all_categories = Counter(identity.primary_category for identity in taxonomy.expert_identities)
+    all_roles = Counter(identity.role.value for identity in taxonomy.expert_identities)
 
     # Group categories by type for summary
     code_cats = {k: v for k, v in all_categories.items() if k.startswith("code:")}
     structure_cats = {
-        k: v for k, v in all_categories.items()
-        if k in ("bracket", "operator", "punctuation", "identifier", "constant",
-                 "variable", "short_identifier")
+        k: v
+        for k, v in all_categories.items()
+        if k
+        in (
+            "bracket",
+            "operator",
+            "punctuation",
+            "identifier",
+            "constant",
+            "variable",
+            "short_identifier",
+        )
     }
     lang_cats = {
-        k: v for k, v in all_categories.items()
+        k: v
+        for k, v in all_categories.items()
         if k in ("function_word", "capitalized", "content", "whitespace", "number")
     }
     total_experts = len(taxonomy.expert_identities)
@@ -300,24 +306,29 @@ def format_taxonomy(taxonomy: ExpertTaxonomy, *, verbose: bool = False) -> str:
     if code_cats:
         code_total = sum(code_cats.values())
         code_pct = code_total / total_experts * 100
-        code_details = ", ".join(f"{k.split(':')[1]}({v})" for k, v in
-                                  sorted(code_cats.items(), key=lambda x: -x[1])[:5])
+        code_details = ", ".join(
+            f"{k.split(':')[1]}({v})" for k, v in sorted(code_cats.items(), key=lambda x: -x[1])[:5]
+        )
         lines.append(f"  Code Keywords:    {code_total:4d} ({code_pct:5.1f}%) [{code_details}]")
 
     # Structure tokens
     if structure_cats:
         struct_total = sum(structure_cats.values())
         struct_pct = struct_total / total_experts * 100
-        struct_details = ", ".join(f"{k}({v})" for k, v in
-                                    sorted(structure_cats.items(), key=lambda x: -x[1])[:4])
-        lines.append(f"  Code Structure:   {struct_total:4d} ({struct_pct:5.1f}%) [{struct_details}]")
+        struct_details = ", ".join(
+            f"{k}({v})" for k, v in sorted(structure_cats.items(), key=lambda x: -x[1])[:4]
+        )
+        lines.append(
+            f"  Code Structure:   {struct_total:4d} ({struct_pct:5.1f}%) [{struct_details}]"
+        )
 
     # Language tokens
     if lang_cats:
         lang_total = sum(lang_cats.values())
         lang_pct = lang_total / total_experts * 100
-        lang_details = ", ".join(f"{k}({v})" for k, v in
-                                  sorted(lang_cats.items(), key=lambda x: -x[1])[:4])
+        lang_details = ", ".join(
+            f"{k}({v})" for k, v in sorted(lang_cats.items(), key=lambda x: -x[1])[:4]
+        )
         lines.append(f"  Language/Other:   {lang_total:4d} ({lang_pct:5.1f}%) [{lang_details}]")
 
     lines.append("")
@@ -334,8 +345,7 @@ def format_taxonomy(taxonomy: ExpertTaxonomy, *, verbose: bool = False) -> str:
 
     # High-confidence specialists (notable experts)
     specialists = [
-        e for e in taxonomy.expert_identities
-        if e.role.value == "specialist" and e.confidence > 0.6
+        e for e in taxonomy.expert_identities if e.role.value == "specialist" and e.confidence > 0.6
     ]
     if specialists:
         specialists.sort(key=lambda e: e.confidence, reverse=True)

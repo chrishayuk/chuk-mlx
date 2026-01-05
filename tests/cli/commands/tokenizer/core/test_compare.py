@@ -76,7 +76,7 @@ class TestTokenizerCompare:
             patch(LOAD_TOKENIZER_PATCH, side_effect=[tok1, tok2]),
             patch(DISPLAY_UTILITY_PATCH, return_value=mock_display),
         ):
-            result = tokenizer_compare(config)
+            tokenizer_compare(config)
 
         # Display should be called for both tokenizers
         assert mock_display.display_tokens_from_prompt.call_count == 2

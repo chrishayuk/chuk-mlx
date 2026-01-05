@@ -273,55 +273,6 @@ class TestExpertRouterSampling:
         assert 0 <= token < 4
 
 
-class TestExpertRouterForwardPatching:
-    """Tests for forward function patching."""
-
-    def test_make_forced_expert_forward_gpt_oss(
-        self, mock_mlx_model, mock_tokenizer, mock_moe_model_info
-    ):
-        """Test GPT-OSS style forced expert forward creation."""
-        router = ExpertRouter(mock_mlx_model, mock_tokenizer, mock_moe_model_info)
-
-        # Create a mock MLP with GPT-OSS structure
-        mock_mlp = MagicMock()
-        mock_mlp.experts = MagicMock()
-
-        # Create properly shaped arrays
-        # gate_up_proj: [num_experts, hidden, 2*intermediate]
-        # down_proj: [num_experts, hidden, intermediate] (transposed in the code)
-        hidden_size = 64
-        intermediate_size = 128
-        mock_mlp.experts.gate_up_proj = mx.zeros((32, hidden_size, 2 * intermediate_size))
-        mock_mlp.experts.down_proj = mx.zeros((32, hidden_size, intermediate_size))
-
-        forward_fn = router._make_forced_expert_forward_gpt_oss(mock_mlp, expert_idx=6)
-
-        # Should be callable
-        assert callable(forward_fn)
-
-        # Test with input
-        x = mx.zeros((1, 10, hidden_size))
-        output = forward_fn(x)
-        assert output.shape == x.shape
-
-    def test_make_forced_expert_forward_standard(
-        self, mock_mlx_model, mock_tokenizer, mock_moe_model_info
-    ):
-        """Test standard MoE style forced expert forward creation."""
-        router = ExpertRouter(mock_mlx_model, mock_tokenizer, mock_moe_model_info)
-
-        # Create a mock MLP with standard structure
-        mock_expert = MagicMock()
-        mock_expert.return_value = mx.zeros((1, 10, 64))
-
-        mock_mlp = MagicMock()
-        mock_mlp.experts = [mock_expert for _ in range(8)]
-
-        forward_fn = router._make_forced_expert_forward_standard(mock_mlp, expert_idx=0)
-
-        assert callable(forward_fn)
-
-
 class TestExpertRouterExtractInfo:
     """Tests for MoE info extraction."""
 

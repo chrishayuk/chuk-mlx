@@ -9,7 +9,6 @@ from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.full_taxonomy impo
     _async_full_taxonomy,
     handle_full_taxonomy,
 )
-from chuk_lazarus.introspection.moe.datasets.prompts import PromptCategory
 from chuk_lazarus.introspection.moe.enums import MoEArchitecture
 from chuk_lazarus.introspection.moe.models import (
     LayerRouterWeights,
@@ -69,24 +68,15 @@ class TestAsyncFullTaxonomy:
         mock_router.__aenter__ = AsyncMock(return_value=mock_router)
         mock_router.__aexit__ = AsyncMock(return_value=None)
 
-        # Mock prompts data - use ARITHMETIC which exists in PromptCategory
-        mock_prompts = [(PromptCategory.ARITHMETIC, "1+1=")]
-
-        with (
-            patch(
-                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.full_taxonomy.ExpertRouter"
-            ) as MockRouter,
-            patch(
-                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.full_taxonomy.get_prompts_flat"
-            ) as mock_get_prompts,
-        ):
+        with patch(
+            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.full_taxonomy.ExpertRouter"
+        ) as MockRouter:
             MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
-            mock_get_prompts.return_value = mock_prompts
 
             await _async_full_taxonomy(args)
 
             captured = capsys.readouterr()
-            assert "EXPERT TAXONOMY" in captured.out
+            assert "SEMANTIC TRIGRAM TAXONOMY ANALYSIS" in captured.out
             assert "test/model" in captured.out
 
     @pytest.mark.asyncio
@@ -127,20 +117,56 @@ class TestAsyncFullTaxonomy:
         mock_router.__aenter__ = AsyncMock(return_value=mock_router)
         mock_router.__aexit__ = AsyncMock(return_value=None)
 
-        mock_prompts = [(PromptCategory.ARITHMETIC, f"prompt{i}") for i in range(5)]
-
-        with (
-            patch(
-                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.full_taxonomy.ExpertRouter"
-            ) as MockRouter,
-            patch(
-                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.full_taxonomy.get_prompts_flat"
-            ) as mock_get_prompts,
-        ):
+        with patch(
+            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.full_taxonomy.ExpertRouter"
+        ) as MockRouter:
             MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
-            mock_get_prompts.return_value = mock_prompts
 
             await _async_full_taxonomy(args)
 
             captured = capsys.readouterr()
-            assert "EXPERT TAXONOMY" in captured.out
+            assert "SEMANTIC TRIGRAM TAXONOMY ANALYSIS" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_full_taxonomy_with_layer(self, capsys):
+        """Test full taxonomy with specific layer."""
+        args = Namespace(model="test/model", layer=5)
+
+        mock_info = MoEModelInfo(
+            moe_layers=(0, 5, 10),
+            num_experts=8,
+            num_experts_per_tok=2,
+            total_layers=12,
+            architecture=MoEArchitecture.GPT_OSS,
+        )
+
+        mock_weights = [
+            LayerRouterWeights(
+                layer_idx=5,
+                positions=(
+                    RouterWeightCapture(
+                        layer_idx=5,
+                        position_idx=0,
+                        token="test",
+                        expert_indices=(0, 1),
+                        weights=(0.6, 0.4),
+                    ),
+                ),
+            )
+        ]
+
+        mock_router = AsyncMock()
+        mock_router.info = mock_info
+        mock_router.capture_router_weights = AsyncMock(return_value=mock_weights)
+        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
+        mock_router.__aexit__ = AsyncMock(return_value=None)
+
+        with patch(
+            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.full_taxonomy.ExpertRouter"
+        ) as MockRouter:
+            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+
+            await _async_full_taxonomy(args)
+
+            captured = capsys.readouterr()
+            assert "SEMANTIC TRIGRAM TAXONOMY ANALYSIS" in captured.out

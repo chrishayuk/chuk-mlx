@@ -8,11 +8,10 @@ from __future__ import annotations
 
 import asyncio
 from argparse import Namespace
-from collections import Counter, defaultdict
+from collections import Counter
 
 from ......introspection.moe import ExpertRouter
 from ..formatters import format_header
-
 
 # Test contexts for common tokens
 TOKEN_CONTEXTS = {
@@ -98,7 +97,7 @@ async def _async_token_routing(args: Namespace) -> None:
         ]
 
     for context, desc in contexts_with_desc:
-        print(f"    \"{context}\"")
+        print(f'    "{context}"')
         print(f"      ^ {desc}")
         print()
 
@@ -107,10 +106,10 @@ async def _async_token_routing(args: Namespace) -> None:
     print("=" * 70)
     print()
     print("  For each context, we:")
-    print(f"    1. Pass the full context through the model")
+    print("    1. Pass the full context through the model")
     print(f"    2. Find the position of token '{token}'")
-    print(f"    3. Record which experts are selected for that position")
-    print(f"    4. Compare across all contexts")
+    print("    3. Record which experts are selected for that position")
+    print("    4. Compare across all contexts")
     print()
 
     async with await ExpertRouter.from_pretrained(model_id) as router:
@@ -148,7 +147,7 @@ async def _async_token_routing(args: Namespace) -> None:
             all_experts.update(experts)
             for e in experts:
                 expert_counts[e] += 1
-            print(f"  Context: \"{context}\"")
+            print(f'  Context: "{context}"')
             print(f"  Purpose: {desc}")
             print(f"  Experts: [{exp_str}]")
             print()

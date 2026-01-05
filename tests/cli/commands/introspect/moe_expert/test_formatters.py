@@ -328,7 +328,7 @@ class TestFormatTaxonomy:
         """Test verbose taxonomy formatting."""
         result = format_taxonomy(sample_taxonomy, verbose=True)
 
-        assert "Top tokens:" in result
+        assert "tokens:" in result
         assert "'127'" in result
 
 

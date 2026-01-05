@@ -88,7 +88,6 @@ def multi_layer_routing_matrix(
     if not all_layer_weights:
         return np.zeros((0, num_experts))
 
-    num_positions = len(all_layer_weights[0].positions)
     matrices = []
 
     for layer_weights in all_layer_weights:
@@ -138,10 +137,10 @@ def plot_routing_heatmap(
     """
     try:
         import matplotlib.pyplot as plt
-    except ImportError:
+    except ImportError as err:
         raise ImportError(
             "matplotlib is required for plotting. Install with: pip install matplotlib"
-        )
+        ) from err
 
     matrix, tokens = routing_weights_to_matrix(layer_weights, num_experts)
 
@@ -172,7 +171,7 @@ def plot_routing_heatmap(
         ax.set_yticklabels([tokens[i] for i in tick_positions], fontsize=8)
 
     # Add colorbar
-    cbar = fig.colorbar(im, ax=ax, label="Routing Weight")
+    fig.colorbar(im, ax=ax, label="Routing Weight")
 
     # Add values to cells if requested
     if show_values and matrix.shape[0] * matrix.shape[1] < 500:
@@ -221,8 +220,8 @@ def plot_multi_layer_heatmap(
     """
     try:
         import matplotlib.pyplot as plt
-    except ImportError:
-        raise ImportError("matplotlib required")
+    except ImportError as err:
+        raise ImportError("matplotlib required") from err
 
     num_layers = len(all_layer_weights)
     if num_layers == 0:
@@ -279,8 +278,8 @@ def plot_expert_utilization(
     """
     try:
         import matplotlib.pyplot as plt
-    except ImportError:
-        raise ImportError("matplotlib required")
+    except ImportError as err:
+        raise ImportError("matplotlib required") from err
 
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -343,8 +342,8 @@ def plot_routing_flow(
     """
     try:
         import matplotlib.pyplot as plt
-    except ImportError:
-        raise ImportError("matplotlib required")
+    except ImportError as err:
+        raise ImportError("matplotlib required") from err
 
     fig, ax = plt.subplots(figsize=figsize)
 

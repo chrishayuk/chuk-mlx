@@ -118,8 +118,8 @@ def sample_identities():
         ExpertIdentity(
             expert_idx=0,
             layer_idx=0,
-            primary_category=ExpertCategory.CODE,
-            secondary_categories=(ExpertCategory.MATH,),
+            primary_category="code",
+            secondary_categories=("math",),
             role=ExpertRole.SPECIALIST,
             confidence=0.9,
             activation_rate=0.3,
@@ -127,7 +127,7 @@ def sample_identities():
         ExpertIdentity(
             expert_idx=1,
             layer_idx=0,
-            primary_category=ExpertCategory.MATH,
+            primary_category="math",
             role=ExpertRole.GENERALIST,
             confidence=0.5,
             activation_rate=0.4,
@@ -135,7 +135,7 @@ def sample_identities():
         ExpertIdentity(
             expert_idx=2,
             layer_idx=0,
-            primary_category=ExpertCategory.UNKNOWN,
+            primary_category="unknown",
             role=ExpertRole.RARE,
             confidence=0.1,
             activation_rate=0.01,
@@ -175,7 +175,7 @@ class TestExpertProfile:
             layer_idx=4,
             total_activations=100,
             category_breakdown=(),
-            primary_category=ExpertCategory.CODE,
+            primary_category="code",
             role=ExpertRole.SPECIALIST,
             confidence=0.9,
         )
@@ -267,8 +267,8 @@ class TestPrintExpertSummary:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=5,
-                primary_category=ExpertCategory.CODE,
-                secondary_categories=(ExpertCategory.MATH, ExpertCategory.LANGUAGE),
+                primary_category="code",
+                secondary_categories=("math", "language"),
                 role=ExpertRole.SPECIALIST,
                 confidence=0.95,
                 activation_rate=0.4,
@@ -276,8 +276,8 @@ class TestPrintExpertSummary:
             ExpertIdentity(
                 expert_idx=1,
                 layer_idx=5,
-                primary_category=ExpertCategory.LANGUAGE,
-                secondary_categories=(ExpertCategory.NUMBERS,),
+                primary_category="language",
+                secondary_categories=("numbers",),
                 role=ExpertRole.GENERALIST,
                 confidence=0.55,
                 activation_rate=0.35,
@@ -285,7 +285,7 @@ class TestPrintExpertSummary:
             ExpertIdentity(
                 expert_idx=2,
                 layer_idx=5,
-                primary_category=ExpertCategory.UNKNOWN,
+                primary_category="unknown",
                 role=ExpertRole.RARE,
                 confidence=0.1,
                 activation_rate=0.005,
@@ -312,8 +312,8 @@ class TestPrintExpertSummary:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=3,
-                primary_category=ExpertCategory.MATH,
-                secondary_categories=(ExpertCategory.CODE, ExpertCategory.LANGUAGE),
+                primary_category="math",
+                secondary_categories=("code", "language"),
                 role=ExpertRole.SPECIALIST,
                 confidence=0.85,
                 activation_rate=0.3,
@@ -333,7 +333,7 @@ class TestPrintExpertSummary:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=2,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.9,
                 activation_rate=0.3,
@@ -341,7 +341,7 @@ class TestPrintExpertSummary:
             ExpertIdentity(
                 expert_idx=1,
                 layer_idx=2,
-                primary_category=ExpertCategory.MATH,
+                primary_category="math",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.85,
                 activation_rate=0.25,
@@ -361,7 +361,7 @@ class TestPrintExpertSummary:
             ExpertIdentity(
                 expert_idx=3,
                 layer_idx=1,
-                primary_category=ExpertCategory.MATH,
+                primary_category="math",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.7,
                 activation_rate=0.2,
@@ -369,7 +369,7 @@ class TestPrintExpertSummary:
             ExpertIdentity(
                 expert_idx=1,
                 layer_idx=1,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.95,
                 activation_rate=0.4,
@@ -406,7 +406,7 @@ class TestIdentifyExpert:
         assert isinstance(identity, ExpertIdentity)
         assert identity.expert_idx == 0
         assert identity.layer_idx == 0
-        assert isinstance(identity.primary_category, ExpertCategory)
+        assert isinstance(identity.primary_category, str)
         assert isinstance(identity.role, ExpertRole)
         assert 0 <= identity.confidence <= 1
         assert 0 <= identity.activation_rate <= 1
@@ -620,7 +620,7 @@ class TestIdentifyExpert:
         )
 
         # Should have processed multiple categories
-        assert isinstance(identity.primary_category, ExpertCategory)
+        assert isinstance(identity.primary_category, str)
 
     def test_identify_expert_confidence_calculation(self, moe_model, tokenizer):
         """Test confidence calculation with mixed activations."""
@@ -649,9 +649,6 @@ class TestIdentifyExpert:
         assert identity.expert_idx == 1
         assert 0 <= identity.confidence <= 1
 
-    @pytest.mark.skip(
-        reason="Source code has bug - uses PromptCategory.GEOMETRY which triggers AttributeError in category_mapping"
-    )
     def test_identify_expert_role_rare_low_activation(self, moe_model, tokenizer):
         """Test RARE role assignment for activation_rate < 0.01."""
         hooks = MoEHooks(moe_model)
@@ -902,7 +899,7 @@ class TestFindSpecialistsExtended:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=0,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.7,
                 activation_rate=0.3,
@@ -910,7 +907,7 @@ class TestFindSpecialistsExtended:
             ExpertIdentity(
                 expert_idx=1,
                 layer_idx=0,
-                primary_category=ExpertCategory.MATH,
+                primary_category="math",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.9,
                 activation_rate=0.4,
@@ -939,7 +936,7 @@ class TestFindGeneralistsExtended:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=0,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.9,
                 activation_rate=0.3,
@@ -967,7 +964,7 @@ class TestClusterExpertsBySpecializationExtended:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=0,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.7,
                 activation_rate=0.3,
@@ -975,7 +972,7 @@ class TestClusterExpertsBySpecializationExtended:
             ExpertIdentity(
                 expert_idx=1,
                 layer_idx=0,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.9,
                 activation_rate=0.4,
@@ -1082,7 +1079,7 @@ class TestExpertProfileValidation:
             layer_idx=4,
             total_activations=100,
             category_breakdown=(),
-            primary_category=ExpertCategory.CODE,
+            primary_category="code",
             role=ExpertRole.SPECIALIST,
             confidence=0.9,
         )
@@ -1107,7 +1104,7 @@ class TestExpertProfileValidation:
             layer_idx=4,
             total_activations=100,
             category_breakdown=breakdown,
-            primary_category=ExpertCategory.CODE,
+            primary_category="code",
             role=ExpertRole.SPECIALIST,
             confidence=0.9,
         )
@@ -1122,7 +1119,7 @@ class TestExpertProfileValidation:
                 expert_idx=-1,  # Invalid: < 0
                 layer_idx=0,
                 total_activations=0,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.5,
             )
@@ -1134,7 +1131,7 @@ class TestExpertProfileValidation:
                 expert_idx=0,
                 layer_idx=0,
                 total_activations=-10,  # Invalid: < 0
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.5,
             )
@@ -1146,7 +1143,7 @@ class TestExpertProfileValidation:
                 expert_idx=0,
                 layer_idx=0,
                 total_activations=100,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=1.5,  # Invalid: > 1
             )
@@ -1157,7 +1154,7 @@ class TestExpertProfileValidation:
             expert_idx=0,
             layer_idx=4,
             total_activations=100,
-            primary_category=ExpertCategory.CODE,
+            primary_category="code",
             role=ExpertRole.SPECIALIST,
             confidence=0.9,
         )
@@ -1170,7 +1167,7 @@ class TestExpertProfileValidation:
             expert_idx=0,
             layer_idx=0,
             total_activations=0,
-            primary_category=ExpertCategory.CODE,
+            primary_category="code",
             role=ExpertRole.SPECIALIST,
             confidence=0.5,
         )
@@ -1202,7 +1199,7 @@ class TestExpertProfileValidation:
             layer_idx=4,
             total_activations=80,
             category_breakdown=breakdown,
-            primary_category=ExpertCategory.CODE,
+            primary_category="code",
             role=ExpertRole.SPECIALIST,
             confidence=0.9,
         )
@@ -1331,7 +1328,7 @@ class TestEdgeCasesWithMocking:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=0,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.9,
                 activation_rate=0.3,
@@ -1347,7 +1344,7 @@ class TestEdgeCasesWithMocking:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=0,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.9,
                 activation_rate=0.3,
@@ -1355,7 +1352,7 @@ class TestEdgeCasesWithMocking:
             ExpertIdentity(
                 expert_idx=1,
                 layer_idx=0,
-                primary_category=ExpertCategory.MATH,
+                primary_category="math",
                 role=ExpertRole.SPECIALIST,
                 confidence=0.8,
                 activation_rate=0.2,
@@ -1425,7 +1422,7 @@ class TestEdgeCasesWithMocking:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=0,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 secondary_categories=(),  # Empty
                 role=ExpertRole.SPECIALIST,
                 confidence=0.9,
@@ -1445,7 +1442,7 @@ class TestEdgeCasesWithMocking:
             ExpertIdentity(
                 expert_idx=0,
                 layer_idx=0,
-                primary_category=ExpertCategory.CODE,
+                primary_category="code",
                 secondary_categories=(
                     ExpertCategory.MATH,
                     ExpertCategory.PUNCTUATION,
@@ -1489,7 +1486,7 @@ class TestIdentifyExpertRealDataCoverage:
         assert isinstance(identity, ExpertIdentity)
         assert identity.expert_idx == 0
         assert identity.layer_idx == 0
-        assert isinstance(identity.primary_category, ExpertCategory)
+        assert isinstance(identity.primary_category, str)
         assert isinstance(identity.role, ExpertRole)
         assert 0 <= identity.confidence <= 1
         assert 0 <= identity.activation_rate <= 1
@@ -1510,7 +1507,7 @@ class TestIdentifyExpertRealDataCoverage:
 
             # Verify results
             assert identity.expert_idx == expert_idx
-            assert isinstance(identity.primary_category, ExpertCategory)
+            assert isinstance(identity.primary_category, str)
             assert isinstance(identity.secondary_categories, tuple)
 
 
@@ -1610,7 +1607,7 @@ class TestIdentifyExpertCoverageEdgeCases:
 
         # Should have mapped categories without errors
         assert isinstance(identity, ExpertIdentity)
-        assert isinstance(identity.primary_category, ExpertCategory)
+        assert isinstance(identity.primary_category, str)
 
     @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
     def test_identify_expert_lines_146_162_expert_category_scores(
@@ -1663,7 +1660,7 @@ class TestIdentifyExpertCoverageEdgeCases:
 
         # Should have aggregated scores and calculated confidence
         assert 0 <= identity.confidence <= 1
-        assert isinstance(identity.primary_category, ExpertCategory)
+        assert isinstance(identity.primary_category, str)
 
     @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
     def test_identify_expert_lines_155_162_empty_scores_handling(
@@ -1697,7 +1694,7 @@ class TestIdentifyExpertCoverageEdgeCases:
 
         # Should handle empty scores: primary=UNKNOWN or have 0 confidence
         assert identity.confidence >= 0
-        assert isinstance(identity.primary_category, ExpertCategory)
+        assert isinstance(identity.primary_category, str)
 
     @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
     def test_identify_expert_lines_163_175_role_determination(
@@ -1849,7 +1846,7 @@ class TestIdentifyExpertCoverageEdgeCases:
         # Verify all fields are populated
         assert identity.expert_idx == 2
         assert identity.layer_idx == 0
-        assert isinstance(identity.primary_category, ExpertCategory)
+        assert isinstance(identity.primary_category, str)
         assert isinstance(identity.secondary_categories, tuple)
         assert isinstance(identity.role, ExpertRole)
         assert isinstance(identity.confidence, float)
@@ -2024,7 +2021,6 @@ class TestIdentifyExpertCoverageEdgeCases:
         assert 0 <= identity.activation_rate <= 1
         assert identity.expert_idx == 1
 
-    @pytest.mark.skip(reason="Source code bug: PromptCategory.GEOMETRY doesn't exist")
     @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
     def test_identify_expert_lines_96_100_direct_execution(
         self, mock_get_prompts, moe_model, tokenizer
@@ -2068,7 +2064,6 @@ class TestIdentifyExpertCoverageEdgeCases:
         # The actual values depend on mock behavior, but structure should be valid
         assert isinstance(identity, ExpertIdentity)
 
-    @pytest.mark.skip(reason="Source code bug: PromptCategory.GEOMETRY doesn't exist")
     @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
     def test_identify_expert_lines_114_184_with_populated_counts(
         self, mock_get_prompts, moe_model, tokenizer
@@ -2132,7 +2127,7 @@ class TestIdentifyExpertCoverageEdgeCases:
 
         assert identity.expert_idx == 1
         # Expert 1 should have been selected multiple times
-        assert isinstance(identity.primary_category, ExpertCategory)
+        assert isinstance(identity.primary_category, str)
         assert identity.primary_category != ExpertCategory.UNKNOWN  # Should have a real category
         assert isinstance(identity.role, ExpertRole)
         assert 0 <= identity.confidence <= 1

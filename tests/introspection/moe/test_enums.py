@@ -144,10 +144,6 @@ class TestMoEAction:
         """Test ABLATE enum value."""
         assert MoEAction.ABLATE.value == "ablate"
 
-    def test_control_tokens_value(self):
-        """Test CONTROL_TOKENS enum value with hyphen."""
-        assert MoEAction.CONTROL_TOKENS.value == "control-tokens"
-
     def test_full_taxonomy_value(self):
         """Test FULL_TAXONOMY enum value with hyphen."""
         assert MoEAction.FULL_TAXONOMY.value == "full-taxonomy"
@@ -159,47 +155,37 @@ class TestMoEAction:
 
     def test_handler_name_with_hyphen(self):
         """Test handler_name converts hyphens to underscores."""
-        assert MoEAction.CONTROL_TOKENS.handler_name == "control_tokens"
         assert MoEAction.CONTEXT_TEST.handler_name == "context_test"
         assert MoEAction.FULL_TAXONOMY.handler_name == "full_taxonomy"
-        assert MoEAction.LAYER_SWEEP.handler_name == "layer_sweep"
-        assert MoEAction.VOCAB_MAP.handler_name == "vocab_map"
-        assert MoEAction.ROUTER_PROBE.handler_name == "router_probe"
-        assert MoEAction.PATTERN_DISCOVERY.handler_name == "pattern_discovery"
+        assert MoEAction.DOMAIN_TEST.handler_name == "domain_test"
+        assert MoEAction.TOKEN_ROUTING.handler_name == "token_routing"
+        assert MoEAction.CONTEXT_WINDOW.handler_name == "context_window"
+        assert MoEAction.ATTENTION_ROUTING.handler_name == "attention_routing"
+        assert MoEAction.ATTENTION_PATTERN.handler_name == "attention_pattern"
 
     def test_all_actions_count(self):
-        """Test that we have exactly 25 actions."""
+        """Test that we have exactly 15 actions."""
         actions = list(MoEAction)
-        assert len(actions) == 25
+        assert len(actions) == 15
 
     def test_all_expected_actions_exist(self):
-        """Test all 25 expected actions are defined."""
+        """Test all 15 expected actions are defined."""
         expected_actions = [
             "analyze",
             "chat",
             "compare",
             "ablate",
-            "topk",
-            "collab",
-            "pairs",
-            "interactive",
             "weights",
-            "tokenizer",
-            "control-tokens",
             "trace",
-            "entropy",
-            "divergence",
-            "role",
-            "context-test",
-            "vocab-map",
-            "router-probe",
-            "pattern-discovery",
-            "full-taxonomy",
-            "layer-sweep",
             "heatmap",
-            "pipeline",
-            "vocab-contrib",
-            "compression",
+            "full-taxonomy",
+            "domain-test",
+            "token-routing",
+            "context-test",
+            "context-window",
+            "attention-routing",
+            "attention-pattern",
+            "explore",
         ]
         actual_values = [a.value for a in MoEAction]
         for expected in expected_actions:
@@ -208,7 +194,7 @@ class TestMoEAction:
     def test_enum_from_string(self):
         """Test creating enum from string value."""
         assert MoEAction("chat") == MoEAction.CHAT
-        assert MoEAction("control-tokens") == MoEAction.CONTROL_TOKENS
+        assert MoEAction("full-taxonomy") == MoEAction.FULL_TAXONOMY
 
     def test_string_comparison(self):
         """Test string comparison works."""

@@ -17,16 +17,36 @@ from collections import Counter, defaultdict
 from ......introspection.moe import ExpertRouter
 from ..formatters import format_header
 
-
 # =============================================================================
 # TOKEN TYPE CLASSIFICATION
 # =============================================================================
 
 # Keywords by category
 CODE_KEYWORDS = {
-    "def", "class", "if", "for", "while", "return", "import", "from",
-    "function", "const", "let", "var", "async", "await", "try", "except",
-    "yield", "lambda", "with", "else", "elif", "switch", "case", "break",
+    "def",
+    "class",
+    "if",
+    "for",
+    "while",
+    "return",
+    "import",
+    "from",
+    "function",
+    "const",
+    "let",
+    "var",
+    "async",
+    "await",
+    "try",
+    "except",
+    "yield",
+    "lambda",
+    "with",
+    "else",
+    "elif",
+    "switch",
+    "case",
+    "break",
 }
 
 BOOL_LITERALS = {"true", "false", "True", "False", "null", "None", "nil"}
@@ -35,34 +55,172 @@ TYPE_KEYWORDS = {"int", "str", "float", "bool", "list", "dict", "string", "numbe
 
 # Parts of speech
 NOUNS = {
-    "cat", "dog", "man", "woman", "king", "queen", "doctor", "student",
-    "teacher", "patient", "car", "house", "tree", "animal", "pet", "bird",
-    "fish", "book", "song", "pen", "brush", "eye", "ear", "sun", "moon",
-    "hand", "foot", "glove", "shoe", "day", "night", "puppy", "kitten",
-    "vehicle", "city", "country", "river", "mountain", "ocean", "server",
-    "computer", "person", "child", "parent", "friend", "enemy", "world",
+    "cat",
+    "dog",
+    "man",
+    "woman",
+    "king",
+    "queen",
+    "doctor",
+    "student",
+    "teacher",
+    "patient",
+    "car",
+    "house",
+    "tree",
+    "animal",
+    "pet",
+    "bird",
+    "fish",
+    "book",
+    "song",
+    "pen",
+    "brush",
+    "eye",
+    "ear",
+    "sun",
+    "moon",
+    "hand",
+    "foot",
+    "glove",
+    "shoe",
+    "day",
+    "night",
+    "puppy",
+    "kitten",
+    "vehicle",
+    "city",
+    "country",
+    "river",
+    "mountain",
+    "ocean",
+    "server",
+    "computer",
+    "person",
+    "child",
+    "parent",
+    "friend",
+    "enemy",
+    "world",
 }
 
 ADJECTIVES = {
-    "big", "small", "happy", "sad", "fast", "slow", "hot", "cold",
-    "good", "bad", "old", "new", "light", "dark", "high", "low",
-    "warm", "cool", "large", "quick", "great", "young", "rich", "poor",
-    "tall", "short", "long", "deep", "wide", "narrow", "thick", "thin",
-    "heavy", "soft", "hard", "easy", "difficult", "simple", "complex",
+    "big",
+    "small",
+    "happy",
+    "sad",
+    "fast",
+    "slow",
+    "hot",
+    "cold",
+    "good",
+    "bad",
+    "old",
+    "new",
+    "light",
+    "dark",
+    "high",
+    "low",
+    "warm",
+    "cool",
+    "large",
+    "quick",
+    "great",
+    "young",
+    "rich",
+    "poor",
+    "tall",
+    "short",
+    "long",
+    "deep",
+    "wide",
+    "narrow",
+    "thick",
+    "thin",
+    "heavy",
+    "soft",
+    "hard",
+    "easy",
+    "difficult",
+    "simple",
+    "complex",
 }
 
 VERBS = {
-    "run", "walk", "think", "eat", "make", "go", "come", "see", "know",
-    "read", "write", "listen", "fly", "swim", "paint", "hear", "speak",
-    "work", "play", "sleep", "wake", "start", "stop", "open", "close",
-    "give", "take", "find", "lose", "win", "fail", "pass", "grow",
+    "run",
+    "walk",
+    "think",
+    "eat",
+    "make",
+    "go",
+    "come",
+    "see",
+    "know",
+    "read",
+    "write",
+    "listen",
+    "fly",
+    "swim",
+    "paint",
+    "hear",
+    "speak",
+    "work",
+    "play",
+    "sleep",
+    "wake",
+    "start",
+    "stop",
+    "open",
+    "close",
+    "give",
+    "take",
+    "find",
+    "lose",
+    "win",
+    "fail",
+    "pass",
+    "grow",
 }
 
 FUNCTION_WORDS = {
-    "the", "a", "an", "in", "on", "at", "to", "for", "with", "by", "of",
-    "and", "or", "but", "is", "are", "was", "were", "be", "been", "being",
-    "has", "have", "had", "do", "does", "did", "will", "would", "could",
-    "should", "may", "might", "must", "can", "shall", "this", "that",
+    "the",
+    "a",
+    "an",
+    "in",
+    "on",
+    "at",
+    "to",
+    "for",
+    "with",
+    "by",
+    "of",
+    "and",
+    "or",
+    "but",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "being",
+    "has",
+    "have",
+    "had",
+    "do",
+    "does",
+    "did",
+    "will",
+    "would",
+    "could",
+    "should",
+    "may",
+    "might",
+    "must",
+    "can",
+    "shall",
+    "this",
+    "that",
 }
 
 # Relationship markers
@@ -104,8 +262,30 @@ def classify_token(token: str) -> str:
         return "NUM"
 
     # Operators
-    if clean in ["+", "-", "*", "/", "=", "<", ">", "==", "!=", "<=", ">=",
-                 "+=", "-=", "*=", "/=", "&&", "||", "!", "&", "|", "^", "%"]:
+    if clean in [
+        "+",
+        "-",
+        "*",
+        "/",
+        "=",
+        "<",
+        ">",
+        "==",
+        "!=",
+        "<=",
+        ">=",
+        "+=",
+        "-=",
+        "*=",
+        "/=",
+        "&&",
+        "||",
+        "!",
+        "&",
+        "|",
+        "^",
+        "%",
+    ]:
         return "OP"
 
     # Brackets
@@ -354,7 +534,13 @@ PATTERN_CATEGORIES = {
     "quantification": ["^→QUANT", "QUANT→NOUN", "QUANT→FUNC"],
     "position": ["^→CW", "^→NOUN", "^→NUM", "CW→PN→$", "NUM→PN→$", "^→CAP", "^→FUNC"],
     "context_switch": ["CW→WS→NUM", "NUM→WS→CW", "FUNC→NUM", "NUM→FUNC", "PN→WS→NUM", "CW→PN→NUM"],
-    "coordination": ["NOUN→COORD→NOUN", "ADJ→COORD→ADJ", "VERB→COORD→VERB", "CW→COORD→CW", "→COORD→"],
+    "coordination": [
+        "NOUN→COORD→NOUN",
+        "ADJ→COORD→ADJ",
+        "VERB→COORD→VERB",
+        "CW→COORD→CW",
+        "→COORD→",
+    ],
 }
 
 
@@ -423,15 +609,15 @@ async def _async_full_taxonomy(args: Namespace) -> None:
                 tokens = [p.token for p in positions]
 
                 for i, pos in enumerate(positions):
-                    prev_t = sem_types[i-1] if i > 0 else "^"
+                    prev_t = sem_types[i - 1] if i > 0 else "^"
                     curr_t = sem_types[i]
-                    next_t = sem_types[i+1] if i < len(sem_types)-1 else "$"
+                    next_t = sem_types[i + 1] if i < len(sem_types) - 1 else "$"
                     trigram = f"{prev_t}→{curr_t}→{next_t}"
 
                     # Build context
-                    prev_tok = tokens[i-1] if i > 0 else "^"
+                    prev_tok = tokens[i - 1] if i > 0 else "^"
                     curr_tok = tokens[i]
-                    next_tok = tokens[i+1] if i < len(tokens)-1 else "$"
+                    next_tok = tokens[i + 1] if i < len(tokens) - 1 else "$"
                     context = f"{prev_tok}[{curr_tok}]{next_tok}"
 
                     for exp in pos.expert_indices:
@@ -459,15 +645,15 @@ async def _async_full_taxonomy(args: Namespace) -> None:
             if cat not in PATTERN_CATEGORIES:
                 continue
 
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"{cat.upper()}")
-            print(f"{'='*60}")
+            print(f"{'=' * 60}")
 
             patterns = PATTERN_CATEGORIES[cat]
 
             for pattern in patterns:
                 print(f"\n  Pattern: {pattern}")
-                print(f"  {'-'*50}")
+                print(f"  {'-' * 50}")
 
                 # Find top experts for this pattern
                 pattern_experts = []
@@ -475,20 +661,24 @@ async def _async_full_taxonomy(args: Namespace) -> None:
                     for trigram, count in counts.items():
                         if pattern in trigram:
                             examples = trigram_examples[(layer, exp, trigram)]
-                            pattern_experts.append({
-                                "layer": layer,
-                                "expert": exp,
-                                "trigram": trigram,
-                                "count": count,
-                                "examples": examples,
-                            })
+                            pattern_experts.append(
+                                {
+                                    "layer": layer,
+                                    "expert": exp,
+                                    "trigram": trigram,
+                                    "count": count,
+                                    "examples": examples,
+                                }
+                            )
 
                 pattern_experts.sort(key=lambda x: (-x["count"], x["layer"]))
 
                 for pe in pattern_experts[:4]:
                     ex = pe["examples"][0] if pe["examples"] else ""
-                    print(f"    L{pe['layer']:02d} E{pe['expert']:02d}: "
-                          f"{pe['trigram']:<24} (n={pe['count']:2d})  {ex}")
+                    print(
+                        f"    L{pe['layer']:02d} E{pe['expert']:02d}: "
+                        f"{pe['trigram']:<24} (n={pe['count']:2d})  {ex}"
+                    )
 
         # Layer evolution summary
         print("\n" + format_header("LAYER EVOLUTION BY CATEGORY"))
@@ -514,12 +704,13 @@ async def _async_full_taxonomy(args: Namespace) -> None:
             if cat not in PATTERN_CATEGORIES:
                 continue
 
-            layer_counts = [(layer, len(experts))
-                           for layer, experts in category_layer_experts[cat].items()]
+            layer_counts = [
+                (layer, len(experts)) for layer, experts in category_layer_experts[cat].items()
+            ]
             if layer_counts:
                 layer_counts.sort(key=lambda x: -x[1])
                 peak_layers = layer_counts[:3]
-                peak_str = ", ".join(f"L{l}({c})" for l, c in peak_layers)
+                peak_str = ", ".join(f"L{layer}({cnt})" for layer, cnt in peak_layers)
                 print(f"  {cat:<16}: {peak_str}")
 
         # Expert specialization summary

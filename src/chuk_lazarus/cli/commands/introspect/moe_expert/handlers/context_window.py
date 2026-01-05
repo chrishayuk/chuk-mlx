@@ -15,7 +15,6 @@ from argparse import Namespace
 
 from ......introspection.moe import ExpertRouter
 
-
 # Test cases: same trigram, varying extended context
 CONTEXT_WINDOW_TESTS = {
     "arithmetic_plus": {
@@ -123,11 +122,11 @@ async def _async_context_window(args: Namespace) -> None:
         print(f"  {name.upper()}:")
         print(f"    Target token: '{test_config['target']}'")
         print(f"    Trigram type: {test_config['trigram']}")
-        print(f"    Contexts:")
+        print("    Contexts:")
         for ctx_name, ctx in test_config["contexts"]:
             # Show first line only for multi-line contexts
             display = ctx.split("\n")[-1] if "\n" in ctx else ctx
-            print(f"      {ctx_name:<12}: \"{display}\"")
+            print(f'      {ctx_name:<12}: "{display}"')
         print()
 
     print("=" * 70)
@@ -169,9 +168,7 @@ async def _async_context_window(args: Namespace) -> None:
                 layer_results[test_layer][name] = {}
 
                 for ctx_name, ctx in test_config["contexts"]:
-                    weights = await router.capture_router_weights(
-                        ctx, layers=[test_layer]
-                    )
+                    weights = await router.capture_router_weights(ctx, layers=[test_layer])
 
                     if weights and weights[0].positions:
                         # Find the position of target token

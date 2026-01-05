@@ -112,35 +112,40 @@ def identify_expert(
 
     # Map PromptCategory to ExpertCategory
     category_mapping = {
+        # Code categories
         PromptCategory.PYTHON: ExpertCategory.CODE,
         PromptCategory.JAVASCRIPT: ExpertCategory.CODE,
         PromptCategory.RUST: ExpertCategory.CODE,
         PromptCategory.SQL: ExpertCategory.CODE,
         PromptCategory.GO: ExpertCategory.CODE,
         PromptCategory.TYPESCRIPT: ExpertCategory.CODE,
+        # Math categories
         PromptCategory.ARITHMETIC: ExpertCategory.MATH,
         PromptCategory.ALGEBRA: ExpertCategory.MATH,
         PromptCategory.CALCULUS: ExpertCategory.MATH,
         PromptCategory.STATISTICS: ExpertCategory.MATH,
-        PromptCategory.GEOMETRY: ExpertCategory.MATH,
-        PromptCategory.LOGIC: ExpertCategory.REASONING,
-        PromptCategory.SCIENCE: ExpertCategory.KNOWLEDGE,
-        PromptCategory.HISTORY: ExpertCategory.KNOWLEDGE,
-        PromptCategory.GEOGRAPHY: ExpertCategory.KNOWLEDGE,
-        PromptCategory.CULTURE: ExpertCategory.KNOWLEDGE,
-        PromptCategory.TECH: ExpertCategory.KNOWLEDGE,
-        PromptCategory.LISTS: ExpertCategory.STRUCTURE,
-        PromptCategory.TABLES: ExpertCategory.STRUCTURE,
-        PromptCategory.JSON: ExpertCategory.STRUCTURE,
-        PromptCategory.MARKDOWN: ExpertCategory.STRUCTURE,
-        PromptCategory.STORY: ExpertCategory.LANGUAGE,
+        # Language categories
+        PromptCategory.STORYTELLING: ExpertCategory.LANGUAGE,
         PromptCategory.POETRY: ExpertCategory.LANGUAGE,
         PromptCategory.DIALOGUE: ExpertCategory.LANGUAGE,
-        PromptCategory.DESCRIPTION: ExpertCategory.LANGUAGE,
-        PromptCategory.ANALYSIS: ExpertCategory.REASONING,
-        PromptCategory.COMPARISON: ExpertCategory.REASONING,
-        PromptCategory.CAUSATION: ExpertCategory.REASONING,
-        PromptCategory.PLANNING: ExpertCategory.REASONING,
+        # Punctuation
+        PromptCategory.PUNCTUATION: ExpertCategory.PUNCTUATION,
+        # Proper nouns
+        PromptCategory.PROPER_NOUNS: ExpertCategory.PROPER_NOUNS,
+        # Function words
+        PromptCategory.PRONOUNS: ExpertCategory.FUNCTION_WORDS,
+        PromptCategory.PREPOSITIONS: ExpertCategory.FUNCTION_WORDS,
+        PromptCategory.ARTICLES: ExpertCategory.FUNCTION_WORDS,
+        PromptCategory.CONJUNCTIONS: ExpertCategory.FUNCTION_WORDS,
+        # Generalist categories (for knowledge/reasoning prompts)
+        PromptCategory.LOGIC: ExpertCategory.GENERALIST,
+        PromptCategory.ANALOGIES: ExpertCategory.GENERALIST,
+        PromptCategory.CAUSATION: ExpertCategory.GENERALIST,
+        PromptCategory.SCIENCE: ExpertCategory.GENERALIST,
+        PromptCategory.HISTORY: ExpertCategory.GENERALIST,
+        PromptCategory.GEOGRAPHY: ExpertCategory.GENERALIST,
+        PromptCategory.POP_CULTURE: ExpertCategory.GENERALIST,
+        PromptCategory.TECHNOLOGY: ExpertCategory.GENERALIST,
     }
 
     # Aggregate by ExpertCategory
@@ -305,9 +310,9 @@ def print_expert_summary(identities: list[ExpertIdentity]) -> None:
 
         print(f"\n{role.value.upper()}S ({len(experts)}):")
         for e in sorted(experts, key=lambda x: x.confidence, reverse=True):
-            secondary = ", ".join(c.value for c in e.secondary_categories[:2])
+            secondary = ", ".join(str(c) for c in e.secondary_categories[:2])
             print(
-                f"  Expert {e.expert_idx:2d}: {e.primary_category.value:12s} "
+                f"  Expert {e.expert_idx:2d}: {e.primary_category:12s} "
                 f"(conf={e.confidence:.2f}, rate={e.activation_rate:.3f}) "
                 f"[{secondary}]"
             )
