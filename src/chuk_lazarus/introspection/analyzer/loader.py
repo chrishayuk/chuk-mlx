@@ -26,18 +26,28 @@ def _is_quantized_model(config_data: dict, model_id: str) -> bool:
 
 def _load_model_sync(
     model_id: str,
+    adapter_path: str | None = None,
 ) -> tuple[Any, Any, Any]:
     """
     Load model synchronously using the models_v2 registry.
 
     Args:
         model_id: HuggingFace model ID or local path
+        adapter_path: Optional path to LoRA adapter weights
 
     Returns:
         Tuple of (model, tokenizer, config)
     """
     from ...inference.loader import DType, HFLoader
     from ...models_v2.families.registry import detect_model_family, get_family_info
+
+    # If adapter path is provided, use mlx_lm for seamless adapter loading
+    if adapter_path is not None:
+        from mlx_lm import load as mlx_load
+
+        model, tokenizer = mlx_load(model_id, adapter_path=adapter_path)
+        # Return None config - mlx_lm models don't have our config format
+        return model, tokenizer, None
 
     # Download/locate model
     result = HFLoader.download(model_id)

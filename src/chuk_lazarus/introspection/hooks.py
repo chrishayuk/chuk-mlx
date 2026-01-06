@@ -342,14 +342,22 @@ class ModelHooks:
 
     def _get_lm_head(self) -> Callable[[mx.array], mx.array] | None:
         """Get the LM head or tied embedding projection from the model."""
-        # Check for tied embeddings first
+        # Check for explicit lm_head first
+        if hasattr(self.model, "lm_head") and self.model.lm_head is not None:
+            return self.model.lm_head
+
+        # Check for tied embeddings (explicit flag)
         if hasattr(self.model, "tie_word_embeddings") and self.model.tie_word_embeddings:
             embed = self._get_embed_tokens()
             if embed is not None and hasattr(embed, "as_linear"):
                 return embed.as_linear
-        # Otherwise use the regular lm_head
-        if hasattr(self.model, "lm_head"):
-            return self.model.lm_head
+
+        # Fallback: if no lm_head, try to use embedding as_linear (common in mlx-lm models)
+        # This handles models that use tied embeddings without setting the flag
+        embed = self._get_embed_tokens()
+        if embed is not None and hasattr(embed, "as_linear"):
+            return embed.as_linear
+
         return None
 
     def _get_embedding_scale(self) -> float | None:

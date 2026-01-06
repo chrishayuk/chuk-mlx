@@ -91,6 +91,7 @@ Training with Batching:
 """
 
 import argparse
+import asyncio
 import logging
 import sys
 
@@ -172,7 +173,7 @@ from .commands.tokenizer import (
     training_pack,
     training_throughput,
 )
-from .commands.train import generate_data, train_dpo, train_sft
+from .commands.train import generate_data_cmd, train_dpo_cmd, train_sft_cmd
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -214,6 +215,7 @@ Examples:
     sft_parser.add_argument("--eval-data", help="Evaluation data path (JSONL)")
     sft_parser.add_argument("--output", default="./checkpoints/sft", help="Output directory")
     sft_parser.add_argument("--epochs", type=int, default=3, help="Number of epochs")
+    sft_parser.add_argument("--max-steps", type=int, help="Max training steps (overrides epochs)")
     sft_parser.add_argument("--batch-size", type=int, default=4, help="Batch size")
     sft_parser.add_argument("--learning-rate", type=float, default=1e-5, help="Learning rate")
     sft_parser.add_argument("--max-length", type=int, default=512, help="Max sequence length")
@@ -263,7 +265,7 @@ Examples:
         default=100000,
         help="Replay buffer size for online training",
     )
-    sft_parser.set_defaults(func=train_sft)
+    sft_parser.set_defaults(func=lambda args: asyncio.run(train_sft_cmd(args)))
 
     # DPO training
     dpo_parser = train_subparsers.add_parser("dpo", help="Direct Preference Optimization")
@@ -279,7 +281,7 @@ Examples:
     dpo_parser.add_argument("--max-length", type=int, default=512, help="Max sequence length")
     dpo_parser.add_argument("--use-lora", action="store_true", help="Use LoRA")
     dpo_parser.add_argument("--lora-rank", type=int, default=8, help="LoRA rank")
-    dpo_parser.set_defaults(func=train_dpo)
+    dpo_parser.set_defaults(func=lambda args: asyncio.run(train_dpo_cmd(args)))
 
     # Generate subcommand
     gen_parser = subparsers.add_parser("generate", help="Generate training data")
@@ -288,7 +290,7 @@ Examples:
     gen_parser.add_argument("--sft-samples", type=int, default=10000, help="SFT samples")
     gen_parser.add_argument("--dpo-samples", type=int, default=5000, help="DPO samples")
     gen_parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    gen_parser.set_defaults(func=generate_data)
+    gen_parser.set_defaults(func=lambda args: asyncio.run(generate_data_cmd(args)))
 
     # Infer subcommand
     infer_parser = subparsers.add_parser("infer", help="Run inference")
@@ -980,6 +982,11 @@ Examples:
         "-m",
         required=True,
         help="Model name or HuggingFace ID (e.g., TinyLlama/TinyLlama-1.1B-Chat-v1.0)",
+    )
+    analyze_parser.add_argument(
+        "--adapter",
+        "-a",
+        help="Path to LoRA adapter weights (for analyzing fine-tuned models)",
     )
     analyze_parser.add_argument(
         "--prompt",

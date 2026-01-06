@@ -1,0 +1,10 @@
+{
+  "model": "meta-llama/Llama-3.2-1B",
+  "num_layers": 16,
+  "fine_tune_type": "lora",
+  "lora_parameters": {
+    "rank": 8,
+    "dropout": 0.0,
+    "scale": 20.0
+  }
+}

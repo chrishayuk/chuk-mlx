@@ -1,0 +1,191 @@
+=== BASELINE ANALYSIS (Before Training) ===
+
+--- Prompt: '7 x 8 = ' ---
+  Layers: 16
+Analyzing: '7 x 8 = '
+Tokens (7): ['<|begin_of_text|>', '7', ' x', ' ', '8', ' =', ' ']
+=== Final Prediction ===
+  0.8242 ######################################### '56'
+  0.0527 ## '7'
+  0.0151  '28'
+  0.0092  '8'
+  0.0081  '44'
+  Layer  0: ' ' (1.0000)
+  Layer  1: ' retal' (0.0088)
+  Layer  2: 'haf' (0.0247)
+  Layer  3: 'achines' (0.0120)
+  Layer  4: ' WALL' (0.0347)
+  Layer  5: ' Raise' (0.0115)
+  Layer  6: 'NOW' (0.0131)
+  Layer  7: 'IDES' (0.0178)
+  Layer  8: 'afs' (0.0211)
+  Layer  9: 'iple' (0.0270)
+  Layer 10: 'окон' (0.0098)
+  Layer 11: 'orns' (0.0112)
+  Layer 12: ' sixty' (0.0237)
+  Layer 13: '56' (0.2188)
+  Layer 14: '56' (0.8242) <- peak
+  Layer 15: '56' (0.8242)
+
+--- Prompt: '12 x 5 = ' ---
+  Layers: 16
+Analyzing: '12 x 5 = '
+Tokens (7): ['<|begin_of_text|>', '12', ' x', ' ', '5', ' =', ' ']
+=== Final Prediction ===
+  0.7344 #################################### '60'
+  0.0603 ### '6'
+  0.0415 ## '12'
+  0.0153  '62'
+  0.0092  '61'
+  Layer  0: ' ' (0.9922)
+  Layer  1: ' retal' (0.0104)
+  Layer  2: 'haf' (0.0310)
+  Layer  3: 'kip' (0.0195)
+  Layer  4: ' WALL' (0.0292)
+  Layer  5: ' mush' (0.0079)
+  Layer  6: 'kých' (0.0105)
+  Layer  7: 'IDES' (0.0125)
+  Layer  8: 'afs' (0.0297)
+  Layer  9: 'iple' (0.0096)
+  Layer 10: 'iple' (0.0105)
+  Layer 11: 'izi' (0.0175)
+  Layer 12: 'rado' (0.0557)
+  Layer 13: '60' (0.0820)
+  Layer 14: '60' (0.8711) <- peak
+  Layer 15: '60' (0.7344)
+
+--- Prompt: '45 x 45 = ' ---
+  Layers: 16
+Analyzing: '45 x 45 = '
+Tokens (7): ['<|begin_of_text|>', '45', ' x', ' ', '45', ' =', ' ']
+=== Final Prediction ===
+  0.2695 ############# '202'
+  0.2695 ############# '2'
+  0.0771 ### '201'
+  0.0366 # '45'
+  0.0366 # '1'
+  Layer  0: ' ' (1.0000)
+  Layer  1: '!.' (0.0114)
+  Layer  2: 'haf' (0.0231)
+  Layer  3: 'kip' (0.0371)
+  Layer  4: ' WALL' (0.0193)
+  Layer  5: ' churn' (0.0101)
+  Layer  6: ' distancia' (0.0199)
+  Layer  7: 'IDES' (0.0173)
+  Layer  8: 'afs' (0.0435)
+  Layer  9: 'iple' (0.0157)
+  Layer 10: 'ove' (0.0266)
+  Layer 11: 'ippy' (0.0356)
+  Layer 12: 'ippy' (0.0479)
+  Layer 13: ' v' (0.0645)
+  Layer 14: 'ippy' (0.0197)
+  Layer 15: '202' (0.2695)
+
+--- Prompt: '23 + 45 = ' ---
+  Layers: 16
+Analyzing: '23 + 45 = '
+Tokens (7): ['<|begin_of_text|>', '23', ' +', ' ', '45', ' =', ' ']
+=== Final Prediction ===
+  0.5391 ########################## '68'
+  0.0938 #### '67'
+  0.0344 # '45'
+  0.0304 # '23'
+  0.0209 # '69'
+  Layer  0: ' ' (1.0000)
+  Layer  1: '!.' (0.0167)
+  Layer  2: 'haf' (0.0107)
+  Layer  3: 'kip' (0.0520)
+  Layer  4: ' evade' (0.0145)
+  Layer  5: 'ARRY' (0.0102)
+  Layer  6: 'irteen' (0.0303)
+  Layer  7: 'IDES' (0.0128)
+  Layer  8: 'bí' (0.0452)
+  Layer  9: ' MOUSE' (0.0084)
+  Layer 10: 'цин' (0.0085)
+  Layer 11: 'ží' (0.0212)
+  Layer 12: '69' (0.0286)
+  Layer 13: 'jez' (0.0278)
+  Layer 14: '68' (0.5703) <- peak
+  Layer 15: '68' (0.5391)
+
+--- Prompt: '17 + 38 = ' ---
+  Layers: 16
+Analyzing: '17 + 38 = '
+Tokens (7): ['<|begin_of_text|>', '17', ' +', ' ', '38', ' =', ' ']
+=== Final Prediction ===
+  0.3340 ################ '55'
+  0.0742 ### '0'
+  0.0454 ## '65'
+  0.0273 # '1'
+  0.0214 # '105'
+  Layer  0: ' ' (1.0000)
+  Layer  1: ' comida' (0.0155)
+  Layer  2: 'peare' (0.0115)
+  Layer  3: 'kip' (0.0270)
+  Layer  4: ' Colum' (0.0247)
+  Layer  5: ' churn' (0.0118)
+  Layer  6: 'irteen' (0.0172)
+  Layer  7: 'IDES' (0.0105)
+  Layer  8: 'cling' (0.0234)
+  Layer  9: ' MOUSE' (0.0112)
+  Layer 10: 'цин' (0.0075)
+  Layer 11: ' compte' (0.0115)
+  Layer 12: '59' (0.0128)
+  Layer 13: 'iked' (0.0114)
+  Layer 14: '55' (0.2773)
+  Layer 15: '55' (0.3340)
+
+--- Prompt: '89 - 34 = ' ---
+  Layers: 16
+Analyzing: '89 - 34 = '
+Tokens (7): ['<|begin_of_text|>', '89', ' -', ' ', '34', ' =', ' ']
+=== Final Prediction ===
+  0.8711 ########################################### '55'
+  0.0435 ## '45'
+  0.0125  '5'
+  0.0097  '155'
+  0.0067  '51'
+  Layer  0: ' ' (1.0000)
+  Layer  1: ' comida' (0.0114)
+  Layer  2: 'haf' (0.0063)
+  Layer  3: 'kip' (0.0164)
+  Layer  4: '합' (0.0289)
+  Layer  5: 'ARRY' (0.0240)
+  Layer  6: 'owel' (0.0098)
+  Layer  7: 'BACK' (0.0117)
+  Layer  8: '합' (0.0430)
+  Layer  9: 'AIN' (0.0085)
+  Layer 10: '剩' (0.0133)
+  Layer 11: 'ken' (0.0113)
+  Layer 12: 'ickt' (0.0168)
+  Layer 13: 'ickt' (0.0181)
+  Layer 14: '55' (0.4043)
+  Layer 15: '55' (0.8711)
+
+--- Prompt: '65 - 28 = ' ---
+  Layers: 16
+Analyzing: '65 - 28 = '
+Tokens (7): ['<|begin_of_text|>', '65', ' -', ' ', '28', ' =', ' ']
+=== Final Prediction ===
+  0.6992 ################################## '37'
+  0.0396 # '27'
+  0.0308 # '39'
+  0.0211 # '47'
+  0.0186  '87'
+  Layer  0: ' ' (1.0000)
+  Layer  1: ' comida' (0.0095)
+  Layer  2: 'haf' (0.0109)
+  Layer  3: 'AGENT' (0.0177)
+  Layer  4: ' Colum' (0.0162)
+  Layer  5: 'ARRY' (0.0238)
+  Layer  6: 'ailable' (0.0192)
+  Layer  7: 'BACK' (0.0106)
+  Layer  8: '합' (0.0249)
+  Layer  9: 'plural' (0.0049)
+  Layer 10: 'цин' (0.0240)
+  Layer 11: 'isté' (0.0141)
+  Layer 12: 'ży' (0.0308)
+  Layer 13: 'igt' (0.0081)
+  Layer 14: '47' (0.0342)
+  Layer 15: '37' (0.6992)
+

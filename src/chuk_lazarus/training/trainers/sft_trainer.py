@@ -93,7 +93,14 @@ class SFTTrainer(BaseTrainer):
 
     def compute_loss(self, batch: dict[str, Any]) -> tuple[mx.array, dict[str, Any]]:
         """Compute SFT loss for a batch."""
-        logits, _ = self.model(batch["input_ids"])
+        output = self.model(batch["input_ids"])
+        # Handle different model output formats:
+        # - Some models return just logits (mlx-lm models)
+        # - Some return (logits, cache) tuple
+        if isinstance(output, tuple):
+            logits = output[0]
+        else:
+            logits = output
         loss, metrics = sft_loss(
             logits=logits, labels=batch["labels"], loss_mask=batch["loss_mask"]
         )
@@ -134,7 +141,9 @@ class SFTTrainer(BaseTrainer):
         for batch in dataset.iter_batches(
             batch_size=self.sft_config.batch_size, shuffle=False, pad_token_id=self.pad_token_id
         ):
-            logits, _ = self.model(batch["input_ids"])
+            output = self.model(batch["input_ids"])
+            # Handle different model output formats
+            logits = output[0] if isinstance(output, tuple) else output
             loss, metrics = sft_loss(
                 logits=logits, labels=batch["labels"], loss_mask=batch["loss_mask"]
             )

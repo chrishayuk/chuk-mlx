@@ -87,6 +87,7 @@ class ModelAnalyzer:
         cls,
         model_id: str,
         embedding_scale: float | None = None,
+        adapter_path: str | None = None,
     ) -> AsyncIterator[ModelAnalyzer]:
         """
         Load a model from HuggingFace and create an analyzer.
@@ -100,6 +101,7 @@ class ModelAnalyzer:
             model_id: HuggingFace model ID or local path
             embedding_scale: Optional scale factor for embeddings.
                 Usually auto-detected from config. Override if needed.
+            adapter_path: Optional path to LoRA adapter weights
 
         Yields:
             ModelAnalyzer instance
@@ -112,7 +114,7 @@ class ModelAnalyzer:
         loop = asyncio.get_event_loop()
         model, tokenizer, config = await loop.run_in_executor(
             None,
-            lambda: _load_model_sync(model_id),
+            lambda: _load_model_sync(model_id, adapter_path=adapter_path),
         )
 
         analyzer = cls(model, tokenizer, model_id, embedding_scale=embedding_scale, config=config)

@@ -1,0 +1,78 @@
+{
+  "checkpoint": "baseline",
+  "steps": 0,
+  "has_classifiers": false,
+  "average_peak_prob": 0.004759742154015435,
+  "task_results": [
+    {
+      "task": "multiplication",
+      "prompt": "7 * 8 = ",
+      "expected": "56",
+      "peak_layer": 21,
+      "peak_prob": 7.915496826171875e-05
+    },
+    {
+      "task": "multiplication",
+      "prompt": "12 * 5 = ",
+      "expected": "60",
+      "peak_layer": 21,
+      "peak_prob": 1.2218952178955078e-05
+    },
+    {
+      "task": "multiplication",
+      "prompt": "9 * 9 = ",
+      "expected": "81",
+      "peak_layer": null,
+      "peak_prob": 0.0
+    },
+    {
+      "task": "multiplication",
+      "prompt": "45 * 45 = ",
+      "expected": "2025",
+      "peak_layer": 21,
+      "peak_prob": 3.695487976074219e-05
+    },
+    {
+      "task": "addition",
+      "prompt": "23 + 45 = ",
+      "expected": "68",
+      "peak_layer": 12,
+      "peak_prob": 0.01190185546875
+    },
+    {
+      "task": "addition",
+      "prompt": "17 + 38 = ",
+      "expected": "55",
+      "peak_layer": 12,
+      "peak_prob": 0.01007080078125
+    },
+    {
+      "task": "addition",
+      "prompt": "55 + 27 = ",
+      "expected": "82",
+      "peak_layer": 12,
+      "peak_prob": 0.00994873046875
+    },
+    {
+      "task": "subtraction",
+      "prompt": "89 - 34 = ",
+      "expected": "55",
+      "peak_layer": 1,
+      "peak_prob": 0.0031280517578125
+    },
+    {
+      "task": "subtraction",
+      "prompt": "65 - 28 = ",
+      "expected": "37",
+      "peak_layer": 1,
+      "peak_prob": 0.0030517578125
+    },
+    {
+      "task": "subtraction",
+      "prompt": "100 - 43 = ",
+      "expected": "57",
+      "peak_layer": 15,
+      "peak_prob": 0.004608154296875
+    }
+  ]
+}

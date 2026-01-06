@@ -51,6 +51,7 @@ class SFTConfig(CommandConfig):
     eval_data: Path | None = Field(default=None, description="Path to eval data")
     output: Path = Field(default=Path("./checkpoints/sft"), description="Output dir")
     epochs: int = Field(default=3, ge=1, description="Number of epochs")
+    max_steps: int | None = Field(default=None, description="Max steps (overrides epochs)")
     batch_size: int = Field(default=4, ge=1, description="Batch size")
     learning_rate: float = Field(default=1e-5, gt=0, description="Learning rate")
     max_length: int = Field(default=512, ge=1, description="Max sequence length")
@@ -68,6 +69,7 @@ class SFTConfig(CommandConfig):
             eval_data=Path(args.eval_data) if args.eval_data else None,
             output=Path(args.output),
             epochs=args.epochs,
+            max_steps=getattr(args, "max_steps", None),
             batch_size=args.batch_size,
             learning_rate=args.learning_rate,
             max_length=args.max_length,

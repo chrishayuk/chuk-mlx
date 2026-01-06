@@ -131,25 +131,27 @@ class SFTDataset:
         max_len = max(len(item["input_ids"]) for item in items)
         batch_size = len(items)
 
-        # Initialize arrays
-        input_ids = mx.full((batch_size, max_len), pad_token_id, dtype=mx.int32)
-        labels = mx.full((batch_size, max_len), pad_token_id, dtype=mx.int32)
-        loss_mask = mx.zeros((batch_size, max_len), dtype=mx.float32)
-        attention_mask = mx.zeros((batch_size, max_len), dtype=mx.float32)
+        # Build arrays as Python lists, then convert to MLX
+        input_ids_list = []
+        labels_list = []
+        loss_mask_list = []
+        attention_mask_list = []
 
-        for i, item in enumerate(items):
+        for item in items:
             seq_len = len(item["input_ids"])
+            pad_len = max_len - seq_len
 
-            input_ids = input_ids.at[i, :seq_len].set(mx.array(item["input_ids"], dtype=mx.int32))
-            labels = labels.at[i, :seq_len].set(mx.array(item["labels"], dtype=mx.int32))
-            loss_mask = loss_mask.at[i, :seq_len].set(mx.array(item["loss_mask"], dtype=mx.float32))
-            attention_mask = attention_mask.at[i, :seq_len].set(1.0)
+            # Pad each sequence
+            input_ids_list.append(item["input_ids"] + [pad_token_id] * pad_len)
+            labels_list.append(item["labels"] + [pad_token_id] * pad_len)
+            loss_mask_list.append(item["loss_mask"] + [0.0] * pad_len)
+            attention_mask_list.append([1.0] * seq_len + [0.0] * pad_len)
 
         return {
-            "input_ids": input_ids,
-            "labels": labels,
-            "loss_mask": loss_mask,
-            "attention_mask": attention_mask,
+            "input_ids": mx.array(input_ids_list, dtype=mx.int32),
+            "labels": mx.array(labels_list, dtype=mx.int32),
+            "loss_mask": mx.array(loss_mask_list, dtype=mx.float32),
+            "attention_mask": mx.array(attention_mask_list, dtype=mx.float32),
         }
 
     def iter_batches(

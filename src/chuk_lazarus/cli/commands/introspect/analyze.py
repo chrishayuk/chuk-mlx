@@ -184,13 +184,17 @@ def introspect_analyze(args):
             steer_config["negative"] = str(steer_data["label_negative"])
 
     async def run():
-        print(f"Loading model: {args.model}")
+        adapter_path = getattr(args, "adapter", None)
+        if adapter_path:
+            print(f"Loading model: {args.model} + adapter: {adapter_path}")
+        else:
+            print(f"Loading model: {args.model}")
 
         # Determine embedding scale if specified
         embedding_scale = args.embedding_scale
 
         async with ModelAnalyzer.from_pretrained(
-            args.model, embedding_scale=embedding_scale
+            args.model, embedding_scale=embedding_scale, adapter_path=adapter_path
         ) as analyzer:
             info = analyzer.model_info
             model_config = analyzer.config

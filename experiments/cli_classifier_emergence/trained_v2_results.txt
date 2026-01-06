@@ -1,0 +1,809 @@
+=== POST-TRAINING ANALYSIS v2 (After 500 Steps with LR=1e-5) ===
+
+--- Prompt: '7 x 8 = ' ---
+Loading model: meta-llama/Llama-3.2-1B + adapter: experiments/cli_classifier_emergence/checkpoint/adapters
+Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files: 100%|██████████| 8/8 [00:00<00:00, 22162.77it/s]
+Model: meta-llama/Llama-3.2-1B
+  Layers: 16
+  Hidden size: 2048
+  Vocab size: 128000
+  Tied embeddings: False
+  Mode: RAW (model has no chat template)
+
+Note: Prompt has trailing whitespace which affects tokenization
+  This changes what the model predicts (next token after space vs after last word)
+  For arithmetic prompts like 'X + Y = ', trailing space often helps get answers
+
+Analyzing: '7 x 8 = '
+
+Tokens (7): ['<|begin_of_text|>', '7', ' x', ' ', '8', ' =', ' ']
+Captured layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+=== Final Prediction ===
+  0.0352 # ':&'
+  0.0107  '》（'
+  0.0107  ' </>
+'
+  0.0089  '》
+'
+  0.0084  '-Ass'
+
+=== Logit Lens (top-5 at each layer) ===
+  Layer  0: '39' (0.0344)
+           '51' (0.0286)
+           '52' (0.0184)
+           '68' (0.0119)
+           '49' (0.0112)
+  Layer  1: '49' (0.0190)
+           '51' (0.0109)
+           'etu' (0.0102)
+           '39' (0.0090)
+           '-original' (0.0084)
+  Layer  2: 'pack' (0.0128)
+           '一种' (0.0106)
+           'anja' (0.0082)
+           'OfYear' (0.0077)
+           'ante' (0.0077)
+  Layer  3: 'ante' (0.0162)
+           'Owners' (0.0152)
+           ' Owners' (0.0067)
+           ' sizeof' (0.0060)
+           'ividad' (0.0056)
+  Layer  4: 'riteria' (0.0204)
+           'ante' (0.0103)
+           'prising' (0.0085)
+           ' Owners' (0.0075)
+           'luv' (0.0070)
+  Layer  5: ' statuses' (0.0086)
+           'afort' (0.0076)
+           ' Exceptions' (0.0052)
+           'folio' (0.0049)
+           'norm' (0.0046)
+  Layer  6: 'norm' (0.0233)
+           '-status' (0.0171)
+           ' statuses' (0.0160)
+           'enstein' (0.0085)
+           'adients' (0.0085)
+  Layer  7: ' Credits' (0.0236)
+           '-status' (0.0208)
+           'passwd' (0.0134)
+           '-www' (0.0134)
+           'Credits' (0.0098)
+  Layer  8: '-www' (0.0288)
+           'enstein' (0.0186)
+           '-offs' (0.0175)
+           'antium' (0.0136)
+           'LK' (0.0099)
+  Layer  9: 'LK' (0.0265)
+           '-Sep' (0.0160)
+           '-м' (0.0104)
+           '-status' (0.0081)
+           '-May' (0.0071)
+  Layer 10: '-Sep' (0.0325)
+           'LK' (0.0209)
+           '-May' (0.0119)
+           '-м' (0.0050)
+           'Tak' (0.0050)
+  Layer 11: 'LK' (0.0247)
+           ' Kew' (0.0117)
+           ' Vladim' (0.0052)
+           'Tak' (0.0052)
+           '-Sep' (0.0040)
+  Layer 12: 'LK' (0.0062)
+           '-sub' (0.0058)
+           ' Kew' (0.0049)
+           'argas' (0.0043)
+           '-к' (0.0036)
+  Layer 13: 'struments' (0.0060)
+           '“
+
+' (0.0056)
+           ' Тем' (0.0041)
+           ' resourceName' (0.0041)
+           ' Procedures' (0.0041)
+  Layer 14: '<cv' (0.0103)
+           '-question' (0.0080)
+           ' Тем' (0.0052)
+           '-stage' (0.0052)
+           '“
+
+' (0.0049)
+  Layer 15: ':&' (0.0352)
+           '》（' (0.0107)
+           ' </>
+' (0.0107)
+           '》
+' (0.0089)
+           '-Ass' (0.0084)
+
+--- Prompt: '12 x 5 = ' ---
+Loading model: meta-llama/Llama-3.2-1B + adapter: experiments/cli_classifier_emergence/checkpoint/adapters
+Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files: 100%|██████████| 8/8 [00:00<00:00, 17886.16it/s]
+Model: meta-llama/Llama-3.2-1B
+  Layers: 16
+  Hidden size: 2048
+  Vocab size: 128000
+  Tied embeddings: False
+  Mode: RAW (model has no chat template)
+
+Note: Prompt has trailing whitespace which affects tokenization
+  This changes what the model predicts (next token after space vs after last word)
+  For arithmetic prompts like 'X + Y = ', trailing space often helps get answers
+
+Analyzing: '12 x 5 = '
+
+Tokens (7): ['<|begin_of_text|>', '12', ' x', ' ', '5', ' =', ' ']
+Captured layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+=== Final Prediction ===
+  0.0352 # ':&'
+  0.0107  '》（'
+  0.0107  ' </>
+'
+  0.0084  '》
+'
+  0.0084  '-Ass'
+
+=== Logit Lens (top-5 at each layer) ===
+  Layer  0: '39' (0.0344)
+           '51' (0.0267)
+           '52' (0.0173)
+           '68' (0.0112)
+           '49' (0.0105)
+  Layer  1: '49' (0.0190)
+           '51' (0.0109)
+           'etu' (0.0102)
+           '39' (0.0096)
+           '-original' (0.0090)
+  Layer  2: 'pack' (0.0131)
+           '一种' (0.0115)
+           'anja' (0.0084)
+           'OfYear' (0.0084)
+           'ante' (0.0066)
+  Layer  3: 'ante' (0.0159)
+           'Owners' (0.0149)
+           ' sizeof' (0.0070)
+           ' Owners' (0.0066)
+           'ividad' (0.0055)
+  Layer  4: 'riteria' (0.0182)
+           'ante' (0.0092)
+           'prising' (0.0081)
+           ' Owners' (0.0076)
+           'luv' (0.0071)
+  Layer  5: ' statuses' (0.0079)
+           'afort' (0.0074)
+           'folio' (0.0054)
+           'ообраз' (0.0051)
+           ' Exceptions' (0.0048)
+  Layer  6: 'norm' (0.0209)
+           ' statuses' (0.0162)
+           '-status' (0.0162)
+           'adients' (0.0087)
+           'enstein' (0.0077)
+  Layer  7: ' Credits' (0.0229)
+           '-status' (0.0190)
+           'passwd' (0.0131)
+           'Credits' (0.0109)
+           '-www' (0.0102)
+  Layer  8: '-www' (0.0250)
+           'enstein' (0.0172)
+           '-offs' (0.0161)
+           'antium' (0.0143)
+           'LK' (0.0087)
+  Layer  9: 'LK' (0.0245)
+           '-Sep' (0.0140)
+           '-м' (0.0116)
+           '-status' (0.0079)
+           '-May' (0.0070)
+  Layer 10: '-Sep' (0.0300)
+           'LK' (0.0194)
+           '-May' (0.0125)
+           '-м' (0.0052)
+           'Tak' (0.0052)
+  Layer 11: 'LK' (0.0231)
+           ' Kew' (0.0116)
+           'Tak' (0.0055)
+           ' Vladim' (0.0051)
+           'argas' (0.0043)
+  Layer 12: 'LK' (0.0058)
+           '-sub' (0.0058)
+           ' Kew' (0.0048)
+           'argas' (0.0045)
+           '-к' (0.0040)
+  Layer 13: '“
+
+' (0.0060)
+           'struments' (0.0056)
+           ' Тем' (0.0041)
+           ' resourceName' (0.0041)
+           ' Procedures' (0.0039)
+  Layer 14: '<cv' (0.0109)
+           '-question' (0.0080)
+           '“
+
+' (0.0055)
+           ' Тем' (0.0052)
+           '-stage' (0.0052)
+  Layer 15: ':&' (0.0352)
+           '》（' (0.0107)
+           ' </>
+' (0.0107)
+           '》
+' (0.0084)
+           '-Ass' (0.0084)
+
+--- Prompt: '45 x 45 = ' ---
+Loading model: meta-llama/Llama-3.2-1B + adapter: experiments/cli_classifier_emergence/checkpoint/adapters
+Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files: 100%|██████████| 8/8 [00:00<00:00, 58867.42it/s]
+Model: meta-llama/Llama-3.2-1B
+  Layers: 16
+  Hidden size: 2048
+  Vocab size: 128000
+  Tied embeddings: False
+  Mode: RAW (model has no chat template)
+
+Note: Prompt has trailing whitespace which affects tokenization
+  This changes what the model predicts (next token after space vs after last word)
+  For arithmetic prompts like 'X + Y = ', trailing space often helps get answers
+
+Analyzing: '45 x 45 = '
+
+Tokens (7): ['<|begin_of_text|>', '45', ' x', ' ', '45', ' =', ' ']
+Captured layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+=== Final Prediction ===
+  0.0359 # ':&'
+  0.0109  '》（'
+  0.0109  ' </>
+'
+  0.0085  '》
+'
+  0.0085  '-Ass'
+
+=== Logit Lens (top-5 at each layer) ===
+  Layer  0: '39' (0.0457)
+           '51' (0.0354)
+           '52' (0.0229)
+           '49' (0.0139)
+           '68' (0.0123)
+  Layer  1: '49' (0.0278)
+           '51' (0.0149)
+           '39' (0.0140)
+           '81' (0.0096)
+           'etu' (0.0090)
+  Layer  2: 'pack' (0.0143)
+           '一种' (0.0104)
+           'anja' (0.0092)
+           'OfYear' (0.0076)
+           '96' (0.0076)
+  Layer  3: 'ante' (0.0170)
+           'Owners' (0.0124)
+           'luv' (0.0062)
+           ' sizeof' (0.0059)
+           ' Owners' (0.0055)
+  Layer  4: 'riteria' (0.0183)
+           'ante' (0.0098)
+           'luv' (0.0092)
+           'rypt' (0.0076)
+           'prising' (0.0072)
+  Layer  5: 'afort' (0.0085)
+           ' statuses' (0.0079)
+           'norm' (0.0058)
+           'ообраз' (0.0055)
+           'folio' (0.0055)
+  Layer  6: ' statuses' (0.0198)
+           'norm' (0.0198)
+           '-status' (0.0154)
+           'adients' (0.0082)
+           ' wrists' (0.0073)
+  Layer  7: ' Credits' (0.0214)
+           '-status' (0.0200)
+           'Credits' (0.0122)
+           'passwd' (0.0122)
+           ' statuses' (0.0101)
+  Layer  8: '-www' (0.0203)
+           'enstein' (0.0190)
+           'antium' (0.0148)
+           '-offs' (0.0148)
+           'LK' (0.0070)
+  Layer  9: 'LK' (0.0212)
+           '-м' (0.0137)
+           '-Sep' (0.0114)
+           '-status' (0.0107)
+           '-May' (0.0069)
+  Layer 10: '-Sep' (0.0280)
+           'LK' (0.0170)
+           '-May' (0.0132)
+           '-м' (0.0059)
+           'Tak' (0.0059)
+  Layer 11: 'LK' (0.0209)
+           ' Kew' (0.0099)
+           'Tak' (0.0060)
+           ' Vladim' (0.0052)
+           'argas' (0.0052)
+  Layer 12: 'LK' (0.0055)
+           'argas' (0.0055)
+           '-sub' (0.0052)
+           ' Kew' (0.0043)
+           '-к' (0.0038)
+  Layer 13: '“
+
+' (0.0061)
+           'struments' (0.0057)
+           ' Тем' (0.0045)
+           ' Procedures' (0.0042)
+           ' resourceName' (0.0039)
+  Layer 14: '<cv' (0.0097)
+           '-question' (0.0081)
+           ' Тем' (0.0055)
+           '“
+
+' (0.0052)
+           '-Ass' (0.0049)
+  Layer 15: ':&' (0.0359)
+           '》（' (0.0109)
+           ' </>
+' (0.0109)
+           '》
+' (0.0085)
+           '-Ass' (0.0085)
+
+--- Prompt: '23 + 45 = ' ---
+Loading model: meta-llama/Llama-3.2-1B + adapter: experiments/cli_classifier_emergence/checkpoint/adapters
+Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files: 100%|██████████| 8/8 [00:00<00:00, 30174.85it/s]
+Model: meta-llama/Llama-3.2-1B
+  Layers: 16
+  Hidden size: 2048
+  Vocab size: 128000
+  Tied embeddings: False
+  Mode: RAW (model has no chat template)
+
+Note: Prompt has trailing whitespace which affects tokenization
+  This changes what the model predicts (next token after space vs after last word)
+  For arithmetic prompts like 'X + Y = ', trailing space often helps get answers
+
+Analyzing: '23 + 45 = '
+
+Tokens (7): ['<|begin_of_text|>', '23', ' +', ' ', '45', ' =', ' ']
+Captured layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+=== Final Prediction ===
+  0.0361 # ':&'
+  0.0110  '》（'
+  0.0110  ' </>
+'
+  0.0085  '》
+'
+  0.0085  '-Ass'
+
+=== Logit Lens (top-5 at each layer) ===
+  Layer  0: '39' (0.0532)
+           '51' (0.0388)
+           '52' (0.0269)
+           '49' (0.0153)
+           '68' (0.0134)
+  Layer  1: '49' (0.0270)
+           '51' (0.0154)
+           '39' (0.0154)
+           '81' (0.0099)
+           'etu' (0.0082)
+  Layer  2: 'pack' (0.0153)
+           '一种' (0.0105)
+           'anja' (0.0082)
+           'OfYear' (0.0082)
+           'ante' (0.0077)
+  Layer  3: 'ante' (0.0162)
+           'Owners' (0.0134)
+           '�数' (0.0072)
+           ' Owners' (0.0064)
+           ' sizeof' (0.0056)
+  Layer  4: 'riteria' (0.0171)
+           'ante' (0.0098)
+           'prising' (0.0092)
+           'luv' (0.0076)
+           'rypt' (0.0076)
+  Layer  5: 'afort' (0.0096)
+           ' statuses' (0.0058)
+           'dest' (0.0058)
+           'ообраз' (0.0055)
+           'norm' (0.0055)
+  Layer  6: 'norm' (0.0220)
+           ' statuses' (0.0142)
+           '-status' (0.0110)
+           ' wrists' (0.0086)
+           'adients' (0.0081)
+  Layer  7: ' Credits' (0.0225)
+           '-status' (0.0164)
+           'passwd' (0.0128)
+           'Credits' (0.0120)
+           '-www' (0.0082)
+  Layer  8: '-www' (0.0223)
+           'enstein' (0.0173)
+           'antium' (0.0154)
+           '-offs' (0.0154)
+           'LK' (0.0088)
+  Layer  9: 'LK' (0.0229)
+           '-Sep' (0.0139)
+           '-м' (0.0131)
+           '-status' (0.0090)
+           '-May' (0.0079)
+  Layer 10: '-Sep' (0.0322)
+           'LK' (0.0184)
+           '-May' (0.0153)
+           '-м' (0.0056)
+           'Tak' (0.0056)
+  Layer 11: 'LK' (0.0225)
+           ' Kew' (0.0106)
+           'Tak' (0.0060)
+           'argas' (0.0053)
+           ' Vladim' (0.0050)
+  Layer 12: 'LK' (0.0060)
+           '-sub' (0.0056)
+           'argas' (0.0053)
+           ' Kew' (0.0044)
+           '-к' (0.0036)
+  Layer 13: '“
+
+' (0.0061)
+           'struments' (0.0057)
+           ' Тем' (0.0042)
+           ' Procedures' (0.0042)
+           ' resourceName' (0.0040)
+  Layer 14: '<cv' (0.0097)
+           '-question' (0.0081)
+           ' Тем' (0.0055)
+           '“
+
+' (0.0052)
+           '-stage' (0.0052)
+  Layer 15: ':&' (0.0361)
+           '》（' (0.0110)
+           ' </>
+' (0.0110)
+           '》
+' (0.0085)
+           '-Ass' (0.0085)
+
+--- Prompt: '17 + 38 = ' ---
+Loading model: meta-llama/Llama-3.2-1B + adapter: experiments/cli_classifier_emergence/checkpoint/adapters
+Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files: 100%|██████████| 8/8 [00:00<00:00, 21440.53it/s]
+Model: meta-llama/Llama-3.2-1B
+  Layers: 16
+  Hidden size: 2048
+  Vocab size: 128000
+  Tied embeddings: False
+  Mode: RAW (model has no chat template)
+
+Note: Prompt has trailing whitespace which affects tokenization
+  This changes what the model predicts (next token after space vs after last word)
+  For arithmetic prompts like 'X + Y = ', trailing space often helps get answers
+
+Analyzing: '17 + 38 = '
+
+Tokens (7): ['<|begin_of_text|>', '17', ' +', ' ', '38', ' =', ' ']
+Captured layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+=== Final Prediction ===
+  0.0356 # ':&'
+  0.0115  '》（'
+  0.0109  ' </>
+'
+  0.0090  '-Ass'
+  0.0085  '》
+'
+
+=== Logit Lens (top-5 at each layer) ===
+  Layer  0: '39' (0.0515)
+           '51' (0.0376)
+           '52' (0.0260)
+           '49' (0.0148)
+           '68' (0.0122)
+  Layer  1: '49' (0.0276)
+           '51' (0.0167)
+           '39' (0.0157)
+           '81' (0.0095)
+           'etu' (0.0084)
+  Layer  2: 'pack' (0.0142)
+           '一种' (0.0103)
+           'anja' (0.0081)
+           'OfYear' (0.0076)
+           'ante' (0.0076)
+  Layer  3: 'ante' (0.0181)
+           'Owners' (0.0150)
+           '�数' (0.0075)
+           ' Owners' (0.0066)
+           'ividad' (0.0052)
+  Layer  4: 'riteria' (0.0182)
+           'ante' (0.0125)
+           'luv' (0.0081)
+           'prising' (0.0081)
+           'rypt' (0.0071)
+  Layer  5: 'afort' (0.0092)
+           ' statuses' (0.0067)
+           'dest' (0.0063)
+           'ообраз' (0.0052)
+           'norm' (0.0052)
+  Layer  6: 'norm' (0.0219)
+           ' statuses' (0.0160)
+           '-status' (0.0125)
+           ' wrists' (0.0080)
+           'adients' (0.0076)
+  Layer  7: ' Credits' (0.0229)
+           '-status' (0.0178)
+           'Credits' (0.0139)
+           'passwd' (0.0123)
+           ' statuses' (0.0084)
+  Layer  8: '-www' (0.0229)
+           'enstein' (0.0190)
+           'antium' (0.0167)
+           '-offs' (0.0131)
+           'LK' (0.0079)
+  Layer  9: 'LK' (0.0226)
+           '-Sep' (0.0137)
+           '-м' (0.0129)
+           '-status' (0.0094)
+           '-May' (0.0073)
+  Layer 10: '-Sep' (0.0317)
+           'LK' (0.0170)
+           '-May' (0.0141)
+           'Tak' (0.0059)
+           '-м' (0.0055)
+  Layer 11: 'LK' (0.0204)
+           ' Kew' (0.0103)
+           'Tak' (0.0059)
+           'argas' (0.0051)
+           ' Vladim' (0.0049)
+  Layer 12: 'LK' (0.0053)
+           '-sub' (0.0053)
+           'argas' (0.0050)
+           ' Kew' (0.0044)
+           '-к' (0.0034)
+  Layer 13: '“
+
+' (0.0058)
+           'struments' (0.0058)
+           ' Тем' (0.0042)
+           ' Procedures' (0.0042)
+           ' resourceName' (0.0040)
+  Layer 14: '<cv' (0.0098)
+           '-question' (0.0081)
+           ' Тем' (0.0052)
+           '“
+
+' (0.0052)
+           '-Ass' (0.0052)
+  Layer 15: ':&' (0.0356)
+           '》（' (0.0115)
+           ' </>
+' (0.0109)
+           '-Ass' (0.0090)
+           '》
+' (0.0085)
+
+--- Prompt: '89 - 34 = ' ---
+Loading model: meta-llama/Llama-3.2-1B + adapter: experiments/cli_classifier_emergence/checkpoint/adapters
+Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files: 100%|██████████| 8/8 [00:00<00:00, 21974.09it/s]
+Model: meta-llama/Llama-3.2-1B
+  Layers: 16
+  Hidden size: 2048
+  Vocab size: 128000
+  Tied embeddings: False
+  Mode: RAW (model has no chat template)
+
+Note: Prompt has trailing whitespace which affects tokenization
+  This changes what the model predicts (next token after space vs after last word)
+  For arithmetic prompts like 'X + Y = ', trailing space often helps get answers
+
+Analyzing: '89 - 34 = '
+
+Tokens (7): ['<|begin_of_text|>', '89', ' -', ' ', '34', ' =', ' ']
+Captured layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+=== Final Prediction ===
+  0.0347 # ':&'
+  0.0112  '》（'
+  0.0106  ' </>
+'
+  0.0087  '》
+'
+  0.0087  '-Ass'
+
+=== Logit Lens (top-5 at each layer) ===
+  Layer  0: '39' (0.0461)
+           '51' (0.0337)
+           '52' (0.0247)
+           '68' (0.0140)
+           '49' (0.0140)
+  Layer  1: '49' (0.0231)
+           '51' (0.0149)
+           '39' (0.0140)
+           '81' (0.0096)
+           'etu' (0.0075)
+  Layer  2: 'pack' (0.0150)
+           '一种' (0.0103)
+           'ante' (0.0085)
+           'OfYear' (0.0080)
+           'anja' (0.0062)
+  Layer  3: 'Owners' (0.0164)
+           'ante' (0.0145)
+           ' Owners' (0.0073)
+           'ividad' (0.0064)
+           '�数' (0.0064)
+  Layer  4: 'riteria' (0.0162)
+           'luv' (0.0104)
+           'prising' (0.0093)
+           'ante' (0.0087)
+           'ivities' (0.0077)
+  Layer  5: 'afort' (0.0082)
+           ' statuses' (0.0068)
+           'ообраз' (0.0053)
+           'dest' (0.0053)
+           ' Exceptions' (0.0047)
+  Layer  6: 'norm' (0.0244)
+           ' statuses' (0.0157)
+           '-status' (0.0131)
+           'adients' (0.0096)
+           'enstein' (0.0079)
+  Layer  7: ' Credits' (0.0199)
+           '-status' (0.0187)
+           'passwd' (0.0154)
+           '-www' (0.0120)
+           'Credits' (0.0089)
+  Layer  8: '-www' (0.0308)
+           'enstein' (0.0211)
+           'antium' (0.0155)
+           '-offs' (0.0145)
+           'LK' (0.0094)
+  Layer  9: 'LK' (0.0269)
+           '-Sep' (0.0173)
+           '-м' (0.0106)
+           '-status' (0.0077)
+           '-May' (0.0072)
+  Layer 10: '-Sep' (0.0376)
+           'LK' (0.0201)
+           '-May' (0.0138)
+           '-м' (0.0051)
+           'Tak' (0.0048)
+  Layer 11: 'LK' (0.0239)
+           ' Kew' (0.0121)
+           'Tak' (0.0053)
+           ' Vladim' (0.0050)
+           '-Sep' (0.0044)
+  Layer 12: 'LK' (0.0064)
+           '-sub' (0.0060)
+           ' Kew' (0.0049)
+           'argas' (0.0044)
+           '-к' (0.0039)
+  Layer 13: 'struments' (0.0058)
+           '“
+
+' (0.0054)
+           ' Тем' (0.0042)
+           ' Procedures' (0.0040)
+           ' resourceName' (0.0037)
+  Layer 14: '<cv' (0.0104)
+           '-question' (0.0087)
+           '-stage' (0.0056)
+           ' Тем' (0.0052)
+           '-launch' (0.0049)
+  Layer 15: ':&' (0.0347)
+           '》（' (0.0112)
+           ' </>
+' (0.0106)
+           '》
+' (0.0087)
+           '-Ass' (0.0087)
+
+--- Prompt: '65 - 28 = ' ---
+Loading model: meta-llama/Llama-3.2-1B + adapter: experiments/cli_classifier_emergence/checkpoint/adapters
+Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files: 100%|██████████| 8/8 [00:00<00:00, 20893.17it/s]
+Model: meta-llama/Llama-3.2-1B
+  Layers: 16
+  Hidden size: 2048
+  Vocab size: 128000
+  Tied embeddings: False
+  Mode: RAW (model has no chat template)
+
+Note: Prompt has trailing whitespace which affects tokenization
+  This changes what the model predicts (next token after space vs after last word)
+  For arithmetic prompts like 'X + Y = ', trailing space often helps get answers
+
+Analyzing: '65 - 28 = '
+
+Tokens (7): ['<|begin_of_text|>', '65', ' -', ' ', '28', ' =', ' ']
+Captured layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+=== Final Prediction ===
+  0.0352 # ':&'
+  0.0107  '》（'
+  0.0107  ' </>
+'
+  0.0089  '》
+'
+  0.0089  '-Ass'
+
+=== Logit Lens (top-5 at each layer) ===
+  Layer  0: '39' (0.0454)
+           '51' (0.0354)
+           '52' (0.0259)
+           '68' (0.0147)
+           '49' (0.0147)
+  Layer  1: '49' (0.0225)
+           '51' (0.0145)
+           '39' (0.0128)
+           '81' (0.0088)
+           'etu' (0.0082)
+  Layer  2: 'pack' (0.0147)
+           '一种' (0.0095)
+           'ante' (0.0095)
+           'OfYear' (0.0089)
+           'itted' (0.0070)
+  Layer  3: 'ante' (0.0171)
+           'Owners' (0.0160)
+           ' Owners' (0.0067)
+           'ividad' (0.0059)
+           ' sizeof' (0.0059)
+  Layer  4: 'riteria' (0.0170)
+           'luv' (0.0103)
+           'prising' (0.0097)
+           'ante' (0.0097)
+           'ivities' (0.0080)
+  Layer  5: 'afort' (0.0081)
+           ' statuses' (0.0063)
+           'ообраз' (0.0052)
+           'dest' (0.0052)
+           ' Exceptions' (0.0046)
+  Layer  6: 'norm' (0.0238)
+           ' statuses' (0.0135)
+           '-status' (0.0135)
+           'adients' (0.0093)
+           'enstein' (0.0087)
+  Layer  7: '-status' (0.0201)
+           ' Credits' (0.0189)
+           'passwd' (0.0147)
+           '-www' (0.0130)
+           'Credits' (0.0084)
+  Layer  8: '-www' (0.0315)
+           'enstein' (0.0216)
+           '-offs' (0.0159)
+           'antium' (0.0149)
+           'LK' (0.0102)
+  Layer  9: 'LK' (0.0276)
+           '-Sep' (0.0178)
+           '-м' (0.0101)
+           '-status' (0.0079)
+           '-May' (0.0074)
+  Layer 10: '-Sep' (0.0376)
+           'LK' (0.0215)
+           '-May' (0.0138)
+           '-м' (0.0048)
+           'alat' (0.0045)
+  Layer 11: 'LK' (0.0253)
+           ' Kew' (0.0120)
+           'Tak' (0.0050)
+           ' Vladim' (0.0047)
+           '-Sep' (0.0044)
+  Layer 12: 'LK' (0.0063)
+           '-sub' (0.0059)
+           ' Kew' (0.0049)
+           'argas' (0.0046)
+           '-к' (0.0041)
+  Layer 13: 'struments' (0.0058)
+           '“
+
+' (0.0054)
+           ' Тем' (0.0040)
+           ' resourceName' (0.0040)
+           ' Procedures' (0.0040)
+  Layer 14: '<cv' (0.0105)
+           '-question' (0.0082)
+           '-stage' (0.0053)
+           ' Тем' (0.0050)
+           '-launch' (0.0050)
+  Layer 15: ':&' (0.0352)
+           '》（' (0.0107)
+           ' </>
+' (0.0107)
+           '》
+' (0.0089)
+           '-Ass' (0.0089)

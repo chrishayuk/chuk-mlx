@@ -1,0 +1,18 @@
+{
+  "model": "meta-llama/Llama-3.2-1B",
+  "training_samples": 200,
+  "snapshots": [
+    {
+      "checkpoint": "baseline",
+      "steps": 0,
+      "has_classifiers": false,
+      "average_peak_prob": 0.004057747977120536
+    },
+    {
+      "checkpoint": "step_50",
+      "steps": 50,
+      "has_classifiers": false,
+      "average_peak_prob": 0.003460354275173611
+    }
+  ]
+}
