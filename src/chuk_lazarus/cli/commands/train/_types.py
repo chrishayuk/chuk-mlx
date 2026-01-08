@@ -1,31 +1,18 @@
 """Type definitions for training CLI commands.
 
 This module contains Pydantic models and enums for training commands.
+CLI commands should be thin wrappers - all business logic belongs in the framework.
 """
 
 from __future__ import annotations
 
 from argparse import Namespace
-from enum import Enum
 from pathlib import Path
 
 from pydantic import Field
 
 from .._base import CommandConfig, CommandResult, OutputMixin
-
-
-class TrainMode(str, Enum):
-    """Training mode."""
-
-    SFT = "sft"
-    DPO = "dpo"
-
-
-class DataGenType(str, Enum):
-    """Type of data to generate."""
-
-    MATH = "math"
-    TOOL_CALL = "tool_call"
+from .._constants import DataGenType, TrainMode, TrainingDefaults
 
 
 class SFTConfig(CommandConfig):
@@ -50,15 +37,21 @@ class SFTConfig(CommandConfig):
     data: Path = Field(..., description="Path to training data")
     eval_data: Path | None = Field(default=None, description="Path to eval data")
     output: Path = Field(default=Path("./checkpoints/sft"), description="Output dir")
-    epochs: int = Field(default=3, ge=1, description="Number of epochs")
+    epochs: int = Field(default=TrainingDefaults.SFT_EPOCHS, ge=1, description="Number of epochs")
     max_steps: int | None = Field(default=None, description="Max steps (overrides epochs)")
-    batch_size: int = Field(default=4, ge=1, description="Batch size")
-    learning_rate: float = Field(default=1e-5, gt=0, description="Learning rate")
-    max_length: int = Field(default=512, ge=1, description="Max sequence length")
+    batch_size: int = Field(default=TrainingDefaults.BATCH_SIZE, ge=1, description="Batch size")
+    learning_rate: float = Field(
+        default=TrainingDefaults.SFT_LEARNING_RATE, gt=0, description="Learning rate"
+    )
+    max_length: int = Field(
+        default=TrainingDefaults.MAX_LENGTH, ge=1, description="Max sequence length"
+    )
     use_lora: bool = Field(default=False, description="Use LoRA")
-    lora_rank: int = Field(default=8, ge=1, description="LoRA rank")
+    lora_rank: int = Field(default=TrainingDefaults.LORA_RANK, ge=1, description="LoRA rank")
     mask_prompt: bool = Field(default=False, description="Mask prompt in loss")
-    log_interval: int = Field(default=10, ge=1, description="Log interval")
+    log_interval: int = Field(
+        default=TrainingDefaults.LOG_INTERVAL, ge=1, description="Log interval"
+    )
 
     @classmethod
     def from_args(cls, args: Namespace) -> SFTConfig:
@@ -103,13 +96,17 @@ class DPOConfig(CommandConfig):
     data: Path = Field(..., description="Path to preference data")
     eval_data: Path | None = Field(default=None, description="Path to eval data")
     output: Path = Field(default=Path("./checkpoints/dpo"), description="Output dir")
-    epochs: int = Field(default=3, ge=1, description="Number of epochs")
-    batch_size: int = Field(default=4, ge=1, description="Batch size")
-    learning_rate: float = Field(default=1e-6, gt=0, description="Learning rate")
-    beta: float = Field(default=0.1, gt=0, description="DPO beta")
-    max_length: int = Field(default=512, ge=1, description="Max sequence length")
+    epochs: int = Field(default=TrainingDefaults.DPO_EPOCHS, ge=1, description="Number of epochs")
+    batch_size: int = Field(default=TrainingDefaults.BATCH_SIZE, ge=1, description="Batch size")
+    learning_rate: float = Field(
+        default=TrainingDefaults.DPO_LEARNING_RATE, gt=0, description="Learning rate"
+    )
+    beta: float = Field(default=TrainingDefaults.DPO_BETA, gt=0, description="DPO beta")
+    max_length: int = Field(
+        default=TrainingDefaults.MAX_LENGTH, ge=1, description="Max sequence length"
+    )
     use_lora: bool = Field(default=False, description="Use LoRA")
-    lora_rank: int = Field(default=8, ge=1, description="LoRA rank")
+    lora_rank: int = Field(default=TrainingDefaults.LORA_RANK, ge=1, description="LoRA rank")
 
     @classmethod
     def from_args(cls, args: Namespace) -> DPOConfig:
@@ -127,6 +124,83 @@ class DPOConfig(CommandConfig):
             max_length=args.max_length,
             use_lora=args.use_lora,
             lora_rank=args.lora_rank,
+        )
+
+    @property
+    def reference_model(self) -> str:
+        """Get reference model name (defaults to policy model)."""
+        return self.ref_model or self.model
+
+
+class GRPOConfig(CommandConfig):
+    """Configuration for GRPO training command.
+
+    GRPO (Group Relative Policy Optimization) is an RL algorithm that:
+    - Generates multiple responses per prompt
+    - Uses group-relative advantages (no value function needed)
+    - Works well with verifiable rewards (e.g., arithmetic correctness)
+
+    Attributes:
+        model: Path or HuggingFace name of the policy model
+        ref_model: Path or HuggingFace name of reference model (defaults to policy)
+        output: Output directory for checkpoints
+        iterations: Number of training iterations
+        prompts_per_iteration: Number of prompts per iteration
+        group_size: Number of responses per prompt
+        learning_rate: Learning rate
+        kl_coef: KL penalty coefficient
+        max_response_length: Maximum tokens in generated response
+        temperature: Sampling temperature
+        use_lora: Whether to use LoRA
+        lora_rank: LoRA rank
+        reward_script: Path to Python script defining reward_fn(prompt, response) -> float
+    """
+
+    model: str = Field(..., description="Policy model path or name")
+    ref_model: str | None = Field(default=None, description="Reference model path")
+    output: Path = Field(default=Path("./checkpoints/grpo"), description="Output dir")
+    iterations: int = Field(
+        default=TrainingDefaults.GRPO_ITERATIONS, ge=1, description="Training iterations"
+    )
+    prompts_per_iteration: int = Field(
+        default=TrainingDefaults.GRPO_PROMPTS_PER_ITERATION, ge=1, description="Prompts per iteration"
+    )
+    group_size: int = Field(
+        default=TrainingDefaults.GRPO_GROUP_SIZE, ge=2, description="Responses per prompt"
+    )
+    learning_rate: float = Field(
+        default=TrainingDefaults.GRPO_LEARNING_RATE, gt=0, description="Learning rate"
+    )
+    kl_coef: float = Field(
+        default=TrainingDefaults.GRPO_KL_COEF, ge=0, description="KL penalty coefficient"
+    )
+    max_response_length: int = Field(
+        default=TrainingDefaults.GRPO_MAX_RESPONSE_LENGTH, ge=1, description="Max response tokens"
+    )
+    temperature: float = Field(
+        default=TrainingDefaults.GRPO_TEMPERATURE, gt=0, description="Sampling temperature"
+    )
+    use_lora: bool = Field(default=False, description="Use LoRA")
+    lora_rank: int = Field(default=TrainingDefaults.LORA_RANK, ge=1, description="LoRA rank")
+    reward_script: Path | None = Field(default=None, description="Python script with reward_fn")
+
+    @classmethod
+    def from_args(cls, args: Namespace) -> GRPOConfig:
+        """Create config from argparse Namespace."""
+        return cls(
+            model=args.model,
+            ref_model=getattr(args, "ref_model", None),
+            output=Path(args.output),
+            iterations=args.iterations,
+            prompts_per_iteration=args.prompts_per_iteration,
+            group_size=args.group_size,
+            learning_rate=args.learning_rate,
+            kl_coef=args.kl_coef,
+            max_response_length=args.max_response_length,
+            temperature=args.temperature,
+            use_lora=args.use_lora,
+            lora_rank=args.lora_rank,
+            reward_script=Path(args.reward_script) if args.reward_script else None,
         )
 
     @property
@@ -216,6 +290,7 @@ __all__ = [
     "DataGenResult",
     "DataGenType",
     "DPOConfig",
+    "GRPOConfig",
     "SFTConfig",
     "TrainMode",
     "TrainResult",

@@ -1,517 +1,21 @@
 """Handler for 'full-taxonomy' action - semantic trigram pattern analysis.
 
-This implements the validated semantic trigram methodology for expert analysis:
-- Classifies tokens into 20+ semantic types (NUM, OP, KW, NOUN, ADJ, VERB, etc.)
-- Analyzes trigram patterns (PREV→CURR→NEXT) for expert specialization
-- Groups patterns into categories (arithmetic, code, semantic relationships, etc.)
-- Shows layer evolution for each category
+This implements the validated semantic trigram methodology for expert analysis.
+This module is a thin CLI wrapper - token classification and test data
+are centralized in the MoE introspection module.
 """
 
 from __future__ import annotations
 
 import asyncio
-import re
 from argparse import Namespace
 from collections import Counter, defaultdict
 
 from ......introspection.moe import ExpertRouter
+from ......introspection.moe.analysis_service import classify_token, get_trigram
+from ......introspection.moe.test_data import TAXONOMY_TEST_PROMPTS
 from ..formatters import format_header
-
-# =============================================================================
-# TOKEN TYPE CLASSIFICATION
-# =============================================================================
-
-# Keywords by category
-CODE_KEYWORDS = {
-    "def",
-    "class",
-    "if",
-    "for",
-    "while",
-    "return",
-    "import",
-    "from",
-    "function",
-    "const",
-    "let",
-    "var",
-    "async",
-    "await",
-    "try",
-    "except",
-    "yield",
-    "lambda",
-    "with",
-    "else",
-    "elif",
-    "switch",
-    "case",
-    "break",
-}
-
-BOOL_LITERALS = {"true", "false", "True", "False", "null", "None", "nil"}
-
-TYPE_KEYWORDS = {"int", "str", "float", "bool", "list", "dict", "string", "number"}
-
-# Parts of speech
-NOUNS = {
-    "cat",
-    "dog",
-    "man",
-    "woman",
-    "king",
-    "queen",
-    "doctor",
-    "student",
-    "teacher",
-    "patient",
-    "car",
-    "house",
-    "tree",
-    "animal",
-    "pet",
-    "bird",
-    "fish",
-    "book",
-    "song",
-    "pen",
-    "brush",
-    "eye",
-    "ear",
-    "sun",
-    "moon",
-    "hand",
-    "foot",
-    "glove",
-    "shoe",
-    "day",
-    "night",
-    "puppy",
-    "kitten",
-    "vehicle",
-    "city",
-    "country",
-    "river",
-    "mountain",
-    "ocean",
-    "server",
-    "computer",
-    "person",
-    "child",
-    "parent",
-    "friend",
-    "enemy",
-    "world",
-}
-
-ADJECTIVES = {
-    "big",
-    "small",
-    "happy",
-    "sad",
-    "fast",
-    "slow",
-    "hot",
-    "cold",
-    "good",
-    "bad",
-    "old",
-    "new",
-    "light",
-    "dark",
-    "high",
-    "low",
-    "warm",
-    "cool",
-    "large",
-    "quick",
-    "great",
-    "young",
-    "rich",
-    "poor",
-    "tall",
-    "short",
-    "long",
-    "deep",
-    "wide",
-    "narrow",
-    "thick",
-    "thin",
-    "heavy",
-    "soft",
-    "hard",
-    "easy",
-    "difficult",
-    "simple",
-    "complex",
-}
-
-VERBS = {
-    "run",
-    "walk",
-    "think",
-    "eat",
-    "make",
-    "go",
-    "come",
-    "see",
-    "know",
-    "read",
-    "write",
-    "listen",
-    "fly",
-    "swim",
-    "paint",
-    "hear",
-    "speak",
-    "work",
-    "play",
-    "sleep",
-    "wake",
-    "start",
-    "stop",
-    "open",
-    "close",
-    "give",
-    "take",
-    "find",
-    "lose",
-    "win",
-    "fail",
-    "pass",
-    "grow",
-}
-
-FUNCTION_WORDS = {
-    "the",
-    "a",
-    "an",
-    "in",
-    "on",
-    "at",
-    "to",
-    "for",
-    "with",
-    "by",
-    "of",
-    "and",
-    "or",
-    "but",
-    "is",
-    "are",
-    "was",
-    "were",
-    "be",
-    "been",
-    "being",
-    "has",
-    "have",
-    "had",
-    "do",
-    "does",
-    "did",
-    "will",
-    "would",
-    "could",
-    "should",
-    "may",
-    "might",
-    "must",
-    "can",
-    "shall",
-    "this",
-    "that",
-}
-
-# Relationship markers
-SYNONYM_MARKERS = {"means", "equals", "same", "like", "similar", "equivalent"}
-ANTONYM_MARKERS = {"versus", "against", "opposite", "unlike", "different", "contrary"}
-CAUSE_MARKERS = {"because", "since", "therefore", "so", "thus", "hence", "consequently"}
-CONDITION_MARKERS = {"if", "unless", "when", "while", "although", "though", "whether"}
-
-# Question words
-QUESTION_WORDS = {"what", "who", "where", "when", "why", "how", "which", "whose"}
-ANSWER_WORDS = {"yes", "no", "maybe", "probably", "definitely", "certainly"}
-
-# Negation
-NEGATION_WORDS = {"not", "never", "none", "nothing", "neither", "nor", "nobody"}
-
-# Temporal
-TEMPORAL_WORDS = {"now", "then", "before", "after", "yesterday", "today", "tomorrow", "always"}
-
-# Quantifiers
-QUANTIFIERS = {"all", "some", "many", "few", "most", "every", "each", "any", "none", "both"}
-
-# Comparatives
-COMPARISON_WORDS = {"than", "more", "less", "most", "least", "better", "worse", "bigger", "smaller"}
-
-# Coordination
-COORD_WORDS = {"and", "or", "but", "nor", "yet", "so"}
-
-
-def classify_token(token: str) -> str:
-    """Classify a token into semantic type."""
-    clean = token.strip().lower()
-
-    # Empty/whitespace
-    if not clean:
-        return "WS"
-
-    # Numbers (including decimals and negatives)
-    if re.match(r"^-?\d+\.?\d*$", clean):
-        return "NUM"
-
-    # Operators
-    if clean in [
-        "+",
-        "-",
-        "*",
-        "/",
-        "=",
-        "<",
-        ">",
-        "==",
-        "!=",
-        "<=",
-        ">=",
-        "+=",
-        "-=",
-        "*=",
-        "/=",
-        "&&",
-        "||",
-        "!",
-        "&",
-        "|",
-        "^",
-        "%",
-    ]:
-        return "OP"
-
-    # Brackets
-    if clean in "()[]{}":
-        return "BR"
-
-    # Punctuation
-    if clean in ".,;:!?":
-        return "PN"
-
-    # Quotes
-    if clean in ["'", '"', "`", "''", '""']:
-        return "QUOTE"
-
-    # Code keywords
-    if clean in CODE_KEYWORDS:
-        return "KW"
-
-    # Boolean/null literals
-    if clean in BOOL_LITERALS:
-        return "BOOL"
-
-    # Type keywords
-    if clean in TYPE_KEYWORDS:
-        return "TYPE"
-
-    # Relationship markers (check before function words)
-    if clean in SYNONYM_MARKERS:
-        return "SYN"
-    if clean in ANTONYM_MARKERS:
-        return "ANT"
-    if clean == "as":
-        return "AS"
-    if clean == "to" and token.strip() == "to":  # standalone "to"
-        return "TO"
-    if clean in CAUSE_MARKERS:
-        return "CAUSE"
-    if clean in CONDITION_MARKERS:
-        return "COND"
-    if clean == "than":
-        return "THAN"
-
-    # Question/answer
-    if clean in QUESTION_WORDS:
-        return "QW"
-    if clean in ANSWER_WORDS:
-        return "ANS"
-
-    # Negation
-    if clean in NEGATION_WORDS:
-        return "NEG"
-
-    # Temporal
-    if clean in TEMPORAL_WORDS:
-        return "TIME"
-
-    # Quantifiers
-    if clean in QUANTIFIERS:
-        return "QUANT"
-
-    # Comparatives
-    if clean in COMPARISON_WORDS:
-        return "COMP"
-
-    # Coordination
-    if clean in COORD_WORDS:
-        return "COORD"
-
-    # Parts of speech
-    if clean in NOUNS:
-        return "NOUN"
-    if clean in ADJECTIVES:
-        return "ADJ"
-    if clean in VERBS:
-        return "VERB"
-    if clean in FUNCTION_WORDS:
-        return "FUNC"
-
-    # Capitalized (proper noun or sentence start)
-    original = token.strip()
-    if original and original[0].isupper() and len(original) > 1:
-        return "CAP"
-
-    # Single letter variable
-    if len(clean) == 1 and clean.isalpha():
-        return "VAR"
-
-    # Default content word
-    return "CW"
-
-
-# =============================================================================
-# TEST PROMPTS BY CATEGORY
-# =============================================================================
-
-TEST_PROMPTS = {
-    "arithmetic": [
-        "2 + 3 = 5",
-        "127 * 89 = 11303",
-        "45 - 12 = 33",
-        "100 / 4 = 25",
-        "5 + 3 = 8",
-        "10 - 4 = 6",
-        "7 * 2 = 14",
-        "20 / 4 = 5",
-    ],
-    "code": [
-        "def hello(name):",
-        "for i in range(10):",
-        "if x > 0: return x",
-        "async def fetch():",
-        "class MyClass:",
-        "while True: break",
-        "try: x = 1",
-        "lambda x: x * 2",
-        "import os",
-        "from sys import path",
-    ],
-    "synonym": [
-        "Happy means joyful.",
-        "Big equals large.",
-        "Fast is similar to quick.",
-        "Good means great.",
-        "Old equals ancient.",
-    ],
-    "antonym": [
-        "Big versus small.",
-        "Hot against cold.",
-        "Light opposite dark.",
-        "Good versus bad.",
-        "Fast against slow.",
-    ],
-    "analogy": [
-        "King is to queen as man is to woman.",
-        "Doctor is to patient as teacher is to student.",
-        "Cat is to kitten as dog is to puppy.",
-        "Hot is to cold as big is to small.",
-        "Book is to read as song is to listen.",
-    ],
-    "hypernym": [
-        "Dog is an animal.",
-        "Cat is a pet.",
-        "Oak is a tree.",
-        "Car is a vehicle.",
-        "Paris is a city.",
-    ],
-    "comparison": [
-        "Dogs are bigger than cats.",
-        "Cheetahs run faster than lions.",
-        "5 is greater than 3.",
-        "This is better than that.",
-        "More people than expected.",
-    ],
-    "causation": [
-        "It failed because the server crashed.",
-        "She won since she practiced daily.",
-        "Therefore the result is zero.",
-        "The test passed because it works.",
-        "Thus we conclude success.",
-    ],
-    "conditional": [
-        "If it rains then stay inside.",
-        "Unless you study you will fail.",
-        "When ready please start.",
-        "While running check status.",
-        "Although difficult it worked.",
-    ],
-    "question": [
-        "What is the capital of France?",
-        "Who wrote this book?",
-        "How does it work?",
-        "Where is the cat?",
-        "Why did it fail?",
-    ],
-    "negation": [
-        "The dog is not big.",
-        "I have never seen that.",
-        "There is nothing here.",
-        "Nobody knows the answer.",
-        "Neither option works.",
-    ],
-    "temporal": [
-        "Yesterday I went home.",
-        "Now the cat sleeps.",
-        "Before that it was sunny.",
-        "Tomorrow we will start.",
-        "Then it happened suddenly.",
-    ],
-    "quantification": [
-        "All dogs are mammals.",
-        "Some cats like water.",
-        "Every student passed.",
-        "Many people attended.",
-        "Few options remain.",
-    ],
-    "context_switch": [
-        "The result is 42.",
-        "Calculate x + y first.",
-        "Answer: 127 * 89 = 11303",
-        "Set x = 5 and y = 3.",
-        "The dog weighs 15 pounds.",
-        "See page 42 for details.",
-        "He scored 98 on the test.",
-        "Mix 2 cups with 3 eggs.",
-    ],
-    "position": [
-        "The quick brown fox.",
-        "Hello world today.",
-        "First item here.",
-        "Last thing done.",
-        "Start here now.",
-        "End of the story.",
-        "Beginning of time.",
-        "Finally we finished.",
-    ],
-    "coordination": [
-        "Dogs and cats play.",
-        "Hot or cold drinks.",
-        "Big but gentle.",
-        "Run and jump fast.",
-        "Happy and sad times.",
-        "Read or write code.",
-        "Young and old people.",
-        "Fast but careful.",
-    ],
-}
+from .._types import FullTaxonomyConfig
 
 
 # =============================================================================
@@ -532,15 +36,6 @@ PATTERN_CATEGORIES = {
     "negation": ["→NEG→", "VERB→NEG", "FUNC→NEG"],
     "temporal": ["^→TIME", "→TIME→", "VERB→TIME"],
     "quantification": ["^→QUANT", "QUANT→NOUN", "QUANT→FUNC"],
-    "position": ["^→CW", "^→NOUN", "^→NUM", "CW→PN→$", "NUM→PN→$", "^→CAP", "^→FUNC"],
-    "context_switch": ["CW→WS→NUM", "NUM→WS→CW", "FUNC→NUM", "NUM→FUNC", "PN→WS→NUM", "CW→PN→NUM"],
-    "coordination": [
-        "NOUN→COORD→NOUN",
-        "ADJ→COORD→ADJ",
-        "VERB→COORD→VERB",
-        "CW→COORD→CW",
-        "→COORD→",
-    ],
 }
 
 
@@ -568,26 +63,24 @@ def handle_full_taxonomy(args: Namespace) -> None:
 
 async def _async_full_taxonomy(args: Namespace) -> None:
     """Async implementation of semantic trigram taxonomy analysis."""
-    model_id = args.model
-    verbose = getattr(args, "verbose", False)
-    categories_arg = getattr(args, "categories", None)
+    config = FullTaxonomyConfig.from_args(args)
 
-    print(f"Loading model: {model_id}")
-    async with await ExpertRouter.from_pretrained(model_id) as router:
+    print(f"Loading model: {config.model}")
+    async with await ExpertRouter.from_pretrained(config.model) as router:
         info = router.info
         print(f"Model: {info.num_experts} experts, {len(info.moe_layers)} MoE layers\n")
 
         # Select categories to analyze
-        if categories_arg:
-            categories = [c.strip() for c in categories_arg.split(",")]
+        if config.categories:
+            categories = [c.strip() for c in config.categories.split(",")]
         else:
-            categories = list(TEST_PROMPTS.keys())
+            categories = list(TAXONOMY_TEST_PROMPTS.keys())
 
-        # Collect all prompts
+        # Collect all prompts using centralized test data
         all_prompts = []
         for cat in categories:
-            if cat in TEST_PROMPTS:
-                for prompt in TEST_PROMPTS[cat]:
+            if cat in TAXONOMY_TEST_PROMPTS:
+                for prompt in TAXONOMY_TEST_PROMPTS[cat]:
                     all_prompts.append((cat, prompt))
 
         print(f"Analyzing {len(all_prompts)} prompts across {len(categories)} categories...\n")
@@ -603,10 +96,10 @@ async def _async_full_taxonomy(args: Namespace) -> None:
             for layer_weights in weights:
                 layer = layer_weights.layer_idx
                 positions = layer_weights.positions
-
-                # Classify all tokens
-                sem_types = [classify_token(p.token) for p in positions]
                 tokens = [p.token for p in positions]
+
+                # Classify tokens using centralized function
+                sem_types = [classify_token(p.token).value for p in positions]
 
                 for i, pos in enumerate(positions):
                     prev_t = sem_types[i - 1] if i > 0 else "^"
@@ -661,15 +154,13 @@ async def _async_full_taxonomy(args: Namespace) -> None:
                     for trigram, count in counts.items():
                         if pattern in trigram:
                             examples = trigram_examples[(layer, exp, trigram)]
-                            pattern_experts.append(
-                                {
-                                    "layer": layer,
-                                    "expert": exp,
-                                    "trigram": trigram,
-                                    "count": count,
-                                    "examples": examples,
-                                }
-                            )
+                            pattern_experts.append({
+                                "layer": layer,
+                                "expert": exp,
+                                "trigram": trigram,
+                                "count": count,
+                                "examples": examples,
+                            })
 
                 pattern_experts.sort(key=lambda x: (-x["count"], x["layer"]))
 
@@ -713,8 +204,8 @@ async def _async_full_taxonomy(args: Namespace) -> None:
                 peak_str = ", ".join(f"L{layer}({cnt})" for layer, cnt in peak_layers)
                 print(f"  {cat:<16}: {peak_str}")
 
-        # Expert specialization summary
-        if verbose:
+        # Expert specialization summary (verbose mode)
+        if config.verbose:
             print("\n" + format_header("TOP EXPERT SPECIALIZATIONS"))
 
             # Aggregate trigrams across all layers for top experts

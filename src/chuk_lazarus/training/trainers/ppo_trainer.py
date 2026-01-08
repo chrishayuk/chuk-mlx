@@ -328,12 +328,18 @@ class PPOTrainer(BaseTrainer):
             return [0.0] * 10  # Default
 
     def save_checkpoint(self, name: str):
-        """Save model checkpoint."""
-        path = Path(self.config.checkpoint_dir) / f"{name}.safetensors"
+        """Save model checkpoint in safetensors format.
+
+        Uses base class _flatten_params for consistent weight handling.
+        """
+        checkpoint_dir = Path(self.config.checkpoint_dir)
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+        weights_path = checkpoint_dir / f"{name}.safetensors"
         weights = dict(self.policy.parameters())
         flat_weights = self._flatten_params(weights)
-        mx.save_safetensors(str(path), flat_weights)
-        logger.info(f"Saved checkpoint: {path}")
+        mx.save_safetensors(str(weights_path), flat_weights)
+        logger.info(f"Saved checkpoint: {weights_path}")
 
     def load_checkpoint(self, path: str):
         """Load model checkpoint."""

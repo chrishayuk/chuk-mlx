@@ -227,18 +227,29 @@ class BaseTrainer(ABC):
         return {k: sum(v) / len(v) if v else 0.0 for k, v in all_metrics.items()}
 
     def save_checkpoint(self, name: str):
-        """Save model checkpoint."""
-        path = Path(self.config.checkpoint_dir) / f"{name}.safetensors"
+        """Save model checkpoint in safetensors format.
 
-        # Check if model has adapter save method (for LoRA)
-        if hasattr(self.model, "save_adapter"):
-            self.model.save_adapter(str(path))
+        For LoRA models, saves adapter weights if lora_layers attribute exists.
+        Otherwise saves full model weights.
+        """
+        checkpoint_dir = Path(self.config.checkpoint_dir)
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+        # Check for LoRA layers (set by load_model_with_lora)
+        if hasattr(self, "lora_layers") and self.lora_layers:
+            from ..models_v2.loader import save_adapter
+
+            adapter_path = checkpoint_dir / name
+            lora_config = getattr(self, "lora_config", None)
+            save_adapter(self.lora_layers, adapter_path, lora_config=lora_config)
+            logger.info(f"Saved LoRA adapter: {adapter_path}")
         else:
+            # Save full model weights
+            weights_path = checkpoint_dir / f"{name}.safetensors"
             weights = dict(self.model.parameters())
             flat_weights = self._flatten_params(weights)
-            mx.save_safetensors(str(path), flat_weights)
-
-        logger.info(f"Saved checkpoint: {path}")
+            mx.save_safetensors(str(weights_path), flat_weights)
+            logger.info(f"Saved checkpoint: {weights_path}")
 
     def load_checkpoint(self, path: str):
         """Load model checkpoint."""

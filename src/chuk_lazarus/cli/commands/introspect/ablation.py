@@ -1,10 +1,19 @@
 """Ablation study commands for introspection CLI.
 
 Commands for causal circuit discovery through ablation studies.
+This module is a thin CLI wrapper - all business logic is in AblationService.
 """
 
+from __future__ import annotations
 
-def introspect_ablate(args):
+import asyncio
+from argparse import Namespace
+
+from ._types import AblationConfig
+from ._utils import parse_layers
+
+
+def introspect_ablate(args: Namespace) -> None:
     """Run ablation study to identify causal circuits.
 
     Supports two modes:
@@ -21,240 +30,206 @@ def introspect_ablate(args):
         # Test multiple prompts with difficulty gradient
         lazarus introspect ablate -m openai/gpt-oss-20b --prompts "10*10=:100|45*45=:2025|47*47=:2209" --layers 22,23 --multi
     """
+    asyncio.run(_async_introspect_ablate(args))
 
-    from ....introspection import AblationConfig, AblationStudy, ComponentType
 
-    # Validate arguments: need either --prompt+--criterion OR --prompts
-    prompts_arg = getattr(args, "prompts", None)
-    if not prompts_arg and not args.prompt:
-        print("Error: Either --prompt/-p (with --criterion/-c) or --prompts is required")
-        return
-    if args.prompt and not args.criterion and not prompts_arg:
-        print("Error: --criterion/-c is required when using --prompt/-p")
-        return
+async def _async_introspect_ablate(args: Namespace) -> None:
+    """Async implementation of ablation command."""
+    from ....introspection.ablation import (
+        AblationService,
+        AblationStudy,
+        ComponentType,
+    )
 
-    print(f"Loading model: {args.model}")
-    study = AblationStudy.from_pretrained(args.model)
+    config = AblationConfig.from_args(args)
 
-    # Parse layers - support comma-separated and ranges (e.g., "0,1,2" or "0-5" or "0-5,10,15-20")
-    if args.layers:
-        layers = []
-        for part in args.layers.split(","):
-            part = part.strip()
-            if "-" in part:
-                start, end = part.split("-")
-                layers.extend(range(int(start), int(end) + 1))
-            else:
-                layers.append(int(part))
-    else:
-        layers = list(range(study.adapter.num_layers))
+    # Validate arguments
+    if not config.prompts and not config.prompt:
+        raise ValueError("Either --prompt/-p (with --criterion/-c) or --prompts is required")
+    if config.prompt and not config.criterion and not config.prompts:
+        raise ValueError("--criterion/-c is required when using --prompt/-p")
 
-    multi_mode = getattr(args, "multi", False)
-    use_raw = getattr(args, "raw", False)
+    print(f"Loading model: {config.model}")
+    study = AblationStudy.from_pretrained(config.model)
 
-    if multi_mode:
-        print(f"Ablating layers together: {layers}")
-    else:
-        print(f"Sweeping layers individually: {layers}")
-    print(f"Component: {args.component}")
-    print(f"Mode: {'RAW' if use_raw else 'CHAT'}")
-
-    # Create criterion function based on argument
-    criterion_map = {
-        "function_call": lambda x: any(
-            m in x for m in ["<start_function_call>", "<function_call>", "get_weather(", '{"name":']
-        ),
-        "sorry": lambda x: "sorry" in x.lower() or "apologize" in x.lower(),
-        "positive": lambda x: any(
-            w in x.lower() for w in ["great", "good", "excellent", "wonderful", "love"]
-        ),
-        "negative": lambda x: any(
-            w in x.lower() for w in ["bad", "terrible", "awful", "hate", "poor"]
-        ),
-        "refusal": lambda x: any(
-            m in x.lower() for m in ["cannot", "can't", "won't", "unable", "decline"]
-        ),
-    }
+    # Parse layers
+    layers = parse_layers(config.layers) if config.layers else list(range(study.adapter.num_layers))
 
     # Map component
-    component = {
+    component_map = {
         "mlp": ComponentType.MLP,
         "attention": ComponentType.ATTENTION,
         "both": ComponentType.BOTH,
-    }[args.component]
+    }
+    component = component_map[config.component]
 
-    config = AblationConfig(
-        component=component,
-        max_new_tokens=args.max_tokens,
-    )
+    if config.multi:
+        print(f"Ablating layers together: {layers}")
+    else:
+        print(f"Sweeping layers individually: {layers}")
+    print(f"Component: {config.component}")
+    print(f"Mode: {'RAW' if config.raw else 'CHAT'}")
 
-    # Handle multiple prompts mode (--prompts "prompt1:expected1|prompt2:expected2")
-    if prompts_arg:
-        prompt_pairs = []
-        for item in prompts_arg.split("|"):
-            item = item.strip()
-            if ":" in item:
-                prompt, expected = item.rsplit(":", 1)
-                prompt_pairs.append((prompt.strip(), expected.strip()))
+    # Handle multiple prompts mode
+    if config.prompts:
+        prompt_pairs = AblationService.parse_prompt_pairs(config.prompts)
+
+        # Fill in criterion for prompts without expected values
+        filled_pairs = []
+        for prompt, expected in prompt_pairs:
+            if not expected and config.criterion:
+                filled_pairs.append((prompt, config.criterion))
+            elif expected:
+                filled_pairs.append((prompt, expected))
             else:
-                # Prompt without expected value - use criterion if available, else error
-                if args.criterion:
-                    prompt_pairs.append((item, args.criterion))
-                else:
-                    print(
-                        f"Error: Prompt '{item}' has no expected value (use 'prompt:expected' format)"
-                    )
-                    return
+                raise ValueError(
+                    f"Prompt '{prompt}' has no expected value (use 'prompt:expected' format)"
+                )
 
-        verbose = getattr(args, "verbose", False)
+        results = await AblationService.run_multi_prompt_ablation(
+            model=config.model,
+            prompt_pairs=filled_pairs,
+            layers=layers,
+            component=component,
+            max_tokens=config.max_tokens,
+            multi_mode=config.multi,
+        )
 
-        print(f"\n{'=' * 70}")
-        print("MULTI-PROMPT ABLATION TEST")
-        print(f"{'=' * 70}")
-
-        # Store full outputs for verbose mode
-        all_outputs: dict[str, dict[str, tuple[str, bool]]] = {}
-
-        # Header
-        header = f"{'Ablation':<20}"
-        for prompt, expected in prompt_pairs:
-            short_prompt = prompt[:12] + "..." if len(prompt) > 15 else prompt
-            header += f" | {short_prompt:<18}"
-        print(header)
-        print("-" * len(header))
-
-        # Baseline (no ablation)
-        row = f"{'None (baseline)':<20}"
-        all_outputs["baseline"] = {}
-        for prompt, expected in prompt_pairs:
-            out = study.ablate_and_generate(prompt, layers=[], config=config)
-            out_short = out.strip()[:15]
-            correct = expected in out
-            status = f"{'Y' if correct else 'N'} {out_short}"
-            row += f" | {status:<18}"
-            all_outputs["baseline"][prompt] = (out, correct)
-        print(row)
-
-        if multi_mode:
-            # Single test with all layers together
-            layer_str = ",".join(str(layer) for layer in layers)
-            row = f"L{layer_str:<19}"[:20]
-            all_outputs[f"L{layer_str}"] = {}
-            for prompt, expected in prompt_pairs:
-                out = study.ablate_and_generate(prompt, layers=layers, config=config)
-                out_short = out.strip()[:15]
-                correct = expected in out
-                status = f"{'Y' if correct else 'N'} {out_short}"
-                row += f" | {status:<18}"
-                all_outputs[f"L{layer_str}"][prompt] = (out, correct)
-            print(row)
-        else:
-            # Sweep each layer
-            for layer in layers:
-                row = f"L{layer:<19}"
-                all_outputs[f"L{layer}"] = {}
-                for prompt, expected in prompt_pairs:
-                    out = study.ablate_and_generate(prompt, layers=[layer], config=config)
-                    out_short = out.strip()[:15]
-                    correct = expected in out
-                    status = f"{'Y' if correct else 'N'} {out_short}"
-                    row += f" | {status:<18}"
-                    all_outputs[f"L{layer}"][prompt] = (out, correct)
-                print(row)
-
-        # Verbose output - show full generations
-        if verbose:
-            print(f"\n{'=' * 70}")
-            print("FULL OUTPUTS")
-            print(f"{'=' * 70}")
-            for prompt, expected in prompt_pairs:
-                print(f"\n>>> Prompt: {prompt!r} (expected: {expected})")
-                print("-" * 50)
-                for ablation_name, outputs in all_outputs.items():
-                    out, correct = outputs[prompt]
-                    status = "PASS" if correct else "FAIL"
-                    print(f"\n[{ablation_name}] ({status}):")
-                    print(out.strip())
-
+        # Display results
+        _print_multi_prompt_results(results, filled_pairs, config.verbose)
         return
 
     # Single prompt mode
-    if args.criterion in criterion_map:
-        criterion = criterion_map[args.criterion]
-        criterion.__name__ = args.criterion
-    else:
-        # Treat as substring check
-        def substring_criterion(x: str, s: str = args.criterion) -> bool:
-            return s in x
-
-        substring_criterion.__name__ = f"contains_{args.criterion}"
-        criterion = substring_criterion
-
-    if multi_mode:
-        # Multi-layer ablation: ablate all layers together
+    if config.multi:
+        # Multi-layer ablation
         print(f"\nAblating layers {layers} together...")
 
-        # Get baseline
-        original = study.ablate_and_generate(args.prompt, layers=[], config=config)
-        original_passes = criterion(original)
-
-        # Get ablated
-        ablated = study.ablate_and_generate(args.prompt, layers=layers, config=config)
-        ablated_passes = criterion(ablated)
-
-        print(f"\n{'=' * 60}")
-        print(f"Prompt: {args.prompt}")
-        print(f"Criterion: {args.criterion}")
-        print(f"Layers ablated: {layers}")
-        print(f"{'=' * 60}")
-        print(f"\nOriginal output ({['FAIL', 'PASS'][original_passes]}):")
-        print(f"  {original.strip()[:200]}")
-        print(f"\nAblated output ({['FAIL', 'PASS'][ablated_passes]}):")
-        print(f"  {ablated.strip()[:200]}")
-
-        if original_passes and not ablated_passes:
-            print(f"\n=> CAUSAL: Ablating {layers} breaks the criterion")
-        elif not original_passes and ablated_passes:
-            print(f"\n=> INVERSE CAUSAL: Ablating {layers} enables the criterion")
-        elif original_passes and ablated_passes:
-            print(f"\n=> NOT CAUSAL: Ablating {layers} doesn't affect outcome")
-        else:
-            print("\n=> BASELINE FAILS: Original doesn't pass criterion")
-
-    else:
-        # Sweep mode: test each layer independently
-        print("\nRunning ablation sweep...")
-        result = study.run_layer_sweep(
-            prompt=args.prompt,
-            criterion=criterion,
+        baseline, ablated = await AblationService.run_multi_ablation(
+            model=config.model,
+            prompt=config.prompt,
             layers=layers,
+            criterion=config.criterion,
             component=component,
-            task_name="ablation_study",
-            config=config,
+            max_tokens=config.max_tokens,
         )
 
-        # Print results
-        study.print_sweep_summary(result)
+        _print_multi_ablation_results(config.prompt, config.criterion, layers, baseline, ablated)
 
-        # Show verbose output if requested
-        if getattr(args, "verbose", False):
-            print("\n=== Detailed Outputs ===")
-            for r in result.results:
-                print(f"\n--- Layer {r.layer} ---")
-                print(f"Original: {r.original_output[:200]}...")
-                print(f"Ablated:  {r.ablated_output[:200]}...")
+    else:
+        # Sweep mode
+        print("\nRunning ablation sweep...")
+
+        result = await AblationService.run_ablation_sweep(
+            model=config.model,
+            prompt=config.prompt,
+            criterion=config.criterion,
+            layers=layers,
+            component=component,
+            max_tokens=config.max_tokens,
+        )
+
+        # Print results using framework
+        study.print_sweep_summary_from_service(result)
 
         # Save if requested
-        if args.output:
-            study.save_results({"ablation_study": result}, args.output)
+        if config.output:
+            study.save_results({"ablation_study": result}, config.output)
 
 
-def introspect_weight_diff(args):
+def _print_multi_prompt_results(
+    results: list,
+    prompt_pairs: list[tuple[str, str]],
+    verbose: bool,
+) -> None:
+    """Print multi-prompt ablation results."""
+    print(f"\n{'=' * 70}")
+    print("MULTI-PROMPT ABLATION TEST")
+    print(f"{'=' * 70}")
+
+    # Header
+    header = f"{'Ablation':<20}"
+    for prompt, expected in prompt_pairs:
+        short_prompt = prompt[:12] + "..." if len(prompt) > 15 else prompt
+        header += f" | {short_prompt:<18}"
+    print(header)
+    print("-" * len(header))
+
+    # Results
+    all_outputs: dict[str, dict[str, tuple[str, bool]]] = {}
+    for ablation_result in results:
+        row = f"{ablation_result.ablation_name:<20}"
+        all_outputs[ablation_result.ablation_name] = {}
+
+        for single_result in ablation_result.results:
+            out_short = single_result.output.strip()[:15]
+            status = f"{'Y' if single_result.passes_criterion else 'N'} {out_short}"
+            row += f" | {status:<18}"
+            all_outputs[ablation_result.ablation_name][single_result.prompt] = (
+                single_result.output,
+                single_result.passes_criterion,
+            )
+        print(row)
+
+    # Verbose output
+    if verbose:
+        print(f"\n{'=' * 70}")
+        print("FULL OUTPUTS")
+        print(f"{'=' * 70}")
+        for prompt, expected in prompt_pairs:
+            print(f"\n>>> Prompt: {prompt!r} (expected: {expected})")
+            print("-" * 50)
+            for ablation_name, outputs in all_outputs.items():
+                out, correct = outputs[prompt]
+                status = "PASS" if correct else "FAIL"
+                print(f"\n[{ablation_name}] ({status}):")
+                print(out.strip())
+
+
+def _print_multi_ablation_results(
+    prompt: str,
+    criterion: str,
+    layers: list[int],
+    baseline,
+    ablated,
+) -> None:
+    """Print multi-layer ablation results."""
+    print(f"\n{'=' * 60}")
+    print(f"Prompt: {prompt}")
+    print(f"Criterion: {criterion}")
+    print(f"Layers ablated: {layers}")
+    print(f"{'=' * 60}")
+
+    baseline_status = "PASS" if baseline.passes_criterion else "FAIL"
+    ablated_status = "PASS" if ablated.passes_criterion else "FAIL"
+
+    print(f"\nOriginal output ({baseline_status}):")
+    print(f"  {baseline.output.strip()[:200]}")
+    print(f"\nAblated output ({ablated_status}):")
+    print(f"  {ablated.output.strip()[:200]}")
+
+    if baseline.passes_criterion and not ablated.passes_criterion:
+        print(f"\n=> CAUSAL: Ablating {layers} breaks the criterion")
+    elif not baseline.passes_criterion and ablated.passes_criterion:
+        print(f"\n=> INVERSE CAUSAL: Ablating {layers} enables the criterion")
+    elif baseline.passes_criterion and ablated.passes_criterion:
+        print(f"\n=> NOT CAUSAL: Ablating {layers} doesn't affect outcome")
+    else:
+        print("\n=> BASELINE FAILS: Original doesn't pass criterion")
+
+
+def introspect_weight_diff(args: Namespace) -> None:
     """Compare weight divergence between two models."""
+    asyncio.run(_async_introspect_weight_diff(args))
+
+
+async def _async_introspect_weight_diff(args: Namespace) -> None:
+    """Async implementation of weight diff command."""
     import json
 
     import mlx.core as mx
     from huggingface_hub import snapshot_download
+
+    from ....introspection.ablation import AblationStudy, ModelAdapter
 
     print(f"Loading base model: {args.base}")
     base_path = snapshot_download(args.base, allow_patterns=["*.json", "*.safetensors"])
@@ -263,8 +238,6 @@ def introspect_weight_diff(args):
     ft_path = snapshot_download(args.finetuned, allow_patterns=["*.json", "*.safetensors"])
 
     # Detect family and load
-    from ....introspection.ablation import AblationStudy
-
     family = AblationStudy._detect_family(base_path)
     print(f"Detected model family: {family}")
 
@@ -272,8 +245,6 @@ def introspect_weight_diff(args):
     ft_model, ft_config = AblationStudy._load_model(ft_path, family)
 
     # Compare weights
-    from ....introspection.ablation import ModelAdapter
-
     base_adapter = ModelAdapter(base_model, None, base_config)
     ft_adapter = ModelAdapter(ft_model, None, ft_config)
 
@@ -291,13 +262,11 @@ def introspect_weight_diff(args):
             diff_norm = float(mx.sqrt(mx.sum(diff * diff)))
             rel_diff = diff_norm / (base_norm + 1e-8)
 
-            results.append(
-                {
-                    "layer": layer_idx,
-                    "component": "mlp_down",
-                    "relative_diff": rel_diff,
-                }
-            )
+            results.append({
+                "layer": layer_idx,
+                "component": "mlp_down",
+                "relative_diff": rel_diff,
+            })
         except Exception:
             pass
 
@@ -311,13 +280,11 @@ def introspect_weight_diff(args):
             diff_norm = float(mx.sqrt(mx.sum(diff * diff)))
             rel_diff = diff_norm / (base_norm + 1e-8)
 
-            results.append(
-                {
-                    "layer": layer_idx,
-                    "component": "attn_o",
-                    "relative_diff": rel_diff,
-                }
-            )
+            results.append({
+                "layer": layer_idx,
+                "component": "attn_o",
+                "relative_diff": rel_diff,
+            })
         except Exception:
             pass
 
@@ -340,27 +307,27 @@ def introspect_weight_diff(args):
         print(f"\nResults saved to: {args.output}")
 
 
-def introspect_activation_diff(args):
+def introspect_activation_diff(args: Namespace) -> None:
     """Compare activation divergence between two models."""
+    asyncio.run(_async_introspect_activation_diff(args))
+
+
+async def _async_introspect_activation_diff(args: Namespace) -> None:
+    """Async implementation of activation diff command."""
     import json
 
     import mlx.core as mx
 
+    from ._utils import parse_prompts
     from ....introspection import CaptureConfig, ModelHooks, PositionSelection
+    from ....introspection.ablation import AblationStudy
 
     # Parse prompts
-    if args.prompts.startswith("@"):
-        with open(args.prompts[1:]) as f:
-            prompts = [line.strip() for line in f if line.strip()]
-    else:
-        prompts = [p.strip() for p in args.prompts.split(",")]
-
+    prompts = parse_prompts(args.prompts, delimiter=",")
     print(f"Testing {len(prompts)} prompts")
 
     # Load models
     print(f"Loading base model: {args.base}")
-    from ....introspection.ablation import AblationStudy
-
     base_study = AblationStudy.from_pretrained(args.base)
 
     print(f"Loading fine-tuned model: {args.finetuned}")
@@ -411,16 +378,14 @@ def introspect_activation_diff(args):
             norm_ft = float(mx.sqrt(mx.sum(ft_h * ft_h)))
             cos_sim = dot / (norm_base * norm_ft + 1e-8)
 
-            results.append(
-                {
-                    "prompt": prompt[:50],
-                    "layer": layer_idx,
-                    "cosine_similarity": cos_sim,
-                }
-            )
+            results.append({
+                "prompt": prompt[:50],
+                "layer": layer_idx,
+                "cosine_similarity": cos_sim,
+            })
 
     # Aggregate by layer
-    layer_avg = {}
+    layer_avg: dict[int, list[float]] = {}
     for r in results:
         layer = r["layer"]
         if layer not in layer_avg:

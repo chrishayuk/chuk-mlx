@@ -156,6 +156,30 @@ from .tracking import (
     track_expert_across_layers,
 )
 
+# Analysis Service
+from .analysis_service import (
+    AttentionCaptureResult,
+    ExpertWeightInfo,
+    LayerRoutingInfo,
+    MoEAnalysisService,
+    MoEAnalysisServiceConfig,
+    PositionRoutingInfo,
+    TaxonomyExpertMapping,
+    classify_token,
+    get_layer_phase,
+    get_trigram,
+)
+
+# Test Data
+from .test_data import (
+    ATTENTION_ROUTING_CONTEXTS,
+    CONTEXT_WINDOW_TESTS,
+    DEFAULT_CONTEXTS,
+    DOMAIN_PROMPTS,
+    TAXONOMY_TEST_PROMPTS,
+    TOKEN_CONTEXTS,
+)
+
 # Visualization
 from .visualization import (
     multi_layer_routing_matrix,

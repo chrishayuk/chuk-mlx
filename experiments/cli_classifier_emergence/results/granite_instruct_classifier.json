@@ -1,0 +1,234 @@
+{
+  "model": "ibm-granite/granite-3.1-2b-instruct",
+  "num_layers": 40,
+  "classes": {
+    "multiply": [
+      "7 * 8 =",
+      "12 * 5 =",
+      "3 * 9 =",
+      "6 * 7 ="
+    ],
+    "add": [
+      "23 + 45 =",
+      "17 + 38 =",
+      "11 + 22 =",
+      "5 + 9 ="
+    ],
+    "subtract": [
+      "50 - 23 =",
+      "89 - 34 =",
+      "77 - 11 =",
+      "40 - 15 ="
+    ],
+    "divide": [
+      "48 / 6 =",
+      "81 / 9 =",
+      "36 / 4 =",
+      "24 / 3 ="
+    ]
+  },
+  "layer_results": [
+    {
+      "layer": 0,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 1,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 2,
+      "accuracy": 0.9375,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 3,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 4,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 5,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 6,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 7,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 8,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 9,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 10,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 11,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 12,
+      "accuracy": 0.6875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 13,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 14,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 15,
+      "accuracy": 0.6875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 16,
+      "accuracy": 0.6875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 17,
+      "accuracy": 0.6875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 18,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 19,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 20,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 21,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 22,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 23,
+      "accuracy": 0.8125,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 24,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 25,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 26,
+      "accuracy": 0.8125,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 27,
+      "accuracy": 0.8125,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 28,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 29,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 30,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 31,
+      "accuracy": 0.8125,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 32,
+      "accuracy": 0.75,
+      "std": 0.25
+    },
+    {
+      "layer": 33,
+      "accuracy": 0.75,
+      "std": 0.1767766952966369
+    },
+    {
+      "layer": 34,
+      "accuracy": 0.75,
+      "std": 0.1767766952966369
+    },
+    {
+      "layer": 35,
+      "accuracy": 0.75,
+      "std": 0.1767766952966369
+    },
+    {
+      "layer": 36,
+      "accuracy": 0.75,
+      "std": 0.1767766952966369
+    },
+    {
+      "layer": 37,
+      "accuracy": 0.75,
+      "std": 0.1767766952966369
+    },
+    {
+      "layer": 38,
+      "accuracy": 0.75,
+      "std": 0.1767766952966369
+    },
+    {
+      "layer": 39,
+      "accuracy": 0.6875,
+      "std": 0.10825317547305482
+    }
+  ],
+  "best_layer": 0,
+  "best_accuracy": 1.0
+}

@@ -14,6 +14,11 @@ from .loader import (
     get_model_num_layers,
     get_model_vocab_size,
 )
+from .service import (
+    AnalyzerService,
+    AnalyzerServiceConfig,
+    ComparisonResult,
+)
 from .models import (
     AnalysisResult,
     LayerPredictionResult,
@@ -57,4 +62,8 @@ __all__ = [
     "compute_js_divergence",
     "compute_kl_divergence",
     "get_layers_to_capture",
+    # Service layer
+    "AnalyzerService",
+    "AnalyzerServiceConfig",
+    "ComparisonResult",
 ]

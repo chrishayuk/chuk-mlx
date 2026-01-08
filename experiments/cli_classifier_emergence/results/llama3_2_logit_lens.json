@@ -1,0 +1,95 @@
+{
+  "model": "meta-llama/Llama-3.2-1B",
+  "layer": 8,
+  "num_layers": 16,
+  "results": [
+    {
+      "prompt": "7 * 8 =",
+      "top_token": " palindrome",
+      "top_prob": 0.0203857421875,
+      "target_probs": {
+        "multiply": 4.601478576660156e-05,
+        "add": 2.0675361156463623e-07,
+        "subtract": 0.0001373291015625,
+        "divide": 1.1265277862548828e-05
+      }
+    },
+    {
+      "prompt": "12 * 5 =",
+      "top_token": " palindrome",
+      "top_prob": 0.0185546875,
+      "target_probs": {
+        "multiply": 6.29425048828125e-05,
+        "add": 3.986060619354248e-07,
+        "subtract": 0.00014591217041015625,
+        "divide": 1.1622905731201172e-05
+      }
+    },
+    {
+      "prompt": "23 + 45 =",
+      "top_token": "orex",
+      "top_prob": 0.0169677734375,
+      "target_probs": {
+        "multiply": 1.6927719116210938e-05,
+        "add": 1.594889909029007e-08,
+        "subtract": 1.5497207641601562e-05,
+        "divide": 9.909272193908691e-07
+      }
+    },
+    {
+      "prompt": "17 + 38 =",
+      "top_token": "orex",
+      "top_prob": 0.0260009765625,
+      "target_probs": {
+        "multiply": 1.1205673217773438e-05,
+        "add": 1.3096723705530167e-08,
+        "subtract": 1.2695789337158203e-05,
+        "divide": 7.636845111846924e-07
+      }
+    },
+    {
+      "prompt": "50 - 23 =",
+      "top_token": "\u1eb7n",
+      "top_prob": 0.05224609375,
+      "target_probs": {
+        "multiply": 3.9577484130859375e-05,
+        "add": 1.257285475730896e-07,
+        "subtract": 0.00013828277587890625,
+        "divide": 1.4379620552062988e-06
+      }
+    },
+    {
+      "prompt": "89 - 34 =",
+      "top_token": "\u1eb7n",
+      "top_prob": 0.12109375,
+      "target_probs": {
+        "multiply": 4.172325134277344e-05,
+        "add": 1.564621925354004e-07,
+        "subtract": 0.00011396408081054688,
+        "divide": 1.080334186553955e-06
+      }
+    },
+    {
+      "prompt": "48 / 6 =",
+      "top_token": ".TabIndex",
+      "top_prob": 0.01318359375,
+      "target_probs": {
+        "multiply": 5.078315734863281e-05,
+        "add": 4.912726581096649e-08,
+        "subtract": 4.601478576660156e-05,
+        "divide": 9.357929229736328e-06
+      }
+    },
+    {
+      "prompt": "81 / 9 =",
+      "top_token": "\u1eb7n",
+      "top_prob": 0.01513671875,
+      "target_probs": {
+        "multiply": 4.38690185546875e-05,
+        "add": 3.4226104617118835e-08,
+        "subtract": 7.009506225585938e-05,
+        "divide": 5.066394805908203e-06
+      }
+    }
+  ]
+}

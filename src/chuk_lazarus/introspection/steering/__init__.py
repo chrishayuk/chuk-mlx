@@ -9,6 +9,13 @@ from .config import LegacySteeringConfig, SteeringConfig, SteeringMode
 from .core import ActivationSteering
 from .hook import SteeringHook
 from .legacy import SteeredGemmaMLP, ToolCallingSteering
+from .service import (
+    DirectionExtractionResult,
+    SteeringComparisonResult,
+    SteeringGenerationResult,
+    SteeringService,
+    SteeringServiceConfig,
+)
 from .utils import compare_steering_effects, format_functiongemma_prompt, steer_model
 
 __all__ = [
@@ -23,6 +30,12 @@ __all__ = [
     # Legacy
     "SteeredGemmaMLP",
     "ToolCallingSteering",
+    # Service
+    "SteeringService",
+    "SteeringServiceConfig",
+    "DirectionExtractionResult",
+    "SteeringGenerationResult",
+    "SteeringComparisonResult",
     # Utils
     "steer_model",
     "compare_steering_effects",

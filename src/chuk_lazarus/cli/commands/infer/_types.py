@@ -1,25 +1,18 @@
 """Type definitions for inference CLI commands.
 
 This module contains Pydantic models and enums for the infer command.
+CLI commands should be thin wrappers - all business logic belongs in the framework.
 """
 
 from __future__ import annotations
 
 from argparse import Namespace
-from enum import Enum
 from pathlib import Path
 
 from pydantic import Field
 
 from .._base import CommandConfig, CommandResult, OutputMixin
-
-
-class InputMode(str, Enum):
-    """Mode for providing input prompts."""
-
-    SINGLE = "single"
-    FILE = "file"
-    INTERACTIVE = "interactive"
+from .._constants import InferenceDefaults, InputMode
 
 
 class InferenceConfig(CommandConfig):
@@ -51,13 +44,13 @@ class InferenceConfig(CommandConfig):
         description="Path to file with prompts (one per line)",
     )
     max_tokens: int = Field(
-        default=100,
+        default=InferenceDefaults.MAX_TOKENS,
         ge=1,
         le=8192,
         description="Maximum tokens to generate",
     )
     temperature: float = Field(
-        default=0.7,
+        default=InferenceDefaults.TEMPERATURE,
         ge=0.0,
         le=2.0,
         description="Sampling temperature",
@@ -71,8 +64,8 @@ class InferenceConfig(CommandConfig):
             adapter=getattr(args, "adapter", None),
             prompt=getattr(args, "prompt", None),
             prompt_file=getattr(args, "prompt_file", None),
-            max_tokens=getattr(args, "max_tokens", 100),
-            temperature=getattr(args, "temperature", 0.7),
+            max_tokens=getattr(args, "max_tokens", InferenceDefaults.MAX_TOKENS),
+            temperature=getattr(args, "temperature", InferenceDefaults.TEMPERATURE),
         )
 
     @property

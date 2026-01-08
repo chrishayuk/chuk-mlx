@@ -2,6 +2,9 @@
 
 Shows that there is no "math expert" or "code expert" -
 experts handle multiple domains, not specialized ones.
+
+This module is a thin CLI wrapper - test data is centralized
+in the MoE introspection module.
 """
 
 from __future__ import annotations
@@ -11,35 +14,9 @@ from argparse import Namespace
 from collections import Counter, defaultdict
 
 from ......introspection.moe import ExpertRouter
+from ......introspection.moe.test_data import DOMAIN_PROMPTS
+from ...._constants import MoEDefaults
 from ..formatters import format_header
-
-# Domain-specific prompts
-DOMAIN_PROMPTS = {
-    "math": [
-        "2 + 3 = 5",
-        "127 * 89 = 11303",
-        "45 - 12 = 33",
-        "100 / 4 = 25",
-    ],
-    "code": [
-        "def fibonacci(n):",
-        "for i in range(10):",
-        "class MyClass:",
-        "import os",
-    ],
-    "language": [
-        "The cat sat on the mat.",
-        "She walked to the store.",
-        "Happy people smile often.",
-        "The quick brown fox.",
-    ],
-    "reasoning": [
-        "If it rains then stay inside.",
-        "All dogs are mammals.",
-        "Therefore the result is zero.",
-        "Because she practiced daily.",
-    ],
-}
 
 
 def handle_domain_test(args: Namespace) -> None:
@@ -59,7 +36,7 @@ def handle_domain_test(args: Namespace) -> None:
 async def _async_domain_test(args: Namespace) -> None:
     """Async implementation of domain-test."""
     model_id = args.model
-    layer = getattr(args, "layer", None) or 11  # Default to middle layer
+    layer = getattr(args, "layer", None) or MoEDefaults.DEFAULT_LAYER
 
     print(format_header("DOMAIN EXPERT TEST"))
     print()
@@ -85,12 +62,13 @@ async def _async_domain_test(args: Namespace) -> None:
     print(f"  Layer: {layer} (middle layer where semantic routing is strongest)")
     print("  Experts: 32 total, 4 active per token (top-k=4)")
     print()
-    print("  We'll test 4 domains with 4 prompts each:")
+    print("  We'll test 4 domains with prompts each:")
     print()
 
+    # Use centralized domain prompts
     for domain, prompts in DOMAIN_PROMPTS.items():
         print(f"  {domain.upper()}:")
-        for prompt in prompts:
+        for prompt in prompts[:4]:  # Show first 4 prompts per domain
             print(f'    - "{prompt}"')
     print()
 
@@ -100,7 +78,7 @@ async def _async_domain_test(args: Namespace) -> None:
     print()
     print("  For each prompt, we:")
     print("    1. Tokenize the input")
-    print("    2. Pass through model to layer {layer}")
+    print(f"    2. Pass through model to layer {layer}")
     print("    3. Capture router weights (which experts are selected)")
     print("    4. Record which experts handle each token")
     print()
@@ -170,6 +148,7 @@ async def _async_domain_test(args: Namespace) -> None:
 
         # Find experts that appear in multiple domains
         multi_domain = []
+        num_domains = len(DOMAIN_PROMPTS)
         for exp, domains in expert_domains.items():
             if len(domains) >= 2:
                 total = sum(domains.values())
@@ -178,14 +157,14 @@ async def _async_domain_test(args: Namespace) -> None:
 
         multi_domain.sort(key=lambda x: -x[1])
 
-        for exp, total, domains, num_domains in multi_domain[:10]:
-            marker = " <-- handles ALL 4 domains!" if num_domains == 4 else ""
-            print(f"  E{exp:02d}: {num_domains} domains - {domains}{marker}")
+        for exp, total, domains, num_handled in multi_domain[:10]:
+            marker = f" <-- handles ALL {num_domains} domains!" if num_handled == num_domains else ""
+            print(f"  E{exp:02d}: {num_handled} domains - {domains}{marker}")
 
-        # Count how many handle all 4
-        all_four = sum(1 for _, _, _, n in multi_domain if n == 4)
+        # Count how many handle all domains
+        all_domains_count = sum(1 for _, _, _, n in multi_domain if n == num_domains)
         print()
-        print(f"  {all_four} experts handle ALL 4 domains!")
+        print(f"  {all_domains_count} experts handle ALL {num_domains} domains!")
 
         print()
         print("=" * 70)

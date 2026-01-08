@@ -144,10 +144,20 @@ from .introspection import (
 
 # Loader
 from .loader import (
-    create_from_preset,
-    create_model,
+    # Primary API
+    AdapterConfig,
+    LoadedModel,
+    LoadedModelWithLoRA,
+    ModelDType,
     load_model,
     load_model_async,
+    load_model_tuple,
+    load_model_with_lora,
+    load_model_with_lora_async,
+    save_adapter,
+    # Legacy (deprecated)
+    create_from_preset,
+    create_model,
 )
 
 # Loss functions
@@ -265,8 +275,18 @@ __all__ = [
     "Qwen3Config",
     "Qwen3ForCausalLM",
     # === Loader ===
+    # Primary API
+    "ModelDType",
+    "LoadedModel",
+    "LoadedModelWithLoRA",
+    "AdapterConfig",
     "load_model",
     "load_model_async",
+    "load_model_tuple",
+    "load_model_with_lora",
+    "load_model_with_lora_async",
+    "save_adapter",
+    # Legacy (deprecated)
     "create_model",
     "create_from_preset",
     # === Adapters ===

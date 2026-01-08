@@ -53,6 +53,14 @@ The introspection module provides tools for:
 | `lazarus introspect layer` | Layer representation analysis | [introspect-layer.md](tools/introspect-layer.md) |
 | `lazarus introspect format-sensitivity` | Format sensitivity check | [introspect-format-sensitivity.md](tools/introspect-format-sensitivity.md) |
 
+### Classifier Emergence
+
+| Command | Description | Documentation |
+|---------|-------------|---------------|
+| `lazarus introspect classifier` | Multi-class linear probes for operation classification | [introspect-classifier.md](tools/introspect-classifier.md) |
+| `lazarus introspect logit-lens` | Check if classifiers project to vocabulary tokens | [introspect-logit-lens.md](tools/introspect-logit-lens.md) |
+| `lazarus introspect dual-reward` | Train V/O projections for classifier + answer | [introspect-dual-reward.md](tools/introspect-dual-reward.md) |
+
 ### Arithmetic & Lookup Table Analysis
 
 | Command | Description | Documentation |

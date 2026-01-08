@@ -82,6 +82,23 @@ from .probes import (
     create_tool_decision_probe,
     get_default_probe_datasets,
 )
+from .service import (
+    CircuitCaptureConfig,
+    CircuitCaptureResult,
+    CircuitCompareConfig,
+    CircuitCompareResult,
+    CircuitDecodeConfig,
+    CircuitDecodeResult,
+    CircuitExportConfig,
+    CircuitExportResult,
+    CircuitInvokeConfig,
+    CircuitInvokeResult,
+    CircuitService,
+    CircuitTestConfig,
+    CircuitTestResult,
+    CircuitViewConfig,
+    CircuitViewResult,
+)
 
 # Optional geometry imports (may require additional dependencies)
 try:
@@ -154,6 +171,22 @@ __all__ = [
     "create_tool_decision_probe",
     "create_suppression_probe",
     "get_default_probe_datasets",
+    # Service
+    "CircuitService",
+    "CircuitCaptureConfig",
+    "CircuitCaptureResult",
+    "CircuitInvokeConfig",
+    "CircuitInvokeResult",
+    "CircuitTestConfig",
+    "CircuitTestResult",
+    "CircuitViewConfig",
+    "CircuitViewResult",
+    "CircuitCompareConfig",
+    "CircuitCompareResult",
+    "CircuitDecodeConfig",
+    "CircuitDecodeResult",
+    "CircuitExportConfig",
+    "CircuitExportResult",
 ]
 
 # Add geometry exports if available

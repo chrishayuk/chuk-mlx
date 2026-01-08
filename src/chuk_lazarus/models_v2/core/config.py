@@ -47,12 +47,27 @@ class RoPEConfig(BaseModel):
     )
     scaling_type: str | None = Field(
         default=None,
-        description="Type of scaling: 'linear', 'dynamic', 'yarn', etc.",
+        description="Type of scaling: 'linear', 'dynamic', 'yarn', 'llama3', etc.",
     )
     max_position_embeddings: int = Field(
         default=4096,
         gt=0,
         description="Maximum sequence length for RoPE",
+    )
+    # Llama 3 specific fields for frequency smoothing
+    low_freq_factor: float = Field(
+        default=1.0,
+        gt=0,
+        description="Low frequency factor for Llama 3 RoPE scaling",
+    )
+    high_freq_factor: float = Field(
+        default=4.0,
+        gt=0,
+        description="High frequency factor for Llama 3 RoPE scaling",
+    )
+    original_max_position_embeddings: int | None = Field(
+        default=None,
+        description="Original max position embeddings before scaling (for Llama 3)",
     )
 
 
@@ -638,12 +653,32 @@ class ModelConfig(BaseModel):
 
     def to_attention_config(self) -> AttentionConfig:
         """Create AttentionConfig from this config."""
+        # Extract rope_scaling fields if present
+        scaling_factor = 1.0
+        scaling_type = None
+        low_freq_factor = 1.0
+        high_freq_factor = 4.0
+        original_max_position_embeddings = None
+
+        if self.rope_scaling:
+            scaling_factor = self.rope_scaling.get("factor", 1.0)
+            # Handle both "type" and "rope_type" keys (HF uses "rope_type")
+            scaling_type = self.rope_scaling.get("type") or self.rope_scaling.get("rope_type")
+            low_freq_factor = self.rope_scaling.get("low_freq_factor", 1.0)
+            high_freq_factor = self.rope_scaling.get("high_freq_factor", 4.0)
+            original_max_position_embeddings = self.rope_scaling.get(
+                "original_max_position_embeddings"
+            )
+
         rope_config = RoPEConfig(
             theta=self.rope_theta,
             traditional=self.rope_traditional,
-            scaling_factor=self.rope_scaling.get("factor", 1.0) if self.rope_scaling else 1.0,
-            scaling_type=self.rope_scaling.get("type") if self.rope_scaling else None,
+            scaling_factor=scaling_factor,
+            scaling_type=scaling_type,
             max_position_embeddings=self.max_position_embeddings,
+            low_freq_factor=low_freq_factor,
+            high_freq_factor=high_freq_factor,
+            original_max_position_embeddings=original_max_position_embeddings,
         )
 
         position_config = PositionConfig(

@@ -4,6 +4,7 @@ Main CLI entry point for chuk-lazarus.
 Usage:
     lazarus train sft --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --data ./data/train.jsonl
     lazarus train dpo --model ./checkpoints/sft/final --data ./data/preferences.jsonl
+    lazarus train grpo --model ./checkpoints/sft/final --reward-script ./reward.py
     lazarus generate --type math --output ./data/lazarus_math
     lazarus infer --model ./checkpoints/dpo/final --prompt "Calculate 2+2"
 
@@ -139,6 +140,8 @@ from .commands.introspect import (
     introspect_neurons,
     introspect_operand_directions,
     introspect_patch,
+    introspect_classifier,
+    introspect_logit_lens,
     introspect_probe,
     introspect_steer,
     introspect_uncertainty,
@@ -173,7 +176,7 @@ from .commands.tokenizer import (
     training_pack,
     training_throughput,
 )
-from .commands.train import generate_data_cmd, train_dpo_cmd, train_sft_cmd
+from .commands.train import generate_data_cmd, train_dpo_cmd, train_grpo_cmd, train_sft_cmd
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -221,6 +224,20 @@ Examples:
     sft_parser.add_argument("--max-length", type=int, default=512, help="Max sequence length")
     sft_parser.add_argument("--use-lora", action="store_true", help="Use LoRA")
     sft_parser.add_argument("--lora-rank", type=int, default=8, help="LoRA rank")
+    sft_parser.add_argument(
+        "--lora-targets",
+        default="q_proj,v_proj",
+        help="Comma-separated LoRA target modules (default: q_proj,v_proj). "
+             "Options: q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj",
+    )
+    sft_parser.add_argument(
+        "--freeze-layers",
+        help="Layers to freeze (e.g., '0-12' or '0,1,2,3'). Frozen layers are not trained.",
+    )
+    sft_parser.add_argument(
+        "--config",
+        help="YAML config file (overrides other arguments)",
+    )
     sft_parser.add_argument("--mask-prompt", action="store_true", help="Mask prompt in loss")
     sft_parser.add_argument("--log-interval", type=int, default=10, help="Log every N steps")
     # Batching options
@@ -282,6 +299,46 @@ Examples:
     dpo_parser.add_argument("--use-lora", action="store_true", help="Use LoRA")
     dpo_parser.add_argument("--lora-rank", type=int, default=8, help="LoRA rank")
     dpo_parser.set_defaults(func=lambda args: asyncio.run(train_dpo_cmd(args)))
+
+    # GRPO training
+    grpo_parser = train_subparsers.add_parser(
+        "grpo", help="Group Relative Policy Optimization (RL with verifiable rewards)"
+    )
+    grpo_parser.add_argument("--model", required=True, help="Policy model name or path")
+    grpo_parser.add_argument("--ref-model", help="Reference model (default: same as --model)")
+    grpo_parser.add_argument("--output", default="./checkpoints/grpo", help="Output directory")
+    grpo_parser.add_argument("--iterations", type=int, default=1000, help="Training iterations")
+    grpo_parser.add_argument(
+        "--prompts-per-iteration", type=int, default=16, help="Prompts per iteration"
+    )
+    grpo_parser.add_argument("--group-size", type=int, default=4, help="Responses per prompt")
+    grpo_parser.add_argument("--learning-rate", type=float, default=1e-6, help="Learning rate")
+    grpo_parser.add_argument("--kl-coef", type=float, default=0.1, help="KL penalty coefficient")
+    grpo_parser.add_argument(
+        "--max-response-length", type=int, default=256, help="Max response tokens"
+    )
+    grpo_parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature")
+    grpo_parser.add_argument("--use-lora", action="store_true", help="Use LoRA")
+    grpo_parser.add_argument("--lora-rank", type=int, default=8, help="LoRA rank")
+    grpo_parser.add_argument(
+        "--lora-targets",
+        default="q_proj,v_proj",
+        help="Comma-separated LoRA target modules (default: q_proj,v_proj)",
+    )
+    grpo_parser.add_argument(
+        "--freeze-layers",
+        help="Layers to freeze (e.g., '0-12' or '0,1,2,3')",
+    )
+    grpo_parser.add_argument(
+        "--reward-script",
+        required=True,
+        help="Python script defining reward_fn(prompt, response) -> float and get_prompts() -> list[str]",
+    )
+    grpo_parser.add_argument(
+        "--config",
+        help="YAML config file (overrides other arguments)",
+    )
+    grpo_parser.set_defaults(func=lambda args: asyncio.run(train_grpo_cmd(args)))
 
     # Generate subcommand
     gen_parser = subparsers.add_parser("generate", help="Generate training data")
@@ -2984,6 +3041,85 @@ Examples:
         help="Show detailed output (e.g., expert specializations for full-taxonomy)",
     )
     moe_expert_parser.set_defaults(func=introspect_moe_expert)
+
+    # =========================================================================
+    # Classifier Emergence Commands
+    # =========================================================================
+
+    # Multi-class classifier probe
+    classifier_parser = introspect_subparsers.add_parser(
+        "classifier",
+        help="Train multi-class linear probe for operation classification",
+        description="""Train logistic regression probes at each layer to find where
+the model distinguishes between multiple operation types (e.g., multiply, add, subtract, divide).
+
+Example:
+  lazarus introspect classifier -m meta-llama/Llama-3.2-1B \\
+    --classes "multiply:7*8=|12*5=" \\
+    --classes "add:23+45=|17+38=" \\
+    --classes "subtract:50-23=|89-34=" \\
+    --classes "divide:48/6=|81/9=" \\
+    --test "11*12=|11+12=|15-6=|12/4="
+        """,
+    )
+    classifier_parser.add_argument(
+        "--model", "-m", required=True,
+        help="Model name or HuggingFace ID",
+    )
+    classifier_parser.add_argument(
+        "--classes", "-c", action="append", required=True,
+        help="Class definition in format 'label:prompt1|prompt2|...' (can specify multiple)",
+    )
+    classifier_parser.add_argument(
+        "--test", "-t",
+        help="Test prompts to classify (pipe-separated or @file.txt)",
+    )
+    classifier_parser.add_argument(
+        "--output", "-o",
+        help="Save results to JSON file",
+    )
+    classifier_parser.set_defaults(func=introspect_classifier)
+
+    # Logit lens analysis
+    logit_lens_parser = introspect_subparsers.add_parser(
+        "logit-lens",
+        help="Apply logit lens to check vocabulary-mappable classifiers",
+        description="""Project hidden states at specified layer through the unembedding
+matrix to see which vocabulary tokens emerge. Useful for checking if classifiers
+project to specific tokens (e.g., 'multiply', 'add').
+
+Example:
+  lazarus introspect logit-lens -m meta-llama/Llama-3.2-1B \\
+    --prompts "7*8=|23+45=|50-23=|48/6=" \\
+    --layer 8 \\
+    --targets "multiply|add|subtract|divide"
+        """,
+    )
+    logit_lens_parser.add_argument(
+        "--model", "-m", required=True,
+        help="Model name or HuggingFace ID",
+    )
+    logit_lens_parser.add_argument(
+        "--adapter", "-a",
+        help="Path to LoRA adapter directory (for analyzing fine-tuned models)",
+    )
+    logit_lens_parser.add_argument(
+        "--prompts", "-p", required=True,
+        help="Prompts to analyze (pipe-separated or @file.txt)",
+    )
+    logit_lens_parser.add_argument(
+        "--layer", "-l", type=int,
+        help="Layer to analyze (default: 55%% depth)",
+    )
+    logit_lens_parser.add_argument(
+        "--targets", "-t", action="append",
+        help="Target tokens to track probability (can specify multiple)",
+    )
+    logit_lens_parser.add_argument(
+        "--output", "-o",
+        help="Save results to JSON file",
+    )
+    logit_lens_parser.set_defaults(func=introspect_logit_lens)
 
     return parser
 

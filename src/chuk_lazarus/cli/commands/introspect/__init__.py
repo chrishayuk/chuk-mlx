@@ -74,6 +74,12 @@ from .probing import (
     introspect_uncertainty,
 )
 
+# Classifier emergence commands
+from .classifier import (
+    introspect_classifier,
+    introspect_logit_lens,
+)
+
 # Steering commands
 from .steering import introspect_steer
 
@@ -123,4 +129,7 @@ __all__ = [
     "introspect_virtual_expert",
     # MoE Expert
     "introspect_moe_expert",
+    # Classifier Emergence
+    "introspect_classifier",
+    "introspect_logit_lens",
 ]

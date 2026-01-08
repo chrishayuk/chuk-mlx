@@ -1,13 +1,21 @@
 """Activation steering commands for introspection CLI.
 
 Commands for extracting and applying activation steering directions.
+This module is a thin CLI wrapper - all business logic is in SteeringService.
 """
 
-import sys
+from __future__ import annotations
+
+import asyncio
+import json
+from argparse import Namespace
 from pathlib import Path
 
+from ._types import SteeringConfig, SteeringExtractionResult, SteeringGenerationResult
+from ._utils import parse_prompts
 
-def introspect_steer(args):
+
+def introspect_steer(args: Namespace) -> None:
     """Apply activation steering to manipulate model behavior.
 
     Supports three modes:
@@ -15,204 +23,82 @@ def introspect_steer(args):
     2. Apply direction: Load pre-computed direction and steer generation
     3. Compare: Show outputs at different steering coefficients
     """
-    import json
+    asyncio.run(_async_introspect_steer(args))
 
-    import numpy as np
 
-    from ....introspection import ActivationSteering, SteeringConfig
+async def _async_introspect_steer(args: Namespace) -> None:
+    """Async implementation of steering command."""
+    from ....introspection.steering import SteeringService
+
+    config = SteeringConfig.from_args(args)
 
     # Mode 1: Extract direction from contrastive prompts
-    if args.extract:
-        if not args.positive or not args.negative:
-            print("Error: --extract requires --positive and --negative prompts")
-            sys.exit(1)
+    if config.extract:
+        if not config.positive or not config.negative:
+            raise ValueError("--extract requires --positive and --negative prompts")
 
-        print(f"Loading model: {args.model}")
-        steerer = ActivationSteering.from_pretrained(args.model)
+        print(f"Loading model: {config.model}")
+        print(f"\nExtracting direction...")
+        print(f"  Positive: {config.positive!r}")
+        print(f"  Negative: {config.negative!r}")
 
-        # Get hidden states at the specified layer
-        layer = args.layer or steerer.num_layers // 2
-        print(f"\nExtracting direction from layer {layer}...")
-        print(f"  Positive: {args.positive!r}")
-        print(f"  Negative: {args.negative!r}")
-
-        # Use the internal method to get hidden states
-        import mlx.core as mx
-
-        from ....introspection.hooks import CaptureConfig, ModelHooks, PositionSelection
-
-        # Get positive activation
-        hooks = ModelHooks(steerer.model)
-        hooks.configure(
-            CaptureConfig(
-                layers=[layer],
-                capture_hidden_states=True,
-                positions=PositionSelection.LAST,
-            )
-        )
-        input_ids = mx.array(steerer.tokenizer.encode(args.positive))[None, :]
-        hooks.forward(input_ids)
-        h_positive = hooks.state.hidden_states[layer][0, -1, :]
-
-        # Get negative activation
-        hooks = ModelHooks(steerer.model)
-        hooks.configure(
-            CaptureConfig(
-                layers=[layer],
-                capture_hidden_states=True,
-                positions=PositionSelection.LAST,
-            )
-        )
-        input_ids = mx.array(steerer.tokenizer.encode(args.negative))[None, :]
-        hooks.forward(input_ids)
-        h_negative = hooks.state.hidden_states[layer][0, -1, :]
-
-        # Compute direction: positive - negative
-        direction = h_positive - h_negative
-        direction_np = np.array(direction.tolist(), dtype=np.float32)
-
-        # Compute statistics
-        norm = float(mx.sqrt(mx.sum(direction * direction)))
-        cos_sim = float(
-            mx.sum(h_positive * h_negative)
-            / (
-                mx.sqrt(mx.sum(h_positive * h_positive)) * mx.sqrt(mx.sum(h_negative * h_negative))
-                + 1e-8
-            )
+        result = await SteeringService.extract_direction(
+            model=config.model,
+            positive_prompt=config.positive,
+            negative_prompt=config.negative,
+            layer=config.layer,
         )
 
-        print("\nDirection extracted:")
-        print(f"  Layer: {layer}")
-        print(f"  Norm: {norm:.4f}")
-        print(f"  Cosine similarity (pos, neg): {cos_sim:.4f}")
-        print(f"  Separation: {1 - cos_sim:.4f}")
+        # Display result
+        extraction_result = SteeringExtractionResult(
+            layer=result.layer,
+            norm=result.norm,
+            cosine_similarity=result.cosine_similarity,
+            separation=result.separation,
+            output_path=config.output,
+        )
+        print(extraction_result.to_display())
 
         # Save direction
-        if args.output:
-            output_path = Path(args.output)
-            np.savez(
-                output_path,
-                direction=direction_np,
-                layer=layer,
-                positive_prompt=args.positive,
-                negative_prompt=args.negative,
-                model_id=args.model,
-                norm=norm,
-                cosine_similarity=cos_sim,
+        if config.output:
+            SteeringService.save_direction(
+                result=result,
+                output_path=config.output,
+                model_id=config.model,
             )
-            print(f"\nDirection saved to: {output_path}")
 
         return
 
     # Mode 2 & 3: Apply steering or compare
-    print(f"Loading model: {args.model}")
-    steerer = ActivationSteering.from_pretrained(args.model)
+    print(f"Loading model: {config.model}")
 
     # Load direction - from file, neuron, or contrastive prompts
-    neuron_idx = getattr(args, "neuron", None)
-    if neuron_idx is not None:
-        # Create one-hot direction for single neuron steering
-        layer = args.layer or steerer.num_layers // 2
-        hidden_size = steerer.model.config.hidden_size
-        direction = np.zeros(hidden_size, dtype=np.float32)
-        direction[neuron_idx] = 1.0
-        print(f"\nSteering neuron {neuron_idx} at layer {layer}")
-        print(f"  Hidden size: {hidden_size}")
-    elif args.direction:
-        direction_path = Path(args.direction)
-        if direction_path.suffix == ".npz":
-            data = np.load(direction_path, allow_pickle=True)
-            direction = data["direction"]
-            layer = int(data["layer"]) if "layer" in data else args.layer
-
-            # Show direction metadata
-            print(f"\nLoaded direction from: {direction_path}")
-            if "positive_prompt" in data:
-                print(f"  Positive: {data['positive_prompt']}")
-            if "negative_prompt" in data:
-                print(f"  Negative: {data['negative_prompt']}")
-            print(f"  Layer: {layer}")
-            if "norm" in data:
-                print(f"  Norm: {float(data['norm']):.4f}")
-        elif direction_path.suffix == ".json":
-            with open(direction_path) as f:
-                data = json.load(f)
-            direction = np.array(data["direction"], dtype=np.float32)
-            layer = data.get("layer", args.layer)
-        else:
-            print(f"Error: Unsupported direction format: {direction_path.suffix}")
-            sys.exit(1)
-    else:
-        # Generate direction on-the-fly from positive/negative
-        if not args.positive or not args.negative:
-            print("Error: Must provide --direction, --neuron, or both --positive and --negative")
-            sys.exit(1)
-
-        layer = args.layer or steerer.num_layers // 2
-
-        import mlx.core as mx
-
-        from ....introspection.hooks import CaptureConfig, ModelHooks, PositionSelection
-
-        hooks = ModelHooks(steerer.model)
-        hooks.configure(
-            CaptureConfig(
-                layers=[layer], capture_hidden_states=True, positions=PositionSelection.LAST
-            )
-        )
-        input_ids = mx.array(steerer.tokenizer.encode(args.positive))[None, :]
-        hooks.forward(input_ids)
-        h_positive = hooks.state.hidden_states[layer][0, -1, :]
-
-        hooks = ModelHooks(steerer.model)
-        hooks.configure(
-            CaptureConfig(
-                layers=[layer], capture_hidden_states=True, positions=PositionSelection.LAST
-            )
-        )
-        input_ids = mx.array(steerer.tokenizer.encode(args.negative))[None, :]
-        hooks.forward(input_ids)
-        h_negative = hooks.state.hidden_states[layer][0, -1, :]
-
-        direction = np.array((h_positive - h_negative).tolist(), dtype=np.float32)
-        print(f"Using on-the-fly direction from layer {layer}")
-
-    # Add direction to steerer
-    layer = layer if layer is not None else args.layer or steerer.num_layers // 2
-    steerer.add_direction(
-        layer=layer,
-        direction=direction,
-        name=args.name or "custom",
-        positive_label=args.positive_label or "positive",
-        negative_label=args.negative_label or "negative",
-    )
-
-    config = SteeringConfig(
-        layers=[layer],
-        coefficient=args.coefficient,
-        max_new_tokens=args.max_tokens,
-        temperature=args.temperature,
-    )
+    direction, layer, metadata = await _get_direction(config)
 
     # Parse prompts
-    if args.prompts.startswith("@"):
-        with open(args.prompts[1:]) as f:
-            prompts = [line.strip() for line in f if line.strip()]
-    else:
-        prompts = [p.strip() for p in args.prompts.split("|")]
+    prompts = parse_prompts(config.prompts)
 
     # Mode: Compare coefficients
-    if args.compare:
-        coefficients = [float(c) for c in args.compare.split(",")]
+    if config.compare:
+        coefficients = [float(c) for c in config.compare.split(",")]
         print(f"\nComparing steering at coefficients: {coefficients}")
 
         for prompt in prompts:
+            result = await SteeringService.compare_coefficients(
+                model=config.model,
+                prompt=prompt,
+                direction=direction,
+                layer=layer,
+                coefficients=coefficients,
+                max_tokens=config.max_tokens,
+                temperature=config.temperature,
+            )
+
             print(f"\n{'=' * 70}")
             print(f"Prompt: {prompt!r}")
             print(f"{'=' * 70}")
 
-            for coef in coefficients:
-                output = steerer.generate(prompt, config, coefficient=coef)
+            for coef, output in sorted(result.results.items()):
                 direction_label = (
                     "-> positive" if coef > 0 else "<- negative" if coef < 0 else "neutral"
                 )
@@ -221,29 +107,98 @@ def introspect_steer(args):
 
     # Mode: Single coefficient generation
     else:
-        print(f"\nSteering at layer {layer} with coefficient {args.coefficient}")
+        print(f"\nSteering at layer {layer} with coefficient {config.coefficient}")
 
-        results = []
-        for prompt in prompts:
-            output = steerer.generate(prompt, config)
+        results = await SteeringService.generate_with_steering(
+            model=config.model,
+            prompts=prompts,
+            direction=direction,
+            layer=layer,
+            coefficient=config.coefficient,
+            max_tokens=config.max_tokens,
+            temperature=config.temperature,
+            name=config.name,
+            positive_label=config.positive_label,
+            negative_label=config.negative_label,
+        )
 
-            print(f"\nPrompt: {prompt!r}")
-            print(f"Output: {output!r}")
-
-            results.append(
-                {
-                    "prompt": prompt,
-                    "output": output,
-                    "layer": layer,
-                    "coefficient": args.coefficient,
-                }
+        for r in results:
+            result = SteeringGenerationResult(
+                prompt=r.prompt,
+                output=r.output,
+                layer=r.layer,
+                coefficient=r.coefficient,
             )
+            print(result.to_display())
 
         # Save if requested
-        if args.output:
-            with open(args.output, "w") as f:
-                json.dump(results, f, indent=2)
-            print(f"\nResults saved to: {args.output}")
+        if config.output:
+            output_data = [
+                {
+                    "prompt": r.prompt,
+                    "output": r.output,
+                    "layer": r.layer,
+                    "coefficient": r.coefficient,
+                }
+                for r in results
+            ]
+            with open(config.output, "w") as f:
+                json.dump(output_data, f, indent=2)
+            print(f"\nResults saved to: {config.output}")
+
+
+async def _get_direction(config: SteeringConfig) -> tuple:
+    """Get direction from config (file, neuron, or on-the-fly extraction).
+
+    Returns:
+        Tuple of (direction, layer, metadata).
+    """
+    from ....introspection.steering import ActivationSteering, SteeringService
+
+    neuron_idx = config.neuron
+    if neuron_idx is not None:
+        # Create one-hot direction for single neuron steering
+        steerer = ActivationSteering.from_pretrained(config.model)
+        layer = config.layer or steerer.num_layers // 2
+        hidden_size = steerer.model.config.hidden_size
+        direction = SteeringService.create_neuron_direction(hidden_size, neuron_idx)
+        print(f"\nSteering neuron {neuron_idx} at layer {layer}")
+        print(f"  Hidden size: {hidden_size}")
+        return direction, layer, {}
+
+    elif config.direction:
+        # Load from file
+        direction, layer, metadata = SteeringService.load_direction(config.direction)
+
+        if layer is None:
+            layer = config.layer
+
+        print(f"\nLoaded direction from: {config.direction}")
+        if "positive_prompt" in metadata:
+            print(f"  Positive: {metadata['positive_prompt']}")
+        if "negative_prompt" in metadata:
+            print(f"  Negative: {metadata['negative_prompt']}")
+        print(f"  Layer: {layer}")
+        if "norm" in metadata:
+            print(f"  Norm: {metadata['norm']:.4f}")
+
+        return direction, layer, metadata
+
+    else:
+        # Generate direction on-the-fly from positive/negative
+        if not config.positive or not config.negative:
+            raise ValueError(
+                "Must provide --direction, --neuron, or both --positive and --negative"
+            )
+
+        result = await SteeringService.extract_direction(
+            model=config.model,
+            positive_prompt=config.positive,
+            negative_prompt=config.negative,
+            layer=config.layer,
+        )
+        print(f"Using on-the-fly direction from layer {result.layer}")
+        return result.direction, result.layer, {}
 
 
 __all__ = [

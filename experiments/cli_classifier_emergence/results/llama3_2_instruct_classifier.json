@@ -1,0 +1,114 @@
+{
+  "model": "meta-llama/Llama-3.2-1B-Instruct",
+  "num_layers": 16,
+  "classes": {
+    "multiply": [
+      "7 * 8 =",
+      "12 * 5 =",
+      "3 * 9 =",
+      "6 * 7 ="
+    ],
+    "add": [
+      "23 + 45 =",
+      "17 + 38 =",
+      "11 + 22 =",
+      "5 + 9 ="
+    ],
+    "subtract": [
+      "50 - 23 =",
+      "89 - 34 =",
+      "77 - 11 =",
+      "40 - 15 ="
+    ],
+    "divide": [
+      "48 / 6 =",
+      "81 / 9 =",
+      "36 / 4 =",
+      "24 / 3 ="
+    ]
+  },
+  "layer_results": [
+    {
+      "layer": 0,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 1,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 2,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 3,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 4,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 5,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 6,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 7,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 8,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 9,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 10,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 11,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 12,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 13,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 14,
+      "accuracy": 1.0,
+      "std": 0.0
+    },
+    {
+      "layer": 15,
+      "accuracy": 1.0,
+      "std": 0.0
+    }
+  ],
+  "best_layer": 0,
+  "best_accuracy": 1.0
+}

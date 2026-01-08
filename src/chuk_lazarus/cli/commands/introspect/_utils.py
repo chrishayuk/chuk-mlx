@@ -1,7 +1,206 @@
-"""Shared utilities for introspect CLI commands."""
+"""Shared utilities for introspect CLI commands.
 
+This module consolidates common patterns used across CLI commands:
+- Argument parsing with type conversion
+- File loading with @file prefix support
+- Layer depth ratio determination
+- Validation helpers
+"""
+
+from __future__ import annotations
+
+import json
 import sys
+from argparse import Namespace
 from pathlib import Path
+from typing import Any, Callable, TypeVar
+
+from .._constants import Delimiters, LayerDepthRatio
+
+T = TypeVar("T")
+
+
+# =============================================================================
+# Argument Parsing Utilities
+# =============================================================================
+
+
+def parse_value_list(
+    values_arg: str,
+    delimiter: str = Delimiters.PROMPT_SEPARATOR,
+    value_type: type[T] = str,
+) -> list[T]:
+    """Parse values from argument string or file.
+
+    Supports @file syntax for loading from files.
+
+    Args:
+        values_arg: Either a delimited string or @filepath
+        delimiter: Delimiter for string parsing
+        value_type: Type to convert values to (str, int, float)
+
+    Returns:
+        List of parsed values
+
+    Examples:
+        >>> parse_value_list("1|2|3", value_type=int)
+        [1, 2, 3]
+        >>> parse_value_list("@prompts.txt")  # file contents, one per line
+        ['prompt1', 'prompt2', ...]
+    """
+    if values_arg.startswith(Delimiters.FILE_PREFIX):
+        with open(values_arg[1:]) as f:
+            return [value_type(line.strip()) for line in f if line.strip()]
+    return [value_type(v.strip()) for v in values_arg.split(delimiter)]
+
+
+def get_layer_depth_ratio(
+    layer: int | None,
+    default_depth: LayerDepthRatio = LayerDepthRatio.MIDDLE,
+) -> float | None:
+    """Get layer depth ratio if no explicit layer is specified.
+
+    Args:
+        layer: Explicit layer number (if any)
+        default_depth: Default depth ratio when layer is None
+
+    Returns:
+        Depth ratio value or None if explicit layer provided
+    """
+    return default_depth.value if layer is None else None
+
+
+def extract_arg(
+    args: Namespace,
+    name: str,
+    default: T | None = None,
+) -> T | None:
+    """Safely extract an argument with default.
+
+    Args:
+        args: Parsed arguments namespace
+        name: Argument name
+        default: Default value if not present
+
+    Returns:
+        Argument value or default
+    """
+    return getattr(args, name, default)
+
+
+def extract_args(
+    args: Namespace,
+    spec: dict[str, Any],
+) -> dict[str, Any]:
+    """Extract multiple args with defaults from a spec.
+
+    Args:
+        args: Parsed arguments namespace
+        spec: Dict mapping arg names to default values
+
+    Returns:
+        Dict of extracted values
+
+    Example:
+        >>> extract_args(args, {'top_k': 10, 'temperature': 0.0})
+        {'top_k': 5, 'temperature': 0.0}  # if args.top_k was 5
+    """
+    return {key: getattr(args, key, default) for key, default in spec.items()}
+
+
+def load_json_or_default(
+    file_arg: str | None,
+    default_loader: Callable[[], T],
+) -> tuple[T, bool]:
+    """Load data from JSON file or use framework default.
+
+    Supports @file syntax for loading from files.
+
+    Args:
+        file_arg: File path (with @ prefix) or None
+        default_loader: Callable that returns default data
+
+    Returns:
+        Tuple of (data, is_custom) where is_custom=True if loaded from file
+    """
+    if file_arg and file_arg.startswith(Delimiters.FILE_PREFIX):
+        with open(file_arg[1:]) as f:
+            return json.load(f), True
+    return default_loader(), False
+
+
+def load_json_file(file_path: str) -> dict[str, Any]:
+    """Load a JSON file.
+
+    Args:
+        file_path: Path to JSON file (may have @ prefix)
+
+    Returns:
+        Parsed JSON data
+    """
+    path = file_path[1:] if file_path.startswith(Delimiters.FILE_PREFIX) else file_path
+    with open(path) as f:
+        return json.load(f)
+
+
+# =============================================================================
+# Validation Utilities
+# =============================================================================
+
+
+def require_arg(
+    args: Namespace,
+    name: str,
+    message: str | None = None,
+) -> Any:
+    """Require an argument to be present.
+
+    Args:
+        args: Parsed arguments namespace
+        name: Argument name
+        message: Optional custom error message
+
+    Returns:
+        Argument value
+
+    Raises:
+        ValueError: If argument is not present
+    """
+    value = getattr(args, name, None)
+    if value is None:
+        raise ValueError(message or f"--{name.replace('_', '-')} is required")
+    return value
+
+
+def require_one_of(
+    args: Namespace,
+    names: list[str],
+    message: str | None = None,
+) -> tuple[str, Any]:
+    """Require at least one of several arguments.
+
+    Args:
+        args: Parsed arguments namespace
+        names: List of argument names to check
+        message: Optional custom error message
+
+    Returns:
+        Tuple of (name, value) for first present argument
+
+    Raises:
+        ValueError: If none of the arguments are present
+    """
+    for name in names:
+        value = getattr(args, name, None)
+        if value is not None:
+            return name, value
+    formatted_names = ", ".join(f"--{n.replace('_', '-')}" for n in names)
+    raise ValueError(message or f"One of {formatted_names} is required")
+
+
+# =============================================================================
+# Legacy Print Utilities (preserved for compatibility)
+# =============================================================================
 
 
 def print_analysis_result(result, tokenizer, args):

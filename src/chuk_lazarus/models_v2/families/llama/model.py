@@ -44,23 +44,14 @@ class LlamaBlock(Block):
         self._hidden_size = config.hidden_size
         self.layer_idx = layer_idx
 
-        head_dim = config.hidden_size // config.num_attention_heads
-        num_kv_heads = config.num_key_value_heads or config.num_attention_heads
-
         # Pre-attention norm
         self.input_layernorm = RMSNorm(
             config.hidden_size,
             eps=config.rms_norm_eps,
         )
 
-        # Attention config
-        attn_config = AttentionConfig(
-            num_attention_heads=config.num_attention_heads,
-            num_key_value_heads=num_kv_heads,
-            hidden_size=config.hidden_size,
-            head_dim=head_dim,
-            sliding_window_size=config.sliding_window,
-        )
+        # Get attention config from model config (includes RoPE scaling)
+        attn_config = config.to_attention_config()
 
         # Attention
         if config.sliding_window:

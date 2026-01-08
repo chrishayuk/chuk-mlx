@@ -3,7 +3,7 @@
 This module provides commands for running model inference.
 
 Commands:
-    run_inference: Run inference on a model with prompts
+    run_inference_cmd: Run inference on a model with prompts
 """
 
 from ._types import (
@@ -12,7 +12,10 @@ from ._types import (
     InferenceResult,
     InputMode,
 )
-from .run import run_inference, run_inference_cmd
+from .run import run_inference_cmd
+
+# Alias for backwards compatibility
+run_inference = run_inference_cmd
 
 __all__ = [
     # Types

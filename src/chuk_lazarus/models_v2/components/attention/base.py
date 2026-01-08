@@ -43,9 +43,9 @@ class AttentionBase(nn.Module, ABC):
         # RoPE setup (if using rotary embeddings)
         self.rope = None
         if config.position.position_type.value == "rope":
-            from ..embeddings.rope import RoPE
+            from ..embeddings.rope import create_rope
 
-            self.rope = RoPE(config.position.rope, dims=self.head_dim)
+            self.rope = create_rope(config.position.rope, dims=self.head_dim)
 
     @abstractmethod
     def __call__(
