@@ -46,9 +46,7 @@ class TestTokenizerEncode:
 
     @patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer")
     @patch("chuk_lazarus.data.tokenizers.token_display.TokenDisplayUtility")
-    def test_encode_with_text(
-        self, mock_display_cls, mock_load_tokenizer, capsys
-    ):
+    def test_encode_with_text(self, mock_display_cls, mock_load_tokenizer, capsys):
         """Test encoding text."""
         mock_tokenizer = MagicMock()
         mock_load_tokenizer.return_value = mock_tokenizer

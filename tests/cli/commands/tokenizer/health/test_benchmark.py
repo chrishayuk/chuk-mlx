@@ -62,9 +62,7 @@ class TestTokenizerBenchmark:
     @patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer")
     @patch("chuk_lazarus.data.tokenizers.backends.benchmark.generate_benchmark_corpus")
     @patch("chuk_lazarus.data.tokenizers.backends.benchmark.benchmark_tokenizer")
-    def test_benchmark_basic(
-        self, mock_benchmark, mock_gen_corpus, mock_load_tokenizer, capsys
-    ):
+    def test_benchmark_basic(self, mock_benchmark, mock_gen_corpus, mock_load_tokenizer, capsys):
         """Test basic benchmark."""
         mock_tokenizer = MagicMock()
         mock_load_tokenizer.return_value = mock_tokenizer

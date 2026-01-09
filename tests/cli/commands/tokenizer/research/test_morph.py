@@ -77,11 +77,13 @@ class TestResearchMorph:
         mock_result.method = MorphMethod.LINEAR
         mock_result.num_steps = 10
         mock_result.alphas = [0.0, 0.5, 1.0]
-        mock_result.get_embeddings_array.return_value = np.array([
-            [0.1, 0.2, 0.3],
-            [0.25, 0.35, 0.45],
-            [0.4, 0.5, 0.6],
-        ])
+        mock_result.get_embeddings_array.return_value = np.array(
+            [
+                [0.1, 0.2, 0.3],
+                [0.25, 0.35, 0.45],
+                [0.4, 0.5, 0.6],
+            ]
+        )
         mock_morph.return_value = mock_result
         mock_path_length.return_value = 0.5
         mock_straightness.return_value = 0.99

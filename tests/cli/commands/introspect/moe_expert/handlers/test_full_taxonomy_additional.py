@@ -5,11 +5,11 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from chuk_lazarus.cli.commands._constants import TokenType
 from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.full_taxonomy import (
     _async_full_taxonomy,
     classify_token,
 )
-from chuk_lazarus.cli.commands._constants import TokenType
 from chuk_lazarus.introspection.moe.enums import MoEArchitecture
 from chuk_lazarus.introspection.moe.models import (
     LayerRouterWeights,

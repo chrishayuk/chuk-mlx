@@ -407,6 +407,23 @@ def setup_introspection_module():
     mock_enums.OverrideMode.REPLACE = "replace"
     mock_enums.OverrideMode.ADD = "add"
 
+    # Mock _shared_constants - import real module to avoid breaking imports
+    # These are used by _constants.py when it loads
+    from chuk_lazarus.introspection._shared_constants import (
+        Domain,
+        LayerPhase,
+        LayerPhaseDefaults,
+        PatternCategory,
+        TokenType,
+    )
+
+    mock_shared_constants = MagicMock()
+    mock_shared_constants.Domain = Domain
+    mock_shared_constants.LayerPhase = LayerPhase
+    mock_shared_constants.LayerPhaseDefaults = LayerPhaseDefaults
+    mock_shared_constants.PatternCategory = PatternCategory
+    mock_shared_constants.TokenType = TokenType
+
     # Mock probing module with services
     mock_probing = MagicMock()
 
@@ -467,6 +484,7 @@ def setup_introspection_module():
         "chuk_lazarus.introspection.moe.enums": mock_moe_enums,
         "chuk_lazarus.introspection.moe.models": mock_moe_models,
         "chuk_lazarus.introspection.moe.router": mock_moe_router,
+        "chuk_lazarus.introspection._shared_constants": mock_shared_constants,
     }
 
     for mod_name in modules_to_add:

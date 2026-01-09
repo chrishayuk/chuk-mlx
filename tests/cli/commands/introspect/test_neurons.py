@@ -420,3 +420,350 @@ class TestParseLayers:
 
         layers = parse_layers_string("4, 8, 12")
         assert layers == [4, 8, 12]
+
+
+class TestPrintNeuronResults:
+    """Tests for _print_neuron_results helper function."""
+
+    def test_print_single_layer_results(self, capsys):
+        """Test printing results for single layer."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_neuron_results
+
+        # Create mock results
+        result1 = MagicMock()
+        result1.neuron_idx = 100
+        result1.min_val = -5.0
+        result1.max_val = 10.0
+        result1.mean_val = 2.5
+        result1.std_val = 3.0
+
+        result2 = MagicMock()
+        result2.neuron_idx = 200
+        result2.min_val = -2.0
+        result2.max_val = 8.0
+        result2.mean_val = 3.0
+        result2.std_val = 2.5
+
+        results = {12: [result1, result2]}
+
+        _print_neuron_results(
+            results=results,
+            neurons=[100, 200],
+            prompts=["2+2=", "47*47="],
+            labels=None,
+            neuron_names={},
+            neuron_weights={},
+            neuron_stats={},
+        )
+
+        captured = capsys.readouterr()
+        assert "NEURON ACTIVATION MAP AT LAYER 12" in captured.out
+        assert "Neuron  100" in captured.out or "N  100" in captured.out
+
+    def test_print_multi_layer_results(self, capsys):
+        """Test printing results for multiple layers."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_neuron_results
+
+        result1_l4 = MagicMock()
+        result1_l4.neuron_idx = 100
+        result1_l4.min_val = -5.0
+        result1_l4.max_val = 10.0
+        result1_l4.mean_val = 2.5
+        result1_l4.std_val = 3.0
+
+        result1_l12 = MagicMock()
+        result1_l12.neuron_idx = 100
+        result1_l12.min_val = -3.0
+        result1_l12.max_val = 8.0
+        result1_l12.mean_val = 3.0
+        result1_l12.std_val = 2.0
+
+        results = {4: [result1_l4], 12: [result1_l12]}
+
+        _print_neuron_results(
+            results=results,
+            neurons=[100],
+            prompts=["2+2="],
+            labels=None,
+            neuron_names={},
+            neuron_weights={},
+            neuron_stats={},
+        )
+
+        captured = capsys.readouterr()
+        assert "CROSS-LAYER NEURON TRACKING" in captured.out
+        assert "L 4" in captured.out or "L4" in captured.out
+        assert "L12" in captured.out or "L 12" in captured.out
+
+    def test_print_results_with_labels(self, capsys):
+        """Test printing results with labels."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_neuron_results
+
+        result1 = MagicMock()
+        result1.neuron_idx = 100
+        result1.min_val = -5.0
+        result1.max_val = 10.0
+        result1.mean_val = 2.5
+        result1.std_val = 3.0
+
+        results = {12: [result1]}
+
+        _print_neuron_results(
+            results=results,
+            neurons=[100],
+            prompts=["2+2=", "hard problem"],
+            labels=["easy", "hard"],
+            neuron_names={},
+            neuron_weights={},
+            neuron_stats={},
+        )
+
+        captured = capsys.readouterr()
+        assert "Label" in captured.out
+
+    def test_print_results_with_neuron_names(self, capsys):
+        """Test printing results with custom neuron names."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_neuron_results
+
+        result1 = MagicMock()
+        result1.neuron_idx = 100
+        result1.min_val = -5.0
+        result1.max_val = 10.0
+        result1.mean_val = 2.5
+        result1.std_val = 3.0
+
+        results = {12: [result1]}
+
+        _print_neuron_results(
+            results=results,
+            neurons=[100],
+            prompts=["2+2="],
+            labels=None,
+            neuron_names={100: "carry"},
+            neuron_weights={},
+            neuron_stats={},
+        )
+
+        captured = capsys.readouterr()
+        assert "carry" in captured.out
+
+    def test_print_results_with_weights(self, capsys):
+        """Test printing results with neuron weights."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_neuron_results
+
+        result1 = MagicMock()
+        result1.neuron_idx = 100
+        result1.min_val = -5.0
+        result1.max_val = 10.0
+        result1.mean_val = 2.5
+        result1.std_val = 3.0
+
+        results = {12: [result1]}
+
+        _print_neuron_results(
+            results=results,
+            neurons=[100],
+            prompts=["2+2="],
+            labels=None,
+            neuron_names={},
+            neuron_weights={100: 0.5},
+            neuron_stats={},
+        )
+
+        captured = capsys.readouterr()
+        assert "weight" in captured.out
+        assert "POSITIVE detector" in captured.out
+
+    def test_print_results_with_negative_weight(self, capsys):
+        """Test printing results with negative neuron weight."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_neuron_results
+
+        result1 = MagicMock()
+        result1.neuron_idx = 100
+        result1.min_val = -5.0
+        result1.max_val = 10.0
+        result1.mean_val = 2.5
+        result1.std_val = 3.0
+
+        results = {12: [result1]}
+
+        _print_neuron_results(
+            results=results,
+            neurons=[100],
+            prompts=["2+2="],
+            labels=None,
+            neuron_names={},
+            neuron_weights={100: -0.3},
+            neuron_stats={},
+        )
+
+        captured = capsys.readouterr()
+        assert "NEGATIVE detector" in captured.out
+
+    def test_print_results_with_stats(self, capsys):
+        """Test printing results with neuron stats."""
+        from unittest.mock import MagicMock
+
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_neuron_results
+
+        result1 = MagicMock()
+        result1.neuron_idx = 100
+        result1.min_val = -5.0
+        result1.max_val = 10.0
+        result1.mean_val = 2.5
+        result1.std_val = 3.0
+
+        results = {12: [result1]}
+
+        _print_neuron_results(
+            results=results,
+            neurons=[100],
+            prompts=["2+2="],
+            labels=None,
+            neuron_names={},
+            neuron_weights={},
+            neuron_stats={100: {"separation": 0.85, "best_pair": ("easy", "hard")}},
+        )
+
+        captured = capsys.readouterr()
+        assert "separation" in captured.out
+        assert "easy vs hard" in captured.out
+
+
+class TestPrintDirectionComparison:
+    """Tests for _print_direction_comparison helper function."""
+
+    def test_print_orthogonal_directions(self, capsys):
+        """Test printing orthogonal direction comparison."""
+        from chuk_lazarus.cli.commands.introspect._types import (
+            DirectionComparisonResult,
+            DirectionPairSimilarity,
+        )
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_direction_comparison
+
+        pairs = [
+            DirectionPairSimilarity(
+                name_a="pos->neg",
+                name_b="correct->wrong",
+                cosine_similarity=0.05,
+                orthogonal=True,
+            )
+        ]
+
+        result = DirectionComparisonResult(
+            files=["dir1.npz", "dir2.npz"],
+            names=["pos->neg", "correct->wrong"],
+            pairs=pairs,
+            mean_abs_similarity=0.05,
+        )
+
+        _print_direction_comparison(result, threshold=0.1)
+
+        captured = capsys.readouterr()
+        assert "COSINE SIMILARITY MATRIX" in captured.out
+        assert "Orthogonal" in captured.out
+        assert "ORTHOGONAL" in captured.out or "independent" in captured.out.lower()
+
+    def test_print_aligned_directions(self, capsys):
+        """Test printing aligned direction comparison."""
+        from chuk_lazarus.cli.commands.introspect._types import (
+            DirectionComparisonResult,
+            DirectionPairSimilarity,
+        )
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_direction_comparison
+
+        pairs = [
+            DirectionPairSimilarity(
+                name_a="pos->neg",
+                name_b="correct->wrong",
+                cosine_similarity=0.85,
+                orthogonal=False,
+            )
+        ]
+
+        result = DirectionComparisonResult(
+            files=["dir1.npz", "dir2.npz"],
+            names=["pos->neg", "correct->wrong"],
+            pairs=pairs,
+            mean_abs_similarity=0.85,
+        )
+
+        _print_direction_comparison(result, threshold=0.1)
+
+        captured = capsys.readouterr()
+        assert "Aligned" in captured.out
+        assert "HIGHLY correlated" in captured.out or "redundant" in captured.out.lower()
+
+    def test_print_moderate_similarity(self, capsys):
+        """Test printing directions with moderate similarity."""
+        from chuk_lazarus.cli.commands.introspect._types import (
+            DirectionComparisonResult,
+            DirectionPairSimilarity,
+        )
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_direction_comparison
+
+        pairs = [
+            DirectionPairSimilarity(
+                name_a="dir1",
+                name_b="dir2",
+                cosine_similarity=0.35,
+                orthogonal=False,
+            )
+        ]
+
+        result = DirectionComparisonResult(
+            files=["dir1.npz", "dir2.npz"],
+            names=["dir1", "dir2"],
+            pairs=pairs,
+            mean_abs_similarity=0.35,
+        )
+
+        _print_direction_comparison(result, threshold=0.1)
+
+        captured = capsys.readouterr()
+        assert "MODERATE correlation" in captured.out
+
+    def test_print_multiple_pairs(self, capsys):
+        """Test printing comparison with multiple pairs."""
+        from chuk_lazarus.cli.commands.introspect._types import (
+            DirectionComparisonResult,
+            DirectionPairSimilarity,
+        )
+        from chuk_lazarus.cli.commands.introspect.neurons import _print_direction_comparison
+
+        pairs = [
+            DirectionPairSimilarity(
+                name_a="dir1", name_b="dir2", cosine_similarity=0.05, orthogonal=True
+            ),
+            DirectionPairSimilarity(
+                name_a="dir1", name_b="dir3", cosine_similarity=0.75, orthogonal=False
+            ),
+            DirectionPairSimilarity(
+                name_a="dir2", name_b="dir3", cosine_similarity=0.15, orthogonal=False
+            ),
+        ]
+
+        result = DirectionComparisonResult(
+            files=["dir1.npz", "dir2.npz", "dir3.npz"],
+            names=["dir1", "dir2", "dir3"],
+            pairs=pairs,
+            mean_abs_similarity=0.32,
+        )
+
+        _print_direction_comparison(result, threshold=0.1)
+
+        captured = capsys.readouterr()
+        assert "Total pairs: 3" in captured.out
+        assert "Orthogonal" in captured.out

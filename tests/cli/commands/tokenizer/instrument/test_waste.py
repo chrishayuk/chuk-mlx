@@ -56,9 +56,7 @@ class TestInstrumentWaste:
     @patch("chuk_lazarus.cli.commands.tokenizer.instrument.waste.load_texts")
     @patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer")
     @patch("chuk_lazarus.data.tokenizers.instrumentation.analyze_waste")
-    def test_waste_basic(
-        self, mock_analyze_waste, mock_load_tokenizer, mock_load_texts, capsys
-    ):
+    def test_waste_basic(self, mock_analyze_waste, mock_load_tokenizer, mock_load_texts, capsys):
         """Test basic waste analysis."""
         mock_tokenizer = MagicMock()
         mock_load_tokenizer.return_value = mock_tokenizer

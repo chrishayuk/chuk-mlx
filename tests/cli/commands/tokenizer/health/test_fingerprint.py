@@ -57,9 +57,7 @@ class TestTokenizerFingerprint:
 
     @patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer")
     @patch("chuk_lazarus.data.tokenizers.fingerprint.compute_fingerprint")
-    def test_fingerprint_display(
-        self, mock_compute_fp, mock_load_tokenizer, capsys
-    ):
+    def test_fingerprint_display(self, mock_compute_fp, mock_load_tokenizer, capsys):
         """Test basic fingerprint display."""
         mock_tokenizer = MagicMock()
         mock_load_tokenizer.return_value = mock_tokenizer

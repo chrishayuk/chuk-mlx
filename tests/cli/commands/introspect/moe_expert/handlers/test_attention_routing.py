@@ -4,6 +4,10 @@ from argparse import Namespace
 from unittest.mock import patch
 
 from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.attention_routing import (
+    _print_analysis,
+    _print_attention_patterns,
+    _print_header,
+    _print_layer_summary,
     handle_attention_routing,
 )
 
@@ -50,6 +54,165 @@ class TestHandleAttentionRouting:
         ) as mock_asyncio:
             handle_attention_routing(args)
             mock_asyncio.run.assert_called_once()
+
+
+class TestPrintHeader:
+    """Tests for _print_header function."""
+
+    def test_print_header(self, capsys):
+        """Test _print_header prints expected sections."""
+        test_contexts = [("minimal", "2 + 3"), ("math", "Calculate 2 + 3")]
+        _print_header("test/model", "+", test_contexts)
+
+        captured = capsys.readouterr()
+        assert "ATTENTION → ROUTING ANALYSIS" in captured.out
+        assert "RESEARCH QUESTION" in captured.out
+        assert "test/model" in captured.out
+        assert "+" in captured.out
+        assert "minimal" in captured.out
+        assert "2 + 3" in captured.out
+
+
+class TestPrintLayerSummary:
+    """Tests for _print_layer_summary function."""
+
+    def test_print_layer_summary_same_expert(self, capsys):
+        """Test layer summary when all contexts use same expert."""
+        results_by_layer = {
+            0: [
+                {"context_name": "ctx1", "primary_expert": 6},
+                {"context_name": "ctx2", "primary_expert": 6},
+            ]
+        }
+        _print_layer_summary([0], {0: "Early"}, results_by_layer)
+
+        captured = capsys.readouterr()
+        assert "LAYER-BY-LAYER SUMMARY" in captured.out
+        assert "low differentiation" in captured.out
+
+    def test_print_layer_summary_different_experts(self, capsys):
+        """Test layer summary when contexts use different experts."""
+        results_by_layer = {
+            0: [
+                {"context_name": "ctx1", "primary_expert": 6},
+                {"context_name": "ctx2", "primary_expert": 12},
+            ]
+        }
+        _print_layer_summary([0], {0: "Early"}, results_by_layer)
+
+        captured = capsys.readouterr()
+        assert "context-sensitive" in captured.out
+
+
+class TestPrintAttentionPatterns:
+    """Tests for _print_attention_patterns function."""
+
+    def test_print_attention_patterns_with_summary(self, capsys):
+        """Test attention patterns with attention summary."""
+        results_by_layer = {
+            12: [
+                {
+                    "context_name": "math",
+                    "primary_expert": 6,
+                    "attn_summary": [("the", 0.3), ("number", 0.5)],
+                }
+            ]
+        }
+        _print_attention_patterns([12], results_by_layer)
+
+        captured = capsys.readouterr()
+        assert "ATTENTION PATTERNS" in captured.out
+        assert "E6" in captured.out
+
+    def test_print_attention_patterns_no_summary(self, capsys):
+        """Test attention patterns without attention summary."""
+        results_by_layer = {
+            0: [{"context_name": "test", "primary_expert": 1, "attn_summary": None}]
+        }
+        _print_attention_patterns([0], results_by_layer)
+
+        captured = capsys.readouterr()
+        assert "ATTENTION PATTERNS" in captured.out
+
+    def test_print_attention_patterns_multi_layer(self, capsys):
+        """Test attention patterns selects middle layer."""
+        results_by_layer = {
+            0: [{"context_name": "early", "primary_expert": 1, "attn_summary": None}],
+            12: [{"context_name": "middle", "primary_expert": 6, "attn_summary": None}],
+            23: [{"context_name": "late", "primary_expert": 2, "attn_summary": None}],
+        }
+        _print_attention_patterns([0, 12, 23], results_by_layer)
+
+        captured = capsys.readouterr()
+        # Middle layer (12) should be shown
+        assert "Middle Layer" in captured.out
+
+
+class TestPrintAnalysis:
+    """Tests for _print_analysis function."""
+
+    def test_print_analysis_middle_max(self, capsys):
+        """Test analysis when middle layer has maximum differentiation."""
+        results_by_layer = {
+            0: [
+                {"primary_expert": 1},
+                {"primary_expert": 1},
+            ],  # 1 unique
+            12: [
+                {"primary_expert": 6},
+                {"primary_expert": 12},
+            ],  # 2 unique
+            23: [
+                {"primary_expert": 2},
+                {"primary_expert": 2},
+            ],  # 1 unique
+        }
+        _print_analysis([0, 12, 23], {0: "Early", 12: "Middle", 23: "Late"}, results_by_layer)
+
+        captured = capsys.readouterr()
+        assert "ANALYSIS" in captured.out
+        assert "Maximum differentiation in MIDDLE layers" in captured.out
+
+    def test_print_analysis_late_max(self, capsys):
+        """Test analysis when late layer has maximum differentiation."""
+        # Need 3 layers where late has more unique than middle
+        results_by_layer = {
+            0: [{"primary_expert": 1}],
+            12: [{"primary_expert": 6}],  # Middle = 1 unique
+            23: [{"primary_expert": 2}, {"primary_expert": 3}],  # Late = 2 unique
+        }
+        _print_analysis([0, 12, 23], {0: "Early", 12: "Middle", 23: "Late"}, results_by_layer)
+
+        captured = capsys.readouterr()
+        assert "Late layers show high differentiation" in captured.out
+
+    def test_print_analysis_early_max(self, capsys):
+        """Test analysis when early layer has maximum differentiation."""
+        results_by_layer = {
+            0: [
+                {"primary_expert": 1},
+                {"primary_expert": 2},
+                {"primary_expert": 3},
+            ],
+            12: [{"primary_expert": 6}],
+            23: [{"primary_expert": 2}],
+        }
+        _print_analysis([0, 12, 23], {0: "Early", 12: "Middle", 23: "Late"}, results_by_layer)
+
+        captured = capsys.readouterr()
+        assert "Early layers show high differentiation" in captured.out
+
+    def test_print_analysis_key_insight(self, capsys):
+        """Test analysis prints KEY INSIGHT section."""
+        results_by_layer = {
+            0: [{"primary_expert": 1}],
+            12: [{"primary_expert": 2}],
+            23: [{"primary_expert": 3}],
+        }
+        _print_analysis([0, 12, 23], {0: "Early", 12: "Middle", 23: "Late"}, results_by_layer)
+
+        captured = capsys.readouterr()
+        assert "KEY INSIGHT" in captured.out
 
 
 class TestAttentionRoutingServiceHelpers:

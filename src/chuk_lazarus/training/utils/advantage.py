@@ -29,7 +29,8 @@ def compute_returns(rewards: mx.array, dones: mx.array, gamma: float = 0.99) -> 
     for t in range(timesteps - 1, -1, -1):
         # Reset return on episode boundary
         running_return = rewards[:, t] + gamma * running_return * (1 - dones[:, t])
-        returns = returns.at[:, t].set(running_return)
+        # Use at[].add() since returns starts as zeros (equivalent to set)
+        returns = returns.at[:, t].add(running_return)
 
     return returns
 
@@ -74,7 +75,8 @@ def compute_gae(
 
         # GAE: sum of discounted TD errors
         last_gae = delta + gamma * lam * (1 - dones[:, t]) * last_gae
-        advantages = advantages.at[:, t].set(last_gae)
+        # Use at[].add() since advantages starts as zeros (equivalent to set)
+        advantages = advantages.at[:, t].add(last_gae)
 
     # Returns = advantages + values (the target for value function)
     returns = advantages + values

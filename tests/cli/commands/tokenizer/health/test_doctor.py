@@ -77,7 +77,9 @@ class TestTokenizerDoctor:
         # Return same text for any decoded input (roundtrip check uses normalized comparison)
         mock_tokenizer.decode.side_effect = lambda ids, **kwargs: "Hello, world!"
         mock_tokenizer.apply_chat_template.side_effect = lambda msgs, **kwargs: (
-            "You are helpful.\nHello" if any(m.get("role") == "system" for m in msgs) else "Formatted message"
+            "You are helpful.\nHello"
+            if any(m.get("role") == "system" for m in msgs)
+            else "Formatted message"
         )
         mock_load_tokenizer.return_value = mock_tokenizer
 

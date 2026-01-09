@@ -1,0 +1,900 @@
+{"prompt": "What is 36 plus 58?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [36, 58], "expected_result": 94, "phase": 1, "operation": "add"}
+{"prompt": "Add 21 and 1", "ir_sequence": [1, 3, 4, 16, 2], "operands": [21, 1], "expected_result": 22, "phase": 1, "operation": "add"}
+{"prompt": "31 + 37 * 3 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [31, 37, 3], "expected_result": 204, "phase": 2, "operation": null}
+{"prompt": "Divide 3 by 1", "ir_sequence": [1, 3, 4, 19, 2], "operands": [3, 1], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "54 / 9 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [54, 9], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "11 * 4 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 4], "expected_result": 44, "phase": 1, "operation": "mul"}
+{"prompt": "42 - 15 + 1 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [42, 15, 1], "expected_result": 28, "phase": 2, "operation": null}
+{"prompt": "39 + 32 * 20 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [39, 32, 20], "expected_result": 1420, "phase": 2, "operation": null}
+{"prompt": "10 x 20 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [10, 20], "expected_result": 200, "phase": 1, "operation": "mul"}
+{"prompt": "56 divided by 8 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [56, 8], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "Jack's ducks lay 12 eggs daily. Jack eats 5 for breakfast and bakes 4 into muffins. Jack sells the rest at $1 each. How many eggs does Jack sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [12, 5, 4], "expected_result": 3, "phase": 3, "operation": "multi_sub"}
+{"prompt": "(48 - 32) * 20 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [48, 32, 20], "expected_result": 320, "phase": 2, "operation": null}
+{"prompt": "There are 29 birds in a tree. 28 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [29, 28], "expected_result": 57, "phase": 3, "operation": "add"}
+{"prompt": "Calculate 70 / 10", "ir_sequence": [1, 3, 4, 19, 2], "operands": [70, 10], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "What is 1 times 2?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [1, 2], "expected_result": 2, "phase": 1, "operation": "mul"}
+{"prompt": "8 * 8 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 8], "expected_result": 64, "phase": 1, "operation": "mul"}
+{"prompt": "A store has 88 items. 34 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [88, 34], "expected_result": 54, "phase": 3, "operation": "sub"}
+{"prompt": "Calculate 48 / 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [48, 12], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "4 + 25 * 19 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [4, 25, 19], "expected_result": 551, "phase": 2, "operation": null}
+{"prompt": "A store has 21 items. 7 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [21, 7], "expected_result": 14, "phase": 3, "operation": "sub"}
+{"prompt": "58 - 8 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [58, 8], "expected_result": 50, "phase": 1, "operation": "sub"}
+{"prompt": "11 * 12 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 12], "expected_result": 132, "phase": 1, "operation": "mul"}
+{"prompt": "84 + 70 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [84, 70], "expected_result": 154, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 47 - 23", "ir_sequence": [1, 3, 4, 17, 2], "operands": [47, 23], "expected_result": 24, "phase": 1, "operation": "sub"}
+{"prompt": "Subtract 90 from 92", "ir_sequence": [1, 3, 4, 17, 2], "operands": [92, 90], "expected_result": 2, "phase": 1, "operation": "sub"}
+{"prompt": "Frank's ducks lay 12 eggs daily. Frank eats 3 for breakfast and bakes 3 into muffins. Frank sells the rest at $5 each. How many eggs does Frank sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [12, 3, 3], "expected_result": 6, "phase": 3, "operation": "multi_sub"}
+{"prompt": "What is 37 plus 11?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [37, 11], "expected_result": 48, "phase": 1, "operation": "add"}
+{"prompt": "8 + 7 - 10 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [8, 7, 10], "expected_result": 5, "phase": 2, "operation": null}
+{"prompt": "49 added to 11 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [49, 11], "expected_result": 60, "phase": 1, "operation": "add"}
+{"prompt": "(38 - 31) * 3 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [38, 31, 3], "expected_result": 21, "phase": 2, "operation": null}
+{"prompt": "59 - 16 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [59, 16], "expected_result": 43, "phase": 1, "operation": "sub"}
+{"prompt": "Divide 21 by 7", "ir_sequence": [1, 3, 4, 19, 2], "operands": [21, 7], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "79 added to 77 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [79, 77], "expected_result": 156, "phase": 1, "operation": "add"}
+{"prompt": "(18 + 37) * 6 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [18, 37, 6], "expected_result": 330, "phase": 2, "operation": null}
+{"prompt": "There are 5 rows of 5 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 5], "expected_result": 25, "phase": 3, "operation": "mul"}
+{"prompt": "The difference of 35 and 21 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [35, 21], "expected_result": 14, "phase": 1, "operation": "sub"}
+{"prompt": "There are 7 birds in a tree. 13 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [7, 13], "expected_result": 20, "phase": 3, "operation": "add"}
+{"prompt": "18 * 26 + 20 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [18, 26, 20], "expected_result": 488, "phase": 2, "operation": null}
+{"prompt": "What is 61 minus 40?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [61, 40], "expected_result": 21, "phase": 1, "operation": "sub"}
+{"prompt": "60 - 24 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [60, 24], "expected_result": 36, "phase": 1, "operation": "sub"}
+{"prompt": "There are 2 rows of 7 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 7], "expected_result": 14, "phase": 3, "operation": "mul"}
+{"prompt": "Frank has 12 bags with 7 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 7], "expected_result": 84, "phase": 3, "operation": "mul"}
+{"prompt": "Calculate 81 + 83", "ir_sequence": [1, 3, 4, 16, 2], "operands": [81, 83], "expected_result": 164, "phase": 1, "operation": "add"}
+{"prompt": "18 multiplied by 1 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [18, 1], "expected_result": 18, "phase": 1, "operation": "mul"}
+{"prompt": "What is 33 divided by 11?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [33, 11], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "There are 29 birds in a tree. 27 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [29, 27], "expected_result": 56, "phase": 3, "operation": "add"}
+{"prompt": "63 divided by 9 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [63, 9], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "37 * 23 - 11 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [37, 23, 11], "expected_result": 840, "phase": 2, "operation": null}
+{"prompt": "22 * 25 - 3 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [22, 25, 3], "expected_result": 547, "phase": 2, "operation": null}
+{"prompt": "Carol has 8 apples. Pat gives her 23 more. How many apples does Carol have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [8, 23], "expected_result": 31, "phase": 3, "operation": "add"}
+{"prompt": "Multiply 17 by 6", "ir_sequence": [1, 3, 4, 18, 2], "operands": [17, 6], "expected_result": 102, "phase": 1, "operation": "mul"}
+{"prompt": "What is 91 plus 69?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [91, 69], "expected_result": 160, "phase": 1, "operation": "add"}
+{"prompt": "(37 - 26) * 9 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [37, 26, 9], "expected_result": 99, "phase": 2, "operation": null}
+{"prompt": "(27 + 13) * 13 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [27, 13, 13], "expected_result": 520, "phase": 2, "operation": null}
+{"prompt": "Add 73 and 28", "ir_sequence": [1, 3, 4, 16, 2], "operands": [73, 28], "expected_result": 101, "phase": 1, "operation": "add"}
+{"prompt": "30 / 3 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 3], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "60 - 15 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [60, 15], "expected_result": 45, "phase": 1, "operation": "sub"}
+{"prompt": "14 x 6 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [14, 6], "expected_result": 84, "phase": 1, "operation": "mul"}
+{"prompt": "42 divided by 7 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [42, 7], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "(39 - 30) * 19 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [39, 30, 19], "expected_result": 171, "phase": 2, "operation": null}
+{"prompt": "There are 46 birds in a tree. 3 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [46, 3], "expected_result": 49, "phase": 3, "operation": "add"}
+{"prompt": "What is 32 plus 25?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [32, 25], "expected_result": 57, "phase": 1, "operation": "add"}
+{"prompt": "A store has 69 items. 62 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [69, 62], "expected_result": 7, "phase": 3, "operation": "sub"}
+{"prompt": "1 * 14 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [1, 14], "expected_result": 14, "phase": 1, "operation": "mul"}
+{"prompt": "There are 28 birds in a tree. 11 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [28, 11], "expected_result": 39, "phase": 3, "operation": "add"}
+{"prompt": "(28 - 3) * 16 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [28, 3, 16], "expected_result": 400, "phase": 2, "operation": null}
+{"prompt": "Grace has 77 cookies. Grace eats 33. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [77, 33], "expected_result": 44, "phase": 3, "operation": "sub"}
+{"prompt": "56 - 17 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [56, 17], "expected_result": 39, "phase": 1, "operation": "sub"}
+{"prompt": "What is 40 divided by 8?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [40, 8], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "Jack has 55 cookies. Jack eats 48. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [55, 48], "expected_result": 7, "phase": 3, "operation": "sub"}
+{"prompt": "David's ducks lay 21 eggs daily. David eats 1 for breakfast and bakes 5 into muffins. David sells the rest at $5 each. How many eggs does David sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [21, 1, 5], "expected_result": 15, "phase": 3, "operation": "multi_sub"}
+{"prompt": "53 - 23 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [53, 23], "expected_result": 30, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 32 / 8", "ir_sequence": [1, 3, 4, 19, 2], "operands": [32, 8], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "19 * 20 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [19, 20], "expected_result": 380, "phase": 1, "operation": "mul"}
+{"prompt": "A store has 76 items. 11 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [76, 11], "expected_result": 65, "phase": 3, "operation": "sub"}
+{"prompt": "What is 24 divided by 6?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [24, 6], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "32 * 50 + 12 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [32, 50, 12], "expected_result": 1612, "phase": 2, "operation": null}
+{"prompt": "45 take away 14 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [45, 14], "expected_result": 31, "phase": 1, "operation": "sub"}
+{"prompt": "70 take away 47 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [70, 47], "expected_result": 23, "phase": 1, "operation": "sub"}
+{"prompt": "44 - 9 + 2 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [44, 9, 2], "expected_result": 37, "phase": 2, "operation": null}
+{"prompt": "3 * 8 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 8], "expected_result": 24, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 52 + 3", "ir_sequence": [1, 3, 4, 16, 2], "operands": [52, 3], "expected_result": 55, "phase": 1, "operation": "add"}
+{"prompt": "23 + 3 - 7 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [23, 3, 7], "expected_result": 19, "phase": 2, "operation": null}
+{"prompt": "Henry has 46 apples. Riley gives him 3 more. How many apples does Henry have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [46, 3], "expected_result": 49, "phase": 3, "operation": "add"}
+{"prompt": "45 * 38 - 1 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [45, 38, 1], "expected_result": 1709, "phase": 2, "operation": null}
+{"prompt": "Calculate 72 / 9", "ir_sequence": [1, 3, 4, 19, 2], "operands": [72, 9], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "There are 43 birds in a tree. 16 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [43, 16], "expected_result": 59, "phase": 3, "operation": "add"}
+{"prompt": "87 added to 95 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [87, 95], "expected_result": 182, "phase": 1, "operation": "add"}
+{"prompt": "100 + 84 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [100, 84], "expected_result": 184, "phase": 1, "operation": "add"}
+{"prompt": "27 + 19 * 12 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [27, 19, 12], "expected_result": 552, "phase": 2, "operation": null}
+{"prompt": "Frank has 9 bags with 2 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [9, 2], "expected_result": 18, "phase": 3, "operation": "mul"}
+{"prompt": "45 divided by 9 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [45, 9], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 37 + 93", "ir_sequence": [1, 3, 4, 16, 2], "operands": [37, 93], "expected_result": 130, "phase": 1, "operation": "add"}
+{"prompt": "What is 98 plus 97?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [98, 97], "expected_result": 195, "phase": 1, "operation": "add"}
+{"prompt": "Frank has 65 cookies. Frank eats 57. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [65, 57], "expected_result": 8, "phase": 3, "operation": "sub"}
+{"prompt": "The product of 20 and 18 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [20, 18], "expected_result": 360, "phase": 1, "operation": "mul"}
+{"prompt": "37 + 27 * 14 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [37, 27, 14], "expected_result": 896, "phase": 2, "operation": null}
+{"prompt": "17 + 11 - 16 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [17, 11, 16], "expected_result": 12, "phase": 2, "operation": null}
+{"prompt": "Emma has 46 cookies. Emma eats 7. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [46, 7], "expected_result": 39, "phase": 3, "operation": "sub"}
+{"prompt": "20 * 14 + 8 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [20, 14, 8], "expected_result": 288, "phase": 2, "operation": null}
+{"prompt": "44 + 24 * 3 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [44, 24, 3], "expected_result": 204, "phase": 2, "operation": null}
+{"prompt": "The sum of 57 and 22 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [57, 22], "expected_result": 79, "phase": 1, "operation": "add"}
+{"prompt": "There are 25 birds in a tree. 5 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [25, 5], "expected_result": 30, "phase": 3, "operation": "add"}
+{"prompt": "What is 96 plus 68?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [96, 68], "expected_result": 164, "phase": 1, "operation": "add"}
+{"prompt": "Divide 48 by 6", "ir_sequence": [1, 3, 4, 19, 2], "operands": [48, 6], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "1 - 47 + 7 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [1, 47, 7], "expected_result": -39, "phase": 2, "operation": null}
+{"prompt": "91 - 9 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [91, 9], "expected_result": 82, "phase": 1, "operation": "sub"}
+{"prompt": "Divide 60 by 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [60, 12], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "31 + 12 * 8 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [31, 12, 8], "expected_result": 344, "phase": 2, "operation": null}
+{"prompt": "The difference of 29 and 18 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [29, 18], "expected_result": 11, "phase": 1, "operation": "sub"}
+{"prompt": "A store has 52 items. 11 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [52, 11], "expected_result": 41, "phase": 3, "operation": "sub"}
+{"prompt": "57 + 71 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [57, 71], "expected_result": 128, "phase": 1, "operation": "add"}
+{"prompt": "There are 11 rows of 12 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 12], "expected_result": 132, "phase": 3, "operation": "mul"}
+{"prompt": "75 added to 62 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [75, 62], "expected_result": 137, "phase": 1, "operation": "add"}
+{"prompt": "(2 + 29) * 3 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [2, 29, 3], "expected_result": 93, "phase": 2, "operation": null}
+{"prompt": "35 divided by 5 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [35, 5], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 72 / 9", "ir_sequence": [1, 3, 4, 19, 2], "operands": [72, 9], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "91 - 28 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [91, 28], "expected_result": 63, "phase": 1, "operation": "sub"}
+{"prompt": "There are 7 rows of 10 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 10], "expected_result": 70, "phase": 3, "operation": "mul"}
+{"prompt": "The product of 13 and 18 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [13, 18], "expected_result": 234, "phase": 1, "operation": "mul"}
+{"prompt": "40 + 30 - 11 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [40, 30, 11], "expected_result": 59, "phase": 2, "operation": null}
+{"prompt": "35 + 42 * 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [35, 42, 4], "expected_result": 308, "phase": 2, "operation": null}
+{"prompt": "8 + 2 - 9 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [8, 2, 9], "expected_result": 1, "phase": 2, "operation": null}
+{"prompt": "66 / 11 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [66, 11], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "44 * 26 - 7 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [44, 26, 7], "expected_result": 1137, "phase": 2, "operation": null}
+{"prompt": "Add 59 and 18", "ir_sequence": [1, 3, 4, 16, 2], "operands": [59, 18], "expected_result": 77, "phase": 1, "operation": "add"}
+{"prompt": "There are 15 birds in a tree. 29 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [15, 29], "expected_result": 44, "phase": 3, "operation": "add"}
+{"prompt": "Grace has 29 apples. Riley gives her 19 more. How many apples does Grace have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [29, 19], "expected_result": 48, "phase": 3, "operation": "add"}
+{"prompt": "6 + 9 * 1 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [6, 9, 1], "expected_result": 15, "phase": 2, "operation": null}
+{"prompt": "Calculate 75 + 4", "ir_sequence": [1, 3, 4, 16, 2], "operands": [75, 4], "expected_result": 79, "phase": 1, "operation": "add"}
+{"prompt": "Bob's ducks lay 25 eggs daily. Bob eats 5 for breakfast and bakes 2 into muffins. Bob sells the rest at $4 each. How many eggs does Bob sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [25, 5, 2], "expected_result": 18, "phase": 3, "operation": "multi_sub"}
+{"prompt": "38 + 18 - 12 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [38, 18, 12], "expected_result": 44, "phase": 2, "operation": null}
+{"prompt": "14 multiplied by 13 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [14, 13], "expected_result": 182, "phase": 1, "operation": "mul"}
+{"prompt": "A store has 35 items. 33 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [35, 33], "expected_result": 2, "phase": 3, "operation": "sub"}
+{"prompt": "43 take away 11 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [43, 11], "expected_result": 32, "phase": 1, "operation": "sub"}
+{"prompt": "What is 12 plus 28?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [12, 28], "expected_result": 40, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 96 / 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [96, 12], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "Divide 42 by 6", "ir_sequence": [1, 3, 4, 19, 2], "operands": [42, 6], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "A store has 36 items. 17 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [36, 17], "expected_result": 19, "phase": 3, "operation": "sub"}
+{"prompt": "24 divided by 3 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [24, 3], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 10 / 1", "ir_sequence": [1, 3, 4, 19, 2], "operands": [10, 1], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "What is 15 plus 34?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [15, 34], "expected_result": 49, "phase": 1, "operation": "add"}
+{"prompt": "(41 - 1) * 13 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [41, 1, 13], "expected_result": 520, "phase": 2, "operation": null}
+{"prompt": "The difference of 78 and 20 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [78, 20], "expected_result": 58, "phase": 1, "operation": "sub"}
+{"prompt": "What is 80 plus 9?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [80, 9], "expected_result": 89, "phase": 1, "operation": "add"}
+{"prompt": "Bob has 90 cookies. Bob eats 4. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [90, 4], "expected_result": 86, "phase": 3, "operation": "sub"}
+{"prompt": "What is 98 plus 69?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [98, 69], "expected_result": 167, "phase": 1, "operation": "add"}
+{"prompt": "57 - 36 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [57, 36], "expected_result": 21, "phase": 1, "operation": "sub"}
+{"prompt": "38 + 23 - 9 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [38, 23, 9], "expected_result": 52, "phase": 2, "operation": null}
+{"prompt": "18 * 49 - 11 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [18, 49, 11], "expected_result": 871, "phase": 2, "operation": null}
+{"prompt": "(8 + 27) * 11 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [8, 27, 11], "expected_result": 385, "phase": 2, "operation": null}
+{"prompt": "Alice's ducks lay 20 eggs daily. Alice eats 5 for breakfast and bakes 4 into muffins. Alice sells the rest at $3 each. How many eggs does Alice sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [20, 5, 4], "expected_result": 11, "phase": 3, "operation": "multi_sub"}
+{"prompt": "Calculate 91 - 21", "ir_sequence": [1, 3, 4, 17, 2], "operands": [91, 21], "expected_result": 70, "phase": 1, "operation": "sub"}
+{"prompt": "Ivy has 12 bags with 3 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 3], "expected_result": 36, "phase": 3, "operation": "mul"}
+{"prompt": "18 x 5 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [18, 5], "expected_result": 90, "phase": 1, "operation": "mul"}
+{"prompt": "There are 6 rows of 8 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 8], "expected_result": 48, "phase": 3, "operation": "mul"}
+{"prompt": "Frank has 2 bags with 2 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 2], "expected_result": 4, "phase": 3, "operation": "mul"}
+{"prompt": "31 * 45 + 9 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [31, 45, 9], "expected_result": 1404, "phase": 2, "operation": null}
+{"prompt": "Ivy has 28 cookies. Ivy eats 10. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [28, 10], "expected_result": 18, "phase": 3, "operation": "sub"}
+{"prompt": "Emma's ducks lay 15 eggs daily. Emma eats 4 for breakfast and bakes 4 into muffins. Emma sells the rest at $3 each. How many eggs does Emma sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [15, 4, 4], "expected_result": 7, "phase": 3, "operation": "multi_sub"}
+{"prompt": "85 added to 44 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [85, 44], "expected_result": 129, "phase": 1, "operation": "add"}
+{"prompt": "Alice has 4 bags with 10 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 10], "expected_result": 40, "phase": 3, "operation": "mul"}
+{"prompt": "Calculate 70 - 5", "ir_sequence": [1, 3, 4, 17, 2], "operands": [70, 5], "expected_result": 65, "phase": 1, "operation": "sub"}
+{"prompt": "Carol's ducks lay 10 eggs daily. Carol eats 5 for breakfast and bakes 1 into muffins. Carol sells the rest at $1 each. How many eggs does Carol sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [10, 5, 1], "expected_result": 4, "phase": 3, "operation": "multi_sub"}
+{"prompt": "Divide 110 by 11", "ir_sequence": [1, 3, 4, 19, 2], "operands": [110, 11], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "A store has 66 items. 53 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [66, 53], "expected_result": 13, "phase": 3, "operation": "sub"}
+{"prompt": "There are 5 rows of 6 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 6], "expected_result": 30, "phase": 3, "operation": "mul"}
+{"prompt": "88 - 61 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [88, 61], "expected_result": 27, "phase": 1, "operation": "sub"}
+{"prompt": "The difference of 75 and 8 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [75, 8], "expected_result": 67, "phase": 1, "operation": "sub"}
+{"prompt": "What is 48 minus 20?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [48, 20], "expected_result": 28, "phase": 1, "operation": "sub"}
+{"prompt": "3 * 14 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 14], "expected_result": 42, "phase": 1, "operation": "mul"}
+{"prompt": "What is 19 plus 33?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [19, 33], "expected_result": 52, "phase": 1, "operation": "add"}
+{"prompt": "What is 5 times 3?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 3], "expected_result": 15, "phase": 1, "operation": "mul"}
+{"prompt": "What is 10 minus 8?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [10, 8], "expected_result": 2, "phase": 1, "operation": "sub"}
+{"prompt": "Alice's ducks lay 24 eggs daily. Alice eats 1 for breakfast and bakes 2 into muffins. Alice sells the rest at $2 each. How many eggs does Alice sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [24, 1, 2], "expected_result": 21, "phase": 3, "operation": "multi_sub"}
+{"prompt": "10 x 6 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [10, 6], "expected_result": 60, "phase": 1, "operation": "mul"}
+{"prompt": "Add 11 and 94", "ir_sequence": [1, 3, 4, 16, 2], "operands": [11, 94], "expected_result": 105, "phase": 1, "operation": "add"}
+{"prompt": "20 - 9 + 5 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [20, 9, 5], "expected_result": 16, "phase": 2, "operation": null}
+{"prompt": "25 * 45 - 15 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [25, 45, 15], "expected_result": 1110, "phase": 2, "operation": null}
+{"prompt": "5 + 40 - 17 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [5, 40, 17], "expected_result": 28, "phase": 2, "operation": null}
+{"prompt": "39 + 50 * 3 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [39, 50, 3], "expected_result": 267, "phase": 2, "operation": null}
+{"prompt": "What is 12 divided by 2?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 2], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "68 + 47 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [68, 47], "expected_result": 115, "phase": 1, "operation": "add"}
+{"prompt": "Divide 77 by 11", "ir_sequence": [1, 3, 4, 19, 2], "operands": [77, 11], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "What is 96 plus 71?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [96, 71], "expected_result": 167, "phase": 1, "operation": "add"}
+{"prompt": "A store has 39 items. 29 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [39, 29], "expected_result": 10, "phase": 3, "operation": "sub"}
+{"prompt": "29 * 20 + 2 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [29, 20, 2], "expected_result": 582, "phase": 2, "operation": null}
+{"prompt": "Divide 54 by 6", "ir_sequence": [1, 3, 4, 19, 2], "operands": [54, 6], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "17 multiplied by 16 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [17, 16], "expected_result": 272, "phase": 1, "operation": "mul"}
+{"prompt": "54 / 6 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [54, 6], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 15 + 47", "ir_sequence": [1, 3, 4, 16, 2], "operands": [15, 47], "expected_result": 62, "phase": 1, "operation": "add"}
+{"prompt": "(15 - 8) * 19 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [15, 8, 19], "expected_result": 133, "phase": 2, "operation": null}
+{"prompt": "20 multiplied by 11 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [20, 11], "expected_result": 220, "phase": 1, "operation": "mul"}
+{"prompt": "What is 75 minus 64?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [75, 64], "expected_result": 11, "phase": 1, "operation": "sub"}
+{"prompt": "54 / 9 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [54, 9], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "What is 48 divided by 8?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [48, 8], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "40 divided by 4 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [40, 4], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "24 + 43 * 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [24, 43, 4], "expected_result": 268, "phase": 2, "operation": null}
+{"prompt": "14 + 40 - 5 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [14, 40, 5], "expected_result": 49, "phase": 2, "operation": null}
+{"prompt": "8 - 18 + 1 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [8, 18, 1], "expected_result": -9, "phase": 2, "operation": null}
+{"prompt": "What is 54 divided by 6?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [54, 6], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "What is 97 plus 83?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [97, 83], "expected_result": 180, "phase": 1, "operation": "add"}
+{"prompt": "Divide 8 by 2", "ir_sequence": [1, 3, 4, 19, 2], "operands": [8, 2], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "7 + 1 * 6 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [7, 1, 6], "expected_result": 48, "phase": 2, "operation": null}
+{"prompt": "Calculate 83 - 20", "ir_sequence": [1, 3, 4, 17, 2], "operands": [83, 20], "expected_result": 63, "phase": 1, "operation": "sub"}
+{"prompt": "9 multiplied by 7 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [9, 7], "expected_result": 63, "phase": 1, "operation": "mul"}
+{"prompt": "6 multiplied by 4 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 4], "expected_result": 24, "phase": 1, "operation": "mul"}
+{"prompt": "32 divided by 4 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [32, 4], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "8 * 10 - 5 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [8, 10, 5], "expected_result": 75, "phase": 2, "operation": null}
+{"prompt": "The sum of 59 and 48 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [59, 48], "expected_result": 107, "phase": 1, "operation": "add"}
+{"prompt": "96 take away 72 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [96, 72], "expected_result": 24, "phase": 1, "operation": "sub"}
+{"prompt": "The difference of 32 and 6 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [32, 6], "expected_result": 26, "phase": 1, "operation": "sub"}
+{"prompt": "34 * 43 + 15 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [34, 43, 15], "expected_result": 1477, "phase": 2, "operation": null}
+{"prompt": "Add 92 and 100", "ir_sequence": [1, 3, 4, 16, 2], "operands": [92, 100], "expected_result": 192, "phase": 1, "operation": "add"}
+{"prompt": "41 - 16 + 11 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [41, 16, 11], "expected_result": 36, "phase": 2, "operation": null}
+{"prompt": "The difference of 28 and 25 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [28, 25], "expected_result": 3, "phase": 1, "operation": "sub"}
+{"prompt": "28 - 30 + 6 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [28, 30, 6], "expected_result": 4, "phase": 2, "operation": null}
+{"prompt": "79 + 95 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [79, 95], "expected_result": 174, "phase": 1, "operation": "add"}
+{"prompt": "72 take away 55 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [72, 55], "expected_result": 17, "phase": 1, "operation": "sub"}
+{"prompt": "What is 64 divided by 8?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [64, 8], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "What is 94 minus 69?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [94, 69], "expected_result": 25, "phase": 1, "operation": "sub"}
+{"prompt": "A store has 41 items. 8 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [41, 8], "expected_result": 33, "phase": 3, "operation": "sub"}
+{"prompt": "(18 - 6) * 9 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [18, 6, 9], "expected_result": 108, "phase": 2, "operation": null}
+{"prompt": "The difference of 53 and 43 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [53, 43], "expected_result": 10, "phase": 1, "operation": "sub"}
+{"prompt": "Multiply 18 by 1", "ir_sequence": [1, 3, 4, 18, 2], "operands": [18, 1], "expected_result": 18, "phase": 1, "operation": "mul"}
+{"prompt": "What is 8 times 9?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 9], "expected_result": 72, "phase": 1, "operation": "mul"}
+{"prompt": "Add 56 and 3", "ir_sequence": [1, 3, 4, 16, 2], "operands": [56, 3], "expected_result": 59, "phase": 1, "operation": "add"}
+{"prompt": "There are 5 rows of 9 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 9], "expected_result": 45, "phase": 3, "operation": "mul"}
+{"prompt": "72 divided by 8 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [72, 8], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "37 - 29 + 17 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [37, 29, 17], "expected_result": 25, "phase": 2, "operation": null}
+{"prompt": "97 + 99 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [97, 99], "expected_result": 196, "phase": 1, "operation": "add"}
+{"prompt": "9 - 12 + 19 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [9, 12, 19], "expected_result": 16, "phase": 2, "operation": null}
+{"prompt": "Multiply 8 by 7", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 7], "expected_result": 56, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 1 + 27", "ir_sequence": [1, 3, 4, 16, 2], "operands": [1, 27], "expected_result": 28, "phase": 1, "operation": "add"}
+{"prompt": "There are 4 rows of 3 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 3], "expected_result": 12, "phase": 3, "operation": "mul"}
+{"prompt": "The product of 8 and 20 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 20], "expected_result": 160, "phase": 1, "operation": "mul"}
+{"prompt": "The product of 6 and 9 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 9], "expected_result": 54, "phase": 1, "operation": "mul"}
+{"prompt": "(22 - 10) * 11 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [22, 10, 11], "expected_result": 132, "phase": 2, "operation": null}
+{"prompt": "17 - 7 + 17 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [17, 7, 17], "expected_result": 27, "phase": 2, "operation": null}
+{"prompt": "What is 35 divided by 7?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [35, 7], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "Frank has 12 bags with 5 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 5], "expected_result": 60, "phase": 3, "operation": "mul"}
+{"prompt": "42 * 5 - 16 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [42, 5, 16], "expected_result": 194, "phase": 2, "operation": null}
+{"prompt": "80 divided by 10 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [80, 10], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "Add 78 and 96", "ir_sequence": [1, 3, 4, 16, 2], "operands": [78, 96], "expected_result": 174, "phase": 1, "operation": "add"}
+{"prompt": "2 divided by 2 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [2, 2], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "What is 7 divided by 7?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [7, 7], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "28 + 18 - 9 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [28, 18, 9], "expected_result": 37, "phase": 2, "operation": null}
+{"prompt": "The difference of 72 and 65 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [72, 65], "expected_result": 7, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 19 * 15", "ir_sequence": [1, 3, 4, 18, 2], "operands": [19, 15], "expected_result": 285, "phase": 1, "operation": "mul"}
+{"prompt": "The sum of 58 and 74 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [58, 74], "expected_result": 132, "phase": 1, "operation": "add"}
+{"prompt": "There are 6 rows of 10 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 10], "expected_result": 60, "phase": 3, "operation": "mul"}
+{"prompt": "Henry's ducks lay 12 eggs daily. Henry eats 5 for breakfast and bakes 5 into muffins. Henry sells the rest at $4 each. How many eggs does Henry sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [12, 5, 5], "expected_result": 2, "phase": 3, "operation": "multi_sub"}
+{"prompt": "43 added to 13 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [43, 13], "expected_result": 56, "phase": 1, "operation": "add"}
+{"prompt": "16 - 3 + 3 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [16, 3, 3], "expected_result": 16, "phase": 2, "operation": null}
+{"prompt": "What is 15 divided by 3?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [15, 3], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "8 * 31 + 11 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [8, 31, 11], "expected_result": 259, "phase": 2, "operation": null}
+{"prompt": "The difference of 66 and 10 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [66, 10], "expected_result": 56, "phase": 1, "operation": "sub"}
+{"prompt": "What is 9 divided by 1?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [9, 1], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "Alice has 20 apples. Riley gives her 27 more. How many apples does Alice have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [20, 27], "expected_result": 47, "phase": 3, "operation": "add"}
+{"prompt": "Divide 8 by 8", "ir_sequence": [1, 3, 4, 19, 2], "operands": [8, 8], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "Henry has 7 bags with 6 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 6], "expected_result": 42, "phase": 3, "operation": "mul"}
+{"prompt": "42 + 26 - 10 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [42, 26, 10], "expected_result": 58, "phase": 2, "operation": null}
+{"prompt": "68 take away 34 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [68, 34], "expected_result": 34, "phase": 1, "operation": "sub"}
+{"prompt": "Carol has 36 apples. Taylor gives her 24 more. How many apples does Carol have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [36, 24], "expected_result": 60, "phase": 3, "operation": "add"}
+{"prompt": "36 divided by 6 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [36, 6], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "The product of 19 and 13 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [19, 13], "expected_result": 247, "phase": 1, "operation": "mul"}
+{"prompt": "Grace has 55 cookies. Grace eats 53. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [55, 53], "expected_result": 2, "phase": 3, "operation": "sub"}
+{"prompt": "Calculate 96 + 95", "ir_sequence": [1, 3, 4, 16, 2], "operands": [96, 95], "expected_result": 191, "phase": 1, "operation": "add"}
+{"prompt": "What is 28 divided by 7?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [28, 7], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "Grace has 2 bags with 10 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 10], "expected_result": 20, "phase": 3, "operation": "mul"}
+{"prompt": "Alice has 2 bags with 6 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 6], "expected_result": 12, "phase": 3, "operation": "mul"}
+{"prompt": "96 + 41 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [96, 41], "expected_result": 137, "phase": 1, "operation": "add"}
+{"prompt": "52 take away 16 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [52, 16], "expected_result": 36, "phase": 1, "operation": "sub"}
+{"prompt": "The sum of 78 and 85 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [78, 85], "expected_result": 163, "phase": 1, "operation": "add"}
+{"prompt": "29 + 38 * 2 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [29, 38, 2], "expected_result": 134, "phase": 2, "operation": null}
+{"prompt": "What is 72 divided by 8?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [72, 8], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 99 + 36", "ir_sequence": [1, 3, 4, 16, 2], "operands": [99, 36], "expected_result": 135, "phase": 1, "operation": "add"}
+{"prompt": "Carol has 81 cookies. Carol eats 7. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [81, 7], "expected_result": 74, "phase": 3, "operation": "sub"}
+{"prompt": "Ivy has 6 bags with 4 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 4], "expected_result": 24, "phase": 3, "operation": "mul"}
+{"prompt": "There are 32 birds in a tree. 11 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [32, 11], "expected_result": 43, "phase": 3, "operation": "add"}
+{"prompt": "There are 11 rows of 7 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 7], "expected_result": 77, "phase": 3, "operation": "mul"}
+{"prompt": "Jack has 12 apples. Quinn gives him 5 more. How many apples does Jack have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [12, 5], "expected_result": 17, "phase": 3, "operation": "add"}
+{"prompt": "Calculate 100 / 10", "ir_sequence": [1, 3, 4, 19, 2], "operands": [100, 10], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "The sum of 81 and 39 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [81, 39], "expected_result": 120, "phase": 1, "operation": "add"}
+{"prompt": "Alice has 88 cookies. Alice eats 12. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [88, 12], "expected_result": 76, "phase": 3, "operation": "sub"}
+{"prompt": "5 + 4 * 19 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [5, 4, 19], "expected_result": 171, "phase": 2, "operation": null}
+{"prompt": "48 divided by 8 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [48, 8], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "A store has 26 items. 20 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [26, 20], "expected_result": 6, "phase": 3, "operation": "sub"}
+{"prompt": "9 - 29 + 13 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [9, 29, 13], "expected_result": -7, "phase": 2, "operation": null}
+{"prompt": "Calculate 90 - 14", "ir_sequence": [1, 3, 4, 17, 2], "operands": [90, 14], "expected_result": 76, "phase": 1, "operation": "sub"}
+{"prompt": "(31 - 29) * 10 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [31, 29, 10], "expected_result": 20, "phase": 2, "operation": null}
+{"prompt": "Calculate 38 + 46", "ir_sequence": [1, 3, 4, 16, 2], "operands": [38, 46], "expected_result": 84, "phase": 1, "operation": "add"}
+{"prompt": "Multiply 12 by 4", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 4], "expected_result": 48, "phase": 1, "operation": "mul"}
+{"prompt": "1 + 41 - 3 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [1, 41, 3], "expected_result": 39, "phase": 2, "operation": null}
+{"prompt": "Multiply 5 by 5", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 5], "expected_result": 25, "phase": 1, "operation": "mul"}
+{"prompt": "There are 2 rows of 9 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 9], "expected_result": 18, "phase": 3, "operation": "mul"}
+{"prompt": "Calculate 60 - 49", "ir_sequence": [1, 3, 4, 17, 2], "operands": [60, 49], "expected_result": 11, "phase": 1, "operation": "sub"}
+{"prompt": "Subtract 17 from 31", "ir_sequence": [1, 3, 4, 17, 2], "operands": [31, 17], "expected_result": 14, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 18 / 9", "ir_sequence": [1, 3, 4, 19, 2], "operands": [18, 9], "expected_result": 2, "phase": 1, "operation": "div"}
+{"prompt": "Subtract 18 from 69", "ir_sequence": [1, 3, 4, 17, 2], "operands": [69, 18], "expected_result": 51, "phase": 1, "operation": "sub"}
+{"prompt": "The difference of 81 and 21 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [81, 21], "expected_result": 60, "phase": 1, "operation": "sub"}
+{"prompt": "David's ducks lay 16 eggs daily. David eats 1 for breakfast and bakes 2 into muffins. David sells the rest at $1 each. How many eggs does David sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [16, 1, 2], "expected_result": 13, "phase": 3, "operation": "multi_sub"}
+{"prompt": "5 / 5 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [5, 5], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "Ivy has 5 bags with 2 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 2], "expected_result": 10, "phase": 3, "operation": "mul"}
+{"prompt": "The difference of 31 and 11 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [31, 11], "expected_result": 20, "phase": 1, "operation": "sub"}
+{"prompt": "94 added to 59 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [94, 59], "expected_result": 153, "phase": 1, "operation": "add"}
+{"prompt": "69 added to 28 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [69, 28], "expected_result": 97, "phase": 1, "operation": "add"}
+{"prompt": "8 * 27 - 15 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [8, 27, 15], "expected_result": 201, "phase": 2, "operation": null}
+{"prompt": "What is 1 times 13?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [1, 13], "expected_result": 13, "phase": 1, "operation": "mul"}
+{"prompt": "13 - 28 + 18 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [13, 28, 18], "expected_result": 3, "phase": 2, "operation": null}
+{"prompt": "What is 50 plus 74?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [50, 74], "expected_result": 124, "phase": 1, "operation": "add"}
+{"prompt": "25 + 38 - 2 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [25, 38, 2], "expected_result": 61, "phase": 2, "operation": null}
+{"prompt": "Alice has 27 apples. Jordan gives her 14 more. How many apples does Alice have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [27, 14], "expected_result": 41, "phase": 3, "operation": "add"}
+{"prompt": "20 multiplied by 16 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [20, 16], "expected_result": 320, "phase": 1, "operation": "mul"}
+{"prompt": "41 * 16 + 18 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [41, 16, 18], "expected_result": 674, "phase": 2, "operation": null}
+{"prompt": "91 + 81 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [91, 81], "expected_result": 172, "phase": 1, "operation": "add"}
+{"prompt": "There are 2 rows of 12 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 12], "expected_result": 24, "phase": 3, "operation": "mul"}
+{"prompt": "7 - 13 + 20 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [7, 13, 20], "expected_result": 14, "phase": 2, "operation": null}
+{"prompt": "Bob has 53 cookies. Bob eats 3. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [53, 3], "expected_result": 50, "phase": 3, "operation": "sub"}
+{"prompt": "What is 74 minus 54?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [74, 54], "expected_result": 20, "phase": 1, "operation": "sub"}
+{"prompt": "25 divided by 5 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [25, 5], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "What is 14 times 18?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [14, 18], "expected_result": 252, "phase": 1, "operation": "mul"}
+{"prompt": "The difference of 57 and 37 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [57, 37], "expected_result": 20, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 87 + 11", "ir_sequence": [1, 3, 4, 16, 2], "operands": [87, 11], "expected_result": 98, "phase": 1, "operation": "add"}
+{"prompt": "Emma has 44 apples. Morgan gives her 2 more. How many apples does Emma have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [44, 2], "expected_result": 46, "phase": 3, "operation": "add"}
+{"prompt": "31 + 26 - 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [31, 26, 4], "expected_result": 53, "phase": 2, "operation": null}
+{"prompt": "What is 72 divided by 9?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [72, 9], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "Bob has 9 bags with 6 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [9, 6], "expected_result": 54, "phase": 3, "operation": "mul"}
+{"prompt": "Calculate 2 * 8", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 8], "expected_result": 16, "phase": 1, "operation": "mul"}
+{"prompt": "David has 29 cookies. David eats 25. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [29, 25], "expected_result": 4, "phase": 3, "operation": "sub"}
+{"prompt": "Multiply 15 by 8", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 8], "expected_result": 120, "phase": 1, "operation": "mul"}
+{"prompt": "A store has 70 items. 17 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [70, 17], "expected_result": 53, "phase": 3, "operation": "sub"}
+{"prompt": "Calculate 88 + 69", "ir_sequence": [1, 3, 4, 16, 2], "operands": [88, 69], "expected_result": 157, "phase": 1, "operation": "add"}
+{"prompt": "40 + 33 - 17 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [40, 33, 17], "expected_result": 56, "phase": 2, "operation": null}
+{"prompt": "Divide 5 by 5", "ir_sequence": [1, 3, 4, 19, 2], "operands": [5, 5], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "6 / 2 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [6, 2], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "(38 + 27) * 11 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [38, 27, 11], "expected_result": 715, "phase": 2, "operation": null}
+{"prompt": "What is 21 plus 31?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [21, 31], "expected_result": 52, "phase": 1, "operation": "add"}
+{"prompt": "There are 12 rows of 4 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 4], "expected_result": 48, "phase": 3, "operation": "mul"}
+{"prompt": "Multiply 7 by 9", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 9], "expected_result": 63, "phase": 1, "operation": "mul"}
+{"prompt": "18 x 3 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [18, 3], "expected_result": 54, "phase": 1, "operation": "mul"}
+{"prompt": "38 + 26 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [38, 26], "expected_result": 64, "phase": 1, "operation": "add"}
+{"prompt": "The sum of 72 and 26 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [72, 26], "expected_result": 98, "phase": 1, "operation": "add"}
+{"prompt": "The difference of 83 and 9 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [83, 9], "expected_result": 74, "phase": 1, "operation": "sub"}
+{"prompt": "What is 97 plus 31?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [97, 31], "expected_result": 128, "phase": 1, "operation": "add"}
+{"prompt": "46 + 35 - 16 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [46, 35, 16], "expected_result": 65, "phase": 2, "operation": null}
+{"prompt": "There are 8 birds in a tree. 9 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [8, 9], "expected_result": 17, "phase": 3, "operation": "add"}
+{"prompt": "Add 49 and 5", "ir_sequence": [1, 3, 4, 16, 2], "operands": [49, 5], "expected_result": 54, "phase": 1, "operation": "add"}
+{"prompt": "David has 40 apples. Sam gives him 8 more. How many apples does David have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [40, 8], "expected_result": 48, "phase": 3, "operation": "add"}
+{"prompt": "There are 8 birds in a tree. 29 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [8, 29], "expected_result": 37, "phase": 3, "operation": "add"}
+{"prompt": "5 * 12 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 12], "expected_result": 60, "phase": 1, "operation": "mul"}
+{"prompt": "Emma has 46 apples. Quinn gives her 28 more. How many apples does Emma have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [46, 28], "expected_result": 74, "phase": 3, "operation": "add"}
+{"prompt": "77 - 75 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [77, 75], "expected_result": 2, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 20 - 10", "ir_sequence": [1, 3, 4, 17, 2], "operands": [20, 10], "expected_result": 10, "phase": 1, "operation": "sub"}
+{"prompt": "A store has 77 items. 30 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [77, 30], "expected_result": 47, "phase": 3, "operation": "sub"}
+{"prompt": "9 divided by 9 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [9, 9], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "Grace has 45 apples. Sam gives her 29 more. How many apples does Grace have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [45, 29], "expected_result": 74, "phase": 3, "operation": "add"}
+{"prompt": "What is 64 divided by 8?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [64, 8], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "23 + 4 * 6 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [23, 4, 6], "expected_result": 162, "phase": 2, "operation": null}
+{"prompt": "Divide 8 by 2", "ir_sequence": [1, 3, 4, 19, 2], "operands": [8, 2], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "40 * 42 - 11 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [40, 42, 11], "expected_result": 1669, "phase": 2, "operation": null}
+{"prompt": "There are 2 rows of 12 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 12], "expected_result": 24, "phase": 3, "operation": "mul"}
+{"prompt": "36 + 43 - 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [36, 43, 4], "expected_result": 75, "phase": 2, "operation": null}
+{"prompt": "There are 7 birds in a tree. 15 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [7, 15], "expected_result": 22, "phase": 3, "operation": "add"}
+{"prompt": "48 * 36 - 16 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [48, 36, 16], "expected_result": 1712, "phase": 2, "operation": null}
+{"prompt": "A store has 85 items. 32 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [85, 32], "expected_result": 53, "phase": 3, "operation": "sub"}
+{"prompt": "17 added to 65 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [17, 65], "expected_result": 82, "phase": 1, "operation": "add"}
+{"prompt": "33 * 49 + 9 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [33, 49, 9], "expected_result": 1626, "phase": 2, "operation": null}
+{"prompt": "85 take away 61 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [85, 61], "expected_result": 24, "phase": 1, "operation": "sub"}
+{"prompt": "46 added to 100 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [46, 100], "expected_result": 146, "phase": 1, "operation": "add"}
+{"prompt": "5 * 24 - 20 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [5, 24, 20], "expected_result": 100, "phase": 2, "operation": null}
+{"prompt": "The difference of 33 and 7 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [33, 7], "expected_result": 26, "phase": 1, "operation": "sub"}
+{"prompt": "The product of 17 and 9 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [17, 9], "expected_result": 153, "phase": 1, "operation": "mul"}
+{"prompt": "Alice's ducks lay 25 eggs daily. Alice eats 5 for breakfast and bakes 5 into muffins. Alice sells the rest at $3 each. How many eggs does Alice sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [25, 5, 5], "expected_result": 15, "phase": 3, "operation": "multi_sub"}
+{"prompt": "56 - 47 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [56, 47], "expected_result": 9, "phase": 1, "operation": "sub"}
+{"prompt": "2 + 35 - 20 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [2, 35, 20], "expected_result": 17, "phase": 2, "operation": null}
+{"prompt": "47 + 35 - 15 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [47, 35, 15], "expected_result": 67, "phase": 2, "operation": null}
+{"prompt": "Emma has 7 apples. Pat gives her 13 more. How many apples does Emma have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [7, 13], "expected_result": 20, "phase": 3, "operation": "add"}
+{"prompt": "The sum of 97 and 31 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [97, 31], "expected_result": 128, "phase": 1, "operation": "add"}
+{"prompt": "Add 11 and 12", "ir_sequence": [1, 3, 4, 16, 2], "operands": [11, 12], "expected_result": 23, "phase": 1, "operation": "add"}
+{"prompt": "5 * 20 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 20], "expected_result": 100, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 24 / 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [24, 12], "expected_result": 2, "phase": 1, "operation": "div"}
+{"prompt": "Multiply 15 by 3", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 3], "expected_result": 45, "phase": 1, "operation": "mul"}
+{"prompt": "4 x 2 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 2], "expected_result": 8, "phase": 1, "operation": "mul"}
+{"prompt": "Frank has 25 apples. Morgan gives him 24 more. How many apples does Frank have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [25, 24], "expected_result": 49, "phase": 3, "operation": "add"}
+{"prompt": "Calculate 99 - 18", "ir_sequence": [1, 3, 4, 17, 2], "operands": [99, 18], "expected_result": 81, "phase": 1, "operation": "sub"}
+{"prompt": "What is 6 divided by 2?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [6, 2], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "81 take away 34 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [81, 34], "expected_result": 47, "phase": 1, "operation": "sub"}
+{"prompt": "15 + 32 * 1 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [15, 32, 1], "expected_result": 47, "phase": 2, "operation": null}
+{"prompt": "Add 41 and 74", "ir_sequence": [1, 3, 4, 16, 2], "operands": [41, 74], "expected_result": 115, "phase": 1, "operation": "add"}
+{"prompt": "There are 9 birds in a tree. 30 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [9, 30], "expected_result": 39, "phase": 3, "operation": "add"}
+{"prompt": "76 + 55 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [76, 55], "expected_result": 131, "phase": 1, "operation": "add"}
+{"prompt": "32 added to 56 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [32, 56], "expected_result": 88, "phase": 1, "operation": "add"}
+{"prompt": "3 multiplied by 17 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 17], "expected_result": 51, "phase": 1, "operation": "mul"}
+{"prompt": "There are 15 birds in a tree. 7 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [15, 7], "expected_result": 22, "phase": 3, "operation": "add"}
+{"prompt": "73 - 27 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [73, 27], "expected_result": 46, "phase": 1, "operation": "sub"}
+{"prompt": "20 added to 21 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [20, 21], "expected_result": 41, "phase": 1, "operation": "add"}
+{"prompt": "Emma has 10 bags with 8 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [10, 8], "expected_result": 80, "phase": 3, "operation": "mul"}
+{"prompt": "Frank has 100 cookies. Frank eats 38. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [100, 38], "expected_result": 62, "phase": 3, "operation": "sub"}
+{"prompt": "(37 - 21) * 2 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [37, 21, 2], "expected_result": 32, "phase": 2, "operation": null}
+{"prompt": "Alice has 6 bags with 11 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 11], "expected_result": 66, "phase": 3, "operation": "mul"}
+{"prompt": "The product of 3 and 13 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 13], "expected_result": 39, "phase": 1, "operation": "mul"}
+{"prompt": "50 + 61 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [50, 61], "expected_result": 111, "phase": 1, "operation": "add"}
+{"prompt": "Multiply 13 by 17", "ir_sequence": [1, 3, 4, 18, 2], "operands": [13, 17], "expected_result": 221, "phase": 1, "operation": "mul"}
+{"prompt": "There are 7 rows of 12 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 12], "expected_result": 84, "phase": 3, "operation": "mul"}
+{"prompt": "There are 36 birds in a tree. 23 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [36, 23], "expected_result": 59, "phase": 3, "operation": "add"}
+{"prompt": "20 added to 20 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [20, 20], "expected_result": 40, "phase": 1, "operation": "add"}
+{"prompt": "There are 9 rows of 6 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [9, 6], "expected_result": 54, "phase": 3, "operation": "mul"}
+{"prompt": "Calculate 11 * 5", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 5], "expected_result": 55, "phase": 1, "operation": "mul"}
+{"prompt": "The sum of 73 and 88 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [73, 88], "expected_result": 161, "phase": 1, "operation": "add"}
+{"prompt": "There are 8 rows of 8 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 8], "expected_result": 64, "phase": 3, "operation": "mul"}
+{"prompt": "9 + 8 * 11 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [9, 8, 11], "expected_result": 187, "phase": 2, "operation": null}
+{"prompt": "What is 4 times 7?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 7], "expected_result": 28, "phase": 1, "operation": "mul"}
+{"prompt": "(33 + 12) * 2 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [33, 12, 2], "expected_result": 90, "phase": 2, "operation": null}
+{"prompt": "Calculate 8 * 9", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 9], "expected_result": 72, "phase": 1, "operation": "mul"}
+{"prompt": "12 + 4 - 6 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [12, 4, 6], "expected_result": 10, "phase": 2, "operation": null}
+{"prompt": "16 x 7 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [16, 7], "expected_result": 112, "phase": 1, "operation": "mul"}
+{"prompt": "Emma's ducks lay 13 eggs daily. Emma eats 3 for breakfast and bakes 1 into muffins. Emma sells the rest at $1 each. How many eggs does Emma sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [13, 3, 1], "expected_result": 9, "phase": 3, "operation": "multi_sub"}
+{"prompt": "Ivy's ducks lay 10 eggs daily. Ivy eats 1 for breakfast and bakes 1 into muffins. Ivy sells the rest at $4 each. How many eggs does Ivy sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [10, 1, 1], "expected_result": 8, "phase": 3, "operation": "multi_sub"}
+{"prompt": "24 * 19 + 14 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [24, 19, 14], "expected_result": 470, "phase": 2, "operation": null}
+{"prompt": "10 multiplied by 3 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [10, 3], "expected_result": 30, "phase": 1, "operation": "mul"}
+{"prompt": "Divide 20 by 10", "ir_sequence": [1, 3, 4, 19, 2], "operands": [20, 10], "expected_result": 2, "phase": 1, "operation": "div"}
+{"prompt": "5 / 5 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [5, 5], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "7 - 25 + 10 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [7, 25, 10], "expected_result": -8, "phase": 2, "operation": null}
+{"prompt": "There are 5 rows of 5 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 5], "expected_result": 25, "phase": 3, "operation": "mul"}
+{"prompt": "52 + 63 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [52, 63], "expected_result": 115, "phase": 1, "operation": "add"}
+{"prompt": "The product of 1 and 14 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [1, 14], "expected_result": 14, "phase": 1, "operation": "mul"}
+{"prompt": "The difference of 59 and 1 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [59, 1], "expected_result": 58, "phase": 1, "operation": "sub"}
+{"prompt": "Divide 120 by 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [120, 12], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "Bob has 28 apples. Sam gives him 16 more. How many apples does Bob have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [28, 16], "expected_result": 44, "phase": 3, "operation": "add"}
+{"prompt": "Calculate 10 * 10", "ir_sequence": [1, 3, 4, 18, 2], "operands": [10, 10], "expected_result": 100, "phase": 1, "operation": "mul"}
+{"prompt": "Divide 24 by 6", "ir_sequence": [1, 3, 4, 19, 2], "operands": [24, 6], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "Frank has 3 bags with 11 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 11], "expected_result": 33, "phase": 3, "operation": "mul"}
+{"prompt": "3 x 12 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 12], "expected_result": 36, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 52 + 94", "ir_sequence": [1, 3, 4, 16, 2], "operands": [52, 94], "expected_result": 146, "phase": 1, "operation": "add"}
+{"prompt": "1 x 3 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [1, 3], "expected_result": 3, "phase": 1, "operation": "mul"}
+{"prompt": "What is 17 times 3?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [17, 3], "expected_result": 51, "phase": 1, "operation": "mul"}
+{"prompt": "5 divided by 1 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [5, 1], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "Subtract 20 from 85", "ir_sequence": [1, 3, 4, 17, 2], "operands": [85, 20], "expected_result": 65, "phase": 1, "operation": "sub"}
+{"prompt": "What is 11 times 8?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 8], "expected_result": 88, "phase": 1, "operation": "mul"}
+{"prompt": "There are 35 birds in a tree. 24 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [35, 24], "expected_result": 59, "phase": 3, "operation": "add"}
+{"prompt": "Henry's ducks lay 27 eggs daily. Henry eats 2 for breakfast and bakes 5 into muffins. Henry sells the rest at $3 each. How many eggs does Henry sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [27, 2, 5], "expected_result": 20, "phase": 3, "operation": "multi_sub"}
+{"prompt": "14 multiplied by 18 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [14, 18], "expected_result": 252, "phase": 1, "operation": "mul"}
+{"prompt": "Add 74 and 37", "ir_sequence": [1, 3, 4, 16, 2], "operands": [74, 37], "expected_result": 111, "phase": 1, "operation": "add"}
+{"prompt": "Grace has 12 apples. Morgan gives her 21 more. How many apples does Grace have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [12, 21], "expected_result": 33, "phase": 3, "operation": "add"}
+{"prompt": "27 + 38 * 1 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [27, 38, 1], "expected_result": 65, "phase": 2, "operation": null}
+{"prompt": "Calculate 16 / 2", "ir_sequence": [1, 3, 4, 19, 2], "operands": [16, 2], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "3 multiplied by 20 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 20], "expected_result": 60, "phase": 1, "operation": "mul"}
+{"prompt": "What is 7 plus 43?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [7, 43], "expected_result": 50, "phase": 1, "operation": "add"}
+{"prompt": "40 * 36 + 14 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [40, 36, 14], "expected_result": 1454, "phase": 2, "operation": null}
+{"prompt": "What is 12 times 2?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 2], "expected_result": 24, "phase": 1, "operation": "mul"}
+{"prompt": "A store has 67 items. 32 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [67, 32], "expected_result": 35, "phase": 3, "operation": "sub"}
+{"prompt": "40 + 1 - 2 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [40, 1, 2], "expected_result": 39, "phase": 2, "operation": null}
+{"prompt": "What is 89 plus 48?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [89, 48], "expected_result": 137, "phase": 1, "operation": "add"}
+{"prompt": "42 divided by 7 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [42, 7], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "20 multiplied by 13 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [20, 13], "expected_result": 260, "phase": 1, "operation": "mul"}
+{"prompt": "(42 - 33) * 17 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [42, 33, 17], "expected_result": 153, "phase": 2, "operation": null}
+{"prompt": "There are 36 birds in a tree. 16 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [36, 16], "expected_result": 52, "phase": 3, "operation": "add"}
+{"prompt": "What is 21 divided by 3?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [21, 3], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "Ivy has 43 apples. Morgan gives her 5 more. How many apples does Ivy have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [43, 5], "expected_result": 48, "phase": 3, "operation": "add"}
+{"prompt": "Add 77 and 42", "ir_sequence": [1, 3, 4, 16, 2], "operands": [77, 42], "expected_result": 119, "phase": 1, "operation": "add"}
+{"prompt": "44 + 46 - 16 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [44, 46, 16], "expected_result": 74, "phase": 2, "operation": null}
+{"prompt": "Multiply 19 by 16", "ir_sequence": [1, 3, 4, 18, 2], "operands": [19, 16], "expected_result": 304, "phase": 1, "operation": "mul"}
+{"prompt": "Grace has 32 apples. Riley gives her 19 more. How many apples does Grace have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [32, 19], "expected_result": 51, "phase": 3, "operation": "add"}
+{"prompt": "Frank has 9 apples. Taylor gives him 2 more. How many apples does Frank have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [9, 2], "expected_result": 11, "phase": 3, "operation": "add"}
+{"prompt": "13 * 48 + 12 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [13, 48, 12], "expected_result": 636, "phase": 2, "operation": null}
+{"prompt": "32 * 41 + 14 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [32, 41, 14], "expected_result": 1326, "phase": 2, "operation": null}
+{"prompt": "Ivy has 4 bags with 5 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 5], "expected_result": 20, "phase": 3, "operation": "mul"}
+{"prompt": "The sum of 15 and 10 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [15, 10], "expected_result": 25, "phase": 1, "operation": "add"}
+{"prompt": "34 - 41 + 12 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [34, 41, 12], "expected_result": 5, "phase": 2, "operation": null}
+{"prompt": "Calculate 99 / 11", "ir_sequence": [1, 3, 4, 19, 2], "operands": [99, 11], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "7 + 15 * 11 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [7, 15, 11], "expected_result": 242, "phase": 2, "operation": null}
+{"prompt": "47 + 17 * 13 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [47, 17, 13], "expected_result": 832, "phase": 2, "operation": null}
+{"prompt": "18 * 6 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [18, 6], "expected_result": 108, "phase": 1, "operation": "mul"}
+{"prompt": "The product of 3 and 14 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 14], "expected_result": 42, "phase": 1, "operation": "mul"}
+{"prompt": "Divide 18 by 9", "ir_sequence": [1, 3, 4, 19, 2], "operands": [18, 9], "expected_result": 2, "phase": 1, "operation": "div"}
+{"prompt": "Multiply 2 by 4", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 4], "expected_result": 8, "phase": 1, "operation": "mul"}
+{"prompt": "There are 9 birds in a tree. 4 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [9, 4], "expected_result": 13, "phase": 3, "operation": "add"}
+{"prompt": "There are 35 birds in a tree. 29 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [35, 29], "expected_result": 64, "phase": 3, "operation": "add"}
+{"prompt": "48 - 43 + 4 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [48, 43, 4], "expected_result": 9, "phase": 2, "operation": null}
+{"prompt": "What is 74 minus 50?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [74, 50], "expected_result": 24, "phase": 1, "operation": "sub"}
+{"prompt": "The difference of 13 and 13 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [13, 13], "expected_result": 0, "phase": 1, "operation": "sub"}
+{"prompt": "43 added to 87 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [43, 87], "expected_result": 130, "phase": 1, "operation": "add"}
+{"prompt": "The product of 14 and 9 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [14, 9], "expected_result": 126, "phase": 1, "operation": "mul"}
+{"prompt": "What is 68 plus 66?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [68, 66], "expected_result": 134, "phase": 1, "operation": "add"}
+{"prompt": "Subtract 9 from 36", "ir_sequence": [1, 3, 4, 17, 2], "operands": [36, 9], "expected_result": 27, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 48 - 47", "ir_sequence": [1, 3, 4, 17, 2], "operands": [48, 47], "expected_result": 1, "phase": 1, "operation": "sub"}
+{"prompt": "49 / 7 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [49, 7], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "46 * 9 + 4 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [46, 9, 4], "expected_result": 418, "phase": 2, "operation": null}
+{"prompt": "What is 17 times 20?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [17, 20], "expected_result": 340, "phase": 1, "operation": "mul"}
+{"prompt": "9 * 42 + 3 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [9, 42, 3], "expected_result": 381, "phase": 2, "operation": null}
+{"prompt": "The product of 20 and 9 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [20, 9], "expected_result": 180, "phase": 1, "operation": "mul"}
+{"prompt": "11 * 4 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 4], "expected_result": 44, "phase": 1, "operation": "mul"}
+{"prompt": "Jack has 90 cookies. Jack eats 79. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [90, 79], "expected_result": 11, "phase": 3, "operation": "sub"}
+{"prompt": "Calculate 100 + 21", "ir_sequence": [1, 3, 4, 16, 2], "operands": [100, 21], "expected_result": 121, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 49 - 13", "ir_sequence": [1, 3, 4, 17, 2], "operands": [49, 13], "expected_result": 36, "phase": 1, "operation": "sub"}
+{"prompt": "16 * 4 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [16, 4], "expected_result": 64, "phase": 1, "operation": "mul"}
+{"prompt": "32 * 25 + 17 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [32, 25, 17], "expected_result": 817, "phase": 2, "operation": null}
+{"prompt": "Alice has 37 cookies. Alice eats 20. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [37, 20], "expected_result": 17, "phase": 3, "operation": "sub"}
+{"prompt": "50 divided by 5 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [50, 5], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "40 - 47 + 17 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [40, 47, 17], "expected_result": 10, "phase": 2, "operation": null}
+{"prompt": "19 + 45 - 5 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [19, 45, 5], "expected_result": 59, "phase": 2, "operation": null}
+{"prompt": "12 + 4 * 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [12, 4, 4], "expected_result": 64, "phase": 2, "operation": null}
+{"prompt": "25 + 3 - 1 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [25, 3, 1], "expected_result": 27, "phase": 2, "operation": null}
+{"prompt": "The product of 12 and 2 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 2], "expected_result": 24, "phase": 1, "operation": "mul"}
+{"prompt": "Subtract 5 from 41", "ir_sequence": [1, 3, 4, 17, 2], "operands": [41, 5], "expected_result": 36, "phase": 1, "operation": "sub"}
+{"prompt": "(46 + 46) * 7 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [46, 46, 7], "expected_result": 644, "phase": 2, "operation": null}
+{"prompt": "22 * 24 + 4 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [22, 24, 4], "expected_result": 532, "phase": 2, "operation": null}
+{"prompt": "What is 1 times 6?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [1, 6], "expected_result": 6, "phase": 1, "operation": "mul"}
+{"prompt": "27 + 20 * 3 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [27, 20, 3], "expected_result": 141, "phase": 2, "operation": null}
+{"prompt": "What is 5 times 2?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 2], "expected_result": 10, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 56 / 7", "ir_sequence": [1, 3, 4, 19, 2], "operands": [56, 7], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "Bob has 42 apples. Morgan gives him 19 more. How many apples does Bob have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [42, 19], "expected_result": 61, "phase": 3, "operation": "add"}
+{"prompt": "What is 7 divided by 7?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [7, 7], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "There are 42 birds in a tree. 4 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [42, 4], "expected_result": 46, "phase": 3, "operation": "add"}
+{"prompt": "Calculate 92 - 64", "ir_sequence": [1, 3, 4, 17, 2], "operands": [92, 64], "expected_result": 28, "phase": 1, "operation": "sub"}
+{"prompt": "There are 5 rows of 12 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 12], "expected_result": 60, "phase": 3, "operation": "mul"}
+{"prompt": "(47 - 14) * 15 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [47, 14, 15], "expected_result": 495, "phase": 2, "operation": null}
+{"prompt": "25 + 15 * 2 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [25, 15, 2], "expected_result": 80, "phase": 2, "operation": null}
+{"prompt": "A store has 42 items. 40 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [42, 40], "expected_result": 2, "phase": 3, "operation": "sub"}
+{"prompt": "Ivy has 5 apples. Taylor gives her 4 more. How many apples does Ivy have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [5, 4], "expected_result": 9, "phase": 3, "operation": "add"}
+{"prompt": "Ivy has 32 cookies. Ivy eats 1. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [32, 1], "expected_result": 31, "phase": 3, "operation": "sub"}
+{"prompt": "9 * 19 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [9, 19], "expected_result": 171, "phase": 1, "operation": "mul"}
+{"prompt": "96 / 12 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [96, 12], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "A store has 70 items. 32 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [70, 32], "expected_result": 38, "phase": 3, "operation": "sub"}
+{"prompt": "Calculate 100 - 83", "ir_sequence": [1, 3, 4, 17, 2], "operands": [100, 83], "expected_result": 17, "phase": 1, "operation": "sub"}
+{"prompt": "(30 - 22) * 12 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [30, 22, 12], "expected_result": 96, "phase": 2, "operation": null}
+{"prompt": "David has 32 apples. Sam gives him 25 more. How many apples does David have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [32, 25], "expected_result": 57, "phase": 3, "operation": "add"}
+{"prompt": "18 + 6 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [18, 6], "expected_result": 24, "phase": 1, "operation": "add"}
+{"prompt": "Emma has 6 bags with 6 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 6], "expected_result": 36, "phase": 3, "operation": "mul"}
+{"prompt": "Carol has 7 bags with 5 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 5], "expected_result": 35, "phase": 3, "operation": "mul"}
+{"prompt": "98 - 44 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [98, 44], "expected_result": 54, "phase": 1, "operation": "sub"}
+{"prompt": "21 * 14 + 10 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [21, 14, 10], "expected_result": 304, "phase": 2, "operation": null}
+{"prompt": "The product of 11 and 8 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 8], "expected_result": 88, "phase": 1, "operation": "mul"}
+{"prompt": "What is 34 minus 7?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [34, 7], "expected_result": 27, "phase": 1, "operation": "sub"}
+{"prompt": "What is 76 minus 28?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [76, 28], "expected_result": 48, "phase": 1, "operation": "sub"}
+{"prompt": "48 + 22 * 9 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [48, 22, 9], "expected_result": 630, "phase": 2, "operation": null}
+{"prompt": "15 x 17 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 17], "expected_result": 255, "phase": 1, "operation": "mul"}
+{"prompt": "A store has 95 items. 47 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [95, 47], "expected_result": 48, "phase": 3, "operation": "sub"}
+{"prompt": "80 / 8 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [80, 8], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "The product of 15 and 20 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 20], "expected_result": 300, "phase": 1, "operation": "mul"}
+{"prompt": "What is 30 divided by 6?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 6], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "A store has 88 items. 27 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [88, 27], "expected_result": 61, "phase": 3, "operation": "sub"}
+{"prompt": "Calculate 4 / 1", "ir_sequence": [1, 3, 4, 19, 2], "operands": [4, 1], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 12 / 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 12], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 63 - 29", "ir_sequence": [1, 3, 4, 17, 2], "operands": [63, 29], "expected_result": 34, "phase": 1, "operation": "sub"}
+{"prompt": "31 take away 8 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [31, 8], "expected_result": 23, "phase": 1, "operation": "sub"}
+{"prompt": "9 * 8 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [9, 8], "expected_result": 72, "phase": 1, "operation": "mul"}
+{"prompt": "43 * 47 - 5 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [43, 47, 5], "expected_result": 2016, "phase": 2, "operation": null}
+{"prompt": "Divide 60 by 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [60, 12], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "(20 - 15) * 8 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [20, 15, 8], "expected_result": 40, "phase": 2, "operation": null}
+{"prompt": "100 / 10 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [100, 10], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "A store has 71 items. 39 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [71, 39], "expected_result": 32, "phase": 3, "operation": "sub"}
+{"prompt": "2 / 2 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [2, 2], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "There are 25 birds in a tree. 6 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [25, 6], "expected_result": 31, "phase": 3, "operation": "add"}
+{"prompt": "Alice has 15 apples. Pat gives her 26 more. How many apples does Alice have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [15, 26], "expected_result": 41, "phase": 3, "operation": "add"}
+{"prompt": "(44 - 43) * 8 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [44, 43, 8], "expected_result": 8, "phase": 2, "operation": null}
+{"prompt": "13 x 11 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [13, 11], "expected_result": 143, "phase": 1, "operation": "mul"}
+{"prompt": "David has 42 apples. Sam gives him 25 more. How many apples does David have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [42, 25], "expected_result": 67, "phase": 3, "operation": "add"}
+{"prompt": "16 - 1 + 4 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [16, 1, 4], "expected_result": 19, "phase": 2, "operation": null}
+{"prompt": "The difference of 88 and 32 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [88, 32], "expected_result": 56, "phase": 1, "operation": "sub"}
+{"prompt": "21 - 24 + 4 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [21, 24, 4], "expected_result": 1, "phase": 2, "operation": null}
+{"prompt": "Grace has 40 cookies. Grace eats 8. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [40, 8], "expected_result": 32, "phase": 3, "operation": "sub"}
+{"prompt": "Divide 36 by 6", "ir_sequence": [1, 3, 4, 19, 2], "operands": [36, 6], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 13 * 12", "ir_sequence": [1, 3, 4, 18, 2], "operands": [13, 12], "expected_result": 156, "phase": 1, "operation": "mul"}
+{"prompt": "The sum of 61 and 3 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [61, 3], "expected_result": 64, "phase": 1, "operation": "add"}
+{"prompt": "There are 10 rows of 6 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [10, 6], "expected_result": 60, "phase": 3, "operation": "mul"}
+{"prompt": "41 + 30 * 18 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [41, 30, 18], "expected_result": 1278, "phase": 2, "operation": null}
+{"prompt": "28 / 7 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [28, 7], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "33 + 28 - 19 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [33, 28, 19], "expected_result": 42, "phase": 2, "operation": null}
+{"prompt": "18 * 5 + 17 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [18, 5, 17], "expected_result": 107, "phase": 2, "operation": null}
+{"prompt": "Bob has 6 bags with 5 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 5], "expected_result": 30, "phase": 3, "operation": "mul"}
+{"prompt": "11 - 41 + 11 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [11, 41, 11], "expected_result": -19, "phase": 2, "operation": null}
+{"prompt": "The sum of 45 and 29 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [45, 29], "expected_result": 74, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 9 - 5", "ir_sequence": [1, 3, 4, 17, 2], "operands": [9, 5], "expected_result": 4, "phase": 1, "operation": "sub"}
+{"prompt": "Frank has 30 cookies. Frank eats 16. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [30, 16], "expected_result": 14, "phase": 3, "operation": "sub"}
+{"prompt": "21 + 21 - 10 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [21, 21, 10], "expected_result": 32, "phase": 2, "operation": null}
+{"prompt": "Add 6 and 32", "ir_sequence": [1, 3, 4, 16, 2], "operands": [6, 32], "expected_result": 38, "phase": 1, "operation": "add"}
+{"prompt": "Multiply 3 by 7", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 7], "expected_result": 21, "phase": 1, "operation": "mul"}
+{"prompt": "Subtract 47 from 68", "ir_sequence": [1, 3, 4, 17, 2], "operands": [68, 47], "expected_result": 21, "phase": 1, "operation": "sub"}
+{"prompt": "Multiply 20 by 12", "ir_sequence": [1, 3, 4, 18, 2], "operands": [20, 12], "expected_result": 240, "phase": 1, "operation": "mul"}
+{"prompt": "40 + 57 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [40, 57], "expected_result": 97, "phase": 1, "operation": "add"}
+{"prompt": "19 * 34 + 6 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [19, 34, 6], "expected_result": 652, "phase": 2, "operation": null}
+{"prompt": "50 - 25 + 20 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [50, 25, 20], "expected_result": 45, "phase": 2, "operation": null}
+{"prompt": "There are 6 birds in a tree. 16 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [6, 16], "expected_result": 22, "phase": 3, "operation": "add"}
+{"prompt": "What is 20 times 19?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [20, 19], "expected_result": 380, "phase": 1, "operation": "mul"}
+{"prompt": "5 * 5 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 5], "expected_result": 25, "phase": 1, "operation": "mul"}
+{"prompt": "5 x 9 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 9], "expected_result": 45, "phase": 1, "operation": "mul"}
+{"prompt": "65 added to 99 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [65, 99], "expected_result": 164, "phase": 1, "operation": "add"}
+{"prompt": "12 divided by 3 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 3], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "What is 48 divided by 8?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [48, 8], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 66 + 31", "ir_sequence": [1, 3, 4, 16, 2], "operands": [66, 31], "expected_result": 97, "phase": 1, "operation": "add"}
+{"prompt": "42 * 15 - 7 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [42, 15, 7], "expected_result": 623, "phase": 2, "operation": null}
+{"prompt": "There are 27 birds in a tree. 3 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [27, 3], "expected_result": 30, "phase": 3, "operation": "add"}
+{"prompt": "(24 - 6) * 14 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [24, 6, 14], "expected_result": 252, "phase": 2, "operation": null}
+{"prompt": "110 divided by 11 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [110, 11], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "Multiply 2 by 2", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 2], "expected_result": 4, "phase": 1, "operation": "mul"}
+{"prompt": "There are 3 rows of 10 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 10], "expected_result": 30, "phase": 3, "operation": "mul"}
+{"prompt": "Calculate 41 - 6", "ir_sequence": [1, 3, 4, 17, 2], "operands": [41, 6], "expected_result": 35, "phase": 1, "operation": "sub"}
+{"prompt": "Carol's ducks lay 29 eggs daily. Carol eats 1 for breakfast and bakes 3 into muffins. Carol sells the rest at $2 each. How many eggs does Carol sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [29, 1, 3], "expected_result": 25, "phase": 3, "operation": "multi_sub"}
+{"prompt": "44 added to 3 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [44, 3], "expected_result": 47, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 4 * 10", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 10], "expected_result": 40, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 98 + 87", "ir_sequence": [1, 3, 4, 16, 2], "operands": [98, 87], "expected_result": 185, "phase": 1, "operation": "add"}
+{"prompt": "Divide 36 by 6", "ir_sequence": [1, 3, 4, 19, 2], "operands": [36, 6], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "1 - 7 + 4 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [1, 7, 4], "expected_result": -2, "phase": 2, "operation": null}
+{"prompt": "There are 8 rows of 3 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 3], "expected_result": 24, "phase": 3, "operation": "mul"}
+{"prompt": "(10 + 45) * 8 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [10, 45, 8], "expected_result": 440, "phase": 2, "operation": null}
+{"prompt": "Multiply 12 by 6", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 6], "expected_result": 72, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 49 + 13", "ir_sequence": [1, 3, 4, 16, 2], "operands": [49, 13], "expected_result": 62, "phase": 1, "operation": "add"}
+{"prompt": "Bob has 75 cookies. Bob eats 36. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [75, 36], "expected_result": 39, "phase": 3, "operation": "sub"}
+{"prompt": "Alice has 29 apples. Casey gives her 21 more. How many apples does Alice have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [29, 21], "expected_result": 50, "phase": 3, "operation": "add"}
+{"prompt": "Calculate 61 - 10", "ir_sequence": [1, 3, 4, 17, 2], "operands": [61, 10], "expected_result": 51, "phase": 1, "operation": "sub"}
+{"prompt": "What is 39 plus 37?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [39, 37], "expected_result": 76, "phase": 1, "operation": "add"}
+{"prompt": "There are 19 birds in a tree. 4 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [19, 4], "expected_result": 23, "phase": 3, "operation": "add"}
+{"prompt": "Calculate 7 * 16", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 16], "expected_result": 112, "phase": 1, "operation": "mul"}
+{"prompt": "48 divided by 6 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [48, 6], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "The difference of 50 and 30 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [50, 30], "expected_result": 20, "phase": 1, "operation": "sub"}
+{"prompt": "32 + 26 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [32, 26], "expected_result": 58, "phase": 1, "operation": "add"}
+{"prompt": "The sum of 59 and 54 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [59, 54], "expected_result": 113, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 81 - 28", "ir_sequence": [1, 3, 4, 17, 2], "operands": [81, 28], "expected_result": 53, "phase": 1, "operation": "sub"}
+{"prompt": "12 divided by 3 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 3], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "The sum of 23 and 99 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [23, 99], "expected_result": 122, "phase": 1, "operation": "add"}
+{"prompt": "A store has 70 items. 42 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [70, 42], "expected_result": 28, "phase": 3, "operation": "sub"}
+{"prompt": "The difference of 80 and 59 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [80, 59], "expected_result": 21, "phase": 1, "operation": "sub"}
+{"prompt": "51 added to 76 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [51, 76], "expected_result": 127, "phase": 1, "operation": "add"}
+{"prompt": "5 * 16 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 16], "expected_result": 80, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 4 * 8", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 8], "expected_result": 32, "phase": 1, "operation": "mul"}
+{"prompt": "16 * 23 + 20 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [16, 23, 20], "expected_result": 388, "phase": 2, "operation": null}
+{"prompt": "77 - 9 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [77, 9], "expected_result": 68, "phase": 1, "operation": "sub"}
+{"prompt": "Subtract 43 from 95", "ir_sequence": [1, 3, 4, 17, 2], "operands": [95, 43], "expected_result": 52, "phase": 1, "operation": "sub"}
+{"prompt": "20 + 35 * 20 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [20, 35, 20], "expected_result": 1100, "phase": 2, "operation": null}
+{"prompt": "What is 42 divided by 7?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [42, 7], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "5 / 5 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [5, 5], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "The sum of 98 and 82 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [98, 82], "expected_result": 180, "phase": 1, "operation": "add"}
+{"prompt": "76 - 29 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [76, 29], "expected_result": 47, "phase": 1, "operation": "sub"}
+{"prompt": "6 divided by 1 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [6, 1], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "Divide 36 by 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [36, 12], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "Ivy has 12 apples. Pat gives her 29 more. How many apples does Ivy have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [12, 29], "expected_result": 41, "phase": 3, "operation": "add"}
+{"prompt": "88 added to 48 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [88, 48], "expected_result": 136, "phase": 1, "operation": "add"}
+{"prompt": "16 - 3 + 13 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [16, 3, 13], "expected_result": 26, "phase": 2, "operation": null}
+{"prompt": "Calculate 87 - 58", "ir_sequence": [1, 3, 4, 17, 2], "operands": [87, 58], "expected_result": 29, "phase": 1, "operation": "sub"}
+{"prompt": "What is 54 divided by 9?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [54, 9], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "45 + 56 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [45, 56], "expected_result": 101, "phase": 1, "operation": "add"}
+{"prompt": "30 * 12 - 12 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [30, 12, 12], "expected_result": 348, "phase": 2, "operation": null}
+{"prompt": "Grace's ducks lay 30 eggs daily. Grace eats 3 for breakfast and bakes 3 into muffins. Grace sells the rest at $4 each. How many eggs does Grace sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [30, 3, 3], "expected_result": 24, "phase": 3, "operation": "multi_sub"}
+{"prompt": "5 multiplied by 4 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 4], "expected_result": 20, "phase": 1, "operation": "mul"}
+{"prompt": "There are 38 birds in a tree. 4 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [38, 4], "expected_result": 42, "phase": 3, "operation": "add"}
+{"prompt": "81 added to 66 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [81, 66], "expected_result": 147, "phase": 1, "operation": "add"}
+{"prompt": "A store has 85 items. 77 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [85, 77], "expected_result": 8, "phase": 3, "operation": "sub"}
+{"prompt": "A store has 30 items. 15 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [30, 15], "expected_result": 15, "phase": 3, "operation": "sub"}
+{"prompt": "41 + 10 * 10 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [41, 10, 10], "expected_result": 510, "phase": 2, "operation": null}
+{"prompt": "The product of 16 and 5 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [16, 5], "expected_result": 80, "phase": 1, "operation": "mul"}
+{"prompt": "80 divided by 8 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [80, 8], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "What is 66 divided by 11?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [66, 11], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "Grace's ducks lay 20 eggs daily. Grace eats 2 for breakfast and bakes 4 into muffins. Grace sells the rest at $3 each. How many eggs does Grace sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [20, 2, 4], "expected_result": 14, "phase": 3, "operation": "multi_sub"}
+{"prompt": "What is 36 divided by 4?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [36, 4], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "The difference of 45 and 40 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [45, 40], "expected_result": 5, "phase": 1, "operation": "sub"}
+{"prompt": "8 / 8 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [8, 8], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "26 * 3 - 1 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [26, 3, 1], "expected_result": 77, "phase": 2, "operation": null}
+{"prompt": "94 added to 85 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [94, 85], "expected_result": 179, "phase": 1, "operation": "add"}
+{"prompt": "17 added to 36 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [17, 36], "expected_result": 53, "phase": 1, "operation": "add"}
+{"prompt": "7 - 29 + 14 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [7, 29, 14], "expected_result": -8, "phase": 2, "operation": null}
+{"prompt": "There are 11 rows of 8 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 8], "expected_result": 88, "phase": 3, "operation": "mul"}
+{"prompt": "3 * 6 + 18 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [3, 6, 18], "expected_result": 36, "phase": 2, "operation": null}
+{"prompt": "Jack has 83 cookies. Jack eats 49. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [83, 49], "expected_result": 34, "phase": 3, "operation": "sub"}
+{"prompt": "Jack has 23 apples. Sam gives him 6 more. How many apples does Jack have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [23, 6], "expected_result": 29, "phase": 3, "operation": "add"}
+{"prompt": "18 / 9 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [18, 9], "expected_result": 2, "phase": 1, "operation": "div"}
+{"prompt": "12 / 6 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 6], "expected_result": 2, "phase": 1, "operation": "div"}
+{"prompt": "The difference of 94 and 67 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [94, 67], "expected_result": 27, "phase": 1, "operation": "sub"}
+{"prompt": "99 - 38 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [99, 38], "expected_result": 61, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 56 + 95", "ir_sequence": [1, 3, 4, 16, 2], "operands": [56, 95], "expected_result": 151, "phase": 1, "operation": "add"}
+{"prompt": "There are 26 birds in a tree. 10 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [26, 10], "expected_result": 36, "phase": 3, "operation": "add"}
+{"prompt": "A store has 73 items. 38 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [73, 38], "expected_result": 35, "phase": 3, "operation": "sub"}
+{"prompt": "The difference of 48 and 40 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [48, 40], "expected_result": 8, "phase": 1, "operation": "sub"}
+{"prompt": "33 + 62 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [33, 62], "expected_result": 95, "phase": 1, "operation": "add"}
+{"prompt": "The sum of 99 and 75 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [99, 75], "expected_result": 174, "phase": 1, "operation": "add"}
+{"prompt": "The product of 13 and 6 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [13, 6], "expected_result": 78, "phase": 1, "operation": "mul"}
+{"prompt": "(43 + 29) * 10 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [43, 29, 10], "expected_result": 720, "phase": 2, "operation": null}
+{"prompt": "70 / 7 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [70, 7], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "13 * 50 + 7 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [13, 50, 7], "expected_result": 657, "phase": 2, "operation": null}
+{"prompt": "30 divided by 3 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 3], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "Alice has 11 bags with 7 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 7], "expected_result": 77, "phase": 3, "operation": "mul"}
+{"prompt": "Calculate 16 / 2", "ir_sequence": [1, 3, 4, 19, 2], "operands": [16, 2], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "16 - 12 + 11 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [16, 12, 11], "expected_result": 15, "phase": 2, "operation": null}
+{"prompt": "33 * 33 - 17 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [33, 33, 17], "expected_result": 1072, "phase": 2, "operation": null}
+{"prompt": "There are 12 rows of 2 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 2], "expected_result": 24, "phase": 3, "operation": "mul"}
+{"prompt": "31 + 10 * 6 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [31, 10, 6], "expected_result": 246, "phase": 2, "operation": null}
+{"prompt": "The difference of 73 and 19 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [73, 19], "expected_result": 54, "phase": 1, "operation": "sub"}
+{"prompt": "Grace has 11 bags with 5 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 5], "expected_result": 55, "phase": 3, "operation": "mul"}
+{"prompt": "David has 16 apples. Jordan gives him 5 more. How many apples does David have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [16, 5], "expected_result": 21, "phase": 3, "operation": "add"}
+{"prompt": "29 + 5 - 15 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [29, 5, 15], "expected_result": 19, "phase": 2, "operation": null}
+{"prompt": "Jack's ducks lay 30 eggs daily. Jack eats 5 for breakfast and bakes 5 into muffins. Jack sells the rest at $5 each. How many eggs does Jack sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [30, 5, 5], "expected_result": 20, "phase": 3, "operation": "multi_sub"}
+{"prompt": "55 take away 15 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [55, 15], "expected_result": 40, "phase": 1, "operation": "sub"}
+{"prompt": "49 * 45 + 15 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [49, 45, 15], "expected_result": 2220, "phase": 2, "operation": null}
+{"prompt": "20 * 40 + 1 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [20, 40, 1], "expected_result": 801, "phase": 2, "operation": null}
+{"prompt": "What is 36 divided by 4?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [36, 4], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "6 * 23 - 6 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [6, 23, 6], "expected_result": 132, "phase": 2, "operation": null}
+{"prompt": "30 divided by 10 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 10], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "Carol has 51 cookies. Carol eats 3. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [51, 3], "expected_result": 48, "phase": 3, "operation": "sub"}
+{"prompt": "(12 + 50) * 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [12, 50, 4], "expected_result": 248, "phase": 2, "operation": null}
+{"prompt": "There are 6 birds in a tree. 6 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [6, 6], "expected_result": 12, "phase": 3, "operation": "add"}
+{"prompt": "Grace's ducks lay 21 eggs daily. Grace eats 5 for breakfast and bakes 2 into muffins. Grace sells the rest at $1 each. How many eggs does Grace sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [21, 5, 2], "expected_result": 14, "phase": 3, "operation": "multi_sub"}
+{"prompt": "Multiply 4 by 9", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 9], "expected_result": 36, "phase": 1, "operation": "mul"}
+{"prompt": "There are 7 rows of 10 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 10], "expected_result": 70, "phase": 3, "operation": "mul"}
+{"prompt": "(10 + 29) * 2 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [10, 29, 2], "expected_result": 78, "phase": 2, "operation": null}
+{"prompt": "(20 + 7) * 18 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [20, 7, 18], "expected_result": 486, "phase": 2, "operation": null}
+{"prompt": "What is 58 plus 65?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [58, 65], "expected_result": 123, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 92 - 19", "ir_sequence": [1, 3, 4, 17, 2], "operands": [92, 19], "expected_result": 73, "phase": 1, "operation": "sub"}
+{"prompt": "Subtract 42 from 78", "ir_sequence": [1, 3, 4, 17, 2], "operands": [78, 42], "expected_result": 36, "phase": 1, "operation": "sub"}
+{"prompt": "28 * 16 + 19 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [28, 16, 19], "expected_result": 467, "phase": 2, "operation": null}
+{"prompt": "32 + 23 - 17 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [32, 23, 17], "expected_result": 38, "phase": 2, "operation": null}
+{"prompt": "1 * 6 + 9 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [1, 6, 9], "expected_result": 15, "phase": 2, "operation": null}
+{"prompt": "(12 + 13) * 2 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [12, 13, 2], "expected_result": 50, "phase": 2, "operation": null}
+{"prompt": "Frank has 8 bags with 6 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 6], "expected_result": 48, "phase": 3, "operation": "mul"}
+{"prompt": "What is 84 divided by 12?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [84, 12], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "40 divided by 8 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [40, 8], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "36 * 40 - 14 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [36, 40, 14], "expected_result": 1426, "phase": 2, "operation": null}
+{"prompt": "94 take away 71 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [94, 71], "expected_result": 23, "phase": 1, "operation": "sub"}
+{"prompt": "12 divided by 4 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 4], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "Multiply 13 by 14", "ir_sequence": [1, 3, 4, 18, 2], "operands": [13, 14], "expected_result": 182, "phase": 1, "operation": "mul"}
+{"prompt": "Multiply 15 by 17", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 17], "expected_result": 255, "phase": 1, "operation": "mul"}
+{"prompt": "There are 24 birds in a tree. 2 more birds land. How many birds are there now?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [24, 2], "expected_result": 26, "phase": 3, "operation": "add"}
+{"prompt": "12 x 5 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 5], "expected_result": 60, "phase": 1, "operation": "mul"}
+{"prompt": "Add 95 and 24", "ir_sequence": [1, 3, 4, 16, 2], "operands": [95, 24], "expected_result": 119, "phase": 1, "operation": "add"}
+{"prompt": "(48 + 14) * 15 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [48, 14, 15], "expected_result": 930, "phase": 2, "operation": null}
+{"prompt": "The sum of 19 and 78 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [19, 78], "expected_result": 97, "phase": 1, "operation": "add"}
+{"prompt": "Divide 88 by 11", "ir_sequence": [1, 3, 4, 19, 2], "operands": [88, 11], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "23 + 6 * 17 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [23, 6, 17], "expected_result": 493, "phase": 2, "operation": null}
+{"prompt": "8 x 7 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 7], "expected_result": 56, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 14 / 2", "ir_sequence": [1, 3, 4, 19, 2], "operands": [14, 2], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 8 * 3", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 3], "expected_result": 24, "phase": 1, "operation": "mul"}
+{"prompt": "32 - 6 + 10 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [32, 6, 10], "expected_result": 36, "phase": 2, "operation": null}
+{"prompt": "Calculate 73 + 6", "ir_sequence": [1, 3, 4, 16, 2], "operands": [73, 6], "expected_result": 79, "phase": 1, "operation": "add"}
+{"prompt": "35 * 9 + 18 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [35, 9, 18], "expected_result": 333, "phase": 2, "operation": null}
+{"prompt": "12 / 12 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 12], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "Alice has 63 cookies. Alice eats 59. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [63, 59], "expected_result": 4, "phase": 3, "operation": "sub"}
+{"prompt": "16 divided by 8 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [16, 8], "expected_result": 2, "phase": 1, "operation": "div"}
+{"prompt": "A store has 97 items. 30 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [97, 30], "expected_result": 67, "phase": 3, "operation": "sub"}
+{"prompt": "What is 2 times 13?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 13], "expected_result": 26, "phase": 1, "operation": "mul"}
+{"prompt": "Add 50 and 34", "ir_sequence": [1, 3, 4, 16, 2], "operands": [50, 34], "expected_result": 84, "phase": 1, "operation": "add"}
+{"prompt": "30 * 29 + 9 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [30, 29, 9], "expected_result": 879, "phase": 2, "operation": null}
+{"prompt": "Alice has 6 bags with 4 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 4], "expected_result": 24, "phase": 3, "operation": "mul"}
+{"prompt": "There are 9 rows of 2 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [9, 2], "expected_result": 18, "phase": 3, "operation": "mul"}
+{"prompt": "Ivy has 23 apples. Taylor gives her 11 more. How many apples does Ivy have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [23, 11], "expected_result": 34, "phase": 3, "operation": "add"}
+{"prompt": "(34 + 25) * 11 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [34, 25, 11], "expected_result": 649, "phase": 2, "operation": null}
+{"prompt": "(34 - 28) * 19 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [34, 28, 19], "expected_result": 114, "phase": 2, "operation": null}
+{"prompt": "30 / 5 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 5], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "1 multiplied by 6 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [1, 6], "expected_result": 6, "phase": 1, "operation": "mul"}
+{"prompt": "There are 3 rows of 5 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 5], "expected_result": 15, "phase": 3, "operation": "mul"}
+{"prompt": "Grace has 30 apples. Sam gives her 15 more. How many apples does Grace have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [30, 15], "expected_result": 45, "phase": 3, "operation": "add"}
+{"prompt": "66 - 8 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [66, 8], "expected_result": 58, "phase": 1, "operation": "sub"}
+{"prompt": "Emma has 49 cookies. Emma eats 35. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [49, 35], "expected_result": 14, "phase": 3, "operation": "sub"}
+{"prompt": "A store has 40 items. 32 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [40, 32], "expected_result": 8, "phase": 3, "operation": "sub"}
+{"prompt": "12 multiplied by 7 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 7], "expected_result": 84, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 8 / 8", "ir_sequence": [1, 3, 4, 19, 2], "operands": [8, 8], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 4 + 95", "ir_sequence": [1, 3, 4, 16, 2], "operands": [4, 95], "expected_result": 99, "phase": 1, "operation": "add"}
+{"prompt": "Frank has 73 cookies. Frank eats 47. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [73, 47], "expected_result": 26, "phase": 3, "operation": "sub"}
+{"prompt": "Calculate 80 + 72", "ir_sequence": [1, 3, 4, 16, 2], "operands": [80, 72], "expected_result": 152, "phase": 1, "operation": "add"}
+{"prompt": "The sum of 41 and 13 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [41, 13], "expected_result": 54, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 86 + 71", "ir_sequence": [1, 3, 4, 16, 2], "operands": [86, 71], "expected_result": 157, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 30 / 6", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 6], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "41 + 32 * 1 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [41, 32, 1], "expected_result": 73, "phase": 2, "operation": null}
+{"prompt": "Calculate 84 / 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [84, 12], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "6 x 16 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 16], "expected_result": 96, "phase": 1, "operation": "mul"}
+{"prompt": "3 / 1 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [3, 1], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "Grace's ducks lay 23 eggs daily. Grace eats 5 for breakfast and bakes 1 into muffins. Grace sells the rest at $3 each. How many eggs does Grace sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [23, 5, 1], "expected_result": 17, "phase": 3, "operation": "multi_sub"}
+{"prompt": "Calculate 52 - 43", "ir_sequence": [1, 3, 4, 17, 2], "operands": [52, 43], "expected_result": 9, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 14 * 11", "ir_sequence": [1, 3, 4, 18, 2], "operands": [14, 11], "expected_result": 154, "phase": 1, "operation": "mul"}
+{"prompt": "34 * 41 + 2 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [34, 41, 2], "expected_result": 1396, "phase": 2, "operation": null}
+{"prompt": "Divide 100 by 10", "ir_sequence": [1, 3, 4, 19, 2], "operands": [100, 10], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "Multiply 13 by 20", "ir_sequence": [1, 3, 4, 18, 2], "operands": [13, 20], "expected_result": 260, "phase": 1, "operation": "mul"}
+{"prompt": "Add 11 and 83", "ir_sequence": [1, 3, 4, 16, 2], "operands": [11, 83], "expected_result": 94, "phase": 1, "operation": "add"}
+{"prompt": "18 + 34 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [18, 34], "expected_result": 52, "phase": 1, "operation": "add"}
+{"prompt": "The product of 7 and 13 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 13], "expected_result": 91, "phase": 1, "operation": "mul"}
+{"prompt": "84 - 54 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [84, 54], "expected_result": 30, "phase": 1, "operation": "sub"}
+{"prompt": "(23 - 14) * 11 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [23, 14, 11], "expected_result": 99, "phase": 2, "operation": null}
+{"prompt": "A store has 55 items. 11 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [55, 11], "expected_result": 44, "phase": 3, "operation": "sub"}
+{"prompt": "36 / 12 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [36, 12], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "What is 2 times 8?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 8], "expected_result": 16, "phase": 1, "operation": "mul"}
+{"prompt": "4 * 15 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 15], "expected_result": 60, "phase": 1, "operation": "mul"}
+{"prompt": "34 - 39 + 17 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [34, 39, 17], "expected_result": 12, "phase": 2, "operation": null}
+{"prompt": "3 * 11 - 3 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [3, 11, 3], "expected_result": 30, "phase": 2, "operation": null}
+{"prompt": "Divide 3 by 1", "ir_sequence": [1, 3, 4, 19, 2], "operands": [3, 1], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "4 divided by 2 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [4, 2], "expected_result": 2, "phase": 1, "operation": "div"}
+{"prompt": "Divide 6 by 1", "ir_sequence": [1, 3, 4, 19, 2], "operands": [6, 1], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "What is 30 divided by 10?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 10], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "What is 77 divided by 11?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [77, 11], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "42 * 40 - 2 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [42, 40, 2], "expected_result": 1678, "phase": 2, "operation": null}
+{"prompt": "(39 + 5) * 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [39, 5, 4], "expected_result": 176, "phase": 2, "operation": null}
+{"prompt": "(6 - 3) * 7 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [6, 3, 7], "expected_result": 21, "phase": 2, "operation": null}
+{"prompt": "11 + 33 - 16 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [11, 33, 16], "expected_result": 28, "phase": 2, "operation": null}
+{"prompt": "What is 12 plus 38?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [12, 38], "expected_result": 50, "phase": 1, "operation": "add"}
+{"prompt": "89 take away 24 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [89, 24], "expected_result": 65, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 14 * 16", "ir_sequence": [1, 3, 4, 18, 2], "operands": [14, 16], "expected_result": 224, "phase": 1, "operation": "mul"}
+{"prompt": "Frank has 38 cookies. Frank eats 1. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [38, 1], "expected_result": 37, "phase": 3, "operation": "sub"}
+{"prompt": "A store has 92 items. 62 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [92, 62], "expected_result": 30, "phase": 3, "operation": "sub"}
+{"prompt": "30 / 6 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 6], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "What is 3 plus 33?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [3, 33], "expected_result": 36, "phase": 1, "operation": "add"}
+{"prompt": "19 multiplied by 10 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [19, 10], "expected_result": 190, "phase": 1, "operation": "mul"}
+{"prompt": "The product of 11 and 4 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 4], "expected_result": 44, "phase": 1, "operation": "mul"}
+{"prompt": "28 * 3 - 3 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [28, 3, 3], "expected_result": 81, "phase": 2, "operation": null}
+{"prompt": "What is 58 minus 56?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [58, 56], "expected_result": 2, "phase": 1, "operation": "sub"}
+{"prompt": "Multiply 16 by 18", "ir_sequence": [1, 3, 4, 18, 2], "operands": [16, 18], "expected_result": 288, "phase": 1, "operation": "mul"}
+{"prompt": "(36 + 28) * 17 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [36, 28, 17], "expected_result": 1088, "phase": 2, "operation": null}
+{"prompt": "What is 8 divided by 2?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [8, 2], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "37 * 29 + 10 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [37, 29, 10], "expected_result": 1083, "phase": 2, "operation": null}
+{"prompt": "Calculate 82 - 60", "ir_sequence": [1, 3, 4, 17, 2], "operands": [82, 60], "expected_result": 22, "phase": 1, "operation": "sub"}
+{"prompt": "Multiply 19 by 14", "ir_sequence": [1, 3, 4, 18, 2], "operands": [19, 14], "expected_result": 266, "phase": 1, "operation": "mul"}
+{"prompt": "Bob's ducks lay 26 eggs daily. Bob eats 1 for breakfast and bakes 4 into muffins. Bob sells the rest at $5 each. How many eggs does Bob sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [26, 1, 4], "expected_result": 21, "phase": 3, "operation": "multi_sub"}
+{"prompt": "Carol has 10 bags with 11 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [10, 11], "expected_result": 110, "phase": 3, "operation": "mul"}
+{"prompt": "David has 21 cookies. David eats 15. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [21, 15], "expected_result": 6, "phase": 3, "operation": "sub"}
+{"prompt": "What is 77 minus 49?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [77, 49], "expected_result": 28, "phase": 1, "operation": "sub"}
+{"prompt": "The difference of 41 and 16 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [41, 16], "expected_result": 25, "phase": 1, "operation": "sub"}
+{"prompt": "Grace's ducks lay 15 eggs daily. Grace eats 4 for breakfast and bakes 2 into muffins. Grace sells the rest at $3 each. How many eggs does Grace sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [15, 4, 2], "expected_result": 9, "phase": 3, "operation": "multi_sub"}
+{"prompt": "What is 9 times 11?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [9, 11], "expected_result": 99, "phase": 1, "operation": "mul"}
+{"prompt": "100 divided by 10 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [100, 10], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "What is 10 divided by 2?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [10, 2], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "(50 - 1) * 6 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [50, 1, 6], "expected_result": 294, "phase": 2, "operation": null}
+{"prompt": "Calculate 60 / 6", "ir_sequence": [1, 3, 4, 19, 2], "operands": [60, 6], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "Subtract 67 from 100", "ir_sequence": [1, 3, 4, 17, 2], "operands": [100, 67], "expected_result": 33, "phase": 1, "operation": "sub"}
+{"prompt": "13 * 19 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [13, 19], "expected_result": 247, "phase": 1, "operation": "mul"}
+{"prompt": "48 - 2 + 11 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [48, 2, 11], "expected_result": 57, "phase": 2, "operation": null}
+{"prompt": "Frank has 11 apples. Riley gives him 16 more. How many apples does Frank have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [11, 16], "expected_result": 27, "phase": 3, "operation": "add"}
+{"prompt": "10 + 37 - 17 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [10, 37, 17], "expected_result": 30, "phase": 2, "operation": null}
+{"prompt": "Divide 32 by 4", "ir_sequence": [1, 3, 4, 19, 2], "operands": [32, 4], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "David's ducks lay 30 eggs daily. David eats 3 for breakfast and bakes 4 into muffins. David sells the rest at $4 each. How many eggs does David sell daily?", "ir_sequence": [1, 3, 4, 17, 5, 17, 2], "operands": [30, 3, 4], "expected_result": 23, "phase": 3, "operation": "multi_sub"}
+{"prompt": "What is 4 times 14?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [4, 14], "expected_result": 56, "phase": 1, "operation": "mul"}
+{"prompt": "The difference of 69 and 49 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [69, 49], "expected_result": 20, "phase": 1, "operation": "sub"}
+{"prompt": "There are 5 rows of 3 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 3], "expected_result": 15, "phase": 3, "operation": "mul"}
+{"prompt": "2 * 14 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 14], "expected_result": 28, "phase": 1, "operation": "mul"}
+{"prompt": "(47 - 39) * 9 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [47, 39, 9], "expected_result": 72, "phase": 2, "operation": null}
+{"prompt": "The sum of 61 and 57 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [61, 57], "expected_result": 118, "phase": 1, "operation": "add"}
+{"prompt": "8 + 22 * 11 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [8, 22, 11], "expected_result": 330, "phase": 2, "operation": null}
+{"prompt": "72 take away 8 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [72, 8], "expected_result": 64, "phase": 1, "operation": "sub"}
+{"prompt": "5 * 17 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 17], "expected_result": 85, "phase": 1, "operation": "mul"}
+{"prompt": "There are 12 rows of 12 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [12, 12], "expected_result": 144, "phase": 3, "operation": "mul"}
+{"prompt": "Henry has 89 cookies. Henry eats 7. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [89, 7], "expected_result": 82, "phase": 3, "operation": "sub"}
+{"prompt": "A store has 42 items. 25 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [42, 25], "expected_result": 17, "phase": 3, "operation": "sub"}
+{"prompt": "(44 - 6) * 18 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [44, 6, 18], "expected_result": 684, "phase": 2, "operation": null}
+{"prompt": "71 + 53 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [71, 53], "expected_result": 124, "phase": 1, "operation": "add"}
+{"prompt": "4 * 26 + 5 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [4, 26, 5], "expected_result": 109, "phase": 2, "operation": null}
+{"prompt": "33 + 4 * 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [33, 4, 4], "expected_result": 148, "phase": 2, "operation": null}
+{"prompt": "36 / 6 = ", "ir_sequence": [1, 3, 4, 19, 2], "operands": [36, 6], "expected_result": 6, "phase": 1, "operation": "div"}
+{"prompt": "8 * 25 - 5 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [8, 25, 5], "expected_result": 195, "phase": 2, "operation": null}
+{"prompt": "What is 71 minus 59?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [71, 59], "expected_result": 12, "phase": 1, "operation": "sub"}
+{"prompt": "15 * 1 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 1], "expected_result": 15, "phase": 1, "operation": "mul"}
+{"prompt": "What is 15 times 9?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 9], "expected_result": 135, "phase": 1, "operation": "mul"}
+{"prompt": "(44 - 12) * 20 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [44, 12, 20], "expected_result": 640, "phase": 2, "operation": null}
+{"prompt": "(49 - 29) * 18 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [49, 29, 18], "expected_result": 360, "phase": 2, "operation": null}
+{"prompt": "50 divided by 5 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [50, 5], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "The difference of 75 and 56 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [75, 56], "expected_result": 19, "phase": 1, "operation": "sub"}
+{"prompt": "21 * 12 - 1 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [21, 12, 1], "expected_result": 251, "phase": 2, "operation": null}
+{"prompt": "(47 - 39) * 17 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [47, 39, 17], "expected_result": 136, "phase": 2, "operation": null}
+{"prompt": "9 - 6 + 11 = ", "ir_sequence": [1, 3, 4, 17, 5, 16, 2], "operands": [9, 6, 11], "expected_result": 14, "phase": 2, "operation": null}
+{"prompt": "(7 + 38) * 2 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [7, 38, 2], "expected_result": 90, "phase": 2, "operation": null}
+{"prompt": "(49 - 47) * 19 = ", "ir_sequence": [1, 3, 4, 17, 5, 18, 2], "operands": [49, 47, 19], "expected_result": 38, "phase": 2, "operation": null}
+{"prompt": "A store has 49 items. 8 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [49, 8], "expected_result": 41, "phase": 3, "operation": "sub"}
+{"prompt": "Emma has 38 cookies. Emma eats 10. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [38, 10], "expected_result": 28, "phase": 3, "operation": "sub"}
+{"prompt": "80 divided by 8 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [80, 8], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "93 - 57 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [93, 57], "expected_result": 36, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 12 / 3", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 3], "expected_result": 4, "phase": 1, "operation": "div"}
+{"prompt": "15 multiplied by 3 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 3], "expected_result": 45, "phase": 1, "operation": "mul"}
+{"prompt": "23 + 45 - 19 = ", "ir_sequence": [1, 3, 4, 16, 5, 17, 2], "operands": [23, 45, 19], "expected_result": 49, "phase": 2, "operation": null}
+{"prompt": "(48 + 2) * 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [48, 2, 4], "expected_result": 200, "phase": 2, "operation": null}
+{"prompt": "What is 42 plus 78?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [42, 78], "expected_result": 120, "phase": 1, "operation": "add"}
+{"prompt": "88 - 42 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [88, 42], "expected_result": 46, "phase": 1, "operation": "sub"}
+{"prompt": "What is 30 divided by 10?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 10], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "What is 48 minus 37?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [48, 37], "expected_result": 11, "phase": 1, "operation": "sub"}
+{"prompt": "45 divided by 5 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [45, 5], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "Jack has 2 bags with 12 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [2, 12], "expected_result": 24, "phase": 3, "operation": "mul"}
+{"prompt": "The product of 1 and 16 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [1, 16], "expected_result": 16, "phase": 1, "operation": "mul"}
+{"prompt": "41 * 45 - 3 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [41, 45, 3], "expected_result": 1842, "phase": 2, "operation": null}
+{"prompt": "83 take away 82 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [83, 82], "expected_result": 1, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 59 - 26", "ir_sequence": [1, 3, 4, 17, 2], "operands": [59, 26], "expected_result": 33, "phase": 1, "operation": "sub"}
+{"prompt": "The product of 15 and 8 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 8], "expected_result": 120, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 24 / 3", "ir_sequence": [1, 3, 4, 19, 2], "operands": [24, 3], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "35 * 20 - 1 = ", "ir_sequence": [1, 3, 4, 18, 5, 17, 2], "operands": [35, 20, 1], "expected_result": 699, "phase": 2, "operation": null}
+{"prompt": "There are 11 rows of 10 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 10], "expected_result": 110, "phase": 3, "operation": "mul"}
+{"prompt": "A store has 55 items. 38 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [55, 38], "expected_result": 17, "phase": 3, "operation": "sub"}
+{"prompt": "Alice has 13 apples. Jordan gives her 5 more. How many apples does Alice have?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [13, 5], "expected_result": 18, "phase": 3, "operation": "add"}
+{"prompt": "15 added to 64 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [15, 64], "expected_result": 79, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 59 + 12", "ir_sequence": [1, 3, 4, 16, 2], "operands": [59, 12], "expected_result": 71, "phase": 1, "operation": "add"}
+{"prompt": "Subtract 11 from 79", "ir_sequence": [1, 3, 4, 17, 2], "operands": [79, 11], "expected_result": 68, "phase": 1, "operation": "sub"}
+{"prompt": "93 added to 39 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [93, 39], "expected_result": 132, "phase": 1, "operation": "add"}
+{"prompt": "76 - 42 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [76, 42], "expected_result": 34, "phase": 1, "operation": "sub"}
+{"prompt": "8 multiplied by 4 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 4], "expected_result": 32, "phase": 1, "operation": "mul"}
+{"prompt": "The product of 9 and 4 is", "ir_sequence": [1, 3, 4, 18, 2], "operands": [9, 4], "expected_result": 36, "phase": 1, "operation": "mul"}
+{"prompt": "Frank has 11 bags with 4 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [11, 4], "expected_result": 44, "phase": 3, "operation": "mul"}
+{"prompt": "54 added to 85 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [54, 85], "expected_result": 139, "phase": 1, "operation": "add"}
+{"prompt": "9 * 7 + 14 = ", "ir_sequence": [1, 3, 4, 18, 5, 16, 2], "operands": [9, 7, 14], "expected_result": 77, "phase": 2, "operation": null}
+{"prompt": "Ivy has 7 bags with 11 marbles each. How many marbles in total?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 11], "expected_result": 77, "phase": 3, "operation": "mul"}
+{"prompt": "36 + 44 * 12 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [36, 44, 12], "expected_result": 960, "phase": 2, "operation": null}
+{"prompt": "Calculate 17 + 2", "ir_sequence": [1, 3, 4, 16, 2], "operands": [17, 2], "expected_result": 19, "phase": 1, "operation": "add"}
+{"prompt": "6 multiplied by 15 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 15], "expected_result": 90, "phase": 1, "operation": "mul"}
+{"prompt": "5 + 19 * 4 = ", "ir_sequence": [1, 3, 4, 16, 5, 18, 2], "operands": [5, 19, 4], "expected_result": 96, "phase": 2, "operation": null}
+{"prompt": "Bob has 41 cookies. Bob eats 39. How many cookies are left?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [41, 39], "expected_result": 2, "phase": 3, "operation": "sub"}
+{"prompt": "Calculate 86 - 83", "ir_sequence": [1, 3, 4, 17, 2], "operands": [86, 83], "expected_result": 3, "phase": 1, "operation": "sub"}
+{"prompt": "There are 7 rows of 9 chairs. How many chairs are there?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [7, 9], "expected_result": 63, "phase": 3, "operation": "mul"}
+{"prompt": "18 multiplied by 13 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [18, 13], "expected_result": 234, "phase": 1, "operation": "mul"}
+{"prompt": "A store has 56 items. 51 are sold. How many items remain?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [56, 51], "expected_result": 5, "phase": 3, "operation": "sub"}
