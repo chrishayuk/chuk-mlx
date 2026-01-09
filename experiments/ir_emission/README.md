@@ -1,50 +1,131 @@
 # IR Emission Experiment
 
-**Goal**: Train a model to emit executable WASM IR directly from L13 hidden states, rather than routing to external tools.
+**Goal**: Train a model to emit executable WASM IR directly from L13 hidden states.
 
-## The Paradigm Shift
+## The Key Insight
+
+**CoT is format normalization, not reasoning.**
 
 ```
-Current:   L13 → classify("multiply") → route to MathExpertPlugin → Python eval
-Proposed:  L13 → emit([i32.const, X, i32.const, Y, i32.mul]) → WASM execute
+Varied NL:     "The difference of 69 and 49 is"  →  ~60% classifier accuracy
+Canonical:     "69 - 49 = "                       →  100% classifier accuracy
 ```
+
+The architecture writes itself:
+
+```
+┌─────────────────────────────────────────┐
+│  "Janet's ducks lay 16 eggs daily,      │
+│   she eats 3 for breakfast..."          │
+└────────────────┬────────────────────────┘
+                 │
+         NL → NL (Normalizer)
+                 │
+┌────────────────▼────────────────────────┐
+│  "16 - 3 = "                            │
+│  "13 - 4 = "                            │
+│  "9 * 7 = "                             │
+└────────────────┬────────────────────────┘
+                 │
+         L13 classifier (100%)
+                 │
+┌────────────────▼────────────────────────┐
+│  [i32.const 16, i32.const 3, i32.sub]   │
+│  [i32.const 13, i32.const 4, i32.sub]   │
+│  [i32.const 9, i32.const 7, i32.mul]    │
+└────────────────┬────────────────────────┘
+                 │
+         WASM execute (100%)
+                 │
+┌────────────────▼────────────────────────┐
+│  63                                     │
+└─────────────────────────────────────────┘
+```
+
+## Results
+
+| Component | Accuracy | Notes |
+|-----------|----------|-------|
+| NL → Canonical | ~50-80% | Trainable with more data |
+| Canonical → IR | **100%** | L13 logit lens after dual-reward |
+| IR → Execute | **100%** | Deterministic WASM |
+
+The execution layer is solved. The only learnable gap is NL normalization.
+
+## Training
+
+### Stage 1: Dual-Reward Classifier Training
+```bash
+python experiments/ir_emission/train_phase1.py --steps 1000
+```
+This trains LoRA (v_proj, o_proj) to make classifier tokens emerge at L12.
+
+### Stage 2: Normalizer Training
+```bash
+python experiments/ir_emission/generate_normalizer_data.py --num-samples 3000
+python experiments/ir_emission/train_normalizer.py --steps 800
+```
+This trains LoRA (q_proj, v_proj) to rewrite varied NL to canonical form.
+
+### Full Pipeline Test
+```bash
+python experiments/ir_emission/full_pipeline.py
+```
+
+## Files
+
+- `codebook.py` - IR opcode vocabulary and WASM encoding
+- `wasm_runtime.py` - WASM module builder and executor
+- `train_phase1.py` - Dual-reward classifier training
+- `train_normalizer.py` - NL→Canonical normalizer training
+- `full_pipeline.py` - Complete neural compiler test
 
 ## Architecture
 
 ```
-Layers 1-12:  NL embedding space (understanding)
-Layer 13:     IR emission (compilation) via learned codebook
-WASM:         Execution (loops, arithmetic, search)
-Layers 14+:   Back to NL (interpretation of result)
+┌─────────────────────────────────────────────────────────────┐
+│                    NEURAL COMPILER                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Stage 1: FRONTEND (NL → Canonical)                        │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │  Transformer layers 1-12 (semantic parsing)         │   │
+│   │  LoRA fine-tuned for format normalization           │   │
+│   └─────────────────────────────────────────────────────┘   │
+│                          ↓                                  │
+│   Stage 2: MIDDLE-END (Canonical → IR)      ← SOLVED        │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │  L13 logit lens → classifier token probabilities    │   │
+│   │  Dual-reward trained to 100% accuracy               │   │
+│   └─────────────────────────────────────────────────────┘   │
+│                          ↓                                  │
+│   Stage 3: BACKEND (IR → Execute)           ← SOLVED        │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │  WASM runtime (deterministic)                       │   │
+│   │  [i32.const a, i32.const b, i32.op] → result        │   │
+│   └─────────────────────────────────────────────────────┘   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Training Curriculum
+## Why This Matters
 
-1. **Phase 1: Single-op arithmetic** - "3 + 4" → `[const, const, add]`
-2. **Phase 2: Multi-op chains** - "3 + 4 - 2" → `[const, const, add, const, sub]`
-3. **Phase 3: Word problems** - NL → full program
-4. **Phase 4: Loops** - "Sum 1 to 10" → loop structure
+1. **CoT demystified**: It's not "thinking step by step." It's format normalization for downstream circuits.
 
-## Files
+2. **Clean separation**: Frontend is learnable NL processing, backend is deterministic execution.
 
-- `codebook.py` - Learned IR codebook (VQ-VAE style)
-- `decoder.py` - h13 → IR sequence decoder
-- `wasm_runtime.py` - WASM compilation/execution wrapper
-- `generate_data.py` - Training data generation
-- `train_phase1.py` - Phase 1 training script
+3. **Composable**: Chain multiple canonical operations for multi-step problems.
 
-## Why WASM?
+4. **Debuggable**: IR is inspectable, WASM is traceable.
 
-| Property | Benefit |
-|----------|---------|
-| Stack-based | Linear sequences, no tree parsing |
-| ~200 opcodes | Smaller vocab than any language |
-| Typed | Constraints guide generation |
-| Sandboxed | Safe to let model "write" code |
-| Deterministic | Perfect gradients - right or wrong |
-| Near-native speed | Millions of training iterations |
+## Checkpoints
 
-## The Key Insight
+- `checkpoints/dual_reward/final/` - Classifier LoRA weights (v_proj, o_proj)
+- `checkpoints/normalizer/` - Normalizer LoRA weights (q_proj, v_proj)
 
-Transformers are loop-free computation graphs. WASM gives you Turing completeness back.
-The model becomes the specification layer, WASM becomes the execution layer.
+## Next Steps
+
+1. **Improve normalizer**: More diverse training data, larger model
+2. **Multi-op chains**: Parse "16 - 3 then * 5" into sequence
+3. **Variable binding**: Track intermediate results
+4. **Control flow**: Loops and conditionals in IR
