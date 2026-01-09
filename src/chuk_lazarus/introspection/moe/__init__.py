@@ -26,6 +26,37 @@ from .ablation import (
     sweep_layer_experts,
 )
 
+# Ablation Service
+from .ablation_service import (
+    AblationBenchmarkResult,
+    AblationBenchmarkService,
+    BenchmarkProblemResult,
+)
+
+# Analysis Service
+from .analysis_service import (
+    AttentionCaptureResult,
+    ExpertWeightInfo,
+    LayerRoutingInfo,
+    MoEAnalysisService,
+    MoEAnalysisServiceConfig,
+    PositionRoutingInfo,
+    TaxonomyExpertMapping,
+    classify_token,
+    get_layer_phase,
+    get_trigram,
+)
+
+# Attention Routing Service
+from .attention_routing_service import (
+    DEFAULT_ATTENTION_CONTEXTS,
+    AttentionRoutingAnalysis,
+    AttentionRoutingService,
+    AttentionSummary,
+    ContextRoutingResult,
+    LayerRoutingResults,
+)
+
 # Compression
 from .compression import (
     ActivationOverlapResult,
@@ -74,6 +105,17 @@ from .enums import ExpertCategory, ExpertRole, MoEAction, MoEArchitecture
 
 # Expert Router
 from .expert_router import ExpertRouter
+
+# Explore Service
+from .explore_service import (
+    ComparisonResult,
+    DeepDiveResult,
+    ExploreService,
+    LayerPhaseData,
+    PatternMatch,
+    PositionEvolution,
+    TokenAnalysis,
+)
 
 # Hooks
 from .hooks import MoECapturedState, MoEHooks
@@ -141,6 +183,16 @@ from .router import (
     get_rare_experts,
 )
 
+# Test Data
+from .test_data import (
+    ATTENTION_ROUTING_CONTEXTS,
+    CONTEXT_WINDOW_TESTS,
+    DEFAULT_CONTEXTS,
+    DOMAIN_PROMPTS,
+    TAXONOMY_TEST_PROMPTS,
+    TOKEN_CONTEXTS,
+)
+
 # Cross-layer tracking
 from .tracking import (
     CrossLayerAnalysis,
@@ -154,30 +206,6 @@ from .tracking import (
     print_alignment_matrix,
     print_pipeline_summary,
     track_expert_across_layers,
-)
-
-# Analysis Service
-from .analysis_service import (
-    AttentionCaptureResult,
-    ExpertWeightInfo,
-    LayerRoutingInfo,
-    MoEAnalysisService,
-    MoEAnalysisServiceConfig,
-    PositionRoutingInfo,
-    TaxonomyExpertMapping,
-    classify_token,
-    get_layer_phase,
-    get_trigram,
-)
-
-# Test Data
-from .test_data import (
-    ATTENTION_ROUTING_CONTEXTS,
-    CONTEXT_WINDOW_TESTS,
-    DEFAULT_CONTEXTS,
-    DOMAIN_PROMPTS,
-    TAXONOMY_TEST_PROMPTS,
-    TOKEN_CONTEXTS,
 )
 
 # Visualization
@@ -300,6 +328,43 @@ __all__ = [
     "analyze_compression_opportunities",
     "print_compression_summary",
     "print_activation_overlap_matrix",
+    # Ablation Service
+    "AblationBenchmarkResult",
+    "AblationBenchmarkService",
+    "BenchmarkProblemResult",
+    # Analysis Service
+    "AttentionCaptureResult",
+    "ExpertWeightInfo",
+    "LayerRoutingInfo",
+    "MoEAnalysisService",
+    "MoEAnalysisServiceConfig",
+    "PositionRoutingInfo",
+    "TaxonomyExpertMapping",
+    "classify_token",
+    "get_layer_phase",
+    "get_trigram",
+    # Attention Routing Service
+    "DEFAULT_ATTENTION_CONTEXTS",
+    "AttentionRoutingAnalysis",
+    "AttentionRoutingService",
+    "AttentionSummary",
+    "ContextRoutingResult",
+    "LayerRoutingResults",
+    # Explore Service
+    "ExploreService",
+    "TokenAnalysis",
+    "PatternMatch",
+    "LayerPhaseData",
+    "PositionEvolution",
+    "ComparisonResult",
+    "DeepDiveResult",
+    # Test Data
+    "ATTENTION_ROUTING_CONTEXTS",
+    "CONTEXT_WINDOW_TESTS",
+    "DEFAULT_CONTEXTS",
+    "DOMAIN_PROMPTS",
+    "TAXONOMY_TEST_PROMPTS",
+    "TOKEN_CONTEXTS",
     # Expert Router
     "ExpertRouter",
     # Visualization

@@ -27,7 +27,6 @@ async def introspect_analyze(args: Namespace) -> None:
     from ....introspection import (
         AnalysisConfig,
         LayerStrategy,
-        ModelAnalyzer,
     )
     from ....introspection.analyzer.service import AnalyzerService
     from .._constants import Delimiters

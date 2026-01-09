@@ -149,15 +149,15 @@ from .loader import (
     LoadedModel,
     LoadedModelWithLoRA,
     ModelDType,
+    # Legacy (deprecated)
+    create_from_preset,
+    create_model,
     load_model,
     load_model_async,
     load_model_tuple,
     load_model_with_lora,
     load_model_with_lora_async,
     save_adapter,
-    # Legacy (deprecated)
-    create_from_preset,
-    create_model,
 )
 
 # Loss functions

@@ -1,8 +1,7 @@
 """Handler for 'explore' action - interactive MoE expert explorer.
 
-Provides an interactive REPL for exploring expert routing patterns
-in real-time. Perfect for video demonstrations and understanding
-how context affects expert selection.
+Provides an interactive REPL for exploring expert routing patterns.
+This module is a thin CLI wrapper - business logic is in ExploreService.
 """
 
 from __future__ import annotations
@@ -10,9 +9,9 @@ from __future__ import annotations
 import asyncio
 from argparse import Namespace
 
-from ......introspection.moe import ExpertRouter
+from ......introspection.moe import ExpertRouter, ExploreService
+from ...._constants import MoEDefaults
 from ..formatters import format_header
-from .full_taxonomy import classify_token
 
 
 def handle_explore(args: Namespace) -> None:
@@ -41,7 +40,7 @@ def handle_explore(args: Namespace) -> None:
 async def _async_explore(args: Namespace) -> None:
     """Async implementation of interactive explorer."""
     model_id = args.model
-    default_layer = getattr(args, "layer", None) or 11
+    default_layer = getattr(args, "layer", None) or MoEDefaults.DEFAULT_LAYER
 
     print(format_header("MOE EXPERT EXPLORER"))
     print()
@@ -67,11 +66,9 @@ async def _async_explore(args: Namespace) -> None:
 
         current_prompt = None
         current_layer = default_layer
-        _ = None  # Placeholder for future caching
 
         while True:
             try:
-                # Show current context
                 layer_str = f"L{current_layer:02d}"
                 prompt_str = (
                     f' | "{current_prompt[:30]}..."'
@@ -88,12 +85,10 @@ async def _async_explore(args: Namespace) -> None:
             if not cmd:
                 continue
 
-            # Quit
             if cmd.lower() == "q":
                 print("Goodbye!")
                 break
 
-            # Layer switch
             if cmd.lower().startswith("l "):
                 try:
                     new_layer = int(cmd[2:].strip())
@@ -108,7 +103,6 @@ async def _async_explore(args: Namespace) -> None:
                     print("Usage: l <layer_number>")
                 continue
 
-            # Compare
             if cmd.lower().startswith("c "):
                 compare_prompt = cmd[2:].strip().strip("\"'")
                 if current_prompt:
@@ -117,7 +111,6 @@ async def _async_explore(args: Namespace) -> None:
                     print("No current prompt. Enter a prompt first.")
                 continue
 
-            # All layers
             if cmd.lower() == "a":
                 if current_prompt:
                     await _show_all_layers(router, current_prompt, info.moe_layers)
@@ -125,7 +118,6 @@ async def _async_explore(args: Namespace) -> None:
                     print("No current prompt. Enter a prompt first.")
                 continue
 
-            # Deep dive
             if cmd.lower().startswith("d "):
                 try:
                     pos = int(cmd[2:].strip())
@@ -137,7 +129,6 @@ async def _async_explore(args: Namespace) -> None:
                     print("Usage: d <position_number>")
                 continue
 
-            # New prompt
             current_prompt = cmd
             await _show_analysis(router, current_prompt, current_layer)
 
@@ -161,10 +152,10 @@ async def _show_analysis(router: ExpertRouter, prompt: str, layer: int) -> None:
 
     layer_weights = weights[0]
     positions = layer_weights.positions
-
-    # Classify tokens and build trigrams
     tokens = [p.token for p in positions]
-    sem_types = [classify_token(t) for t in tokens]
+
+    # Use service to analyze routing
+    analysis = ExploreService.analyze_routing(tokens, positions)
 
     # Print tokenization table
     print("TOKENIZATION")
@@ -172,13 +163,9 @@ async def _show_analysis(router: ExpertRouter, prompt: str, layer: int) -> None:
     print(f"{'Pos':<4} {'Token':<15} {'Type':<8} {'Trigram':<24}")
     print("-" * 70)
 
-    for i, (tok, sem_type) in enumerate(zip(tokens, sem_types)):
-        prev_t = sem_types[i - 1] if i > 0 else "^"
-        next_t = sem_types[i + 1] if i < len(sem_types) - 1 else "$"
-        trigram = f"{prev_t}→{sem_type}→{next_t}"
-
-        tok_display = tok.strip()[:14] if tok else ""
-        print(f"{i:<4} {tok_display:<15} {sem_type:<8} {trigram:<24}")
+    for item in analysis:
+        tok_display = item.token.strip()[:14] if item.token else ""
+        print(f"{item.position:<4} {tok_display:<15} {item.token_type:<8} {item.trigram:<24}")
 
     print()
 
@@ -188,73 +175,27 @@ async def _show_analysis(router: ExpertRouter, prompt: str, layer: int) -> None:
     print(f"{'Pos':<4} {'Token':<12} {'Trigram':<22} {'Top-4 Experts':<30}")
     print("-" * 70)
 
-    for i, pos in enumerate(positions):
-        tok_display = tokens[i].strip()[:11] if tokens[i] else ""
-        prev_t = sem_types[i - 1] if i > 0 else "^"
-        curr_t = sem_types[i]
-        next_t = sem_types[i + 1] if i < len(sem_types) - 1 else "$"
-        trigram = f"{prev_t}→{curr_t}→{next_t}"
-
-        # Format expert weights if available
-        experts_str = ""
-        if hasattr(pos, "expert_weights") and pos.expert_weights:
-            # Sort by weight
-            exp_weights = sorted(zip(pos.expert_indices, pos.expert_weights), key=lambda x: -x[1])
+    for item in analysis:
+        tok_display = item.token.strip()[:11] if item.token else ""
+        if item.expert_weights:
+            exp_weights = sorted(zip(item.all_experts, item.expert_weights), key=lambda x: -x[1])
             experts_str = " ".join(f"E{e}({w:.0%})" for e, w in exp_weights[:4])
         else:
-            experts_str = " ".join(f"E{e}" for e in pos.expert_indices[:4])
-
-        print(f"{i:<4} {tok_display:<12} {trigram:<22} {experts_str:<30}")
+            experts_str = " ".join(f"E{e}" for e in item.all_experts[:4])
+        print(f"{item.position:<4} {tok_display:<12} {item.trigram:<22} {experts_str:<30}")
 
     print()
 
-    # Pattern summary
-    _show_pattern_summary(tokens, sem_types, positions)
-
-
-def _show_pattern_summary(tokens: list, sem_types: list, positions: list) -> None:
-    """Show a summary of interesting patterns found."""
+    # Pattern summary using service
+    patterns = ExploreService.find_patterns(tokens, positions)
     print("PATTERN SUMMARY")
     print("-" * 70)
 
-    # Find notable patterns
-    patterns_found = []
-
-    for i, (tok, sem_type) in enumerate(zip(tokens, sem_types)):
-        prev_t = sem_types[i - 1] if i > 0 else "^"
-        next_t = sem_types[i + 1] if i < len(sem_types) - 1 else "$"
-        trigram = f"{prev_t}→{sem_type}→{next_t}"
-
-        pos = positions[i]
-        top_exp = pos.expert_indices[0] if pos.expert_indices else None
-
-        # Identify interesting patterns
-        pattern_type = None
-        if "TO" in trigram and "AS" in sem_types:
-            pattern_type = "analogy marker"
-        elif "→AS→" in trigram:
-            pattern_type = "analogy pivot"
-        elif "→OP→" in trigram or "OP→" in trigram:
-            pattern_type = "arithmetic operator"
-        elif "NUM→OP" in trigram:
-            pattern_type = "number before op"
-        elif "^→KW" in trigram:
-            pattern_type = "code start"
-        elif "^→" in trigram:
-            pattern_type = "sequence start"
-        elif "→$" in trigram:
-            pattern_type = "sequence end"
-        elif "→SYN→" in trigram:
-            pattern_type = "synonym relation"
-        elif "→ANT→" in trigram:
-            pattern_type = "antonym relation"
-
-        if pattern_type:
-            patterns_found.append((i, tok.strip(), trigram, top_exp, pattern_type))
-
-    if patterns_found:
-        for pos_idx, tok, trigram, exp, ptype in patterns_found[:5]:
-            print(f'  Pos {pos_idx} "{tok}" ({trigram}): {ptype} -> E{exp}')
+    if patterns:
+        for p in patterns[:5]:
+            print(
+                f'  Pos {p.position} "{p.token}" ({p.trigram}): {p.pattern_type} -> E{p.top_expert}'
+            )
     else:
         print("  No notable patterns detected.")
 
@@ -273,7 +214,6 @@ async def _compare_prompts(router: ExpertRouter, prompt1: str, prompt2: str, lay
     print(f"Layer: {layer}")
     print()
 
-    # Get routing for both
     weights1 = await router.capture_router_weights(prompt1, layers=[layer])
     weights2 = await router.capture_router_weights(prompt2, layers=[layer])
 
@@ -281,65 +221,39 @@ async def _compare_prompts(router: ExpertRouter, prompt1: str, prompt2: str, lay
         print("Could not capture routing for one or both prompts.")
         return
 
+    positions1 = weights1[0].positions
+    positions2 = weights2[0].positions
+    tokens1 = [p.token for p in positions1]
+    tokens2 = [p.token for p in positions2]
+
+    # Use service for comparison
+    result = ExploreService.compare_routing(
+        tokens1, positions1, tokens2, positions2, prompt1, prompt2, layer
+    )
+
     # Display prompt 1
     print(f'"{prompt1}"')
     print("-" * 70)
-
-    positions1 = weights1[0].positions
-    tokens1 = [p.token for p in positions1]
-    sem_types1 = [classify_token(t) for t in tokens1]
-
-    for i, pos in enumerate(positions1):
-        tok = tokens1[i].strip()[:10]
-        prev_t = sem_types1[i - 1] if i > 0 else "^"
-        curr_t = sem_types1[i]
-        next_t = sem_types1[i + 1] if i < len(sem_types1) - 1 else "$"
-        trigram = f"{prev_t}→{curr_t}→{next_t}"
-        top_exp = pos.expert_indices[0] if pos.expert_indices else None
-        print(f"  {i}: {tok:<10} {trigram:<20} -> E{top_exp}")
+    for item in result.tokens1:
+        tok = item.token.strip()[:10]
+        print(f"  {item.position}: {tok:<10} {item.trigram:<20} -> E{item.top_expert}")
 
     print()
 
     # Display prompt 2
     print(f'"{prompt2}"')
     print("-" * 70)
-
-    positions2 = weights2[0].positions
-    tokens2 = [p.token for p in positions2]
-    sem_types2 = [classify_token(t) for t in tokens2]
-
-    for i, pos in enumerate(positions2):
-        tok = tokens2[i].strip()[:10]
-        prev_t = sem_types2[i - 1] if i > 0 else "^"
-        curr_t = sem_types2[i]
-        next_t = sem_types2[i + 1] if i < len(sem_types2) - 1 else "$"
-        trigram = f"{prev_t}→{curr_t}→{next_t}"
-        top_exp = pos.expert_indices[0] if pos.expert_indices else None
-        print(f"  {i}: {tok:<10} {trigram:<20} -> E{top_exp}")
+    for item in result.tokens2:
+        tok = item.token.strip()[:10]
+        print(f"  {item.position}: {tok:<10} {item.trigram:<20} -> E{item.top_expert}")
 
     print()
-
-    # Compare experts used
-    experts1 = set()
-    for p in positions1:
-        experts1.update(p.expert_indices)
-
-    experts2 = set()
-    for p in positions2:
-        experts2.update(p.expert_indices)
-
-    shared = experts1 & experts2
-    only1 = experts1 - experts2
-    only2 = experts2 - experts1
-
     print("EXPERT OVERLAP")
     print("-" * 70)
-    print(f"  Shared experts: {sorted(shared)}")
-    print(f"  Only in prompt 1: {sorted(only1)}")
-    print(f"  Only in prompt 2: {sorted(only2)}")
-    print(
-        f"  Overlap: {len(shared)}/{len(experts1 | experts2)} ({100 * len(shared) / max(1, len(experts1 | experts2)):.0f}%)"
-    )
+    print(f"  Shared experts: {result.shared_experts}")
+    print(f"  Only in prompt 1: {result.only_prompt1}")
+    print(f"  Only in prompt 2: {result.only_prompt2}")
+    print(f"  Overlap: {result.overlap_ratio:.0%}")
     print()
 
 
@@ -353,64 +267,37 @@ async def _show_all_layers(router: ExpertRouter, prompt: str, moe_layers: list[i
     print(f'Prompt: "{prompt}"')
     print()
 
-    # Get all layers at once
     weights = await router.capture_router_weights(prompt)
 
     if not weights:
         print("No routing data captured.")
         return
 
-    # Get tokens from first layer
     first_layer = weights[0]
     tokens = [p.token.strip() for p in first_layer.positions]
-    sem_types = [classify_token(t) for t in tokens]
 
-    # Find interesting positions to focus on
-    interesting = _find_interesting_positions(tokens, sem_types)[:4]
+    # Find interesting positions using service
+    interesting = ExploreService.find_interesting_positions(tokens, top_k=4)
 
     # Show focused view for interesting positions
     for pos_idx in interesting:
-        tok = tokens[pos_idx][:12]
-        prev_t = sem_types[pos_idx - 1] if pos_idx > 0 else "^"
-        curr_t = sem_types[pos_idx]
-        next_t = sem_types[pos_idx + 1] if pos_idx < len(sem_types) - 1 else "$"
-        trigram = f"{prev_t}→{curr_t}→{next_t}"
+        evolution = ExploreService.analyze_layer_evolution(tokens, weights, pos_idx)
 
-        print(f'Position {pos_idx}: "{tok}" ({trigram})')
+        tok = evolution.token[:12]
+        print(f'Position {pos_idx}: "{tok}" ({evolution.trigram})')
         print("-" * 60)
 
-        # Collect experts across layers
-        layer_experts: list[tuple[int, int]] = []
-        for layer_weights in weights:
-            if pos_idx < len(layer_weights.positions):
-                pos = layer_weights.positions[pos_idx]
-                top = pos.expert_indices[0] if pos.expert_indices else None
-                if top is not None:
-                    layer_experts.append((layer_weights.layer_idx, top))
-
-        # Group by phase
-        from collections import Counter
-
-        early = [(layer, exp) for layer, exp in layer_experts if layer < 8]
-        mid = [(layer, exp) for layer, exp in layer_experts if 8 <= layer < 16]
-        late = [(layer, exp) for layer, exp in layer_experts if layer >= 16]
-
-        # Show each phase on one line
-        def format_phase(phase_data: list, name: str) -> str:
-            if not phase_data:
-                return f"  {name}: --"
-            # Show layer:expert pairs
-            pairs = [f"L{layer}:E{exp}" for layer, exp in phase_data[:4]]
-            if len(phase_data) > 4:
+        def format_phase(phase: any) -> str:
+            if not phase.layer_experts:
+                return f"  {phase.phase_name.capitalize():<8} ({phase.layer_range}): --"
+            pairs = [f"L{layer}:E{exp}" for layer, exp in phase.layer_experts[:4]]
+            if len(phase.layer_experts) > 4:
                 pairs.append("...")
-            # Find dominant expert
-            counts = Counter(e for _, e in phase_data)
-            top_exp, top_count = counts.most_common(1)[0]
-            return f"  {name}: {' '.join(pairs)}  (E{top_exp} dominates)"
+            return f"  {phase.phase_name.capitalize():<8} ({phase.layer_range}): {' '.join(pairs)}  (E{phase.dominant_expert} dominates)"
 
-        print(format_phase(early, "Early  (L0-7) "))
-        print(format_phase(mid, "Middle (L8-15)"))
-        print(format_phase(late, "Late   (L16+) "))
+        print(format_phase(evolution.early))
+        print(format_phase(evolution.middle))
+        print(format_phase(evolution.late))
         print()
 
     # Summary: show expert changes
@@ -420,79 +307,20 @@ async def _show_all_layers(router: ExpertRouter, prompt: str, moe_layers: list[i
     print()
 
     for pos_idx in interesting:
-        tok = tokens[pos_idx][:8]
+        evolution = ExploreService.analyze_layer_evolution(tokens, weights, pos_idx)
+        tok = evolution.token[:8]
 
-        # Get phase dominants
-
-        early_exps = []
-        mid_exps = []
-        late_exps = []
-
-        for layer_weights in weights:
-            if pos_idx < len(layer_weights.positions):
-                pos = layer_weights.positions[pos_idx]
-                top = pos.expert_indices[0] if pos.expert_indices else None
-                if top is not None:
-                    layer_idx = layer_weights.layer_idx
-                    if layer_idx < 8:
-                        early_exps.append(top)
-                    elif layer_idx < 16:
-                        mid_exps.append(top)
-                    else:
-                        late_exps.append(top)
-
-        early_dom = Counter(early_exps).most_common(1)[0][0] if early_exps else None
-        mid_dom = Counter(mid_exps).most_common(1)[0][0] if mid_exps else None
-        late_dom = Counter(late_exps).most_common(1)[0][0] if late_exps else None
-
-        # Check if there are transitions
-        transitions = []
-        if early_dom != mid_dom and early_dom is not None and mid_dom is not None:
-            transitions.append(f"E{early_dom}→E{mid_dom}")
-        if mid_dom != late_dom and mid_dom is not None and late_dom is not None:
-            transitions.append(f"E{mid_dom}→E{late_dom}")
-
-        if transitions:
-            print(f'  "{tok}": {" then ".join(transitions)}')
+        if evolution.has_transition:
+            print(f'  "{tok}": {" then ".join(evolution.transitions)}')
         else:
-            dom = early_dom or mid_dom or late_dom
+            dom = (
+                evolution.early.dominant_expert
+                or evolution.middle.dominant_expert
+                or evolution.late.dominant_expert
+            )
             print(f'  "{tok}": E{dom} (stable)')
 
     print()
-
-
-def _find_interesting_positions(tokens: list, sem_types: list) -> list[int]:
-    """Find positions with interesting patterns."""
-    interesting = []
-
-    for i, (tok, sem_type) in enumerate(zip(tokens, sem_types)):
-        score = 0
-        prev_t = sem_types[i - 1] if i > 0 else "^"
-        next_t = sem_types[i + 1] if i < len(sem_types) - 1 else "$"
-
-        # Position markers
-        if prev_t == "^":
-            score += 2
-        if next_t == "$":
-            score += 2
-
-        # Semantic relations
-        if sem_type in ["AS", "TO", "SYN", "ANT", "CAUSE", "THAN"]:
-            score += 3
-
-        # Operators
-        if sem_type == "OP":
-            score += 2
-
-        # Content words in specific patterns
-        if sem_type in ["NOUN", "ADJ", "VERB"] and prev_t in ["AS", "TO"]:
-            score += 2
-
-        if score > 0:
-            interesting.append((score, i))
-
-    interesting.sort(reverse=True)
-    return [idx for _, idx in interesting]
 
 
 async def _deep_dive(
@@ -505,7 +333,6 @@ async def _deep_dive(
     print("=" * 70)
     print()
 
-    # Get all layers
     weights = await router.capture_router_weights(prompt)
 
     if not weights:
@@ -518,64 +345,38 @@ async def _deep_dive(
         return
 
     tokens = [p.token for p in first_layer.positions]
-    sem_types = [classify_token(t) for t in tokens]
 
-    tok = tokens[pos_idx].strip()
-    sem_type = sem_types[pos_idx]
-    prev_t = sem_types[pos_idx - 1] if pos_idx > 0 else "^"
-    next_t = sem_types[pos_idx + 1] if pos_idx < len(sem_types) - 1 else "$"
-    trigram = f"{prev_t}→{sem_type}→{next_t}"
+    # Use service for deep dive
+    result = ExploreService.deep_dive_position(tokens, weights, pos_idx)
 
-    prev_tok = tokens[pos_idx - 1].strip() if pos_idx > 0 else "^"
-    next_tok = tokens[pos_idx + 1].strip() if pos_idx < len(tokens) - 1 else "$"
-
-    print(f'Token: "{tok}"')
-    print(f"Type: {sem_type}")
-    print(f"Trigram: {trigram}")
+    print(f'Token: "{result.token}"')
+    print(f"Type: {result.token_type}")
+    print(f"Trigram: {result.trigram}")
     print()
     print("Context:")
-    print(f'  Previous: "{prev_tok}" ({prev_t})')
-    print(f'  Current:  "{tok}" ({sem_type})')
-    print(f'  Next:     "{next_tok}" ({next_t})')
+    print(f'  Previous: "{result.prev_token}" ({result.prev_type})')
+    print(f'  Current:  "{result.token}" ({result.token_type})')
+    print(f'  Next:     "{result.next_token}" ({result.next_type})')
     print()
 
     # Show routing across all layers
     print("ROUTING ACROSS ALL LAYERS")
     print("-" * 70)
 
-    # Collect all experts used
-    all_experts: set[int] = set()
-    layer_data: list[tuple[int, list[tuple[int, float]]]] = []
-
-    for layer_weights in weights:
-        if pos_idx < len(layer_weights.positions):
-            pos = layer_weights.positions[pos_idx]
-            all_experts.update(pos.expert_indices)
-
-            if hasattr(pos, "expert_weights") and pos.expert_weights:
-                exp_weights = list(zip(pos.expert_indices, pos.expert_weights))
-            else:
-                # Fake weights if not available
-                n = len(pos.expert_indices)
-                exp_weights = [(e, 1.0 / n) for e in pos.expert_indices]
-
-            layer_data.append((layer_weights.layer_idx, exp_weights))
-
-    # Sort experts
-    sorted_experts = sorted(all_experts)
+    sorted_experts = result.all_experts[:8]
 
     # Print header
     header = "Layer"
-    for exp in sorted_experts[:8]:  # Limit columns
+    for exp in sorted_experts:
         header += f"  E{exp:02d}"
     print(header)
     print("-" * len(header))
 
     # Print data
-    for layer, exp_weights in layer_data:
+    for layer, exp_weights in result.layer_routing:
         row = f"L{layer:02d}  "
         exp_dict = dict(exp_weights)
-        for exp in sorted_experts[:8]:
+        for exp in sorted_experts:
             weight = exp_dict.get(exp, 0)
             if weight > 0.1:
                 bar = "#" * int(weight * 5)
@@ -586,29 +387,12 @@ async def _deep_dive(
 
     print()
 
-    # Find peak layer/expert
-    from collections import Counter
-
-    exp_layer_counts: dict[int, list[int]] = {}
-    for layer, exp_weights in layer_data:
-        for exp, weight in exp_weights:
-            if exp not in exp_layer_counts:
-                exp_layer_counts[exp] = []
-            exp_layer_counts[exp].append(layer)
-
-    # Most common expert
-    all_exp_counts = Counter()
-    for layer, exp_weights in layer_data:
-        for exp, weight in exp_weights:
-            all_exp_counts[exp] += 1
-
-    top_exp, top_count = all_exp_counts.most_common(1)[0] if all_exp_counts else (None, 0)
-
-    if top_exp is not None:
-        layers_active = exp_layer_counts.get(top_exp, [])
-        peak_layer = layers_active[len(layers_active) // 2] if layers_active else 0
-        print(f"FINDING: E{top_exp} dominates for trigram {trigram}")
-        print(f"         Active in {top_count}/{len(layer_data)} layers")
-        print(f"         Peak around layer {peak_layer}")
+    if result.dominant_expert is not None:
+        print(f"FINDING: E{result.dominant_expert} dominates for trigram {result.trigram}")
+        print(
+            f"         Active in {len([1 for _, ew in result.layer_routing for e, _ in ew if e == result.dominant_expert])}/{len(result.layer_routing)} layers"
+        )
+        if result.peak_layer is not None:
+            print(f"         Peak around layer {result.peak_layer}")
 
     print()

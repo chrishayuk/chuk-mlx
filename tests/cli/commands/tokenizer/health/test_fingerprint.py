@@ -1,117 +1,176 @@
-"""Tests for tokenizer fingerprint command."""
+"""Tests for tokenizer_fingerprint command."""
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from chuk_lazarus.cli.commands.tokenizer._types import FingerprintConfig
 from chuk_lazarus.cli.commands.tokenizer.health.fingerprint import tokenizer_fingerprint
 
-LOAD_TOKENIZER_PATCH = "chuk_lazarus.utils.tokenizer_loader.load_tokenizer"
-FINGERPRINT_PATCH = "chuk_lazarus.data.tokenizers.fingerprint"
+
+class TestFingerprintConfig:
+    """Tests for FingerprintConfig."""
+
+    def test_from_args_basic(self):
+        """Test basic config creation."""
+        args = MagicMock()
+        args.tokenizer = "gpt2"
+        args.verify = None
+        args.save = None
+        args.strict = False
+
+        config = FingerprintConfig.from_args(args)
+
+        assert config.tokenizer == "gpt2"
+        assert config.verify is None
+        assert config.save is None
+        assert config.strict is False
+
+    def test_from_args_with_verify(self):
+        """Test config with verify option."""
+        args = MagicMock()
+        args.tokenizer = "llama"
+        args.verify = "abc123"
+        args.save = None
+        args.strict = True
+
+        config = FingerprintConfig.from_args(args)
+
+        assert config.tokenizer == "llama"
+        assert config.verify == "abc123"
+        assert config.strict is True
+
+    def test_from_args_with_save(self):
+        """Test config with save option."""
+        args = MagicMock()
+        args.tokenizer = "llama"
+        args.verify = None
+        args.save = Path("/path/to/fingerprint.json")
+        args.strict = False
+
+        config = FingerprintConfig.from_args(args)
+
+        assert config.save == Path("/path/to/fingerprint.json")
 
 
 class TestTokenizerFingerprint:
-    """Tests for tokenizer_fingerprint command."""
+    """Tests for tokenizer_fingerprint function."""
 
-    def test_basic_fingerprint(self, mock_tokenizer, mock_fingerprint):
-        """Test basic fingerprint generation."""
+    @patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer")
+    @patch("chuk_lazarus.data.tokenizers.fingerprint.compute_fingerprint")
+    def test_fingerprint_display(
+        self, mock_compute_fp, mock_load_tokenizer, capsys
+    ):
+        """Test basic fingerprint display."""
+        mock_tokenizer = MagicMock()
+        mock_load_tokenizer.return_value = mock_tokenizer
+
+        mock_fp = MagicMock()
+        mock_fp.fingerprint = "gpt2-v1-abc123"
+        mock_fp.full_hash = "fullhash123"
+        mock_fp.vocab_size = 50257
+        mock_fp.vocab_hash = "vochash"
+        mock_fp.special_tokens_hash = "spechash"
+        mock_fp.merges_hash = "mergehash"
+        mock_fp.special_tokens = {"pad_token_id": 0, "eos_token_id": 50256}
+        mock_compute_fp.return_value = mock_fp
+
         config = FingerprintConfig(tokenizer="gpt2")
+        result = tokenizer_fingerprint(config)
 
-        with (
-            patch(LOAD_TOKENIZER_PATCH, return_value=mock_tokenizer),
-            patch(f"{FINGERPRINT_PATCH}.compute_fingerprint", return_value=mock_fingerprint),
-        ):
-            result = tokenizer_fingerprint(config)
+        captured = capsys.readouterr()
+        assert "Tokenizer Fingerprint" in captured.out
+        assert "gpt2-v1-abc123" in captured.out
+        assert result.fingerprint == "gpt2-v1-abc123"
+        assert result.vocab_size == 50257
 
-        assert result.fingerprint == "abc123"
-        assert result.vocab_size == 32000
-        assert result.verified is None
-        assert result.match is None
+    @patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer")
+    @patch("chuk_lazarus.data.tokenizers.fingerprint.compute_fingerprint")
+    @patch("chuk_lazarus.data.tokenizers.fingerprint.verify_fingerprint")
+    def test_fingerprint_verify_match(
+        self, mock_verify, mock_compute_fp, mock_load_tokenizer, capsys
+    ):
+        """Test fingerprint verification - match."""
+        mock_tokenizer = MagicMock()
+        mock_load_tokenizer.return_value = mock_tokenizer
 
-    def test_fingerprint_verify_match(self, mock_tokenizer, mock_fingerprint):
-        """Test fingerprint verification with match."""
-        config = FingerprintConfig(
-            tokenizer="gpt2",
-            verify="abc123",
-            strict=False,
-        )
+        mock_fp = MagicMock()
+        mock_fp.fingerprint = "gpt2-v1-abc123"
+        mock_fp.full_hash = "fullhash123"
+        mock_fp.vocab_size = 50257
+        mock_fp.vocab_hash = "vochash"
+        mock_fp.special_tokens_hash = "spechash"
+        mock_fp.merges_hash = "mergehash"
+        mock_fp.special_tokens = {}
+        mock_compute_fp.return_value = mock_fp
 
-        with (
-            patch(LOAD_TOKENIZER_PATCH, return_value=mock_tokenizer),
-            patch(f"{FINGERPRINT_PATCH}.compute_fingerprint", return_value=mock_fingerprint),
-            patch(f"{FINGERPRINT_PATCH}.verify_fingerprint", return_value=None),
-        ):
-            result = tokenizer_fingerprint(config)
+        mock_verify.return_value = None  # None means match
 
+        config = FingerprintConfig(tokenizer="gpt2", verify="gpt2-v1-abc123")
+        result = tokenizer_fingerprint(config)
+
+        captured = capsys.readouterr()
+        assert "Fingerprint Verification" in captured.out
+        assert "MATCH" in captured.out
         assert result.verified is True
         assert result.match is True
 
-    def test_fingerprint_verify_mismatch(self, mock_tokenizer, mock_fingerprint):
-        """Test fingerprint verification with mismatch."""
-        config = FingerprintConfig(
-            tokenizer="gpt2",
-            verify="different_hash",
-            strict=False,
-        )
+    @patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer")
+    @patch("chuk_lazarus.data.tokenizers.fingerprint.compute_fingerprint")
+    @patch("chuk_lazarus.data.tokenizers.fingerprint.verify_fingerprint")
+    def test_fingerprint_verify_mismatch(
+        self, mock_verify, mock_compute_fp, mock_load_tokenizer, capsys
+    ):
+        """Test fingerprint verification - mismatch but compatible."""
+        mock_tokenizer = MagicMock()
+        mock_load_tokenizer.return_value = mock_tokenizer
 
-        mismatch = MagicMock()
-        mismatch.is_compatible = True
-        mismatch.warnings = ["Vocab size differs"]
+        mock_fp = MagicMock()
+        mock_fp.fingerprint = "gpt2-v1-abc123"
+        mock_fp.full_hash = "fullhash123"
+        mock_fp.vocab_size = 50257
+        mock_fp.vocab_hash = "vochash"
+        mock_fp.special_tokens_hash = "spechash"
+        mock_fp.merges_hash = "mergehash"
+        mock_fp.special_tokens = {}
+        mock_compute_fp.return_value = mock_fp
 
-        with (
-            patch(LOAD_TOKENIZER_PATCH, return_value=mock_tokenizer),
-            patch(f"{FINGERPRINT_PATCH}.compute_fingerprint", return_value=mock_fingerprint),
-            patch(f"{FINGERPRINT_PATCH}.verify_fingerprint", return_value=mismatch),
-        ):
-            result = tokenizer_fingerprint(config)
+        mock_mismatch = MagicMock()
+        mock_mismatch.is_compatible = True
+        mock_mismatch.warnings = ["Minor version difference"]
+        mock_verify.return_value = mock_mismatch
 
-        assert result.verified is True
+        config = FingerprintConfig(tokenizer="gpt2", verify="gpt2-v1-xyz789")
+        result = tokenizer_fingerprint(config)
+
+        captured = capsys.readouterr()
+        assert "MISMATCH" in captured.out
+        assert "Compatible: Yes" in captured.out
         assert result.match is False
 
-    def test_fingerprint_save(self, mock_tokenizer, mock_fingerprint, tmp_path):
-        """Test saving fingerprint to file."""
-        output_file = tmp_path / "fingerprint.json"
-        config = FingerprintConfig(
-            tokenizer="gpt2",
-            save=output_file,
-        )
+    @patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer")
+    @patch("chuk_lazarus.data.tokenizers.fingerprint.compute_fingerprint")
+    @patch("chuk_lazarus.data.tokenizers.fingerprint.save_fingerprint")
+    def test_fingerprint_save(
+        self, mock_save, mock_compute_fp, mock_load_tokenizer, capsys, tmp_path
+    ):
+        """Test fingerprint save."""
+        mock_tokenizer = MagicMock()
+        mock_load_tokenizer.return_value = mock_tokenizer
 
-        with (
-            patch(LOAD_TOKENIZER_PATCH, return_value=mock_tokenizer),
-            patch(f"{FINGERPRINT_PATCH}.compute_fingerprint", return_value=mock_fingerprint),
-            patch(f"{FINGERPRINT_PATCH}.save_fingerprint") as mock_save,
-        ):
-            result = tokenizer_fingerprint(config)
+        mock_fp = MagicMock()
+        mock_fp.fingerprint = "gpt2-v1-abc123"
+        mock_fp.full_hash = "fullhash123"
+        mock_fp.vocab_size = 50257
+        mock_fp.vocab_hash = "vochash"
+        mock_fp.special_tokens_hash = "spechash"
+        mock_fp.merges_hash = "mergehash"
+        mock_fp.special_tokens = {}
+        mock_compute_fp.return_value = mock_fp
 
-        mock_save.assert_called_once_with(mock_fingerprint, output_file)
-        assert result.fingerprint == "abc123"
+        save_path = tmp_path / "fingerprint.json"
+        config = FingerprintConfig(tokenizer="gpt2", save=save_path)
+        tokenizer_fingerprint(config)
 
-    def test_result_display_basic(self, mock_tokenizer, mock_fingerprint):
-        """Test basic result display."""
-        config = FingerprintConfig(tokenizer="gpt2")
-
-        with (
-            patch(LOAD_TOKENIZER_PATCH, return_value=mock_tokenizer),
-            patch(f"{FINGERPRINT_PATCH}.compute_fingerprint", return_value=mock_fingerprint),
-        ):
-            result = tokenizer_fingerprint(config)
-
-        display = result.to_display()
-        assert "Fingerprint:   abc123" in display
-        assert "Vocab size:    32,000" in display
-
-    def test_result_display_with_verification(self, mock_tokenizer, mock_fingerprint):
-        """Test result display with verification."""
-        config = FingerprintConfig(
-            tokenizer="gpt2",
-            verify="abc123",
-        )
-
-        with (
-            patch(LOAD_TOKENIZER_PATCH, return_value=mock_tokenizer),
-            patch(f"{FINGERPRINT_PATCH}.compute_fingerprint", return_value=mock_fingerprint),
-            patch(f"{FINGERPRINT_PATCH}.verify_fingerprint", return_value=None),
-        ):
-            result = tokenizer_fingerprint(config)
-
-        display = result.to_display()
-        assert "Verification: MATCH" in display
+        captured = capsys.readouterr()
+        assert "Fingerprint Saved" in captured.out
+        mock_save.assert_called_once_with(mock_fp, save_path)

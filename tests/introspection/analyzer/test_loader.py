@@ -118,40 +118,23 @@ class TestLoadModelSync:
             with pytest.raises(ValueError, match="Unsupported model family"):
                 _load_model_sync("unknown-model")
 
-    @patch("chuk_lazarus.inference.loader.HFLoader")
-    @patch("chuk_lazarus.models_v2.families.registry.detect_model_family")
-    @patch("chuk_lazarus.models_v2.families.registry.get_family_info")
-    def test_gemma_embedding_scale(self, mock_get_family, mock_detect, mock_loader):
+    @patch("chuk_lazarus.introspection.analyzer.loader._central_load")
+    def test_gemma_embedding_scale(self, mock_central_load):
         """Test Gemma models get embedding scale attached."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            model_path = Path(tmpdir)
-            config_data = {"model_type": "gemma", "hidden_size": 256}
-            with open(model_path / "config.json", "w") as f:
-                json.dump(config_data, f)
+        # Create mock model and config
+        mock_model = Mock()
+        mock_tokenizer = Mock()
+        mock_config = Mock()
+        mock_config.model_type = "gemma"
+        mock_config.hidden_size = 256
 
-            mock_result = Mock()
-            mock_result.model_path = model_path
-            mock_loader.download.return_value = mock_result
+        mock_central_load.return_value = (mock_model, mock_tokenizer, mock_config)
 
-            mock_detect.return_value = "gemma"
+        model, _, _ = _load_model_sync("gemma-model")
 
-            mock_family_info = Mock()
-            mock_config_class = Mock()
-            mock_model_class = Mock()
-            mock_family_info.config_class = mock_config_class
-            mock_family_info.model_class = mock_model_class
-            mock_get_family.return_value = mock_family_info
-
-            mock_config_class.from_hf_config.return_value = Mock()
-            mock_model = Mock()
-            mock_model_class.return_value = mock_model
-            mock_loader.load_tokenizer.return_value = Mock()
-
-            model, _, _ = _load_model_sync("gemma-model")
-
-            # Check embedding scale was set (sqrt(256) = 16)
-            assert hasattr(mock_model, "_embedding_scale_for_hooks")
-            assert mock_model._embedding_scale_for_hooks == 16.0
+        # Check embedding scale was set (sqrt(256) = 16)
+        assert hasattr(model, "_embedding_scale_for_hooks")
+        assert model._embedding_scale_for_hooks == 16.0
 
 
 class TestGetModelHiddenSize:

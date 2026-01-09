@@ -158,7 +158,9 @@ async def _async_domain_test(args: Namespace) -> None:
         multi_domain.sort(key=lambda x: -x[1])
 
         for exp, total, domains, num_handled in multi_domain[:10]:
-            marker = f" <-- handles ALL {num_domains} domains!" if num_handled == num_domains else ""
+            marker = (
+                f" <-- handles ALL {num_domains} domains!" if num_handled == num_domains else ""
+            )
             print(f"  E{exp:02d}: {num_handled} domains - {domains}{marker}")
 
         # Count how many handle all domains

@@ -18,21 +18,21 @@ Example:
 
 from __future__ import annotations
 
-from .facts import (
-    FactType,
-    load_facts,
-    load_multiplication_facts,
-    load_addition_facts,
-    load_capital_facts,
-    load_element_facts,
+from .benchmarks import (
+    load_expert_benchmark,
+    load_expert_test_categories,
 )
 from .calibration import (
     CalibrationPrompts,
     load_calibration_prompts,
 )
-from .benchmarks import (
-    load_expert_benchmark,
-    load_expert_test_categories,
+from .facts import (
+    FactType,
+    load_addition_facts,
+    load_capital_facts,
+    load_element_facts,
+    load_facts,
+    load_multiplication_facts,
 )
 
 __all__ = [

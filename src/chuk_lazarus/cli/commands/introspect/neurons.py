@@ -16,8 +16,6 @@ from ._types import (
     DirectionComparisonResult,
     DirectionPairSimilarity,
     NeuronAnalysisConfig,
-    NeuronAnalysisResult,
-    NeuronStats,
     parse_layers_string,
 )
 
@@ -87,7 +85,9 @@ async def _async_introspect_neurons(args: Namespace) -> None:
         )
         print(f"  Loaded top {config.top_k} neurons from: {config.from_direction}")
         if "positive_label" in metadata:
-            print(f"  Direction: {metadata.get('negative_label', 'neg')} -> {metadata['positive_label']}")
+            print(
+                f"  Direction: {metadata.get('negative_label', 'neg')} -> {metadata['positive_label']}"
+            )
 
     elif auto_discover:
         if not labels:
@@ -208,7 +208,6 @@ def _print_neuron_results(
     neuron_stats: dict[int, dict],
 ) -> None:
     """Print neuron analysis results."""
-    import numpy as np
 
     layers = list(results.keys())
 
@@ -237,9 +236,7 @@ def _print_neuron_results(
 
                 for layer in layers:
                     layer_results = results[layer]
-                    neuron_result = next(
-                        (r for r in layer_results if r.neuron_idx == neuron), None
-                    )
+                    neuron_result = next((r for r in layer_results if r.neuron_idx == neuron), None)
                     if neuron_result:
                         row += f" {neuron_result.mean_val:+4.0f} |"
                     else:
@@ -345,13 +342,15 @@ async def _async_introspect_directions(args: Namespace) -> None:
 
         directions.append(direction)
         names.append(name)
-        metadata.append({
-            "file": str(path),
-            "name": name,
-            "layer": layer,
-            "dim": len(direction),
-            "accuracy": accuracy,
-        })
+        metadata.append(
+            {
+                "file": str(path),
+                "name": name,
+                "layer": layer,
+                "dim": len(direction),
+                "accuracy": accuracy,
+            }
+        )
 
         acc_str = f", acc={accuracy:.1%}" if accuracy else ""
         print(f"  {name}: layer={layer}, dim={len(direction)}{acc_str}")
@@ -371,12 +370,14 @@ async def _async_introspect_directions(args: Namespace) -> None:
                 sim = float("nan")
 
             off_diag.append(sim)
-            pairs.append(DirectionPairSimilarity(
-                name_a=names[i],
-                name_b=names[j],
-                cosine_similarity=sim,
-                orthogonal=abs(sim) < config.threshold if not np.isnan(sim) else False,
-            ))
+            pairs.append(
+                DirectionPairSimilarity(
+                    name_a=names[i],
+                    name_b=names[j],
+                    cosine_similarity=sim,
+                    orthogonal=abs(sim) < config.threshold if not np.isnan(sim) else False,
+                )
+            )
 
     # Create result
     valid_sims = [s for s in off_diag if not np.isnan(s)]
@@ -471,12 +472,14 @@ async def _async_introspect_operand_directions(args: Namespace) -> None:
         layers = [int(layer.strip()) for layer in args.layers.split(",")]
     else:
         num_layers = study.adapter.num_layers
-        layers = sorted({
-            int(num_layers * 0.25),
-            int(num_layers * 0.5),
-            int(num_layers * 0.6),
-            int(num_layers * 0.75),
-        })
+        layers = sorted(
+            {
+                int(num_layers * 0.25),
+                int(num_layers * 0.5),
+                int(num_layers * 0.6),
+                int(num_layers * 0.75),
+            }
+        )
 
     op = args.operation or "*"
 
@@ -521,22 +524,19 @@ async def _async_introspect_operand_directions(args: Namespace) -> None:
         a_vs_a = [
             cosine_sim(A_directions[a1], A_directions[a2])
             for i, a1 in enumerate(digits)
-            for a2 in digits[i + 1:]
+            for a2 in digits[i + 1 :]
         ]
         b_vs_b = [
             cosine_sim(B_directions[b1], B_directions[b2])
             for i, b1 in enumerate(digits)
-            for b2 in digits[i + 1:]
+            for b2 in digits[i + 1 :]
         ]
         a_vs_b_cross = [
-            cosine_sim(A_directions[a], B_directions[b])
-            for a in digits
-            for b in digits
-            if a != b
+            cosine_sim(A_directions[a], B_directions[b]) for a in digits for b in digits if a != b
         ]
         a_vs_b_same = [cosine_sim(A_directions[d], B_directions[d]) for d in digits]
 
-        print(f"\n--- Orthogonality Analysis ---")
+        print("\n--- Orthogonality Analysis ---")
         print(f"A_i vs A_j: {np.mean(a_vs_a):.3f} +/- {np.std(a_vs_a):.3f}")
         print(f"B_i vs B_j: {np.mean(b_vs_b):.3f} +/- {np.std(b_vs_b):.3f}")
         print(f"A_i vs B_j (cross): {np.mean(a_vs_b_cross):.3f} +/- {np.std(a_vs_b_cross):.3f}")

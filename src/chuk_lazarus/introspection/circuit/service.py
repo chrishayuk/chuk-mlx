@@ -7,7 +7,6 @@ functionality for CLI commands.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -388,11 +387,13 @@ class CircuitService:
                 score = 0.0
                 prediction = "unknown"
 
-            results.append({
-                "prompt": prompt,
-                "score": score,
-                "prediction": prediction,
-            })
+            results.append(
+                {
+                    "prompt": prompt,
+                    "score": score,
+                    "prediction": prediction,
+                }
+            )
 
         return CircuitInvokeResult(
             results=results,
@@ -423,12 +424,14 @@ class CircuitService:
             if is_correct:
                 correct += 1
 
-            results.append({
-                **r,
-                "expected": exp,
-                "predicted": pred,
-                "correct": is_correct,
-            })
+            results.append(
+                {
+                    **r,
+                    "expected": exp,
+                    "predicted": pred,
+                    "correct": is_correct,
+                }
+            )
 
         return CircuitTestResult(
             accuracy=correct / total if total > 0 else 0.0,
@@ -468,9 +471,13 @@ class CircuitService:
 
         # Compare metadata
         if circuit_a.get("model") != circuit_b.get("model"):
-            differences.append(f"Different models: {circuit_a.get('model')} vs {circuit_b.get('model')}")
+            differences.append(
+                f"Different models: {circuit_a.get('model')} vs {circuit_b.get('model')}"
+            )
         if circuit_a.get("layer") != circuit_b.get("layer"):
-            differences.append(f"Different layers: {circuit_a.get('layer')} vs {circuit_b.get('layer')}")
+            differences.append(
+                f"Different layers: {circuit_a.get('layer')} vs {circuit_b.get('layer')}"
+            )
 
         # Compare directions
         similarity = 0.0
@@ -478,7 +485,9 @@ class CircuitService:
         dir_b = np.array(circuit_b.get("direction", []))
 
         if len(dir_a) > 0 and len(dir_b) > 0 and len(dir_a) == len(dir_b):
-            similarity = float(np.dot(dir_a, dir_b) / (np.linalg.norm(dir_a) * np.linalg.norm(dir_b) + 1e-8))
+            similarity = float(
+                np.dot(dir_a, dir_b) / (np.linalg.norm(dir_a) * np.linalg.norm(dir_b) + 1e-8)
+            )
         elif len(dir_a) != len(dir_b):
             differences.append(f"Different direction dimensions: {len(dir_a)} vs {len(dir_b)}")
 
@@ -515,16 +524,18 @@ class CircuitService:
 
         # Project direction through vocabulary
         scores = np.dot(unembed, direction)
-        top_indices = np.argsort(scores)[-config.top_k:][::-1]
+        top_indices = np.argsort(scores)[-config.top_k :][::-1]
 
         top_tokens = []
         for idx in top_indices:
             token = tokenizer.decode([int(idx)])
-            top_tokens.append({
-                "token": token,
-                "token_id": int(idx),
-                "score": float(scores[idx]),
-            })
+            top_tokens.append(
+                {
+                    "token": token,
+                    "token_id": int(idx),
+                    "score": float(scores[idx]),
+                }
+            )
 
         return CircuitDecodeResult(top_tokens=top_tokens)
 
@@ -560,7 +571,7 @@ class CircuitService:
         lines = [
             "digraph Circuit {",
             f"  rankdir={direction};",
-            f"  label=\"Circuit at layer {circuit_data.get('layer', '?')}\";",
+            f'  label="Circuit at layer {circuit_data.get("layer", "?")}";',
             "  node [shape=box];",
         ]
 

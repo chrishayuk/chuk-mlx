@@ -50,7 +50,7 @@ def runtime_registry(config: RuntimeRegistryWithTokenizerConfig) -> None:
                         registry.register(
                             token_str=token,
                             token_id=token_id,
-                            category=TokenCategory.CONTROL,
+                            category=TokenCategory.CUSTOM,
                             description=name,
                         )
 

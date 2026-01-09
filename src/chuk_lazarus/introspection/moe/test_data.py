@@ -6,8 +6,7 @@ used across MoE expert CLI handlers.
 
 from __future__ import annotations
 
-from ...cli.commands._constants import Domain, PatternCategory
-
+from .._shared_constants import Domain, PatternCategory
 
 # =============================================================================
 # Token Routing Test Contexts
@@ -225,59 +224,189 @@ ATTENTION_ROUTING_CONTEXTS: dict[str, str] = {
 # Token Classification Lexicons
 # =============================================================================
 
-CODE_KEYWORDS: frozenset[str] = frozenset({
-    "def", "class", "if", "else", "elif", "for", "while", "return",
-    "import", "from", "try", "except", "finally", "with", "as", "assert",
-    "break", "continue", "pass", "raise", "yield", "lambda", "global",
-    "nonlocal", "async", "await", "in", "not", "and", "or", "is", "None",
-})
+CODE_KEYWORDS: frozenset[str] = frozenset(
+    {
+        "def",
+        "class",
+        "if",
+        "else",
+        "elif",
+        "for",
+        "while",
+        "return",
+        "import",
+        "from",
+        "try",
+        "except",
+        "finally",
+        "with",
+        "as",
+        "assert",
+        "break",
+        "continue",
+        "pass",
+        "raise",
+        "yield",
+        "lambda",
+        "global",
+        "nonlocal",
+        "async",
+        "await",
+        "in",
+        "not",
+        "and",
+        "or",
+        "is",
+        "None",
+    }
+)
 
 BOOLEAN_LITERALS: frozenset[str] = frozenset({"True", "False", "true", "false"})
 
-TYPE_KEYWORDS: frozenset[str] = frozenset({
-    "int", "float", "str", "bool", "list", "dict", "set", "tuple",
-    "bytes", "None", "Any", "Optional", "Union", "List", "Dict",
-})
+TYPE_KEYWORDS: frozenset[str] = frozenset(
+    {
+        "int",
+        "float",
+        "str",
+        "bool",
+        "list",
+        "dict",
+        "set",
+        "tuple",
+        "bytes",
+        "None",
+        "Any",
+        "Optional",
+        "Union",
+        "List",
+        "Dict",
+    }
+)
 
-QUESTION_WORDS: frozenset[str] = frozenset({
-    "what", "who", "where", "when", "why", "how", "which", "whose",
-})
+QUESTION_WORDS: frozenset[str] = frozenset(
+    {
+        "what",
+        "who",
+        "where",
+        "when",
+        "why",
+        "how",
+        "which",
+        "whose",
+    }
+)
 
-ANSWER_WORDS: frozenset[str] = frozenset({
-    "yes", "no", "maybe", "probably", "perhaps", "definitely",
-})
+ANSWER_WORDS: frozenset[str] = frozenset(
+    {
+        "yes",
+        "no",
+        "maybe",
+        "probably",
+        "perhaps",
+        "definitely",
+    }
+)
 
-NEGATION_WORDS: frozenset[str] = frozenset({
-    "not", "no", "never", "none", "nothing", "neither", "nobody", "nowhere",
-})
+NEGATION_WORDS: frozenset[str] = frozenset(
+    {
+        "not",
+        "no",
+        "never",
+        "none",
+        "nothing",
+        "neither",
+        "nobody",
+        "nowhere",
+    }
+)
 
-TIME_WORDS: frozenset[str] = frozenset({
-    "yesterday", "today", "tomorrow", "now", "then", "before", "after",
-    "during", "always", "never", "sometimes", "often", "usually",
-})
+TIME_WORDS: frozenset[str] = frozenset(
+    {
+        "yesterday",
+        "today",
+        "tomorrow",
+        "now",
+        "then",
+        "before",
+        "after",
+        "during",
+        "always",
+        "never",
+        "sometimes",
+        "often",
+        "usually",
+    }
+)
 
-QUANTIFIER_WORDS: frozenset[str] = frozenset({
-    "all", "some", "none", "many", "few", "most", "any", "each", "every",
-})
+QUANTIFIER_WORDS: frozenset[str] = frozenset(
+    {
+        "all",
+        "some",
+        "none",
+        "many",
+        "few",
+        "most",
+        "any",
+        "each",
+        "every",
+    }
+)
 
-COMPARISON_WORDS: frozenset[str] = frozenset({
-    "more", "less", "most", "least", "bigger", "smaller", "larger",
-    "better", "worse", "higher", "lower", "faster", "slower",
-})
+COMPARISON_WORDS: frozenset[str] = frozenset(
+    {
+        "more",
+        "less",
+        "most",
+        "least",
+        "bigger",
+        "smaller",
+        "larger",
+        "better",
+        "worse",
+        "higher",
+        "lower",
+        "faster",
+        "slower",
+    }
+)
 
-COORDINATION_WORDS: frozenset[str] = frozenset({
-    "and", "or", "but", "yet", "so", "nor", "for",
-})
+COORDINATION_WORDS: frozenset[str] = frozenset(
+    {
+        "and",
+        "or",
+        "but",
+        "yet",
+        "so",
+        "nor",
+        "for",
+    }
+)
 
-CAUSATION_WORDS: frozenset[str] = frozenset({
-    "because", "since", "therefore", "thus", "hence", "so",
-    "consequently", "accordingly",
-})
+CAUSATION_WORDS: frozenset[str] = frozenset(
+    {
+        "because",
+        "since",
+        "therefore",
+        "thus",
+        "hence",
+        "so",
+        "consequently",
+        "accordingly",
+    }
+)
 
-CONDITIONAL_WORDS: frozenset[str] = frozenset({
-    "if", "unless", "when", "whenever", "provided", "assuming",
-    "supposing", "given",
-})
+CONDITIONAL_WORDS: frozenset[str] = frozenset(
+    {
+        "if",
+        "unless",
+        "when",
+        "whenever",
+        "provided",
+        "assuming",
+        "supposing",
+        "given",
+    }
+)
 
 
 __all__ = [

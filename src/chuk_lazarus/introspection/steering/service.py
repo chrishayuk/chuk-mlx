@@ -13,9 +13,9 @@ import mlx.core as mx
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
+from ..hooks import CaptureConfig, ModelHooks, PositionSelection
 from .config import SteeringConfig
 from .core import ActivationSteering
-from ..hooks import CaptureConfig, ModelHooks, PositionSelection
 
 
 class SteeringServiceConfig(BaseModel):
@@ -38,7 +38,9 @@ class DirectionExtractionResult(BaseModel):
     direction: Any = Field(..., description="Direction vector")
     layer: int = Field(..., description="Layer index")
     norm: float = Field(..., description="Direction norm")
-    cosine_similarity: float = Field(..., description="Cosine similarity between positive and negative")
+    cosine_similarity: float = Field(
+        ..., description="Cosine similarity between positive and negative"
+    )
     separation: float = Field(..., description="1 - cosine similarity")
     positive_prompt: str = Field(..., description="Positive prompt")
     negative_prompt: str = Field(..., description="Negative prompt")
@@ -132,8 +134,7 @@ class SteeringService:
         cos_sim = float(
             mx.sum(h_positive * h_negative)
             / (
-                mx.sqrt(mx.sum(h_positive * h_positive))
-                * mx.sqrt(mx.sum(h_negative * h_negative))
+                mx.sqrt(mx.sum(h_positive * h_positive)) * mx.sqrt(mx.sum(h_negative * h_negative))
                 + 1e-8
             )
         )

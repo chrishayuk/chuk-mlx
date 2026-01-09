@@ -12,11 +12,10 @@ from argparse import Namespace
 from collections import Counter, defaultdict
 
 from ......introspection.moe import ExpertRouter
-from ......introspection.moe.analysis_service import classify_token, get_trigram
+from ......introspection.moe.analysis_service import classify_token
 from ......introspection.moe.test_data import TAXONOMY_TEST_PROMPTS
-from ..formatters import format_header
 from .._types import FullTaxonomyConfig
-
+from ..formatters import format_header
 
 # =============================================================================
 # PATTERN DEFINITIONS
@@ -154,13 +153,15 @@ async def _async_full_taxonomy(args: Namespace) -> None:
                     for trigram, count in counts.items():
                         if pattern in trigram:
                             examples = trigram_examples[(layer, exp, trigram)]
-                            pattern_experts.append({
-                                "layer": layer,
-                                "expert": exp,
-                                "trigram": trigram,
-                                "count": count,
-                                "examples": examples,
-                            })
+                            pattern_experts.append(
+                                {
+                                    "layer": layer,
+                                    "expert": exp,
+                                    "trigram": trigram,
+                                    "count": count,
+                                    "examples": examples,
+                                }
+                            )
 
                 pattern_experts.sort(key=lambda x: (-x["count"], x["layer"]))
 

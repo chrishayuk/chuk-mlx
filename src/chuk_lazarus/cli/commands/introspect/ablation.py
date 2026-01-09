@@ -262,11 +262,13 @@ async def _async_introspect_weight_diff(args: Namespace) -> None:
             diff_norm = float(mx.sqrt(mx.sum(diff * diff)))
             rel_diff = diff_norm / (base_norm + 1e-8)
 
-            results.append({
-                "layer": layer_idx,
-                "component": "mlp_down",
-                "relative_diff": rel_diff,
-            })
+            results.append(
+                {
+                    "layer": layer_idx,
+                    "component": "mlp_down",
+                    "relative_diff": rel_diff,
+                }
+            )
         except Exception:
             pass
 
@@ -280,11 +282,13 @@ async def _async_introspect_weight_diff(args: Namespace) -> None:
             diff_norm = float(mx.sqrt(mx.sum(diff * diff)))
             rel_diff = diff_norm / (base_norm + 1e-8)
 
-            results.append({
-                "layer": layer_idx,
-                "component": "attn_o",
-                "relative_diff": rel_diff,
-            })
+            results.append(
+                {
+                    "layer": layer_idx,
+                    "component": "attn_o",
+                    "relative_diff": rel_diff,
+                }
+            )
         except Exception:
             pass
 
@@ -318,9 +322,9 @@ async def _async_introspect_activation_diff(args: Namespace) -> None:
 
     import mlx.core as mx
 
-    from ._utils import parse_prompts
     from ....introspection import CaptureConfig, ModelHooks, PositionSelection
     from ....introspection.ablation import AblationStudy
+    from ._utils import parse_prompts
 
     # Parse prompts
     prompts = parse_prompts(args.prompts, delimiter=",")
@@ -378,11 +382,13 @@ async def _async_introspect_activation_diff(args: Namespace) -> None:
             norm_ft = float(mx.sqrt(mx.sum(ft_h * ft_h)))
             cos_sim = dot / (norm_base * norm_ft + 1e-8)
 
-            results.append({
-                "prompt": prompt[:50],
-                "layer": layer_idx,
-                "cosine_similarity": cos_sim,
-            })
+            results.append(
+                {
+                    "prompt": prompt[:50],
+                    "layer": layer_idx,
+                    "cosine_similarity": cos_sim,
+                }
+            )
 
     # Aggregate by layer
     layer_avg: dict[int, list[float]] = {}

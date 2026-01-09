@@ -1,4 +1,7 @@
-"""Handler for 'ablate' action - ablate (remove) experts from routing."""
+"""Handler for 'ablate' action - ablate (remove) experts from routing.
+
+This module is a thin CLI wrapper - business logic is in AblationBenchmarkService.
+"""
 
 from __future__ import annotations
 
@@ -7,6 +10,10 @@ from argparse import Namespace
 
 from ......introspection.datasets import get_arithmetic_benchmarks
 from ......introspection.moe import ExpertRouter
+from ......introspection.moe.ablation_service import (
+    AblationBenchmarkResult,
+    AblationBenchmarkService,
+)
 from ..formatters import format_ablation_result, format_header
 
 
@@ -75,13 +82,12 @@ async def _async_ablate(args: Namespace) -> None:
 
         # Run benchmark if requested
         if run_benchmark:
-            await _run_ablation_benchmark(router, expert_indices, model_id, max_tokens)
+            await _run_ablation_benchmark(router, expert_indices, max_tokens)
 
 
 async def _run_ablation_benchmark(
     router: ExpertRouter,
     expert_indices: list[int],
-    model_id: str,
     max_tokens: int,
 ) -> None:
     """Run ablation on benchmark problems."""
@@ -91,8 +97,8 @@ async def _run_ablation_benchmark(
     experts_str = ", ".join(str(e) for e in expert_indices)
     print(format_header(f"ABLATION BENCHMARK - Expert(s) {experts_str}"))
 
-    normal_correct = 0
-    ablated_correct = 0
+    # Build result using service
+    benchmark_result = AblationBenchmarkResult(expert_indices=expert_indices)
 
     for problem in problems:
         # Normal generation
@@ -105,51 +111,20 @@ async def _run_ablation_benchmark(
             max_tokens=max_tokens,
         )
 
-        # Check correctness
-        n_correct = _check_answer(normal, problem.answer)
-        a_correct = _check_answer(ablated, problem.answer)
+        # Create result using service
+        problem_result = AblationBenchmarkService.create_problem_result(
+            prompt=problem.prompt,
+            expected_answer=problem.answer,
+            normal_output=normal,
+            ablated_output=ablated,
+        )
+        benchmark_result.problems.append(problem_result)
 
-        if n_correct:
-            normal_correct += 1
-        if a_correct:
-            ablated_correct += 1
-
-        status = ""
-        if n_correct and not a_correct:
-            status = "<- BROKEN"
-        elif not n_correct and a_correct:
-            status = "<- FIXED"
-
+        # Print row
+        status = f"<- {problem_result.status}" if problem_result.status else ""
         print(f"{problem.prompt:<20} Normal: {normal:<12} Ablated: {ablated:<12} {status}")
 
-    print(
-        f"\nNormal accuracy:  {normal_correct}/{len(problems)} ({100 * normal_correct / len(problems):.0f}%)"
-    )
-    print(
-        f"Ablated accuracy: {ablated_correct}/{len(problems)} ({100 * ablated_correct / len(problems):.0f}%)"
-    )
-
-    if ablated_correct < normal_correct:
-        diff = normal_correct - ablated_correct
-        print(f"\nRemoving {len(expert_indices)} expert(s) caused {diff} additional failures")
-    elif ablated_correct > normal_correct:
-        diff = ablated_correct - normal_correct
-        print(f"\nRemoving {len(expert_indices)} expert(s) improved {diff} cases!")
-    else:
-        print("\nNo change in accuracy!")
-
+    # Print summary using service
+    print()
+    print(AblationBenchmarkService.format_summary(benchmark_result))
     print("=" * 70)
-
-
-def _check_answer(output: str, expected: int) -> bool:
-    """Check if output contains the expected answer."""
-    import re
-
-    # Extract first number from output
-    match = re.search(r"-?\d+", output)
-    if match:
-        try:
-            return int(match.group()) == expected
-        except ValueError:
-            pass
-    return False

@@ -98,6 +98,291 @@ def setup_introspection_module():
     mock_steering = MagicMock()
     mock_steering.SteeringHook = MagicMock()
 
+    # Set up SteeringService with async methods
+    mock_steering_service = MagicMock()
+
+    # Mock extract_direction async method
+    mock_extract_result = MagicMock()
+    mock_extract_result.layer = 6
+    mock_extract_result.norm = 1.0
+    mock_extract_result.cosine_similarity = 0.5
+    mock_extract_result.separation = 1.0
+    mock_extract_result.direction = MagicMock()
+    mock_steering_service.extract_direction = AsyncMock(return_value=mock_extract_result)
+
+    # Mock compare_coefficients async method
+    mock_compare_result = MagicMock()
+    mock_compare_result.results = {-1.0: "negative", 0.0: "neutral", 1.0: "positive"}
+    mock_steering_service.compare_coefficients = AsyncMock(return_value=mock_compare_result)
+
+    # Mock generate_with_steering async method
+    mock_gen_result = MagicMock()
+    mock_gen_result.prompt = "test"
+    mock_gen_result.output = "generated"
+    mock_gen_result.layer = 6
+    mock_gen_result.coefficient = 1.0
+    mock_steering_service.generate_with_steering = AsyncMock(return_value=[mock_gen_result])
+
+    # Mock sync methods
+    mock_steering_service.save_direction = MagicMock()
+    mock_steering_service.load_direction = MagicMock(return_value=(MagicMock(), 6, {}))
+    mock_steering_service.create_neuron_direction = MagicMock(return_value=MagicMock())
+
+    mock_steering.SteeringService = mock_steering_service
+
+    # Mock ActivationSteering
+    mock_activation_steerer = MagicMock()
+    mock_activation_steerer.num_layers = 12
+    mock_activation_steerer.model.config.hidden_size = 768
+    mock_steering.ActivationSteering = MagicMock()
+    mock_steering.ActivationSteering.from_pretrained = MagicMock(
+        return_value=mock_activation_steerer
+    )
+
+    # Mock neuron_service
+    mock_neuron_service = MagicMock()
+
+    # NeuronAnalysisService mock
+    mock_neuron_analysis_service = MagicMock()
+    mock_neuron_analysis_service.load_neurons_from_direction = MagicMock(
+        return_value=(
+            [100, 200],
+            {100: 0.8, 200: -0.5},
+            {"positive_label": "pos", "negative_label": "neg"},
+        )
+    )
+
+    # Mock auto_discover_neurons async method
+    mock_discovered_neuron = MagicMock()
+    mock_discovered_neuron.idx = 100
+    mock_discovered_neuron.separation = 1.5
+    mock_discovered_neuron.best_pair = ("easy", "hard")
+    mock_discovered_neuron.overall_std = 0.5
+    mock_discovered_neuron.mean_range = 2.0
+    mock_discovered_neuron.group_means = {"easy": 1.0, "hard": -1.0}
+    mock_discovered_neuron.model_dump = MagicMock(
+        return_value={
+            "idx": 100,
+            "separation": 1.5,
+            "best_pair": ("easy", "hard"),
+            "overall_std": 0.5,
+            "mean_range": 2.0,
+            "group_means": {"easy": 1.0, "hard": -1.0},
+        }
+    )
+
+    mock_neuron_analysis_service.auto_discover_neurons = AsyncMock(
+        return_value=[mock_discovered_neuron]
+    )
+
+    # Mock analyze_neurons async method
+    mock_neuron_result = MagicMock()
+    mock_neuron_result.neuron_idx = 100
+    mock_neuron_result.min_val = -1.0
+    mock_neuron_result.max_val = 1.0
+    mock_neuron_result.mean_val = 0.5
+    mock_neuron_result.std_val = 0.3
+    mock_neuron_result.model_dump = MagicMock(
+        return_value={
+            "neuron_idx": 100,
+            "min_val": -1.0,
+            "max_val": 1.0,
+            "mean_val": 0.5,
+            "std_val": 0.3,
+        }
+    )
+
+    mock_neuron_analysis_service.analyze_neurons = AsyncMock(
+        return_value={12: [mock_neuron_result]}
+    )
+
+    mock_neuron_service.NeuronAnalysisService = mock_neuron_analysis_service
+    mock_neuron_service.DiscoveredNeuron = MagicMock()
+    mock_neuron_service.NeuronActivationResult = MagicMock()
+
+    # Mock memory module
+    mock_memory = MagicMock()
+
+    # MemoryAnalysisService mock
+    mock_memory_result = MagicMock()
+    mock_memory_result.to_display = MagicMock(
+        return_value=(
+            "MEMORY STRUCTURE ANALYSIS\n"
+            "Model: test-model\n"
+            "Fact type: multiplication\n"
+            "Layer: 6 (60%)"
+        )
+    )
+    mock_memory_result.save = MagicMock()
+    mock_memory_result.save_plot = MagicMock()
+
+    mock_memory_service = MagicMock()
+    mock_memory_service.analyze = AsyncMock(return_value=mock_memory_result)
+
+    mock_memory.MemoryAnalysisService = mock_memory_service
+    mock_memory.MemoryAnalysisConfig = MagicMock()
+    mock_memory.MemoryAnalysisResult = MagicMock()
+
+    # Mock clustering module
+    mock_clustering = MagicMock()
+
+    # ClusteringService mock
+    mock_clustering_result = MagicMock()
+    mock_clustering_result.to_display = MagicMock(
+        return_value=(
+            "ACTIVATION CLUSTERING\n"
+            "Model: test-model\n"
+            "Classes: easy, hard\n"
+            "Legend: + = easy, o = hard"
+        )
+    )
+
+    mock_clustering_service = MagicMock()
+    mock_clustering_service.analyze = AsyncMock(return_value=mock_clustering_result)
+
+    mock_clustering.ClusteringService = mock_clustering_service
+    mock_clustering.ClusteringConfig = MagicMock()
+    mock_clustering.ClusteringResult = MagicMock()
+
+    # Mock generation module
+    mock_generation = MagicMock()
+
+    # GenerationService mock
+    mock_generation_result = MagicMock()
+    mock_generation_result.to_display = MagicMock(
+        return_value=("GENERATION ANALYSIS\nModel: test-model\nPrompt: 2+2=\nGenerated: 4")
+    )
+    mock_generation_result.save = MagicMock()
+
+    mock_generation_service = MagicMock()
+    mock_generation_service.generate = AsyncMock(return_value=mock_generation_result)
+
+    # LogitEvolutionService mock
+    mock_evolution_result = MagicMock()
+    mock_evolution_result.to_display = MagicMock(
+        return_value=("LOGIT EVOLUTION\nModel: test-model\nTracked tokens: 4, 5")
+    )
+
+    mock_evolution_service = MagicMock()
+    mock_evolution_service.analyze = AsyncMock(return_value=mock_evolution_result)
+
+    mock_generation.GenerationService = mock_generation_service
+    mock_generation.GenerationConfig = MagicMock()
+    mock_generation.LogitEvolutionService = mock_evolution_service
+    mock_generation.LogitEvolutionConfig = MagicMock()
+
+    # Mock circuit module
+    mock_circuit = MagicMock()
+
+    # CircuitService.capture mock
+    mock_capture_result = MagicMock()
+    mock_capture_result.to_display = MagicMock(
+        return_value=("CIRCUIT CAPTURE\nModel: test-model\nLayer: 6\nCaptured 3 prompts")
+    )
+    mock_capture_result.save = MagicMock()
+
+    # CircuitService.invoke mock
+    mock_invoke_result = MagicMock()
+    mock_invoke_result.to_display = MagicMock(
+        return_value=("CIRCUIT INVOCATION\nMethod: steer\nResults: [4, 6, 8]")
+    )
+
+    # CircuitService.decode mock
+    mock_decode_result = MagicMock()
+    mock_decode_result.to_display = MagicMock(
+        return_value=("DECODE INJECTION\nPrompt: 2+2=\nOutput: 4")
+    )
+
+    # CircuitService.view mock
+    mock_view_result = MagicMock()
+    mock_view_result.to_display = MagicMock(return_value=("CIRCUIT VIEW\nEntries: 64\nLayer: 6"))
+
+    # CircuitService.test mock
+    mock_test_result = MagicMock()
+    mock_test_result.to_display = MagicMock(
+        return_value=("CIRCUIT TEST\nTesting circuit on prompts\nAccuracy: 0.95")
+    )
+
+    # CircuitService.compare mock
+    mock_compare_result = MagicMock()
+    mock_compare_result.to_display = MagicMock(
+        return_value=("CIRCUIT COMPARE\nComparing circuits\nCosine similarity: 0.85")
+    )
+
+    mock_circuit_service = MagicMock()
+    mock_circuit_service.capture = AsyncMock(return_value=mock_capture_result)
+    mock_circuit_service.invoke = AsyncMock(return_value=mock_invoke_result)
+    mock_circuit_service.decode = AsyncMock(return_value=mock_decode_result)
+    mock_circuit_service.view = AsyncMock(return_value=mock_view_result)
+    mock_circuit_service.test = AsyncMock(return_value=mock_test_result)
+    mock_circuit_service.compare = AsyncMock(return_value=mock_compare_result)
+
+    mock_circuit.CircuitService = mock_circuit_service
+    mock_circuit.CircuitCaptureConfig = MagicMock()
+    mock_circuit.CircuitInvokeConfig = MagicMock()
+    mock_circuit.CircuitDecodeConfig = MagicMock()
+    mock_circuit.CircuitViewConfig = MagicMock()
+    mock_circuit.CircuitTestConfig = MagicMock()
+    mock_circuit.CircuitCompareConfig = MagicMock()
+
+    # Mock analyzer.service module
+    mock_analyzer_service = MagicMock()
+
+    # AnalyzerService.analyze mock
+    mock_analyze_result = MagicMock()
+    mock_analyze_result.to_display = MagicMock(
+        return_value=(
+            "LOGIT LENS ANALYSIS\nModel: test-model\nPrompt: 2+2=\nFinal prediction: 4 (0.95)"
+        )
+    )
+    mock_analyze_result.save = MagicMock()
+
+    # AnalyzerService.compare_models mock
+    mock_compare_result = MagicMock()
+    mock_compare_result.to_display = MagicMock(
+        return_value=("MODEL COMPARISON\nModel 1: model-a\nModel 2: model-b\nPrediction diff: 0.05")
+    )
+
+    # AnalyzerService.demonstrate_hooks mock
+    mock_hooks_result = MagicMock()
+    mock_hooks_result.to_display = MagicMock(
+        return_value=("HOOKS DEMONSTRATION\nModel: test-model\nCaptured States: 8 layers")
+    )
+
+    mock_analyzer = MagicMock()
+    mock_analyzer.analyze = AsyncMock(return_value=mock_analyze_result)
+    mock_analyzer.compare_models = AsyncMock(return_value=mock_compare_result)
+    mock_analyzer.demonstrate_hooks = AsyncMock(return_value=mock_hooks_result)
+    mock_analyzer.Config = MagicMock()
+
+    mock_analyzer_service.AnalyzerService = mock_analyzer
+
+    # Mock embedding module
+    mock_embedding = MagicMock()
+
+    # EmbeddingService mock
+    mock_embedding_result = MagicMock()
+    mock_embedding_result.to_display = MagicMock(
+        return_value=("EMBEDDING ANALYSIS\nModel: test-model\nTask classification: 0.95")
+    )
+
+    mock_embedding_service = MagicMock()
+    mock_embedding_service.analyze = AsyncMock(return_value=mock_embedding_result)
+
+    mock_embedding.EmbeddingService = mock_embedding_service
+    mock_embedding.EmbeddingConfig = MagicMock()
+
+    # Mock early layers service
+    mock_early_layers_result = MagicMock()
+    mock_early_layers_result.to_display = MagicMock(
+        return_value=("EARLY LAYERS ANALYSIS\nModel: test-model\nLayer 0: token=test")
+    )
+
+    mock_early_layers_service = MagicMock()
+    mock_early_layers_service.analyze = AsyncMock(return_value=mock_early_layers_result)
+
+    mock_embedding.EarlyLayersService = mock_early_layers_service
+
     # Mock moe submodules to allow moe_expert imports to succeed
     mock_moe = MagicMock()
     mock_moe.ExpertRouter = MagicMock()
@@ -122,6 +407,45 @@ def setup_introspection_module():
     mock_enums.OverrideMode.REPLACE = "replace"
     mock_enums.OverrideMode.ADD = "add"
 
+    # Mock probing module with services
+    mock_probing = MagicMock()
+
+    # MetacognitiveService mock
+    mock_metacog_result = MagicMock()
+    mock_metacog_result.to_display.return_value = (
+        "METACOGNITIVE ANALYSIS\n"
+        "Model: test-model\n"
+        "Loading model: test-model\n"
+        "Decision layer: 7 (70%)\n"
+        "Strategy: DIRECT"
+    )
+    mock_metacog_service = MagicMock()
+    mock_metacog_service.analyze = AsyncMock(return_value=mock_metacog_result)
+    mock_probing.MetacognitiveService = mock_metacog_service
+    mock_probing.MetacognitiveConfig = MagicMock()
+
+    # UncertaintyService mock
+    mock_uncertainty_result = MagicMock()
+    mock_uncertainty_result.to_display.return_value = (
+        "UNCERTAINTY DETECTION RESULTS\n"
+        "Loading model: test-model\n"
+        "Detection layer: 5\n"
+        "Calibrating probes..."
+    )
+    mock_uncertainty_service = MagicMock()
+    mock_uncertainty_service.analyze = AsyncMock(return_value=mock_uncertainty_result)
+    mock_probing.UncertaintyService = mock_uncertainty_service
+    mock_probing.UncertaintyConfig = MagicMock()
+
+    # ProbeService mock
+    mock_probe_result = MagicMock()
+    mock_probe_result.to_display.return_value = "PROBE RESULTS\nAccuracy: 0.95"
+    mock_probe_result.save = MagicMock()
+    mock_probe_service = MagicMock()
+    mock_probe_service.train_and_evaluate = AsyncMock(return_value=mock_probe_result)
+    mock_probing.ProbeService = mock_probe_service
+    mock_probing.ProbeConfig = MagicMock()
+
     # Pre-populate sys.modules so patch() calls can resolve the module path
     original_modules = {}
     modules_to_add = {
@@ -130,7 +454,15 @@ def setup_introspection_module():
         "chuk_lazarus.introspection.hooks": mock_hooks,
         "chuk_lazarus.introspection.external_memory": mock_external_memory,
         "chuk_lazarus.introspection.steering": mock_steering,
+        "chuk_lazarus.introspection.steering.neuron_service": mock_neuron_service,
         "chuk_lazarus.introspection.enums": mock_enums,
+        "chuk_lazarus.introspection.probing": mock_probing,
+        "chuk_lazarus.introspection.memory": mock_memory,
+        "chuk_lazarus.introspection.clustering": mock_clustering,
+        "chuk_lazarus.introspection.generation": mock_generation,
+        "chuk_lazarus.introspection.circuit": mock_circuit,
+        "chuk_lazarus.introspection.analyzer.service": mock_analyzer_service,
+        "chuk_lazarus.introspection.embedding": mock_embedding,
         "chuk_lazarus.introspection.moe": mock_moe,
         "chuk_lazarus.introspection.moe.enums": mock_moe_enums,
         "chuk_lazarus.introspection.moe.models": mock_moe_models,

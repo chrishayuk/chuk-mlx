@@ -14,11 +14,6 @@ from .loader import (
     get_model_num_layers,
     get_model_vocab_size,
 )
-from .service import (
-    AnalyzerService,
-    AnalyzerServiceConfig,
-    ComparisonResult,
-)
 from .models import (
     AnalysisResult,
     LayerPredictionResult,
@@ -27,6 +22,11 @@ from .models import (
     ResidualContribution,
     TokenEvolutionResult,
     TokenPrediction,
+)
+from .service import (
+    AnalyzerService,
+    AnalyzerServiceConfig,
+    ComparisonResult,
 )
 from .utils import (
     compute_entropy,

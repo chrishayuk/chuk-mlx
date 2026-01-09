@@ -12,7 +12,7 @@ from pathlib import Path
 from pydantic import Field
 
 from .._base import CommandConfig, CommandResult, OutputMixin
-from .._constants import DataGenType, TrainMode, TrainingDefaults
+from .._constants import DataGenType, TrainingDefaults, TrainMode
 
 
 class SFTConfig(CommandConfig):
@@ -163,7 +163,9 @@ class GRPOConfig(CommandConfig):
         default=TrainingDefaults.GRPO_ITERATIONS, ge=1, description="Training iterations"
     )
     prompts_per_iteration: int = Field(
-        default=TrainingDefaults.GRPO_PROMPTS_PER_ITERATION, ge=1, description="Prompts per iteration"
+        default=TrainingDefaults.GRPO_PROMPTS_PER_ITERATION,
+        ge=1,
+        description="Prompts per iteration",
     )
     group_size: int = Field(
         default=TrainingDefaults.GRPO_GROUP_SIZE, ge=2, description="Responses per prompt"

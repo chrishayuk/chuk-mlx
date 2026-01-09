@@ -9,7 +9,6 @@ from __future__ import annotations
 import asyncio
 import json
 from argparse import Namespace
-from pathlib import Path
 
 from ._types import SteeringConfig, SteeringExtractionResult, SteeringGenerationResult
 from ._utils import parse_prompts
@@ -38,7 +37,7 @@ async def _async_introspect_steer(args: Namespace) -> None:
             raise ValueError("--extract requires --positive and --negative prompts")
 
         print(f"Loading model: {config.model}")
-        print(f"\nExtracting direction...")
+        print("\nExtracting direction...")
         print(f"  Positive: {config.positive!r}")
         print(f"  Negative: {config.negative!r}")
 

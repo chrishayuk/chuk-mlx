@@ -12,13 +12,12 @@ from typing import Any
 import mlx.core as mx
 from pydantic import BaseModel, ConfigDict, Field
 
-from ...cli.commands._constants import (
+from .._shared_constants import (
     LayerPhase,
     LayerPhaseDefaults,
-    PatternCategory,
     TokenType,
 )
-from . import ExpertRouter
+from .expert_router import ExpertRouter
 from .test_data import (
     ANSWER_WORDS,
     BOOLEAN_LITERALS,
@@ -33,7 +32,6 @@ from .test_data import (
     TIME_WORDS,
     TYPE_KEYWORDS,
 )
-
 
 # =============================================================================
 # Result Models
@@ -265,9 +263,8 @@ class MoEAnalysisService:
 
     Config = MoEAnalysisServiceConfig
 
-    @classmethod
+    @staticmethod
     async def capture_router_weights(
-        cls,
         model: str,
         prompt: str,
         layers: list[int] | None = None,
@@ -315,15 +312,12 @@ class MoEAnalysisService:
                         )
                     )
 
-                results.append(
-                    LayerRoutingInfo(layer_idx=layer_weights.layer, positions=positions)
-                )
+                results.append(LayerRoutingInfo(layer_idx=layer_weights.layer, positions=positions))
 
             return results
 
-    @classmethod
+    @staticmethod
     async def capture_attention_weights(
-        cls,
         model: str,
         prompt: str,
         layer: int,
@@ -440,9 +434,8 @@ class MoEAnalysisService:
                 self_attention=attn_list[query_pos],
             )
 
-    @classmethod
+    @staticmethod
     async def analyze_domain_routing(
-        cls,
         model: str,
         domain_prompts: dict[str, list[str]],
         layers: list[int] | None = None,
@@ -461,7 +454,9 @@ class MoEAnalysisService:
             info = router.info
             target_layers = layers or list(info.moe_layers)
 
-            results: dict[int, dict[str, list[int]]] = {l: {} for l in target_layers}
+            results: dict[int, dict[str, list[int]]] = {
+                layer_idx: {} for layer_idx in target_layers
+            }
 
             for domain, prompts in domain_prompts.items():
                 for layer in target_layers:
@@ -478,8 +473,8 @@ class MoEAnalysisService:
 
             return results
 
-    @classmethod
-    async def get_model_info(cls, model: str) -> dict[str, Any]:
+    @staticmethod
+    async def get_model_info(model: str) -> dict[str, Any]:
         """Get basic model info.
 
         Args:

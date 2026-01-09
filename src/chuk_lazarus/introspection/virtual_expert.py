@@ -27,6 +27,7 @@ CLI Usage:
 
 from __future__ import annotations
 
+from enum import Enum
 from typing import Any
 
 import mlx.nn as nn
@@ -46,6 +47,26 @@ from chuk_lazarus.inference.virtual_expert import (
     create_virtual_expert_wrapper,
     get_default_registry,
 )
+
+
+class VirtualExpertAction(str, Enum):
+    """Available virtual expert CLI actions."""
+
+    ANALYZE = "analyze"
+    """Analyze virtual expert behavior across test categories."""
+
+    SOLVE = "solve"
+    """Solve a single problem using virtual expert."""
+
+    BENCHMARK = "benchmark"
+    """Run benchmark on virtual expert system."""
+
+    COMPARE = "compare"
+    """Compare model output with and without virtual expert."""
+
+    INTERACTIVE = "interactive"
+    """Run interactive session with virtual expert."""
+
 
 # Legacy compatibility aliases
 ExpertHijacker = VirtualMoEWrapper
@@ -255,16 +276,22 @@ class VirtualExpertService:
             for prompt in prompts:
                 try:
                     result = wrapper.run(prompt, max_tokens=10)
-                    category_results.append({
-                        "prompt": prompt,
-                        "output": result.output if hasattr(result, "output") else str(result),
-                        "expert_used": result.expert_used if hasattr(result, "expert_used") else None,
-                    })
+                    category_results.append(
+                        {
+                            "prompt": prompt,
+                            "output": result.output if hasattr(result, "output") else str(result),
+                            "expert_used": result.expert_used
+                            if hasattr(result, "expert_used")
+                            else None,
+                        }
+                    )
                 except Exception as e:
-                    category_results.append({
-                        "prompt": prompt,
-                        "error": str(e),
-                    })
+                    category_results.append(
+                        {
+                            "prompt": prompt,
+                            "error": str(e),
+                        }
+                    )
 
             results.extend(category_results)
             summary[category] = len(category_results)
@@ -305,11 +332,13 @@ class VirtualExpertService:
         return VirtualExpertServiceResult(
             action="solve",
             answer=output,
-            results=[{
-                "prompt": config.prompt,
-                "output": output,
-                "expert_used": result.expert_used if hasattr(result, "expert_used") else None,
-            }],
+            results=[
+                {
+                    "prompt": config.prompt,
+                    "output": output,
+                    "expert_used": result.expert_used if hasattr(result, "expert_used") else None,
+                }
+            ],
         )
 
     @classmethod
@@ -357,19 +386,23 @@ class VirtualExpertService:
                 if is_correct:
                     correct += 1
 
-                results.append({
-                    "prompt": prompt,
-                    "expected": expected,
-                    "output": output,
-                    "correct": is_correct,
-                })
+                results.append(
+                    {
+                        "prompt": prompt,
+                        "expected": expected,
+                        "output": output,
+                        "correct": is_correct,
+                    }
+                )
             except Exception as e:
-                results.append({
-                    "prompt": prompt,
-                    "expected": expected,
-                    "error": str(e),
-                    "correct": False,
-                })
+                results.append(
+                    {
+                        "prompt": prompt,
+                        "expected": expected,
+                        "error": str(e),
+                        "correct": False,
+                    }
+                )
 
         return VirtualExpertServiceResult(
             action="benchmark",
@@ -403,12 +436,15 @@ class VirtualExpertService:
         # Generate with virtual expert
         wrapper = VirtualMoEWrapper(model, tokenizer, config.model)
         expert_result = wrapper.run(config.prompt, max_tokens=30)
-        expert_output = expert_result.output if hasattr(expert_result, "output") else str(expert_result)
+        expert_output = (
+            expert_result.output if hasattr(expert_result, "output") else str(expert_result)
+        )
 
         # Generate without virtual expert (direct)
         direct_model, direct_tokenizer = load(config.model)
         direct_output = generate(
-            direct_model, direct_tokenizer,
+            direct_model,
+            direct_tokenizer,
             prompt=config.prompt,
             max_tokens=30,
             verbose=False,
@@ -416,12 +452,16 @@ class VirtualExpertService:
 
         return VirtualExpertServiceResult(
             action="compare",
-            results=[{
-                "prompt": config.prompt,
-                "with_expert": expert_output,
-                "without_expert": direct_output,
-                "expert_used": expert_result.expert_used if hasattr(expert_result, "expert_used") else None,
-            }],
+            results=[
+                {
+                    "prompt": config.prompt,
+                    "with_expert": expert_output,
+                    "without_expert": direct_output,
+                    "expert_used": expert_result.expert_used
+                    if hasattr(expert_result, "expert_used")
+                    else None,
+                }
+            ],
             summary={
                 "with_expert": expert_output[:50],
                 "without_expert": direct_output[:50],
@@ -443,11 +483,15 @@ class VirtualExpertService:
         """
         return VirtualExpertServiceResult(
             action="interactive",
-            summary={"status": "Interactive mode not supported in service context. Use CLI directly."},
+            summary={
+                "status": "Interactive mode not supported in service context. Use CLI directly."
+            },
         )
 
 
 __all__ = [
+    # Enums
+    "VirtualExpertAction",
     # Core classes (re-exported from inference)
     "VirtualExpertPlugin",
     "VirtualExpertRegistry",

@@ -69,7 +69,6 @@ async def introspect_circuit_invoke(args: Namespace) -> None:
     """
     from ....introspection.circuit import CircuitInvokeConfig, CircuitService
     from ....introspection.enums import InvocationMethod
-
     from .._constants import AnalysisDefaults
 
     prompts = parse_prompts(args.prompts)

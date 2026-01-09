@@ -9,6 +9,15 @@ from __future__ import annotations
 
 from enum import Enum
 
+# Import shared constants from introspection module to avoid circular imports
+# These are re-exported here for backwards compatibility
+from chuk_lazarus.introspection._shared_constants import (
+    Domain,
+    LayerPhase,
+    LayerPhaseDefaults,
+    PatternCategory,
+    TokenType,
+)
 
 # =============================================================================
 # Layer and Position Enums
@@ -24,21 +33,6 @@ class LayerDepthRatio(float, Enum):
     LATE = 0.7
     DEEP = 0.8
     FINAL = 0.9
-
-
-class LayerPhase(str, Enum):
-    """Layer phase classifications for MoE analysis."""
-
-    EARLY = "early"
-    MIDDLE = "middle"
-    LATE = "late"
-
-
-class LayerPhaseDefaults:
-    """Default layer boundaries for phase classification."""
-
-    EARLY_END: int = 8
-    MIDDLE_END: int = 16
 
 
 # =============================================================================
@@ -296,84 +290,9 @@ class SteeringDefaults:
 # =============================================================================
 # MoE Analysis Enums and Constants
 # =============================================================================
-
-
-class TokenType(str, Enum):
-    """Semantic token type classifications for MoE analysis."""
-
-    # Numbers and operators
-    NUM = "NUM"
-    OP = "OP"
-    BR = "BR"  # Brackets
-    PN = "PN"  # Punctuation
-    QUOTE = "QUOTE"
-
-    # Code-related
-    KW = "KW"  # Keywords
-    BOOL = "BOOL"  # Boolean literals
-    TYPE = "TYPE"  # Type keywords
-    VAR = "VAR"  # Variables
-
-    # Semantic relations
-    SYN = "SYN"  # Synonym markers
-    ANT = "ANT"  # Antonym markers
-    AS = "AS"  # "as" marker
-    TO = "TO"  # "to" marker
-    CAUSE = "CAUSE"  # Causation markers
-    COND = "COND"  # Conditional markers
-    THAN = "THAN"  # Comparison marker
-
-    # Question/answer
-    QW = "QW"  # Question words
-    ANS = "ANS"  # Answer words
-
-    # Modifiers
-    NEG = "NEG"  # Negation
-    TIME = "TIME"  # Temporal
-    QUANT = "QUANT"  # Quantifiers
-    COMP = "COMP"  # Comparatives
-    COORD = "COORD"  # Coordination
-
-    # Parts of speech
-    NOUN = "NOUN"
-    ADJ = "ADJ"
-    VERB = "VERB"
-    FUNC = "FUNC"  # Function words
-
-    # Other
-    CAP = "CAP"  # Capitalized (proper noun)
-    CW = "CW"  # Content word (default)
-    WS = "WS"  # Whitespace
-
-
-class PatternCategory(str, Enum):
-    """Pattern categories for MoE trigram analysis."""
-
-    ARITHMETIC = "arithmetic"
-    CODE = "code"
-    SYNONYM = "synonym"
-    ANTONYM = "antonym"
-    ANALOGY = "analogy"
-    HYPERNYM = "hypernym"
-    COMPARISON = "comparison"
-    CAUSATION = "causation"
-    CONDITIONAL = "conditional"
-    QUESTION = "question"
-    NEGATION = "negation"
-    TEMPORAL = "temporal"
-    QUANTIFICATION = "quantification"
-    CONTEXT_SWITCH = "context_switch"
-    POSITION = "position"
-    COORDINATION = "coordination"
-
-
-class Domain(str, Enum):
-    """Domain categories for expert analysis."""
-
-    MATH = "math"
-    CODE = "code"
-    LANGUAGE = "language"
-    REASONING = "reasoning"
+# TokenType, PatternCategory, Domain, LayerPhase, LayerPhaseDefaults
+# are imported from introspection._shared_constants at the top of this file
+# to avoid circular imports.
 
 
 class ContextVerdict(str, Enum):

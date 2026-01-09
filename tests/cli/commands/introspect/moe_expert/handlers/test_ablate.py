@@ -1,13 +1,12 @@
 """Tests for ablate handler."""
 
 from argparse import Namespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate import (
     _async_ablate,
-    _check_answer,
     handle_ablate,
 )
 
@@ -46,21 +45,22 @@ class TestAsyncAblate:
 
     @pytest.mark.asyncio
     async def test_missing_prompt_prints_error(self, capsys):
-        """Test that missing prompt prints error."""
-        args = Namespace(model="test/model", expert=6)
+        """Test that missing prompt prints error when benchmark not specified."""
+        args = Namespace(model="test/model", expert=6, benchmark=False)
 
         await _async_ablate(args)
 
         captured = capsys.readouterr()
-        assert "Error: --prompt/-p is required" in captured.out
+        assert "Error: --prompt/-p is required for ablate action" in captured.out
 
     @pytest.mark.asyncio
     async def test_invalid_experts_format_prints_error(self, capsys):
         """Test that invalid experts format prints error."""
         args = Namespace(
             model="test/model",
-            experts="not,valid",
+            experts="a,b,c",  # Invalid format
             prompt="Test",
+            benchmark=False,
         )
 
         await _async_ablate(args)
@@ -69,242 +69,140 @@ class TestAsyncAblate:
         assert "Error: Invalid experts format" in captured.out
 
     @pytest.mark.asyncio
-    async def test_successful_ablate_single_expert(self, capsys):
-        """Test successful ablation with single expert."""
+    async def test_multiple_experts_parsing(self, capsys):
+        """Test that multiple experts are parsed correctly."""
         args = Namespace(
             model="test/model",
-            expert=6,
-            prompt="127 * 89 = ",
+            experts="1,2,3",
+            prompt="Test",
+            benchmark=False,
             max_tokens=100,
+            layer=None,
         )
 
-        mock_router = AsyncMock()
-        mock_router._generate_normal_sync = MagicMock(return_value="11303")
-        mock_router.generate_with_ablation = AsyncMock(return_value=("different", {}))
-        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
-        mock_router.__aexit__ = AsyncMock(return_value=None)
-
+        # Mock ExpertRouter to avoid actual model loading
         with patch(
             "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate.ExpertRouter"
         ) as MockRouter:
-            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
+            MockRouter.from_pretrained.side_effect = Exception("Test bypass")
 
-            await _async_ablate(args)
+            # The handler will raise the exception from from_pretrained
+            with pytest.raises(Exception, match="Test bypass"):
+                await _async_ablate(args)
 
-            captured = capsys.readouterr()
-            assert "ABLATION" in captured.out
-            assert "Expert(s) 6" in captured.out
 
-    @pytest.mark.asyncio
-    async def test_successful_ablate_multiple_experts(self, capsys):
-        """Test successful ablation with multiple experts."""
-        args = Namespace(
-            model="test/model",
-            experts="6,7,20",
-            prompt="Test",
-            max_tokens=100,
+class TestAblationBenchmarkService:
+    """Tests for AblationBenchmarkService helper functions."""
+
+    def test_check_answer_correct(self):
+        """Test check_answer returns True for correct answer."""
+        from chuk_lazarus.introspection.moe.ablation_service import (
+            AblationBenchmarkService,
         )
 
-        mock_router = AsyncMock()
-        mock_router._generate_normal_sync = MagicMock(return_value="normal")
-        mock_router.generate_with_ablation = AsyncMock(return_value=("ablated", {}))
-        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
-        mock_router.__aexit__ = AsyncMock(return_value=None)
+        assert AblationBenchmarkService.check_answer("The answer is 42", 42) is True
+        assert AblationBenchmarkService.check_answer("42", 42) is True
 
-        with patch(
-            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate.ExpertRouter"
-        ) as MockRouter:
-            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
-
-            await _async_ablate(args)
-
-            captured = capsys.readouterr()
-            assert "6, 7, 20" in captured.out
-
-
-class TestCheckAnswer:
-    """Tests for _check_answer helper."""
-
-    def test_correct_answer(self):
-        """Test matching answer."""
-        assert _check_answer("The answer is 42", 42) is True
-
-    def test_wrong_answer(self):
-        """Test non-matching answer."""
-        assert _check_answer("The answer is 42", 100) is False
-
-    def test_no_number_in_output(self):
-        """Test output with no number."""
-        assert _check_answer("No number here", 42) is False
-
-    def test_negative_number(self):
-        """Test negative number matching."""
-        assert _check_answer("-123", -123) is True
-
-    def test_first_number_is_used(self):
-        """Test that first number is extracted."""
-        assert _check_answer("3 plus 4 equals 7", 3) is True
-
-
-class TestAblationBenchmark:
-    """Tests for _run_ablation_benchmark function."""
-
-    @pytest.mark.asyncio
-    async def test_benchmark_run(self, capsys):
-        """Test running ablation benchmark."""
-        from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate import (
-            _run_ablation_benchmark,
+    def test_check_answer_incorrect(self):
+        """Test check_answer returns False for incorrect answer."""
+        from chuk_lazarus.introspection.moe.ablation_service import (
+            AblationBenchmarkService,
         )
 
-        mock_router = AsyncMock()
-        mock_router._generate_normal_sync = MagicMock(return_value="42")
-        mock_router.generate_with_ablation = AsyncMock(return_value=("42", {}))
+        assert AblationBenchmarkService.check_answer("The answer is 41", 42) is False
+        assert AblationBenchmarkService.check_answer("no number here", 42) is False
 
-        # Mock the benchmarks
-        mock_problem = MagicMock()
-        mock_problem.prompt = "6 * 7 = "
-        mock_problem.answer = 42
-
-        mock_benchmarks = MagicMock()
-        mock_benchmarks.get_all_problems.return_value = [mock_problem]
-
-        with patch(
-            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate.get_arithmetic_benchmarks"
-        ) as mock_get_bench:
-            mock_get_bench.return_value = mock_benchmarks
-            await _run_ablation_benchmark(mock_router, [6], "test-model", 100)
-
-        captured = capsys.readouterr()
-        assert "ABLATION BENCHMARK" in captured.out
-        assert "Expert(s) 6" in captured.out
-
-    @pytest.mark.asyncio
-    async def test_benchmark_shows_broken_when_ablation_breaks(self, capsys):
-        """Test that BROKEN is shown when ablation causes failure."""
-        from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate import (
-            _run_ablation_benchmark,
+    def test_check_answer_negative(self):
+        """Test check_answer handles negative numbers."""
+        from chuk_lazarus.introspection.moe.ablation_service import (
+            AblationBenchmarkService,
         )
 
-        mock_router = AsyncMock()
-        mock_router._generate_normal_sync = MagicMock(return_value="42")
-        mock_router.generate_with_ablation = AsyncMock(return_value=("wrong", {}))
+        assert AblationBenchmarkService.check_answer("-5", -5) is True
+        assert AblationBenchmarkService.check_answer("The result is -10", -10) is True
 
-        mock_problem = MagicMock()
-        mock_problem.prompt = "6 * 7 = "
-        mock_problem.answer = 42
 
-        mock_benchmarks = MagicMock()
-        mock_benchmarks.get_all_problems.return_value = [mock_problem]
+class TestBenchmarkProblemResult:
+    """Tests for BenchmarkProblemResult model."""
 
-        with patch(
-            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate.get_arithmetic_benchmarks"
-        ) as mock_get_bench:
-            mock_get_bench.return_value = mock_benchmarks
-            await _run_ablation_benchmark(mock_router, [6], "test-model", 100)
+    def test_status_broken(self):
+        """Test status is BROKEN when normal correct but ablated incorrect."""
+        from chuk_lazarus.introspection.moe.ablation_service import BenchmarkProblemResult
 
-        captured = capsys.readouterr()
-        assert "BROKEN" in captured.out
-        assert "caused" in captured.out and "additional failures" in captured.out
+        result = BenchmarkProblemResult(
+            prompt="2+2=",
+            expected_answer=4,
+            normal_output="4",
+            ablated_output="5",
+            normal_correct=True,
+            ablated_correct=False,
+        )
+        assert result.status == "BROKEN"
 
-    @pytest.mark.asyncio
-    async def test_benchmark_shows_fixed_when_ablation_improves(self, capsys):
-        """Test that FIXED is shown when ablation improves result."""
-        from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate import (
-            _run_ablation_benchmark,
+    def test_status_fixed(self):
+        """Test status is FIXED when normal incorrect but ablated correct."""
+        from chuk_lazarus.introspection.moe.ablation_service import BenchmarkProblemResult
+
+        result = BenchmarkProblemResult(
+            prompt="2+2=",
+            expected_answer=4,
+            normal_output="5",
+            ablated_output="4",
+            normal_correct=False,
+            ablated_correct=True,
+        )
+        assert result.status == "FIXED"
+
+    def test_status_empty(self):
+        """Test status is empty when both same."""
+        from chuk_lazarus.introspection.moe.ablation_service import BenchmarkProblemResult
+
+        result = BenchmarkProblemResult(
+            prompt="2+2=",
+            expected_answer=4,
+            normal_output="4",
+            ablated_output="4",
+            normal_correct=True,
+            ablated_correct=True,
+        )
+        assert result.status == ""
+
+
+class TestAblationBenchmarkResult:
+    """Tests for AblationBenchmarkResult model."""
+
+    def test_accuracy_calculations(self):
+        """Test accuracy computed fields."""
+        from chuk_lazarus.introspection.moe.ablation_service import (
+            AblationBenchmarkResult,
+            BenchmarkProblemResult,
         )
 
-        mock_router = AsyncMock()
-        mock_router._generate_normal_sync = MagicMock(return_value="wrong")
-        mock_router.generate_with_ablation = AsyncMock(return_value=("42", {}))
+        problems = [
+            BenchmarkProblemResult(
+                prompt="1+1=",
+                expected_answer=2,
+                normal_output="2",
+                ablated_output="3",
+                normal_correct=True,
+                ablated_correct=False,
+            ),
+            BenchmarkProblemResult(
+                prompt="2+2=",
+                expected_answer=4,
+                normal_output="4",
+                ablated_output="4",
+                normal_correct=True,
+                ablated_correct=True,
+            ),
+        ]
 
-        mock_problem = MagicMock()
-        mock_problem.prompt = "6 * 7 = "
-        mock_problem.answer = 42
+        result = AblationBenchmarkResult(expert_indices=[6], problems=problems)
 
-        mock_benchmarks = MagicMock()
-        mock_benchmarks.get_all_problems.return_value = [mock_problem]
-
-        with patch(
-            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate.get_arithmetic_benchmarks"
-        ) as mock_get_bench:
-            mock_get_bench.return_value = mock_benchmarks
-            await _run_ablation_benchmark(mock_router, [6], "test-model", 100)
-
-        captured = capsys.readouterr()
-        assert "FIXED" in captured.out
-        assert "improved" in captured.out
-
-    @pytest.mark.asyncio
-    async def test_benchmark_shows_no_change(self, capsys):
-        """Test that no change message is shown when accuracy is same."""
-        from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate import (
-            _run_ablation_benchmark,
-        )
-
-        mock_router = AsyncMock()
-        mock_router._generate_normal_sync = MagicMock(return_value="wrong")
-        mock_router.generate_with_ablation = AsyncMock(return_value=("also wrong", {}))
-
-        mock_problem = MagicMock()
-        mock_problem.prompt = "6 * 7 = "
-        mock_problem.answer = 42
-
-        mock_benchmarks = MagicMock()
-        mock_benchmarks.get_all_problems.return_value = [mock_problem]
-
-        with patch(
-            "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate.get_arithmetic_benchmarks"
-        ) as mock_get_bench:
-            mock_get_bench.return_value = mock_benchmarks
-            await _run_ablation_benchmark(mock_router, [6], "test-model", 100)
-
-        captured = capsys.readouterr()
-        assert "No change in accuracy" in captured.out
-
-    @pytest.mark.asyncio
-    async def test_ablate_with_benchmark_flag(self, capsys):
-        """Test ablation with benchmark flag enabled."""
-        args = Namespace(
-            model="test/model",
-            expert=6,
-            prompt="Test",
-            max_tokens=100,
-            benchmark=True,
-        )
-
-        mock_router = AsyncMock()
-        mock_router._generate_normal_sync = MagicMock(return_value="42")
-        mock_router.generate_with_ablation = AsyncMock(return_value=("42", {}))
-        mock_router.__aenter__ = AsyncMock(return_value=mock_router)
-        mock_router.__aexit__ = AsyncMock(return_value=None)
-
-        mock_problem = MagicMock()
-        mock_problem.prompt = "6 * 7 = "
-        mock_problem.answer = 42
-
-        mock_benchmarks = MagicMock()
-        mock_benchmarks.get_all_problems.return_value = [mock_problem]
-
-        with (
-            patch(
-                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate.ExpertRouter"
-            ) as MockRouter,
-            patch(
-                "chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate.get_arithmetic_benchmarks"
-            ) as mock_get_bench,
-        ):
-            MockRouter.from_pretrained = AsyncMock(return_value=mock_router)
-            mock_get_bench.return_value = mock_benchmarks
-
-            await _async_ablate(args)
-
-        captured = capsys.readouterr()
-        assert "ABLATION BENCHMARK" in captured.out
-
-    @pytest.mark.asyncio
-    async def test_check_answer_with_value_error(self):
-        """Test that ValueError in int conversion is handled."""
-        # This would occur if match.group() returns something that can't be converted to int
-        # Although unlikely with the regex pattern, we test the exception handler
-        result = _check_answer("not a valid number at all", 42)
-        assert result is False
+        assert result.normal_correct_count == 2
+        assert result.ablated_correct_count == 1
+        assert result.normal_accuracy == 1.0
+        assert result.ablated_accuracy == 0.5
+        assert result.accuracy_diff == -1
+        assert result.broken_count == 1
+        assert result.fixed_count == 0

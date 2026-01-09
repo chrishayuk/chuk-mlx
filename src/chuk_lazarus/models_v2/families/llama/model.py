@@ -17,7 +17,7 @@ from ...components.attention import GroupedQueryAttention, SlidingWindowAttentio
 from ...components.embeddings import create_token_embedding
 from ...components.ffn import SwiGLU
 from ...components.normalization import RMSNorm
-from ...core.config import AttentionConfig, FFNConfig
+from ...core.config import FFNConfig
 from ...core.registry import register_model
 from ...heads import LMHead
 from ...models.base import Model, ModelOutput

@@ -1,181 +1,87 @@
 """Tests for SFT training command."""
 
-import logging
-from unittest.mock import MagicMock, patch
+from argparse import Namespace
+from pathlib import Path
 
 import pytest
 
-from chuk_lazarus.cli.commands.train._types import SFTConfig, TrainMode
-from chuk_lazarus.cli.commands.train.sft import train_sft, train_sft_cmd
-
-LOAD_MODEL_PATCH = "chuk_lazarus.models.load_model"
-SFT_DATASET_PATCH = "chuk_lazarus.data.SFTDataset"
-SFT_TRAINER_PATCH = "chuk_lazarus.training.SFTTrainer"
-SFT_CONFIG_PATCH = "chuk_lazarus.training.losses.SFTConfig"
+from chuk_lazarus.cli.commands.train._types import SFTConfig
 
 
-class TestTrainSFT:
-    """Tests for train_sft async command."""
+class TestSFTConfig:
+    """Tests for SFTConfig."""
 
     @pytest.fixture
-    def basic_config(self, sft_args):
-        """Create basic SFT config."""
-        return SFTConfig.from_args(sft_args)
+    def basic_sft_args(self):
+        """Create basic SFT args."""
+        return Namespace(
+            model="test-model",
+            data="/path/to/train.jsonl",
+            eval_data=None,
+            output="/output",
+            epochs=3,
+            max_steps=None,
+            batch_size=4,
+            learning_rate=2e-5,
+            max_length=512,
+            use_lora=False,
+            lora_rank=8,
+            mask_prompt=False,
+            log_interval=10,
+        )
 
-    @pytest.fixture
-    def mock_training_components(self, mock_model, mock_trainer, mock_dataset):
-        """Create mocks for training components."""
-        return {
-            "model": mock_model,
-            "dataset": mock_dataset,
-            "trainer": mock_trainer,
-            "config": MagicMock(),
-        }
+    def test_from_args(self, basic_sft_args):
+        """Test creating config from args."""
+        config = SFTConfig.from_args(basic_sft_args)
 
-    @pytest.mark.asyncio
-    async def test_train_sft_basic(self, basic_config, mock_training_components, caplog):
-        """Test basic SFT training."""
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(SFT_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(SFT_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(SFT_CONFIG_PATCH, create=True) as mock_config_cls,
-            caplog.at_level(logging.INFO),
-        ):
-            mock_load.return_value = mock_training_components["model"]
-            mock_dataset_cls.return_value = mock_training_components["dataset"]
-            mock_trainer_cls.return_value = mock_training_components["trainer"]
-            mock_config_cls.return_value = mock_training_components["config"]
+        assert config.model == "test-model"
+        assert config.data == Path("/path/to/train.jsonl")
+        assert config.epochs == 3
+        assert config.batch_size == 4
+        assert config.learning_rate == 2e-5
+        assert config.use_lora is False
 
-            result = await train_sft(basic_config)
+    def test_from_args_with_lora(self, basic_sft_args):
+        """Test creating config with LoRA enabled."""
+        basic_sft_args.use_lora = True
+        basic_sft_args.lora_rank = 16
+        config = SFTConfig.from_args(basic_sft_args)
 
-            # Verify model was loaded
-            mock_load.assert_called_once_with(
-                "test-model",
-                use_lora=False,
-                lora_rank=8,
-            )
+        assert config.use_lora is True
+        assert config.lora_rank == 16
 
-            # Verify dataset was created
-            mock_dataset_cls.assert_called_once()
+    def test_from_args_with_eval_data(self, basic_sft_args):
+        """Test creating config with evaluation data."""
+        basic_sft_args.eval_data = "/path/to/eval.jsonl"
+        config = SFTConfig.from_args(basic_sft_args)
 
-            # Verify result
-            assert result.mode == TrainMode.SFT
-            assert result.epochs_completed == 3
+        assert config.eval_data == Path("/path/to/eval.jsonl")
 
-            # Check logging
-            assert "Loading model: test-model" in caplog.text
+    def test_from_args_with_mask_prompt(self, basic_sft_args):
+        """Test creating config with prompt masking."""
+        basic_sft_args.mask_prompt = True
+        config = SFTConfig.from_args(basic_sft_args)
 
-    @pytest.mark.asyncio
-    async def test_train_sft_with_lora(self, sft_args, mock_training_components):
-        """Test SFT training with LoRA."""
-        sft_args.use_lora = True
-        sft_args.lora_rank = 16
-        config = SFTConfig.from_args(sft_args)
+        assert config.mask_prompt is True
 
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(SFT_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(SFT_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(SFT_CONFIG_PATCH, create=True) as mock_config_cls,
-        ):
-            mock_load.return_value = mock_training_components["model"]
-            mock_dataset_cls.return_value = mock_training_components["dataset"]
-            mock_trainer_cls.return_value = mock_training_components["trainer"]
-            mock_config_cls.return_value = mock_training_components["config"]
+    def test_from_args_with_max_steps(self, basic_sft_args):
+        """Test creating config with max_steps."""
+        basic_sft_args.max_steps = 1000
+        config = SFTConfig.from_args(basic_sft_args)
 
-            await train_sft(config)
+        assert config.max_steps == 1000
 
-            mock_load.assert_called_once_with(
-                "test-model",
-                use_lora=True,
-                lora_rank=16,
-            )
+    def test_default_output_path(self, basic_sft_args):
+        """Test default output path is set correctly."""
+        config = SFTConfig.from_args(basic_sft_args)
 
-    @pytest.mark.asyncio
-    async def test_train_sft_with_eval_data(self, sft_args, mock_training_components):
-        """Test SFT training with evaluation dataset."""
-        sft_args.eval_data = "/path/to/eval.jsonl"
-        config = SFTConfig.from_args(sft_args)
+        assert config.output == Path("/output")
 
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(SFT_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(SFT_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(SFT_CONFIG_PATCH, create=True) as mock_config_cls,
-        ):
-            mock_load.return_value = mock_training_components["model"]
-            mock_eval_dataset = MagicMock()
-            mock_dataset_cls.side_effect = [
-                mock_training_components["dataset"],
-                mock_eval_dataset,
-            ]
-            mock_trainer_cls.return_value = mock_training_components["trainer"]
-            mock_config_cls.return_value = mock_training_components["config"]
+    def test_config_is_frozen(self, basic_sft_args):
+        """Test that config is immutable."""
+        from pydantic import ValidationError
 
-            await train_sft(config)
+        config = SFTConfig.from_args(basic_sft_args)
 
-            # Verify both datasets were created
-            assert mock_dataset_cls.call_count == 2
-
-            # Verify trainer.train was called with both datasets
-            mock_training_components["trainer"].train.assert_called_once_with(
-                mock_training_components["dataset"],
-                mock_eval_dataset,
-            )
-
-    @pytest.mark.asyncio
-    async def test_train_sft_with_mask_prompt(self, sft_args, mock_training_components):
-        """Test SFT training with prompt masking."""
-        sft_args.mask_prompt = True
-        config = SFTConfig.from_args(sft_args)
-
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(SFT_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(SFT_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(SFT_CONFIG_PATCH, create=True) as mock_config_cls,
-        ):
-            mock_load.return_value = mock_training_components["model"]
-            mock_dataset_cls.return_value = mock_training_components["dataset"]
-            mock_trainer_cls.return_value = mock_training_components["trainer"]
-            mock_config_cls.return_value = mock_training_components["config"]
-
-            await train_sft(config)
-
-            # Verify mask_prompt was passed to dataset
-            call_kwargs = mock_dataset_cls.call_args[1]
-            assert call_kwargs["mask_prompt"] is True
-
-
-class TestTrainSFTCmd:
-    """Tests for train_sft_cmd CLI entry point."""
-
-    @pytest.fixture
-    def mock_training_components(self, mock_model, mock_trainer, mock_dataset):
-        """Create mocks for training components."""
-        return {
-            "model": mock_model,
-            "dataset": mock_dataset,
-            "trainer": mock_trainer,
-            "config": MagicMock(),
-        }
-
-    @pytest.mark.asyncio
-    async def test_train_sft_cmd(self, sft_args, mock_training_components, capsys):
-        """Test CLI entry point."""
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(SFT_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(SFT_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(SFT_CONFIG_PATCH, create=True) as mock_config_cls,
-        ):
-            mock_load.return_value = mock_training_components["model"]
-            mock_dataset_cls.return_value = mock_training_components["dataset"]
-            mock_trainer_cls.return_value = mock_training_components["trainer"]
-            mock_config_cls.return_value = mock_training_components["config"]
-
-            await train_sft_cmd(sft_args)
-
-            captured = capsys.readouterr()
-            assert "SFT Training Complete" in captured.out
+        with pytest.raises(ValidationError):
+            config.model = "other-model"

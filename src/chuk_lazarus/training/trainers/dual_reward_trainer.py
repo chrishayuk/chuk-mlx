@@ -30,7 +30,7 @@ import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
-from ...models_v2.adapters.lora import LoRAConfig, LoRALinear, apply_lora, count_lora_parameters
+from ...models_v2.adapters.lora import LoRAConfig, apply_lora, count_lora_parameters
 from ..base_trainer import BaseTrainer, BaseTrainerConfig
 from ..losses.dual_reward_loss import DualRewardLossConfig, dual_reward_loss
 
@@ -50,12 +50,14 @@ class DualRewardTrainerConfig(BaseTrainerConfig):
     # Classifier settings
     classifier_layer: int = -1  # -1 means 55% depth
     classifier_weight: float = 0.4
-    classifier_targets: dict[str, str] = field(default_factory=lambda: {
-        "multiply": "multiply",
-        "add": "add",
-        "subtract": "subtract",
-        "divide": "divide",
-    })
+    classifier_targets: dict[str, str] = field(
+        default_factory=lambda: {
+            "multiply": "multiply",
+            "add": "add",
+            "subtract": "subtract",
+            "divide": "divide",
+        }
+    )
 
     # LoRA settings
     lora_rank: int = 16
@@ -188,9 +190,7 @@ class DualRewardTrainer(BaseTrainer):
             lora_layer.lora_B = params[idx + 1]
             idx += 2
 
-    def _forward_with_intermediate(
-        self, input_ids: mx.array
-    ) -> tuple[mx.array, mx.array]:
+    def _forward_with_intermediate(self, input_ids: mx.array) -> tuple[mx.array, mx.array]:
         """
         Forward pass capturing both final and intermediate logits.
 
@@ -313,7 +313,7 @@ class DualRewardTrainer(BaseTrainer):
 
     def train(self, dataset: Any):
         """Run dual-reward training."""
-        logger.info(f"Starting dual-reward training")
+        logger.info("Starting dual-reward training")
         logger.info(f"Classifier layer: L{self.classifier_layer}")
         logger.info(f"Classifier weight: {self.config.classifier_weight}")
         logger.info(f"LoRA targets: {self.config.lora_targets}")
@@ -365,15 +365,14 @@ class DualRewardTrainer(BaseTrainer):
                 loss, grads = grad_fn(params, batch)
 
                 # Update
-                new_params = [
-                    p - self.config.learning_rate * g
-                    for p, g in zip(params, grads)
-                ]
+                new_params = [p - self.config.learning_rate * g for p, g in zip(params, grads)]
                 self._set_lora_params(new_params)
 
                 # Evaluate LoRA parameters
-                mx.eval([layer.lora_A for layer in self.lora_layers.values()] +
-                        [layer.lora_B for layer in self.lora_layers.values()])
+                mx.eval(
+                    [layer.lora_A for layer in self.lora_layers.values()]
+                    + [layer.lora_B for layer in self.lora_layers.values()]
+                )
 
                 # Logging
                 if self.global_step % self.config.log_interval == 0:
@@ -390,10 +389,9 @@ class DualRewardTrainer(BaseTrainer):
                         f"Time: {elapsed:.1f}s"
                     )
 
-                    self.metrics_history.append({
-                        "step": self.global_step,
-                        **{k: float(v) for k, v in metrics.items()}
-                    })
+                    self.metrics_history.append(
+                        {"step": self.global_step, **{k: float(v) for k, v in metrics.items()}}
+                    )
 
                 # Checkpoint
                 if self.global_step % self.config.checkpoint_interval == 0:
@@ -464,13 +462,15 @@ class DualRewardTrainer(BaseTrainer):
             if is_correct:
                 correct += 1
 
-            results.append({
-                "prompt": prompt,
-                "expected": expected,
-                "predicted": best_class,
-                "confidence": best_prob,
-                "correct": is_correct,
-            })
+            results.append(
+                {
+                    "prompt": prompt,
+                    "expected": expected,
+                    "predicted": best_class,
+                    "confidence": best_prob,
+                    "correct": is_correct,
+                }
+            )
 
         accuracy = correct / len(test_prompts) if test_prompts else 0
 

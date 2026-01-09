@@ -129,7 +129,6 @@ class SFTDataset:
 
         # Find max length
         max_len = max(len(item["input_ids"]) for item in items)
-        batch_size = len(items)
 
         # Build arrays as Python lists, then convert to MLX
         input_ids_list = []

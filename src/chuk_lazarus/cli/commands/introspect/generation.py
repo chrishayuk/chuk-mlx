@@ -25,7 +25,7 @@ async def introspect_generate(args: Namespace) -> None:
     Args:
         args: Parsed command-line arguments
     """
-    from ....introspection.generation import GenerationService, GenerationConfig
+    from ....introspection.generation import GenerationConfig, GenerationService
 
     config = GenerationConfig(
         model=args.model,
@@ -61,7 +61,7 @@ async def introspect_logit_evolution(args: Namespace) -> None:
     Args:
         args: Parsed command-line arguments
     """
-    from ....introspection.generation import LogitEvolutionService, LogitEvolutionConfig
+    from ....introspection.generation import LogitEvolutionConfig, LogitEvolutionService
     from .._constants import Delimiters
 
     # Parse tracked tokens

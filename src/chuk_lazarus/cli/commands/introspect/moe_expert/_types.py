@@ -7,13 +7,11 @@ to ensure type safety and eliminate dictionary "goop".
 from __future__ import annotations
 
 from argparse import Namespace
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..._base import CommandConfig, CommandResult
 from ..._constants import (
-    ContextType,
     ContextVerdict,
     Domain,
     LayerPhase,
@@ -22,7 +20,6 @@ from ..._constants import (
     PatternCategory,
     TokenType,
 )
-
 
 # =============================================================================
 # Token Classification Models
@@ -213,9 +210,7 @@ class ExpertDomainStats(BaseModel):
 
     expert_idx: int = Field(..., description="Expert index")
     layer: int = Field(..., description="Layer index")
-    domain_counts: dict[str, int] = Field(
-        default_factory=dict, description="Count by domain"
-    )
+    domain_counts: dict[str, int] = Field(default_factory=dict, description="Count by domain")
     primary_domain: Domain | None = Field(default=None, description="Primary domain")
     is_generalist: bool = Field(default=False, description="Handles multiple domains")
 
@@ -233,7 +228,7 @@ class DomainTestResult(CommandResult):
     def to_display(self) -> str:
         """Format result for display."""
         lines = [
-            f"\n=== DOMAIN TEST RESULTS ===",
+            "\n=== DOMAIN TEST RESULTS ===",
             f"Model: {self.model_id}",
             f"Domains: {', '.join(self.domains_tested)}",
             f"Generalist experts: {self.generalist_count}",
@@ -273,7 +268,7 @@ class ContextWindowAnalysisResult(CommandResult):
     def to_display(self) -> str:
         """Format result for display."""
         lines = [
-            f"\n=== CONTEXT WINDOW ANALYSIS ===",
+            "\n=== CONTEXT WINDOW ANALYSIS ===",
             f"Model: {self.model_id}",
             f"Verdict: {self.verdict.value}",
         ]
@@ -304,9 +299,17 @@ class LayerExpertTransition(BaseModel):
             dom = self.early_expert or self.middle_expert or self.late_expert
             return f"E{dom} (stable)" if dom is not None else "unknown"
         parts = []
-        if self.early_expert != self.middle_expert and self.early_expert is not None and self.middle_expert is not None:
+        if (
+            self.early_expert != self.middle_expert
+            and self.early_expert is not None
+            and self.middle_expert is not None
+        ):
             parts.append(f"E{self.early_expert}→E{self.middle_expert}")
-        if self.middle_expert != self.late_expert and self.middle_expert is not None and self.late_expert is not None:
+        if (
+            self.middle_expert != self.late_expert
+            and self.middle_expert is not None
+            and self.late_expert is not None
+        ):
             parts.append(f"E{self.middle_expert}→E{self.late_expert}")
         return " then ".join(parts) if parts else "stable"
 
@@ -326,7 +329,7 @@ class ExploreAnalysisResult(CommandResult):
     def to_display(self) -> str:
         """Format result for display."""
         lines = [
-            f"\n=== EXPLORE ANALYSIS ===",
+            "\n=== EXPLORE ANALYSIS ===",
             f'Prompt: "{self.prompt}"',
             f"Layer: {self.layer}",
             f"Positions: {len(self.positions)}",

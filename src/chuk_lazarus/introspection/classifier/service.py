@@ -51,15 +51,15 @@ class ClassifierResult(BaseModel):
         ]
 
         for r in self.layer_results:
-            lines.append(
-                f"{r['layer']:<8} {r['accuracy']:<12.3f} {r.get('f1_macro', 0):<12.3f}"
-            )
+            lines.append(f"{r['layer']:<8} {r['accuracy']:<12.3f} {r.get('f1_macro', 0):<12.3f}")
 
-        lines.extend([
-            "-" * 40,
-            f"\nBest layer: {self.best_layer}",
-            f"Best accuracy: {self.best_accuracy:.3f}",
-        ])
+        lines.extend(
+            [
+                "-" * 40,
+                f"\nBest layer: {self.best_layer}",
+                f"Best accuracy: {self.best_accuracy:.3f}",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -82,7 +82,7 @@ class ClassifierService:
         import mlx.core as mx
         import numpy as np
         from sklearn.linear_model import LogisticRegression
-        from sklearn.metrics import accuracy_score, f1_score
+        from sklearn.metrics import f1_score
         from sklearn.model_selection import cross_val_score
         from sklearn.preprocessing import LabelEncoder
 
@@ -177,11 +177,13 @@ class ClassifierService:
             y_pred = clf.predict(X)
             f1_macro = float(f1_score(y, y_pred, average="macro"))
 
-            layer_results.append({
-                "layer": layer,
-                "accuracy": accuracy,
-                "f1_macro": f1_macro,
-            })
+            layer_results.append(
+                {
+                    "layer": layer,
+                    "accuracy": accuracy,
+                    "f1_macro": f1_macro,
+                }
+            )
 
             if accuracy > best_accuracy:
                 best_accuracy = accuracy

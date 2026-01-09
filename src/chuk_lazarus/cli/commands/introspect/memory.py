@@ -96,7 +96,6 @@ async def introspect_memory_inject(args: Namespace) -> None:
     """
     from ....datasets import load_facts
     from ....introspection.external_memory import ExternalMemory, MemoryConfig
-
     from .._base import OutputMixin
     from .._constants import Delimiters
 
@@ -163,7 +162,9 @@ async def introspect_memory_inject(args: Namespace) -> None:
         if result.used_injection:
             print(f"  Injected: '{result.injected_answer}' ({result.injected_confidence:.1%})")
             if result.matched_entry:
-                print(f"  Matched:  '{result.matched_entry.query}' -> {result.matched_entry.answer}")
+                print(
+                    f"  Matched:  '{result.matched_entry.query}' -> {result.matched_entry.answer}"
+                )
                 print(f"  Similarity: {result.similarity:.3f}")
 
             if result.baseline_answer.strip() != result.injected_answer.strip():

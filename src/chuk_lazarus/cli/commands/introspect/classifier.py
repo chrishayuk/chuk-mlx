@@ -25,14 +25,14 @@ async def introspect_classifier(args: Namespace) -> None:
     Args:
         args: Parsed command-line arguments
     """
-    from ....introspection.classifier import ClassifierService, ClassifierConfig
+    from ....introspection.classifier import ClassifierConfig, ClassifierService
     from .._constants import Delimiters
-    from ._utils import parse_prompts
 
     # Load categories from file or parse from CLI
     categories_file = getattr(args, "categories_file", None)
     if categories_file:
         import json
+
         with open(categories_file) as f:
             categories = json.load(f)
     else:
@@ -88,7 +88,7 @@ async def introspect_logit_lens(args: Namespace) -> None:
     Args:
         args: Parsed command-line arguments
     """
-    from ....introspection.logit_lens import LogitLensService, LogitLensConfig
+    from ....introspection.logit_lens import LogitLensConfig, LogitLensService
     from .._constants import Delimiters
 
     # Parse layers

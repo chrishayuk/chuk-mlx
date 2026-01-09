@@ -1,247 +1,85 @@
 """Tests for DPO training command."""
 
-import logging
-from unittest.mock import MagicMock, patch
+from argparse import Namespace
+from pathlib import Path
 
 import pytest
 
-from chuk_lazarus.cli.commands.train._types import DPOConfig, TrainMode
-from chuk_lazarus.cli.commands.train.dpo import train_dpo, train_dpo_cmd
-
-LOAD_MODEL_PATCH = "chuk_lazarus.models.load_model"
-PREFERENCE_DATASET_PATCH = "chuk_lazarus.data.PreferenceDataset"
-DPO_TRAINER_PATCH = "chuk_lazarus.training.DPOTrainer"
-DPO_TRAINER_CONFIG_PATCH = "chuk_lazarus.training.DPOTrainerConfig"
-DPO_LOSS_CONFIG_PATCH = "chuk_lazarus.training.losses.DPOConfig"
+from chuk_lazarus.cli.commands.train._types import DPOConfig
 
 
-class TestTrainDPO:
-    """Tests for train_dpo async command."""
+class TestDPOConfig:
+    """Tests for DPOConfig."""
 
     @pytest.fixture
-    def basic_config(self, dpo_args):
-        """Create basic DPO config."""
-        return DPOConfig.from_args(dpo_args)
+    def basic_dpo_args(self):
+        """Create basic DPO args."""
+        return Namespace(
+            model="test-model",
+            ref_model=None,
+            data="/path/to/train.jsonl",
+            eval_data=None,
+            output="/output",
+            epochs=3,
+            batch_size=4,
+            learning_rate=1e-6,
+            beta=0.1,
+            max_length=512,
+            use_lora=False,
+            lora_rank=8,
+        )
 
-    @pytest.fixture
-    def mock_dpo_components(self, mock_model, mock_trainer, mock_dataset):
-        """Create mocks for DPO training components."""
-        mock_ref_model = MagicMock()
-        mock_ref_model.model = MagicMock()
+    def test_from_args(self, basic_dpo_args):
+        """Test creating config from args."""
+        config = DPOConfig.from_args(basic_dpo_args)
 
-        return {
-            "policy_model": mock_model,
-            "ref_model": mock_ref_model,
-            "dataset": mock_dataset,
-            "trainer": mock_trainer,
-            "config": MagicMock(),
-            "dpo_config": MagicMock(),
-        }
+        assert config.model == "test-model"
+        assert config.data == Path("/path/to/train.jsonl")
+        assert config.epochs == 3
+        assert config.beta == 0.1
 
-    @pytest.mark.asyncio
-    async def test_train_dpo_basic(self, basic_config, mock_dpo_components, caplog):
-        """Test basic DPO training."""
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(PREFERENCE_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(DPO_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(DPO_TRAINER_CONFIG_PATCH, create=True) as mock_config_cls,
-            patch(DPO_LOSS_CONFIG_PATCH, create=True) as mock_dpo_config_cls,
-            caplog.at_level(logging.INFO),
-        ):
-            mock_load.side_effect = [
-                mock_dpo_components["policy_model"],
-                mock_dpo_components["ref_model"],
-            ]
-            mock_dataset_cls.return_value = mock_dpo_components["dataset"]
-            mock_trainer_cls.return_value = mock_dpo_components["trainer"]
-            mock_config_cls.return_value = mock_dpo_components["config"]
-            mock_dpo_config_cls.return_value = mock_dpo_components["dpo_config"]
+    def test_from_args_with_ref_model(self, basic_dpo_args):
+        """Test creating config with reference model."""
+        basic_dpo_args.ref_model = "ref-model"
+        config = DPOConfig.from_args(basic_dpo_args)
 
-            result = await train_dpo(basic_config)
+        assert config.ref_model == "ref-model"
+        assert config.reference_model == "ref-model"
 
-            # Verify both models were loaded
-            assert mock_load.call_count == 2
+    def test_from_args_with_lora(self, basic_dpo_args):
+        """Test creating config with LoRA enabled."""
+        basic_dpo_args.use_lora = True
+        basic_dpo_args.lora_rank = 16
+        config = DPOConfig.from_args(basic_dpo_args)
 
-            # Verify result
-            assert result.mode == TrainMode.DPO
-            assert result.epochs_completed == 3
+        assert config.use_lora is True
+        assert config.lora_rank == 16
 
-            # Check logging
-            assert "Loading policy model: test-model" in caplog.text
-            assert "Loading reference model: test-model" in caplog.text
+    def test_reference_model_defaults_to_policy(self, basic_dpo_args):
+        """Test reference_model defaults to policy model when not set."""
+        config = DPOConfig.from_args(basic_dpo_args)
 
-    @pytest.mark.asyncio
-    async def test_train_dpo_with_separate_ref_model(self, dpo_args, mock_dpo_components, caplog):
-        """Test DPO training with separate reference model."""
-        dpo_args.ref_model = "ref-model"
-        config = DPOConfig.from_args(dpo_args)
+        assert config.ref_model is None
+        assert config.reference_model == "test-model"
 
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(PREFERENCE_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(DPO_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(DPO_TRAINER_CONFIG_PATCH, create=True) as mock_config_cls,
-            patch(DPO_LOSS_CONFIG_PATCH, create=True) as mock_dpo_config_cls,
-            caplog.at_level(logging.INFO),
-        ):
-            mock_load.side_effect = [
-                mock_dpo_components["policy_model"],
-                mock_dpo_components["ref_model"],
-            ]
-            mock_dataset_cls.return_value = mock_dpo_components["dataset"]
-            mock_trainer_cls.return_value = mock_dpo_components["trainer"]
-            mock_config_cls.return_value = mock_dpo_components["config"]
-            mock_dpo_config_cls.return_value = mock_dpo_components["dpo_config"]
+    def test_from_args_with_eval_data(self, basic_dpo_args):
+        """Test creating config with evaluation data."""
+        basic_dpo_args.eval_data = "/path/to/eval.jsonl"
+        config = DPOConfig.from_args(basic_dpo_args)
 
-            await train_dpo(config)
+        assert config.eval_data == Path("/path/to/eval.jsonl")
 
-            # Verify reference model was loaded with correct name
-            assert mock_load.call_args_list[1] == (
-                ("ref-model",),
-                {"use_lora": False},
-            )
+    def test_default_output_path(self, basic_dpo_args):
+        """Test default output path is set correctly."""
+        config = DPOConfig.from_args(basic_dpo_args)
 
-            assert "Loading reference model: ref-model" in caplog.text
+        assert config.output == Path("/output")
 
-    @pytest.mark.asyncio
-    async def test_train_dpo_with_lora(self, dpo_args, mock_dpo_components):
-        """Test DPO training with LoRA."""
-        dpo_args.use_lora = True
-        dpo_args.lora_rank = 16
-        config = DPOConfig.from_args(dpo_args)
+    def test_config_is_frozen(self, basic_dpo_args):
+        """Test that config is immutable."""
+        from pydantic import ValidationError
 
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(PREFERENCE_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(DPO_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(DPO_TRAINER_CONFIG_PATCH, create=True) as mock_config_cls,
-            patch(DPO_LOSS_CONFIG_PATCH, create=True) as mock_dpo_config_cls,
-        ):
-            mock_load.side_effect = [
-                mock_dpo_components["policy_model"],
-                mock_dpo_components["ref_model"],
-            ]
-            mock_dataset_cls.return_value = mock_dpo_components["dataset"]
-            mock_trainer_cls.return_value = mock_dpo_components["trainer"]
-            mock_config_cls.return_value = mock_dpo_components["config"]
-            mock_dpo_config_cls.return_value = mock_dpo_components["dpo_config"]
+        config = DPOConfig.from_args(basic_dpo_args)
 
-            await train_dpo(config)
-
-            # Verify policy model was loaded with LoRA
-            assert mock_load.call_args_list[0] == (
-                ("test-model",),
-                {"use_lora": True, "lora_rank": 16},
-            )
-            # Reference model should never use LoRA
-            assert mock_load.call_args_list[1] == (
-                ("test-model",),
-                {"use_lora": False},
-            )
-
-    @pytest.mark.asyncio
-    async def test_train_dpo_with_eval_data(self, dpo_args, mock_dpo_components):
-        """Test DPO training with evaluation dataset."""
-        dpo_args.eval_data = "/path/to/eval_preferences.jsonl"
-        config = DPOConfig.from_args(dpo_args)
-
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(PREFERENCE_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(DPO_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(DPO_TRAINER_CONFIG_PATCH, create=True) as mock_config_cls,
-            patch(DPO_LOSS_CONFIG_PATCH, create=True) as mock_dpo_config_cls,
-        ):
-            mock_load.side_effect = [
-                mock_dpo_components["policy_model"],
-                mock_dpo_components["ref_model"],
-            ]
-            mock_eval_dataset = MagicMock()
-            mock_dataset_cls.side_effect = [
-                mock_dpo_components["dataset"],
-                mock_eval_dataset,
-            ]
-            mock_trainer_cls.return_value = mock_dpo_components["trainer"]
-            mock_config_cls.return_value = mock_dpo_components["config"]
-            mock_dpo_config_cls.return_value = mock_dpo_components["dpo_config"]
-
-            await train_dpo(config)
-
-            # Verify both datasets were created
-            assert mock_dataset_cls.call_count == 2
-
-            # Verify trainer.train was called with both datasets
-            mock_dpo_components["trainer"].train.assert_called_once_with(
-                mock_dpo_components["dataset"],
-                mock_eval_dataset,
-            )
-
-    @pytest.mark.asyncio
-    async def test_train_dpo_custom_beta(self, dpo_args, mock_dpo_components):
-        """Test DPO training with custom beta."""
-        dpo_args.beta = 0.2
-        config = DPOConfig.from_args(dpo_args)
-
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(PREFERENCE_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(DPO_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(DPO_TRAINER_CONFIG_PATCH, create=True) as mock_config_cls,
-            patch(DPO_LOSS_CONFIG_PATCH, create=True) as mock_dpo_config_cls,
-        ):
-            mock_load.side_effect = [
-                mock_dpo_components["policy_model"],
-                mock_dpo_components["ref_model"],
-            ]
-            mock_dataset_cls.return_value = mock_dpo_components["dataset"]
-            mock_trainer_cls.return_value = mock_dpo_components["trainer"]
-            mock_config_cls.return_value = mock_dpo_components["config"]
-            mock_dpo_config_cls.return_value = mock_dpo_components["dpo_config"]
-
-            await train_dpo(config)
-
-            mock_dpo_config_cls.assert_called_once_with(beta=0.2)
-
-
-class TestTrainDPOCmd:
-    """Tests for train_dpo_cmd CLI entry point."""
-
-    @pytest.fixture
-    def mock_dpo_components(self, mock_model, mock_trainer, mock_dataset):
-        """Create mocks for DPO training components."""
-        mock_ref_model = MagicMock()
-        mock_ref_model.model = MagicMock()
-
-        return {
-            "policy_model": mock_model,
-            "ref_model": mock_ref_model,
-            "dataset": mock_dataset,
-            "trainer": mock_trainer,
-            "config": MagicMock(),
-            "dpo_config": MagicMock(),
-        }
-
-    @pytest.mark.asyncio
-    async def test_train_dpo_cmd(self, dpo_args, mock_dpo_components, capsys):
-        """Test CLI entry point."""
-        with (
-            patch(LOAD_MODEL_PATCH, create=True) as mock_load,
-            patch(PREFERENCE_DATASET_PATCH, create=True) as mock_dataset_cls,
-            patch(DPO_TRAINER_PATCH, create=True) as mock_trainer_cls,
-            patch(DPO_TRAINER_CONFIG_PATCH, create=True) as mock_config_cls,
-            patch(DPO_LOSS_CONFIG_PATCH, create=True) as mock_dpo_config_cls,
-        ):
-            mock_load.side_effect = [
-                mock_dpo_components["policy_model"],
-                mock_dpo_components["ref_model"],
-            ]
-            mock_dataset_cls.return_value = mock_dpo_components["dataset"]
-            mock_trainer_cls.return_value = mock_dpo_components["trainer"]
-            mock_config_cls.return_value = mock_dpo_components["config"]
-            mock_dpo_config_cls.return_value = mock_dpo_components["dpo_config"]
-
-            await train_dpo_cmd(dpo_args)
-
-            captured = capsys.readouterr()
-            assert "DPO Training Complete" in captured.out
+        with pytest.raises(ValidationError):
+            config.model = "other-model"

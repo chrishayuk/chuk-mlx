@@ -11,18 +11,15 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from .._base import CommandConfig, CommandResult
 from .._constants import (
-    AblationCriterion,
     AnalysisDefaults,
     LayerPhase,
     LayerPhaseDefaults,
     SteeringDefaults,
-    SteeringDirectionFormat,
 )
-
 
 # =============================================================================
 # Steering Models
@@ -40,12 +37,8 @@ class SteeringDirectionConfig(BaseModel):
         default=SteeringDefaults.DEFAULT_COEFFICIENT,
         description="Steering coefficient",
     )
-    positive_label: str | None = Field(
-        default=None, description="Label for positive direction"
-    )
-    negative_label: str | None = Field(
-        default=None, description="Label for negative direction"
-    )
+    positive_label: str | None = Field(default=None, description="Label for positive direction")
+    negative_label: str | None = Field(default=None, description="Label for negative direction")
     norm: float | None = Field(default=None, description="Direction vector norm")
     cosine_similarity: float | None = Field(
         default=None, description="Cosine similarity between positive and negative"
@@ -62,7 +55,9 @@ class SteeringDirectionConfig(BaseModel):
             positive_label=str(data["positive_prompt"]) if "positive_prompt" in data else None,
             negative_label=str(data["negative_prompt"]) if "negative_prompt" in data else None,
             norm=float(data["norm"]) if "norm" in data else None,
-            cosine_similarity=float(data["cosine_similarity"]) if "cosine_similarity" in data else None,
+            cosine_similarity=float(data["cosine_similarity"])
+            if "cosine_similarity" in data
+            else None,
             source_file=str(path),
         )
 
@@ -106,16 +101,18 @@ class SteeringConfig(CommandConfig):
             negative=getattr(args, "negative", None),
             direction=getattr(args, "direction", None),
             neuron=getattr(args, "neuron", None),
-            prompts=getattr(args, "prompts", ""),
+            prompts=getattr(args, "prompts", "") or "",
             layer=getattr(args, "layer", None),
             coefficient=getattr(args, "coefficient", SteeringDefaults.DEFAULT_COEFFICIENT),
             compare=getattr(args, "compare", None),
             max_tokens=getattr(args, "max_tokens", 100),
             temperature=getattr(args, "temperature", 0.0),
             output=getattr(args, "output", None),
-            name=getattr(args, "name", SteeringDefaults.DEFAULT_NAME),
-            positive_label=getattr(args, "positive_label", SteeringDefaults.DEFAULT_POSITIVE_LABEL),
-            negative_label=getattr(args, "negative_label", SteeringDefaults.DEFAULT_NEGATIVE_LABEL),
+            name=getattr(args, "name", None) or SteeringDefaults.DEFAULT_NAME,
+            positive_label=getattr(args, "positive_label", None)
+            or SteeringDefaults.DEFAULT_POSITIVE_LABEL,
+            negative_label=getattr(args, "negative_label", None)
+            or SteeringDefaults.DEFAULT_NEGATIVE_LABEL,
         )
 
 

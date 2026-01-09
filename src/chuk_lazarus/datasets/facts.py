@@ -82,14 +82,16 @@ def load_multiplication_facts(
     facts = []
     for a in range(min_operand, max_operand + 1):
         for b in range(min_operand, max_operand + 1):
-            facts.append({
-                "query": f"{a}*{b}=",
-                "answer": str(a * b),
-                "operand_a": a,
-                "operand_b": b,
-                "category": f"{a}x",
-                "category_alt": f"x{b}",
-            })
+            facts.append(
+                {
+                    "query": f"{a}*{b}=",
+                    "answer": str(a * b),
+                    "operand_a": a,
+                    "operand_b": b,
+                    "category": f"{a}x",
+                    "category_alt": f"x{b}",
+                }
+            )
     return facts
 
 
@@ -117,14 +119,16 @@ def load_addition_facts(
     facts = []
     for a in range(min_operand, max_operand + 1):
         for b in range(min_operand, max_operand + 1):
-            facts.append({
-                "query": f"{a}+{b}=",
-                "answer": str(a + b),
-                "operand_a": a,
-                "operand_b": b,
-                "category": f"{a}+",
-                "category_alt": f"+{b}",
-            })
+            facts.append(
+                {
+                    "query": f"{a}+{b}=",
+                    "answer": str(a + b),
+                    "operand_a": a,
+                    "operand_b": b,
+                    "category": f"{a}+",
+                    "category_alt": f"+{b}",
+                }
+            )
     return facts
 
 
@@ -193,12 +197,14 @@ def load_capital_facts() -> list[dict[str, Any]]:
     """
     facts = []
     for country, capital, region in _CAPITALS_DATA:
-        facts.append({
-            "query": f"The capital of {country} is",
-            "answer": capital,
-            "country": country,
-            "category": region,
-        })
+        facts.append(
+            {
+                "query": f"The capital of {country} is",
+                "answer": capital,
+                "country": country,
+                "category": region,
+            }
+        )
     return facts
 
 
@@ -263,13 +269,15 @@ def load_element_facts() -> list[dict[str, Any]]:
         else:
             period = 4
 
-        facts.append({
-            "query": f"Element {num} is",
-            "answer": name,
-            "number": num,
-            "symbol": symbol,
-            "category": f"Period {period}",
-        })
+        facts.append(
+            {
+                "query": f"Element {num} is",
+                "answer": name,
+                "number": num,
+                "symbol": symbol,
+                "category": f"Period {period}",
+            }
+        )
     return facts
 
 

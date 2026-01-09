@@ -12,8 +12,9 @@ from __future__ import annotations
 import json
 import sys
 from argparse import Namespace
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 from .._constants import Delimiters, LayerDepthRatio
 

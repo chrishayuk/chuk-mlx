@@ -77,7 +77,7 @@ class MemoryAnalysisResult(BaseModel):
             f"\n{'=' * 70}",
             f"MEMORY STRUCTURE ANALYSIS: {self.fact_type}",
             f"{'=' * 70}",
-            f"\n1. RETRIEVAL ACCURACY",
+            "\n1. RETRIEVAL ACCURACY",
             f"   Top-1: {self.top1_accuracy}/{self.num_facts} ({100 * self.top1_accuracy / self.num_facts:.1f}%)",
             f"   Top-5: {self.top5_accuracy}/{self.num_facts} ({100 * self.top5_accuracy / self.num_facts:.1f}%)",
             f"   Not found: {self.not_found}/{self.num_facts} ({100 * self.not_found / self.num_facts:.1f}%)",
@@ -125,8 +125,10 @@ class MemoryAnalysisResult(BaseModel):
             if self.category_accuracy:
                 ax = axes[0, 1]
                 cats = sorted(self.category_accuracy.keys())
-                accs = [self.category_accuracy[c]["top1"] / self.category_accuracy[c]["total"] * 100
-                        for c in cats]
+                accs = [
+                    self.category_accuracy[c]["top1"] / self.category_accuracy[c]["total"] * 100
+                    for c in cats
+                ]
                 ax.bar(cats, accs)
                 ax.set_ylabel("Top-1 Accuracy (%)")
                 ax.set_title("Accuracy by Category")
@@ -247,11 +249,13 @@ class MemoryAnalysisService:
             predictions = []
             for idx, prob in zip(top_indices.tolist(), top_probs.tolist()):
                 token = tokenizer.decode([idx])
-                predictions.append({
-                    "token": token,
-                    "token_id": idx,
-                    "prob": prob,
-                })
+                predictions.append(
+                    {
+                        "token": token,
+                        "token_id": idx,
+                        "prob": prob,
+                    }
+                )
             return predictions
 
         # Build answer vocabulary
@@ -289,26 +293,33 @@ class MemoryAnalysisService:
                 if token in answer_vocab:
                     other_fact = answer_vocab[token]
                     if "category" in fact and fact.get("category") == other_fact.get("category"):
-                        neighborhood["same_category"].append({
-                            "answer": token,
-                            "prob": pred["prob"],
-                        })
+                        neighborhood["same_category"].append(
+                            {
+                                "answer": token,
+                                "prob": pred["prob"],
+                            }
+                        )
                     else:
-                        neighborhood["other_answers"].append({
-                            "answer": token,
-                            "prob": pred["prob"],
-                        })
+                        neighborhood["other_answers"].append(
+                            {
+                                "answer": token,
+                                "prob": pred["prob"],
+                            }
+                        )
 
-            results.append({
-                **fact,
-                "predictions": predictions[:10],
-                "neighborhood": neighborhood,
-            })
+            results.append(
+                {
+                    **fact,
+                    "predictions": predictions[:10],
+                    "neighborhood": neighborhood,
+                }
+            )
 
         # Compute metrics
         top1 = sum(1 for r in results if r["neighborhood"]["correct_rank"] == 1)
         top5 = sum(
-            1 for r in results
+            1
+            for r in results
             if r["neighborhood"]["correct_rank"] and r["neighborhood"]["correct_rank"] <= 5
         )
         not_found = sum(1 for r in results if r["neighborhood"]["correct_rank"] is None)

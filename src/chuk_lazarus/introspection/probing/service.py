@@ -62,12 +62,18 @@ class MetacognitiveResult(BaseModel):
             )
 
         total = len(self.results)
-        lines.extend([
-            "-" * 90,
-            "\nSummary:",
-            f"  Direct computation: {self.direct_count}/{total} ({100 * self.direct_count / total:.0f}%)" if total else "",
-            f"  Chain-of-thought: {self.cot_count}/{total} ({100 * self.cot_count / total:.0f}%)" if total else "",
-        ])
+        lines.extend(
+            [
+                "-" * 90,
+                "\nSummary:",
+                f"  Direct computation: {self.direct_count}/{total} ({100 * self.direct_count / total:.0f}%)"
+                if total
+                else "",
+                f"  Chain-of-thought: {self.cot_count}/{total} ({100 * self.cot_count / total:.0f}%)"
+                if total
+                else "",
+            ]
+        )
 
         if self.direct_accuracy is not None:
             lines.append(f"  Direct accuracy: {self.direct_accuracy:.0%}")
@@ -150,18 +156,20 @@ class MetacognitiveService:
                 if expected and is_digit:
                     correct_start = expected.startswith(top_token.strip())
 
-                results.append({
-                    "prompt": prompt,
-                    "expected": expected,
-                    "decision_layer": decision_layer,
-                    "decision_token": top_token,
-                    "decision_prob": top_prob,
-                    "strategy": strategy,
-                    "is_digit": is_digit,
-                    "correct_start": correct_start,
-                    "final_token": result.predicted_token,
-                    "final_prob": result.final_probability,
-                })
+                results.append(
+                    {
+                        "prompt": prompt,
+                        "expected": expected,
+                        "decision_layer": decision_layer,
+                        "decision_token": top_token,
+                        "decision_prob": top_prob,
+                        "strategy": strategy,
+                        "is_digit": is_digit,
+                        "correct_start": correct_start,
+                        "final_token": result.predicted_token,
+                        "final_prob": result.final_probability,
+                    }
+                )
 
             # Calculate direct accuracy
             direct_results = [r for r in results if r["strategy"] == "DIRECT"]
@@ -187,8 +195,12 @@ class UncertaintyConfig(BaseModel):
 
     model: str = Field(..., description="Model path or name")
     prompts: list[str] = Field(..., description="Prompts to analyze")
-    working_prompts: list[str] = Field(default_factory=list, description="Working prompts for calibration")
-    broken_prompts: list[str] = Field(default_factory=list, description="Broken prompts for calibration")
+    working_prompts: list[str] = Field(
+        default_factory=list, description="Working prompts for calibration"
+    )
+    broken_prompts: list[str] = Field(
+        default_factory=list, description="Broken prompts for calibration"
+    )
     layer: int | None = Field(default=None, description="Target layer")
     layer_depth_ratio: float | None = Field(default=None, description="Layer depth ratio")
 
@@ -225,10 +237,12 @@ class UncertaintyResult(BaseModel):
                 f"{r['dist_to_compute']:>10.0f} {r['dist_to_refusal']:>10.0f}"
             )
 
-        lines.extend([
-            "-" * 80,
-            f"Summary: {self.confident_count} confident, {self.uncertain_count} uncertain",
-        ])
+        lines.extend(
+            [
+                "-" * 80,
+                f"Summary: {self.confident_count} confident, {self.uncertain_count} uncertain",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -335,13 +349,15 @@ class UncertaintyService:
             else:
                 uncertain_count += 1
 
-            results.append({
-                "prompt": prompt,
-                "score": score,
-                "prediction": prediction,
-                "dist_to_compute": dist_compute,
-                "dist_to_refusal": dist_refusal,
-            })
+            results.append(
+                {
+                    "prompt": prompt,
+                    "score": score,
+                    "prediction": prediction,
+                    "dist_to_compute": dist_compute,
+                    "dist_to_refusal": dist_refusal,
+                }
+            )
 
         return UncertaintyResult(
             results=results,
@@ -401,11 +417,13 @@ class ProbeResult(BaseModel):
                 f"{r['layer']:<8} {r['accuracy']:<12.3f} {r.get('f1', 0):<10.3f} {r.get('auc', 0):<10.3f}"
             )
 
-        lines.extend([
-            "-" * 50,
-            f"\nBest layer: {self.best_layer}",
-            f"Best accuracy: {self.best_accuracy:.3f}",
-        ])
+        lines.extend(
+            [
+                "-" * 50,
+                f"\nBest layer: {self.best_layer}",
+                f"Best accuracy: {self.best_accuracy:.3f}",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -428,7 +446,7 @@ class ProbeService:
         import mlx.core as mx
         import numpy as np
         from sklearn.linear_model import LogisticRegression
-        from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+        from sklearn.metrics import f1_score, roc_auc_score
         from sklearn.model_selection import cross_val_score
 
         from ...models_v2 import load_model
@@ -524,12 +542,14 @@ class ProbeService:
             except ValueError:
                 auc = 0.0
 
-            layer_results.append({
-                "layer": layer,
-                "accuracy": accuracy,
-                "f1": f1,
-                "auc": auc,
-            })
+            layer_results.append(
+                {
+                    "layer": layer,
+                    "accuracy": accuracy,
+                    "f1": f1,
+                    "auc": auc,
+                }
+            )
 
             if accuracy > best_accuracy:
                 best_accuracy = accuracy

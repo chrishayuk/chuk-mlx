@@ -78,9 +78,14 @@ from .ablation import (
 
 # Model accessor for unified model component access
 from .accessor import AsyncModelAccessor, ModelAccessor
+
+# Service layer for CLI commands
 from .analyzer import (
     AnalysisConfig,
     AnalysisResult,
+    AnalyzerService,
+    AnalyzerServiceConfig,
+    ComparisonResult,
     LayerPredictionResult,
     LayerStrategy,
     LayerTransition,
@@ -101,6 +106,25 @@ from .attention import (
     AttentionPattern,
     extract_attention_weights,
 )
+from .circuit import (
+    CircuitCaptureConfig,
+    CircuitCaptureResult,
+    CircuitCompareConfig,
+    CircuitCompareResult,
+    CircuitDecodeConfig,
+    CircuitDecodeResult,
+    CircuitExportConfig,
+    CircuitExportResult,
+    CircuitInvokeConfig,
+    CircuitInvokeResult,
+    CircuitService,
+    CircuitTestConfig,
+    CircuitTestResult,
+    CircuitViewConfig,
+    CircuitViewResult,
+)
+from .classifier import ClassifierConfig, ClassifierResult, ClassifierService
+from .clustering import ClusteringConfig, ClusteringResult, ClusteringService
 
 # Enums for type-safe values
 from .enums import (
@@ -120,6 +144,14 @@ from .enums import (
     PatchEffect,
     Region,
     TestStatus,
+)
+from .generation import (
+    GenerationConfig,
+    GenerationResult,
+    GenerationService,
+    LogitEvolutionConfig,
+    LogitEvolutionResult,
+    LogitEvolutionService,
 )
 
 # Low-level hooks with enums
@@ -164,6 +196,7 @@ from .logit_lens import (
     TokenEvolution,
     run_logit_lens,
 )
+from .memory import MemoryAnalysisConfig, MemoryAnalysisResult, MemoryAnalysisService
 
 # Pydantic models for structured results
 from .models import (
@@ -184,7 +217,6 @@ from .models import (
     CircuitDirection,
     CircuitEntry,
     CircuitInvocationResult,
-    CircuitTestResult,
     # Patching
     CommutativityPair,
     CommutativityResult,
@@ -193,7 +225,6 @@ from .models import (
     FactNeighborhood,
     FactSet,
     MathFact,
-    MemoryAnalysisResult,
     MemoryStats,
     MetacognitiveResult,
     ParsedArithmeticPrompt,
@@ -283,6 +314,14 @@ from .moe import (
 
 # Activation patching for causal interventions
 from .patcher import ActivationPatcher, CommutativityAnalyzer
+from .probing import (
+    MetacognitiveConfig,
+    MetacognitiveService,
+    ProbeConfig,
+    ProbeService,
+    UncertaintyConfig,
+    UncertaintyService,
+)
 
 # Activation steering - from subpackage
 from .steering import (
@@ -336,45 +375,6 @@ from .virtual_expert import (
     demo_all_approaches,
     demo_virtual_expert,
     get_default_registry,
-)
-
-# Service layer for CLI commands
-from .analyzer import AnalyzerService, AnalyzerServiceConfig, ComparisonResult
-from .memory import MemoryAnalysisConfig, MemoryAnalysisResult, MemoryAnalysisService
-from .probing import (
-    MetacognitiveConfig,
-    MetacognitiveService,
-    ProbeConfig,
-    ProbeService,
-    UncertaintyConfig,
-    UncertaintyService,
-)
-from .clustering import ClusteringConfig, ClusteringResult, ClusteringService
-from .classifier import ClassifierConfig, ClassifierResult, ClassifierService
-from .generation import (
-    GenerationConfig,
-    GenerationResult,
-    GenerationService,
-    LogitEvolutionConfig,
-    LogitEvolutionResult,
-    LogitEvolutionService,
-)
-from .circuit import (
-    CircuitCaptureConfig,
-    CircuitCaptureResult,
-    CircuitCompareConfig,
-    CircuitCompareResult,
-    CircuitDecodeConfig,
-    CircuitDecodeResult,
-    CircuitExportConfig,
-    CircuitExportResult,
-    CircuitInvokeConfig,
-    CircuitInvokeResult,
-    CircuitService,
-    CircuitTestConfig,
-    CircuitTestResult,
-    CircuitViewConfig,
-    CircuitViewResult,
 )
 
 __all__ = [

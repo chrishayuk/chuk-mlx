@@ -27,8 +27,6 @@ import mlx.nn as nn
 from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
-    from transformers import PreTrainedTokenizer
-
     from .adapters.lora import LoRAConfig, LoRALinear
 
 logger = logging.getLogger(__name__)
@@ -241,9 +239,7 @@ def load_model_with_lora(
     Returns:
         LoadedModelWithLoRA with model, tokenizer, config, and lora_layers
     """
-    return _load_model_with_lora_impl(
-        model_id, lora_config, dtype=dtype, adapter_path=adapter_path
-    )
+    return _load_model_with_lora_impl(model_id, lora_config, dtype=dtype, adapter_path=adapter_path)
 
 
 # ============================================================================
@@ -409,8 +405,7 @@ def _load_adapter_weights_into_lora(
 
     if weights_path is None:
         raise FileNotFoundError(
-            f"No adapter weights found in {adapter_path}. "
-            f"Expected: adapters.safetensors"
+            f"No adapter weights found in {adapter_path}. Expected: adapters.safetensors"
         )
 
     logger.info(f"Loading adapter weights from {weights_path}")

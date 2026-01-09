@@ -11,6 +11,17 @@ from __future__ import annotations
 
 import logging
 from argparse import Namespace
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from ....introspection.virtual_expert import (
+        VirtualExpertConfig,
+        VirtualExpertServiceResult,
+    )
+
+    HandlerFunc = Callable[[VirtualExpertConfig], Awaitable[VirtualExpertServiceResult]]
 
 logger = logging.getLogger(__name__)
 
@@ -20,20 +31,40 @@ async def introspect_virtual_expert(args: Namespace) -> None:
 
     This is a thin wrapper that:
     1. Converts CLI args to VirtualExpertConfig
-    2. Calls VirtualExpertService methods which handle all logic
+    2. Uses dispatch table to route to VirtualExpertService methods
     3. Formats and prints results
 
     Args:
         args: Parsed command-line arguments
     """
     from ....introspection.virtual_expert import (
-        VirtualExpertService,
+        VirtualExpertAction,
         VirtualExpertConfig,
+        VirtualExpertService,
     )
 
-    # Determine action
-    action = getattr(args, "action", "solve")
+    # Build dispatch table
+    handlers: dict[VirtualExpertAction, HandlerFunc] = {
+        VirtualExpertAction.ANALYZE: VirtualExpertService.analyze,
+        VirtualExpertAction.SOLVE: VirtualExpertService.solve,
+        VirtualExpertAction.BENCHMARK: VirtualExpertService.benchmark,
+        VirtualExpertAction.COMPARE: VirtualExpertService.compare,
+        VirtualExpertAction.INTERACTIVE: VirtualExpertService.interactive,
+    }
 
+    # Determine action
+    action_str = getattr(args, "action", "solve")
+
+    # Convert string to enum
+    try:
+        action = VirtualExpertAction(action_str)
+    except ValueError:
+        available = ", ".join(a.value for a in VirtualExpertAction)
+        print(f"Unknown action: {action_str}")
+        print(f"Available actions: {available}")
+        return
+
+    # Build config
     config = VirtualExpertConfig(
         model=args.model,
         layer=getattr(args, "layer", None),
@@ -41,52 +72,50 @@ async def introspect_virtual_expert(args: Namespace) -> None:
         prompt=getattr(args, "prompt", None),
     )
 
-    if action == "analyze":
-        # Load test data from file (no hardcoded data in CLI)
+    # Handle special config requirements per action
+    if action == VirtualExpertAction.ANALYZE:
         test_file = getattr(args, "test_file", None)
         if test_file:
             import json
+
             with open(test_file) as f:
                 test_data = json.load(f)
             config.test_categories = test_data
         else:
-            # Use framework-provided test categories
             from ....datasets import load_expert_test_categories
+
             config.test_categories = load_expert_test_categories()
 
-        result = await VirtualExpertService.analyze(config)
-
-    elif action == "solve":
+    elif action == VirtualExpertAction.SOLVE:
         if not config.prompt:
             raise ValueError("--prompt required for solve action")
-        result = await VirtualExpertService.solve(config)
 
-    elif action == "benchmark":
-        # Load benchmark data from file (no hardcoded data in CLI)
+    elif action == VirtualExpertAction.BENCHMARK:
         benchmark_file = getattr(args, "benchmark_file", None)
         if benchmark_file:
             import json
+
             with open(benchmark_file) as f:
                 benchmark_data = json.load(f)
-            problems = benchmark_data.get("problems", [])
+            config.benchmark_problems = benchmark_data.get("problems", [])
         else:
-            # Use framework-provided benchmark problems
             from ....datasets import load_expert_benchmark
-            problems = load_expert_benchmark()
 
-        config.benchmark_problems = problems
-        result = await VirtualExpertService.benchmark(config)
+            config.benchmark_problems = load_expert_benchmark()
 
-    elif action == "compare":
+    elif action == VirtualExpertAction.COMPARE:
         if not config.prompt:
             raise ValueError("--prompt required for compare action")
-        result = await VirtualExpertService.compare(config)
 
-    elif action == "interactive":
-        result = await VirtualExpertService.interactive(config)
+    # Get handler from dispatch table
+    handler = handlers.get(action)
+    if handler is None:
+        print(f"Handler not implemented for action: {action.value}")
+        return
 
-    else:
-        raise ValueError(f"Unknown action: {action}")
+    # Execute handler
+    logger.debug(f"Dispatching to handler for action: {action.value}")
+    result = await handler(config)
 
     # Print formatted result
     print(result.to_display())

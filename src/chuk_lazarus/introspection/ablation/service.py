@@ -7,8 +7,6 @@ to provide a simple interface for CLI commands.
 from __future__ import annotations
 
 from collections.abc import Callable
-from pathlib import Path
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -66,9 +64,7 @@ class AblationServiceConfig(BaseModel):
 
     model: str = Field(..., description="Model path or name")
     layers: list[int] | None = Field(default=None, description="Layers to ablate")
-    component: ComponentType = Field(
-        default=ComponentType.MLP, description="Component to ablate"
-    )
+    component: ComponentType = Field(default=ComponentType.MLP, description="Component to ablate")
     max_tokens: int = Field(default=50, description="Max tokens to generate")
     multi_mode: bool = Field(default=False, description="Ablate all layers together")
     use_raw: bool = Field(default=False, description="Use raw mode (no chat template)")
@@ -124,9 +120,7 @@ class AblationService:
     Config = AblationServiceConfig
 
     @classmethod
-    def get_criterion_function(
-        cls, criterion_name: str
-    ) -> Callable[[str], bool]:
+    def get_criterion_function(cls, criterion_name: str) -> Callable[[str], bool]:
         """Get a criterion function by name.
 
         Args:
@@ -356,9 +350,7 @@ class AblationService:
             for layer in layers:
                 layer_results = []
                 for prompt, expected in prompt_pairs:
-                    output = study.ablate_and_generate(
-                        prompt, layers=[layer], config=config
-                    )
+                    output = study.ablate_and_generate(prompt, layers=[layer], config=config)
                     layer_results.append(
                         SingleAblationResult(
                             prompt=prompt,

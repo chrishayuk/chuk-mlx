@@ -5,10 +5,12 @@ This module provides services for activation clustering analysis using PCA.
 
 from __future__ import annotations
 
-import json
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    import numpy as np
 
 
 class ClusteringConfig(BaseModel):
@@ -50,11 +52,13 @@ class ClusteringResult(BaseModel):
         for layer_result in self.layer_results:
             layer = layer_result["layer"]
             pca_var = layer_result.get("pca_variance", [0, 0])
-            lines.extend([
-                "",
-                f"Layer {layer}:",
-                f"  PCA variance: {pca_var[0]:.1%}, {pca_var[1]:.1%}",
-            ])
+            lines.extend(
+                [
+                    "",
+                    f"Layer {layer}:",
+                    f"  PCA variance: {pca_var[0]:.1%}, {pca_var[1]:.1%}",
+                ]
+            )
 
             # Show cluster centers
             if "cluster_stats" in layer_result:
@@ -191,12 +195,14 @@ class ClusteringService:
                 config.grid_height,
             )
 
-            layer_results.append({
-                "layer": target_layer,
-                "pca_variance": pca.explained_variance_ratio_.tolist(),
-                "cluster_stats": cluster_stats,
-                "ascii_grid": ascii_grid,
-            })
+            layer_results.append(
+                {
+                    "layer": target_layer,
+                    "pca_variance": pca.explained_variance_ratio_.tolist(),
+                    "cluster_stats": cluster_stats,
+                    "ascii_grid": ascii_grid,
+                }
+            )
 
         return ClusteringResult(
             layer_results=layer_results,
@@ -207,14 +213,13 @@ class ClusteringService:
 
     @staticmethod
     def _create_ascii_grid(
-        projected: "np.ndarray",
+        projected: np.ndarray,
         labels: list[str],
         symbols: dict[str, str],
         width: int,
         height: int,
     ) -> str:
         """Create ASCII visualization of PCA projection."""
-        import numpy as np
 
         # Get bounds
         x_min, x_max = projected[:, 0].min(), projected[:, 0].max()
@@ -246,7 +251,7 @@ class ClusteringService:
         lines.append("+" + "-" * width + "+")
 
         # Add legend
-        legend = "Legend: " + ", ".join(f"{s}={l}" for l, s in symbols.items())
+        legend = "Legend: " + ", ".join(f"{symbol}={label}" for label, symbol in symbols.items())
         lines.append(legend)
 
         return "\n".join(lines)

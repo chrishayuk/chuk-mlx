@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 # Expert test categories - organized by domain
 _EXPERT_TEST_CATEGORIES: dict[str, list[str]] = {
     "MATH": [

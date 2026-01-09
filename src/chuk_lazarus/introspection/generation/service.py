@@ -79,7 +79,9 @@ class GenerationResult(BaseModel):
             if self.expected_answer:
                 if self.answer_found:
                     first = " (answer-first)" if self.is_answer_first else " (delayed)"
-                    lines.append(f"  Expected: {self.expected_answer}, onset={self.answer_onset}{first}")
+                    lines.append(
+                        f"  Expected: {self.expected_answer}, onset={self.answer_onset}{first}"
+                    )
                 else:
                     lines.append(f"  Expected: {self.expected_answer}, NOT FOUND")
 
@@ -93,6 +95,7 @@ class GenerationResult(BaseModel):
     def save(self, path: str) -> None:
         """Save results to file."""
         import json
+
         with open(path, "w") as f:
             json.dump(self.model_dump(), f, indent=2)
 
@@ -131,14 +134,16 @@ class GenerationService:
 
                 if config.temperature == 0:
                     output = generate(
-                        model, tokenizer,
+                        model,
+                        tokenizer,
                         prompt=formatted_prompt,
                         max_tokens=config.max_tokens,
                         verbose=False,
                     )
                 else:
                     output = generate(
-                        model, tokenizer,
+                        model,
+                        tokenizer,
                         prompt=formatted_prompt,
                         max_tokens=config.max_tokens,
                         temp=config.temperature,
@@ -148,13 +153,15 @@ class GenerationService:
                 expected = config.expected_answer or extract_expected_answer(prompt)
                 onset_info = cls._find_answer_onset(output, expected, tokenizer)
 
-                comparison_results.append({
-                    "prompt": prompt,
-                    "has_trailing_space": prompt.endswith(" "),
-                    "output": output,
-                    "expected": expected,
-                    **onset_info,
-                })
+                comparison_results.append(
+                    {
+                        "prompt": prompt,
+                        "has_trailing_space": prompt.endswith(" "),
+                        "output": output,
+                        "expected": expected,
+                        **onset_info,
+                    }
+                )
 
             return GenerationResult(
                 generated_text="",
@@ -169,14 +176,16 @@ class GenerationService:
 
         if config.temperature == 0:
             output = generate(
-                model, tokenizer,
+                model,
+                tokenizer,
                 prompt=formatted_prompt,
                 max_tokens=config.max_tokens,
                 verbose=False,
             )
         else:
             output = generate(
-                model, tokenizer,
+                model,
+                tokenizer,
                 prompt=formatted_prompt,
                 max_tokens=config.max_tokens,
                 temp=config.temperature,
@@ -186,7 +195,7 @@ class GenerationService:
         # Get tokens
         prompt_ids = tokenizer.encode(formatted_prompt)
         output_ids = tokenizer.encode(formatted_prompt + output)
-        gen_ids = output_ids[len(prompt_ids):]
+        gen_ids = output_ids[len(prompt_ids) :]
         tokens = [tokenizer.decode([tid]) for tid in gen_ids]
 
         # Find answer onset

@@ -124,6 +124,7 @@ from .commands.introspect import (
     introspect_circuit_invoke,
     introspect_circuit_test,
     introspect_circuit_view,
+    introspect_classifier,
     introspect_commutativity,
     introspect_compare,
     introspect_directions,
@@ -133,6 +134,7 @@ from .commands.introspect import (
     introspect_generate,
     introspect_hooks,
     introspect_layer,
+    introspect_logit_lens,
     introspect_memory,
     introspect_memory_inject,
     introspect_metacognitive,
@@ -140,8 +142,6 @@ from .commands.introspect import (
     introspect_neurons,
     introspect_operand_directions,
     introspect_patch,
-    introspect_classifier,
-    introspect_logit_lens,
     introspect_probe,
     introspect_steer,
     introspect_uncertainty,
@@ -228,7 +228,7 @@ Examples:
         "--lora-targets",
         default="q_proj,v_proj",
         help="Comma-separated LoRA target modules (default: q_proj,v_proj). "
-             "Options: q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj",
+        "Options: q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj",
     )
     sft_parser.add_argument(
         "--freeze-layers",
@@ -3063,19 +3063,26 @@ Example:
         """,
     )
     classifier_parser.add_argument(
-        "--model", "-m", required=True,
+        "--model",
+        "-m",
+        required=True,
         help="Model name or HuggingFace ID",
     )
     classifier_parser.add_argument(
-        "--classes", "-c", action="append", required=True,
+        "--classes",
+        "-c",
+        action="append",
+        required=True,
         help="Class definition in format 'label:prompt1|prompt2|...' (can specify multiple)",
     )
     classifier_parser.add_argument(
-        "--test", "-t",
+        "--test",
+        "-t",
         help="Test prompts to classify (pipe-separated or @file.txt)",
     )
     classifier_parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         help="Save results to JSON file",
     )
     classifier_parser.set_defaults(func=introspect_classifier)
@@ -3096,27 +3103,37 @@ Example:
         """,
     )
     logit_lens_parser.add_argument(
-        "--model", "-m", required=True,
+        "--model",
+        "-m",
+        required=True,
         help="Model name or HuggingFace ID",
     )
     logit_lens_parser.add_argument(
-        "--adapter", "-a",
+        "--adapter",
+        "-a",
         help="Path to LoRA adapter directory (for analyzing fine-tuned models)",
     )
     logit_lens_parser.add_argument(
-        "--prompts", "-p", required=True,
+        "--prompts",
+        "-p",
+        required=True,
         help="Prompts to analyze (pipe-separated or @file.txt)",
     )
     logit_lens_parser.add_argument(
-        "--layer", "-l", type=int,
+        "--layer",
+        "-l",
+        type=int,
         help="Layer to analyze (default: 55%% depth)",
     )
     logit_lens_parser.add_argument(
-        "--targets", "-t", action="append",
+        "--targets",
+        "-t",
+        action="append",
         help="Target tokens to track probability (can specify multiple)",
     )
     logit_lens_parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         help="Save results to JSON file",
     )
     logit_lens_parser.set_defaults(func=introspect_logit_lens)

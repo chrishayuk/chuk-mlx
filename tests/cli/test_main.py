@@ -1784,43 +1784,43 @@ class TestMainFunction:
 
 
 class TestCommandFunctionMapping:
-    """Tests to verify that commands have their func set correctly."""
+    """Tests to verify that commands have their func set correctly.
+
+    Note: The CLI now uses lambdas to wrap async handlers, so we verify
+    that func is callable rather than checking exact function equality.
+    """
 
     def test_train_sft_has_func(self):
-        """Test train sft sets the correct func."""
+        """Test train sft sets a callable func."""
         parser = app()
         args = parser.parse_args(["train", "sft", "--model", "m", "--data", "d"])
-        from chuk_lazarus.cli.commands.train import train_sft
 
         assert hasattr(args, "func")
-        assert args.func == train_sft
+        assert callable(args.func)
 
     def test_train_dpo_has_func(self):
-        """Test train dpo sets the correct func."""
+        """Test train dpo sets a callable func."""
         parser = app()
         args = parser.parse_args(["train", "dpo", "--model", "m", "--data", "d"])
-        from chuk_lazarus.cli.commands.train import train_dpo
 
         assert hasattr(args, "func")
-        assert args.func == train_dpo
+        assert callable(args.func)
 
     def test_generate_has_func(self):
-        """Test generate sets the correct func."""
+        """Test generate sets a callable func."""
         parser = app()
         args = parser.parse_args(["generate", "--type", "math"])
-        from chuk_lazarus.cli.commands.train import generate_data
 
         assert hasattr(args, "func")
-        assert args.func == generate_data
+        assert callable(args.func)
 
     def test_infer_has_func(self):
-        """Test infer sets the correct func."""
+        """Test infer sets a callable func."""
         parser = app()
         args = parser.parse_args(["infer", "--model", "m", "--prompt", "p"])
-        from chuk_lazarus.cli.commands.infer import run_inference
 
         assert hasattr(args, "func")
-        assert args.func == run_inference
+        assert callable(args.func)
 
     def test_tokenizer_encode_has_func(self):
         """Test tokenizer encode sets the correct func."""

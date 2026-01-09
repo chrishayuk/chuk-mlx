@@ -27,6 +27,12 @@ from .circuit import (
     introspect_circuit_view,
 )
 
+# Classifier emergence commands
+from .classifier import (
+    introspect_classifier,
+    introspect_logit_lens,
+)
+
 # Clustering commands
 from .clustering import introspect_activation_cluster
 
@@ -72,12 +78,6 @@ from .probing import (
     introspect_metacognitive,
     introspect_probe,
     introspect_uncertainty,
-)
-
-# Classifier emergence commands
-from .classifier import (
-    introspect_classifier,
-    introspect_logit_lens,
 )
 
 # Steering commands
