@@ -71,6 +71,7 @@ CANONICAL_FORMAT = {
 }
 
 # Word problem templates (more complex NL)
+# These MUST also map to clean canonical forms like "a op b = "
 WORD_PROBLEMS = {
     "add": [
         "Janet has {a} apples. She buys {b} more. How many does she have?",
@@ -102,9 +103,32 @@ WORD_PROBLEMS = {
     ],
 }
 
+# Additional question forms that should also normalize
+QUESTION_TEMPLATES = {
+    "add": [
+        "What is {a} plus {b}?",
+        "What do you get when you add {a} to {b}?",
+    ],
+    "sub": [
+        "What is {a} minus {b}?",
+        "What do you get when you subtract {b} from {a}?",
+    ],
+    "mul": [
+        "What is {a} times {b}?",
+        "What is {a} multiplied by {b}?",
+    ],
+    "div": [
+        "What is {a} divided by {b}?",
+        "What do you get when you divide {a} by {b}?",
+    ],
+}
 
-def generate_sample(op: str, use_word_problem: bool = False) -> dict:
-    """Generate a single NL → Canonical training sample."""
+
+def generate_sample(op: str, template_type: str = "simple") -> dict:
+    """Generate a single NL → Canonical training sample.
+
+    template_type: "simple", "word_problem", or "question"
+    """
     # Generate operands
     if op == "div":
         # Ensure clean division
@@ -115,9 +139,11 @@ def generate_sample(op: str, use_word_problem: bool = False) -> dict:
         a = random.randint(1, 99)
         b = random.randint(1, 99)
 
-    # Pick template
-    if use_word_problem:
+    # Pick template based on type
+    if template_type == "word_problem":
         templates = WORD_PROBLEMS[op]
+    elif template_type == "question":
+        templates = QUESTION_TEMPLATES[op]
     else:
         templates = NL_TEMPLATES[op]
 
@@ -141,7 +167,7 @@ def generate_sample(op: str, use_word_problem: bool = False) -> dict:
         "operation": op,
         "operands": [a, b],
         "expected_result": expected,
-        "is_word_problem": use_word_problem,
+        "template_type": template_type,
     }
 
 
@@ -165,8 +191,15 @@ def main():
     all_samples = []
     for op in ops:
         for i in range(samples_per_op):
-            use_word_problem = random.random() < args.word_problem_ratio
-            sample = generate_sample(op, use_word_problem)
+            # Mix of template types: 40% simple, 40% word_problem, 20% question
+            r = random.random()
+            if r < 0.4:
+                template_type = "simple"
+            elif r < 0.8:
+                template_type = "word_problem"
+            else:
+                template_type = "question"
+            sample = generate_sample(op, template_type)
             all_samples.append(sample)
 
     random.shuffle(all_samples)
