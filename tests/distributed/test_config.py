@@ -55,7 +55,13 @@ class TestDistributedConfig:
     def test_from_env_defaults(self, monkeypatch):
         """Test from_env with no environment variables."""
         # Clear any existing env vars
-        for var in ["RANK", "WORLD_RANK", "WORLD_SIZE", "LOCAL_RANK", "LOCAL_WORLD_SIZE"]:
+        for var in [
+            "RANK",
+            "WORLD_RANK",
+            "WORLD_SIZE",
+            "LOCAL_RANK",
+            "LOCAL_WORLD_SIZE",
+        ]:
             monkeypatch.delenv(var, raising=False)
 
         config = DistributedConfig.from_env()

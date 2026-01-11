@@ -62,7 +62,12 @@ class TestTrainingPack:
     @patch("chuk_lazarus.data.tokenizers.training.pack_sequences")
     @patch("chuk_lazarus.data.tokenizers.training.PackingConfig")
     def test_pack_basic(
-        self, mock_packing_config_cls, mock_pack, mock_load_tokenizer, mock_load_texts, capsys
+        self,
+        mock_packing_config_cls,
+        mock_pack,
+        mock_load_tokenizer,
+        mock_load_texts,
+        capsys,
     ):
         """Test basic packing."""
         mock_tokenizer = MagicMock()

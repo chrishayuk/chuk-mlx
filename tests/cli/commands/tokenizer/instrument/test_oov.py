@@ -70,7 +70,12 @@ class TestInstrumentOov:
     @patch("chuk_lazarus.data.tokenizers.instrumentation.get_frequency_bands")
     @patch("chuk_lazarus.data.tokenizers.instrumentation.analyze_oov")
     def test_oov_basic(
-        self, mock_analyze_oov, mock_get_bands, mock_load_tokenizer, mock_load_texts, capsys
+        self,
+        mock_analyze_oov,
+        mock_get_bands,
+        mock_load_tokenizer,
+        mock_load_texts,
+        capsys,
     ):
         """Test basic OOV analysis."""
         mock_tokenizer = MagicMock()

@@ -106,7 +106,10 @@ class TestTokenizerDoctor:
         assert "Basic Info" in captured.out
         assert "Special Tokens" in captured.out
         # Doctor will have warnings due to simplified mocking, but should not have critical issues
-        assert result.status in (TokenizerHealthStatus.HEALTHY, TokenizerHealthStatus.ISSUES)
+        assert result.status in (
+            TokenizerHealthStatus.HEALTHY,
+            TokenizerHealthStatus.ISSUES,
+        )
 
     @patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer")
     @patch("chuk_lazarus.data.tokenizers.fingerprint.compute_fingerprint")

@@ -310,7 +310,14 @@ class VirtualMoEWrapper:
         used_virtual = virtual_selected_total > 0
         avg_score = np.mean(routing_scores) if routing_scores else 0.0
 
-        return text, used_virtual, virtual_selected_total, total_tokens, avg_score, selected_plugin
+        return (
+            text,
+            used_virtual,
+            virtual_selected_total,
+            total_tokens,
+            avg_score,
+            selected_plugin,
+        )
 
     def _generate_direct(self, prompt: str, max_tokens: int = 20) -> str:
         """Generate directly without virtual experts."""

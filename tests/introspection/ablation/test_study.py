@@ -182,7 +182,12 @@ class TestAblationStudy:
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = Path(tmpdir) / "config.json"
             config_path.write_text(
-                json.dumps({"model_type": "starcoder2", "architectures": ["Starcoder2ForCausalLM"]})
+                json.dumps(
+                    {
+                        "model_type": "starcoder2",
+                        "architectures": ["Starcoder2ForCausalLM"],
+                    }
+                )
             )
             family = AblationStudy._detect_family(tmpdir)
             assert family == "starcoder2"
@@ -582,7 +587,15 @@ class TestAblationStudyLoadModel:
 
         # We can't easily mock all the internal imports, but we can verify
         # that the branches exist and have valid Python syntax
-        families = ["gemma", "llama", "granite", "jamba", "starcoder2", "qwen3", "gpt_oss"]
+        families = [
+            "gemma",
+            "llama",
+            "granite",
+            "jamba",
+            "starcoder2",
+            "qwen3",
+            "gpt_oss",
+        ]
 
         # These would require complex module mocking to actually execute
         # The tests for gemma and llama above demonstrate the pattern

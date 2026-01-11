@@ -52,12 +52,12 @@ class SteeringDirectionConfig(BaseModel):
         return cls(
             direction=data["direction"],
             layer=int(data["layer"]) if "layer" in data else 0,
-            positive_label=str(data["positive_prompt"]) if "positive_prompt" in data else None,
-            negative_label=str(data["negative_prompt"]) if "negative_prompt" in data else None,
+            positive_label=(str(data["positive_prompt"]) if "positive_prompt" in data else None),
+            negative_label=(str(data["negative_prompt"]) if "negative_prompt" in data else None),
             norm=float(data["norm"]) if "norm" in data else None,
-            cosine_similarity=float(data["cosine_similarity"])
-            if "cosine_similarity" in data
-            else None,
+            cosine_similarity=(
+                float(data["cosine_similarity"]) if "cosine_similarity" in data else None
+            ),
             source_file=str(path),
         )
 

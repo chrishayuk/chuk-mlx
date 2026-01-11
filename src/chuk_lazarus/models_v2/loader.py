@@ -477,7 +477,7 @@ def save_adapter(
                 "rank": lora_config.rank,
                 "alpha": lora_config.alpha,
                 "scale": scale,  # Required by mlx-lm
-                "dropout": getattr(lora_config, 'dropout', 0.0),
+                "dropout": getattr(lora_config, "dropout", 0.0),
             }
         }
         # Add mlx-lm compatibility fields

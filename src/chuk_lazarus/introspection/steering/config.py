@@ -19,7 +19,8 @@ class SteeringConfig(BaseModel):
 
     layers: list[int] = Field(default_factory=lambda: [24], description="Which layers to steer")
     coefficient: float = Field(
-        default=1.0, description="Steering coefficient (positive = toward positive class)"
+        default=1.0,
+        description="Steering coefficient (positive = toward positive class)",
     )
     position: int | None = Field(
         default=None, description="Apply only at specific position (None = all)"
@@ -53,7 +54,8 @@ class LegacySteeringConfig(BaseModel):
     use_kill_switch: bool = Field(default=False, description="Use kill switch")
     kill_switch_boost: float = Field(default=0.0, description="Kill switch boost value")
     tool_promoters: list[int] = Field(
-        default_factory=lambda: [803, 2036, 831], description="Neuron indices that promote tool use"
+        default_factory=lambda: [803, 2036, 831],
+        description="Neuron indices that promote tool use",
     )
     tool_suppressors: list[int] = Field(
         default_factory=lambda: [1237, 821, 1347],

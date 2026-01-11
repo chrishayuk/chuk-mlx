@@ -194,7 +194,13 @@ class TestExploreService:
         ]
 
         result = ExploreService.compare_routing(
-            tokens1, positions1, tokens2, positions2, "Hello world", "Goodbye world", layer=0
+            tokens1,
+            positions1,
+            tokens2,
+            positions2,
+            "Hello world",
+            "Goodbye world",
+            layer=0,
         )
 
         assert result.prompt1 == "Hello world"
@@ -318,7 +324,10 @@ class TestExploreServiceModels:
             phase_name="early", layer_range="L0-7", layer_experts=[], dominant_expert=1
         )
         middle = LayerPhaseData(
-            phase_name="middle", layer_range="L8-15", layer_experts=[], dominant_expert=2
+            phase_name="middle",
+            layer_range="L8-15",
+            layer_experts=[],
+            dominant_expert=2,
         )
         late = LayerPhaseData(
             phase_name="late", layer_range="L16+", layer_experts=[], dominant_expert=2

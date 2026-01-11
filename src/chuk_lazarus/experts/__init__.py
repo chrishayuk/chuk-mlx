@@ -9,9 +9,25 @@ specific iterative control tasks. They:
 - Are trained with RL independently or jointly with the main LLM
 """
 
-from .gru_expert import GRUCell, GRUExpert, create_physics_controller, create_scheduler_expert
-from .lstm_expert import LSTMCell, LSTMExpert, create_arc_solver_expert, create_planning_expert
-from .registry import ExpertRegistry, create_expert, get_expert, list_experts, register_expert
+from .gru_expert import (
+    GRUCell,
+    GRUExpert,
+    create_physics_controller,
+    create_scheduler_expert,
+)
+from .lstm_expert import (
+    LSTMCell,
+    LSTMExpert,
+    create_arc_solver_expert,
+    create_planning_expert,
+)
+from .registry import (
+    ExpertRegistry,
+    create_expert,
+    get_expert,
+    list_experts,
+    register_expert,
+)
 from .rnn_expert_base import ExpertConfig, RNNExpertBase
 
 __all__ = [

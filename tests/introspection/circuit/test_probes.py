@@ -36,7 +36,8 @@ except (ImportError, Exception):
     SKLEARN_AVAILABLE = False
 
 sklearn_required = pytest.mark.skipif(
-    not SKLEARN_AVAILABLE, reason="sklearn not available or incompatible with numpy version"
+    not SKLEARN_AVAILABLE,
+    reason="sklearn not available or incompatible with numpy version",
 )
 
 
@@ -1474,12 +1475,20 @@ class TestProbeBatteryEdgeCases:
         battery = ProbeBattery(mock_model, mock_tokenizer)
         battery.add_dataset(
             ProbeDataset(
-                name="late", description="Late probe", prompts=["p1"], labels=[0], category="test"
+                name="late",
+                description="Late probe",
+                prompts=["p1"],
+                labels=[0],
+                category="test",
             )
         )
         battery.add_dataset(
             ProbeDataset(
-                name="early", description="Early probe", prompts=["p2"], labels=[1], category="test"
+                name="early",
+                description="Early probe",
+                prompts=["p2"],
+                labels=[1],
+                category="test",
             )
         )
 
@@ -1678,7 +1687,11 @@ class TestProbeBatteryWithMockedSklearn:
             try:
                 import yaml
 
-                yaml_data = {"description": "YAML probe", "prompts": ["p2"], "labels": [1]}
+                yaml_data = {
+                    "description": "YAML probe",
+                    "prompts": ["p2"],
+                    "labels": [1],
+                }
                 with open(path / "probe2.yaml", "w") as f:
                     yaml.dump(yaml_data, f)
             except ImportError:
@@ -1843,7 +1856,9 @@ class TestProbeBatteryWithMockedSklearn:
         # Even though we won't use sklearn when n_samples < 2,
         # we still need to mock it because the import happens at function call
         with self._mock_sklearn_modules(
-            LogisticRegression=MagicMock(), cross_val_score=MagicMock(), StandardScaler=MagicMock()
+            LogisticRegression=MagicMock(),
+            cross_val_score=MagicMock(),
+            StandardScaler=MagicMock(),
         ):
             accuracy, std = battery.train_probe(X, y, cv_folds=5)
 

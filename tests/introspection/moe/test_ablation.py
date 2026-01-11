@@ -1073,9 +1073,7 @@ class TestAblationHelpers:
         mock_state = MoECapturedState()
         # Set selected_experts to have expert 0 appearing 3 times
         mock_state.selected_experts[0] = mx.array(
-            [
-                [[0, 1], [0, 2], [1, 2], [0, 3], [1, 3]]  # Expert 0 appears 3 times
-            ]
+            [[[0, 1], [0, 2], [1, 2], [0, 3], [1, 3]]]  # Expert 0 appears 3 times
         )
         mock_hooks_instance.moe_state = mock_state
         mock_hooks_instance.configure.return_value = mock_hooks_instance

@@ -128,7 +128,11 @@ def introspect_arithmetic(args):
                     ("by_magnitude", magnitude, stats["by_magnitude"]),
                 ]:
                     if val not in stat_dict:
-                        stat_dict[val] = {"correct": 0, "total": 0, "emergence_layers": []}
+                        stat_dict[val] = {
+                            "correct": 0,
+                            "total": 0,
+                            "emergence_layers": [],
+                        }
                     stat_dict[val]["total"] += 1
                     if correct:
                         stat_dict[val]["correct"] += 1
@@ -202,11 +206,12 @@ def introspect_arithmetic(args):
                     "stats": {
                         k: {
                             kk: {
-                                "accuracy": vv["correct"] / vv["total"] if vv["total"] > 0 else 0,
-                                "avg_emergence": sum(vv["emergence_layers"])
-                                / len(vv["emergence_layers"])
-                                if vv["emergence_layers"]
-                                else None,
+                                "accuracy": (vv["correct"] / vv["total"] if vv["total"] > 0 else 0),
+                                "avg_emergence": (
+                                    sum(vv["emergence_layers"]) / len(vv["emergence_layers"])
+                                    if vv["emergence_layers"]
+                                    else None
+                                ),
                             }
                             for kk, vv in v.items()
                         }

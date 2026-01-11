@@ -222,7 +222,11 @@ def get_experiment_status(name: str, experiments_dir: Path | None = None) -> dic
 
     if info.has_results:
         results_dir = info.path / "results"
-        results_files = sorted(results_dir.glob("run_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+        results_files = sorted(
+            results_dir.glob("run_*.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
 
         if results_files:
             with open(results_files[0]) as f:
@@ -231,7 +235,9 @@ def get_experiment_status(name: str, experiments_dir: Path | None = None) -> dic
     return status
 
 
-def list_experiment_runs(name: str, experiments_dir: Path | None = None, limit: int = 10) -> list[dict]:
+def list_experiment_runs(
+    name: str, experiments_dir: Path | None = None, limit: int = 10
+) -> list[dict]:
     """List recent runs of an experiment.
 
     Args:
@@ -251,7 +257,9 @@ def list_experiment_runs(name: str, experiments_dir: Path | None = None, limit: 
         return []
 
     runs = []
-    results_files = sorted(results_dir.glob("run_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    results_files = sorted(
+        results_dir.glob("run_*.json"), key=lambda p: p.stat().st_mtime, reverse=True
+    )
 
     for path in results_files[:limit]:
         try:

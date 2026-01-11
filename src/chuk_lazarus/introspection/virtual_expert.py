@@ -279,10 +279,10 @@ class VirtualExpertService:
                     category_results.append(
                         {
                             "prompt": prompt,
-                            "output": result.output if hasattr(result, "output") else str(result),
-                            "expert_used": result.expert_used
-                            if hasattr(result, "expert_used")
-                            else None,
+                            "output": (result.output if hasattr(result, "output") else str(result)),
+                            "expert_used": (
+                                result.expert_used if hasattr(result, "expert_used") else None
+                            ),
                         }
                     )
                 except Exception as e:
@@ -336,7 +336,7 @@ class VirtualExpertService:
                 {
                     "prompt": config.prompt,
                     "output": output,
-                    "expert_used": result.expert_used if hasattr(result, "expert_used") else None,
+                    "expert_used": (result.expert_used if hasattr(result, "expert_used") else None),
                 }
             ],
         )
@@ -457,9 +457,9 @@ class VirtualExpertService:
                     "prompt": config.prompt,
                     "with_expert": expert_output,
                     "without_expert": direct_output,
-                    "expert_used": expert_result.expert_used
-                    if hasattr(expert_result, "expert_used")
-                    else None,
+                    "expert_used": (
+                        expert_result.expert_used if hasattr(expert_result, "expert_used") else None
+                    ),
                 }
             ],
             summary={

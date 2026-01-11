@@ -54,7 +54,8 @@ class ProbeDataset(BaseModel):
     prompts: list[str] = Field(description="List of prompts")
     labels: list[int] = Field(description="Labels for each prompt")
     label_names: list[str] = Field(
-        default_factory=lambda: ["class_0", "class_1"], description="Names for label classes"
+        default_factory=lambda: ["class_0", "class_1"],
+        description="Names for label classes",
     )
     category: str = Field(default="custom", description="Category for grouping probes")
 

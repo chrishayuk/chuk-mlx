@@ -242,7 +242,9 @@ class ModelAnalyzer:
 
         # Setup hooks with proper enum-based config
         hooks = ModelHooks(
-            self._model, embedding_scale=self._embedding_scale, model_config=self._config
+            self._model,
+            embedding_scale=self._embedding_scale,
+            model_config=self._config,
         )
         hooks.configure(
             CaptureConfig(

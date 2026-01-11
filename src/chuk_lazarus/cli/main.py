@@ -182,7 +182,12 @@ from .commands.tokenizer import (
     training_pack,
     training_throughput,
 )
-from .commands.train import generate_data_cmd, train_dpo_cmd, train_grpo_cmd, train_sft_cmd
+from .commands.train import (
+    generate_data_cmd,
+    train_dpo_cmd,
+    train_grpo_cmd,
+    train_sft_cmd,
+)
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -443,10 +448,17 @@ Examples:
     bench_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
     bench_parser.add_argument("--file", "-f", help="Corpus file (one text per line)")
     bench_parser.add_argument(
-        "--samples", "-n", type=int, default=1000, help="Number of samples (default: 1000)"
+        "--samples",
+        "-n",
+        type=int,
+        default=1000,
+        help="Number of samples (default: 1000)",
     )
     bench_parser.add_argument(
-        "--avg-length", type=int, default=100, help="Avg words per sample for synthetic corpus"
+        "--avg-length",
+        type=int,
+        default=100,
+        help="Avg words per sample for synthetic corpus",
     )
     bench_parser.add_argument(
         "--seed", type=int, default=42, help="Random seed for synthetic corpus"
@@ -456,7 +468,9 @@ Examples:
     )
     bench_parser.add_argument("--warmup", type=int, default=10, help="Warmup samples before timing")
     bench_parser.add_argument(
-        "--special-tokens", action="store_true", help="Add special tokens during encoding"
+        "--special-tokens",
+        action="store_true",
+        help="Add special tokens during encoding",
     )
     bench_parser.add_argument(
         "--compare",
@@ -760,7 +774,11 @@ Examples:
         help="Use predictable mode (deterministic batching)",
     )
     batchplan_build_parser.add_argument(
-        "--seed", "-s", type=int, default=42, help="Random seed for predictable mode (default: 42)"
+        "--seed",
+        "-s",
+        type=int,
+        default=42,
+        help="Random seed for predictable mode (default: 42)",
     )
     batchplan_build_parser.add_argument("--dataset-hash", help="Dataset hash for fingerprinting")
     batchplan_build_parser.add_argument(
@@ -774,10 +792,18 @@ Examples:
     )
     batchplan_info_parser.add_argument("--plan", "-p", required=True, help="Batch plan directory")
     batchplan_info_parser.add_argument(
-        "--show-batches", "-n", type=int, default=0, help="Number of sample batches to show"
+        "--show-batches",
+        "-n",
+        type=int,
+        default=0,
+        help="Number of sample batches to show",
     )
     batchplan_info_parser.add_argument(
-        "--rank", "-r", type=int, default=None, help="Worker rank for sharded view (0-indexed)"
+        "--rank",
+        "-r",
+        type=int,
+        default=None,
+        help="Worker rank for sharded view (0-indexed)",
     )
     batchplan_info_parser.add_argument(
         "--world-size", "-w", type=int, default=None, help="Total number of workers"
@@ -800,7 +826,11 @@ Examples:
         "--plan", "-p", required=True, help="Source batch plan directory"
     )
     batchplan_shard_parser.add_argument(
-        "--world-size", "-w", type=int, required=True, help="Number of distributed workers"
+        "--world-size",
+        "-w",
+        type=int,
+        required=True,
+        help="Number of distributed workers",
     )
     batchplan_shard_parser.add_argument(
         "--output", "-o", required=True, help="Output directory for sharded plans"
@@ -851,7 +881,11 @@ Examples:
     )
     batching_suggest_parser.add_argument("--cache", "-c", required=True, help="Length cache file")
     batching_suggest_parser.add_argument(
-        "--num-buckets", "-n", type=int, default=4, help="Number of buckets (default: 4)"
+        "--num-buckets",
+        "-n",
+        type=int,
+        default=4,
+        help="Number of buckets (default: 4)",
     )
     batching_suggest_parser.add_argument(
         "--goal",
@@ -861,7 +895,10 @@ Examples:
         help="Optimization goal: waste (minimize padding), balance (even bucket sizes), memory (power-of-2 edges)",
     )
     batching_suggest_parser.add_argument(
-        "--max-length", type=int, default=2048, help="Maximum sequence length (default: 2048)"
+        "--max-length",
+        type=int,
+        default=2048,
+        help="Maximum sequence length (default: 2048)",
     )
     batching_suggest_parser.set_defaults(func=data_batching_suggest)
 
@@ -978,15 +1015,15 @@ Examples:
     exp_subparsers = exp_parser.add_subparsers(dest="exp_command", help="Experiment commands")
 
     # Experiment list command
-    exp_list_parser = exp_subparsers.add_parser(
-        "list", help="List all discovered experiments"
-    )
+    exp_list_parser = exp_subparsers.add_parser("list", help="List all discovered experiments")
     exp_list_parser.add_argument(
-        "--dir", "-d",
+        "--dir",
+        "-d",
         help="Path to experiments directory (default: auto-detect)",
     )
     exp_list_parser.add_argument(
-        "--json", "-j",
+        "--json",
+        "-j",
         action="store_true",
         help="Output as JSON",
     )
@@ -998,16 +1035,16 @@ Examples:
     )
 
     # Experiment info command
-    exp_info_parser = exp_subparsers.add_parser(
-        "info", help="Show detailed experiment information"
-    )
+    exp_info_parser = exp_subparsers.add_parser("info", help="Show detailed experiment information")
     exp_info_parser.add_argument("name", help="Experiment name")
     exp_info_parser.add_argument(
-        "--dir", "-d",
+        "--dir",
+        "-d",
         help="Path to experiments directory",
     )
     exp_info_parser.add_argument(
-        "--json", "-j",
+        "--json",
+        "-j",
         action="store_true",
         help="Output as JSON",
     )
@@ -1020,20 +1057,21 @@ Examples:
     )
 
     # Experiment run command
-    exp_run_parser = exp_subparsers.add_parser(
-        "run", help="Run an experiment"
-    )
+    exp_run_parser = exp_subparsers.add_parser("run", help="Run an experiment")
     exp_run_parser.add_argument("name", help="Experiment name")
     exp_run_parser.add_argument(
-        "--dir", "-d",
+        "--dir",
+        "-d",
         help="Path to experiments directory",
     )
     exp_run_parser.add_argument(
-        "--config", "-c",
+        "--config",
+        "-c",
         help="Path to custom config YAML file",
     )
     exp_run_parser.add_argument(
-        "--param", "-p",
+        "--param",
+        "-p",
         action="append",
         dest="params",
         help="Parameter override (key=value), can specify multiple",
@@ -1059,17 +1097,20 @@ Examples:
     )
     exp_status_parser.add_argument("name", help="Experiment name")
     exp_status_parser.add_argument(
-        "--dir", "-d",
+        "--dir",
+        "-d",
         help="Path to experiments directory",
     )
     exp_status_parser.add_argument(
-        "--all", "-a",
+        "--all",
+        "-a",
         action="store_true",
         dest="show_all",
         help="Show all runs, not just latest",
     )
     exp_status_parser.add_argument(
-        "--json", "-j",
+        "--json",
+        "-j",
         action="store_true",
         help="Output as JSON",
     )
@@ -2824,7 +2865,9 @@ Example:
         "-o",
         help="Save comparison results to JSON file",
     )
-    compare_circuit_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_compare(args)))
+    compare_circuit_parser.set_defaults(
+        func=lambda args: asyncio.run(introspect_circuit_compare(args))
+    )
 
     # Circuit view - display circuit contents
     view_parser = circuit_subparsers.add_parser(
@@ -3007,7 +3050,9 @@ Examples:
         "-o",
         help="Save results to JSON file",
     )
-    virtual_expert_parser.set_defaults(func=lambda args: asyncio.run(introspect_virtual_expert(args)))
+    virtual_expert_parser.set_defaults(
+        func=lambda args: asyncio.run(introspect_virtual_expert(args))
+    )
 
     # MoE Expert command - direct expert manipulation
     moe_expert_parser = introspect_subparsers.add_parser(

@@ -234,7 +234,9 @@ class TestDirectionComparisonConfig:
 
     def test_from_args(self):
         """Test creating config from args."""
-        from chuk_lazarus.cli.commands.introspect._types import DirectionComparisonConfig
+        from chuk_lazarus.cli.commands.introspect._types import (
+            DirectionComparisonConfig,
+        )
 
         args = Namespace(
             files=["dir1.npz", "dir2.npz"],
@@ -651,7 +653,9 @@ class TestPrintDirectionComparison:
             DirectionComparisonResult,
             DirectionPairSimilarity,
         )
-        from chuk_lazarus.cli.commands.introspect.neurons import _print_direction_comparison
+        from chuk_lazarus.cli.commands.introspect.neurons import (
+            _print_direction_comparison,
+        )
 
         pairs = [
             DirectionPairSimilarity(
@@ -682,7 +686,9 @@ class TestPrintDirectionComparison:
             DirectionComparisonResult,
             DirectionPairSimilarity,
         )
-        from chuk_lazarus.cli.commands.introspect.neurons import _print_direction_comparison
+        from chuk_lazarus.cli.commands.introspect.neurons import (
+            _print_direction_comparison,
+        )
 
         pairs = [
             DirectionPairSimilarity(
@@ -712,7 +718,9 @@ class TestPrintDirectionComparison:
             DirectionComparisonResult,
             DirectionPairSimilarity,
         )
-        from chuk_lazarus.cli.commands.introspect.neurons import _print_direction_comparison
+        from chuk_lazarus.cli.commands.introspect.neurons import (
+            _print_direction_comparison,
+        )
 
         pairs = [
             DirectionPairSimilarity(
@@ -741,7 +749,9 @@ class TestPrintDirectionComparison:
             DirectionComparisonResult,
             DirectionPairSimilarity,
         )
-        from chuk_lazarus.cli.commands.introspect.neurons import _print_direction_comparison
+        from chuk_lazarus.cli.commands.introspect.neurons import (
+            _print_direction_comparison,
+        )
 
         pairs = [
             DirectionPairSimilarity(

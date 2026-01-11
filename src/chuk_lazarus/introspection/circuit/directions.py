@@ -155,7 +155,8 @@ class DirectionBundle(BaseModel):
         if not self.directions:
             return None
         return max(
-            self.directions.keys(), key=lambda layer: self.directions[layer].separation_score
+            self.directions.keys(),
+            key=lambda layer: self.directions[layer].separation_score,
         )
 
     def save(self, path: str | Path) -> None:

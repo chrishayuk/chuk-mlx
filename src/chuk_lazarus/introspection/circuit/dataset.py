@@ -530,7 +530,10 @@ def create_factual_consistency_dataset(seed: int = 42) -> CircuitDataset:
                 category="contradiction",
                 label_name="contradiction",
                 expected_output=expected,
-                metadata={"ground_truth": expected, "context_claim": text.split(".")[0]},
+                metadata={
+                    "ground_truth": expected,
+                    "context_claim": text.split(".")[0],
+                },
             )
         )
 

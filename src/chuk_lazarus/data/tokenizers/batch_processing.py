@@ -186,7 +186,7 @@ def create_batch(
     if not padding:
         return BatchResult(
             input_ids=encoded,
-            attention_mask=[[1] * len(seq) for seq in encoded] if return_attention_mask else None,
+            attention_mask=([[1] * len(seq) for seq in encoded] if return_attention_mask else None),
         )
 
     return pad_batch(

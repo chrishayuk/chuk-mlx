@@ -374,7 +374,13 @@ class TestExploreServiceCompareRouting:
         ]
 
         result = ExploreService.compare_routing(
-            tokens1, positions1, tokens2, positions2, "2 + 3", "Calculate: 2 + 3", layer=12
+            tokens1,
+            positions1,
+            tokens2,
+            positions2,
+            "2 + 3",
+            "Calculate: 2 + 3",
+            layer=12,
         )
 
         assert result.prompt1 == "2 + 3"

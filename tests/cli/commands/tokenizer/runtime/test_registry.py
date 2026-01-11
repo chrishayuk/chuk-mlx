@@ -77,7 +77,7 @@ class TestRuntimeRegistry:
             "pad_token": "<pad>",
             "eos_token": "</s>",
         }
-        mock_tokenizer.convert_tokens_to_ids.side_effect = lambda x: 0 if x == "<pad>" else 1
+        mock_tokenizer.convert_tokens_to_ids.side_effect = lambda x: (0 if x == "<pad>" else 1)
         mock_load_tokenizer.return_value = mock_tokenizer
 
         mock_registry = MagicMock()

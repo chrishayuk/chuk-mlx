@@ -118,7 +118,11 @@ class TestCollectedActivations:
     def test_captured_layers(self):
         """Test getting captured layer indices."""
         acts = CollectedActivations()
-        acts.hidden_states = {2: mx.zeros((1, 64)), 0: mx.zeros((1, 64)), 4: mx.zeros((1, 64))}
+        acts.hidden_states = {
+            2: mx.zeros((1, 64)),
+            0: mx.zeros((1, 64)),
+            4: mx.zeros((1, 64)),
+        }
         assert acts.captured_layers == [0, 2, 4]
 
     def test_get_layer_activations(self):

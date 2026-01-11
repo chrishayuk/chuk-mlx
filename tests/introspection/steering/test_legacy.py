@@ -4,8 +4,14 @@ import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 
-from chuk_lazarus.introspection.steering.config import LegacySteeringConfig, SteeringMode
-from chuk_lazarus.introspection.steering.legacy import SteeredGemmaMLP, ToolCallingSteering
+from chuk_lazarus.introspection.steering.config import (
+    LegacySteeringConfig,
+    SteeringMode,
+)
+from chuk_lazarus.introspection.steering.legacy import (
+    SteeredGemmaMLP,
+    ToolCallingSteering,
+)
 
 
 # Mock classes

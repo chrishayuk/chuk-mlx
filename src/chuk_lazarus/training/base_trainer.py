@@ -82,7 +82,8 @@ class BaseTrainer(ABC):
     def _create_optimizer(self) -> optim.Optimizer:
         """Create default AdamW optimizer."""
         return optim.AdamW(
-            learning_rate=self.config.learning_rate, weight_decay=self.config.weight_decay
+            learning_rate=self.config.learning_rate,
+            weight_decay=self.config.weight_decay,
         )
 
     @abstractmethod

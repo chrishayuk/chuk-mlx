@@ -68,7 +68,11 @@ class TestCurriculumLengthBuckets:
         """Test basic length buckets."""
         mock_tokenizer = MagicMock()
         mock_load_tokenizer.return_value = mock_tokenizer
-        mock_load_texts.return_value = ["Short text", "Medium length text here", "Long text"]
+        mock_load_texts.return_value = [
+            "Short text",
+            "Medium length text here",
+            "Long text",
+        ]
 
         # Create mock buckets
         bucket1 = MagicMock()

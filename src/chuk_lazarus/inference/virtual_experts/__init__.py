@@ -47,7 +47,11 @@ from .base import (
     VirtualExpertPlugin,
     VirtualExpertResult,
 )
-from .dense_wrapper import VirtualDenseRouter, VirtualDenseWrapper, create_virtual_dense_wrapper
+from .dense_wrapper import (
+    VirtualDenseRouter,
+    VirtualDenseWrapper,
+    create_virtual_dense_wrapper,
+)
 from .plugins.math import MathExpertPlugin, SafeMathEvaluator
 from .registry import VirtualExpertRegistry, get_default_registry
 from .router import VirtualRouter

@@ -253,7 +253,8 @@ class PPOTrainer(BaseTrainer):
 
                 # Convert batch observations to tensors
                 obs_tensors = mx.array(
-                    [self._obs_to_tensor(o) for o in batch["observations"]], dtype=mx.float32
+                    [self._obs_to_tensor(o) for o in batch["observations"]],
+                    dtype=mx.float32,
                 )
                 actions = batch["actions"]
                 old_log_probs = batch["old_log_probs"]

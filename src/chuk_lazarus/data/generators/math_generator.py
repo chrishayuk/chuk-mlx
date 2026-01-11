@@ -302,7 +302,7 @@ class MathProblemGenerator:
             id=problem_id,
             problem_type=ProblemType.COMPARISON,
             problem_text=problem_text,
-            expression=f"max({a}, {b})" if "larger" in problem_text else f"abs({a} - {b})",
+            expression=(f"max({a}, {b})" if "larger" in problem_text else f"abs({a} - {b})"),
             answer=float(answer),
             difficulty=difficulty,
         )

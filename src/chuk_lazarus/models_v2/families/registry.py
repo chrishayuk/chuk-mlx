@@ -206,7 +206,19 @@ class ModelFamilyRegistry:
     def _register_builtin_families(self) -> None:
         """Register all built-in model families."""
         # Import families lazily to avoid circular imports
-        from . import gemma, gpt2, gpt_oss, granite, jamba, llama, llama4, mamba, olmoe, qwen3, starcoder2
+        from . import (
+            gemma,
+            gpt2,
+            gpt_oss,
+            granite,
+            jamba,
+            llama,
+            llama4,
+            mamba,
+            olmoe,
+            qwen3,
+            starcoder2,
+        )
 
         # Llama family
         self.register(

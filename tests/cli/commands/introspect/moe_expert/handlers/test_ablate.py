@@ -127,7 +127,9 @@ class TestBenchmarkProblemResult:
 
     def test_status_broken(self):
         """Test status is BROKEN when normal correct but ablated incorrect."""
-        from chuk_lazarus.introspection.moe.ablation_service import BenchmarkProblemResult
+        from chuk_lazarus.introspection.moe.ablation_service import (
+            BenchmarkProblemResult,
+        )
 
         result = BenchmarkProblemResult(
             prompt="2+2=",
@@ -141,7 +143,9 @@ class TestBenchmarkProblemResult:
 
     def test_status_fixed(self):
         """Test status is FIXED when normal incorrect but ablated correct."""
-        from chuk_lazarus.introspection.moe.ablation_service import BenchmarkProblemResult
+        from chuk_lazarus.introspection.moe.ablation_service import (
+            BenchmarkProblemResult,
+        )
 
         result = BenchmarkProblemResult(
             prompt="2+2=",
@@ -155,7 +159,9 @@ class TestBenchmarkProblemResult:
 
     def test_status_empty(self):
         """Test status is empty when both same."""
-        from chuk_lazarus.introspection.moe.ablation_service import BenchmarkProblemResult
+        from chuk_lazarus.introspection.moe.ablation_service import (
+            BenchmarkProblemResult,
+        )
 
         result = BenchmarkProblemResult(
             prompt="2+2=",

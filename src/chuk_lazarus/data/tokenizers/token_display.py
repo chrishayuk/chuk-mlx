@@ -39,7 +39,11 @@ class TokenDisplayUtility:
     def display_tokens(self, input_ids):
         # create a table of prompts
         table_data = [
-            [i, token_id, self.truncate_string(self.tokenizer.decode([token_id]).strip())]
+            [
+                i,
+                token_id,
+                self.truncate_string(self.tokenizer.decode([token_id]).strip()),
+            ]
             for i, token_id in enumerate(input_ids)
         ]
 
@@ -66,7 +70,11 @@ class TokenDisplayUtility:
 
             # create a table of the vocabulary chunk
             table_data = [
-                [j + i, token_id, self.truncate_string(self.tokenizer.decode([token_id]).strip())]
+                [
+                    j + i,
+                    token_id,
+                    self.truncate_string(self.tokenizer.decode([token_id]).strip()),
+                ]
                 for j, token_id in enumerate(chunk)
             ]
 

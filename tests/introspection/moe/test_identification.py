@@ -513,7 +513,11 @@ class TestIdentifyExpert:
         )
 
         # Role will be determined by actual activation pattern
-        assert identity.role in [ExpertRole.SPECIALIST, ExpertRole.GENERALIST, ExpertRole.RARE]
+        assert identity.role in [
+            ExpertRole.SPECIALIST,
+            ExpertRole.GENERALIST,
+            ExpertRole.RARE,
+        ]
 
     def test_identify_expert_secondary_categories(self, moe_model, tokenizer):
         """Test that secondary categories are populated."""
@@ -571,9 +575,7 @@ class TestIdentifyExpert:
             # Shape: (batch, seq_len, experts_per_tok)
             if 0 in hooks.moe_state.selected_experts:
                 hooks.moe_state.selected_experts[0] = mx.array(
-                    [
-                        [[0, 1], [0, 2], [0, 3]]  # Expert 0 appears 3 times
-                    ]
+                    [[[0, 1], [0, 2], [0, 3]]]  # Expert 0 appears 3 times
                 )
             return result
 
@@ -1543,9 +1545,7 @@ class TestIdentifyExpertCoverageEdgeCases:
                 # Make expert 0 appear multiple times in different shapes
                 # This tests the reshape(-1).tolist() and count logic
                 hooks.moe_state.selected_experts[0] = mx.array(
-                    [
-                        [[0, 1], [0, 2], [0, 3], [1, 2]]  # Expert 0 appears 3 times
-                    ]
+                    [[[0, 1], [0, 2], [0, 3], [1, 2]]]  # Expert 0 appears 3 times
                 )
             return result
 
@@ -1727,7 +1727,11 @@ class TestIdentifyExpertCoverageEdgeCases:
         )
 
         # Should have determined a role
-        assert identity.role in [ExpertRole.SPECIALIST, ExpertRole.GENERALIST, ExpertRole.RARE]
+        assert identity.role in [
+            ExpertRole.SPECIALIST,
+            ExpertRole.GENERALIST,
+            ExpertRole.RARE,
+        ]
 
     @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
     def test_identify_expert_lines_171_174_generalist_role(
@@ -1770,7 +1774,11 @@ class TestIdentifyExpertCoverageEdgeCases:
 
         # Should have processed the generalist logic
         assert identity.expert_idx == 1
-        assert identity.role in [ExpertRole.SPECIALIST, ExpertRole.GENERALIST, ExpertRole.RARE]
+        assert identity.role in [
+            ExpertRole.SPECIALIST,
+            ExpertRole.GENERALIST,
+            ExpertRole.RARE,
+        ]
 
     @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
     def test_identify_expert_lines_177_182_secondary_categories(
@@ -1874,9 +1882,7 @@ class TestIdentifyExpertCoverageEdgeCases:
                 # Expert 3 activates only on first call out of many
                 if call_count[0] == 1:
                     hooks.moe_state.selected_experts[0] = mx.array(
-                        [
-                            [[3, 0]] * 100  # Many positions to make ratio low
-                        ]
+                        [[[3, 0]] * 100]  # Many positions to make ratio low
                     )
                 else:
                     # Other experts selected
@@ -1896,7 +1902,11 @@ class TestIdentifyExpertCoverageEdgeCases:
         # Should have very low activation rate
         assert identity.expert_idx == 3
         # Role determination depends on actual activation pattern
-        assert identity.role in [ExpertRole.RARE, ExpertRole.GENERALIST, ExpertRole.SPECIALIST]
+        assert identity.role in [
+            ExpertRole.RARE,
+            ExpertRole.GENERALIST,
+            ExpertRole.SPECIALIST,
+        ]
 
     @patch("chuk_lazarus.introspection.moe.identification.get_category_prompts")
     def test_identify_expert_lines_169_170_specialist_confidence_threshold(
@@ -2001,9 +2011,7 @@ class TestIdentifyExpertCoverageEdgeCases:
             if 0 in hooks.moe_state.selected_experts:
                 # Create known pattern: expert 1 in 2 out of 4 positions
                 hooks.moe_state.selected_experts[0] = mx.array(
-                    [
-                        [[1, 0], [2, 3]]  # Expert 1 appears once, total 4 positions
-                    ]
+                    [[[1, 0], [2, 3]]]  # Expert 1 appears once, total 4 positions
                 )
             return result
 
@@ -2041,9 +2049,7 @@ class TestIdentifyExpertCoverageEdgeCases:
         def mock_forward_with_experts(input_ids):
             # Simulate the hooks forward but manually set selected_experts
             hooks.moe_state.selected_experts[0] = mx.array(
-                [
-                    [[2, 1], [2, 0], [3, 2]]  # Expert 2 appears 3 times
-                ]
+                [[[2, 1], [2, 0], [3, 2]]]  # Expert 2 appears 3 times
             )
             return mx.zeros((1, input_ids.shape[1], 100))  # Dummy output
 
@@ -2076,7 +2082,11 @@ class TestIdentifyExpertCoverageEdgeCases:
             categories_processed.append(category)
             mock_prompts = MagicMock()
             # Only return prompts for a few categories
-            if category in [PromptCategory.PYTHON, PromptCategory.ARITHMETIC, PromptCategory.LOGIC]:
+            if category in [
+                PromptCategory.PYTHON,
+                PromptCategory.ARITHMETIC,
+                PromptCategory.LOGIC,
+            ]:
                 mock_prompts.prompts = ["test"]
             else:
                 mock_prompts.prompts = []

@@ -6,15 +6,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.ablate import (
-    handle_ablate,
     _async_ablate,
+    handle_ablate,
 )
 from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.attention_pattern import (
-    handle_attention_pattern,
     _async_attention_pattern,
-    _print_header,
     _print_attention_weights,
+    _print_header,
     _print_insight,
+    handle_attention_pattern,
 )
 from chuk_lazarus.cli.commands.introspect.moe_expert.handlers.attention_routing import (
     handle_attention_routing,

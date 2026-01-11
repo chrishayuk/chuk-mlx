@@ -270,7 +270,10 @@ def create_standard_registry(
         tool_start, tool_start + tool_range_size, TokenCategory.TOOL_CALL, "Tool tokens"
     )
     registry.reserve_range(
-        memory_start, memory_start + memory_range_size, TokenCategory.MEMORY_LOAD, "Memory tokens"
+        memory_start,
+        memory_start + memory_range_size,
+        TokenCategory.MEMORY_LOAD,
+        "Memory tokens",
     )
     registry.reserve_range(
         solver_start, solver_start + 50, TokenCategory.SOLVER_OP, "Solver tokens"

@@ -390,7 +390,10 @@ class DualRewardTrainer(BaseTrainer):
                     )
 
                     self.metrics_history.append(
-                        {"step": self.global_step, **{k: float(v) for k, v in metrics.items()}}
+                        {
+                            "step": self.global_step,
+                            **{k: float(v) for k, v in metrics.items()},
+                        }
                     )
 
                 # Checkpoint

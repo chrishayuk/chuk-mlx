@@ -1160,7 +1160,11 @@ class TestMain:
         mock_dataset.name = "test"
         mock_dataset.version = "1.0"
         mock_dataset.__len__ = Mock(return_value=10)
-        mock_dataset.summary.return_value = {"total": 10, "tool_calling": 5, "no_tool": 5}
+        mock_dataset.summary.return_value = {
+            "total": 10,
+            "tool_calling": 5,
+            "no_tool": 5,
+        }
         mock_dataset.sample.return_value = []
         mock_dataset_class.load.return_value = mock_dataset
 
@@ -1177,7 +1181,10 @@ class TestMain:
     @patch("chuk_lazarus.introspection.circuit.collector.ActivationCollector")
     @patch("chuk_lazarus.introspection.circuit.dataset.ToolPromptDataset")
     @patch("chuk_lazarus.introspection.circuit.collector.CollectorConfig")
-    @patch("sys.argv", ["circuit", "collect", "-m", "model", "-d", "data.json", "-o", "out"])
+    @patch(
+        "sys.argv",
+        ["circuit", "collect", "-m", "model", "-d", "data.json", "-o", "out"],
+    )
     def test_main_collect_command(self, mock_config, mock_dataset_class, mock_collector_class):
         """Test main routes to collect command."""
         mock_dataset = Mock()

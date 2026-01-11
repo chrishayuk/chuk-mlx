@@ -160,7 +160,9 @@ class GRPOConfig(CommandConfig):
     ref_model: str | None = Field(default=None, description="Reference model path")
     output: Path = Field(default=Path("./checkpoints/grpo"), description="Output dir")
     iterations: int = Field(
-        default=TrainingDefaults.GRPO_ITERATIONS, ge=1, description="Training iterations"
+        default=TrainingDefaults.GRPO_ITERATIONS,
+        ge=1,
+        description="Training iterations",
     )
     prompts_per_iteration: int = Field(
         default=TrainingDefaults.GRPO_PROMPTS_PER_ITERATION,
@@ -168,19 +170,27 @@ class GRPOConfig(CommandConfig):
         description="Prompts per iteration",
     )
     group_size: int = Field(
-        default=TrainingDefaults.GRPO_GROUP_SIZE, ge=2, description="Responses per prompt"
+        default=TrainingDefaults.GRPO_GROUP_SIZE,
+        ge=2,
+        description="Responses per prompt",
     )
     learning_rate: float = Field(
         default=TrainingDefaults.GRPO_LEARNING_RATE, gt=0, description="Learning rate"
     )
     kl_coef: float = Field(
-        default=TrainingDefaults.GRPO_KL_COEF, ge=0, description="KL penalty coefficient"
+        default=TrainingDefaults.GRPO_KL_COEF,
+        ge=0,
+        description="KL penalty coefficient",
     )
     max_response_length: int = Field(
-        default=TrainingDefaults.GRPO_MAX_RESPONSE_LENGTH, ge=1, description="Max response tokens"
+        default=TrainingDefaults.GRPO_MAX_RESPONSE_LENGTH,
+        ge=1,
+        description="Max response tokens",
     )
     temperature: float = Field(
-        default=TrainingDefaults.GRPO_TEMPERATURE, gt=0, description="Sampling temperature"
+        default=TrainingDefaults.GRPO_TEMPERATURE,
+        gt=0,
+        description="Sampling temperature",
     )
     use_lora: bool = Field(default=False, description="Use LoRA")
     lora_rank: int = Field(default=TrainingDefaults.LORA_RANK, ge=1, description="LoRA rank")

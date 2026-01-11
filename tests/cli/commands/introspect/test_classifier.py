@@ -28,7 +28,9 @@ class TestIntrospectClassifier:
     @pytest.mark.asyncio
     async def test_classifier_with_classes_arg(self, classifier_args, capsys):
         """Test classifier with --classes argument format."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_classifier
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_classifier,
+        )
 
         mock_result = MagicMock()
         mock_result.to_display.return_value = "CLASSIFIER RESULTS\nAccuracy: 0.95"
@@ -46,7 +48,9 @@ class TestIntrospectClassifier:
     @pytest.mark.asyncio
     async def test_classifier_with_category_arg(self, capsys):
         """Test classifier with --category argument format."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_classifier
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_classifier,
+        )
 
         args = Namespace(
             model="test-model",
@@ -74,7 +78,9 @@ class TestIntrospectClassifier:
     @pytest.mark.asyncio
     async def test_classifier_with_categories_file(self, capsys):
         """Test classifier with --categories-file argument."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_classifier
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_classifier,
+        )
 
         # Create temp categories file
         categories = {
@@ -115,7 +121,9 @@ class TestIntrospectClassifier:
     @pytest.mark.asyncio
     async def test_classifier_with_layers(self, classifier_args, capsys):
         """Test classifier with --layers argument."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_classifier
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_classifier,
+        )
 
         classifier_args.layers = "4,8,12"
 
@@ -137,7 +145,9 @@ class TestIntrospectClassifier:
     @pytest.mark.asyncio
     async def test_classifier_with_all_layers(self, classifier_args, capsys):
         """Test classifier with --all-layers flag."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_classifier
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_classifier,
+        )
 
         classifier_args.all_layers = True
 
@@ -158,7 +168,9 @@ class TestIntrospectClassifier:
     @pytest.mark.asyncio
     async def test_classifier_with_output(self, classifier_args, tmp_path, capsys):
         """Test classifier with --output argument."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_classifier
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_classifier,
+        )
 
         output_file = str(tmp_path / "results.json")
         classifier_args.output = output_file
@@ -181,7 +193,9 @@ class TestIntrospectClassifier:
     @pytest.mark.asyncio
     async def test_classifier_invalid_class_format_error(self, capsys):
         """Test classifier raises error for invalid --classes format."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_classifier
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_classifier,
+        )
 
         args = Namespace(
             model="test-model",
@@ -199,7 +213,9 @@ class TestIntrospectClassifier:
     @pytest.mark.asyncio
     async def test_classifier_invalid_category_format_error(self, capsys):
         """Test classifier raises error for invalid --category format."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_classifier
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_classifier,
+        )
 
         args = Namespace(
             model="test-model",
@@ -217,7 +233,9 @@ class TestIntrospectClassifier:
     @pytest.mark.asyncio
     async def test_classifier_too_few_categories_error(self, capsys):
         """Test classifier raises error for fewer than 2 categories."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_classifier
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_classifier,
+        )
 
         args = Namespace(
             model="test-model",
@@ -252,7 +270,9 @@ class TestIntrospectLogitLens:
     @pytest.mark.asyncio
     async def test_logit_lens_basic(self, logit_lens_args, capsys):
         """Test basic logit lens analysis."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_logit_lens
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_logit_lens,
+        )
 
         mock_result = MagicMock()
         mock_result.to_display.return_value = "LOGIT LENS RESULTS\nLayer 0: token=4"
@@ -270,7 +290,9 @@ class TestIntrospectLogitLens:
     @pytest.mark.asyncio
     async def test_logit_lens_with_layers(self, logit_lens_args, capsys):
         """Test logit lens with --layers argument."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_logit_lens
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_logit_lens,
+        )
 
         logit_lens_args.layers = "0,4,8,12"
 
@@ -291,7 +313,9 @@ class TestIntrospectLogitLens:
     @pytest.mark.asyncio
     async def test_logit_lens_with_track(self, logit_lens_args, capsys):
         """Test logit lens with --track argument."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_logit_lens
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_logit_lens,
+        )
 
         logit_lens_args.track = "4,8"
 
@@ -312,7 +336,9 @@ class TestIntrospectLogitLens:
     @pytest.mark.asyncio
     async def test_logit_lens_with_prompt_arg(self, capsys):
         """Test logit lens with --prompt argument (alternative to --prompts)."""
-        from chuk_lazarus.cli.commands.introspect.classifier import introspect_logit_lens
+        from chuk_lazarus.cli.commands.introspect.classifier import (
+            introspect_logit_lens,
+        )
 
         args = Namespace(
             model="test-model",

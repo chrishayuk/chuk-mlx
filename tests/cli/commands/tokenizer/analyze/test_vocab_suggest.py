@@ -4,7 +4,9 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from chuk_lazarus.cli.commands.tokenizer._types import AnalyzeVocabSuggestConfig
-from chuk_lazarus.cli.commands.tokenizer.analyze.vocab_suggest import analyze_vocab_suggest
+from chuk_lazarus.cli.commands.tokenizer.analyze.vocab_suggest import (
+    analyze_vocab_suggest,
+)
 
 
 class TestAnalyzeVocabSuggestConfig:

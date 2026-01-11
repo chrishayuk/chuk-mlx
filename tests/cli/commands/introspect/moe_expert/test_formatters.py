@@ -267,8 +267,18 @@ class TestFormatCoactivation:
             layer_idx=0,
             total_activations=100,
             top_pairs=(
-                ExpertPair(expert_a=6, expert_b=7, coactivation_count=25, coactivation_rate=0.25),
-                ExpertPair(expert_a=6, expert_b=20, coactivation_count=15, coactivation_rate=0.15),
+                ExpertPair(
+                    expert_a=6,
+                    expert_b=7,
+                    coactivation_count=25,
+                    coactivation_rate=0.25,
+                ),
+                ExpertPair(
+                    expert_a=6,
+                    expert_b=20,
+                    coactivation_count=15,
+                    coactivation_rate=0.15,
+                ),
             ),
             generalist_experts=(6, 7),
         )

@@ -333,10 +333,14 @@ class ExpertVocabContribution(BaseModel):
         ge=0, default=0.0, description="Entropy of expert's vocabulary preference"
     )
     specialization_score: float = Field(
-        ge=0, le=1, default=0.0, description="How specialized (vs. generalist) this expert is"
+        ge=0,
+        le=1,
+        default=0.0,
+        description="How specialized (vs. generalist) this expert is",
     )
     dominant_categories: tuple[str, ...] = Field(
-        default_factory=tuple, description="Inferred token categories (numbers, punctuation, etc.)"
+        default_factory=tuple,
+        description="Inferred token categories (numbers, punctuation, etc.)",
     )
 
 
@@ -351,10 +355,16 @@ class LayerVocabAnalysis(BaseModel):
         default_factory=tuple, description="Per-expert vocabulary contributions"
     )
     vocab_coverage: float = Field(
-        ge=0, le=1, default=0.0, description="Fraction of vocabulary covered by top-k per expert"
+        ge=0,
+        le=1,
+        default=0.0,
+        description="Fraction of vocabulary covered by top-k per expert",
     )
     expert_overlap: float = Field(
-        ge=0, le=1, default=0.0, description="Average overlap between expert vocabularies"
+        ge=0,
+        le=1,
+        default=0.0,
+        description="Average overlap between expert vocabularies",
     )
 
 

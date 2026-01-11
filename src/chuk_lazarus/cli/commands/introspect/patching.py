@@ -98,7 +98,11 @@ def introspect_patch(args):
     import asyncio
     import json
 
-    from ....introspection import ActivationPatcher, extract_expected_answer, parse_layers_arg
+    from ....introspection import (
+        ActivationPatcher,
+        extract_expected_answer,
+        parse_layers_arg,
+    )
     from ....introspection.ablation import AblationStudy
 
     async def run():

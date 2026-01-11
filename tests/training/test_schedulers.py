@@ -33,7 +33,10 @@ class TestScheduleLearningRate:
         optimizer = self._create_mock_optimizer(0.001)
 
         lr = schedule_learning_rate(
-            optimizer, iteration_count=0, warmup_steps=100, scheduler_type=SchedulerType.WARMUP
+            optimizer,
+            iteration_count=0,
+            warmup_steps=100,
+            scheduler_type=SchedulerType.WARMUP,
         )
 
         # At iteration 0, warmup factor is 1/100
@@ -46,7 +49,10 @@ class TestScheduleLearningRate:
         optimizer.initial_lr = 0.001  # Set initial_lr as it would be after iteration 0
 
         lr = schedule_learning_rate(
-            optimizer, iteration_count=50, warmup_steps=100, scheduler_type=SchedulerType.WARMUP
+            optimizer,
+            iteration_count=50,
+            warmup_steps=100,
+            scheduler_type=SchedulerType.WARMUP,
         )
 
         # At iteration 50, warmup factor is 51/100
@@ -58,7 +64,10 @@ class TestScheduleLearningRate:
         optimizer.initial_lr = 0.001
 
         lr = schedule_learning_rate(
-            optimizer, iteration_count=150, warmup_steps=100, scheduler_type=SchedulerType.WARMUP
+            optimizer,
+            iteration_count=150,
+            warmup_steps=100,
+            scheduler_type=SchedulerType.WARMUP,
         )
 
         # After warmup, lr should be initial_lr
@@ -200,7 +209,10 @@ class TestScheduleLearningRate:
         optimizer.initial_lr = 0.001
 
         schedule_learning_rate(
-            optimizer, iteration_count=150, warmup_steps=100, scheduler_type=SchedulerType.WARMUP
+            optimizer,
+            iteration_count=150,
+            warmup_steps=100,
+            scheduler_type=SchedulerType.WARMUP,
         )
 
         assert optimizer.learning_rate == pytest.approx(0.001, rel=1e-3)

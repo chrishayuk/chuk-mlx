@@ -227,7 +227,11 @@ class GenerationService:
     ) -> dict[str, Any]:
         """Find where the expected answer appears in output."""
         if not expected_answer:
-            return {"answer_found": False, "onset_index": None, "is_answer_first": False}
+            return {
+                "answer_found": False,
+                "onset_index": None,
+                "is_answer_first": False,
+            }
 
         # Normalize expected answer
         normalized_expected = cls._normalize_number(expected_answer)

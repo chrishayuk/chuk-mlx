@@ -75,7 +75,9 @@ async def introspect_analyze(args: Namespace) -> None:
         compute_override=getattr(args, "compute_override", "none"),
         compute_layer=getattr(args, "compute_layer", None),
         # Answer finding - convert bool flag to expected pattern or None
-        find_answer=getattr(args, "expected", None) if getattr(args, "find_answer", False) else None,
+        find_answer=(
+            getattr(args, "expected", None) if getattr(args, "find_answer", False) else None
+        ),
         no_find_answer=getattr(args, "no_find_answer", False),
         gen_tokens=getattr(args, "gen_tokens", 30),
         expected=getattr(args, "expected", None),
@@ -111,7 +113,9 @@ async def introspect_compare(args: Namespace) -> None:
         model2=args.model2,
         prompt=args.prompt,
         top_k=getattr(args, "top_k", 10),
-        track_tokens=getattr(args, "track", "").split(",") if getattr(args, "track", None) else [],
+        track_tokens=(
+            getattr(args, "track", "").split(",") if getattr(args, "track", None) else []
+        ),
     )
 
     print(result.to_display())

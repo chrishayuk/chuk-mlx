@@ -7,7 +7,6 @@ Based on Llama architecture with MoE FFN layers.
 
 from __future__ import annotations
 
-import math
 from typing import Any
 
 import mlx.core as mx
@@ -39,10 +38,18 @@ class OLMoEAttention(nn.Module):
         self.head_dim = config.hidden_size // config.num_attention_heads
 
         # Projections
-        self.q_proj = nn.Linear(config.hidden_size, config.num_attention_heads * self.head_dim, bias=False)
-        self.k_proj = nn.Linear(config.hidden_size, config.num_key_value_heads * self.head_dim, bias=False)
-        self.v_proj = nn.Linear(config.hidden_size, config.num_key_value_heads * self.head_dim, bias=False)
-        self.o_proj = nn.Linear(config.num_attention_heads * self.head_dim, config.hidden_size, bias=False)
+        self.q_proj = nn.Linear(
+            config.hidden_size, config.num_attention_heads * self.head_dim, bias=False
+        )
+        self.k_proj = nn.Linear(
+            config.hidden_size, config.num_key_value_heads * self.head_dim, bias=False
+        )
+        self.v_proj = nn.Linear(
+            config.hidden_size, config.num_key_value_heads * self.head_dim, bias=False
+        )
+        self.o_proj = nn.Linear(
+            config.num_attention_heads * self.head_dim, config.hidden_size, bias=False
+        )
 
         # QK normalization (OLMoE applies on full Q/K before reshape)
         # Q has shape (batch, seq, num_heads * head_dim) = (batch, seq, hidden_size)
@@ -53,7 +60,7 @@ class OLMoEAttention(nn.Module):
         # RoPE
         self.rope = nn.RoPE(self.head_dim, base=config.rope_theta)
 
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
 
     def __call__(
         self,
@@ -347,9 +354,7 @@ class OLMoEModel(Backbone):
         )
 
         # Transformer blocks with MoE
-        self.layers = [
-            OLMoEBlock(config, layer_idx=i) for i in range(config.num_hidden_layers)
-        ]
+        self.layers = [OLMoEBlock(config, layer_idx=i) for i in range(config.num_hidden_layers)]
 
         # Final norm
         self.norm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
@@ -484,7 +489,9 @@ class OLMoEForCausalLM(Model):
         return cls(config)
 
     @staticmethod
-    def sanitize(weights: dict[str, mx.array], tie_word_embeddings: bool = False) -> dict[str, mx.array]:
+    def sanitize(
+        weights: dict[str, mx.array], tie_word_embeddings: bool = False
+    ) -> dict[str, mx.array]:
         """
         Convert HuggingFace weight names to our format.
 

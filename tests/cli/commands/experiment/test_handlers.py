@@ -2,18 +2,18 @@
 
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import mock_open, patch
 
 import pytest
 
 from chuk_lazarus.cli.commands.experiment.handlers import (
-    experiment_list,
     experiment_info,
+    experiment_list,
     experiment_run,
     experiment_status,
 )
-from chuk_lazarus.experiments.registry import ExperimentInfo
 from chuk_lazarus.experiments.base import ExperimentResult
+from chuk_lazarus.experiments.registry import ExperimentInfo
 
 
 @pytest.fixture
@@ -441,7 +441,7 @@ class TestExperimentRun:
         ) as mock_run:
             experiment_run(
                 "test_experiment",
-                params=['layers=[0,4,8]'],
+                params=["layers=[0,4,8]"],
             )
 
             call_kwargs = mock_run.call_args[1]
@@ -455,7 +455,7 @@ class TestExperimentRun:
         ) as mock_run:
             experiment_run(
                 "test_experiment",
-                params=['model_name=my-custom-model', 'description=A test run'],
+                params=["model_name=my-custom-model", "description=A test run"],
             )
 
             call_kwargs = mock_run.call_args[1]

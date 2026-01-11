@@ -123,8 +123,8 @@ class TestIntrospectArithmetic:
                     case = MagicMock()
                     case.prompt = f"test{i}="
                     case.expected = str(i * 2)
-                    # operation and difficulty are enums with .value attribute
-                    case.operation = MagicMock(value="+")
+                    # operator and difficulty are enums with .value attribute
+                    case.operator = MagicMock(value="+")
                     case.difficulty = MagicMock(value="easy")
                     case.magnitude = 1  # Real int value
                     mock_cases.append(case)
@@ -218,7 +218,7 @@ class TestIntrospectArithmetic:
                 mock_case = MagicMock()
                 mock_case.prompt = "2+2="
                 mock_case.expected = "4"
-                mock_case.operation = MagicMock(value="add")
+                mock_case.operator = MagicMock(value="add")
                 mock_case.difficulty = MagicMock(value="easy")
                 mock_case.magnitude = 1
 
@@ -256,7 +256,7 @@ class TestIntrospectArithmetic:
                 mock_case = MagicMock()
                 mock_case.prompt = "2+2="
                 mock_case.expected = "4"
-                mock_case.operation = MagicMock(value="add")
+                mock_case.operator = MagicMock(value="add")
                 mock_case.difficulty = MagicMock(value="easy")
                 mock_case.magnitude = 1
                 mock_suite.generate_test_cases.return_value = MagicMock(test_cases=[mock_case])
@@ -301,7 +301,7 @@ class TestIntrospectArithmetic:
                     case = MagicMock()
                     case.prompt = f"{i}+{i}="
                     case.expected = str(i * 2) if i > 0 else "4"
-                    case.operation = MagicMock(value="add")
+                    case.operator = MagicMock(value="add")
                     case.difficulty = MagicMock(value="easy")
                     case.magnitude = 1
                     cases.append(case)

@@ -87,7 +87,12 @@ class TestComputeLengthHistogram:
 
     def test_basic_histogram(self):
         tokenizer = MockTokenizer()
-        texts = ["hello world", "this is a test", "short", "another longer sentence here"]
+        texts = [
+            "hello world",
+            "this is a test",
+            "short",
+            "another longer sentence here",
+        ]
 
         histogram = compute_length_histogram(texts, tokenizer)
 
@@ -127,7 +132,15 @@ class TestComputeLengthHistogram:
         histogram = compute_length_histogram(texts, tokenizer)
 
         # Should recommend a reasonable max length
-        assert histogram.recommended_max_length in [128, 256, 512, 1024, 2048, 4096, 8192]
+        assert histogram.recommended_max_length in [
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+        ]
 
 
 class TestGetLengthStats:

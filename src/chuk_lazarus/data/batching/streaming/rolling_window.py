@@ -328,7 +328,7 @@ class RollingBatchPlanWindow:
             "total_windows": self._total_windows,
             "total_microbatches": self._total_microbatches,
             "config": self.config.model_dump(),
-            "current_state": self._current_state.model_dump() if self._current_state else None,
+            "current_state": (self._current_state.model_dump() if self._current_state else None),
         }
 
     @classmethod

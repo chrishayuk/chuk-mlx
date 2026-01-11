@@ -250,10 +250,18 @@ def create_standard_semantics() -> TokenSemantics:
 
     # Control operations
     semantics.register(
-        "<THINK>", 400, SemanticDomain.CONTROL, "think", description="Begin reasoning block"
+        "<THINK>",
+        400,
+        SemanticDomain.CONTROL,
+        "think",
+        description="Begin reasoning block",
     )
     semantics.register(
-        "</THINK>", 401, SemanticDomain.CONTROL, "end_think", description="End reasoning block"
+        "</THINK>",
+        401,
+        SemanticDomain.CONTROL,
+        "end_think",
+        description="End reasoning block",
     )
 
     return semantics

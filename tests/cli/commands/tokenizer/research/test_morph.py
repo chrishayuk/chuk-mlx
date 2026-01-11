@@ -63,7 +63,13 @@ class TestResearchMorph:
     @patch("builtins.open")
     @patch("json.load")
     def test_morph_basic(
-        self, mock_json_load, mock_open, mock_straightness, mock_path_length, mock_morph, capsys
+        self,
+        mock_json_load,
+        mock_open,
+        mock_straightness,
+        mock_path_length,
+        mock_morph,
+        capsys,
     ):
         """Test basic token morphing."""
         mock_json_load.return_value = {

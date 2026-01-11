@@ -407,9 +407,9 @@ class CounterfactualIntervention:
         # Create hook
         hook = InterventionHook(
             config=config,
-            patch_activations=patch_from.get(list(config.layers)[0])
-            if patch_from and config.layers
-            else None,
+            patch_activations=(
+                patch_from.get(list(config.layers)[0]) if patch_from and config.layers else None
+            ),
             steering_direction=steering_direction,
         )
 

@@ -229,7 +229,11 @@ class TestGLUGradients:
 
     def test_gradients_with_different_activations(self):
         """Test gradients flow with different activations."""
-        for activation in [ActivationType.SILU, ActivationType.GELU, ActivationType.RELU]:
+        for activation in [
+            ActivationType.SILU,
+            ActivationType.GELU,
+            ActivationType.RELU,
+        ]:
             config = FFNConfig(
                 hidden_size=64,
                 intermediate_size=128,

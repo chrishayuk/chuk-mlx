@@ -146,7 +146,10 @@ class AblationStudy:
 
         elif family == "granite":
             from ...models_v2.families.granite import GraniteConfig, GraniteForCausalLM
-            from ...models_v2.families.granite.convert import load_hf_config, load_weights
+            from ...models_v2.families.granite.convert import (
+                load_hf_config,
+                load_weights,
+            )
 
             hf_config = load_hf_config(model_path)
             config = GraniteConfig.from_hf_config(hf_config)
@@ -248,12 +251,20 @@ class AblationStudy:
         for layer_idx in layers:
             original_weights[layer_idx] = {}
 
-            if component in [ComponentType.MLP, ComponentType.BOTH, ComponentType.MLP_DOWN]:
+            if component in [
+                ComponentType.MLP,
+                ComponentType.BOTH,
+                ComponentType.MLP_DOWN,
+            ]:
                 orig = self.adapter.get_mlp_down_weight(layer_idx)
                 original_weights[layer_idx]["mlp_down"] = mx.array(orig)
                 self.adapter.set_mlp_down_weight(layer_idx, mx.zeros_like(orig))
 
-            if component in [ComponentType.ATTENTION, ComponentType.BOTH, ComponentType.ATTN_O]:
+            if component in [
+                ComponentType.ATTENTION,
+                ComponentType.BOTH,
+                ComponentType.ATTN_O,
+            ]:
                 orig = self.adapter.get_attn_o_weight(layer_idx)
                 original_weights[layer_idx]["attn_o"] = mx.array(orig)
                 self.adapter.set_attn_o_weight(layer_idx, mx.zeros_like(orig))
@@ -333,7 +344,7 @@ class AblationStudy:
 
         return LayerSweepResult(
             task_name=task_name,
-            criterion_name=criterion.__name__ if hasattr(criterion, "__name__") else "criterion",
+            criterion_name=(criterion.__name__ if hasattr(criterion, "__name__") else "criterion"),
             results=results,
         )
 

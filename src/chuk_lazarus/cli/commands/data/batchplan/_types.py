@@ -225,7 +225,11 @@ class BatchPlanVerifyResult(CommandResult):
             lines.extend(["", "  Result: MATCH", "  The batch plan is reproducible."])
         else:
             lines.extend(
-                ["", "  Result: MISMATCH", "  Warning: Rebuilt plan differs from original!"]
+                [
+                    "",
+                    "  Result: MISMATCH",
+                    "  Warning: Rebuilt plan differs from original!",
+                ]
             )
             for comp in self.epoch_comparison:
                 if comp.get("count_differs"):

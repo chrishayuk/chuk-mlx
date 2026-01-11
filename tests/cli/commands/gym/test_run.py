@@ -108,7 +108,6 @@ class TestGymRun:
             if Path(output_path).exists():
                 Path(output_path).unlink()
 
-
     @pytest.mark.asyncio
     async def test_gym_run_non_mock_stream(
         self, gym_run_args, mock_tokenizer, mock_replay_buffer, mock_stream, capsys

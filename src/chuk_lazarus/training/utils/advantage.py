@@ -36,7 +36,11 @@ def compute_returns(rewards: mx.array, dones: mx.array, gamma: float = 0.99) -> 
 
 
 def compute_gae(
-    rewards: mx.array, values: mx.array, dones: mx.array, gamma: float = 0.99, lam: float = 0.95
+    rewards: mx.array,
+    values: mx.array,
+    dones: mx.array,
+    gamma: float = 0.99,
+    lam: float = 0.95,
 ) -> tuple[mx.array, mx.array]:
     """
     Compute Generalized Advantage Estimation (GAE).

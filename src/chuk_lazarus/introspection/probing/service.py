@@ -66,12 +66,16 @@ class MetacognitiveResult(BaseModel):
             [
                 "-" * 90,
                 "\nSummary:",
-                f"  Direct computation: {self.direct_count}/{total} ({100 * self.direct_count / total:.0f}%)"
-                if total
-                else "",
-                f"  Chain-of-thought: {self.cot_count}/{total} ({100 * self.cot_count / total:.0f}%)"
-                if total
-                else "",
+                (
+                    f"  Direct computation: {self.direct_count}/{total} ({100 * self.direct_count / total:.0f}%)"
+                    if total
+                    else ""
+                ),
+                (
+                    f"  Chain-of-thought: {self.cot_count}/{total} ({100 * self.cot_count / total:.0f}%)"
+                    if total
+                    else ""
+                ),
             ]
         )
 

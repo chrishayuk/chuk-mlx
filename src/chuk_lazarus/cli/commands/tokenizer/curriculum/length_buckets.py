@@ -14,7 +14,10 @@ def curriculum_length_buckets(config: CurriculumLengthBucketsConfig) -> None:
     Args:
         config: Length buckets configuration.
     """
-    from .....data.tokenizers.curriculum import create_length_buckets, get_curriculum_schedule
+    from .....data.tokenizers.curriculum import (
+        create_length_buckets,
+        get_curriculum_schedule,
+    )
     from .....utils.tokenizer_loader import load_tokenizer
 
     logger.info(f"Loading tokenizer: {config.tokenizer}")

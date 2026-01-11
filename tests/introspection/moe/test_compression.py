@@ -538,7 +538,10 @@ class TestCreateCompressionPlan:
         """Test creating new merge groups for unmerged pairs."""
         from unittest.mock import Mock, patch
 
-        from chuk_lazarus.introspection.moe.models import ExpertUtilization, MoELayerInfo
+        from chuk_lazarus.introspection.moe.models import (
+            ExpertUtilization,
+            MoELayerInfo,
+        )
 
         hooks = MoEHooks(moe_model)
         hooks.configure(MoECaptureConfig())
@@ -597,7 +600,10 @@ class TestCreateCompressionPlan:
         """Test extending an existing merge group (lines 245-249)."""
         from unittest.mock import Mock, patch
 
-        from chuk_lazarus.introspection.moe.models import ExpertUtilization, MoELayerInfo
+        from chuk_lazarus.introspection.moe.models import (
+            ExpertUtilization,
+            MoELayerInfo,
+        )
 
         hooks = MoEHooks(moe_model)
         hooks.configure(MoECaptureConfig())
@@ -789,7 +795,9 @@ class TestComputeActivationOverlap:
 
     def test_basic_overlap(self):
         """Test basic overlap calculation."""
-        from chuk_lazarus.introspection.moe.compression import compute_activation_overlap
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_activation_overlap,
+        )
 
         a_acts = {0, 1, 2, 3}
         b_acts = {2, 3, 4, 5}
@@ -807,7 +815,9 @@ class TestComputeActivationOverlap:
 
     def test_no_overlap(self):
         """Test when there is no overlap."""
-        from chuk_lazarus.introspection.moe.compression import compute_activation_overlap
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_activation_overlap,
+        )
 
         a_acts = {0, 1}
         b_acts = {2, 3}
@@ -820,7 +830,9 @@ class TestComputeActivationOverlap:
 
     def test_complete_overlap(self):
         """Test when sets are identical."""
-        from chuk_lazarus.introspection.moe.compression import compute_activation_overlap
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_activation_overlap,
+        )
 
         acts = {0, 1, 2}
 
@@ -833,7 +845,9 @@ class TestComputeActivationOverlap:
 
     def test_empty_sets(self):
         """Test with empty sets."""
-        from chuk_lazarus.introspection.moe.compression import compute_activation_overlap
+        from chuk_lazarus.introspection.moe.compression import (
+            compute_activation_overlap,
+        )
 
         result = compute_activation_overlap(set(), set(), expert_a=0, expert_b=1, layer_idx=0)
 
@@ -859,7 +873,11 @@ class TestComputeExpertSimilarityWithActivations:
         }
 
         result = compute_expert_similarity_with_activations(
-            moe_model, layer_idx=0, expert_a=0, expert_b=1, expert_activations=activations
+            moe_model,
+            layer_idx=0,
+            expert_a=0,
+            expert_b=1,
+            expert_activations=activations,
         )
 
         assert result.expert_a == 0
@@ -1212,7 +1230,9 @@ class TestPrintActivationOverlapMatrix:
 
     def test_empty_similarities(self, capsys):
         """Test with empty similarities list."""
-        from chuk_lazarus.introspection.moe.compression import print_activation_overlap_matrix
+        from chuk_lazarus.introspection.moe.compression import (
+            print_activation_overlap_matrix,
+        )
 
         print_activation_overlap_matrix([], num_experts=2)
 
@@ -1227,7 +1247,9 @@ class TestCollectExpertActivations:
         """Test returns dictionary of activations with mocked hooks."""
         from unittest.mock import MagicMock
 
-        from chuk_lazarus.introspection.moe.compression import collect_expert_activations
+        from chuk_lazarus.introspection.moe.compression import (
+            collect_expert_activations,
+        )
         from chuk_lazarus.introspection.moe.models import MoELayerInfo
 
         class MockTokenizer:
@@ -1260,7 +1282,9 @@ class TestCollectExpertActivations:
         """Test with invalid layer returns empty dict."""
         from unittest.mock import MagicMock
 
-        from chuk_lazarus.introspection.moe.compression import collect_expert_activations
+        from chuk_lazarus.introspection.moe.compression import (
+            collect_expert_activations,
+        )
 
         class MockTokenizer:
             def encode(self, text):
@@ -1283,7 +1307,9 @@ class TestCollectExpertActivations:
         """Test when captured result doesn't have the layer."""
         from unittest.mock import MagicMock
 
-        from chuk_lazarus.introspection.moe.compression import collect_expert_activations
+        from chuk_lazarus.introspection.moe.compression import (
+            collect_expert_activations,
+        )
         from chuk_lazarus.introspection.moe.models import MoELayerInfo
 
         class MockTokenizer:

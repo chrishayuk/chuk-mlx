@@ -131,7 +131,11 @@ class TestActivationSteering:
 
         direction = mx.random.normal((64,))
         steerer.add_direction(
-            layer=0, direction=direction, name="test", positive_label="pos", negative_label="neg"
+            layer=0,
+            direction=direction,
+            name="test",
+            positive_label="pos",
+            negative_label="neg",
         )
 
         assert 0 in steerer.directions
@@ -290,7 +294,10 @@ class TestActivationSteering:
 
         direction = mx.random.normal((64,))
         steerer.add_direction(
-            layer=0, direction=direction, positive_label="positive", negative_label="negative"
+            layer=0,
+            direction=direction,
+            positive_label="positive",
+            negative_label="negative",
         )
 
         config = SteeringConfig(layers=[0], max_new_tokens=5)
@@ -820,7 +827,10 @@ class TestPrintMethods:
 
         direction = mx.random.normal((64,))
         steerer.add_direction(
-            layer=0, direction=direction, positive_label="arithmetic", negative_label="suppress"
+            layer=0,
+            direction=direction,
+            positive_label="arithmetic",
+            negative_label="suppress",
         )
 
         config = SteeringConfig(layers=[0], max_new_tokens=3)

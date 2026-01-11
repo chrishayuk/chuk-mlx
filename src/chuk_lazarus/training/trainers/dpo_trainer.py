@@ -144,7 +144,12 @@ class DPOTrainer(BaseTrainer):
         Returns:
             DPOTrainingResult with training outcomes
         """
-        from ...models_v2 import LoRAConfig, load_model, load_model_with_lora, save_adapter
+        from ...models_v2 import (
+            LoRAConfig,
+            load_model,
+            load_model_with_lora,
+            save_adapter,
+        )
 
         # Create output directory
         output_dir = Path(config.output_dir)
@@ -283,7 +288,9 @@ class DPOTrainer(BaseTrainer):
     def get_train_batches(self, dataset: PreferenceDataset) -> Iterator[dict[str, mx.array]]:
         """Get iterator over training batches."""
         return dataset.iter_batches(
-            batch_size=self.dpo_config.batch_size, shuffle=True, pad_token_id=self.pad_token_id
+            batch_size=self.dpo_config.batch_size,
+            shuffle=True,
+            pad_token_id=self.pad_token_id,
         )
 
     def train(
@@ -319,7 +326,9 @@ class DPOTrainer(BaseTrainer):
         }
 
         for batch in dataset.iter_batches(
-            batch_size=self.dpo_config.batch_size, shuffle=False, pad_token_id=self.pad_token_id
+            batch_size=self.dpo_config.batch_size,
+            shuffle=False,
+            pad_token_id=self.pad_token_id,
         ):
             loss, metrics = dpo_loss(
                 policy_model=self.policy_model,

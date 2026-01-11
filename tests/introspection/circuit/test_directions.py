@@ -26,7 +26,8 @@ except ImportError:
     SKLEARN_AVAILABLE = False
 
 sklearn_required = pytest.mark.skipif(
-    not SKLEARN_AVAILABLE, reason="sklearn not available or incompatible with numpy version"
+    not SKLEARN_AVAILABLE,
+    reason="sklearn not available or incompatible with numpy version",
 )
 
 

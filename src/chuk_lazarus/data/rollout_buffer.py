@@ -220,7 +220,16 @@ class RolloutBuffer:
         for i, (obs, action, reward, done, log_prob, value, hidden) in enumerate(
             zip(observations, actions, rewards, dones, log_probs, values, hidden_states)
         ):
-            self.add(obs, action, reward, done, log_prob, value, hidden, env_idx=i % self.num_envs)
+            self.add(
+                obs,
+                action,
+                reward,
+                done,
+                log_prob,
+                value,
+                hidden,
+                env_idx=i % self.num_envs,
+            )
 
     def compute_advantages(self, last_values: mx.array = None):
         """
@@ -233,7 +242,12 @@ class RolloutBuffer:
             last_values = mx.zeros((1,))
 
         self.advantages, self.returns = compute_gae_inline(
-            self.rewards, self.values, self.dones, self.gamma, self.gae_lambda, last_values
+            self.rewards,
+            self.values,
+            self.dones,
+            self.gamma,
+            self.gae_lambda,
+            last_values,
         )
 
     def get_batches(self, batch_size: int, shuffle: bool = True) -> Iterator[dict[str, mx.array]]:

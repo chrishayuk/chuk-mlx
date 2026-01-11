@@ -79,7 +79,9 @@ def validate_experiment(path: Path) -> tuple[bool, str]:
     return True, ""
 
 
-def discover_experiments(experiments_dir: Path | None = None) -> dict[str, ExperimentInfo]:
+def discover_experiments(
+    experiments_dir: Path | None = None,
+) -> dict[str, ExperimentInfo]:
     """Discover all valid experiments in the experiments directory.
 
     Args:
@@ -127,7 +129,11 @@ def discover_experiments(experiments_dir: Path | None = None) -> dict[str, Exper
         has_results = results_dir.exists() and any(results_dir.glob("*.json"))
         last_run = None
         if has_results:
-            results_files = sorted(results_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+            results_files = sorted(
+                results_dir.glob("*.json"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
             if results_files:
                 last_run = results_files[0].stat().st_mtime
 

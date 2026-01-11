@@ -23,7 +23,15 @@ from ..formatters import format_header
 
 PATTERN_CATEGORIES = {
     "arithmetic": ["NUM→OP", "OP→WS→NUM", "OP→NUM", "NUM→WS→NUM"],
-    "code": ["^→KW", "KW→CW→BR", "KW→VAR", "BR→VAR→BR", "VAR→OP→VAR", "KW→BR", "CW→OP→CW"],
+    "code": [
+        "^→KW",
+        "KW→CW→BR",
+        "KW→VAR",
+        "BR→VAR→BR",
+        "VAR→OP→VAR",
+        "KW→BR",
+        "CW→OP→CW",
+    ],
     "synonym": ["→SYN→", "ADJ→SYN", "NOUN→SYN"],
     "antonym": ["→ANT→", "ADJ→ANT", "NOUN→ANT"],
     "analogy": ["→AS→", "→TO→", "NOUN→AS", "FUNC→TO→NOUN"],

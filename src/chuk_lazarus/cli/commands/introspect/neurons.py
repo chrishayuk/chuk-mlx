@@ -375,7 +375,7 @@ async def _async_introspect_directions(args: Namespace) -> None:
                     name_a=names[i],
                     name_b=names[j],
                     cosine_similarity=sim,
-                    orthogonal=abs(sim) < config.threshold if not np.isnan(sim) else False,
+                    orthogonal=(abs(sim) < config.threshold if not np.isnan(sim) else False),
                 )
             )
 
@@ -385,7 +385,7 @@ async def _async_introspect_directions(args: Namespace) -> None:
         files=config.files,
         names=names,
         pairs=pairs,
-        mean_abs_similarity=float(np.mean([abs(s) for s in valid_sims])) if valid_sims else 0.0,
+        mean_abs_similarity=(float(np.mean([abs(s) for s in valid_sims])) if valid_sims else 0.0),
     )
 
     # Print results

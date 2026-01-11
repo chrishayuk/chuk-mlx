@@ -302,7 +302,11 @@ def plot_expert_utilization(
 
     # Add uniform distribution line
     ax.axhline(
-        y=uniform, color="red", linestyle="--", linewidth=1.5, label=f"Uniform ({uniform:.2%})"
+        y=uniform,
+        color="red",
+        linestyle="--",
+        linewidth=1.5,
+        label=f"Uniform ({uniform:.2%})",
     )
 
     # Configure

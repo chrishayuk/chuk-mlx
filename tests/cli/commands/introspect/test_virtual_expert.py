@@ -5,7 +5,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from chuk_lazarus.cli.commands.introspect.virtual_expert import introspect_virtual_expert
+from chuk_lazarus.cli.commands.introspect.virtual_expert import (
+    introspect_virtual_expert,
+)
 
 
 class TestIntrospectVirtualExpert:

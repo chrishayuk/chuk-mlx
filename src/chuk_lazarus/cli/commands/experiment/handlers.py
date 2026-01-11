@@ -7,8 +7,8 @@ import logging
 from pathlib import Path
 
 from chuk_lazarus.experiments import list_experiments as _list_experiments
-from chuk_lazarus.experiments.registry import get_experiment_info
 from chuk_lazarus.experiments import run_experiment as _run_experiment
+from chuk_lazarus.experiments.registry import get_experiment_info
 from chuk_lazarus.experiments.runner import get_experiment_status, list_experiment_runs
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,9 @@ def experiment_list(experiments_dir: str | None = None, json_output: bool = Fals
     print()
 
 
-def experiment_info(name: str, experiments_dir: str | None = None, json_output: bool = False) -> None:
+def experiment_info(
+    name: str, experiments_dir: str | None = None, json_output: bool = False
+) -> None:
     """Show detailed information about an experiment.
 
     Args:

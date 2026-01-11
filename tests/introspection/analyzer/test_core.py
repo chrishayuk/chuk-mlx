@@ -689,7 +689,9 @@ class TestAnalyzeSync:
         tokenizer = MockTokenizer()
         analyzer = ModelAnalyzer(model, tokenizer)
         config = AnalysisConfig(
-            compute_transitions=True, compute_entropy=True, layer_strategy=LayerStrategy.ALL
+            compute_transitions=True,
+            compute_entropy=True,
+            layer_strategy=LayerStrategy.ALL,
         )
 
         result = analyzer._analyze_sync("test", config)
@@ -776,7 +778,9 @@ class TestAnalyzeSync:
         analyzer = ModelAnalyzer(model, tokenizer)
         # Disable entropy to prevent prob caching
         config = AnalysisConfig(
-            compute_transitions=True, compute_entropy=False, layer_strategy=LayerStrategy.ALL
+            compute_transitions=True,
+            compute_entropy=False,
+            layer_strategy=LayerStrategy.ALL,
         )
 
         result = analyzer._analyze_sync("test", config)

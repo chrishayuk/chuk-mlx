@@ -149,7 +149,9 @@ class TestIntrospectLogitEvolution:
 
     def test_evolution_basic(self, evolution_args, mock_evolution_service, capsys):
         """Test basic logit evolution."""
-        from chuk_lazarus.cli.commands.introspect.generation import introspect_logit_evolution
+        from chuk_lazarus.cli.commands.introspect.generation import (
+            introspect_logit_evolution,
+        )
 
         asyncio.run(introspect_logit_evolution(evolution_args))
 
@@ -158,7 +160,9 @@ class TestIntrospectLogitEvolution:
 
     def test_evolution_custom_layer_step(self, evolution_args, mock_evolution_service, capsys):
         """Test logit evolution with custom layer step."""
-        from chuk_lazarus.cli.commands.introspect.generation import introspect_logit_evolution
+        from chuk_lazarus.cli.commands.introspect.generation import (
+            introspect_logit_evolution,
+        )
 
         evolution_args.layer_step = 2
 
@@ -169,7 +173,9 @@ class TestIntrospectLogitEvolution:
 
     def test_evolution_no_track(self, evolution_args, mock_evolution_service, capsys):
         """Test logit evolution without track tokens."""
-        from chuk_lazarus.cli.commands.introspect.generation import introspect_logit_evolution
+        from chuk_lazarus.cli.commands.introspect.generation import (
+            introspect_logit_evolution,
+        )
 
         evolution_args.track = None
 

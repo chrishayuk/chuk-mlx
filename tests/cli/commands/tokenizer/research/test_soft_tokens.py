@@ -5,8 +5,13 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from chuk_lazarus.cli.commands.tokenizer._types import InitMethod, ResearchSoftTokensConfig
-from chuk_lazarus.cli.commands.tokenizer.research.soft_tokens import research_soft_tokens
+from chuk_lazarus.cli.commands.tokenizer._types import (
+    InitMethod,
+    ResearchSoftTokensConfig,
+)
+from chuk_lazarus.cli.commands.tokenizer.research.soft_tokens import (
+    research_soft_tokens,
+)
 
 
 class TestResearchSoftTokensConfig:

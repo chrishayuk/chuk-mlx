@@ -153,7 +153,10 @@ class TestIntrospectLayer:
             mock_result.clusters = None
             mock_analyzer.analyze_representations.return_value = mock_result
             # Return attention results for layer 0 and 4
-            mock_analyzer.analyze_attention.return_value = {0: MagicMock(), 4: MagicMock()}
+            mock_analyzer.analyze_attention.return_value = {
+                0: MagicMock(),
+                4: MagicMock(),
+            }
 
             introspect_layer(layer_args)
 

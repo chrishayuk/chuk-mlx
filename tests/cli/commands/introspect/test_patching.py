@@ -318,7 +318,10 @@ class TestIntrospectPatch:
             mock_sweep_result.baseline_token = "15"
             mock_sweep_result.baseline_prob = 0.9
             mock_sweep_result.layer_results = [mock_layer_result]
-            mock_sweep_result.model_dump.return_value = {"baseline": "15", "layer_results": []}
+            mock_sweep_result.model_dump.return_value = {
+                "baseline": "15",
+                "layer_results": [],
+            }
 
             mock_patcher.sweep_layers = AsyncMock(return_value=mock_sweep_result)
             mock_cls.return_value = mock_patcher

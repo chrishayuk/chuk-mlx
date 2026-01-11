@@ -68,8 +68,15 @@ class ExperimentConfig:
 
         # Known fields
         known_fields = {
-            "name", "description", "model", "training", "parameters",
-            "experiment_dir", "data_dir", "checkpoint_dir", "results_dir"
+            "name",
+            "description",
+            "model",
+            "training",
+            "parameters",
+            "experiment_dir",
+            "data_dir",
+            "checkpoint_dir",
+            "results_dir",
         }
 
         # Separate known and extra fields
@@ -218,7 +225,7 @@ class ExperimentBase(ABC):
 
     # === Optional hooks ===
 
-    def cleanup(self) -> None:
+    def cleanup(self) -> None:  # noqa: B027
         """Release resources after running.
 
         Called after evaluate(), even if run() or evaluate() failed.
@@ -310,7 +317,9 @@ class ExperimentBase(ABC):
         }
 
         if trainer_type not in trainers:
-            raise ValueError(f"Unknown trainer type: {trainer_type}. Available: {list(trainers.keys())}")
+            raise ValueError(
+                f"Unknown trainer type: {trainer_type}. Available: {list(trainers.keys())}"
+            )
 
         trainer_class = trainers[trainer_type]
         self.log(f"Creating {trainer_type} trainer")

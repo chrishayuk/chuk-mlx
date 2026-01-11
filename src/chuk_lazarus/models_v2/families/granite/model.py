@@ -54,10 +54,14 @@ class GraniteAttention(nn.Module):
             self.hidden_size, self.num_heads * self.head_dim, bias=config.attention_bias
         )
         self.k_proj = nn.Linear(
-            self.hidden_size, self.num_kv_heads * self.head_dim, bias=config.attention_bias
+            self.hidden_size,
+            self.num_kv_heads * self.head_dim,
+            bias=config.attention_bias,
         )
         self.v_proj = nn.Linear(
-            self.hidden_size, self.num_kv_heads * self.head_dim, bias=config.attention_bias
+            self.hidden_size,
+            self.num_kv_heads * self.head_dim,
+            bias=config.attention_bias,
         )
         self.o_proj = nn.Linear(
             self.num_heads * self.head_dim, self.hidden_size, bias=config.attention_bias

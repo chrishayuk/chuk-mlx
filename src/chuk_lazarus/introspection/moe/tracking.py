@@ -56,10 +56,16 @@ class ExpertPipeline(BaseModel):
     category: ExpertCategory = Field(description="Primary category")
     nodes: tuple[ExpertPipelineNode, ...] = Field(default_factory=tuple)
     consistency_score: float = Field(
-        ge=0, le=1, default=0.0, description="How consistent the pipeline is across layers"
+        ge=0,
+        le=1,
+        default=0.0,
+        description="How consistent the pipeline is across layers",
     )
     coverage: float = Field(
-        ge=0, le=1, default=0.0, description="Fraction of layers covered by this pipeline"
+        ge=0,
+        le=1,
+        default=0.0,
+        description="Fraction of layers covered by this pipeline",
     )
 
     @property
@@ -92,7 +98,10 @@ class LayerAlignmentResult(BaseModel):
         default_factory=tuple, description="Matched (expert_a, expert_b) pairs"
     )
     category_agreement: float = Field(
-        ge=0, le=1, default=0.0, description="How often matched experts have same category"
+        ge=0,
+        le=1,
+        default=0.0,
+        description="How often matched experts have same category",
     )
 
 

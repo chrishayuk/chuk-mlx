@@ -9,7 +9,12 @@ from __future__ import annotations
 import logging
 from argparse import Namespace
 
-from .._constants import AnalysisDefaults, DisplayDefaults, LayerDepthRatio, ProbeDefaults
+from .._constants import (
+    AnalysisDefaults,
+    DisplayDefaults,
+    LayerDepthRatio,
+    ProbeDefaults,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +48,9 @@ async def introspect_classifier(args: Namespace) -> None:
         if classes_args:
             for cls_arg in classes_args:
                 if ":" not in cls_arg:
-                    raise ValueError(f"Invalid class format: {cls_arg}. Use 'label:prompt1|prompt2'")
+                    raise ValueError(
+                        f"Invalid class format: {cls_arg}. Use 'label:prompt1|prompt2'"
+                    )
                 label, prompts_str = cls_arg.split(":", 1)
                 prompts = prompts_str.split("|")
                 categories[label] = prompts
@@ -52,7 +59,9 @@ async def introspect_classifier(args: Namespace) -> None:
             for cat_arg in getattr(args, "category", []) or []:
                 parts = cat_arg.split("|")
                 if len(parts) < 2:
-                    raise ValueError(f"Invalid category format: {cat_arg}. Use 'label|prompt1|prompt2'")
+                    raise ValueError(
+                        f"Invalid category format: {cat_arg}. Use 'label|prompt1|prompt2'"
+                    )
                 label = parts[0]
                 prompts = parts[1:]
                 categories[label] = prompts

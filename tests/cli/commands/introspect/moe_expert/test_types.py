@@ -2,15 +2,16 @@
 
 from argparse import Namespace
 
-import pytest
-
+from chuk_lazarus.cli.commands._constants import (
+    ContextVerdict,
+    LayerPhase,
+    TokenType,
+)
 from chuk_lazarus.cli.commands.introspect.moe_expert._types import (
     AttentionPatternConfig,
     AttentionPatternResult,
     ContextWindowAnalysisResult,
-    ContextWindowResult,
     DomainTestResult,
-    ExpertDomainStats,
     ExpertWeight,
     ExploreAnalysisResult,
     ExploreConfig,
@@ -21,12 +22,6 @@ from chuk_lazarus.cli.commands.introspect.moe_expert._types import (
     TaxonomyResult,
     Trigram,
     get_layer_phase,
-)
-from chuk_lazarus.cli.commands._constants import (
-    ContextVerdict,
-    Domain,
-    LayerPhase,
-    TokenType,
 )
 
 

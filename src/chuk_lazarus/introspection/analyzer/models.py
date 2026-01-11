@@ -7,7 +7,6 @@ including predictions, evolutions, and complete analysis results.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -31,7 +30,8 @@ class LayerPredictionResult(BaseModel):
     predictions: list[TokenPrediction] = Field(description="Top-k predictions")
     entropy: float = Field(default=0.0, description="Shannon entropy of the full distribution")
     entropy_normalized: float = Field(
-        default=0.0, description="Entropy normalized by max entropy (0=certain, 1=uniform)"
+        default=0.0,
+        description="Entropy normalized by max entropy (0=certain, 1=uniform)",
     )
 
     @property
@@ -244,7 +244,9 @@ class AnalysisResult(BaseModel):
             lines.append(f"\n{'-' * 60}")
             lines.append("Token Evolutions:")
             for evo in self.token_evolutions:
-                lines.append(f"  '{evo.token}': first top-1 at L{evo.first_appearance_layer or 'never'}")
+                lines.append(
+                    f"  '{evo.token}': first top-1 at L{evo.first_appearance_layer or 'never'}"
+                )
 
         return "\n".join(lines)
 

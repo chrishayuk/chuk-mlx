@@ -171,7 +171,9 @@ async def _async_token_routing(args: Namespace) -> None:
                             print(f"      -> target '{pos_token}': {pos.expert_indices}")
                             print(f"      -> next '{next_token}': {next_experts}")
                         else:
-                            print(f"    '{token}' in \"{context}\" -> {pos.expert_indices} (no next token)")
+                            print(
+                                f"    '{token}' in \"{context}\" -> {pos.expert_indices} (no next token)"
+                            )
                         break
 
         print()

@@ -261,7 +261,13 @@ class AblationCriterionPatterns:
         '{"name":',
     )
     SORRY_MARKERS: tuple[str, ...] = ("sorry", "apologize")
-    POSITIVE_MARKERS: tuple[str, ...] = ("great", "good", "excellent", "wonderful", "love")
+    POSITIVE_MARKERS: tuple[str, ...] = (
+        "great",
+        "good",
+        "excellent",
+        "wonderful",
+        "love",
+    )
     NEGATIVE_MARKERS: tuple[str, ...] = ("bad", "terrible", "awful", "hate", "poor")
     REFUSAL_MARKERS: tuple[str, ...] = ("cannot", "can't", "won't", "unable", "decline")
 

@@ -157,7 +157,12 @@ class SFTTrainer(BaseTrainer):
         Returns:
             SFTTrainingResult with training outcomes
         """
-        from ...models_v2 import LoRAConfig, load_model, load_model_with_lora, save_adapter
+        from ...models_v2 import (
+            LoRAConfig,
+            load_model,
+            load_model_with_lora,
+            save_adapter,
+        )
 
         # Create output directory
         output_dir = Path(config.output_dir)
@@ -274,7 +279,9 @@ class SFTTrainer(BaseTrainer):
     def get_train_batches(self, dataset: SFTDataset) -> Iterator[dict[str, mx.array]]:
         """Get iterator over training batches."""
         return dataset.iter_batches(
-            batch_size=self.sft_config.batch_size, shuffle=True, pad_token_id=self.pad_token_id
+            batch_size=self.sft_config.batch_size,
+            shuffle=True,
+            pad_token_id=self.pad_token_id,
         )
 
     def train(
@@ -304,7 +311,9 @@ class SFTTrainer(BaseTrainer):
         all_metrics = {"loss": [], "perplexity": [], "num_tokens": []}
 
         for batch in dataset.iter_batches(
-            batch_size=self.sft_config.batch_size, shuffle=False, pad_token_id=self.pad_token_id
+            batch_size=self.sft_config.batch_size,
+            shuffle=False,
+            pad_token_id=self.pad_token_id,
         ):
             output = self.model(batch["input_ids"])
             # Handle different model output formats

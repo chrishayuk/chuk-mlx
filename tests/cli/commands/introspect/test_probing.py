@@ -23,7 +23,9 @@ class TestIntrospectMetacognitive:
 
     def test_metacognitive_basic(self, metacognitive_args, capsys):
         """Test basic metacognitive analysis."""
-        from chuk_lazarus.cli.commands.introspect.probing import introspect_metacognitive
+        from chuk_lazarus.cli.commands.introspect.probing import (
+            introspect_metacognitive,
+        )
 
         asyncio.run(introspect_metacognitive(metacognitive_args))
 
@@ -32,7 +34,9 @@ class TestIntrospectMetacognitive:
 
     def test_metacognitive_custom_decision_layer(self, metacognitive_args, capsys):
         """Test with custom decision layer."""
-        from chuk_lazarus.cli.commands.introspect.probing import introspect_metacognitive
+        from chuk_lazarus.cli.commands.introspect.probing import (
+            introspect_metacognitive,
+        )
 
         metacognitive_args.decision_layer = 5
 
@@ -44,7 +48,9 @@ class TestIntrospectMetacognitive:
 
     def test_metacognitive_raw_mode(self, metacognitive_args, capsys):
         """Test raw mode (no chat template)."""
-        from chuk_lazarus.cli.commands.introspect.probing import introspect_metacognitive
+        from chuk_lazarus.cli.commands.introspect.probing import (
+            introspect_metacognitive,
+        )
 
         metacognitive_args.raw = True
 

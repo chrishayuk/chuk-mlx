@@ -124,7 +124,7 @@ def generate(
                         input_tokens=len(input_ids),
                         output_tokens=len(output_ids),
                         total_time_seconds=gen_time,
-                        tokens_per_second=len(output_ids) / gen_time if gen_time > 0 else 0,
+                        tokens_per_second=(len(output_ids) / gen_time if gen_time > 0 else 0),
                     )
 
                     return GenerationResult(

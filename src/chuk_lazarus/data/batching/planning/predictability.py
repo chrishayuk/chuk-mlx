@@ -359,14 +359,17 @@ def verify_batch_fingerprint(
     actual = compute_batch_fingerprint(
         batches,
         config=config,
-        n_batches=expected.num_batches if isinstance(expected, BatchFingerprint) else None,
+        n_batches=(expected.num_batches if isinstance(expected, BatchFingerprint) else None),
     )
 
     if isinstance(expected, str):
         # Short fingerprint comparison
         if actual.fingerprint == expected or actual.full_hash.startswith(expected):
             return True, None
-        return False, f"Fingerprint mismatch: expected {expected}, got {actual.fingerprint}"
+        return (
+            False,
+            f"Fingerprint mismatch: expected {expected}, got {actual.fingerprint}",
+        )
 
     # Full fingerprint comparison
     if actual.matches(expected):
