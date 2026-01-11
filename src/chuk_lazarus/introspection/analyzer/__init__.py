@@ -23,6 +23,11 @@ from .models import (
     TokenEvolutionResult,
     TokenPrediction,
 )
+from .service import (
+    AnalyzerService,
+    AnalyzerServiceConfig,
+    ComparisonResult,
+)
 from .utils import (
     compute_entropy,
     compute_js_divergence,
@@ -57,4 +62,8 @@ __all__ = [
     "compute_js_divergence",
     "compute_kl_divergence",
     "get_layers_to_capture",
+    # Service layer
+    "AnalyzerService",
+    "AnalyzerServiceConfig",
+    "ComparisonResult",
 ]

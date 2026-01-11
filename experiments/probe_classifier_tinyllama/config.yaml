@@ -1,0 +1,18 @@
+# Probe Classifier Experiment - TinyLlama
+# Tests if task info is encoded early on TinyLlama (different architecture)
+name: probe_classifier_tinyllama
+description: "Linear probe on TinyLlama to test generalization"
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+parameters:
+  num_samples: 2000
+  seed: 42
+
+  # Probe settings
+  probe_epochs: 100
+  probe_lr: 0.01
+  probe_batch_size: 32
+
+  # Layers to probe (TinyLlama has 22 layers)
+  probe_layers_pct: [0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95]

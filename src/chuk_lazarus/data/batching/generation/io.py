@@ -22,7 +22,12 @@ from typing import Any
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
-from ..planning.batch_plan import BatchPlan, MicrobatchSpec, load_batch_plan, save_batch_plan
+from ..planning.batch_plan import (
+    BatchPlan,
+    MicrobatchSpec,
+    load_batch_plan,
+    save_batch_plan,
+)
 
 
 def pad_sequences(
@@ -146,7 +151,7 @@ class BatchWriter:
         plan: BatchPlan,
         samples: dict[str, dict[str, list[int]]],
         output_dir: str | Path,
-        collate_fn: Callable[[list[dict], int, int], dict[str, np.ndarray]] | None = None,
+        collate_fn: (Callable[[list[dict], int, int], dict[str, np.ndarray]] | None) = None,
         pad_id: int = 0,
     ):
         """

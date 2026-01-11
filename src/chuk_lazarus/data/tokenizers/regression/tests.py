@@ -88,7 +88,7 @@ def _run_single_test(
                 assertion=test.assertion,
                 expected=f"<= {max_expected}",
                 actual=str(num_tokens),
-                message="" if passed else f"Got {num_tokens} tokens, expected <= {max_expected}",
+                message=("" if passed else f"Got {num_tokens} tokens, expected <= {max_expected}"),
             )
 
         elif test.assertion == TestAssertion.MIN_TOKENS:
@@ -100,7 +100,7 @@ def _run_single_test(
                 assertion=test.assertion,
                 expected=f">= {min_expected}",
                 actual=str(num_tokens),
-                message="" if passed else f"Got {num_tokens} tokens, expected >= {min_expected}",
+                message=("" if passed else f"Got {num_tokens} tokens, expected >= {min_expected}"),
             )
 
         elif test.assertion == TestAssertion.EXACT_TOKENS:
@@ -112,7 +112,7 @@ def _run_single_test(
                 assertion=test.assertion,
                 expected=str(expected),
                 actual=str(num_tokens),
-                message="" if passed else f"Got {num_tokens} tokens, expected {expected}",
+                message=("" if passed else f"Got {num_tokens} tokens, expected {expected}"),
             )
 
         elif test.assertion == TestAssertion.CONTAINS_TOKEN:

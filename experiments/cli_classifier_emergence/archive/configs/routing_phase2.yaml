@@ -1,0 +1,35 @@
+# Phase 2: Frozen Classifier Routing Training
+# Trains layers AFTER the classifier to use the classifier signal
+#
+# Prerequisites:
+#   - Phase 1 checkpoint with vocab-aligned classifier at L12
+#
+# Usage:
+#   lazarus train sft --config experiments/cli_classifier_emergence/configs/routing_phase2.yaml
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+output: experiments/cli_classifier_emergence/checkpoints/phase2_routing
+
+# Load Phase 1 classifier checkpoint
+adapter: experiments/cli_classifier_emergence/checkpoints/phase1_classifier
+
+# Training settings
+epochs: 1
+max_steps: 300
+batch_size: 1
+learning_rate: 0.0005
+log_interval: 50
+
+# Freeze layers 0-12 (preserves classifier)
+freeze_layers: 0-12
+
+# LoRA on layers 13+ only (V/O projections)
+use_lora: true
+lora_rank: 16
+lora_targets: v_proj,o_proj
+
+# Data - arithmetic with correct answers
+data: experiments/cli_classifier_emergence/data/arithmetic_sft.jsonl
+
+# No intermediate loss - just answer correctness
+mask_prompt: true

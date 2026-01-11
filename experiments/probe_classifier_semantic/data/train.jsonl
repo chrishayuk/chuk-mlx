@@ -1,0 +1,1600 @@
+{"prompt": "forty eight minus two", "task": "subtract", "a": 48, "b": 2}
+{"prompt": "fifteen plus nine", "task": "add", "a": 15, "b": 9}
+{"prompt": "forty eight minus forty four", "task": "subtract", "a": 48, "b": 44}
+{"prompt": "thirty eight minus twenty eight", "task": "subtract", "a": 38, "b": 28}
+{"prompt": "three times five", "task": "multiply", "a": 3, "b": 5}
+{"prompt": "the product of eleven and two", "task": "multiply", "a": 11, "b": 2}
+{"prompt": "forty six minus forty two", "task": "subtract", "a": 46, "b": 42}
+{"prompt": "the difference between twenty seven and fifteen", "task": "subtract", "a": 27, "b": 15}
+{"prompt": "the sum of eighteen and one", "task": "add", "a": 18, "b": 1}
+{"prompt": "the product of eight and seven", "task": "multiply", "a": 8, "b": 7}
+{"prompt": "fourteen plus forty nine", "task": "add", "a": 14, "b": 49}
+{"prompt": "six plus twenty five", "task": "add", "a": 6, "b": 25}
+{"prompt": "seven multiplied by eleven", "task": "multiply", "a": 7, "b": 11}
+{"prompt": "forty seven plus thirty", "task": "add", "a": 47, "b": 30}
+{"prompt": "twenty five minus six", "task": "subtract", "a": 25, "b": 6}
+{"prompt": "forty one take away forty", "task": "subtract", "a": 41, "b": 40}
+{"prompt": "the sum of thirteen and forty six", "task": "add", "a": 13, "b": 46}
+{"prompt": "twelve times five", "task": "multiply", "a": 12, "b": 5}
+{"prompt": "fifteen plus seven", "task": "add", "a": 15, "b": 7}
+{"prompt": "thirty and forty one", "task": "add", "a": 30, "b": 41}
+{"prompt": "twenty four plus twenty three", "task": "add", "a": 24, "b": 23}
+{"prompt": "the product of six and twelve", "task": "multiply", "a": 6, "b": 12}
+{"prompt": "forty one minus thirty nine", "task": "subtract", "a": 41, "b": 39}
+{"prompt": "the product of five and four", "task": "multiply", "a": 5, "b": 4}
+{"prompt": "eighteen and forty one", "task": "add", "a": 18, "b": 41}
+{"prompt": "the difference between forty four and fifteen", "task": "subtract", "a": 44, "b": 15}
+{"prompt": "fifteen plus three", "task": "add", "a": 15, "b": 3}
+{"prompt": "eighteen and five", "task": "add", "a": 18, "b": 5}
+{"prompt": "the product of seven and five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "forty two take away twenty six", "task": "subtract", "a": 42, "b": 26}
+{"prompt": "seventeen plus nine", "task": "add", "a": 17, "b": 9}
+{"prompt": "the product of ten and ten", "task": "multiply", "a": 10, "b": 10}
+{"prompt": "the sum of thirty eight and twenty eight", "task": "add", "a": 38, "b": 28}
+{"prompt": "twenty four take away fifteen", "task": "subtract", "a": 24, "b": 15}
+{"prompt": "the product of nine and three", "task": "multiply", "a": 9, "b": 3}
+{"prompt": "four times twelve", "task": "multiply", "a": 4, "b": 12}
+{"prompt": "the product of eight and eleven", "task": "multiply", "a": 8, "b": 11}
+{"prompt": "eight multiplied by eleven", "task": "multiply", "a": 8, "b": 11}
+{"prompt": "the sum of seventeen and thirty six", "task": "add", "a": 17, "b": 36}
+{"prompt": "the product of three and twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "fifty take away forty two", "task": "subtract", "a": 50, "b": 42}
+{"prompt": "nineteen plus twenty eight", "task": "add", "a": 19, "b": 28}
+{"prompt": "two multiplied by six", "task": "multiply", "a": 2, "b": 6}
+{"prompt": "thirty three minus seven", "task": "subtract", "a": 33, "b": 7}
+{"prompt": "forty one take away thirty three", "task": "subtract", "a": 41, "b": 33}
+{"prompt": "twenty four minus ten", "task": "subtract", "a": 24, "b": 10}
+{"prompt": "the product of ten and two", "task": "multiply", "a": 10, "b": 2}
+{"prompt": "thirty two take away two", "task": "subtract", "a": 32, "b": 2}
+{"prompt": "six multiplied by five", "task": "multiply", "a": 6, "b": 5}
+{"prompt": "eleven times three", "task": "multiply", "a": 11, "b": 3}
+{"prompt": "the product of nine and three", "task": "multiply", "a": 9, "b": 3}
+{"prompt": "forty three minus nine", "task": "subtract", "a": 43, "b": 9}
+{"prompt": "the sum of eleven and seventeen", "task": "add", "a": 11, "b": 17}
+{"prompt": "the difference between twenty eight and fourteen", "task": "subtract", "a": 28, "b": 14}
+{"prompt": "the difference between forty five and thirteen", "task": "subtract", "a": 45, "b": 13}
+{"prompt": "forty three take away twenty six", "task": "subtract", "a": 43, "b": 26}
+{"prompt": "thirty four take away twenty nine", "task": "subtract", "a": 34, "b": 29}
+{"prompt": "sixteen plus fifteen", "task": "add", "a": 16, "b": 15}
+{"prompt": "two multiplied by eleven", "task": "multiply", "a": 2, "b": 11}
+{"prompt": "thirty eight minus fifteen", "task": "subtract", "a": 38, "b": 15}
+{"prompt": "twelve times two", "task": "multiply", "a": 12, "b": 2}
+{"prompt": "two times seven", "task": "multiply", "a": 2, "b": 7}
+{"prompt": "the product of five and six", "task": "multiply", "a": 5, "b": 6}
+{"prompt": "thirty five take away fourteen", "task": "subtract", "a": 35, "b": 14}
+{"prompt": "the product of eleven and eleven", "task": "multiply", "a": 11, "b": 11}
+{"prompt": "thirty one plus twenty seven", "task": "add", "a": 31, "b": 27}
+{"prompt": "three times twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "twenty eight and twenty seven", "task": "add", "a": 28, "b": 27}
+{"prompt": "the sum of four and forty four", "task": "add", "a": 4, "b": 44}
+{"prompt": "the difference between seven and four", "task": "subtract", "a": 7, "b": 4}
+{"prompt": "the sum of twenty two and seven", "task": "add", "a": 22, "b": 7}
+{"prompt": "five times ten", "task": "multiply", "a": 5, "b": 10}
+{"prompt": "twenty eight plus twelve", "task": "add", "a": 28, "b": 12}
+{"prompt": "sixteen and five", "task": "add", "a": 16, "b": 5}
+{"prompt": "the sum of seven and four", "task": "add", "a": 7, "b": 4}
+{"prompt": "the difference between six and one", "task": "subtract", "a": 6, "b": 1}
+{"prompt": "eight times nine", "task": "multiply", "a": 8, "b": 9}
+{"prompt": "twenty six plus four", "task": "add", "a": 26, "b": 4}
+{"prompt": "two multiplied by eight", "task": "multiply", "a": 2, "b": 8}
+{"prompt": "nineteen and twenty eight", "task": "add", "a": 19, "b": 28}
+{"prompt": "the difference between forty three and thirty six", "task": "subtract", "a": 43, "b": 36}
+{"prompt": "thirteen take away ten", "task": "subtract", "a": 13, "b": 10}
+{"prompt": "four plus thirty eight", "task": "add", "a": 4, "b": 38}
+{"prompt": "the difference between forty eight and four", "task": "subtract", "a": 48, "b": 4}
+{"prompt": "four plus thirty eight", "task": "add", "a": 4, "b": 38}
+{"prompt": "the sum of thirty four and eleven", "task": "add", "a": 34, "b": 11}
+{"prompt": "the product of three and four", "task": "multiply", "a": 3, "b": 4}
+{"prompt": "the product of three and twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "three multiplied by eleven", "task": "multiply", "a": 3, "b": 11}
+{"prompt": "the product of eleven and two", "task": "multiply", "a": 11, "b": 2}
+{"prompt": "forty three minus twenty seven", "task": "subtract", "a": 43, "b": 27}
+{"prompt": "the difference between thirty four and twenty one", "task": "subtract", "a": 34, "b": 21}
+{"prompt": "forty three plus forty six", "task": "add", "a": 43, "b": 46}
+{"prompt": "seventeen plus twenty six", "task": "add", "a": 17, "b": 26}
+{"prompt": "the product of twelve and six", "task": "multiply", "a": 12, "b": 6}
+{"prompt": "forty nine and five", "task": "add", "a": 49, "b": 5}
+{"prompt": "eleven multiplied by eleven", "task": "multiply", "a": 11, "b": 11}
+{"prompt": "ten times five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "twenty three take away nine", "task": "subtract", "a": 23, "b": 9}
+{"prompt": "seven times six", "task": "multiply", "a": 7, "b": 6}
+{"prompt": "ten multiplied by six", "task": "multiply", "a": 10, "b": 6}
+{"prompt": "the difference between thirty four and one", "task": "subtract", "a": 34, "b": 1}
+{"prompt": "the difference between forty three and twenty", "task": "subtract", "a": 43, "b": 20}
+{"prompt": "six times three", "task": "multiply", "a": 6, "b": 3}
+{"prompt": "the product of ten and four", "task": "multiply", "a": 10, "b": 4}
+{"prompt": "thirty nine and fourteen", "task": "add", "a": 39, "b": 14}
+{"prompt": "forty four take away fourteen", "task": "subtract", "a": 44, "b": 14}
+{"prompt": "thirty three take away thirty two", "task": "subtract", "a": 33, "b": 32}
+{"prompt": "six plus forty one", "task": "add", "a": 6, "b": 41}
+{"prompt": "three and one", "task": "add", "a": 3, "b": 1}
+{"prompt": "forty one plus seventeen", "task": "add", "a": 41, "b": 17}
+{"prompt": "the product of nine and ten", "task": "multiply", "a": 9, "b": 10}
+{"prompt": "thirty six take away one", "task": "subtract", "a": 36, "b": 1}
+{"prompt": "four times ten", "task": "multiply", "a": 4, "b": 10}
+{"prompt": "eleven multiplied by ten", "task": "multiply", "a": 11, "b": 10}
+{"prompt": "four multiplied by two", "task": "multiply", "a": 4, "b": 2}
+{"prompt": "three and twenty three", "task": "add", "a": 3, "b": 23}
+{"prompt": "the product of five and twelve", "task": "multiply", "a": 5, "b": 12}
+{"prompt": "ten multiplied by eight", "task": "multiply", "a": 10, "b": 8}
+{"prompt": "the difference between sixteen and ten", "task": "subtract", "a": 16, "b": 10}
+{"prompt": "eight times two", "task": "multiply", "a": 8, "b": 2}
+{"prompt": "the product of seven and eight", "task": "multiply", "a": 7, "b": 8}
+{"prompt": "the difference between eighteen and sixteen", "task": "subtract", "a": 18, "b": 16}
+{"prompt": "the product of three and eight", "task": "multiply", "a": 3, "b": 8}
+{"prompt": "five multiplied by five", "task": "multiply", "a": 5, "b": 5}
+{"prompt": "twenty and fifteen", "task": "add", "a": 20, "b": 15}
+{"prompt": "twelve times five", "task": "multiply", "a": 12, "b": 5}
+{"prompt": "eighteen and five", "task": "add", "a": 18, "b": 5}
+{"prompt": "forty two and thirty three", "task": "add", "a": 42, "b": 33}
+{"prompt": "the sum of thirty five and twenty two", "task": "add", "a": 35, "b": 22}
+{"prompt": "six times four", "task": "multiply", "a": 6, "b": 4}
+{"prompt": "seven take away three", "task": "subtract", "a": 7, "b": 3}
+{"prompt": "forty seven take away twenty three", "task": "subtract", "a": 47, "b": 23}
+{"prompt": "thirty nine and thirty three", "task": "add", "a": 39, "b": 33}
+{"prompt": "eleven multiplied by five", "task": "multiply", "a": 11, "b": 5}
+{"prompt": "forty six plus twenty eight", "task": "add", "a": 46, "b": 28}
+{"prompt": "the product of ten and twelve", "task": "multiply", "a": 10, "b": 12}
+{"prompt": "the difference between forty eight and forty three", "task": "subtract", "a": 48, "b": 43}
+{"prompt": "eight multiplied by three", "task": "multiply", "a": 8, "b": 3}
+{"prompt": "forty take away twenty one", "task": "subtract", "a": 40, "b": 21}
+{"prompt": "forty seven minus twenty", "task": "subtract", "a": 47, "b": 20}
+{"prompt": "forty three take away twenty seven", "task": "subtract", "a": 43, "b": 27}
+{"prompt": "forty five and nineteen", "task": "add", "a": 45, "b": 19}
+{"prompt": "twenty seven minus thirteen", "task": "subtract", "a": 27, "b": 13}
+{"prompt": "forty eight take away forty four", "task": "subtract", "a": 48, "b": 44}
+{"prompt": "the product of eleven and six", "task": "multiply", "a": 11, "b": 6}
+{"prompt": "the sum of one and twenty", "task": "add", "a": 1, "b": 20}
+{"prompt": "twenty eight plus thirty eight", "task": "add", "a": 28, "b": 38}
+{"prompt": "the difference between thirty and twenty one", "task": "subtract", "a": 30, "b": 21}
+{"prompt": "forty four and fourteen", "task": "add", "a": 44, "b": 14}
+{"prompt": "forty eight take away eleven", "task": "subtract", "a": 48, "b": 11}
+{"prompt": "thirty three minus nineteen", "task": "subtract", "a": 33, "b": 19}
+{"prompt": "the difference between forty and twenty two", "task": "subtract", "a": 40, "b": 22}
+{"prompt": "twelve times six", "task": "multiply", "a": 12, "b": 6}
+{"prompt": "four times two", "task": "multiply", "a": 4, "b": 2}
+{"prompt": "nine times eleven", "task": "multiply", "a": 9, "b": 11}
+{"prompt": "eight multiplied by twelve", "task": "multiply", "a": 8, "b": 12}
+{"prompt": "forty six minus forty five", "task": "subtract", "a": 46, "b": 45}
+{"prompt": "twenty six and sixteen", "task": "add", "a": 26, "b": 16}
+{"prompt": "the product of two and three", "task": "multiply", "a": 2, "b": 3}
+{"prompt": "twelve plus forty five", "task": "add", "a": 12, "b": 45}
+{"prompt": "thirty six take away four", "task": "subtract", "a": 36, "b": 4}
+{"prompt": "nine times four", "task": "multiply", "a": 9, "b": 4}
+{"prompt": "the sum of thirty four and thirty six", "task": "add", "a": 34, "b": 36}
+{"prompt": "forty nine take away twenty nine", "task": "subtract", "a": 49, "b": 29}
+{"prompt": "the difference between thirty three and twenty eight", "task": "subtract", "a": 33, "b": 28}
+{"prompt": "forty eight take away eleven", "task": "subtract", "a": 48, "b": 11}
+{"prompt": "seventeen and forty nine", "task": "add", "a": 17, "b": 49}
+{"prompt": "the product of six and ten", "task": "multiply", "a": 6, "b": 10}
+{"prompt": "the sum of sixteen and eighteen", "task": "add", "a": 16, "b": 18}
+{"prompt": "forty six plus nineteen", "task": "add", "a": 46, "b": 19}
+{"prompt": "seven multiplied by seven", "task": "multiply", "a": 7, "b": 7}
+{"prompt": "ten minus nine", "task": "subtract", "a": 10, "b": 9}
+{"prompt": "four multiplied by five", "task": "multiply", "a": 4, "b": 5}
+{"prompt": "eight multiplied by seven", "task": "multiply", "a": 8, "b": 7}
+{"prompt": "twenty seven take away four", "task": "subtract", "a": 27, "b": 4}
+{"prompt": "eight multiplied by eleven", "task": "multiply", "a": 8, "b": 11}
+{"prompt": "forty nine minus thirty seven", "task": "subtract", "a": 49, "b": 37}
+{"prompt": "one and twenty three", "task": "add", "a": 1, "b": 23}
+{"prompt": "twenty seven and thirty five", "task": "add", "a": 27, "b": 35}
+{"prompt": "the difference between thirty nine and thirty five", "task": "subtract", "a": 39, "b": 35}
+{"prompt": "five multiplied by six", "task": "multiply", "a": 5, "b": 6}
+{"prompt": "two and twenty five", "task": "add", "a": 2, "b": 25}
+{"prompt": "the sum of forty four and twenty six", "task": "add", "a": 44, "b": 26}
+{"prompt": "thirty minus nine", "task": "subtract", "a": 30, "b": 9}
+{"prompt": "the difference between twenty six and two", "task": "subtract", "a": 26, "b": 2}
+{"prompt": "the difference between forty three and two", "task": "subtract", "a": 43, "b": 2}
+{"prompt": "the product of eight and four", "task": "multiply", "a": 8, "b": 4}
+{"prompt": "four plus seventeen", "task": "add", "a": 4, "b": 17}
+{"prompt": "fourteen and thirty", "task": "add", "a": 14, "b": 30}
+{"prompt": "forty nine and twenty five", "task": "add", "a": 49, "b": 25}
+{"prompt": "seventeen and six", "task": "add", "a": 17, "b": 6}
+{"prompt": "forty eight plus thirty five", "task": "add", "a": 48, "b": 35}
+{"prompt": "five multiplied by twelve", "task": "multiply", "a": 5, "b": 12}
+{"prompt": "the product of two and two", "task": "multiply", "a": 2, "b": 2}
+{"prompt": "two times eleven", "task": "multiply", "a": 2, "b": 11}
+{"prompt": "four times nine", "task": "multiply", "a": 4, "b": 9}
+{"prompt": "thirty seven minus fourteen", "task": "subtract", "a": 37, "b": 14}
+{"prompt": "the sum of seventeen and fifty", "task": "add", "a": 17, "b": 50}
+{"prompt": "thirty nine plus thirty nine", "task": "add", "a": 39, "b": 39}
+{"prompt": "the difference between fifty and eight", "task": "subtract", "a": 50, "b": 8}
+{"prompt": "three multiplied by eleven", "task": "multiply", "a": 3, "b": 11}
+{"prompt": "eleven multiplied by twelve", "task": "multiply", "a": 11, "b": 12}
+{"prompt": "forty six and thirteen", "task": "add", "a": 46, "b": 13}
+{"prompt": "the product of twelve and five", "task": "multiply", "a": 12, "b": 5}
+{"prompt": "the product of six and twelve", "task": "multiply", "a": 6, "b": 12}
+{"prompt": "thirty seven minus three", "task": "subtract", "a": 37, "b": 3}
+{"prompt": "the sum of twenty eight and forty three", "task": "add", "a": 28, "b": 43}
+{"prompt": "thirty three plus forty two", "task": "add", "a": 33, "b": 42}
+{"prompt": "twenty seven plus thirty two", "task": "add", "a": 27, "b": 32}
+{"prompt": "seven multiplied by twelve", "task": "multiply", "a": 7, "b": 12}
+{"prompt": "the sum of ten and twenty eight", "task": "add", "a": 10, "b": 28}
+{"prompt": "the product of ten and twelve", "task": "multiply", "a": 10, "b": 12}
+{"prompt": "the sum of thirty five and fifty", "task": "add", "a": 35, "b": 50}
+{"prompt": "twenty eight and forty seven", "task": "add", "a": 28, "b": 47}
+{"prompt": "twenty one take away sixteen", "task": "subtract", "a": 21, "b": 16}
+{"prompt": "nine multiplied by five", "task": "multiply", "a": 9, "b": 5}
+{"prompt": "the sum of forty and forty three", "task": "add", "a": 40, "b": 43}
+{"prompt": "two and thirty two", "task": "add", "a": 2, "b": 32}
+{"prompt": "thirty two plus fourteen", "task": "add", "a": 32, "b": 14}
+{"prompt": "twenty two and eighteen", "task": "add", "a": 22, "b": 18}
+{"prompt": "the difference between thirty six and eighteen", "task": "subtract", "a": 36, "b": 18}
+{"prompt": "the product of five and three", "task": "multiply", "a": 5, "b": 3}
+{"prompt": "the product of eight and nine", "task": "multiply", "a": 8, "b": 9}
+{"prompt": "forty five minus thirty one", "task": "subtract", "a": 45, "b": 31}
+{"prompt": "the difference between thirty two and twenty nine", "task": "subtract", "a": 32, "b": 29}
+{"prompt": "six times five", "task": "multiply", "a": 6, "b": 5}
+{"prompt": "the sum of sixteen and twenty", "task": "add", "a": 16, "b": 20}
+{"prompt": "the difference between thirty one and twenty four", "task": "subtract", "a": 31, "b": 24}
+{"prompt": "the difference between twenty eight and twenty three", "task": "subtract", "a": 28, "b": 23}
+{"prompt": "the difference between twenty three and twenty two", "task": "subtract", "a": 23, "b": 22}
+{"prompt": "twenty take away eighteen", "task": "subtract", "a": 20, "b": 18}
+{"prompt": "eight plus forty seven", "task": "add", "a": 8, "b": 47}
+{"prompt": "three multiplied by ten", "task": "multiply", "a": 3, "b": 10}
+{"prompt": "fourteen minus thirteen", "task": "subtract", "a": 14, "b": 13}
+{"prompt": "forty seven take away eighteen", "task": "subtract", "a": 47, "b": 18}
+{"prompt": "the difference between thirty nine and nineteen", "task": "subtract", "a": 39, "b": 19}
+{"prompt": "six times five", "task": "multiply", "a": 6, "b": 5}
+{"prompt": "twenty plus one", "task": "add", "a": 20, "b": 1}
+{"prompt": "the difference between eighteen and nine", "task": "subtract", "a": 18, "b": 9}
+{"prompt": "ten times six", "task": "multiply", "a": 10, "b": 6}
+{"prompt": "forty nine minus forty one", "task": "subtract", "a": 49, "b": 41}
+{"prompt": "one plus thirty seven", "task": "add", "a": 1, "b": 37}
+{"prompt": "thirty one and twenty nine", "task": "add", "a": 31, "b": 29}
+{"prompt": "four plus seventeen", "task": "add", "a": 4, "b": 17}
+{"prompt": "five plus twenty six", "task": "add", "a": 5, "b": 26}
+{"prompt": "thirty seven plus forty one", "task": "add", "a": 37, "b": 41}
+{"prompt": "ten minus ten", "task": "subtract", "a": 10, "b": 10}
+{"prompt": "sixteen take away six", "task": "subtract", "a": 16, "b": 6}
+{"prompt": "the product of eight and eleven", "task": "multiply", "a": 8, "b": 11}
+{"prompt": "the difference between fifty and fifteen", "task": "subtract", "a": 50, "b": 15}
+{"prompt": "twenty nine take away twenty nine", "task": "subtract", "a": 29, "b": 29}
+{"prompt": "the sum of twenty eight and twenty", "task": "add", "a": 28, "b": 20}
+{"prompt": "the difference between forty and four", "task": "subtract", "a": 40, "b": 4}
+{"prompt": "forty nine minus fourteen", "task": "subtract", "a": 49, "b": 14}
+{"prompt": "forty three minus seventeen", "task": "subtract", "a": 43, "b": 17}
+{"prompt": "five times four", "task": "multiply", "a": 5, "b": 4}
+{"prompt": "eleven minus one", "task": "subtract", "a": 11, "b": 1}
+{"prompt": "forty five and thirty nine", "task": "add", "a": 45, "b": 39}
+{"prompt": "three and fifteen", "task": "add", "a": 3, "b": 15}
+{"prompt": "the sum of nineteen and forty five", "task": "add", "a": 19, "b": 45}
+{"prompt": "forty four plus fifteen", "task": "add", "a": 44, "b": 15}
+{"prompt": "the sum of thirty eight and forty three", "task": "add", "a": 38, "b": 43}
+{"prompt": "three multiplied by ten", "task": "multiply", "a": 3, "b": 10}
+{"prompt": "the product of four and six", "task": "multiply", "a": 4, "b": 6}
+{"prompt": "two times four", "task": "multiply", "a": 2, "b": 4}
+{"prompt": "the sum of forty eight and thirty seven", "task": "add", "a": 48, "b": 37}
+{"prompt": "eight and thirty", "task": "add", "a": 8, "b": 30}
+{"prompt": "forty five take away twenty six", "task": "subtract", "a": 45, "b": 26}
+{"prompt": "the sum of thirty five and thirty two", "task": "add", "a": 35, "b": 32}
+{"prompt": "thirty nine plus three", "task": "add", "a": 39, "b": 3}
+{"prompt": "the sum of twenty one and thirty nine", "task": "add", "a": 21, "b": 39}
+{"prompt": "six plus fifteen", "task": "add", "a": 6, "b": 15}
+{"prompt": "the difference between thirty eight and two", "task": "subtract", "a": 38, "b": 2}
+{"prompt": "thirty seven take away three", "task": "subtract", "a": 37, "b": 3}
+{"prompt": "ten multiplied by twelve", "task": "multiply", "a": 10, "b": 12}
+{"prompt": "twelve and thirty eight", "task": "add", "a": 12, "b": 38}
+{"prompt": "the sum of thirty two and six", "task": "add", "a": 32, "b": 6}
+{"prompt": "twenty seven and twenty two", "task": "add", "a": 27, "b": 22}
+{"prompt": "the sum of seven and eleven", "task": "add", "a": 7, "b": 11}
+{"prompt": "forty five and thirty two", "task": "add", "a": 45, "b": 32}
+{"prompt": "the sum of twenty six and forty nine", "task": "add", "a": 26, "b": 49}
+{"prompt": "thirty minus six", "task": "subtract", "a": 30, "b": 6}
+{"prompt": "twenty one and eight", "task": "add", "a": 21, "b": 8}
+{"prompt": "the sum of one and forty three", "task": "add", "a": 1, "b": 43}
+{"prompt": "twenty seven take away four", "task": "subtract", "a": 27, "b": 4}
+{"prompt": "the product of seven and eleven", "task": "multiply", "a": 7, "b": 11}
+{"prompt": "the sum of twenty nine and forty nine", "task": "add", "a": 29, "b": 49}
+{"prompt": "six times ten", "task": "multiply", "a": 6, "b": 10}
+{"prompt": "nine multiplied by nine", "task": "multiply", "a": 9, "b": 9}
+{"prompt": "twelve times eleven", "task": "multiply", "a": 12, "b": 11}
+{"prompt": "the product of four and six", "task": "multiply", "a": 4, "b": 6}
+{"prompt": "thirty six minus twenty seven", "task": "subtract", "a": 36, "b": 27}
+{"prompt": "three times nine", "task": "multiply", "a": 3, "b": 9}
+{"prompt": "the product of four and nine", "task": "multiply", "a": 4, "b": 9}
+{"prompt": "forty six take away thirty three", "task": "subtract", "a": 46, "b": 33}
+{"prompt": "thirty one and thirty one", "task": "add", "a": 31, "b": 31}
+{"prompt": "ten multiplied by four", "task": "multiply", "a": 10, "b": 4}
+{"prompt": "thirty nine plus thirty three", "task": "add", "a": 39, "b": 33}
+{"prompt": "eighteen minus five", "task": "subtract", "a": 18, "b": 5}
+{"prompt": "thirty three and eighteen", "task": "add", "a": 33, "b": 18}
+{"prompt": "six multiplied by eleven", "task": "multiply", "a": 6, "b": 11}
+{"prompt": "the difference between thirty two and ten", "task": "subtract", "a": 32, "b": 10}
+{"prompt": "the sum of thirty one and twenty three", "task": "add", "a": 31, "b": 23}
+{"prompt": "the sum of forty nine and thirty five", "task": "add", "a": 49, "b": 35}
+{"prompt": "twenty one and thirteen", "task": "add", "a": 21, "b": 13}
+{"prompt": "thirty seven minus twenty five", "task": "subtract", "a": 37, "b": 25}
+{"prompt": "two multiplied by seven", "task": "multiply", "a": 2, "b": 7}
+{"prompt": "forty six take away twenty five", "task": "subtract", "a": 46, "b": 25}
+{"prompt": "the sum of forty two and ten", "task": "add", "a": 42, "b": 10}
+{"prompt": "nine plus thirty three", "task": "add", "a": 9, "b": 33}
+{"prompt": "twenty nine take away seven", "task": "subtract", "a": 29, "b": 7}
+{"prompt": "the product of nine and two", "task": "multiply", "a": 9, "b": 2}
+{"prompt": "forty two minus twenty seven", "task": "subtract", "a": 42, "b": 27}
+{"prompt": "nine times six", "task": "multiply", "a": 9, "b": 6}
+{"prompt": "the sum of forty five and twenty six", "task": "add", "a": 45, "b": 26}
+{"prompt": "forty four minus twenty two", "task": "subtract", "a": 44, "b": 22}
+{"prompt": "forty one take away twenty one", "task": "subtract", "a": 41, "b": 21}
+{"prompt": "thirty five take away three", "task": "subtract", "a": 35, "b": 3}
+{"prompt": "forty one minus sixteen", "task": "subtract", "a": 41, "b": 16}
+{"prompt": "forty eight take away fifteen", "task": "subtract", "a": 48, "b": 15}
+{"prompt": "three multiplied by twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "twenty nine minus eleven", "task": "subtract", "a": 29, "b": 11}
+{"prompt": "three take away two", "task": "subtract", "a": 3, "b": 2}
+{"prompt": "nineteen plus twenty three", "task": "add", "a": 19, "b": 23}
+{"prompt": "ten and sixteen", "task": "add", "a": 10, "b": 16}
+{"prompt": "forty four take away thirty seven", "task": "subtract", "a": 44, "b": 37}
+{"prompt": "four times three", "task": "multiply", "a": 4, "b": 3}
+{"prompt": "forty four take away forty", "task": "subtract", "a": 44, "b": 40}
+{"prompt": "eleven multiplied by four", "task": "multiply", "a": 11, "b": 4}
+{"prompt": "twelve multiplied by six", "task": "multiply", "a": 12, "b": 6}
+{"prompt": "forty three and one", "task": "add", "a": 43, "b": 1}
+{"prompt": "forty four and thirty five", "task": "add", "a": 44, "b": 35}
+{"prompt": "nine times seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "forty one take away twenty eight", "task": "subtract", "a": 41, "b": 28}
+{"prompt": "thirty take away twenty", "task": "subtract", "a": 30, "b": 20}
+{"prompt": "nine multiplied by three", "task": "multiply", "a": 9, "b": 3}
+{"prompt": "eleven multiplied by seven", "task": "multiply", "a": 11, "b": 7}
+{"prompt": "forty five take away nineteen", "task": "subtract", "a": 45, "b": 19}
+{"prompt": "the product of eight and six", "task": "multiply", "a": 8, "b": 6}
+{"prompt": "the product of twelve and two", "task": "multiply", "a": 12, "b": 2}
+{"prompt": "the difference between thirty two and nineteen", "task": "subtract", "a": 32, "b": 19}
+{"prompt": "the product of seven and five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "forty minus seventeen", "task": "subtract", "a": 40, "b": 17}
+{"prompt": "the difference between fifty and forty three", "task": "subtract", "a": 50, "b": 43}
+{"prompt": "forty one minus seven", "task": "subtract", "a": 41, "b": 7}
+{"prompt": "the difference between twenty and three", "task": "subtract", "a": 20, "b": 3}
+{"prompt": "thirty eight plus twenty four", "task": "add", "a": 38, "b": 24}
+{"prompt": "nineteen minus six", "task": "subtract", "a": 19, "b": 6}
+{"prompt": "the sum of twenty seven and twelve", "task": "add", "a": 27, "b": 12}
+{"prompt": "ten times seven", "task": "multiply", "a": 10, "b": 7}
+{"prompt": "the difference between eighteen and eleven", "task": "subtract", "a": 18, "b": 11}
+{"prompt": "nineteen and forty eight", "task": "add", "a": 19, "b": 48}
+{"prompt": "thirty plus five", "task": "add", "a": 30, "b": 5}
+{"prompt": "twelve times twelve", "task": "multiply", "a": 12, "b": 12}
+{"prompt": "the sum of twenty four and six", "task": "add", "a": 24, "b": 6}
+{"prompt": "seventeen plus thirty five", "task": "add", "a": 17, "b": 35}
+{"prompt": "seven multiplied by twelve", "task": "multiply", "a": 7, "b": 12}
+{"prompt": "the difference between thirty eight and seventeen", "task": "subtract", "a": 38, "b": 17}
+{"prompt": "the sum of twenty four and seven", "task": "add", "a": 24, "b": 7}
+{"prompt": "thirty one minus two", "task": "subtract", "a": 31, "b": 2}
+{"prompt": "the difference between forty and twenty one", "task": "subtract", "a": 40, "b": 21}
+{"prompt": "the product of three and twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "the sum of twenty and forty two", "task": "add", "a": 20, "b": 42}
+{"prompt": "nine plus three", "task": "add", "a": 9, "b": 3}
+{"prompt": "nine multiplied by three", "task": "multiply", "a": 9, "b": 3}
+{"prompt": "ten times four", "task": "multiply", "a": 10, "b": 4}
+{"prompt": "twenty four and forty three", "task": "add", "a": 24, "b": 43}
+{"prompt": "the difference between thirty five and twenty seven", "task": "subtract", "a": 35, "b": 27}
+{"prompt": "the difference between forty seven and ten", "task": "subtract", "a": 47, "b": 10}
+{"prompt": "the sum of seven and thirty two", "task": "add", "a": 7, "b": 32}
+{"prompt": "eighteen take away three", "task": "subtract", "a": 18, "b": 3}
+{"prompt": "twenty nine take away fourteen", "task": "subtract", "a": 29, "b": 14}
+{"prompt": "twenty four plus seven", "task": "add", "a": 24, "b": 7}
+{"prompt": "forty two take away thirty five", "task": "subtract", "a": 42, "b": 35}
+{"prompt": "twenty six plus eighteen", "task": "add", "a": 26, "b": 18}
+{"prompt": "nine times three", "task": "multiply", "a": 9, "b": 3}
+{"prompt": "forty two minus forty one", "task": "subtract", "a": 42, "b": 41}
+{"prompt": "twenty two minus four", "task": "subtract", "a": 22, "b": 4}
+{"prompt": "eleven times five", "task": "multiply", "a": 11, "b": 5}
+{"prompt": "the product of five and eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "seven times four", "task": "multiply", "a": 7, "b": 4}
+{"prompt": "eighteen minus ten", "task": "subtract", "a": 18, "b": 10}
+{"prompt": "the product of six and four", "task": "multiply", "a": 6, "b": 4}
+{"prompt": "the product of two and four", "task": "multiply", "a": 2, "b": 4}
+{"prompt": "five multiplied by eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "twelve plus seventeen", "task": "add", "a": 12, "b": 17}
+{"prompt": "eight times ten", "task": "multiply", "a": 8, "b": 10}
+{"prompt": "the product of three and nine", "task": "multiply", "a": 3, "b": 9}
+{"prompt": "thirty three and thirty eight", "task": "add", "a": 33, "b": 38}
+{"prompt": "ten multiplied by five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "forty seven minus forty three", "task": "subtract", "a": 47, "b": 43}
+{"prompt": "forty two take away thirty", "task": "subtract", "a": 42, "b": 30}
+{"prompt": "nine times eight", "task": "multiply", "a": 9, "b": 8}
+{"prompt": "the sum of seven and thirty two", "task": "add", "a": 7, "b": 32}
+{"prompt": "six take away five", "task": "subtract", "a": 6, "b": 5}
+{"prompt": "the sum of ten and five", "task": "add", "a": 10, "b": 5}
+{"prompt": "eleven multiplied by twelve", "task": "multiply", "a": 11, "b": 12}
+{"prompt": "the difference between forty six and twenty one", "task": "subtract", "a": 46, "b": 21}
+{"prompt": "the sum of thirty four and nineteen", "task": "add", "a": 34, "b": 19}
+{"prompt": "the sum of thirty nine and twenty eight", "task": "add", "a": 39, "b": 28}
+{"prompt": "the product of three and twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "the difference between forty seven and fourteen", "task": "subtract", "a": 47, "b": 14}
+{"prompt": "fifteen and twenty seven", "task": "add", "a": 15, "b": 27}
+{"prompt": "twenty six and twenty seven", "task": "add", "a": 26, "b": 27}
+{"prompt": "twenty eight minus twenty one", "task": "subtract", "a": 28, "b": 21}
+{"prompt": "the sum of seventeen and twenty four", "task": "add", "a": 17, "b": 24}
+{"prompt": "the product of nine and three", "task": "multiply", "a": 9, "b": 3}
+{"prompt": "three times eight", "task": "multiply", "a": 3, "b": 8}
+{"prompt": "the product of seven and four", "task": "multiply", "a": 7, "b": 4}
+{"prompt": "thirty eight minus thirty six", "task": "subtract", "a": 38, "b": 36}
+{"prompt": "forty three take away eight", "task": "subtract", "a": 43, "b": 8}
+{"prompt": "forty three and forty nine", "task": "add", "a": 43, "b": 49}
+{"prompt": "the sum of four and nineteen", "task": "add", "a": 4, "b": 19}
+{"prompt": "twenty three take away seven", "task": "subtract", "a": 23, "b": 7}
+{"prompt": "the difference between fourteen and ten", "task": "subtract", "a": 14, "b": 10}
+{"prompt": "fifteen take away seven", "task": "subtract", "a": 15, "b": 7}
+{"prompt": "the sum of twenty four and eight", "task": "add", "a": 24, "b": 8}
+{"prompt": "the sum of fifteen and twenty eight", "task": "add", "a": 15, "b": 28}
+{"prompt": "the difference between forty four and forty", "task": "subtract", "a": 44, "b": 40}
+{"prompt": "the difference between thirty nine and two", "task": "subtract", "a": 39, "b": 2}
+{"prompt": "the difference between eighteen and two", "task": "subtract", "a": 18, "b": 2}
+{"prompt": "six multiplied by seven", "task": "multiply", "a": 6, "b": 7}
+{"prompt": "twelve plus ten", "task": "add", "a": 12, "b": 10}
+{"prompt": "the difference between twenty six and five", "task": "subtract", "a": 26, "b": 5}
+{"prompt": "the product of twelve and two", "task": "multiply", "a": 12, "b": 2}
+{"prompt": "the product of ten and five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "thirty and twenty two", "task": "add", "a": 30, "b": 22}
+{"prompt": "six multiplied by seven", "task": "multiply", "a": 6, "b": 7}
+{"prompt": "the difference between six and four", "task": "subtract", "a": 6, "b": 4}
+{"prompt": "eleven times two", "task": "multiply", "a": 11, "b": 2}
+{"prompt": "twenty nine minus eighteen", "task": "subtract", "a": 29, "b": 18}
+{"prompt": "thirty nine take away thirty two", "task": "subtract", "a": 39, "b": 32}
+{"prompt": "eighteen and fourteen", "task": "add", "a": 18, "b": 14}
+{"prompt": "twenty eight minus twenty three", "task": "subtract", "a": 28, "b": 23}
+{"prompt": "twelve multiplied by twelve", "task": "multiply", "a": 12, "b": 12}
+{"prompt": "forty three take away thirty four", "task": "subtract", "a": 43, "b": 34}
+{"prompt": "fifteen plus twenty six", "task": "add", "a": 15, "b": 26}
+{"prompt": "fourteen minus one", "task": "subtract", "a": 14, "b": 1}
+{"prompt": "fifty plus nine", "task": "add", "a": 50, "b": 9}
+{"prompt": "twenty one and eight", "task": "add", "a": 21, "b": 8}
+{"prompt": "eight multiplied by four", "task": "multiply", "a": 8, "b": 4}
+{"prompt": "ten multiplied by five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "the difference between forty three and twenty three", "task": "subtract", "a": 43, "b": 23}
+{"prompt": "two multiplied by eight", "task": "multiply", "a": 2, "b": 8}
+{"prompt": "three multiplied by seven", "task": "multiply", "a": 3, "b": 7}
+{"prompt": "thirty seven take away twenty six", "task": "subtract", "a": 37, "b": 26}
+{"prompt": "the difference between twenty seven and nineteen", "task": "subtract", "a": 27, "b": 19}
+{"prompt": "two multiplied by seven", "task": "multiply", "a": 2, "b": 7}
+{"prompt": "the product of nine and seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "three multiplied by five", "task": "multiply", "a": 3, "b": 5}
+{"prompt": "the sum of twenty six and thirty four", "task": "add", "a": 26, "b": 34}
+{"prompt": "six multiplied by seven", "task": "multiply", "a": 6, "b": 7}
+{"prompt": "four multiplied by three", "task": "multiply", "a": 4, "b": 3}
+{"prompt": "the difference between thirty four and eight", "task": "subtract", "a": 34, "b": 8}
+{"prompt": "fifty minus twenty three", "task": "subtract", "a": 50, "b": 23}
+{"prompt": "the sum of forty two and ten", "task": "add", "a": 42, "b": 10}
+{"prompt": "four times six", "task": "multiply", "a": 4, "b": 6}
+{"prompt": "eleven times four", "task": "multiply", "a": 11, "b": 4}
+{"prompt": "fifty minus twelve", "task": "subtract", "a": 50, "b": 12}
+{"prompt": "forty nine take away thirty", "task": "subtract", "a": 49, "b": 30}
+{"prompt": "the difference between forty four and twenty nine", "task": "subtract", "a": 44, "b": 29}
+{"prompt": "the difference between forty one and forty", "task": "subtract", "a": 41, "b": 40}
+{"prompt": "the sum of twenty one and ten", "task": "add", "a": 21, "b": 10}
+{"prompt": "thirty one plus twenty nine", "task": "add", "a": 31, "b": 29}
+{"prompt": "thirty eight take away eighteen", "task": "subtract", "a": 38, "b": 18}
+{"prompt": "ten multiplied by three", "task": "multiply", "a": 10, "b": 3}
+{"prompt": "twenty nine and three", "task": "add", "a": 29, "b": 3}
+{"prompt": "six multiplied by three", "task": "multiply", "a": 6, "b": 3}
+{"prompt": "forty minus thirty nine", "task": "subtract", "a": 40, "b": 39}
+{"prompt": "thirty eight take away thirty", "task": "subtract", "a": 38, "b": 30}
+{"prompt": "the difference between twenty nine and three", "task": "subtract", "a": 29, "b": 3}
+{"prompt": "the difference between twenty one and thirteen", "task": "subtract", "a": 21, "b": 13}
+{"prompt": "thirty three take away ten", "task": "subtract", "a": 33, "b": 10}
+{"prompt": "three multiplied by seven", "task": "multiply", "a": 3, "b": 7}
+{"prompt": "forty two minus thirty three", "task": "subtract", "a": 42, "b": 33}
+{"prompt": "five times nine", "task": "multiply", "a": 5, "b": 9}
+{"prompt": "the sum of thirty four and forty", "task": "add", "a": 34, "b": 40}
+{"prompt": "seven multiplied by six", "task": "multiply", "a": 7, "b": 6}
+{"prompt": "fifty and twenty two", "task": "add", "a": 50, "b": 22}
+{"prompt": "the difference between forty one and four", "task": "subtract", "a": 41, "b": 4}
+{"prompt": "twenty two take away five", "task": "subtract", "a": 22, "b": 5}
+{"prompt": "the product of twelve and eight", "task": "multiply", "a": 12, "b": 8}
+{"prompt": "forty seven and forty three", "task": "add", "a": 47, "b": 43}
+{"prompt": "twenty two minus six", "task": "subtract", "a": 22, "b": 6}
+{"prompt": "the difference between twenty three and ten", "task": "subtract", "a": 23, "b": 10}
+{"prompt": "the sum of forty five and forty three", "task": "add", "a": 45, "b": 43}
+{"prompt": "thirty nine plus forty six", "task": "add", "a": 39, "b": 46}
+{"prompt": "ten multiplied by eight", "task": "multiply", "a": 10, "b": 8}
+{"prompt": "forty three take away nine", "task": "subtract", "a": 43, "b": 9}
+{"prompt": "the difference between forty four and thirty four", "task": "subtract", "a": 44, "b": 34}
+{"prompt": "the product of twelve and eight", "task": "multiply", "a": 12, "b": 8}
+{"prompt": "twenty four take away two", "task": "subtract", "a": 24, "b": 2}
+{"prompt": "fourteen plus twenty two", "task": "add", "a": 14, "b": 22}
+{"prompt": "fifteen plus nine", "task": "add", "a": 15, "b": 9}
+{"prompt": "six times three", "task": "multiply", "a": 6, "b": 3}
+{"prompt": "the difference between forty eight and thirty four", "task": "subtract", "a": 48, "b": 34}
+{"prompt": "the product of seven and eleven", "task": "multiply", "a": 7, "b": 11}
+{"prompt": "the product of eight and four", "task": "multiply", "a": 8, "b": 4}
+{"prompt": "eleven times four", "task": "multiply", "a": 11, "b": 4}
+{"prompt": "twenty seven take away three", "task": "subtract", "a": 27, "b": 3}
+{"prompt": "the sum of forty seven and sixteen", "task": "add", "a": 47, "b": 16}
+{"prompt": "the sum of nineteen and forty nine", "task": "add", "a": 19, "b": 49}
+{"prompt": "thirty five take away fifteen", "task": "subtract", "a": 35, "b": 15}
+{"prompt": "nine multiplied by five", "task": "multiply", "a": 9, "b": 5}
+{"prompt": "the sum of thirty seven and twenty nine", "task": "add", "a": 37, "b": 29}
+{"prompt": "fifty and twenty five", "task": "add", "a": 50, "b": 25}
+{"prompt": "the difference between twenty seven and eleven", "task": "subtract", "a": 27, "b": 11}
+{"prompt": "the product of four and six", "task": "multiply", "a": 4, "b": 6}
+{"prompt": "the product of nine and seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "forty six minus thirty four", "task": "subtract", "a": 46, "b": 34}
+{"prompt": "three multiplied by four", "task": "multiply", "a": 3, "b": 4}
+{"prompt": "thirty three and ten", "task": "add", "a": 33, "b": 10}
+{"prompt": "fifteen plus twenty nine", "task": "add", "a": 15, "b": 29}
+{"prompt": "twenty seven plus four", "task": "add", "a": 27, "b": 4}
+{"prompt": "the sum of twenty four and sixteen", "task": "add", "a": 24, "b": 16}
+{"prompt": "twenty four plus fifteen", "task": "add", "a": 24, "b": 15}
+{"prompt": "three multiplied by twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "nine plus three", "task": "add", "a": 9, "b": 3}
+{"prompt": "forty five and nine", "task": "add", "a": 45, "b": 9}
+{"prompt": "forty take away twenty nine", "task": "subtract", "a": 40, "b": 29}
+{"prompt": "two times six", "task": "multiply", "a": 2, "b": 6}
+{"prompt": "ten times eleven", "task": "multiply", "a": 10, "b": 11}
+{"prompt": "fifty take away eight", "task": "subtract", "a": 50, "b": 8}
+{"prompt": "twenty plus eight", "task": "add", "a": 20, "b": 8}
+{"prompt": "eight times twelve", "task": "multiply", "a": 8, "b": 12}
+{"prompt": "eight take away five", "task": "subtract", "a": 8, "b": 5}
+{"prompt": "the sum of thirty five and two", "task": "add", "a": 35, "b": 2}
+{"prompt": "the difference between thirty seven and sixteen", "task": "subtract", "a": 37, "b": 16}
+{"prompt": "twenty eight minus nineteen", "task": "subtract", "a": 28, "b": 19}
+{"prompt": "the product of seven and five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "forty three take away twelve", "task": "subtract", "a": 43, "b": 12}
+{"prompt": "thirty four minus twenty four", "task": "subtract", "a": 34, "b": 24}
+{"prompt": "the product of ten and ten", "task": "multiply", "a": 10, "b": 10}
+{"prompt": "the difference between twenty five and two", "task": "subtract", "a": 25, "b": 2}
+{"prompt": "forty one plus twenty five", "task": "add", "a": 41, "b": 25}
+{"prompt": "forty eight and two", "task": "add", "a": 48, "b": 2}
+{"prompt": "twenty three plus sixteen", "task": "add", "a": 23, "b": 16}
+{"prompt": "the difference between forty one and seven", "task": "subtract", "a": 41, "b": 7}
+{"prompt": "the difference between forty nine and twenty two", "task": "subtract", "a": 49, "b": 22}
+{"prompt": "seven times ten", "task": "multiply", "a": 7, "b": 10}
+{"prompt": "the sum of twelve and fifty", "task": "add", "a": 12, "b": 50}
+{"prompt": "forty five take away thirty one", "task": "subtract", "a": 45, "b": 31}
+{"prompt": "nine minus five", "task": "subtract", "a": 9, "b": 5}
+{"prompt": "nineteen take away three", "task": "subtract", "a": 19, "b": 3}
+{"prompt": "five times two", "task": "multiply", "a": 5, "b": 2}
+{"prompt": "thirty three and twenty six", "task": "add", "a": 33, "b": 26}
+{"prompt": "seventeen take away three", "task": "subtract", "a": 17, "b": 3}
+{"prompt": "twenty three minus nineteen", "task": "subtract", "a": 23, "b": 19}
+{"prompt": "the product of seven and six", "task": "multiply", "a": 7, "b": 6}
+{"prompt": "eight multiplied by eight", "task": "multiply", "a": 8, "b": 8}
+{"prompt": "twenty five take away twenty two", "task": "subtract", "a": 25, "b": 22}
+{"prompt": "nine multiplied by seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "forty seven take away six", "task": "subtract", "a": 47, "b": 6}
+{"prompt": "twenty eight plus thirty nine", "task": "add", "a": 28, "b": 39}
+{"prompt": "the product of six and seven", "task": "multiply", "a": 6, "b": 7}
+{"prompt": "seven times twelve", "task": "multiply", "a": 7, "b": 12}
+{"prompt": "twenty nine and thirty nine", "task": "add", "a": 29, "b": 39}
+{"prompt": "forty five take away eleven", "task": "subtract", "a": 45, "b": 11}
+{"prompt": "twenty nine and three", "task": "add", "a": 29, "b": 3}
+{"prompt": "forty take away twenty eight", "task": "subtract", "a": 40, "b": 28}
+{"prompt": "the sum of four and five", "task": "add", "a": 4, "b": 5}
+{"prompt": "the difference between twenty six and twenty four", "task": "subtract", "a": 26, "b": 24}
+{"prompt": "the difference between forty four and eleven", "task": "subtract", "a": 44, "b": 11}
+{"prompt": "eleven times twelve", "task": "multiply", "a": 11, "b": 12}
+{"prompt": "nine plus five", "task": "add", "a": 9, "b": 5}
+{"prompt": "the product of seven and seven", "task": "multiply", "a": 7, "b": 7}
+{"prompt": "the sum of three and thirty nine", "task": "add", "a": 3, "b": 39}
+{"prompt": "the product of nine and seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "forty nine and five", "task": "add", "a": 49, "b": 5}
+{"prompt": "thirty four minus twenty four", "task": "subtract", "a": 34, "b": 24}
+{"prompt": "forty two and eighteen", "task": "add", "a": 42, "b": 18}
+{"prompt": "two times four", "task": "multiply", "a": 2, "b": 4}
+{"prompt": "the sum of twenty five and thirty six", "task": "add", "a": 25, "b": 36}
+{"prompt": "six multiplied by nine", "task": "multiply", "a": 6, "b": 9}
+{"prompt": "the product of six and nine", "task": "multiply", "a": 6, "b": 9}
+{"prompt": "four times three", "task": "multiply", "a": 4, "b": 3}
+{"prompt": "forty six plus twenty nine", "task": "add", "a": 46, "b": 29}
+{"prompt": "the product of seven and twelve", "task": "multiply", "a": 7, "b": 12}
+{"prompt": "the sum of five and thirty six", "task": "add", "a": 5, "b": 36}
+{"prompt": "twenty take away eleven", "task": "subtract", "a": 20, "b": 11}
+{"prompt": "the difference between forty five and forty one", "task": "subtract", "a": 45, "b": 41}
+{"prompt": "ten multiplied by five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "four times five", "task": "multiply", "a": 4, "b": 5}
+{"prompt": "twenty four plus thirty six", "task": "add", "a": 24, "b": 36}
+{"prompt": "thirty six take away thirty", "task": "subtract", "a": 36, "b": 30}
+{"prompt": "the product of three and three", "task": "multiply", "a": 3, "b": 3}
+{"prompt": "forty six and forty seven", "task": "add", "a": 46, "b": 47}
+{"prompt": "the sum of twenty seven and fifty", "task": "add", "a": 27, "b": 50}
+{"prompt": "the sum of five and nine", "task": "add", "a": 5, "b": 9}
+{"prompt": "the sum of five and twenty nine", "task": "add", "a": 5, "b": 29}
+{"prompt": "the sum of thirty four and twenty three", "task": "add", "a": 34, "b": 23}
+{"prompt": "the product of twelve and eleven", "task": "multiply", "a": 12, "b": 11}
+{"prompt": "eight times ten", "task": "multiply", "a": 8, "b": 10}
+{"prompt": "ten times four", "task": "multiply", "a": 10, "b": 4}
+{"prompt": "eleven plus twenty one", "task": "add", "a": 11, "b": 21}
+{"prompt": "thirty four minus twenty three", "task": "subtract", "a": 34, "b": 23}
+{"prompt": "seventeen plus thirteen", "task": "add", "a": 17, "b": 13}
+{"prompt": "the difference between eighteen and nine", "task": "subtract", "a": 18, "b": 9}
+{"prompt": "forty take away thirty five", "task": "subtract", "a": 40, "b": 35}
+{"prompt": "the product of twelve and four", "task": "multiply", "a": 12, "b": 4}
+{"prompt": "the difference between eleven and ten", "task": "subtract", "a": 11, "b": 10}
+{"prompt": "the difference between forty seven and thirty nine", "task": "subtract", "a": 47, "b": 39}
+{"prompt": "the sum of three and two", "task": "add", "a": 3, "b": 2}
+{"prompt": "twelve times eleven", "task": "multiply", "a": 12, "b": 11}
+{"prompt": "the sum of fourteen and fifty", "task": "add", "a": 14, "b": 50}
+{"prompt": "forty one take away forty", "task": "subtract", "a": 41, "b": 40}
+{"prompt": "twelve multiplied by ten", "task": "multiply", "a": 12, "b": 10}
+{"prompt": "the sum of twenty and thirty one", "task": "add", "a": 20, "b": 31}
+{"prompt": "the product of eight and six", "task": "multiply", "a": 8, "b": 6}
+{"prompt": "forty five plus four", "task": "add", "a": 45, "b": 4}
+{"prompt": "eight multiplied by nine", "task": "multiply", "a": 8, "b": 9}
+{"prompt": "twenty two plus thirty nine", "task": "add", "a": 22, "b": 39}
+{"prompt": "seven multiplied by seven", "task": "multiply", "a": 7, "b": 7}
+{"prompt": "forty nine plus twenty four", "task": "add", "a": 49, "b": 24}
+{"prompt": "the difference between twenty one and seven", "task": "subtract", "a": 21, "b": 7}
+{"prompt": "three multiplied by six", "task": "multiply", "a": 3, "b": 6}
+{"prompt": "ten plus seven", "task": "add", "a": 10, "b": 7}
+{"prompt": "eight multiplied by eleven", "task": "multiply", "a": 8, "b": 11}
+{"prompt": "eleven plus twenty one", "task": "add", "a": 11, "b": 21}
+{"prompt": "the difference between twenty one and thirteen", "task": "subtract", "a": 21, "b": 13}
+{"prompt": "ten multiplied by nine", "task": "multiply", "a": 10, "b": 9}
+{"prompt": "thirty two and two", "task": "add", "a": 32, "b": 2}
+{"prompt": "ten multiplied by nine", "task": "multiply", "a": 10, "b": 9}
+{"prompt": "eleven times seven", "task": "multiply", "a": 11, "b": 7}
+{"prompt": "six times nine", "task": "multiply", "a": 6, "b": 9}
+{"prompt": "the difference between forty four and thirty one", "task": "subtract", "a": 44, "b": 31}
+{"prompt": "the sum of one and seven", "task": "add", "a": 1, "b": 7}
+{"prompt": "seventeen plus forty seven", "task": "add", "a": 17, "b": 47}
+{"prompt": "twenty four and three", "task": "add", "a": 24, "b": 3}
+{"prompt": "thirty seven plus thirty six", "task": "add", "a": 37, "b": 36}
+{"prompt": "ten multiplied by six", "task": "multiply", "a": 10, "b": 6}
+{"prompt": "ten multiplied by nine", "task": "multiply", "a": 10, "b": 9}
+{"prompt": "forty four take away forty", "task": "subtract", "a": 44, "b": 40}
+{"prompt": "nine minus seven", "task": "subtract", "a": 9, "b": 7}
+{"prompt": "twenty two and thirty six", "task": "add", "a": 22, "b": 36}
+{"prompt": "thirteen plus thirty nine", "task": "add", "a": 13, "b": 39}
+{"prompt": "thirty three take away three", "task": "subtract", "a": 33, "b": 3}
+{"prompt": "four times seven", "task": "multiply", "a": 4, "b": 7}
+{"prompt": "the sum of thirty and ten", "task": "add", "a": 30, "b": 10}
+{"prompt": "the difference between twenty one and nine", "task": "subtract", "a": 21, "b": 9}
+{"prompt": "twenty six take away eleven", "task": "subtract", "a": 26, "b": 11}
+{"prompt": "the difference between thirty eight and twenty", "task": "subtract", "a": 38, "b": 20}
+{"prompt": "the sum of thirty three and thirty five", "task": "add", "a": 33, "b": 35}
+{"prompt": "the sum of thirty seven and twenty", "task": "add", "a": 37, "b": 20}
+{"prompt": "twenty four plus twenty two", "task": "add", "a": 24, "b": 22}
+{"prompt": "thirty eight minus twenty seven", "task": "subtract", "a": 38, "b": 27}
+{"prompt": "the sum of forty five and forty one", "task": "add", "a": 45, "b": 41}
+{"prompt": "the product of nine and six", "task": "multiply", "a": 9, "b": 6}
+{"prompt": "the difference between thirty seven and fifteen", "task": "subtract", "a": 37, "b": 15}
+{"prompt": "thirty eight minus thirty one", "task": "subtract", "a": 38, "b": 31}
+{"prompt": "the product of twelve and eleven", "task": "multiply", "a": 12, "b": 11}
+{"prompt": "forty four plus sixteen", "task": "add", "a": 44, "b": 16}
+{"prompt": "the product of three and five", "task": "multiply", "a": 3, "b": 5}
+{"prompt": "seven multiplied by eight", "task": "multiply", "a": 7, "b": 8}
+{"prompt": "five multiplied by eight", "task": "multiply", "a": 5, "b": 8}
+{"prompt": "the difference between forty eight and thirty one", "task": "subtract", "a": 48, "b": 31}
+{"prompt": "forty six minus nine", "task": "subtract", "a": 46, "b": 9}
+{"prompt": "thirty six minus twenty one", "task": "subtract", "a": 36, "b": 21}
+{"prompt": "thirty four take away twenty five", "task": "subtract", "a": 34, "b": 25}
+{"prompt": "thirty plus thirty five", "task": "add", "a": 30, "b": 35}
+{"prompt": "the sum of twenty three and forty four", "task": "add", "a": 23, "b": 44}
+{"prompt": "the difference between forty five and forty two", "task": "subtract", "a": 45, "b": 42}
+{"prompt": "the sum of thirty one and thirteen", "task": "add", "a": 31, "b": 13}
+{"prompt": "ten multiplied by six", "task": "multiply", "a": 10, "b": 6}
+{"prompt": "six multiplied by five", "task": "multiply", "a": 6, "b": 5}
+{"prompt": "the difference between thirty two and twenty one", "task": "subtract", "a": 32, "b": 21}
+{"prompt": "thirty six and forty seven", "task": "add", "a": 36, "b": 47}
+{"prompt": "eight and thirty seven", "task": "add", "a": 8, "b": 37}
+{"prompt": "the difference between twenty six and twenty five", "task": "subtract", "a": 26, "b": 25}
+{"prompt": "nineteen plus three", "task": "add", "a": 19, "b": 3}
+{"prompt": "the sum of six and twenty three", "task": "add", "a": 6, "b": 23}
+{"prompt": "the sum of seventeen and forty eight", "task": "add", "a": 17, "b": 48}
+{"prompt": "thirteen plus thirty five", "task": "add", "a": 13, "b": 35}
+{"prompt": "the sum of forty five and eighteen", "task": "add", "a": 45, "b": 18}
+{"prompt": "eleven times eleven", "task": "multiply", "a": 11, "b": 11}
+{"prompt": "two times twelve", "task": "multiply", "a": 2, "b": 12}
+{"prompt": "forty one minus fifteen", "task": "subtract", "a": 41, "b": 15}
+{"prompt": "eight times seven", "task": "multiply", "a": 8, "b": 7}
+{"prompt": "forty four take away seven", "task": "subtract", "a": 44, "b": 7}
+{"prompt": "ten times four", "task": "multiply", "a": 10, "b": 4}
+{"prompt": "the sum of thirty one and thirty one", "task": "add", "a": 31, "b": 31}
+{"prompt": "forty nine minus nineteen", "task": "subtract", "a": 49, "b": 19}
+{"prompt": "forty two and four", "task": "add", "a": 42, "b": 4}
+{"prompt": "the product of eleven and five", "task": "multiply", "a": 11, "b": 5}
+{"prompt": "the difference between forty seven and three", "task": "subtract", "a": 47, "b": 3}
+{"prompt": "four multiplied by two", "task": "multiply", "a": 4, "b": 2}
+{"prompt": "twelve and forty eight", "task": "add", "a": 12, "b": 48}
+{"prompt": "one plus twenty", "task": "add", "a": 1, "b": 20}
+{"prompt": "the difference between twenty two and seven", "task": "subtract", "a": 22, "b": 7}
+{"prompt": "forty two and thirty five", "task": "add", "a": 42, "b": 35}
+{"prompt": "thirty three take away nine", "task": "subtract", "a": 33, "b": 9}
+{"prompt": "thirteen and eight", "task": "add", "a": 13, "b": 8}
+{"prompt": "forty seven plus thirty", "task": "add", "a": 47, "b": 30}
+{"prompt": "forty six take away twelve", "task": "subtract", "a": 46, "b": 12}
+{"prompt": "the product of seven and six", "task": "multiply", "a": 7, "b": 6}
+{"prompt": "the difference between forty nine and thirteen", "task": "subtract", "a": 49, "b": 13}
+{"prompt": "the product of twelve and eight", "task": "multiply", "a": 12, "b": 8}
+{"prompt": "the sum of twenty one and six", "task": "add", "a": 21, "b": 6}
+{"prompt": "the sum of seven and twelve", "task": "add", "a": 7, "b": 12}
+{"prompt": "seven multiplied by five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "eight multiplied by five", "task": "multiply", "a": 8, "b": 5}
+{"prompt": "twenty two and twenty", "task": "add", "a": 22, "b": 20}
+{"prompt": "the difference between thirty seven and one", "task": "subtract", "a": 37, "b": 1}
+{"prompt": "the sum of twenty four and forty five", "task": "add", "a": 24, "b": 45}
+{"prompt": "twelve times three", "task": "multiply", "a": 12, "b": 3}
+{"prompt": "eleven and twenty six", "task": "add", "a": 11, "b": 26}
+{"prompt": "the difference between fifty and forty six", "task": "subtract", "a": 50, "b": 46}
+{"prompt": "the sum of eight and forty one", "task": "add", "a": 8, "b": 41}
+{"prompt": "forty and fifteen", "task": "add", "a": 40, "b": 15}
+{"prompt": "nine times four", "task": "multiply", "a": 9, "b": 4}
+{"prompt": "the sum of thirty nine and twenty four", "task": "add", "a": 39, "b": 24}
+{"prompt": "the sum of thirty six and thirty one", "task": "add", "a": 36, "b": 31}
+{"prompt": "the difference between forty nine and fourteen", "task": "subtract", "a": 49, "b": 14}
+{"prompt": "the product of eleven and three", "task": "multiply", "a": 11, "b": 3}
+{"prompt": "forty six take away thirty four", "task": "subtract", "a": 46, "b": 34}
+{"prompt": "thirty seven plus eight", "task": "add", "a": 37, "b": 8}
+{"prompt": "the product of ten and five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "the difference between eleven and ten", "task": "subtract", "a": 11, "b": 10}
+{"prompt": "the sum of twenty nine and eight", "task": "add", "a": 29, "b": 8}
+{"prompt": "forty six minus thirty eight", "task": "subtract", "a": 46, "b": 38}
+{"prompt": "thirty three plus twenty nine", "task": "add", "a": 33, "b": 29}
+{"prompt": "four multiplied by ten", "task": "multiply", "a": 4, "b": 10}
+{"prompt": "thirty seven and four", "task": "add", "a": 37, "b": 4}
+{"prompt": "forty four take away twenty", "task": "subtract", "a": 44, "b": 20}
+{"prompt": "twenty six minus seventeen", "task": "subtract", "a": 26, "b": 17}
+{"prompt": "the product of five and eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "eight times seven", "task": "multiply", "a": 8, "b": 7}
+{"prompt": "thirty five minus four", "task": "subtract", "a": 35, "b": 4}
+{"prompt": "two multiplied by six", "task": "multiply", "a": 2, "b": 6}
+{"prompt": "fifty plus nine", "task": "add", "a": 50, "b": 9}
+{"prompt": "the difference between forty two and twenty seven", "task": "subtract", "a": 42, "b": 27}
+{"prompt": "twenty nine and twenty five", "task": "add", "a": 29, "b": 25}
+{"prompt": "forty four plus forty three", "task": "add", "a": 44, "b": 43}
+{"prompt": "forty two minus twenty three", "task": "subtract", "a": 42, "b": 23}
+{"prompt": "ten times eight", "task": "multiply", "a": 10, "b": 8}
+{"prompt": "forty seven minus fifteen", "task": "subtract", "a": 47, "b": 15}
+{"prompt": "six times nine", "task": "multiply", "a": 6, "b": 9}
+{"prompt": "the difference between thirty five and twenty eight", "task": "subtract", "a": 35, "b": 28}
+{"prompt": "sixteen take away fifteen", "task": "subtract", "a": 16, "b": 15}
+{"prompt": "ten and eighteen", "task": "add", "a": 10, "b": 18}
+{"prompt": "the product of three and two", "task": "multiply", "a": 3, "b": 2}
+{"prompt": "fifty take away forty", "task": "subtract", "a": 50, "b": 40}
+{"prompt": "five times three", "task": "multiply", "a": 5, "b": 3}
+{"prompt": "the product of two and nine", "task": "multiply", "a": 2, "b": 9}
+{"prompt": "the difference between forty six and four", "task": "subtract", "a": 46, "b": 4}
+{"prompt": "the product of two and eight", "task": "multiply", "a": 2, "b": 8}
+{"prompt": "thirty five plus fourteen", "task": "add", "a": 35, "b": 14}
+{"prompt": "ten times six", "task": "multiply", "a": 10, "b": 6}
+{"prompt": "the product of eleven and seven", "task": "multiply", "a": 11, "b": 7}
+{"prompt": "the difference between fifty and forty four", "task": "subtract", "a": 50, "b": 44}
+{"prompt": "twenty plus ten", "task": "add", "a": 20, "b": 10}
+{"prompt": "the difference between twenty seven and fifteen", "task": "subtract", "a": 27, "b": 15}
+{"prompt": "four and thirty six", "task": "add", "a": 4, "b": 36}
+{"prompt": "the difference between forty one and twelve", "task": "subtract", "a": 41, "b": 12}
+{"prompt": "thirty six take away thirty two", "task": "subtract", "a": 36, "b": 32}
+{"prompt": "twelve multiplied by twelve", "task": "multiply", "a": 12, "b": 12}
+{"prompt": "the sum of twenty one and forty five", "task": "add", "a": 21, "b": 45}
+{"prompt": "ten and twenty", "task": "add", "a": 10, "b": 20}
+{"prompt": "forty nine plus thirty five", "task": "add", "a": 49, "b": 35}
+{"prompt": "fifteen plus twenty", "task": "add", "a": 15, "b": 20}
+{"prompt": "thirty minus four", "task": "subtract", "a": 30, "b": 4}
+{"prompt": "thirty six take away twenty seven", "task": "subtract", "a": 36, "b": 27}
+{"prompt": "twenty five minus sixteen", "task": "subtract", "a": 25, "b": 16}
+{"prompt": "twenty two plus forty two", "task": "add", "a": 22, "b": 42}
+{"prompt": "seven multiplied by three", "task": "multiply", "a": 7, "b": 3}
+{"prompt": "the difference between thirteen and four", "task": "subtract", "a": 13, "b": 4}
+{"prompt": "forty four and thirty nine", "task": "add", "a": 44, "b": 39}
+{"prompt": "thirteen minus five", "task": "subtract", "a": 13, "b": 5}
+{"prompt": "the difference between forty three and thirty six", "task": "subtract", "a": 43, "b": 36}
+{"prompt": "five multiplied by seven", "task": "multiply", "a": 5, "b": 7}
+{"prompt": "fourteen plus thirteen", "task": "add", "a": 14, "b": 13}
+{"prompt": "forty nine minus forty eight", "task": "subtract", "a": 49, "b": 48}
+{"prompt": "forty five plus thirty nine", "task": "add", "a": 45, "b": 39}
+{"prompt": "twenty six minus sixteen", "task": "subtract", "a": 26, "b": 16}
+{"prompt": "fifty take away nineteen", "task": "subtract", "a": 50, "b": 19}
+{"prompt": "thirty five and forty two", "task": "add", "a": 35, "b": 42}
+{"prompt": "seventeen and twenty four", "task": "add", "a": 17, "b": 24}
+{"prompt": "thirty take away seven", "task": "subtract", "a": 30, "b": 7}
+{"prompt": "forty nine take away twenty one", "task": "subtract", "a": 49, "b": 21}
+{"prompt": "seven multiplied by eight", "task": "multiply", "a": 7, "b": 8}
+{"prompt": "the product of five and four", "task": "multiply", "a": 5, "b": 4}
+{"prompt": "ten multiplied by eleven", "task": "multiply", "a": 10, "b": 11}
+{"prompt": "the difference between twenty seven and nineteen", "task": "subtract", "a": 27, "b": 19}
+{"prompt": "seven times five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "the sum of sixteen and thirty two", "task": "add", "a": 16, "b": 32}
+{"prompt": "the difference between forty four and twenty two", "task": "subtract", "a": 44, "b": 22}
+{"prompt": "forty seven and forty two", "task": "add", "a": 47, "b": 42}
+{"prompt": "thirty take away eleven", "task": "subtract", "a": 30, "b": 11}
+{"prompt": "eleven take away nine", "task": "subtract", "a": 11, "b": 9}
+{"prompt": "the difference between thirty two and twelve", "task": "subtract", "a": 32, "b": 12}
+{"prompt": "the difference between thirty four and four", "task": "subtract", "a": 34, "b": 4}
+{"prompt": "twelve times two", "task": "multiply", "a": 12, "b": 2}
+{"prompt": "four multiplied by twelve", "task": "multiply", "a": 4, "b": 12}
+{"prompt": "four times two", "task": "multiply", "a": 4, "b": 2}
+{"prompt": "the product of nine and seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "the product of twelve and twelve", "task": "multiply", "a": 12, "b": 12}
+{"prompt": "forty three take away thirty two", "task": "subtract", "a": 43, "b": 32}
+{"prompt": "ten times ten", "task": "multiply", "a": 10, "b": 10}
+{"prompt": "two plus thirty four", "task": "add", "a": 2, "b": 34}
+{"prompt": "thirty five take away nineteen", "task": "subtract", "a": 35, "b": 19}
+{"prompt": "the product of twelve and eight", "task": "multiply", "a": 12, "b": 8}
+{"prompt": "three times ten", "task": "multiply", "a": 3, "b": 10}
+{"prompt": "five times eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "twenty three take away eighteen", "task": "subtract", "a": 23, "b": 18}
+{"prompt": "twenty four plus twenty six", "task": "add", "a": 24, "b": 26}
+{"prompt": "the sum of sixteen and forty five", "task": "add", "a": 16, "b": 45}
+{"prompt": "twelve multiplied by three", "task": "multiply", "a": 12, "b": 3}
+{"prompt": "the difference between forty nine and three", "task": "subtract", "a": 49, "b": 3}
+{"prompt": "eight multiplied by eight", "task": "multiply", "a": 8, "b": 8}
+{"prompt": "forty one take away four", "task": "subtract", "a": 41, "b": 4}
+{"prompt": "the product of four and three", "task": "multiply", "a": 4, "b": 3}
+{"prompt": "forty two and twenty two", "task": "add", "a": 42, "b": 22}
+{"prompt": "thirty four minus three", "task": "subtract", "a": 34, "b": 3}
+{"prompt": "eleven times nine", "task": "multiply", "a": 11, "b": 9}
+{"prompt": "five plus forty four", "task": "add", "a": 5, "b": 44}
+{"prompt": "the sum of thirty seven and forty three", "task": "add", "a": 37, "b": 43}
+{"prompt": "seven times two", "task": "multiply", "a": 7, "b": 2}
+{"prompt": "the product of four and eight", "task": "multiply", "a": 4, "b": 8}
+{"prompt": "four multiplied by eleven", "task": "multiply", "a": 4, "b": 11}
+{"prompt": "the product of eight and twelve", "task": "multiply", "a": 8, "b": 12}
+{"prompt": "forty nine take away twenty five", "task": "subtract", "a": 49, "b": 25}
+{"prompt": "forty seven minus forty five", "task": "subtract", "a": 47, "b": 45}
+{"prompt": "the product of seven and two", "task": "multiply", "a": 7, "b": 2}
+{"prompt": "five multiplied by three", "task": "multiply", "a": 5, "b": 3}
+{"prompt": "the sum of fifty and forty", "task": "add", "a": 50, "b": 40}
+{"prompt": "fifty take away twenty one", "task": "subtract", "a": 50, "b": 21}
+{"prompt": "the product of six and nine", "task": "multiply", "a": 6, "b": 9}
+{"prompt": "twenty three plus thirty six", "task": "add", "a": 23, "b": 36}
+{"prompt": "twelve and forty four", "task": "add", "a": 12, "b": 44}
+{"prompt": "the difference between twenty five and six", "task": "subtract", "a": 25, "b": 6}
+{"prompt": "forty six take away sixteen", "task": "subtract", "a": 46, "b": 16}
+{"prompt": "six times four", "task": "multiply", "a": 6, "b": 4}
+{"prompt": "the sum of forty one and ten", "task": "add", "a": 41, "b": 10}
+{"prompt": "twenty four take away twenty one", "task": "subtract", "a": 24, "b": 21}
+{"prompt": "two times six", "task": "multiply", "a": 2, "b": 6}
+{"prompt": "forty nine and eighteen", "task": "add", "a": 49, "b": 18}
+{"prompt": "three times four", "task": "multiply", "a": 3, "b": 4}
+{"prompt": "thirty six and thirty six", "task": "add", "a": 36, "b": 36}
+{"prompt": "seven take away two", "task": "subtract", "a": 7, "b": 2}
+{"prompt": "ten multiplied by three", "task": "multiply", "a": 10, "b": 3}
+{"prompt": "the difference between twenty five and twenty one", "task": "subtract", "a": 25, "b": 21}
+{"prompt": "eight multiplied by eight", "task": "multiply", "a": 8, "b": 8}
+{"prompt": "the product of ten and five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "the difference between forty four and eleven", "task": "subtract", "a": 44, "b": 11}
+{"prompt": "nine plus eighteen", "task": "add", "a": 9, "b": 18}
+{"prompt": "thirty two and ten", "task": "add", "a": 32, "b": 10}
+{"prompt": "eight times six", "task": "multiply", "a": 8, "b": 6}
+{"prompt": "thirty one and five", "task": "add", "a": 31, "b": 5}
+{"prompt": "sixteen and forty seven", "task": "add", "a": 16, "b": 47}
+{"prompt": "forty take away thirty nine", "task": "subtract", "a": 40, "b": 39}
+{"prompt": "three multiplied by four", "task": "multiply", "a": 3, "b": 4}
+{"prompt": "twenty six plus twenty two", "task": "add", "a": 26, "b": 22}
+{"prompt": "twenty nine take away twenty two", "task": "subtract", "a": 29, "b": 22}
+{"prompt": "forty two and thirty nine", "task": "add", "a": 42, "b": 39}
+{"prompt": "seven multiplied by eleven", "task": "multiply", "a": 7, "b": 11}
+{"prompt": "thirty one minus twenty one", "task": "subtract", "a": 31, "b": 21}
+{"prompt": "seven multiplied by six", "task": "multiply", "a": 7, "b": 6}
+{"prompt": "the difference between forty one and thirty two", "task": "subtract", "a": 41, "b": 32}
+{"prompt": "twenty five minus twenty one", "task": "subtract", "a": 25, "b": 21}
+{"prompt": "twenty four and eight", "task": "add", "a": 24, "b": 8}
+{"prompt": "thirty eight minus thirty five", "task": "subtract", "a": 38, "b": 35}
+{"prompt": "the product of ten and two", "task": "multiply", "a": 10, "b": 2}
+{"prompt": "forty six take away fourteen", "task": "subtract", "a": 46, "b": 14}
+{"prompt": "forty five and five", "task": "add", "a": 45, "b": 5}
+{"prompt": "the sum of thirty two and nine", "task": "add", "a": 32, "b": 9}
+{"prompt": "seventeen take away sixteen", "task": "subtract", "a": 17, "b": 16}
+{"prompt": "forty six minus twenty eight", "task": "subtract", "a": 46, "b": 28}
+{"prompt": "twenty nine plus thirty nine", "task": "add", "a": 29, "b": 39}
+{"prompt": "the sum of twenty six and thirty five", "task": "add", "a": 26, "b": 35}
+{"prompt": "the difference between thirty five and twenty seven", "task": "subtract", "a": 35, "b": 27}
+{"prompt": "ten multiplied by eleven", "task": "multiply", "a": 10, "b": 11}
+{"prompt": "fifty minus seven", "task": "subtract", "a": 50, "b": 7}
+{"prompt": "the product of twelve and seven", "task": "multiply", "a": 12, "b": 7}
+{"prompt": "the product of eleven and two", "task": "multiply", "a": 11, "b": 2}
+{"prompt": "the difference between forty four and forty two", "task": "subtract", "a": 44, "b": 42}
+{"prompt": "twenty eight and seven", "task": "add", "a": 28, "b": 7}
+{"prompt": "six times five", "task": "multiply", "a": 6, "b": 5}
+{"prompt": "the difference between thirty six and thirty four", "task": "subtract", "a": 36, "b": 34}
+{"prompt": "the difference between thirty seven and fifteen", "task": "subtract", "a": 37, "b": 15}
+{"prompt": "twenty six and thirty", "task": "add", "a": 26, "b": 30}
+{"prompt": "the difference between forty five and thirty three", "task": "subtract", "a": 45, "b": 33}
+{"prompt": "two multiplied by nine", "task": "multiply", "a": 2, "b": 9}
+{"prompt": "eight multiplied by three", "task": "multiply", "a": 8, "b": 3}
+{"prompt": "the product of four and seven", "task": "multiply", "a": 4, "b": 7}
+{"prompt": "thirty and fourteen", "task": "add", "a": 30, "b": 14}
+{"prompt": "thirty one take away twenty three", "task": "subtract", "a": 31, "b": 23}
+{"prompt": "nine multiplied by seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "two multiplied by three", "task": "multiply", "a": 2, "b": 3}
+{"prompt": "twelve multiplied by three", "task": "multiply", "a": 12, "b": 3}
+{"prompt": "forty eight minus sixteen", "task": "subtract", "a": 48, "b": 16}
+{"prompt": "thirty six minus eleven", "task": "subtract", "a": 36, "b": 11}
+{"prompt": "the sum of twenty eight and thirty", "task": "add", "a": 28, "b": 30}
+{"prompt": "twelve multiplied by four", "task": "multiply", "a": 12, "b": 4}
+{"prompt": "the product of twelve and eight", "task": "multiply", "a": 12, "b": 8}
+{"prompt": "forty eight plus forty", "task": "add", "a": 48, "b": 40}
+{"prompt": "eleven multiplied by eight", "task": "multiply", "a": 11, "b": 8}
+{"prompt": "forty six plus fourteen", "task": "add", "a": 46, "b": 14}
+{"prompt": "three multiplied by eleven", "task": "multiply", "a": 3, "b": 11}
+{"prompt": "the product of four and seven", "task": "multiply", "a": 4, "b": 7}
+{"prompt": "thirty plus eight", "task": "add", "a": 30, "b": 8}
+{"prompt": "the sum of thirty two and thirty four", "task": "add", "a": 32, "b": 34}
+{"prompt": "thirty nine take away twenty five", "task": "subtract", "a": 39, "b": 25}
+{"prompt": "thirty eight take away eight", "task": "subtract", "a": 38, "b": 8}
+{"prompt": "thirty and forty", "task": "add", "a": 30, "b": 40}
+{"prompt": "the product of six and eleven", "task": "multiply", "a": 6, "b": 11}
+{"prompt": "forty four minus nine", "task": "subtract", "a": 44, "b": 9}
+{"prompt": "sixteen plus twenty", "task": "add", "a": 16, "b": 20}
+{"prompt": "seven times four", "task": "multiply", "a": 7, "b": 4}
+{"prompt": "thirty nine take away twenty seven", "task": "subtract", "a": 39, "b": 27}
+{"prompt": "the product of eight and eight", "task": "multiply", "a": 8, "b": 8}
+{"prompt": "twelve multiplied by ten", "task": "multiply", "a": 12, "b": 10}
+{"prompt": "the difference between thirty six and twelve", "task": "subtract", "a": 36, "b": 12}
+{"prompt": "six multiplied by four", "task": "multiply", "a": 6, "b": 4}
+{"prompt": "nine multiplied by eleven", "task": "multiply", "a": 9, "b": 11}
+{"prompt": "two multiplied by nine", "task": "multiply", "a": 2, "b": 9}
+{"prompt": "eight times ten", "task": "multiply", "a": 8, "b": 10}
+{"prompt": "the difference between thirty two and twenty seven", "task": "subtract", "a": 32, "b": 27}
+{"prompt": "forty six take away twenty seven", "task": "subtract", "a": 46, "b": 27}
+{"prompt": "eleven and six", "task": "add", "a": 11, "b": 6}
+{"prompt": "forty nine minus fifteen", "task": "subtract", "a": 49, "b": 15}
+{"prompt": "eighteen plus fifteen", "task": "add", "a": 18, "b": 15}
+{"prompt": "fifty take away eleven", "task": "subtract", "a": 50, "b": 11}
+{"prompt": "the sum of forty eight and fifty", "task": "add", "a": 48, "b": 50}
+{"prompt": "the sum of thirty three and eight", "task": "add", "a": 33, "b": 8}
+{"prompt": "fifty minus eighteen", "task": "subtract", "a": 50, "b": 18}
+{"prompt": "forty nine take away thirty five", "task": "subtract", "a": 49, "b": 35}
+{"prompt": "the product of nine and ten", "task": "multiply", "a": 9, "b": 10}
+{"prompt": "three multiplied by twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "two multiplied by nine", "task": "multiply", "a": 2, "b": 9}
+{"prompt": "six and twenty nine", "task": "add", "a": 6, "b": 29}
+{"prompt": "five times eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "forty six take away forty", "task": "subtract", "a": 46, "b": 40}
+{"prompt": "forty take away eleven", "task": "subtract", "a": 40, "b": 11}
+{"prompt": "five times two", "task": "multiply", "a": 5, "b": 2}
+{"prompt": "thirty five take away eighteen", "task": "subtract", "a": 35, "b": 18}
+{"prompt": "the difference between twenty one and eleven", "task": "subtract", "a": 21, "b": 11}
+{"prompt": "thirty seven take away nineteen", "task": "subtract", "a": 37, "b": 19}
+{"prompt": "the sum of forty four and seven", "task": "add", "a": 44, "b": 7}
+{"prompt": "two multiplied by six", "task": "multiply", "a": 2, "b": 6}
+{"prompt": "forty five minus nine", "task": "subtract", "a": 45, "b": 9}
+{"prompt": "seven times five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "thirty two take away ten", "task": "subtract", "a": 32, "b": 10}
+{"prompt": "the difference between forty one and eighteen", "task": "subtract", "a": 41, "b": 18}
+{"prompt": "twenty nine and five", "task": "add", "a": 29, "b": 5}
+{"prompt": "thirty three minus twenty six", "task": "subtract", "a": 33, "b": 26}
+{"prompt": "forty five take away twenty four", "task": "subtract", "a": 45, "b": 24}
+{"prompt": "twenty one and thirty eight", "task": "add", "a": 21, "b": 38}
+{"prompt": "the product of three and nine", "task": "multiply", "a": 3, "b": 9}
+{"prompt": "the difference between forty five and twenty three", "task": "subtract", "a": 45, "b": 23}
+{"prompt": "the product of eight and five", "task": "multiply", "a": 8, "b": 5}
+{"prompt": "thirty two plus eighteen", "task": "add", "a": 32, "b": 18}
+{"prompt": "twenty two and thirty six", "task": "add", "a": 22, "b": 36}
+{"prompt": "thirty seven minus thirty two", "task": "subtract", "a": 37, "b": 32}
+{"prompt": "the sum of forty nine and four", "task": "add", "a": 49, "b": 4}
+{"prompt": "twelve times nine", "task": "multiply", "a": 12, "b": 9}
+{"prompt": "four times nine", "task": "multiply", "a": 4, "b": 9}
+{"prompt": "twenty eight plus thirteen", "task": "add", "a": 28, "b": 13}
+{"prompt": "forty two minus twenty", "task": "subtract", "a": 42, "b": 20}
+{"prompt": "three multiplied by twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "six and twenty four", "task": "add", "a": 6, "b": 24}
+{"prompt": "the difference between eleven and four", "task": "subtract", "a": 11, "b": 4}
+{"prompt": "the sum of twenty and forty seven", "task": "add", "a": 20, "b": 47}
+{"prompt": "forty two minus twenty eight", "task": "subtract", "a": 42, "b": 28}
+{"prompt": "the product of three and two", "task": "multiply", "a": 3, "b": 2}
+{"prompt": "three multiplied by four", "task": "multiply", "a": 3, "b": 4}
+{"prompt": "forty four minus thirty four", "task": "subtract", "a": 44, "b": 34}
+{"prompt": "one plus forty five", "task": "add", "a": 1, "b": 45}
+{"prompt": "twenty eight plus forty five", "task": "add", "a": 28, "b": 45}
+{"prompt": "three multiplied by five", "task": "multiply", "a": 3, "b": 5}
+{"prompt": "forty seven plus seven", "task": "add", "a": 47, "b": 7}
+{"prompt": "seven multiplied by six", "task": "multiply", "a": 7, "b": 6}
+{"prompt": "four multiplied by twelve", "task": "multiply", "a": 4, "b": 12}
+{"prompt": "thirty four minus five", "task": "subtract", "a": 34, "b": 5}
+{"prompt": "forty two minus forty", "task": "subtract", "a": 42, "b": 40}
+{"prompt": "seven multiplied by five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "the difference between twenty seven and ten", "task": "subtract", "a": 27, "b": 10}
+{"prompt": "the difference between twenty nine and fourteen", "task": "subtract", "a": 29, "b": 14}
+{"prompt": "four times three", "task": "multiply", "a": 4, "b": 3}
+{"prompt": "the difference between twenty five and twenty three", "task": "subtract", "a": 25, "b": 23}
+{"prompt": "nine and sixteen", "task": "add", "a": 9, "b": 16}
+{"prompt": "the sum of six and sixteen", "task": "add", "a": 6, "b": 16}
+{"prompt": "the difference between forty seven and thirty nine", "task": "subtract", "a": 47, "b": 39}
+{"prompt": "fifty take away forty five", "task": "subtract", "a": 50, "b": 45}
+{"prompt": "the product of six and five", "task": "multiply", "a": 6, "b": 5}
+{"prompt": "the difference between thirty three and thirteen", "task": "subtract", "a": 33, "b": 13}
+{"prompt": "forty two take away nineteen", "task": "subtract", "a": 42, "b": 19}
+{"prompt": "nine times eight", "task": "multiply", "a": 9, "b": 8}
+{"prompt": "nine times twelve", "task": "multiply", "a": 9, "b": 12}
+{"prompt": "thirty four minus one", "task": "subtract", "a": 34, "b": 1}
+{"prompt": "nine and twenty five", "task": "add", "a": 9, "b": 25}
+{"prompt": "thirty five take away twenty four", "task": "subtract", "a": 35, "b": 24}
+{"prompt": "forty nine minus thirty one", "task": "subtract", "a": 49, "b": 31}
+{"prompt": "eleven times three", "task": "multiply", "a": 11, "b": 3}
+{"prompt": "five multiplied by two", "task": "multiply", "a": 5, "b": 2}
+{"prompt": "ten multiplied by six", "task": "multiply", "a": 10, "b": 6}
+{"prompt": "the difference between fifty and thirty three", "task": "subtract", "a": 50, "b": 33}
+{"prompt": "forty five and twenty six", "task": "add", "a": 45, "b": 26}
+{"prompt": "the product of ten and ten", "task": "multiply", "a": 10, "b": 10}
+{"prompt": "eighteen minus six", "task": "subtract", "a": 18, "b": 6}
+{"prompt": "thirty three plus fourteen", "task": "add", "a": 33, "b": 14}
+{"prompt": "the product of seven and eight", "task": "multiply", "a": 7, "b": 8}
+{"prompt": "the difference between forty nine and forty two", "task": "subtract", "a": 49, "b": 42}
+{"prompt": "the difference between twenty and five", "task": "subtract", "a": 20, "b": 5}
+{"prompt": "forty seven take away sixteen", "task": "subtract", "a": 47, "b": 16}
+{"prompt": "three times eight", "task": "multiply", "a": 3, "b": 8}
+{"prompt": "eleven multiplied by eleven", "task": "multiply", "a": 11, "b": 11}
+{"prompt": "twelve multiplied by twelve", "task": "multiply", "a": 12, "b": 12}
+{"prompt": "eight minus one", "task": "subtract", "a": 8, "b": 1}
+{"prompt": "forty five minus one", "task": "subtract", "a": 45, "b": 1}
+{"prompt": "seven multiplied by ten", "task": "multiply", "a": 7, "b": 10}
+{"prompt": "the difference between seventeen and eleven", "task": "subtract", "a": 17, "b": 11}
+{"prompt": "forty eight plus fifty", "task": "add", "a": 48, "b": 50}
+{"prompt": "the sum of eight and fifty", "task": "add", "a": 8, "b": 50}
+{"prompt": "eight multiplied by six", "task": "multiply", "a": 8, "b": 6}
+{"prompt": "forty six minus seventeen", "task": "subtract", "a": 46, "b": 17}
+{"prompt": "the difference between thirty two and five", "task": "subtract", "a": 32, "b": 5}
+{"prompt": "the sum of twenty four and four", "task": "add", "a": 24, "b": 4}
+{"prompt": "the sum of eleven and twenty four", "task": "add", "a": 11, "b": 24}
+{"prompt": "three multiplied by eleven", "task": "multiply", "a": 3, "b": 11}
+{"prompt": "the difference between fifteen and eight", "task": "subtract", "a": 15, "b": 8}
+{"prompt": "the difference between three and one", "task": "subtract", "a": 3, "b": 1}
+{"prompt": "two times nine", "task": "multiply", "a": 2, "b": 9}
+{"prompt": "ten and twelve", "task": "add", "a": 10, "b": 12}
+{"prompt": "the product of twelve and eight", "task": "multiply", "a": 12, "b": 8}
+{"prompt": "five multiplied by eight", "task": "multiply", "a": 5, "b": 8}
+{"prompt": "eighteen take away five", "task": "subtract", "a": 18, "b": 5}
+{"prompt": "thirty three take away eight", "task": "subtract", "a": 33, "b": 8}
+{"prompt": "fifteen minus twelve", "task": "subtract", "a": 15, "b": 12}
+{"prompt": "twenty six minus five", "task": "subtract", "a": 26, "b": 5}
+{"prompt": "fifty and twenty", "task": "add", "a": 50, "b": 20}
+{"prompt": "thirty six plus thirty", "task": "add", "a": 36, "b": 30}
+{"prompt": "five multiplied by six", "task": "multiply", "a": 5, "b": 6}
+{"prompt": "forty eight take away forty", "task": "subtract", "a": 48, "b": 40}
+{"prompt": "seven multiplied by eleven", "task": "multiply", "a": 7, "b": 11}
+{"prompt": "forty seven plus thirty five", "task": "add", "a": 47, "b": 35}
+{"prompt": "two times eight", "task": "multiply", "a": 2, "b": 8}
+{"prompt": "ten times seven", "task": "multiply", "a": 10, "b": 7}
+{"prompt": "the difference between twenty two and one", "task": "subtract", "a": 22, "b": 1}
+{"prompt": "the product of eight and six", "task": "multiply", "a": 8, "b": 6}
+{"prompt": "ten times five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "four and ten", "task": "add", "a": 4, "b": 10}
+{"prompt": "six take away three", "task": "subtract", "a": 6, "b": 3}
+{"prompt": "the product of eight and seven", "task": "multiply", "a": 8, "b": 7}
+{"prompt": "the sum of six and thirty eight", "task": "add", "a": 6, "b": 38}
+{"prompt": "the product of four and twelve", "task": "multiply", "a": 4, "b": 12}
+{"prompt": "thirty eight plus thirty seven", "task": "add", "a": 38, "b": 37}
+{"prompt": "twelve multiplied by four", "task": "multiply", "a": 12, "b": 4}
+{"prompt": "six multiplied by seven", "task": "multiply", "a": 6, "b": 7}
+{"prompt": "the sum of forty eight and twenty one", "task": "add", "a": 48, "b": 21}
+{"prompt": "eighteen and fifteen", "task": "add", "a": 18, "b": 15}
+{"prompt": "four times eleven", "task": "multiply", "a": 4, "b": 11}
+{"prompt": "three times four", "task": "multiply", "a": 3, "b": 4}
+{"prompt": "twenty one and twenty seven", "task": "add", "a": 21, "b": 27}
+{"prompt": "the product of seven and five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "thirty and seventeen", "task": "add", "a": 30, "b": 17}
+{"prompt": "four times twelve", "task": "multiply", "a": 4, "b": 12}
+{"prompt": "the sum of forty five and thirty nine", "task": "add", "a": 45, "b": 39}
+{"prompt": "seven times four", "task": "multiply", "a": 7, "b": 4}
+{"prompt": "the product of five and seven", "task": "multiply", "a": 5, "b": 7}
+{"prompt": "the sum of four and forty four", "task": "add", "a": 4, "b": 44}
+{"prompt": "twelve and two", "task": "add", "a": 12, "b": 2}
+{"prompt": "thirty six and forty eight", "task": "add", "a": 36, "b": 48}
+{"prompt": "thirty minus seven", "task": "subtract", "a": 30, "b": 7}
+{"prompt": "three times two", "task": "multiply", "a": 3, "b": 2}
+{"prompt": "four times five", "task": "multiply", "a": 4, "b": 5}
+{"prompt": "forty four and forty one", "task": "add", "a": 44, "b": 41}
+{"prompt": "thirty eight minus thirty eight", "task": "subtract", "a": 38, "b": 38}
+{"prompt": "two plus five", "task": "add", "a": 2, "b": 5}
+{"prompt": "the product of nine and four", "task": "multiply", "a": 9, "b": 4}
+{"prompt": "three multiplied by two", "task": "multiply", "a": 3, "b": 2}
+{"prompt": "eleven plus thirty seven", "task": "add", "a": 11, "b": 37}
+{"prompt": "the sum of twenty six and thirty two", "task": "add", "a": 26, "b": 32}
+{"prompt": "twelve multiplied by eight", "task": "multiply", "a": 12, "b": 8}
+{"prompt": "five multiplied by four", "task": "multiply", "a": 5, "b": 4}
+{"prompt": "twenty nine and ten", "task": "add", "a": 29, "b": 10}
+{"prompt": "the product of eleven and eleven", "task": "multiply", "a": 11, "b": 11}
+{"prompt": "the product of six and nine", "task": "multiply", "a": 6, "b": 9}
+{"prompt": "the sum of thirty one and four", "task": "add", "a": 31, "b": 4}
+{"prompt": "eight multiplied by four", "task": "multiply", "a": 8, "b": 4}
+{"prompt": "forty two plus thirty four", "task": "add", "a": 42, "b": 34}
+{"prompt": "the product of ten and two", "task": "multiply", "a": 10, "b": 2}
+{"prompt": "the sum of twenty three and thirty one", "task": "add", "a": 23, "b": 31}
+{"prompt": "thirty seven take away twenty three", "task": "subtract", "a": 37, "b": 23}
+{"prompt": "twenty five take away eighteen", "task": "subtract", "a": 25, "b": 18}
+{"prompt": "seven times eleven", "task": "multiply", "a": 7, "b": 11}
+{"prompt": "six times two", "task": "multiply", "a": 6, "b": 2}
+{"prompt": "the sum of twenty three and fifty", "task": "add", "a": 23, "b": 50}
+{"prompt": "eleven minus seven", "task": "subtract", "a": 11, "b": 7}
+{"prompt": "the product of five and six", "task": "multiply", "a": 5, "b": 6}
+{"prompt": "the difference between forty nine and four", "task": "subtract", "a": 49, "b": 4}
+{"prompt": "the product of eight and seven", "task": "multiply", "a": 8, "b": 7}
+{"prompt": "five times eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "the sum of forty five and twenty three", "task": "add", "a": 45, "b": 23}
+{"prompt": "forty six minus forty five", "task": "subtract", "a": 46, "b": 45}
+{"prompt": "the sum of thirty seven and ten", "task": "add", "a": 37, "b": 10}
+{"prompt": "thirty five minus thirty two", "task": "subtract", "a": 35, "b": 32}
+{"prompt": "thirty two plus three", "task": "add", "a": 32, "b": 3}
+{"prompt": "five times eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "ten times nine", "task": "multiply", "a": 10, "b": 9}
+{"prompt": "eleven multiplied by five", "task": "multiply", "a": 11, "b": 5}
+{"prompt": "four multiplied by seven", "task": "multiply", "a": 4, "b": 7}
+{"prompt": "four times eleven", "task": "multiply", "a": 4, "b": 11}
+{"prompt": "fifty minus eight", "task": "subtract", "a": 50, "b": 8}
+{"prompt": "twenty four take away five", "task": "subtract", "a": 24, "b": 5}
+{"prompt": "the difference between thirty eight and twenty six", "task": "subtract", "a": 38, "b": 26}
+{"prompt": "six multiplied by seven", "task": "multiply", "a": 6, "b": 7}
+{"prompt": "eight times twelve", "task": "multiply", "a": 8, "b": 12}
+{"prompt": "the sum of twenty one and twelve", "task": "add", "a": 21, "b": 12}
+{"prompt": "the difference between forty five and forty", "task": "subtract", "a": 45, "b": 40}
+{"prompt": "forty three plus thirty eight", "task": "add", "a": 43, "b": 38}
+{"prompt": "six multiplied by six", "task": "multiply", "a": 6, "b": 6}
+{"prompt": "two times eleven", "task": "multiply", "a": 2, "b": 11}
+{"prompt": "the sum of three and twelve", "task": "add", "a": 3, "b": 12}
+{"prompt": "forty take away fifteen", "task": "subtract", "a": 40, "b": 15}
+{"prompt": "the difference between thirty two and seven", "task": "subtract", "a": 32, "b": 7}
+{"prompt": "three multiplied by five", "task": "multiply", "a": 3, "b": 5}
+{"prompt": "eleven and forty one", "task": "add", "a": 11, "b": 41}
+{"prompt": "the product of twelve and twelve", "task": "multiply", "a": 12, "b": 12}
+{"prompt": "twenty nine take away one", "task": "subtract", "a": 29, "b": 1}
+{"prompt": "sixteen plus forty five", "task": "add", "a": 16, "b": 45}
+{"prompt": "six multiplied by three", "task": "multiply", "a": 6, "b": 3}
+{"prompt": "twenty five minus four", "task": "subtract", "a": 25, "b": 4}
+{"prompt": "the sum of twenty seven and eleven", "task": "add", "a": 27, "b": 11}
+{"prompt": "twenty five and twenty three", "task": "add", "a": 25, "b": 23}
+{"prompt": "thirty one take away seven", "task": "subtract", "a": 31, "b": 7}
+{"prompt": "the difference between forty nine and forty four", "task": "subtract", "a": 49, "b": 44}
+{"prompt": "nine times three", "task": "multiply", "a": 9, "b": 3}
+{"prompt": "two multiplied by seven", "task": "multiply", "a": 2, "b": 7}
+{"prompt": "five plus twenty two", "task": "add", "a": 5, "b": 22}
+{"prompt": "four multiplied by three", "task": "multiply", "a": 4, "b": 3}
+{"prompt": "thirty nine minus twenty two", "task": "subtract", "a": 39, "b": 22}
+{"prompt": "forty six take away two", "task": "subtract", "a": 46, "b": 2}
+{"prompt": "the sum of eleven and thirty nine", "task": "add", "a": 11, "b": 39}
+{"prompt": "four plus seven", "task": "add", "a": 4, "b": 7}
+{"prompt": "thirteen plus twenty seven", "task": "add", "a": 13, "b": 27}
+{"prompt": "the difference between forty seven and forty seven", "task": "subtract", "a": 47, "b": 47}
+{"prompt": "forty three take away nineteen", "task": "subtract", "a": 43, "b": 19}
+{"prompt": "seven plus four", "task": "add", "a": 7, "b": 4}
+{"prompt": "the sum of thirty six and thirty two", "task": "add", "a": 36, "b": 32}
+{"prompt": "seven times two", "task": "multiply", "a": 7, "b": 2}
+{"prompt": "nineteen plus forty three", "task": "add", "a": 19, "b": 43}
+{"prompt": "the difference between thirty one and thirteen", "task": "subtract", "a": 31, "b": 13}
+{"prompt": "five times four", "task": "multiply", "a": 5, "b": 4}
+{"prompt": "thirty one take away six", "task": "subtract", "a": 31, "b": 6}
+{"prompt": "eight multiplied by nine", "task": "multiply", "a": 8, "b": 9}
+{"prompt": "the sum of seventeen and six", "task": "add", "a": 17, "b": 6}
+{"prompt": "the difference between twenty five and twelve", "task": "subtract", "a": 25, "b": 12}
+{"prompt": "twenty four and twelve", "task": "add", "a": 24, "b": 12}
+{"prompt": "seventeen plus twenty nine", "task": "add", "a": 17, "b": 29}
+{"prompt": "fifteen and eighteen", "task": "add", "a": 15, "b": 18}
+{"prompt": "forty nine minus ten", "task": "subtract", "a": 49, "b": 10}
+{"prompt": "the difference between seven and six", "task": "subtract", "a": 7, "b": 6}
+{"prompt": "thirty five take away twenty seven", "task": "subtract", "a": 35, "b": 27}
+{"prompt": "thirty six minus four", "task": "subtract", "a": 36, "b": 4}
+{"prompt": "the sum of twenty seven and thirty five", "task": "add", "a": 27, "b": 35}
+{"prompt": "thirty seven take away sixteen", "task": "subtract", "a": 37, "b": 16}
+{"prompt": "six and twenty six", "task": "add", "a": 6, "b": 26}
+{"prompt": "thirty seven minus thirty three", "task": "subtract", "a": 37, "b": 33}
+{"prompt": "the difference between forty four and forty", "task": "subtract", "a": 44, "b": 40}
+{"prompt": "nine times four", "task": "multiply", "a": 9, "b": 4}
+{"prompt": "five times four", "task": "multiply", "a": 5, "b": 4}
+{"prompt": "three multiplied by twelve", "task": "multiply", "a": 3, "b": 12}
+{"prompt": "forty one plus ten", "task": "add", "a": 41, "b": 10}
+{"prompt": "forty seven take away twenty one", "task": "subtract", "a": 47, "b": 21}
+{"prompt": "eight times ten", "task": "multiply", "a": 8, "b": 10}
+{"prompt": "the sum of twenty one and eighteen", "task": "add", "a": 21, "b": 18}
+{"prompt": "forty five take away one", "task": "subtract", "a": 45, "b": 1}
+{"prompt": "the difference between thirty four and twenty seven", "task": "subtract", "a": 34, "b": 27}
+{"prompt": "four multiplied by four", "task": "multiply", "a": 4, "b": 4}
+{"prompt": "the difference between forty nine and thirty eight", "task": "subtract", "a": 49, "b": 38}
+{"prompt": "eleven times three", "task": "multiply", "a": 11, "b": 3}
+{"prompt": "the sum of twenty three and twenty seven", "task": "add", "a": 23, "b": 27}
+{"prompt": "forty two and thirty two", "task": "add", "a": 42, "b": 32}
+{"prompt": "the difference between thirty one and three", "task": "subtract", "a": 31, "b": 3}
+{"prompt": "eight multiplied by four", "task": "multiply", "a": 8, "b": 4}
+{"prompt": "the difference between forty five and forty four", "task": "subtract", "a": 45, "b": 44}
+{"prompt": "twenty six plus twenty two", "task": "add", "a": 26, "b": 22}
+{"prompt": "forty eight minus four", "task": "subtract", "a": 48, "b": 4}
+{"prompt": "twenty four and two", "task": "add", "a": 24, "b": 2}
+{"prompt": "twenty and eighteen", "task": "add", "a": 20, "b": 18}
+{"prompt": "the sum of forty four and seven", "task": "add", "a": 44, "b": 7}
+{"prompt": "six times nine", "task": "multiply", "a": 6, "b": 9}
+{"prompt": "forty seven and twenty seven", "task": "add", "a": 47, "b": 27}
+{"prompt": "the difference between thirteen and six", "task": "subtract", "a": 13, "b": 6}
+{"prompt": "twenty seven plus forty eight", "task": "add", "a": 27, "b": 48}
+{"prompt": "the sum of twenty four and four", "task": "add", "a": 24, "b": 4}
+{"prompt": "twenty minus five", "task": "subtract", "a": 20, "b": 5}
+{"prompt": "the difference between twenty six and nine", "task": "subtract", "a": 26, "b": 9}
+{"prompt": "the difference between twelve and two", "task": "subtract", "a": 12, "b": 2}
+{"prompt": "two times five", "task": "multiply", "a": 2, "b": 5}
+{"prompt": "two multiplied by seven", "task": "multiply", "a": 2, "b": 7}
+{"prompt": "twenty four minus eighteen", "task": "subtract", "a": 24, "b": 18}
+{"prompt": "the sum of twenty six and forty one", "task": "add", "a": 26, "b": 41}
+{"prompt": "the product of two and five", "task": "multiply", "a": 2, "b": 5}
+{"prompt": "thirty nine and twenty nine", "task": "add", "a": 39, "b": 29}
+{"prompt": "eleven multiplied by ten", "task": "multiply", "a": 11, "b": 10}
+{"prompt": "eleven and seventeen", "task": "add", "a": 11, "b": 17}
+{"prompt": "the difference between nineteen and six", "task": "subtract", "a": 19, "b": 6}
+{"prompt": "two multiplied by four", "task": "multiply", "a": 2, "b": 4}
+{"prompt": "forty two minus fifteen", "task": "subtract", "a": 42, "b": 15}
+{"prompt": "the product of five and six", "task": "multiply", "a": 5, "b": 6}
+{"prompt": "thirty three take away two", "task": "subtract", "a": 33, "b": 2}
+{"prompt": "thirty one minus nine", "task": "subtract", "a": 31, "b": 9}
+{"prompt": "thirty nine minus one", "task": "subtract", "a": 39, "b": 1}
+{"prompt": "eleven multiplied by six", "task": "multiply", "a": 11, "b": 6}
+{"prompt": "the difference between forty two and eighteen", "task": "subtract", "a": 42, "b": 18}
+{"prompt": "twenty three and thirty", "task": "add", "a": 23, "b": 30}
+{"prompt": "thirty plus twenty", "task": "add", "a": 30, "b": 20}
+{"prompt": "the difference between forty and twenty six", "task": "subtract", "a": 40, "b": 26}
+{"prompt": "thirty three minus one", "task": "subtract", "a": 33, "b": 1}
+{"prompt": "forty two take away thirty six", "task": "subtract", "a": 42, "b": 36}
+{"prompt": "the difference between twenty and nineteen", "task": "subtract", "a": 20, "b": 19}
+{"prompt": "thirty one minus five", "task": "subtract", "a": 31, "b": 5}
+{"prompt": "forty one and twenty one", "task": "add", "a": 41, "b": 21}
+{"prompt": "forty two and forty six", "task": "add", "a": 42, "b": 46}
+{"prompt": "thirteen take away ten", "task": "subtract", "a": 13, "b": 10}
+{"prompt": "thirty nine minus four", "task": "subtract", "a": 39, "b": 4}
+{"prompt": "the sum of twenty one and forty four", "task": "add", "a": 21, "b": 44}
+{"prompt": "the product of two and twelve", "task": "multiply", "a": 2, "b": 12}
+{"prompt": "seventeen and twenty seven", "task": "add", "a": 17, "b": 27}
+{"prompt": "forty eight and three", "task": "add", "a": 48, "b": 3}
+{"prompt": "the difference between thirty seven and thirteen", "task": "subtract", "a": 37, "b": 13}
+{"prompt": "the sum of forty six and fifteen", "task": "add", "a": 46, "b": 15}
+{"prompt": "the difference between forty one and thirty one", "task": "subtract", "a": 41, "b": 31}
+{"prompt": "thirty three take away twenty", "task": "subtract", "a": 33, "b": 20}
+{"prompt": "the product of ten and four", "task": "multiply", "a": 10, "b": 4}
+{"prompt": "thirty one plus nine", "task": "add", "a": 31, "b": 9}
+{"prompt": "forty seven take away thirty six", "task": "subtract", "a": 47, "b": 36}
+{"prompt": "the product of seven and twelve", "task": "multiply", "a": 7, "b": 12}
+{"prompt": "seven times five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "twenty seven take away twenty two", "task": "subtract", "a": 27, "b": 22}
+{"prompt": "thirty eight and nineteen", "task": "add", "a": 38, "b": 19}
+{"prompt": "thirty one plus four", "task": "add", "a": 31, "b": 4}
+{"prompt": "the difference between forty and thirty eight", "task": "subtract", "a": 40, "b": 38}
+{"prompt": "five multiplied by ten", "task": "multiply", "a": 5, "b": 10}
+{"prompt": "the product of eight and ten", "task": "multiply", "a": 8, "b": 10}
+{"prompt": "four and ten", "task": "add", "a": 4, "b": 10}
+{"prompt": "seven times eight", "task": "multiply", "a": 7, "b": 8}
+{"prompt": "twenty one take away ten", "task": "subtract", "a": 21, "b": 10}
+{"prompt": "fifty minus six", "task": "subtract", "a": 50, "b": 6}
+{"prompt": "forty one and twelve", "task": "add", "a": 41, "b": 12}
+{"prompt": "the sum of four and one", "task": "add", "a": 4, "b": 1}
+{"prompt": "fourteen and forty nine", "task": "add", "a": 14, "b": 49}
+{"prompt": "the product of four and nine", "task": "multiply", "a": 4, "b": 9}
+{"prompt": "eleven times eight", "task": "multiply", "a": 11, "b": 8}
+{"prompt": "twenty eight take away twenty six", "task": "subtract", "a": 28, "b": 26}
+{"prompt": "one and three", "task": "add", "a": 1, "b": 3}
+{"prompt": "forty seven minus twenty four", "task": "subtract", "a": 47, "b": 24}
+{"prompt": "ten multiplied by five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "the product of two and twelve", "task": "multiply", "a": 2, "b": 12}
+{"prompt": "forty five minus fifteen", "task": "subtract", "a": 45, "b": 15}
+{"prompt": "nine and seven", "task": "add", "a": 9, "b": 7}
+{"prompt": "the sum of thirty eight and twenty", "task": "add", "a": 38, "b": 20}
+{"prompt": "two times six", "task": "multiply", "a": 2, "b": 6}
+{"prompt": "forty seven and thirty four", "task": "add", "a": 47, "b": 34}
+{"prompt": "the difference between twenty eight and twenty two", "task": "subtract", "a": 28, "b": 22}
+{"prompt": "thirty two minus twenty two", "task": "subtract", "a": 32, "b": 22}
+{"prompt": "eleven plus twenty six", "task": "add", "a": 11, "b": 26}
+{"prompt": "five times four", "task": "multiply", "a": 5, "b": 4}
+{"prompt": "the product of two and eleven", "task": "multiply", "a": 2, "b": 11}
+{"prompt": "twenty four minus eight", "task": "subtract", "a": 24, "b": 8}
+{"prompt": "the difference between twenty five and three", "task": "subtract", "a": 25, "b": 3}
+{"prompt": "fifty take away thirty five", "task": "subtract", "a": 50, "b": 35}
+{"prompt": "thirty nine minus four", "task": "subtract", "a": 39, "b": 4}
+{"prompt": "forty two minus two", "task": "subtract", "a": 42, "b": 2}
+{"prompt": "the product of three and eight", "task": "multiply", "a": 3, "b": 8}
+{"prompt": "eight and thirty six", "task": "add", "a": 8, "b": 36}
+{"prompt": "forty five and ten", "task": "add", "a": 45, "b": 10}
+{"prompt": "the product of twelve and twelve", "task": "multiply", "a": 12, "b": 12}
+{"prompt": "eight multiplied by twelve", "task": "multiply", "a": 8, "b": 12}
+{"prompt": "the product of ten and six", "task": "multiply", "a": 10, "b": 6}
+{"prompt": "the difference between forty five and nine", "task": "subtract", "a": 45, "b": 9}
+{"prompt": "thirty three plus forty seven", "task": "add", "a": 33, "b": 47}
+{"prompt": "nineteen minus eight", "task": "subtract", "a": 19, "b": 8}
+{"prompt": "five multiplied by eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "ten multiplied by five", "task": "multiply", "a": 10, "b": 5}
+{"prompt": "the sum of twenty seven and nineteen", "task": "add", "a": 27, "b": 19}
+{"prompt": "ten times nine", "task": "multiply", "a": 10, "b": 9}
+{"prompt": "the product of nine and seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "two times twelve", "task": "multiply", "a": 2, "b": 12}
+{"prompt": "eleven times twelve", "task": "multiply", "a": 11, "b": 12}
+{"prompt": "six plus fifty", "task": "add", "a": 6, "b": 50}
+{"prompt": "forty seven minus forty seven", "task": "subtract", "a": 47, "b": 47}
+{"prompt": "twelve multiplied by five", "task": "multiply", "a": 12, "b": 5}
+{"prompt": "seventeen and thirty", "task": "add", "a": 17, "b": 30}
+{"prompt": "four times two", "task": "multiply", "a": 4, "b": 2}
+{"prompt": "forty four and twenty one", "task": "add", "a": 44, "b": 21}
+{"prompt": "the sum of eight and seven", "task": "add", "a": 8, "b": 7}
+{"prompt": "four times twelve", "task": "multiply", "a": 4, "b": 12}
+{"prompt": "twenty three minus twenty two", "task": "subtract", "a": 23, "b": 22}
+{"prompt": "the sum of eighteen and forty seven", "task": "add", "a": 18, "b": 47}
+{"prompt": "seven multiplied by four", "task": "multiply", "a": 7, "b": 4}
+{"prompt": "eight multiplied by nine", "task": "multiply", "a": 8, "b": 9}
+{"prompt": "forty five and thirty one", "task": "add", "a": 45, "b": 31}
+{"prompt": "the sum of eleven and eight", "task": "add", "a": 11, "b": 8}
+{"prompt": "the product of two and four", "task": "multiply", "a": 2, "b": 4}
+{"prompt": "eleven multiplied by nine", "task": "multiply", "a": 11, "b": 9}
+{"prompt": "the difference between twenty nine and twelve", "task": "subtract", "a": 29, "b": 12}
+{"prompt": "fifty take away twenty three", "task": "subtract", "a": 50, "b": 23}
+{"prompt": "forty seven minus forty four", "task": "subtract", "a": 47, "b": 44}
+{"prompt": "nine multiplied by three", "task": "multiply", "a": 9, "b": 3}
+{"prompt": "three and five", "task": "add", "a": 3, "b": 5}
+{"prompt": "the sum of twenty one and one", "task": "add", "a": 21, "b": 1}
+{"prompt": "the difference between fifty and thirty four", "task": "subtract", "a": 50, "b": 34}
+{"prompt": "the difference between forty seven and thirty seven", "task": "subtract", "a": 47, "b": 37}
+{"prompt": "the product of seven and ten", "task": "multiply", "a": 7, "b": 10}
+{"prompt": "the difference between forty five and forty", "task": "subtract", "a": 45, "b": 40}
+{"prompt": "twelve multiplied by five", "task": "multiply", "a": 12, "b": 5}
+{"prompt": "forty three and forty four", "task": "add", "a": 43, "b": 44}
+{"prompt": "thirty six take away ten", "task": "subtract", "a": 36, "b": 10}
+{"prompt": "forty two minus one", "task": "subtract", "a": 42, "b": 1}
+{"prompt": "the product of nine and nine", "task": "multiply", "a": 9, "b": 9}
+{"prompt": "nine times seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "six multiplied by two", "task": "multiply", "a": 6, "b": 2}
+{"prompt": "forty two minus thirty six", "task": "subtract", "a": 42, "b": 36}
+{"prompt": "sixteen and six", "task": "add", "a": 16, "b": 6}
+{"prompt": "thirty seven and twenty nine", "task": "add", "a": 37, "b": 29}
+{"prompt": "nine multiplied by seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "twelve multiplied by two", "task": "multiply", "a": 12, "b": 2}
+{"prompt": "eight multiplied by two", "task": "multiply", "a": 8, "b": 2}
+{"prompt": "the difference between six and one", "task": "subtract", "a": 6, "b": 1}
+{"prompt": "the difference between forty one and twenty", "task": "subtract", "a": 41, "b": 20}
+{"prompt": "the difference between forty two and fourteen", "task": "subtract", "a": 42, "b": 14}
+{"prompt": "twenty four take away twenty two", "task": "subtract", "a": 24, "b": 22}
+{"prompt": "nine times seven", "task": "multiply", "a": 9, "b": 7}
+{"prompt": "the difference between thirty nine and thirty one", "task": "subtract", "a": 39, "b": 31}
+{"prompt": "the difference between forty six and twenty four", "task": "subtract", "a": 46, "b": 24}
+{"prompt": "seven plus forty nine", "task": "add", "a": 7, "b": 49}
+{"prompt": "twenty two minus one", "task": "subtract", "a": 22, "b": 1}
+{"prompt": "the sum of nineteen and thirty six", "task": "add", "a": 19, "b": 36}
+{"prompt": "forty five take away seven", "task": "subtract", "a": 45, "b": 7}
+{"prompt": "nine times four", "task": "multiply", "a": 9, "b": 4}
+{"prompt": "the difference between forty seven and twenty seven", "task": "subtract", "a": 47, "b": 27}
+{"prompt": "eleven multiplied by five", "task": "multiply", "a": 11, "b": 5}
+{"prompt": "eight times five", "task": "multiply", "a": 8, "b": 5}
+{"prompt": "forty six plus twenty two", "task": "add", "a": 46, "b": 22}
+{"prompt": "two multiplied by twelve", "task": "multiply", "a": 2, "b": 12}
+{"prompt": "the difference between fifty and eight", "task": "subtract", "a": 50, "b": 8}
+{"prompt": "forty three and thirty eight", "task": "add", "a": 43, "b": 38}
+{"prompt": "thirty two minus one", "task": "subtract", "a": 32, "b": 1}
+{"prompt": "the difference between thirty six and four", "task": "subtract", "a": 36, "b": 4}
+{"prompt": "the sum of thirty one and thirty three", "task": "add", "a": 31, "b": 33}
+{"prompt": "the product of eleven and four", "task": "multiply", "a": 11, "b": 4}
+{"prompt": "twenty five minus seven", "task": "subtract", "a": 25, "b": 7}
+{"prompt": "the difference between thirty nine and twenty one", "task": "subtract", "a": 39, "b": 21}
+{"prompt": "thirty nine take away twenty seven", "task": "subtract", "a": 39, "b": 27}
+{"prompt": "twenty six minus eighteen", "task": "subtract", "a": 26, "b": 18}
+{"prompt": "twenty nine and nine", "task": "add", "a": 29, "b": 9}
+{"prompt": "eleven multiplied by ten", "task": "multiply", "a": 11, "b": 10}
+{"prompt": "the sum of thirty six and twenty one", "task": "add", "a": 36, "b": 21}
+{"prompt": "the difference between forty one and thirty six", "task": "subtract", "a": 41, "b": 36}
+{"prompt": "five times eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "forty four take away twenty three", "task": "subtract", "a": 44, "b": 23}
+{"prompt": "forty six minus forty two", "task": "subtract", "a": 46, "b": 42}
+{"prompt": "the product of ten and twelve", "task": "multiply", "a": 10, "b": 12}
+{"prompt": "the sum of eight and forty nine", "task": "add", "a": 8, "b": 49}
+{"prompt": "the sum of thirty one and thirty eight", "task": "add", "a": 31, "b": 38}
+{"prompt": "the difference between forty six and twenty seven", "task": "subtract", "a": 46, "b": 27}
+{"prompt": "the difference between thirty five and nineteen", "task": "subtract", "a": 35, "b": 19}
+{"prompt": "thirty four plus seven", "task": "add", "a": 34, "b": 7}
+{"prompt": "four multiplied by two", "task": "multiply", "a": 4, "b": 2}
+{"prompt": "eighteen minus thirteen", "task": "subtract", "a": 18, "b": 13}
+{"prompt": "twelve multiplied by six", "task": "multiply", "a": 12, "b": 6}
+{"prompt": "six times five", "task": "multiply", "a": 6, "b": 5}
+{"prompt": "twenty nine minus twenty three", "task": "subtract", "a": 29, "b": 23}
+{"prompt": "the product of twelve and ten", "task": "multiply", "a": 12, "b": 10}
+{"prompt": "the product of twelve and ten", "task": "multiply", "a": 12, "b": 10}
+{"prompt": "thirty three plus forty five", "task": "add", "a": 33, "b": 45}
+{"prompt": "the sum of forty three and four", "task": "add", "a": 43, "b": 4}
+{"prompt": "twenty seven and forty four", "task": "add", "a": 27, "b": 44}
+{"prompt": "the sum of four and one", "task": "add", "a": 4, "b": 1}
+{"prompt": "forty take away thirteen", "task": "subtract", "a": 40, "b": 13}
+{"prompt": "forty one plus forty six", "task": "add", "a": 41, "b": 46}
+{"prompt": "the difference between forty nine and twenty four", "task": "subtract", "a": 49, "b": 24}
+{"prompt": "the difference between forty eight and thirty nine", "task": "subtract", "a": 48, "b": 39}
+{"prompt": "the product of five and six", "task": "multiply", "a": 5, "b": 6}
+{"prompt": "forty four plus five", "task": "add", "a": 44, "b": 5}
+{"prompt": "ten times three", "task": "multiply", "a": 10, "b": 3}
+{"prompt": "twenty eight plus eighteen", "task": "add", "a": 28, "b": 18}
+{"prompt": "eleven take away nine", "task": "subtract", "a": 11, "b": 9}
+{"prompt": "twenty two take away one", "task": "subtract", "a": 22, "b": 1}
+{"prompt": "the sum of ten and three", "task": "add", "a": 10, "b": 3}
+{"prompt": "eleven multiplied by two", "task": "multiply", "a": 11, "b": 2}
+{"prompt": "the difference between forty three and twenty", "task": "subtract", "a": 43, "b": 20}
+{"prompt": "the sum of thirty six and twenty three", "task": "add", "a": 36, "b": 23}
+{"prompt": "the product of seven and ten", "task": "multiply", "a": 7, "b": 10}
+{"prompt": "ten times three", "task": "multiply", "a": 10, "b": 3}
+{"prompt": "thirty five minus twenty seven", "task": "subtract", "a": 35, "b": 27}
+{"prompt": "twenty three take away six", "task": "subtract", "a": 23, "b": 6}
+{"prompt": "twelve times seven", "task": "multiply", "a": 12, "b": 7}
+{"prompt": "nineteen and fourteen", "task": "add", "a": 19, "b": 14}
+{"prompt": "the difference between thirty six and thirty one", "task": "subtract", "a": 36, "b": 31}
+{"prompt": "forty three minus eight", "task": "subtract", "a": 43, "b": 8}
+{"prompt": "sixteen and forty two", "task": "add", "a": 16, "b": 42}
+{"prompt": "the difference between sixteen and three", "task": "subtract", "a": 16, "b": 3}
+{"prompt": "twenty five take away eight", "task": "subtract", "a": 25, "b": 8}
+{"prompt": "thirty five and forty seven", "task": "add", "a": 35, "b": 47}
+{"prompt": "thirty four plus fifty", "task": "add", "a": 34, "b": 50}
+{"prompt": "the sum of thirty three and twenty nine", "task": "add", "a": 33, "b": 29}
+{"prompt": "nineteen plus forty two", "task": "add", "a": 19, "b": 42}
+{"prompt": "ten multiplied by three", "task": "multiply", "a": 10, "b": 3}
+{"prompt": "ten times ten", "task": "multiply", "a": 10, "b": 10}
+{"prompt": "the product of three and five", "task": "multiply", "a": 3, "b": 5}
+{"prompt": "the difference between fifty and fourteen", "task": "subtract", "a": 50, "b": 14}
+{"prompt": "fourteen take away seven", "task": "subtract", "a": 14, "b": 7}
+{"prompt": "the difference between fifty and forty eight", "task": "subtract", "a": 50, "b": 48}
+{"prompt": "the sum of five and forty eight", "task": "add", "a": 5, "b": 48}
+{"prompt": "thirty minus two", "task": "subtract", "a": 30, "b": 2}
+{"prompt": "six take away three", "task": "subtract", "a": 6, "b": 3}
+{"prompt": "four times six", "task": "multiply", "a": 4, "b": 6}
+{"prompt": "thirty seven minus fifteen", "task": "subtract", "a": 37, "b": 15}
+{"prompt": "twenty five and twenty nine", "task": "add", "a": 25, "b": 29}
+{"prompt": "twenty eight take away twenty one", "task": "subtract", "a": 28, "b": 21}
+{"prompt": "twelve multiplied by three", "task": "multiply", "a": 12, "b": 3}
+{"prompt": "forty seven minus forty two", "task": "subtract", "a": 47, "b": 42}
+{"prompt": "forty nine minus forty eight", "task": "subtract", "a": 49, "b": 48}
+{"prompt": "forty five minus five", "task": "subtract", "a": 45, "b": 5}
+{"prompt": "the sum of seven and nineteen", "task": "add", "a": 7, "b": 19}
+{"prompt": "thirty nine take away six", "task": "subtract", "a": 39, "b": 6}
+{"prompt": "twenty five and twenty six", "task": "add", "a": 25, "b": 26}
+{"prompt": "thirty one minus eleven", "task": "subtract", "a": 31, "b": 11}
+{"prompt": "forty eight minus nine", "task": "subtract", "a": 48, "b": 9}
+{"prompt": "the sum of nineteen and forty one", "task": "add", "a": 19, "b": 41}
+{"prompt": "twelve multiplied by twelve", "task": "multiply", "a": 12, "b": 12}
+{"prompt": "thirty six plus thirty six", "task": "add", "a": 36, "b": 36}
+{"prompt": "two times two", "task": "multiply", "a": 2, "b": 2}
+{"prompt": "the difference between thirty five and twenty six", "task": "subtract", "a": 35, "b": 26}
+{"prompt": "twenty minus fourteen", "task": "subtract", "a": 20, "b": 14}
+{"prompt": "the difference between forty seven and twenty three", "task": "subtract", "a": 47, "b": 23}
+{"prompt": "twelve multiplied by ten", "task": "multiply", "a": 12, "b": 10}
+{"prompt": "four times five", "task": "multiply", "a": 4, "b": 5}
+{"prompt": "thirteen take away eight", "task": "subtract", "a": 13, "b": 8}
+{"prompt": "the product of eleven and two", "task": "multiply", "a": 11, "b": 2}
+{"prompt": "forty two take away thirty six", "task": "subtract", "a": 42, "b": 36}
+{"prompt": "twelve multiplied by three", "task": "multiply", "a": 12, "b": 3}
+{"prompt": "thirteen plus forty seven", "task": "add", "a": 13, "b": 47}
+{"prompt": "twenty three take away twenty two", "task": "subtract", "a": 23, "b": 22}
+{"prompt": "the product of twelve and five", "task": "multiply", "a": 12, "b": 5}
+{"prompt": "eleven multiplied by three", "task": "multiply", "a": 11, "b": 3}
+{"prompt": "nine multiplied by nine", "task": "multiply", "a": 9, "b": 9}
+{"prompt": "the sum of forty three and twenty", "task": "add", "a": 43, "b": 20}
+{"prompt": "the difference between thirty seven and ten", "task": "subtract", "a": 37, "b": 10}
+{"prompt": "twenty eight take away twenty one", "task": "subtract", "a": 28, "b": 21}
+{"prompt": "seven times five", "task": "multiply", "a": 7, "b": 5}
+{"prompt": "the product of twelve and eight", "task": "multiply", "a": 12, "b": 8}
+{"prompt": "nine and forty four", "task": "add", "a": 9, "b": 44}
+{"prompt": "thirty one take away thirty", "task": "subtract", "a": 31, "b": 30}
+{"prompt": "fifty and twenty", "task": "add", "a": 50, "b": 20}
+{"prompt": "the sum of seven and twelve", "task": "add", "a": 7, "b": 12}
+{"prompt": "the difference between eighteen and six", "task": "subtract", "a": 18, "b": 6}
+{"prompt": "the product of five and six", "task": "multiply", "a": 5, "b": 6}
+{"prompt": "the difference between forty seven and five", "task": "subtract", "a": 47, "b": 5}
+{"prompt": "ten times twelve", "task": "multiply", "a": 10, "b": 12}
+{"prompt": "the product of eleven and eight", "task": "multiply", "a": 11, "b": 8}
+{"prompt": "thirty six minus three", "task": "subtract", "a": 36, "b": 3}
+{"prompt": "the sum of thirty five and thirty one", "task": "add", "a": 35, "b": 31}
+{"prompt": "twenty six minus twenty four", "task": "subtract", "a": 26, "b": 24}
+{"prompt": "the product of six and four", "task": "multiply", "a": 6, "b": 4}
+{"prompt": "the sum of thirty three and six", "task": "add", "a": 33, "b": 6}
+{"prompt": "thirty three and one", "task": "add", "a": 33, "b": 1}
+{"prompt": "forty four minus forty", "task": "subtract", "a": 44, "b": 40}
+{"prompt": "the product of four and nine", "task": "multiply", "a": 4, "b": 9}
+{"prompt": "eleven times eleven", "task": "multiply", "a": 11, "b": 11}
+{"prompt": "forty eight minus forty seven", "task": "subtract", "a": 48, "b": 47}
+{"prompt": "three and fifteen", "task": "add", "a": 3, "b": 15}
+{"prompt": "five plus seventeen", "task": "add", "a": 5, "b": 17}
+{"prompt": "three plus forty three", "task": "add", "a": 3, "b": 43}
+{"prompt": "the product of seven and eight", "task": "multiply", "a": 7, "b": 8}
+{"prompt": "three and three", "task": "add", "a": 3, "b": 3}
+{"prompt": "forty six take away seven", "task": "subtract", "a": 46, "b": 7}
+{"prompt": "the difference between forty eight and eighteen", "task": "subtract", "a": 48, "b": 18}
+{"prompt": "the sum of thirty five and thirty seven", "task": "add", "a": 35, "b": 37}
+{"prompt": "twelve multiplied by eight", "task": "multiply", "a": 12, "b": 8}
+{"prompt": "the sum of forty two and five", "task": "add", "a": 42, "b": 5}
+{"prompt": "twenty five take away fifteen", "task": "subtract", "a": 25, "b": 15}
+{"prompt": "twenty three take away twenty three", "task": "subtract", "a": 23, "b": 23}
+{"prompt": "thirty nine and one", "task": "add", "a": 39, "b": 1}
+{"prompt": "twenty nine minus eleven", "task": "subtract", "a": 29, "b": 11}
+{"prompt": "ten times twelve", "task": "multiply", "a": 10, "b": 12}
+{"prompt": "ten plus twelve", "task": "add", "a": 10, "b": 12}
+{"prompt": "eleven multiplied by three", "task": "multiply", "a": 11, "b": 3}
+{"prompt": "twenty seven minus twenty two", "task": "subtract", "a": 27, "b": 22}
+{"prompt": "forty four minus thirty one", "task": "subtract", "a": 44, "b": 31}
+{"prompt": "fourteen and thirty eight", "task": "add", "a": 14, "b": 38}
+{"prompt": "the product of eight and two", "task": "multiply", "a": 8, "b": 2}
+{"prompt": "four times eleven", "task": "multiply", "a": 4, "b": 11}
+{"prompt": "forty one minus nine", "task": "subtract", "a": 41, "b": 9}
+{"prompt": "thirty seven minus ten", "task": "subtract", "a": 37, "b": 10}
+{"prompt": "six times four", "task": "multiply", "a": 6, "b": 4}
+{"prompt": "thirty nine take away thirty seven", "task": "subtract", "a": 39, "b": 37}
+{"prompt": "forty seven minus forty seven", "task": "subtract", "a": 47, "b": 47}
+{"prompt": "fourteen take away six", "task": "subtract", "a": 14, "b": 6}
+{"prompt": "the sum of thirty one and thirty one", "task": "add", "a": 31, "b": 31}
+{"prompt": "eight times eleven", "task": "multiply", "a": 8, "b": 11}
+{"prompt": "the product of four and eleven", "task": "multiply", "a": 4, "b": 11}
+{"prompt": "the difference between seventeen and eleven", "task": "subtract", "a": 17, "b": 11}
+{"prompt": "the difference between thirty and twenty two", "task": "subtract", "a": 30, "b": 22}
+{"prompt": "the difference between fifteen and five", "task": "subtract", "a": 15, "b": 5}
+{"prompt": "nine and seven", "task": "add", "a": 9, "b": 7}
+{"prompt": "ten times ten", "task": "multiply", "a": 10, "b": 10}
+{"prompt": "thirty nine take away ten", "task": "subtract", "a": 39, "b": 10}
+{"prompt": "nine times eleven", "task": "multiply", "a": 9, "b": 11}
+{"prompt": "thirty five minus thirty three", "task": "subtract", "a": 35, "b": 33}
+{"prompt": "nine times twelve", "task": "multiply", "a": 9, "b": 12}
+{"prompt": "the product of ten and two", "task": "multiply", "a": 10, "b": 2}
+{"prompt": "the difference between thirty four and twenty eight", "task": "subtract", "a": 34, "b": 28}
+{"prompt": "three and forty five", "task": "add", "a": 3, "b": 45}
+{"prompt": "thirty one take away fifteen", "task": "subtract", "a": 31, "b": 15}
+{"prompt": "thirty eight and forty eight", "task": "add", "a": 38, "b": 48}
+{"prompt": "the difference between twenty eight and seven", "task": "subtract", "a": 28, "b": 7}
+{"prompt": "nine multiplied by five", "task": "multiply", "a": 9, "b": 5}
+{"prompt": "eleven multiplied by ten", "task": "multiply", "a": 11, "b": 10}
+{"prompt": "thirteen and one", "task": "add", "a": 13, "b": 1}
+{"prompt": "the difference between thirty seven and one", "task": "subtract", "a": 37, "b": 1}
+{"prompt": "thirty four minus one", "task": "subtract", "a": 34, "b": 1}
+{"prompt": "the sum of fourteen and forty five", "task": "add", "a": 14, "b": 45}
+{"prompt": "twenty four and seven", "task": "add", "a": 24, "b": 7}
+{"prompt": "twelve multiplied by eleven", "task": "multiply", "a": 12, "b": 11}
+{"prompt": "thirty five and twenty eight", "task": "add", "a": 35, "b": 28}
+{"prompt": "forty take away eighteen", "task": "subtract", "a": 40, "b": 18}
+{"prompt": "forty nine take away fourteen", "task": "subtract", "a": 49, "b": 14}
+{"prompt": "the sum of thirty six and thirty one", "task": "add", "a": 36, "b": 31}
+{"prompt": "ten multiplied by ten", "task": "multiply", "a": 10, "b": 10}
+{"prompt": "twenty and thirty seven", "task": "add", "a": 20, "b": 37}
+{"prompt": "the sum of twenty six and forty eight", "task": "add", "a": 26, "b": 48}
+{"prompt": "the product of three and five", "task": "multiply", "a": 3, "b": 5}
+{"prompt": "the sum of eleven and seven", "task": "add", "a": 11, "b": 7}
+{"prompt": "the product of eight and seven", "task": "multiply", "a": 8, "b": 7}
+{"prompt": "the difference between forty five and forty four", "task": "subtract", "a": 45, "b": 44}
+{"prompt": "twenty five minus eleven", "task": "subtract", "a": 25, "b": 11}
+{"prompt": "ten minus six", "task": "subtract", "a": 10, "b": 6}
+{"prompt": "the sum of twenty eight and six", "task": "add", "a": 28, "b": 6}
+{"prompt": "five multiplied by seven", "task": "multiply", "a": 5, "b": 7}
+{"prompt": "the product of two and eight", "task": "multiply", "a": 2, "b": 8}
+{"prompt": "the sum of forty two and thirty four", "task": "add", "a": 42, "b": 34}
+{"prompt": "the sum of thirty nine and four", "task": "add", "a": 39, "b": 4}
+{"prompt": "the product of nine and nine", "task": "multiply", "a": 9, "b": 9}
+{"prompt": "twelve times ten", "task": "multiply", "a": 12, "b": 10}
+{"prompt": "three plus thirty nine", "task": "add", "a": 3, "b": 39}
+{"prompt": "the difference between forty five and fifteen", "task": "subtract", "a": 45, "b": 15}
+{"prompt": "forty four minus three", "task": "subtract", "a": 44, "b": 3}
+{"prompt": "forty two plus one", "task": "add", "a": 42, "b": 1}
+{"prompt": "six times eight", "task": "multiply", "a": 6, "b": 8}
+{"prompt": "the sum of twenty six and twenty six", "task": "add", "a": 26, "b": 26}
+{"prompt": "thirty four minus one", "task": "subtract", "a": 34, "b": 1}
+{"prompt": "the difference between six and five", "task": "subtract", "a": 6, "b": 5}
+{"prompt": "forty seven take away thirty six", "task": "subtract", "a": 47, "b": 36}
+{"prompt": "twenty three take away eighteen", "task": "subtract", "a": 23, "b": 18}
+{"prompt": "the product of five and nine", "task": "multiply", "a": 5, "b": 9}
+{"prompt": "the sum of one and seventeen", "task": "add", "a": 1, "b": 17}
+{"prompt": "ten multiplied by three", "task": "multiply", "a": 10, "b": 3}
+{"prompt": "thirty three minus nineteen", "task": "subtract", "a": 33, "b": 19}
+{"prompt": "thirty three plus seventeen", "task": "add", "a": 33, "b": 17}
+{"prompt": "the difference between forty five and seventeen", "task": "subtract", "a": 45, "b": 17}
+{"prompt": "thirty seven and thirty one", "task": "add", "a": 37, "b": 31}
+{"prompt": "nine multiplied by twelve", "task": "multiply", "a": 9, "b": 12}
+{"prompt": "the sum of two and thirty one", "task": "add", "a": 2, "b": 31}
+{"prompt": "three multiplied by eight", "task": "multiply", "a": 3, "b": 8}
+{"prompt": "forty five minus forty four", "task": "subtract", "a": 45, "b": 44}
+{"prompt": "eight multiplied by seven", "task": "multiply", "a": 8, "b": 7}
+{"prompt": "the difference between forty five and one", "task": "subtract", "a": 45, "b": 1}
+{"prompt": "nineteen plus six", "task": "add", "a": 19, "b": 6}
+{"prompt": "the sum of forty eight and twenty two", "task": "add", "a": 48, "b": 22}
+{"prompt": "the product of four and nine", "task": "multiply", "a": 4, "b": 9}
+{"prompt": "fourteen and thirty seven", "task": "add", "a": 14, "b": 37}
+{"prompt": "forty eight plus forty four", "task": "add", "a": 48, "b": 44}
+{"prompt": "five multiplied by five", "task": "multiply", "a": 5, "b": 5}
+{"prompt": "seventeen minus fourteen", "task": "subtract", "a": 17, "b": 14}
+{"prompt": "five times eleven", "task": "multiply", "a": 5, "b": 11}
+{"prompt": "fifty plus seven", "task": "add", "a": 50, "b": 7}
+{"prompt": "twelve times twelve", "task": "multiply", "a": 12, "b": 12}
+{"prompt": "the sum of one and forty nine", "task": "add", "a": 1, "b": 49}
+{"prompt": "thirty one minus twenty four", "task": "subtract", "a": 31, "b": 24}
+{"prompt": "thirty seven take away thirty two", "task": "subtract", "a": 37, "b": 32}
+{"prompt": "twelve and forty nine", "task": "add", "a": 12, "b": 49}
+{"prompt": "twenty six take away fifteen", "task": "subtract", "a": 26, "b": 15}
+{"prompt": "thirty four minus four", "task": "subtract", "a": 34, "b": 4}
+{"prompt": "thirty five and three", "task": "add", "a": 35, "b": 3}
+{"prompt": "forty four take away twenty six", "task": "subtract", "a": 44, "b": 26}
+{"prompt": "three multiplied by ten", "task": "multiply", "a": 3, "b": 10}
+{"prompt": "forty five and one", "task": "add", "a": 45, "b": 1}
+{"prompt": "the product of five and eight", "task": "multiply", "a": 5, "b": 8}
+{"prompt": "twenty four minus twenty one", "task": "subtract", "a": 24, "b": 21}
+{"prompt": "thirty six take away twelve", "task": "subtract", "a": 36, "b": 12}
+{"prompt": "eighteen plus thirty one", "task": "add", "a": 18, "b": 31}
+{"prompt": "twenty four take away twelve", "task": "subtract", "a": 24, "b": 12}
+{"prompt": "fourteen and twenty seven", "task": "add", "a": 14, "b": 27}
+{"prompt": "twenty six take away twenty four", "task": "subtract", "a": 26, "b": 24}
+{"prompt": "twelve and thirty seven", "task": "add", "a": 12, "b": 37}
+{"prompt": "the product of twelve and five", "task": "multiply", "a": 12, "b": 5}
+{"prompt": "the product of six and five", "task": "multiply", "a": 6, "b": 5}
+{"prompt": "twenty five take away thirteen", "task": "subtract", "a": 25, "b": 13}
+{"prompt": "the product of four and nine", "task": "multiply", "a": 4, "b": 9}
+{"prompt": "eight times nine", "task": "multiply", "a": 8, "b": 9}
+{"prompt": "the product of ten and ten", "task": "multiply", "a": 10, "b": 10}
+{"prompt": "thirty two take away twenty", "task": "subtract", "a": 32, "b": 20}
+{"prompt": "the sum of thirty seven and four", "task": "add", "a": 37, "b": 4}
+{"prompt": "forty five plus eleven", "task": "add", "a": 45, "b": 11}
+{"prompt": "six times nine", "task": "multiply", "a": 6, "b": 9}

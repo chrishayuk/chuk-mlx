@@ -8,35 +8,37 @@ and prepares batches for policy updates.
 import logging
 import random
 from collections.abc import Iterator
-from dataclasses import dataclass, field
 from typing import Any
 
 import mlx.core as mx
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class Transition:
+class Transition(BaseModel):
     """A single transition in the environment."""
 
-    observation: Any  # State observation
-    action: Any  # Action taken
-    reward: float  # Reward received
-    done: bool  # Episode terminated
-    log_prob: float  # Log probability of action
-    value: float | None = None  # Value estimate (for PPO)
-    hidden_state: Any | None = None  # RNN hidden state
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    observation: Any = Field(description="State observation")
+    action: Any = Field(description="Action taken")
+    reward: float = Field(description="Reward received")
+    done: bool = Field(description="Episode terminated")
+    log_prob: float = Field(description="Log probability of action")
+    value: float | None = Field(default=None, description="Value estimate (for PPO)")
+    hidden_state: Any | None = Field(default=None, description="RNN hidden state")
 
 
-@dataclass
-class Episode:
+class Episode(BaseModel):
     """A complete episode trajectory."""
 
-    transitions: list[Transition] = field(default_factory=list)
-    total_reward: float = 0.0
-    length: int = 0
-    info: dict[str, Any] = field(default_factory=dict)
+    model_config = ConfigDict(arbitrary_types_allowed=True, validate_default=True)
+
+    transitions: list[Transition] = Field(default_factory=list, description="Transitions")
+    total_reward: float = Field(default=0.0, description="Total reward")
+    length: int = Field(default=0, description="Episode length")
+    info: dict[str, Any] = Field(default_factory=dict, description="Additional info")
 
     def add(self, transition: Transition):
         """Add a transition to the episode."""
@@ -218,7 +220,16 @@ class RolloutBuffer:
         for i, (obs, action, reward, done, log_prob, value, hidden) in enumerate(
             zip(observations, actions, rewards, dones, log_probs, values, hidden_states)
         ):
-            self.add(obs, action, reward, done, log_prob, value, hidden, env_idx=i % self.num_envs)
+            self.add(
+                obs,
+                action,
+                reward,
+                done,
+                log_prob,
+                value,
+                hidden,
+                env_idx=i % self.num_envs,
+            )
 
     def compute_advantages(self, last_values: mx.array = None):
         """
@@ -231,7 +242,12 @@ class RolloutBuffer:
             last_values = mx.zeros((1,))
 
         self.advantages, self.returns = compute_gae_inline(
-            self.rewards, self.values, self.dones, self.gamma, self.gae_lambda, last_values
+            self.rewards,
+            self.values,
+            self.dones,
+            self.gamma,
+            self.gae_lambda,
+            last_values,
         )
 
     def get_batches(self, batch_size: int, shuffle: bool = True) -> Iterator[dict[str, mx.array]]:

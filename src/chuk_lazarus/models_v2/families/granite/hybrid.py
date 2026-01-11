@@ -216,10 +216,14 @@ class GraniteHybridAttention(nn.Module):
             self.hidden_size, self.num_heads * self.head_dim, bias=config.attention_bias
         )
         self.k_proj = nn.Linear(
-            self.hidden_size, self.num_kv_heads * self.head_dim, bias=config.attention_bias
+            self.hidden_size,
+            self.num_kv_heads * self.head_dim,
+            bias=config.attention_bias,
         )
         self.v_proj = nn.Linear(
-            self.hidden_size, self.num_kv_heads * self.head_dim, bias=config.attention_bias
+            self.hidden_size,
+            self.num_kv_heads * self.head_dim,
+            bias=config.attention_bias,
         )
         self.o_proj = nn.Linear(
             self.num_heads * self.head_dim, self.hidden_size, bias=config.attention_bias
@@ -357,7 +361,9 @@ class GraniteHybridMoE(nn.Module):
         for expert_idx, expert in enumerate(self.experts):
             expert_mask = indices_flat == expert_idx
             expert_weights = mx.sum(
-                scores_flat * expert_mask.astype(scores_flat.dtype), axis=-1, keepdims=True
+                scores_flat * expert_mask.astype(scores_flat.dtype),
+                axis=-1,
+                keepdims=True,
             )
             if mx.any(expert_weights > 0):
                 expert_out = expert(x_flat)
@@ -406,9 +412,11 @@ class GraniteHybridBlock(Block):
         else:
             ffn_config = FFNConfig(
                 hidden_size=config.hidden_size,
-                intermediate_size=config.intermediate_size
-                if config.shared_intermediate_size == 0
-                else config.shared_intermediate_size,
+                intermediate_size=(
+                    config.intermediate_size
+                    if config.shared_intermediate_size == 0
+                    else config.shared_intermediate_size
+                ),
             )
             self.mlp = SwiGLU(ffn_config)
 
@@ -478,7 +486,7 @@ class GraniteHybridModel(Backbone):
             GraniteHybridBlock(
                 config,
                 layer_idx=i,
-                layer_type=config.layer_types[i] if i < len(config.layer_types) else "attention",
+                layer_type=(config.layer_types[i] if i < len(config.layer_types) else "attention"),
             )
             for i in range(config.num_hidden_layers)
         ]

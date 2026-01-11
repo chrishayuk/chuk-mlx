@@ -1,0 +1,50 @@
+{"prompt": "Add 73 and 28", "ir_sequence": [1, 3, 4, 16, 2], "operands": [73, 28], "expected_result": 101, "phase": 1, "operation": "add"}
+{"prompt": "The difference of 80 and 59 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [80, 59], "expected_result": 21, "phase": 1, "operation": "sub"}
+{"prompt": "Add 49 and 5", "ir_sequence": [1, 3, 4, 16, 2], "operands": [49, 5], "expected_result": 54, "phase": 1, "operation": "add"}
+{"prompt": "52 take away 16 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [52, 16], "expected_result": 36, "phase": 1, "operation": "sub"}
+{"prompt": "68 + 47 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [68, 47], "expected_result": 115, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 100 + 21", "ir_sequence": [1, 3, 4, 16, 2], "operands": [100, 21], "expected_result": 121, "phase": 1, "operation": "add"}
+{"prompt": "30 divided by 10 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [30, 10], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 12 / 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 12], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "54 added to 85 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [54, 85], "expected_result": 139, "phase": 1, "operation": "add"}
+{"prompt": "Subtract 42 from 78", "ir_sequence": [1, 3, 4, 17, 2], "operands": [78, 42], "expected_result": 36, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 84 / 12", "ir_sequence": [1, 3, 4, 19, 2], "operands": [84, 12], "expected_result": 7, "phase": 1, "operation": "div"}
+{"prompt": "76 + 55 = ", "ir_sequence": [1, 3, 4, 16, 2], "operands": [76, 55], "expected_result": 131, "phase": 1, "operation": "add"}
+{"prompt": "15 x 17 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 17], "expected_result": 255, "phase": 1, "operation": "mul"}
+{"prompt": "3 multiplied by 17 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [3, 17], "expected_result": 51, "phase": 1, "operation": "mul"}
+{"prompt": "Add 59 and 18", "ir_sequence": [1, 3, 4, 16, 2], "operands": [59, 18], "expected_result": 77, "phase": 1, "operation": "add"}
+{"prompt": "What is 5 times 3?", "ir_sequence": [1, 3, 4, 18, 2], "operands": [5, 3], "expected_result": 15, "phase": 1, "operation": "mul"}
+{"prompt": "Calculate 83 - 20", "ir_sequence": [1, 3, 4, 17, 2], "operands": [83, 20], "expected_result": 63, "phase": 1, "operation": "sub"}
+{"prompt": "8 * 8 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [8, 8], "expected_result": 64, "phase": 1, "operation": "mul"}
+{"prompt": "20 added to 20 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [20, 20], "expected_result": 40, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 24 / 3", "ir_sequence": [1, 3, 4, 19, 2], "operands": [24, 3], "expected_result": 8, "phase": 1, "operation": "div"}
+{"prompt": "Subtract 20 from 85", "ir_sequence": [1, 3, 4, 17, 2], "operands": [85, 20], "expected_result": 65, "phase": 1, "operation": "sub"}
+{"prompt": "6 multiplied by 4 equals", "ir_sequence": [1, 3, 4, 18, 2], "operands": [6, 4], "expected_result": 24, "phase": 1, "operation": "mul"}
+{"prompt": "The difference of 73 and 19 is", "ir_sequence": [1, 3, 4, 17, 2], "operands": [73, 19], "expected_result": 54, "phase": 1, "operation": "sub"}
+{"prompt": "Calculate 70 - 5", "ir_sequence": [1, 3, 4, 17, 2], "operands": [70, 5], "expected_result": 65, "phase": 1, "operation": "sub"}
+{"prompt": "Divide 5 by 5", "ir_sequence": [1, 3, 4, 19, 2], "operands": [5, 5], "expected_result": 1, "phase": 1, "operation": "div"}
+{"prompt": "49 added to 11 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [49, 11], "expected_result": 60, "phase": 1, "operation": "add"}
+{"prompt": "5 divided by 1 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [5, 1], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "What is 71 minus 59?", "ir_sequence": [1, 3, 4, 17, 2], "operands": [71, 59], "expected_result": 12, "phase": 1, "operation": "sub"}
+{"prompt": "What is 50 plus 74?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [50, 74], "expected_result": 124, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 59 - 26", "ir_sequence": [1, 3, 4, 17, 2], "operands": [59, 26], "expected_result": 33, "phase": 1, "operation": "sub"}
+{"prompt": "85 take away 61 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [85, 61], "expected_result": 24, "phase": 1, "operation": "sub"}
+{"prompt": "91 - 9 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [91, 9], "expected_result": 82, "phase": 1, "operation": "sub"}
+{"prompt": "99 - 38 = ", "ir_sequence": [1, 3, 4, 17, 2], "operands": [99, 38], "expected_result": 61, "phase": 1, "operation": "sub"}
+{"prompt": "100 divided by 10 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [100, 10], "expected_result": 10, "phase": 1, "operation": "div"}
+{"prompt": "14 x 6 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [14, 6], "expected_result": 84, "phase": 1, "operation": "mul"}
+{"prompt": "31 take away 8 equals", "ir_sequence": [1, 3, 4, 17, 2], "operands": [31, 8], "expected_result": 23, "phase": 1, "operation": "sub"}
+{"prompt": "The sum of 57 and 22 is", "ir_sequence": [1, 3, 4, 16, 2], "operands": [57, 22], "expected_result": 79, "phase": 1, "operation": "add"}
+{"prompt": "What is 10 divided by 2?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [10, 2], "expected_result": 5, "phase": 1, "operation": "div"}
+{"prompt": "Subtract 47 from 68", "ir_sequence": [1, 3, 4, 17, 2], "operands": [68, 47], "expected_result": 21, "phase": 1, "operation": "sub"}
+{"prompt": "Multiply 15 by 17", "ir_sequence": [1, 3, 4, 18, 2], "operands": [15, 17], "expected_result": 255, "phase": 1, "operation": "mul"}
+{"prompt": "44 added to 3 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [44, 3], "expected_result": 47, "phase": 1, "operation": "add"}
+{"prompt": "Multiply 19 by 16", "ir_sequence": [1, 3, 4, 18, 2], "operands": [19, 16], "expected_result": 304, "phase": 1, "operation": "mul"}
+{"prompt": "Add 50 and 34", "ir_sequence": [1, 3, 4, 16, 2], "operands": [50, 34], "expected_result": 84, "phase": 1, "operation": "add"}
+{"prompt": "Calculate 99 + 36", "ir_sequence": [1, 3, 4, 16, 2], "operands": [99, 36], "expected_result": 135, "phase": 1, "operation": "add"}
+{"prompt": "18 x 5 = ", "ir_sequence": [1, 3, 4, 18, 2], "operands": [18, 5], "expected_result": 90, "phase": 1, "operation": "mul"}
+{"prompt": "12 divided by 4 equals", "ir_sequence": [1, 3, 4, 19, 2], "operands": [12, 4], "expected_result": 3, "phase": 1, "operation": "div"}
+{"prompt": "Calculate 1 + 27", "ir_sequence": [1, 3, 4, 16, 2], "operands": [1, 27], "expected_result": 28, "phase": 1, "operation": "add"}
+{"prompt": "94 added to 59 equals", "ir_sequence": [1, 3, 4, 16, 2], "operands": [94, 59], "expected_result": 153, "phase": 1, "operation": "add"}
+{"prompt": "What is 36 divided by 4?", "ir_sequence": [1, 3, 4, 19, 2], "operands": [36, 4], "expected_result": 9, "phase": 1, "operation": "div"}
+{"prompt": "What is 7 plus 43?", "ir_sequence": [1, 3, 4, 16, 2], "operands": [7, 43], "expected_result": 50, "phase": 1, "operation": "add"}

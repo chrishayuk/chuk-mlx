@@ -31,7 +31,10 @@ The introspection module provides tools for:
 | `lazarus introspect probe` | Linear probes & direction extraction | [introspect-probe.md](tools/introspect-probe.md) |
 | `lazarus introspect neurons` | Analyze individual neuron activations | [introspect-neurons.md](tools/introspect-neurons.md) |
 | `lazarus introspect directions` | Compare directions for orthogonality | [introspect-directions.md](tools/introspect-directions.md) |
-| `lazarus introspect cluster` | Visualize activation clusters using PCA | - |
+| `lazarus introspect operand-directions` | Analyze operand A/B encoding structure | [introspect-operand-directions.md](tools/introspect-operand-directions.md) |
+| `lazarus introspect embedding` | Test what's encoded at embedding level | [introspect-embedding.md](tools/introspect-embedding.md) |
+| `lazarus introspect early-layers` | Analyze early layer information encoding | [introspect-early-layers.md](tools/introspect-early-layers.md) |
+| `lazarus introspect activation-cluster` | Visualize activation clusters using PCA | [introspect-activation-cluster.md](tools/introspect-activation-cluster.md) |
 
 ### Steering & Intervention
 
@@ -39,6 +42,7 @@ The introspection module provides tools for:
 |---------|-------------|---------------|
 | `lazarus introspect steer` | Activation steering | [introspect-steer.md](tools/introspect-steer.md) |
 | `lazarus introspect ablate` | Ablation studies | [introspect-ablate.md](tools/introspect-ablate.md) |
+| `lazarus introspect patch` | Activation patching between prompts | [introspect-patch.md](tools/introspect-patch.md) |
 
 ### Model Comparison
 
@@ -49,20 +53,94 @@ The introspection module provides tools for:
 | `lazarus introspect layer` | Layer representation analysis | [introspect-layer.md](tools/introspect-layer.md) |
 | `lazarus introspect format-sensitivity` | Format sensitivity check | [introspect-format-sensitivity.md](tools/introspect-format-sensitivity.md) |
 
-### Arithmetic & Metacognition
+### Classifier Emergence
 
-| Command | Description |
-|---------|-------------|
-| `lazarus introspect arithmetic` | Systematic arithmetic study to find emergence layers |
-| `lazarus introspect metacognitive` | Detect strategy switch (direct vs chain-of-thought) |
-| `lazarus introspect uncertainty` | Predict model confidence using hidden state geometry |
+| Command | Description | Documentation |
+|---------|-------------|---------------|
+| `lazarus introspect classifier` | Multi-class linear probes for operation classification | [introspect-classifier.md](tools/introspect-classifier.md) |
+| `lazarus introspect logit-lens` | Check if classifiers project to vocabulary tokens | [introspect-logit-lens.md](tools/introspect-logit-lens.md) |
+| `lazarus introspect dual-reward` | Train V/O projections for classifier + answer | [introspect-dual-reward.md](tools/introspect-dual-reward.md) |
+
+### Arithmetic & Lookup Table Analysis
+
+| Command | Description | Documentation |
+|---------|-------------|---------------|
+| `lazarus introspect arithmetic` | Systematic arithmetic study to find emergence layers | [introspect-arithmetic.md](tools/introspect-arithmetic.md) |
+| `lazarus introspect commutativity` | Test if A*B and B*A have identical representations | [introspect-commutativity.md](tools/introspect-commutativity.md) |
+| `lazarus introspect metacognitive` | Detect strategy switch (direct vs chain-of-thought) | [introspect-metacognitive.md](tools/introspect-metacognitive.md) |
+| `lazarus introspect uncertainty` | Predict model confidence using hidden state geometry | [introspect-uncertainty.md](tools/introspect-uncertainty.md) |
 
 ### Memory Structure
 
+| Command | Description | Documentation |
+|---------|-------------|---------------|
+| `lazarus introspect memory` | Extract memory organization structure for facts | [introspect-memory.md](tools/introspect-memory.md) |
+| `lazarus introspect memory-inject` | External memory injection for fact retrieval | [introspect-memory.md](tools/introspect-memory.md) |
+
+### MoE Expert Commands
+
+#### Interactive & Exploration
+
 | Command | Description |
 |---------|-------------|
-| `lazarus introspect memory` | Extract memory organization structure for facts |
-| `lazarus introspect memory-inject` | External memory injection for fact retrieval |
+| `lazarus introspect moe-expert explore` | Interactive REPL for exploring expert routing in real-time |
+| `lazarus introspect moe-expert chat` | Force routing to a specific expert |
+| `lazarus introspect moe-expert interactive` | Interactive expert explorer REPL (legacy) |
+
+#### Analysis & Hypothesis Testing
+
+| Command | Description |
+|---------|-------------|
+| `lazarus introspect moe-expert domain-test` | Test if domain experts exist (demonstrates they don't) |
+| `lazarus introspect moe-expert token-routing` | Test if single tokens have stable routing (demonstrates context-dependence) |
+| `lazarus introspect moe-expert full-taxonomy` | Semantic trigram pattern analysis across categories |
+| `lazarus introspect moe-expert analyze` | Identify expert specializations across categories |
+
+#### Routing Visualization
+
+| Command | Description |
+|---------|-------------|
+| `lazarus introspect moe-expert trace` | Trace expert routing across ALL layers |
+| `lazarus introspect moe-expert weights` | Show router weights for a prompt |
+| `lazarus introspect moe-expert heatmap` | Generate routing heatmap visualization |
+| `lazarus introspect moe-expert entropy` | Analyze routing entropy (confidence) by layer |
+
+#### Expert Comparison & Ablation
+
+| Command | Description |
+|---------|-------------|
+| `lazarus introspect moe-expert compare` | Compare multiple experts on the same prompt |
+| `lazarus introspect moe-expert ablate` | Remove an expert and see what breaks |
+| `lazarus introspect moe-expert topk` | Experiment with different top-k values |
+| `lazarus introspect moe-expert collab` | Analyze expert co-activation patterns |
+| `lazarus introspect moe-expert pairs` | Test specific expert pairs/groups together |
+
+#### Advanced Analysis
+
+| Command | Description |
+|---------|-------------|
+| `lazarus introspect moe-expert layer-sweep` | Sweep all layers, analyze expert patterns |
+| `lazarus introspect moe-expert pipeline` | Track expert pipelines across layers |
+| `lazarus introspect moe-expert vocab-contrib` | Analyze expert vocabulary contributions |
+| `lazarus introspect moe-expert compression` | Analyze compression opportunities |
+
+#### Quick Start: Video Demo Workflow
+
+```bash
+# 1. Show that "domain experts" don't exist
+lazarus introspect moe-expert domain-test -m openai/gpt-oss-20b
+
+# 2. Show that single token routing is context-dependent
+lazarus introspect moe-expert token-routing -m openai/gpt-oss-20b --token 127
+
+# 3. Show the semantic trigram breakthrough
+lazarus introspect moe-expert full-taxonomy -m openai/gpt-oss-20b --categories arithmetic,analogy
+
+# 4. Interactive exploration
+lazarus introspect moe-expert explore -m openai/gpt-oss-20b
+# Then type: King is to queen as man is to woman
+# Compare: c "2 + 3 = 5"
+```
 
 ### Circuit Commands
 
@@ -74,6 +152,7 @@ The introspection module provides tools for:
 | `lazarus introspect circuit view` | View captured circuit contents |
 | `lazarus introspect circuit compare` | Compare multiple circuits for similarity |
 | `lazarus introspect circuit decode` | Decode circuit activations by injection |
+| `lazarus introspect circuit export` | Export circuit graph to DOT/JSON/Mermaid/HTML |
 
 ### Standalone Circuit CLI
 
@@ -327,6 +406,120 @@ lazarus introspect cluster -m model \
     --prompts "Capital of France is" --label language \
     --layer 19 --save-plot cluster.png
 ```
+
+### `lazarus introspect operand-directions`
+
+Analyze how operands A and B are encoded in activation space. Tests whether the model uses compositional encoding (separate orthogonal subspaces for A and B, like GPT-OSS) or holistic encoding (entire expression encoded together, like Gemma).
+
+```bash
+lazarus introspect operand-directions -m MODEL [OPTIONS]
+```
+
+**Options:**
+- `--digits` - Digits to use (comma-separated, default: 2,3,4,5,6,7,8,9)
+- `--operation` - Operation to test (default: `*`)
+- `--layers` - Layers to analyze (comma-separated, default: auto key layers)
+- `-o, --output` - Save results (.json or .npz)
+
+**Example:**
+```bash
+# Analyze multiplication operand encoding
+lazarus introspect operand-directions -m mlx-community/gemma-3-4b-it-bf16 \
+    --digits 2,3,4,5,6,7,8,9 --operation "*" --layers 8,16,20,24
+
+# Quick check
+lazarus introspect operand-directions -m model
+```
+
+**Key output metrics:**
+- A_i vs A_j: If low (<0.5), distinct operand directions (compositional)
+- A_i vs B_j: If low (<0.3), orthogonal subspaces
+- A_i vs B_i: If high (>0.8), digit identity dominates position
+
+### `lazarus introspect embedding`
+
+Test what information is encoded at the embedding level vs after layer computation. This tests the RLVF backprop hypothesis: if task type is 100% detectable from raw embeddings, RLVF gradients backpropagate to the embedding layer.
+
+```bash
+lazarus introspect embedding -m MODEL [OPTIONS]
+```
+
+**Options:**
+- `--operation` - Operation type: `mult`, `add`, `all`, `*`, `+` (default: all)
+- `--layers` - Layers to compare against embeddings (comma-separated, default: 0,1,2)
+- `-o, --output` - Save results to JSON
+
+**Example:**
+```bash
+# Full embedding analysis
+lazarus introspect embedding -m mlx-community/gemma-3-4b-it-bf16
+
+# Test specific operation
+lazarus introspect embedding -m model --operation mult
+```
+
+**Key output:**
+- Task type from embeddings: If 100%, RLVF backprop confirmed
+- Answer R² from embeddings: Should be low (computation required)
+
+### `lazarus introspect commutativity`
+
+Test if the model's internal representations respect commutativity (A*B = B*A). High similarity (>0.99) between commutative pairs suggests a lookup table structure rather than an algorithm.
+
+```bash
+lazarus introspect commutativity -m MODEL [OPTIONS]
+```
+
+**Options:**
+- `--pairs` - Explicit pairs to test (e.g., `"2*3,3*2|7*8,8*7"`)
+- `-l, --layer` - Layer to analyze (default: ~60% of model depth)
+- `-o, --output` - Save results to JSON
+
+**Example:**
+```bash
+# Test all commutative pairs (2-9)
+lazarus introspect commutativity -m model
+
+# Test specific pairs
+lazarus introspect commutativity -m model \
+    --pairs "2*3,3*2|7*8,8*7|4*5,5*4" --layer 20
+```
+
+**Interpretation:**
+- Mean similarity >0.999: Strong evidence for lookup table (memorization)
+- Mean similarity <0.9: Model may use different algorithms for A*B vs B*A
+
+### `lazarus introspect patch`
+
+Perform activation patching: transfer activations from a source prompt to a target prompt. This is a causal intervention technique to test whether specific layers encode "the answer" vs "the operands".
+
+```bash
+lazarus introspect patch -m MODEL --source SOURCE --target TARGET [OPTIONS]
+```
+
+**Options:**
+- `-s, --source` - Source prompt to patch FROM (required)
+- `-t, --target` - Target prompt to patch INTO (required)
+- `-l, --layer` - Single layer to patch at
+- `--layers` - Multiple layers to sweep (comma-separated)
+- `--blend` - Blend factor: 0=no change, 1=full replacement (default: 1.0)
+- `-n, --max-tokens` - Max tokens to generate (default: 10)
+- `-o, --output` - Save results to JSON
+
+**Example:**
+```bash
+# Patch multiplication into addition
+lazarus introspect patch -m model --source "7*8=" --target "7+8="
+
+# Patch at specific layers
+lazarus introspect patch -m model \
+    --source "7*8=" --target "7+8=" \
+    --layers 0,8,16,20,24,28
+```
+
+**Key output:**
+- "TRANSFERRED!": Source answer produced at this layer
+- "no change": Patching had no effect at this layer
 
 ### `lazarus introspect memory`
 
@@ -629,14 +822,17 @@ Discover what each expert specializes in:
 
 ```python
 from mlx_lm import load
-from chuk_lazarus.introspection import ExpertIdentifier, identify_experts
+from chuk_lazarus.introspection import (
+    MoEHooks, identify_all_experts, print_expert_summary
+)
 
 # Load model
 model, tokenizer = load("openai/gpt-oss-20b")
 
-# Identify all experts in layer 12
-result = identify_experts(model, tokenizer, layer_idx=12)
-print(result.summary())
+# Create hooks and identify all experts in layer 12
+hooks = MoEHooks(model)
+identities = identify_all_experts(hooks, layer_idx=12, tokenizer=tokenizer)
+print_expert_summary(identities)
 
 # Output:
 # Expert Identification: gpt_oss
@@ -774,54 +970,63 @@ print(f"Routing weights: {pattern['routing_weights']}")
 Test what happens when specific experts are disabled:
 
 ```python
-from chuk_lazarus.introspection import MoEAblation
+from chuk_lazarus.introspection import ablate_expert, find_causal_experts
+import mlx.core as mx
 
-ablation = MoEAblation(model, tokenizer)
-
-# Ablate expert 6 (math specialist)
-result = ablation.ablate_expert(
-    prompt="What is 45 * 45?",
+# Ablate expert 6 (math specialist) at layer 12
+input_ids = mx.array(tokenizer.encode("What is 45 * 45?"))[None, :]
+result = ablate_expert(
+    model=model,
     layer_idx=12,
     expert_idx=6,
-    max_tokens=20,
+    input_ids=input_ids,
+    tokenizer=tokenizer,
 )
-print(f"Original: {result.original_output}")
+print(f"Baseline: {result.baseline_output}")
 print(f"Ablated:  {result.ablated_output}")
-print(f"Probability change: {result.probability_delta:.2%}")
+print(f"Output changed: {result.output_changed}")
+print(f"Would have activated: {result.would_have_activated}")
 
-# Force routing through a single expert
-result = ablation.force_expert(
-    prompt="Hello world",
+# Find all experts whose ablation changes output
+causal_experts = find_causal_experts(
+    model=model,
     layer_idx=12,
-    expert_idx=6,  # Force math expert on language
-    max_tokens=20,
+    input_ids=input_ids,
+    tokenizer=tokenizer,
 )
-
-# Sweep all experts
-results = ablation.sweep_experts(
-    prompt="What is 2 + 2?",
-    layer_idx=12,
-    max_tokens=10,
-)
-for r in sorted(results, key=lambda x: x.probability_delta):
-    print(f"Expert {r.expert_idx}: {r.probability_delta:+.2%}")
+for r in causal_experts:
+    print(f"Expert {r.expert_idx}: causal (activations={r.activation_count})")
 ```
 
 ### MoE Logit Lens
 
-See how predictions evolve across MoE layers:
+See how routing evolves across MoE layers:
 
 ```python
-from chuk_lazarus.introspection import MoELogitLens
+from chuk_lazarus.introspection import MoEHooks, MoECaptureConfig, MoELogitLens
+import mlx.core as mx
 
-lens = MoELogitLens(model, tokenizer)
-predictions = lens.analyze("def fibonacci(n):", position=-1, top_k=5)
+# Setup hooks
+hooks = MoEHooks(model)
+hooks.configure(MoECaptureConfig(
+    capture_router_logits=True,
+    capture_selected_experts=True,
+))
 
-for pred in predictions:
-    print(f"Layer {pred.layer_idx}:")
-    print(f"  Top token: {pred.top_token} ({pred.top_probability:.2%})")
-    print(f"  Experts used: {pred.experts_used}")
-    print(f"  Expert weights: {pred.expert_weights}")
+# Run forward pass
+input_ids = mx.array(tokenizer.encode("def fibonacci(n):"))[None, :]
+hooks.forward(input_ids)
+
+# Create logit lens and analyze
+lens = MoELogitLens(hooks, tokenizer)
+snapshots = lens.get_routing_evolution(position=-1)
+
+for snap in snapshots:
+    experts = ", ".join(f"E{e}" for e in snap.selected_experts)
+    print(f"Layer {snap.layer_idx}: [{experts}] entropy={snap.router_entropy:.3f}")
+
+# Print in human-readable format
+lens.print_routing_evolution()
 ```
 
 ### Example: GPT-OSS Expert Analysis
@@ -865,12 +1070,16 @@ REDUNDANT PAIRS:
 
 ### API Reference
 
-#### ExpertIdentifier
+#### Identification Functions
 
-| Method | Description |
-|--------|-------------|
-| `identify_expert(layer_idx, expert_idx)` | Identify single expert |
-| `identify_all_experts(layer_idx)` | Identify all experts in layer |
+| Function | Description |
+|----------|-------------|
+| `identify_expert(hooks, layer_idx, expert_idx, tokenizer)` | Identify single expert |
+| `identify_all_experts(hooks, layer_idx, tokenizer)` | Identify all experts in layer |
+| `find_specialists(identities, category=None)` | Find specialist experts |
+| `find_generalists(identities)` | Find generalist experts |
+| `cluster_experts_by_specialization(identities)` | Group by primary category |
+| `print_expert_summary(identities)` | Print summary report |
 
 #### MoEHooks
 
@@ -887,11 +1096,42 @@ REDUNDANT PAIRS:
 
 ```python
 from chuk_lazarus.introspection import (
-    identify_experts,          # Quick identification
-    print_expert_identities,   # Print detailed report
-    detect_moe_architecture,   # Detect MoE type
+    # Detection
+    detect_moe_architecture,   # Detect MoE type (GPT_OSS, MIXTRAL, LLAMA4, etc.)
     get_moe_layer_info,        # Get layer info
-    analyze_moe_model,         # Full model analysis
+    get_moe_layers,            # Get indices of MoE layers
+    is_moe_model,              # Check if model has MoE
+    # Identification
+    identify_expert,           # Identify single expert
+    identify_all_experts,      # Identify all experts in layer
+    find_specialists,          # Find specialist experts
+    find_generalists,          # Find generalist experts
+    print_expert_summary,      # Print summary report
+    # Ablation
+    ablate_expert,             # Ablate single expert
+    find_causal_experts,       # Find experts that affect output
+    # Compression
+    create_compression_plan,   # Plan expert merging
+    analyze_compression_opportunities,  # Analyze all layers
+    # Datasets (for custom analysis)
+    PromptCategory,            # 27 prompt categories
+    get_category_prompts,      # Get prompts for a category
+    get_grouped_prompts,       # Get all prompts by category name
+)
+```
+
+#### Direct Module Imports
+
+For more control, import directly from the moe subpackage:
+
+```python
+from chuk_lazarus.introspection.moe import (
+    # Hooks
+    MoEHooks, MoECaptureConfig,
+    # Models
+    ExpertUtilization, RouterEntropy, ExpertIdentity,
+    # Enums
+    MoEArchitecture, ExpertCategory, ExpertRole,
 )
 ```
 
@@ -949,8 +1189,23 @@ src/chuk_lazarus/introspection/
 ├── analyzer.py          # Async-native ModelAnalyzer API
 ├── ablation/            # Ablation studies
 ├── attention.py         # Attention pattern analysis
-├── steering.py          # Activation steering
-├── moe.py               # MoE introspection (routing, expert ID, ablation)
+├── steering/            # Activation steering
+├── moe/                 # MoE introspection (modular subpackage)
+│   ├── __init__.py      # Clean exports
+│   ├── enums.py         # MoEArchitecture, ExpertCategory, ExpertRole
+│   ├── config.py        # MoECaptureConfig, MoEAblationConfig
+│   ├── models.py        # Pydantic models (frozen, validated)
+│   ├── detector.py      # Architecture detection
+│   ├── hooks.py         # MoEHooks (composes ModelHooks)
+│   ├── router.py        # Router analysis utilities
+│   ├── ablation.py      # Expert ablation studies
+│   ├── logit_lens.py    # MoE-specific logit lens
+│   ├── identification.py # Expert specialization detection
+│   ├── compression.py   # Expert merging/pruning analysis
+│   └── datasets/        # JSON prompt datasets
+│       ├── prompts.json # Categorized prompts (27 categories)
+│       ├── prompts.py   # Dataset loader
+│       └── categories.json # Token category keywords
 ├── circuit/             # Circuit analysis toolkit
 │   ├── dataset.py       # Labeled prompt datasets
 │   ├── collector.py     # Activation collection

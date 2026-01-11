@@ -208,8 +208,16 @@ class GRPOTrainer(BaseTrainer):
         for _ in range(max_new_tokens):
             input_tensor = mx.array([generated])
 
-            with mx.stop_gradient():
-                logits, _ = self.policy_model(input_tensor)
+            # Forward pass without gradient tracking
+            output = self.policy_model(input_tensor)
+            # Handle both tuple and ModelOutput returns
+            if hasattr(output, "logits"):
+                logits = output.logits
+            elif isinstance(output, tuple):
+                logits = output[0]
+            else:
+                logits = output
+            logits = mx.stop_gradient(logits)
 
             # Get logits for last position
             next_logits = logits[0, -1, :] / self.grpo_config.temperature
@@ -261,9 +269,9 @@ class GRPOTrainer(BaseTrainer):
         # Get log probs from policy
         policy_log_probs, _ = extract_log_probs(self.policy_model, input_ids, attention_mask)
 
-        # Get log probs from reference
-        with mx.stop_gradient():
-            ref_log_probs, _ = extract_log_probs(self.reference_model, input_ids, attention_mask)
+        # Get log probs from reference (no gradients needed)
+        ref_log_probs, _ = extract_log_probs(self.reference_model, input_ids, attention_mask)
+        ref_log_probs = mx.stop_gradient(ref_log_probs)
 
         # Sum to sequence level
         mask_shifted = attention_mask[:, 1:]
@@ -271,11 +279,11 @@ class GRPOTrainer(BaseTrainer):
         ref_seq_log_probs = compute_sequence_log_prob(ref_log_probs, mask_shifted)
 
         # Compute loss
-        def loss_fn():
-            p_log_probs, _ = extract_log_probs(self.policy_model, input_ids, attention_mask)
+        def loss_fn(model):
+            p_log_probs, _ = extract_log_probs(model, input_ids, attention_mask)
             p_seq = compute_sequence_log_prob(p_log_probs, mask_shifted)
 
-            loss, metrics = grpo_loss(
+            loss, _ = grpo_loss(
                 log_probs=p_seq,
                 ref_log_probs=ref_seq_log_probs,
                 rewards=rewards,
@@ -285,7 +293,7 @@ class GRPOTrainer(BaseTrainer):
             return loss
 
         # Compute gradients
-        loss, grads = mx.value_and_grad(loss_fn)()
+        loss, grads = nn.value_and_grad(self.policy_model, loss_fn)(self.policy_model)
 
         # Gradient clipping
         if self.config.max_grad_norm > 0:
@@ -307,17 +315,35 @@ class GRPOTrainer(BaseTrainer):
         return {k: float(v) for k, v in metrics.items()}
 
     def _sample_token(self, probs: mx.array) -> mx.array:
-        """Sample from probability distribution."""
-        u = mx.random.uniform(probs.shape)
+        """Sample from probability distribution using Gumbel-softmax trick."""
+        u = mx.random.uniform(shape=probs.shape)
         gumbel = -mx.log(-mx.log(u + 1e-10) + 1e-10)
         return mx.argmax(mx.log(probs + 1e-10) + gumbel)
 
     def save_checkpoint(self, name: str):
-        """Save model checkpoint."""
-        path = Path(self.config.checkpoint_dir) / f"{name}.npz"
-        weights = dict(self.policy_model.parameters())
-        mx.save(str(path), weights)
-        logger.info(f"Saved checkpoint: {path}")
+        """Save model checkpoint in safetensors format.
+
+        Uses base class implementation for LoRA-aware saving.
+        """
+        # GRPO uses policy_model instead of model
+        checkpoint_dir = Path(self.config.checkpoint_dir)
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+        # Check for LoRA layers
+        if hasattr(self, "lora_layers") and self.lora_layers:
+            from ...models_v2.loader import save_adapter
+
+            adapter_path = checkpoint_dir / name
+            lora_config = getattr(self, "lora_config", None)
+            save_adapter(self.lora_layers, adapter_path, lora_config=lora_config)
+            logger.info(f"Saved LoRA adapter: {adapter_path}")
+        else:
+            # Save full model weights
+            weights_path = checkpoint_dir / f"{name}.safetensors"
+            weights = dict(self.policy_model.parameters())
+            flat_weights = self._flatten_params(weights)
+            mx.save_safetensors(str(weights_path), flat_weights)
+            logger.info(f"Saved checkpoint: {weights_path}")
 
     def load_checkpoint(self, path: str):
         """Load model checkpoint."""

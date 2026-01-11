@@ -7,22 +7,24 @@ Handles loading and batching of preference pairs (chosen, rejected).
 import json
 import logging
 from collections.abc import Iterator
-from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import mlx.core as mx
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class PreferencePair:
+class PreferencePair(BaseModel):
     """A single preference pair."""
 
-    prompt: str
-    chosen: str  # Preferred response
-    rejected: str  # Rejected response
-    metadata: dict | None = None
+    model_config = ConfigDict(frozen=True)
+
+    prompt: str = Field(description="The prompt text")
+    chosen: str = Field(description="Preferred response")
+    rejected: str = Field(description="Rejected response")
+    metadata: dict[str, Any] | None = Field(default=None, description="Additional metadata")
 
 
 class PreferenceDataset:

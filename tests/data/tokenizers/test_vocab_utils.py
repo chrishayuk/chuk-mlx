@@ -86,7 +86,12 @@ class TestSaveVocabulary:
             saved_data = json.load(f)
 
         assert saved_data["vocab"] == {"hello": 0, "world": 1}
-        assert saved_data["special_tokens"] == {"<pad>": 2, "<unk>": 3, "<bos>": 4, "<eos>": 5}
+        assert saved_data["special_tokens"] == {
+            "<pad>": 2,
+            "<unk>": 3,
+            "<bos>": 4,
+            "<eos>": 5,
+        }
         assert saved_data["added_tokens"] == ["<custom>"]
         assert saved_data["version"] == "1.0"
 

@@ -27,12 +27,12 @@ Example:
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     from .collector import CollectedActivations
@@ -48,32 +48,39 @@ class DirectionMethod(str, Enum):
     PCA = "pca"  # First principal component of the difference
 
 
-@dataclass
-class ExtractedDirection:
+class ExtractedDirection(BaseModel):
     """A direction vector with metadata.
 
     Generic - the direction can represent any linear feature in activation space.
     """
 
-    name: str
-    layer: int
-    direction: np.ndarray  # [hidden_size]
-    method: DirectionMethod
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    name: str = Field(description="Direction name")
+    layer: int = Field(description="Layer index")
+    direction: np.ndarray = Field(description="Direction vector [hidden_size]")
+    method: DirectionMethod = Field(description="Extraction method")
 
     # Statistics
-    mean_projection_positive: float = 0.0  # Mean projection for positive class (label=1)
-    mean_projection_negative: float = 0.0  # Mean projection for negative class (label=0)
-    separation_score: float = 0.0  # Cohen's d or similar
+    mean_projection_positive: float = Field(
+        default=0.0, description="Mean projection for positive class (label=1)"
+    )
+    mean_projection_negative: float = Field(
+        default=0.0, description="Mean projection for negative class (label=0)"
+    )
+    separation_score: float = Field(default=0.0, description="Cohen's d or similar")
 
     # Validation
-    accuracy: float = 0.0  # Classification accuracy using this direction
-    correlation_with_output: float = 0.0  # Correlation with model behavior
+    accuracy: float = Field(default=0.0, description="Classification accuracy")
+    correlation_with_output: float = Field(
+        default=0.0, description="Correlation with model behavior"
+    )
 
     # Label info (for interpretation)
-    positive_label: str = "positive"
-    negative_label: str = "negative"
+    positive_label: str = Field(default="positive", description="Label for positive class")
+    negative_label: str = Field(default="negative", description="Label for negative class")
 
-    metadata: dict = field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
     @property
     def normalized_direction(self) -> np.ndarray:
@@ -107,17 +114,20 @@ class ExtractedDirection:
         }
 
 
-@dataclass
-class DirectionBundle:
+class DirectionBundle(BaseModel):
     """Collection of related directions across layers."""
 
-    name: str
-    directions: dict[int, ExtractedDirection] = field(default_factory=dict)  # layer -> direction
+    model_config = ConfigDict(validate_default=True)
+
+    name: str = Field(description="Bundle name")
+    directions: dict[int, ExtractedDirection] = Field(
+        default_factory=dict, description="Layer -> direction mapping"
+    )
 
     # Metadata
-    model_id: str = ""
-    positive_label: str = "positive"
-    negative_label: str = "negative"
+    model_id: str = Field(default="", description="Model identifier")
+    positive_label: str = Field(default="positive", description="Positive class label")
+    negative_label: str = Field(default="negative", description="Negative class label")
 
     def add(self, direction: ExtractedDirection) -> None:
         """Add a direction to the bundle."""
@@ -145,7 +155,8 @@ class DirectionBundle:
         if not self.directions:
             return None
         return max(
-            self.directions.keys(), key=lambda layer: self.directions[layer].separation_score
+            self.directions.keys(),
+            key=lambda layer: self.directions[layer].separation_score,
         )
 
     def save(self, path: str | Path) -> None:

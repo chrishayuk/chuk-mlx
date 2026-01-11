@@ -1,0 +1,95 @@
+{
+  "model": "ibm-granite/granite-3.1-2b-base",
+  "layer": 22,
+  "num_layers": 40,
+  "results": [
+    {
+      "prompt": "7 * 8 =",
+      "top_token": "MZQ",
+      "top_prob": 1.0,
+      "target_probs": {
+        "multiply": 0.0,
+        "add": 0.0,
+        "subtract": 0.0,
+        "divide": 0.0
+      }
+    },
+    {
+      "prompt": "12 * 5 =",
+      "top_token": "\u0486",
+      "top_prob": 0.95703125,
+      "target_probs": {
+        "multiply": 3.126388037344441e-13,
+        "add": 4.996170899820287e-22,
+        "subtract": 1.8214596497756474e-17,
+        "divide": 2.240994945168495e-09
+      }
+    },
+    {
+      "prompt": "23 + 45 =",
+      "top_token": "y",
+      "top_prob": 1.0,
+      "target_probs": {
+        "multiply": 2.4035605705952703e-31,
+        "add": 6.110667527536862e-13,
+        "subtract": 4.890056499420716e-35,
+        "divide": 9.615974620928947e-24
+      }
+    },
+    {
+      "prompt": "17 + 38 =",
+      "top_token": "\u0486",
+      "top_prob": 0.5625,
+      "target_probs": {
+        "multiply": 3.446132268436486e-13,
+        "add": 1.0257039595657543e-21,
+        "subtract": 1.0733601507606494e-17,
+        "divide": 2.0605511963367462e-08
+      }
+    },
+    {
+      "prompt": "50 - 23 =",
+      "top_token": "MZQ",
+      "top_prob": 0.984375,
+      "target_probs": {
+        "multiply": 2.4097634191856894e-36,
+        "add": 2.6815964878133434e-38,
+        "subtract": 0.0,
+        "divide": 4.7578173346142275e-30
+      }
+    },
+    {
+      "prompt": "89 - 34 =",
+      "top_token": "MZQ",
+      "top_prob": 1.0,
+      "target_probs": {
+        "multiply": 1.2195753889781233e-37,
+        "add": 0.0,
+        "subtract": 0.0,
+        "divide": 1.8055593228630336e-35
+      }
+    },
+    {
+      "prompt": "48 / 6 =",
+      "top_token": "MZQ",
+      "top_prob": 0.95703125,
+      "target_probs": {
+        "multiply": 7.052966104933725e-38,
+        "add": 0.0,
+        "subtract": 0.0,
+        "divide": 1.4020769995139077e-31
+      }
+    },
+    {
+      "prompt": "81 / 9 =",
+      "top_token": "MZQ",
+      "top_prob": 0.95703125,
+      "target_probs": {
+        "multiply": 0.0,
+        "add": 0.0,
+        "subtract": 0.0,
+        "divide": 1.1459283169104053e-32
+      }
+    }
+  ]
+}

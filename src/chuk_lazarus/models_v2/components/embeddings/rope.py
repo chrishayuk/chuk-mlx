@@ -4,6 +4,7 @@ Rotary Position Embeddings (RoPE).
 RoPE encodes position information by rotating query and key vectors.
 This implementation supports:
 - Standard RoPE (Llama, Mistral)
+- Llama 3 RoPE with frequency smoothing
 - Scaled RoPE for extended context (YaRN, dynamic scaling)
 - Traditional vs interleaved ordering
 
@@ -11,6 +12,8 @@ Reference: https://arxiv.org/abs/2104.09864
 """
 
 from __future__ import annotations
+
+import math
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -98,6 +101,129 @@ class RoPE(nn.Module):
             RoPE instance
         """
         return cls(config, dims=head_dim)
+
+
+class Llama3RoPE(nn.Module):
+    """
+    Llama 3 style RoPE with frequency smoothing.
+
+    Implements the frequency adjustment used in Llama 3 models where
+    different frequency components are scaled differently based on
+    their wavelengths relative to the original context length.
+
+    This allows extending context while preserving short-range attention
+    patterns that the model learned during pretraining.
+
+    Reference: Llama 3 paper and mlx-lm implementation
+
+    Args:
+        config: RoPE configuration with Llama 3 specific fields
+        dims: Dimension to apply RoPE (typically head_dim)
+
+    Example:
+        >>> config = RoPEConfig(
+        ...     theta=500000.0,
+        ...     scaling_type="llama3",
+        ...     scaling_factor=32.0,
+        ...     low_freq_factor=1.0,
+        ...     high_freq_factor=4.0,
+        ...     original_max_position_embeddings=8192,
+        ... )
+        >>> rope = Llama3RoPE(config, dims=128)
+    """
+
+    def __init__(self, config: RoPEConfig, dims: int):
+        super().__init__()
+
+        self.dims = dims
+        self.traditional = config.traditional
+        self.max_position_embeddings = config.max_position_embeddings
+
+        # Get Llama 3 specific parameters
+        factor = config.scaling_factor
+        low_freq_factor = config.low_freq_factor
+        high_freq_factor = config.high_freq_factor
+        old_context_len = config.original_max_position_embeddings or 8192
+
+        # Compute wavelength thresholds
+        low_freq_wavelen = old_context_len / low_freq_factor
+        high_freq_wavelen = old_context_len / high_freq_factor
+
+        # Compute base frequencies (inverse frequencies)
+        freqs = config.theta ** (mx.arange(0, dims, 2) / dims)
+
+        # Compute wavelengths for each frequency component
+        wavelens = 2 * math.pi * freqs
+
+        # Apply frequency-dependent scaling:
+        # - Low frequency components (long wavelength > low_freq_wavelen): scale by factor
+        # - High frequency components (short wavelength < high_freq_wavelen): no scaling
+        # - Medium frequency components: smooth interpolation
+
+        # Start with scaled frequencies for low-freq components
+        freqs = mx.where(wavelens > low_freq_wavelen, freqs * factor, freqs)
+
+        # Identify medium frequency range
+        is_medium_freq = (wavelens > high_freq_wavelen) & (wavelens < low_freq_wavelen)
+
+        # Compute smooth interpolation factors for medium frequencies
+        smooth_factors = (old_context_len / wavelens - low_freq_factor) / (
+            high_freq_factor - low_freq_factor
+        )
+
+        # Apply smooth scaling: interpolate between scaled and unscaled
+        smooth_freqs = freqs / ((1 - smooth_factors) / factor + smooth_factors)
+
+        # Use smoothed frequencies for medium range
+        self._freqs = mx.where(is_medium_freq, smooth_freqs, freqs)
+
+    def __call__(
+        self,
+        x: mx.array,
+        offset: int = 0,
+    ) -> mx.array:
+        """
+        Apply Llama 3 rotary position embeddings.
+
+        Args:
+            x: Input tensor, shape (batch, heads, seq_len, head_dim)
+            offset: Position offset (for KV cache during generation)
+
+        Returns:
+            Rotated tensor, same shape as input
+        """
+        return mx.fast.rope(
+            x,
+            self.dims,
+            traditional=self.traditional,
+            base=None,  # Use custom frequencies instead
+            scale=1.0,
+            offset=offset,
+            freqs=self._freqs,
+        )
+
+    def extra_repr(self) -> str:
+        return (
+            f"{self.dims}, traditional={self.traditional}, "
+            f"max_position_embeddings={self.max_position_embeddings}"
+        )
+
+
+def create_rope(config: RoPEConfig, dims: int) -> RoPE | Llama3RoPE:
+    """
+    Factory function to create the appropriate RoPE implementation.
+
+    Args:
+        config: RoPE configuration
+        dims: Dimension to apply RoPE (typically head_dim)
+
+    Returns:
+        RoPE or Llama3RoPE instance based on scaling_type
+    """
+    if config.scaling_type == "llama3":
+        return Llama3RoPE(config, dims)
+    else:
+        return RoPE(config, dims)
 
 
 def compute_rope_frequencies(

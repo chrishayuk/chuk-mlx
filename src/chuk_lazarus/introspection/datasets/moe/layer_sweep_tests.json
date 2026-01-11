@@ -1,0 +1,433 @@
+{
+  "version": "2.0.0",
+  "description": "Comprehensive test suite for layer-sweep analysis - model independent",
+  "categories": {
+    "structural": {
+      "description": "Early layers - position and token type patterns",
+      "subcategories": {
+        "position_0": {
+          "description": "Sequence start tokens",
+          "prompts": ["the", "127", "def", "Hello", "(", "A", "1", "import", "True", "None", "{", "[", "\"", "#"]
+        },
+        "num_after_num": {
+          "description": "Number following number",
+          "prompts": ["111 127", "222 333", "1 2 3", "100 200 300", "42 99", "7 8 9", "0 1", "999 0"]
+        },
+        "word_after_word": {
+          "description": "Word following word",
+          "prompts": ["the cat", "big dog", "hello world", "red car", "quick fox", "lazy dog", "very good", "not bad"]
+        },
+        "num_after_word": {
+          "description": "Number following word",
+          "prompts": ["abc 127", "the 42", "x 3", "hello 999", "count 5", "page 10", "line 1", "step 0"]
+        },
+        "word_after_num": {
+          "description": "Word following number",
+          "prompts": ["127 abc", "42 cats", "999 items", "3 apples", "100 dollars", "1 thing", "0 errors"]
+        },
+        "after_operator": {
+          "description": "Token following operator",
+          "prompts": ["x + y", "a * b", "n - 1", "x = y", "a / b", "x == y", "a != b", "x <= y", "a >= b"]
+        },
+        "after_punct": {
+          "description": "Token following punctuation",
+          "prompts": ["hello, world", "wait... what", "end.", "why?", "ok; next", "done!", "stop: now", "go- fast"]
+        }
+      }
+    },
+    "punctuation": {
+      "description": "Punctuation-heavy patterns",
+      "subcategories": {
+        "ellipsis": {
+          "description": "Ellipsis and continuation",
+          "prompts": ["...", "wait...", "and...", "hmm...", "so... yeah", "but... no"]
+        },
+        "exclamation": {
+          "description": "Exclamation patterns",
+          "prompts": ["!", "!!", "!!!", "wow!", "no!", "yes!", "stop!!", "help!!!"]
+        },
+        "question": {
+          "description": "Question patterns",
+          "prompts": ["?", "??", "???", "what?", "why?", "how?", "really??", "huh???"]
+        },
+        "mixed_punct": {
+          "description": "Mixed punctuation",
+          "prompts": ["?!", "!?", "..?", "..!", "what?!", "no!?", "really...?"]
+        },
+        "quotes": {
+          "description": "Quote patterns",
+          "prompts": ["\"hello\"", "'world'", "\"test\"", "'ok'", "say \"hi\"", "it's", "don't"]
+        },
+        "colons_semis": {
+          "description": "Colons and semicolons",
+          "prompts": [":", "::", ";;", "note:", "key: value", "a; b", "x: y: z"]
+        }
+      }
+    },
+    "brackets": {
+      "description": "Bracket and grouping patterns",
+      "subcategories": {
+        "parens": {
+          "description": "Parentheses",
+          "prompts": ["()", "(x)", "(a, b)", "((x))", "f(x)", "(1 + 2)", "((()))", "(a)(b)"]
+        },
+        "square": {
+          "description": "Square brackets",
+          "prompts": ["[]", "[x]", "[1, 2]", "[[x]]", "a[0]", "[1, 2, 3]", "[[[]]]", "a[i][j]"]
+        },
+        "curly": {
+          "description": "Curly braces",
+          "prompts": ["{}", "{x}", "{a: b}", "{{x}}", "{1, 2}", "{x: y}", "{{{}}}", "{}{}"]
+        },
+        "angle": {
+          "description": "Angle brackets",
+          "prompts": ["<>", "<T>", "<int>", "<<x>>", "List<T>", "<a, b>", "<<<>>>", "<><>"]
+        },
+        "mixed_brackets": {
+          "description": "Mixed bracket types",
+          "prompts": ["([{}])", "{[()]}", "<[{}]>", "f([x])", "{a: [1]}", "(<T>)"]
+        }
+      }
+    },
+    "multi_position": {
+      "description": "Test routing at different positions",
+      "subcategories": {
+        "words_5": {
+          "description": "5 word sequences",
+          "prompts": ["a b c d e", "the big red fluffy cat", "one two three four five", "I am very very happy"]
+        },
+        "nums_5": {
+          "description": "5 number sequences",
+          "prompts": ["1 2 3 4 5", "10 20 30 40 50", "0 0 0 0 0", "9 8 7 6 5"]
+        },
+        "mixed_5": {
+          "description": "5 token mixed sequences",
+          "prompts": ["a 1 b 2 c", "1 a 2 b 3", "x + y = z", "if a then b"]
+        },
+        "long_seq": {
+          "description": "Longer sequences",
+          "prompts": ["a b c d e f g h", "1 2 3 4 5 6 7 8", "the quick brown fox jumps over"]
+        }
+      }
+    },
+    "operators": {
+      "description": "Operator patterns",
+      "subcategories": {
+        "arithmetic": {
+          "description": "Arithmetic operators",
+          "prompts": ["+", "-", "*", "/", "%", "**", "//", "a + b", "x * y", "n % 2"]
+        },
+        "comparison": {
+          "description": "Comparison operators",
+          "prompts": ["==", "!=", "<", ">", "<=", ">=", "a == b", "x != y", "n < 10"]
+        },
+        "logical": {
+          "description": "Logical operators",
+          "prompts": ["&&", "||", "!", "and", "or", "not", "a && b", "x || y", "!flag"]
+        },
+        "assignment": {
+          "description": "Assignment operators",
+          "prompts": ["=", "+=", "-=", "*=", "/=", ":=", "x = 1", "n += 1", "x := y"]
+        },
+        "bitwise": {
+          "description": "Bitwise operators",
+          "prompts": ["&", "|", "^", "~", "<<", ">>", "a & b", "x | y", "n << 2"]
+        }
+      }
+    },
+    "code_patterns": {
+      "description": "Code structure patterns",
+      "subcategories": {
+        "keywords": {
+          "description": "Language keywords",
+          "prompts": ["def", "class", "import", "return", "if", "else", "for", "while", "try", "except", "with", "async", "await", "yield", "lambda"]
+        },
+        "function_def": {
+          "description": "Function definitions",
+          "prompts": ["def foo():", "def bar(x):", "def add(a, b):", "async def main():", "lambda x: x"]
+        },
+        "class_def": {
+          "description": "Class definitions",
+          "prompts": ["class Foo:", "class Bar(Base):", "class MyClass:", "@dataclass"]
+        },
+        "control_flow": {
+          "description": "Control flow",
+          "prompts": ["if x:", "elif y:", "else:", "for i in", "while True:", "break", "continue", "pass"]
+        },
+        "imports": {
+          "description": "Import statements",
+          "prompts": ["import os", "import sys", "from x import y", "import numpy as np", "from typing import"]
+        },
+        "decorators": {
+          "description": "Decorators",
+          "prompts": ["@property", "@staticmethod", "@classmethod", "@decorator", "@app.route"]
+        }
+      }
+    },
+    "data_structures": {
+      "description": "Data structure patterns",
+      "subcategories": {
+        "lists": {
+          "description": "List patterns",
+          "prompts": ["[1, 2, 3]", "[]", "[x]", "[a, b, c]", "[[1], [2]]", "[i for i in"]
+        },
+        "dicts": {
+          "description": "Dictionary patterns",
+          "prompts": ["{\"a\": 1}", "{}", "{x: y}", "{\"key\": \"value\"}", "{a: b, c: d}"]
+        },
+        "tuples": {
+          "description": "Tuple patterns",
+          "prompts": ["(1, 2)", "()", "(x,)", "(a, b, c)", "((1, 2), (3, 4))"]
+        },
+        "sets": {
+          "description": "Set patterns",
+          "prompts": ["{1, 2, 3}", "set()", "{x}", "{a, b}", "frozenset()"]
+        }
+      }
+    },
+    "strings": {
+      "description": "String patterns",
+      "subcategories": {
+        "simple": {
+          "description": "Simple strings",
+          "prompts": ["\"hello\"", "'world'", "\"\"", "''", "\"test string\""]
+        },
+        "fstrings": {
+          "description": "Format strings",
+          "prompts": ["f\"hello\"", "f\"{x}\"", "f\"{a} + {b}\"", "f\"{x:.2f}\"", "f\"value={v}\""]
+        },
+        "raw": {
+          "description": "Raw strings",
+          "prompts": ["r\"\\n\"", "r\"path\\to\"", "r\"regex.*\""]
+        },
+        "multiline": {
+          "description": "Multiline indicators",
+          "prompts": ["\"\"\"", "'''", "\"\"\"doc\"\"\"", "'''text'''"]
+        },
+        "escape": {
+          "description": "Escape sequences",
+          "prompts": ["\\n", "\\t", "\\\\", "\\\"", "\\'", "\\r\\n"]
+        }
+      }
+    },
+    "numbers": {
+      "description": "Number format patterns",
+      "subcategories": {
+        "integers": {
+          "description": "Integer formats",
+          "prompts": ["0", "1", "42", "127", "999", "1000", "123456", "-1", "-42"]
+        },
+        "floats": {
+          "description": "Float formats",
+          "prompts": ["0.0", "1.0", "3.14", "2.718", "0.001", "1e10", "2.5e-3", "-0.5"]
+        },
+        "hex": {
+          "description": "Hexadecimal",
+          "prompts": ["0x0", "0x1", "0xFF", "0xDEAD", "0xBEEF", "0x123ABC"]
+        },
+        "binary": {
+          "description": "Binary",
+          "prompts": ["0b0", "0b1", "0b1010", "0b11111111", "0b0000"]
+        },
+        "special": {
+          "description": "Special numbers",
+          "prompts": ["inf", "-inf", "nan", "None", "null", "NaN", "Infinity"]
+        }
+      }
+    },
+    "task_type": {
+      "description": "Middle layers - task classification",
+      "subcategories": {
+        "math_expr": {
+          "description": "Mathematical expressions",
+          "prompts": ["127 * 89 =", "2 + 2 =", "45 * 45 =", "100 / 4 =", "sqrt(16) =", "3^2 =", "sin(0) =", "log(10) ="]
+        },
+        "code": {
+          "description": "Code patterns",
+          "prompts": ["def fib(n):", "for i in range(", "import numpy", "return x + y", "class Foo:", "if x > 0:", "try:", "except:"]
+        },
+        "language": {
+          "description": "Language/vocabulary tasks",
+          "prompts": ["A synonym for happy is", "The opposite of cold is", "Translate hello to French", "Define the word", "Spell the word"]
+        },
+        "factual": {
+          "description": "Factual recall",
+          "prompts": ["The capital of France is", "Water boils at", "The year 1776 marks", "Einstein discovered", "Pi equals"]
+        },
+        "creative": {
+          "description": "Creative generation",
+          "prompts": ["Once upon a time", "Write a poem about", "Imagine a world where", "In a galaxy far", "The story begins"]
+        },
+        "reasoning": {
+          "description": "Reasoning tasks",
+          "prompts": ["If A then B, and A, therefore", "All X are Y, Z is X, so", "The logical conclusion is", "This implies that"]
+        }
+      }
+    },
+    "magnitude": {
+      "description": "Middle layers - numerical scale",
+      "subcategories": {
+        "small": {
+          "description": "Small numbers (1-10)",
+          "prompts": ["2 + 2 =", "3 * 3 =", "1 + 1 =", "5 - 2 =", "4 * 2 =", "9 / 3 =", "7 + 3 =", "8 - 5 ="]
+        },
+        "medium": {
+          "description": "Medium numbers (10-1000)",
+          "prompts": ["45 * 45 =", "127 + 89 =", "256 - 128 =", "100 * 5 =", "500 / 10 =", "99 + 1 ="]
+        },
+        "large": {
+          "description": "Large numbers (1000+)",
+          "prompts": ["9999 * 9999 =", "123456 + 789 =", "1000000 / 1000 =", "50000 + 50000 =", "999999 + 1 ="]
+        },
+        "decimal": {
+          "description": "Decimal numbers",
+          "prompts": ["3.14 * 2 =", "0.5 + 0.5 =", "2.718 * 3.14 =", "1.5 * 2 =", "0.1 + 0.2 =", "99.9 + 0.1 ="]
+        },
+        "negative": {
+          "description": "Negative numbers",
+          "prompts": ["-1 + 1 =", "-5 * -5 =", "-10 - -5 =", "0 - 100 =", "-3.14 * 2 ="]
+        }
+      }
+    },
+    "difficulty": {
+      "description": "Routing confidence layers",
+      "subcategories": {
+        "easy": {
+          "description": "Memorized/simple results",
+          "prompts": ["2 + 2 =", "10 * 10 =", "100 / 10 =", "5 * 5 =", "1 + 0 =", "0 * 100 ="]
+        },
+        "medium": {
+          "description": "Moderate computation",
+          "prompts": ["25 * 4 =", "144 / 12 =", "7 * 8 =", "13 * 7 =", "99 + 11 =", "81 / 9 ="]
+        },
+        "hard": {
+          "description": "Requires computation",
+          "prompts": ["47 * 47 =", "127 * 89 =", "1234 + 5678 =", "89 * 73 =", "456 + 789 ="]
+        },
+        "very_hard": {
+          "description": "Multi-step computation",
+          "prompts": ["47 * 89 * 3 =", "sqrt(144) + 17 =", "(25 + 75) * 4 =", "100 / 4 + 50 =", "(2^10) - 1 ="]
+        }
+      }
+    },
+    "output_type": {
+      "description": "Late layers - output formatting",
+      "subcategories": {
+        "expects_number": {
+          "description": "Expects numeric output",
+          "prompts": ["127 * 89 =", "The year is", "Count:", "Total:", "Result:", "Sum:", "Answer:"]
+        },
+        "expects_word": {
+          "description": "Expects word output",
+          "prompts": ["Hello, my name is", "The color is", "A synonym for", "The answer is", "My favorite"]
+        },
+        "expects_code": {
+          "description": "Expects code output",
+          "prompts": ["def fibonacci(n):\n    return", "print(", "import", "class MyClass:\n    def", "return"]
+        },
+        "expects_punct": {
+          "description": "Expects punctuation",
+          "prompts": ["Wait", "Hello world", "The end", "Goodbye", "Thanks", "Yes", "No"]
+        },
+        "expects_bool": {
+          "description": "Expects boolean",
+          "prompts": ["Is 2 > 1?", "True or False:", "Is this correct?", "Does this work?"]
+        }
+      }
+    },
+    "context_switch": {
+      "description": "All layers - context transitions",
+      "subcategories": {
+        "num_to_word": {
+          "description": "Number followed by word",
+          "prompts": ["127 hello", "42 world", "999 the", "7 cats", "100 dollars", "3 times"]
+        },
+        "word_to_num": {
+          "description": "Word followed by number",
+          "prompts": ["hello 127", "the 42", "world 999", "page 7", "chapter 3", "version 2"]
+        },
+        "code_to_english": {
+          "description": "Code followed by natural language",
+          "prompts": ["def hello world", "return the cat", "import the library", "class the thing", "if the condition"]
+        },
+        "english_to_code": {
+          "description": "Natural language followed by code",
+          "prompts": ["the def fib", "hello import os", "world class Foo", "cat return x", "dog if True"]
+        },
+        "punct_to_word": {
+          "description": "Punctuation to word",
+          "prompts": [". The", ", and", "! wow", "? what", "; then", ": value"]
+        },
+        "word_to_punct": {
+          "description": "Word to punctuation",
+          "prompts": ["hello.", "world,", "stop!", "why?", "done;", "key:"]
+        }
+      }
+    },
+    "special_tokens": {
+      "description": "Special and control tokens",
+      "subcategories": {
+        "booleans": {
+          "description": "Boolean values",
+          "prompts": ["True", "False", "true", "false", "TRUE", "FALSE", "yes", "no"]
+        },
+        "none_null": {
+          "description": "None/null values",
+          "prompts": ["None", "null", "NULL", "nil", "undefined", "NaN"]
+        },
+        "common_vars": {
+          "description": "Common variable names",
+          "prompts": ["x", "y", "i", "j", "n", "self", "this", "args", "kwargs"]
+        },
+        "type_names": {
+          "description": "Type names",
+          "prompts": ["int", "str", "float", "bool", "list", "dict", "tuple", "set", "Any", "Optional"]
+        }
+      }
+    },
+    "repetition": {
+      "description": "Repetition patterns",
+      "subcategories": {
+        "same_token": {
+          "description": "Same token repeated",
+          "prompts": ["a a a", "1 1 1", "the the the", "x x x", "... ... ..."]
+        },
+        "alternating": {
+          "description": "Alternating patterns",
+          "prompts": ["a b a b", "1 2 1 2", "x y x y", "on off on off"]
+        },
+        "increasing": {
+          "description": "Increasing sequences",
+          "prompts": ["1 2 3", "a b c", "10 20 30", "x xx xxx"]
+        }
+      }
+    }
+  },
+  "layer_expectations": {
+    "early": {
+      "layer_fraction": [0.0, 0.25],
+      "expected_patterns": ["POSITION_0", "TOKEN_TYPE", "AFTER_PUNCT", "BRACKETS"],
+      "description": "Token-level patterns, position encoding"
+    },
+    "early_mid": {
+      "layer_fraction": [0.25, 0.4],
+      "expected_patterns": ["SEQUENCE_START", "AFTER_WORD", "AFTER_NUMBER", "AFTER_OPERATOR"],
+      "description": "Context-aware structural patterns"
+    },
+    "middle": {
+      "layer_fraction": [0.4, 0.6],
+      "expected_patterns": ["TASK_MATH", "TASK_CODE", "TASK_LANGUAGE", "MAGNITUDE"],
+      "description": "Task classification, scale detection"
+    },
+    "late_mid": {
+      "layer_fraction": [0.6, 0.8],
+      "expected_patterns": ["DIFFICULTY", "CONFIDENCE", "ROUTE_DECISION"],
+      "description": "Computation routing, confidence"
+    },
+    "late": {
+      "layer_fraction": [0.8, 1.0],
+      "expected_patterns": ["OUTPUT_NUMBER", "OUTPUT_WORD", "OUTPUT_CODE", "FINAL_FORMAT"],
+      "description": "Output type preparation"
+    }
+  }
+}

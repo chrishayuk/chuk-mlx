@@ -1,0 +1,304 @@
+{
+  "version": "1.0",
+  "description": "Categorized prompts for MoE expert analysis. Designed to reveal domain-level, language-level, and token-level specialization patterns.",
+  "categories": {
+    "code": {
+      "python": [
+        "def fibonacci(n):",
+        "import numpy as np",
+        "for i in range(10):",
+        "class MyClass:",
+        "if __name__ == '__main__':",
+        "with open('file.txt') as f:",
+        "lambda x: x * 2",
+        "@property",
+        "async def fetch_data():",
+        "yield from items"
+      ],
+      "javascript": [
+        "const fibonacci = (n) => {",
+        "document.getElementById('app')",
+        "async function fetchData() {",
+        "export default function",
+        "const { useState } = React",
+        "new Promise((resolve, reject) =>",
+        "arr.map(x => x * 2)",
+        "Object.keys(obj).forEach(",
+        "try { await fetch(",
+        "module.exports = {"
+      ],
+      "rust": [
+        "fn main() {",
+        "let mut vec = Vec::new();",
+        "impl Iterator for",
+        "pub struct Config {",
+        "match result {",
+        "#[derive(Debug, Clone)]",
+        "async fn process(",
+        "use std::collections::HashMap;",
+        "if let Some(x) = option {",
+        "Box<dyn Error>"
+      ],
+      "sql": [
+        "SELECT * FROM users WHERE",
+        "INSERT INTO orders VALUES",
+        "CREATE TABLE customers (",
+        "JOIN products ON",
+        "GROUP BY category HAVING",
+        "UPDATE accounts SET balance =",
+        "DELETE FROM sessions WHERE",
+        "ALTER TABLE users ADD COLUMN",
+        "CREATE INDEX idx_name ON",
+        "SELECT COUNT(*) FROM"
+      ],
+      "go": [
+        "func main() {",
+        "package main",
+        "import \"fmt\"",
+        "type Config struct {",
+        "if err != nil {",
+        "go func() {",
+        "defer file.Close()",
+        "make(chan int)",
+        "for _, item := range items {",
+        "var wg sync.WaitGroup"
+      ],
+      "typescript": [
+        "interface User {",
+        "type Props = {",
+        "const value: string =",
+        "function process<T>(",
+        "export type Result =",
+        "async function fetch(): Promise<",
+        "enum Status {",
+        "class Service implements",
+        "readonly items: string[]",
+        "keyof typeof"
+      ]
+    },
+    "math": {
+      "arithmetic": [
+        "127 * 89 = ",
+        "456 + 789 = ",
+        "1000 - 250 = ",
+        "144 / 12 = ",
+        "15 * 15 = ",
+        "999 + 1 = ",
+        "50 * 20 = ",
+        "1234 + 5678 = ",
+        "999 * 888 = ",
+        "10000 - 1 = "
+      ],
+      "algebra": [
+        "Solve for x: 2x + 5 = 13",
+        "If y = 3x - 7, then",
+        "Factor: x^2 + 5x + 6",
+        "Simplify: (2x + 3)(x - 1)",
+        "Find x: x^2 = 49",
+        "If f(x) = 2x + 1, then f(3) =",
+        "Solve: 3x - 7 = 2x + 5",
+        "Expand: (a + b)^2 ="
+      ],
+      "statistics": [
+        "The mean of 2, 4, 6, 8 is",
+        "Standard deviation measures",
+        "The probability of rolling a 6 is",
+        "The median of 1, 3, 5, 7, 9 is",
+        "In a normal distribution,",
+        "The correlation coefficient ranges from",
+        "A 95% confidence interval means",
+        "The variance is the square of"
+      ],
+      "calculus": [
+        "The derivative of x^2 is",
+        "The integral of 2x dx is",
+        "lim(x->0) sin(x)/x =",
+        "d/dx(e^x) =",
+        "The antiderivative of cos(x) is",
+        "f'(x) when f(x) = x^3 is"
+      ]
+    },
+    "facts": {
+      "geography": [
+        "The capital of France is",
+        "The longest river in Africa is",
+        "Mount Everest is located in",
+        "The largest country by area is",
+        "The Amazon rainforest is in",
+        "Tokyo is the capital of",
+        "The Sahara Desert is in",
+        "The Great Barrier Reef is near"
+      ],
+      "history": [
+        "World War II ended in",
+        "The French Revolution began in",
+        "Abraham Lincoln was the",
+        "The Roman Empire fell in",
+        "The Declaration of Independence was signed in",
+        "The Berlin Wall fell in",
+        "Columbus arrived in America in",
+        "The Renaissance began in"
+      ],
+      "science": [
+        "The speed of light is",
+        "Water boils at",
+        "DNA stands for",
+        "Photosynthesis converts",
+        "Gravity was discovered by",
+        "The atomic number of carbon is",
+        "Electrons orbit the",
+        "The mitochondria is the"
+      ],
+      "pop_culture": [
+        "The Beatles were from",
+        "Star Wars was directed by",
+        "The first iPhone was released in",
+        "Michael Jackson was known as",
+        "Harry Potter was written by",
+        "The Simpsons first aired in",
+        "Netflix was founded in"
+      ],
+      "technology": [
+        "The first computer was called",
+        "HTML stands for",
+        "The internet was invented in",
+        "Python was created by",
+        "Linux was developed by",
+        "The first smartphone was",
+        "TCP/IP stands for",
+        "Moore's Law states that"
+      ]
+    },
+    "structure": {
+      "punctuation": [
+        "Hello, how are you?",
+        "Wait... what happened?",
+        "He said: \"",
+        "Items: eggs, milk, bread",
+        "Yes! That's it!",
+        "Really? Are you sure?",
+        "One thing; another thing",
+        "Dear Sir/Madam,",
+        "P.S. Don't forget",
+        "(see appendix A)"
+      ],
+      "proper_nouns": [
+        "Barack Obama was",
+        "Microsoft announced",
+        "In New York City,",
+        "According to NASA,",
+        "The United Nations",
+        "Apple released",
+        "Google developed",
+        "The European Union",
+        "President Biden said",
+        "Amazon reported"
+      ],
+      "pronouns": [
+        "She went to the store and she",
+        "They said that they would",
+        "It was clear that it",
+        "He gave her the book and",
+        "We believe that we",
+        "I think that I",
+        "You should know that you",
+        "Someone left their"
+      ],
+      "prepositions": [
+        "The book is on the",
+        "He walked through the",
+        "She arrived at the",
+        "They live in the",
+        "We went to the",
+        "The cat jumped over",
+        "I put it under the",
+        "She sat beside the",
+        "We drove past the",
+        "He stood between the"
+      ],
+      "articles": [
+        "The dog ran across",
+        "A man walked into",
+        "An elephant never",
+        "The sun rises in",
+        "A bird in the hand",
+        "The early bird catches",
+        "An apple a day",
+        "The more you know"
+      ],
+      "conjunctions": [
+        "I went home and",
+        "She was tired but",
+        "Either you leave or",
+        "Both the cat and",
+        "He is smart yet",
+        "I'll go if you",
+        "She sings because",
+        "Not only did he but"
+      ]
+    },
+    "creative": {
+      "poetry": [
+        "Roses are red,",
+        "Once upon a midnight dreary,",
+        "Shall I compare thee to",
+        "Two roads diverged in",
+        "I wandered lonely as",
+        "Do not go gentle into",
+        "Hope is the thing with",
+        "Because I could not stop for"
+      ],
+      "storytelling": [
+        "Once upon a time,",
+        "In a galaxy far, far away,",
+        "It was a dark and stormy night",
+        "Long ago in a distant land,",
+        "The year was 1984 when",
+        "Nobody knew where the stranger came from",
+        "The old house had been abandoned for",
+        "She never expected to find"
+      ],
+      "dialogue": [
+        "\"Can you help me?\" she asked.",
+        "\"I don't understand,\" he replied.",
+        "\"What do you mean?\" said Tom.",
+        "\"Let me explain,\" the professor began.",
+        "\"That's impossible!\" exclaimed",
+        "\"Wait,\" she whispered, \"I hear",
+        "\"Promise me,\" he said, \"that you"
+      ]
+    },
+    "reasoning": {
+      "logic": [
+        "If A implies B, and B implies C, then",
+        "All men are mortal. Socrates is a man. Therefore",
+        "Either it will rain or",
+        "If not A, then not B means",
+        "A AND B is true only when",
+        "The contrapositive of P->Q is",
+        "If some X are Y, and all Y are Z, then",
+        "NOT (A OR B) is equivalent to"
+      ],
+      "analogies": [
+        "Hot is to cold as up is to",
+        "Bird is to fly as fish is to",
+        "Doctor is to hospital as teacher is to",
+        "Pen is to write as knife is to",
+        "Book is to read as song is to",
+        "Painter is to brush as writer is to",
+        "Day is to night as summer is to",
+        "Foot is to shoe as hand is to"
+      ],
+      "causation": [
+        "Because the temperature dropped,",
+        "As a result of the experiment,",
+        "The reason for the delay was",
+        "Due to heavy traffic,",
+        "Since he was late,",
+        "The effect of the policy was",
+        "Consequently, the market",
+        "This led to the discovery of"
+      ]
+    }
+  }
+}

@@ -41,7 +41,11 @@ class TestMLPClassifier:
         """Test different activation functions."""
         x = mx.random.normal((4, 64))
 
-        for activation in [ActivationType.GELU, ActivationType.RELU, ActivationType.SILU]:
+        for activation in [
+            ActivationType.GELU,
+            ActivationType.RELU,
+            ActivationType.SILU,
+        ]:
             clf = MLPClassifier(
                 input_size=64,
                 hidden_size=32,

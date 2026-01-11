@@ -280,7 +280,11 @@ def cmd_visualize(args):
             # By tool/no-tool
             colors = ["red" if lbl == 1 else "blue" for lbl in umap_result.labels]
             ax1.scatter(
-                umap_result.embedding[:, 0], umap_result.embedding[:, 1], c=colors, alpha=0.6, s=30
+                umap_result.embedding[:, 0],
+                umap_result.embedding[:, 1],
+                c=colors,
+                alpha=0.6,
+                s=30,
             )
             ax1.set_title(f"Layer {layer} - UMAP (Tool=Red, No-Tool=Blue)")
             ax1.set_xlabel("UMAP 1")
@@ -292,7 +296,11 @@ def cmd_visualize(args):
             cat_to_idx = {cat: i for i, cat in enumerate(categories)}
             colors = [cmap(cat_to_idx[c]) for c in umap_result.category_labels]
             ax2.scatter(
-                umap_result.embedding[:, 0], umap_result.embedding[:, 1], c=colors, alpha=0.6, s=30
+                umap_result.embedding[:, 0],
+                umap_result.embedding[:, 1],
+                c=colors,
+                alpha=0.6,
+                s=30,
             )
             ax2.set_title(f"Layer {layer} - UMAP by Category")
             ax2.set_xlabel("UMAP 1")
@@ -450,13 +458,18 @@ def main():
         "-o", "--output", required=True, help="Output path (without extension)"
     )
     collect_parser.add_argument(
-        "--layers", default="decision", help="Layers to capture (all, decision, or comma-separated)"
+        "--layers",
+        default="decision",
+        help="Layers to capture (all, decision, or comma-separated)",
     )
     collect_parser.add_argument(
         "--attention", action="store_true", help="Also capture attention weights"
     )
     collect_parser.add_argument(
-        "--generate", type=int, default=0, help="Generate N tokens for criterion evaluation"
+        "--generate",
+        type=int,
+        default=0,
+        help="Generate N tokens for criterion evaluation",
     )
 
     # === analyze command ===

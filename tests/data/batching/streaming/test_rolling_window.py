@@ -95,10 +95,20 @@ class TestRollingBatchPlanWindow:
 
         assert not window.can_build_window
 
-        with pytest.raises(ValueError, match="need 100"):
-            import asyncio
+    @pytest.mark.asyncio
+    async def test_insufficient_samples_raises(self):
+        """Test that building with insufficient samples raises."""
+        buffer = ReplayBuffer()
+        for i in range(50):  # Only 50 samples
+            buffer.add(make_sample(f"sample_{i}"))
 
-            asyncio.get_event_loop().run_until_complete(window.build_next_window())
+        window = RollingBatchPlanWindow(
+            buffer,
+            WindowConfig(min_samples=100),  # Need 100
+        )
+
+        with pytest.raises(ValueError, match="need 100"):
+            await window.build_next_window()
 
     @pytest.mark.asyncio
     async def test_build_window(self, populated_buffer):

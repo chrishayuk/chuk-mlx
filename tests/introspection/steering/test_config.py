@@ -84,12 +84,14 @@ class TestLegacySteeringConfig:
         assert config.tool_promoters == [100, 200]
         assert config.tool_suppressors == [300]
 
-    def test_post_init_default_promoters(self):
-        """Test that post_init sets default promoters when None."""
-        config = LegacySteeringConfig(tool_promoters=None)
+    def test_default_promoters_from_factory(self):
+        """Test that default promoters are set via default_factory."""
+        # Pydantic uses default_factory, so not passing the parameter uses defaults
+        config = LegacySteeringConfig()
         assert config.tool_promoters == [803, 2036, 831]
 
-    def test_post_init_default_suppressors(self):
-        """Test that post_init sets default suppressors when None."""
-        config = LegacySteeringConfig(tool_suppressors=None)
+    def test_default_suppressors_from_factory(self):
+        """Test that default suppressors are set via default_factory."""
+        # Pydantic uses default_factory, so not passing the parameter uses defaults
+        config = LegacySteeringConfig()
         assert config.tool_suppressors == [1237, 821, 1347]

@@ -1,0 +1,39 @@
+# Phase 1: Dual-Reward V/O Training
+# Creates vocab-aligned classifiers at intermediate layer
+#
+# This trains ONLY v_proj and o_proj to create a classifier signal
+# that's readable via logit lens.
+#
+# Usage:
+#   lazarus train sft --config experiments/cli_classifier_emergence/configs/dual_reward_phase1.yaml
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+output: experiments/cli_classifier_emergence/checkpoints/phase1_classifier
+
+# Training settings
+epochs: 1
+max_steps: 500
+batch_size: 1
+learning_rate: 0.001
+log_interval: 50
+
+# LoRA configuration - V/O projections only
+use_lora: true
+lora_rank: 16
+lora_targets: v_proj,o_proj
+
+# Data - use arithmetic training data
+data: experiments/cli_classifier_emergence/data/arithmetic_sft.jsonl
+
+# Loss configuration
+# For dual-reward, we need intermediate loss - this requires custom training script
+# See: experiments/cli_classifier_emergence/train_dual_reward.py
+intermediate_loss:
+  enabled: true
+  layer: 12  # 55% depth for 22-layer model
+  weight: 0.4
+  targets:
+    multiply: "multiply"
+    add: "add"
+    subtract: "subtract"
+    divide: "divide"

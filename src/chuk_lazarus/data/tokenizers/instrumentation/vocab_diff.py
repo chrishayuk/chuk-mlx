@@ -276,6 +276,6 @@ def estimate_retokenization_cost(
         "new_tokens": len(new_vocab - old_vocab),
         "removed_tokens": len(old_vocab - new_vocab),
         "boundary_changes": boundary_changes,
-        "boundary_change_rate": boundary_changes / total_positions if total_positions > 0 else 0,
+        "boundary_change_rate": (boundary_changes / total_positions if total_positions > 0 else 0),
         "embedding_reuse_rate": embedding_reuse_rate,
     }

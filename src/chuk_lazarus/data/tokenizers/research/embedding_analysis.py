@@ -559,7 +559,7 @@ def compute_embedding_quality(
     metrics = {
         "isotropy": analysis.isotropy_score,
         "mean_similarity": analysis.mean_pairwise_similarity,
-        "norm_std": analysis.std_norm / analysis.mean_norm if analysis.mean_norm > 0 else 0,
+        "norm_std": (analysis.std_norm / analysis.mean_norm if analysis.mean_norm > 0 else 0),
     }
 
     if analysis.silhouette_score is not None:

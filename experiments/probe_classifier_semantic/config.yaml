@@ -1,0 +1,21 @@
+# Probe Classifier Experiment - Semantic Input
+# Tests if probes trained on symbolic work on semantic
+name: probe_classifier_semantic
+description: "Linear probe on semantic arithmetic input"
+
+model: meta-llama/Llama-3.2-1B
+
+parameters:
+  num_samples: 2000
+  seed: 42
+
+  # Probe settings
+  probe_epochs: 100
+  probe_lr: 0.01
+  probe_batch_size: 32
+
+  # Layers to probe
+  probe_layers_pct: [0.25, 0.55, 0.75, 0.95]
+
+  # Use semantic input format
+  input_format: semantic  # "seven times eight" instead of "7 * 8 ="

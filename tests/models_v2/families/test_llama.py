@@ -542,7 +542,9 @@ class TestLlamaConvert:
 
     def test_reverse_map_weight_name_unknown(self):
         """Test reverse mapping for unknown weight names."""
-        from chuk_lazarus.models_v2.families.llama.convert import _reverse_map_weight_name
+        from chuk_lazarus.models_v2.families.llama.convert import (
+            _reverse_map_weight_name,
+        )
 
         result = _reverse_map_weight_name("some.unknown.weight.name")
         assert result is None

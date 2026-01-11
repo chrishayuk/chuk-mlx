@@ -4,6 +4,7 @@ Main CLI entry point for chuk-lazarus.
 Usage:
     lazarus train sft --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --data ./data/train.jsonl
     lazarus train dpo --model ./checkpoints/sft/final --data ./data/preferences.jsonl
+    lazarus train grpo --model ./checkpoints/sft/final --reward-script ./reward.py
     lazarus generate --type math --output ./data/lazarus_math
     lazarus infer --model ./checkpoints/dpo/final --prompt "Calculate 2+2"
 
@@ -91,6 +92,7 @@ Training with Batching:
 """
 
 import argparse
+import asyncio
 import logging
 import sys
 
@@ -107,6 +109,12 @@ from .commands.data import (
     data_lengths_build,
     data_lengths_stats,
 )
+from .commands.experiment import (
+    experiment_info,
+    experiment_list,
+    experiment_run,
+    experiment_status,
+)
 from .commands.gym import bench_pipeline, gym_info, gym_run
 from .commands.infer import run_inference
 from .commands.introspect import (
@@ -118,22 +126,32 @@ from .commands.introspect import (
     introspect_circuit_capture,
     introspect_circuit_compare,
     introspect_circuit_decode,
+    introspect_circuit_export,
     introspect_circuit_invoke,
     introspect_circuit_test,
     introspect_circuit_view,
+    introspect_classifier,
+    introspect_commutativity,
     introspect_compare,
     introspect_directions,
+    introspect_early_layers,
+    introspect_embedding,
     introspect_format_sensitivity,
     introspect_generate,
     introspect_hooks,
     introspect_layer,
+    introspect_logit_lens,
     introspect_memory,
     introspect_memory_inject,
     introspect_metacognitive,
+    introspect_moe_expert,
     introspect_neurons,
+    introspect_operand_directions,
+    introspect_patch,
     introspect_probe,
     introspect_steer,
     introspect_uncertainty,
+    introspect_virtual_expert,
     introspect_weight_diff,
 )
 from .commands.tokenizer import (
@@ -164,7 +182,12 @@ from .commands.tokenizer import (
     training_pack,
     training_throughput,
 )
-from .commands.train import generate_data, train_dpo, train_sft
+from .commands.train import (
+    generate_data_cmd,
+    train_dpo_cmd,
+    train_grpo_cmd,
+    train_sft_cmd,
+)
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -206,11 +229,26 @@ Examples:
     sft_parser.add_argument("--eval-data", help="Evaluation data path (JSONL)")
     sft_parser.add_argument("--output", default="./checkpoints/sft", help="Output directory")
     sft_parser.add_argument("--epochs", type=int, default=3, help="Number of epochs")
+    sft_parser.add_argument("--max-steps", type=int, help="Max training steps (overrides epochs)")
     sft_parser.add_argument("--batch-size", type=int, default=4, help="Batch size")
     sft_parser.add_argument("--learning-rate", type=float, default=1e-5, help="Learning rate")
     sft_parser.add_argument("--max-length", type=int, default=512, help="Max sequence length")
     sft_parser.add_argument("--use-lora", action="store_true", help="Use LoRA")
     sft_parser.add_argument("--lora-rank", type=int, default=8, help="LoRA rank")
+    sft_parser.add_argument(
+        "--lora-targets",
+        default="q_proj,v_proj",
+        help="Comma-separated LoRA target modules (default: q_proj,v_proj). "
+        "Options: q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj",
+    )
+    sft_parser.add_argument(
+        "--freeze-layers",
+        help="Layers to freeze (e.g., '0-12' or '0,1,2,3'). Frozen layers are not trained.",
+    )
+    sft_parser.add_argument(
+        "--config",
+        help="YAML config file (overrides other arguments)",
+    )
     sft_parser.add_argument("--mask-prompt", action="store_true", help="Mask prompt in loss")
     sft_parser.add_argument("--log-interval", type=int, default=10, help="Log every N steps")
     # Batching options
@@ -255,7 +293,7 @@ Examples:
         default=100000,
         help="Replay buffer size for online training",
     )
-    sft_parser.set_defaults(func=train_sft)
+    sft_parser.set_defaults(func=lambda args: asyncio.run(train_sft_cmd(args)))
 
     # DPO training
     dpo_parser = train_subparsers.add_parser("dpo", help="Direct Preference Optimization")
@@ -271,7 +309,47 @@ Examples:
     dpo_parser.add_argument("--max-length", type=int, default=512, help="Max sequence length")
     dpo_parser.add_argument("--use-lora", action="store_true", help="Use LoRA")
     dpo_parser.add_argument("--lora-rank", type=int, default=8, help="LoRA rank")
-    dpo_parser.set_defaults(func=train_dpo)
+    dpo_parser.set_defaults(func=lambda args: asyncio.run(train_dpo_cmd(args)))
+
+    # GRPO training
+    grpo_parser = train_subparsers.add_parser(
+        "grpo", help="Group Relative Policy Optimization (RL with verifiable rewards)"
+    )
+    grpo_parser.add_argument("--model", required=True, help="Policy model name or path")
+    grpo_parser.add_argument("--ref-model", help="Reference model (default: same as --model)")
+    grpo_parser.add_argument("--output", default="./checkpoints/grpo", help="Output directory")
+    grpo_parser.add_argument("--iterations", type=int, default=1000, help="Training iterations")
+    grpo_parser.add_argument(
+        "--prompts-per-iteration", type=int, default=16, help="Prompts per iteration"
+    )
+    grpo_parser.add_argument("--group-size", type=int, default=4, help="Responses per prompt")
+    grpo_parser.add_argument("--learning-rate", type=float, default=1e-6, help="Learning rate")
+    grpo_parser.add_argument("--kl-coef", type=float, default=0.1, help="KL penalty coefficient")
+    grpo_parser.add_argument(
+        "--max-response-length", type=int, default=256, help="Max response tokens"
+    )
+    grpo_parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature")
+    grpo_parser.add_argument("--use-lora", action="store_true", help="Use LoRA")
+    grpo_parser.add_argument("--lora-rank", type=int, default=8, help="LoRA rank")
+    grpo_parser.add_argument(
+        "--lora-targets",
+        default="q_proj,v_proj",
+        help="Comma-separated LoRA target modules (default: q_proj,v_proj)",
+    )
+    grpo_parser.add_argument(
+        "--freeze-layers",
+        help="Layers to freeze (e.g., '0-12' or '0,1,2,3')",
+    )
+    grpo_parser.add_argument(
+        "--reward-script",
+        required=True,
+        help="Python script defining reward_fn(prompt, response) -> float and get_prompts() -> list[str]",
+    )
+    grpo_parser.add_argument(
+        "--config",
+        help="YAML config file (overrides other arguments)",
+    )
+    grpo_parser.set_defaults(func=lambda args: asyncio.run(train_grpo_cmd(args)))
 
     # Generate subcommand
     gen_parser = subparsers.add_parser("generate", help="Generate training data")
@@ -280,7 +358,7 @@ Examples:
     gen_parser.add_argument("--sft-samples", type=int, default=10000, help="SFT samples")
     gen_parser.add_argument("--dpo-samples", type=int, default=5000, help="DPO samples")
     gen_parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    gen_parser.set_defaults(func=generate_data)
+    gen_parser.set_defaults(func=lambda args: asyncio.run(generate_data_cmd(args)))
 
     # Infer subcommand
     infer_parser = subparsers.add_parser("infer", help="Run inference")
@@ -370,10 +448,17 @@ Examples:
     bench_parser.add_argument("--tokenizer", "-t", required=True, help="Tokenizer name or path")
     bench_parser.add_argument("--file", "-f", help="Corpus file (one text per line)")
     bench_parser.add_argument(
-        "--samples", "-n", type=int, default=1000, help="Number of samples (default: 1000)"
+        "--samples",
+        "-n",
+        type=int,
+        default=1000,
+        help="Number of samples (default: 1000)",
     )
     bench_parser.add_argument(
-        "--avg-length", type=int, default=100, help="Avg words per sample for synthetic corpus"
+        "--avg-length",
+        type=int,
+        default=100,
+        help="Avg words per sample for synthetic corpus",
     )
     bench_parser.add_argument(
         "--seed", type=int, default=42, help="Random seed for synthetic corpus"
@@ -383,7 +468,9 @@ Examples:
     )
     bench_parser.add_argument("--warmup", type=int, default=10, help="Warmup samples before timing")
     bench_parser.add_argument(
-        "--special-tokens", action="store_true", help="Add special tokens during encoding"
+        "--special-tokens",
+        action="store_true",
+        help="Add special tokens during encoding",
     )
     bench_parser.add_argument(
         "--compare",
@@ -687,7 +774,11 @@ Examples:
         help="Use predictable mode (deterministic batching)",
     )
     batchplan_build_parser.add_argument(
-        "--seed", "-s", type=int, default=42, help="Random seed for predictable mode (default: 42)"
+        "--seed",
+        "-s",
+        type=int,
+        default=42,
+        help="Random seed for predictable mode (default: 42)",
     )
     batchplan_build_parser.add_argument("--dataset-hash", help="Dataset hash for fingerprinting")
     batchplan_build_parser.add_argument(
@@ -701,10 +792,18 @@ Examples:
     )
     batchplan_info_parser.add_argument("--plan", "-p", required=True, help="Batch plan directory")
     batchplan_info_parser.add_argument(
-        "--show-batches", "-n", type=int, default=0, help="Number of sample batches to show"
+        "--show-batches",
+        "-n",
+        type=int,
+        default=0,
+        help="Number of sample batches to show",
     )
     batchplan_info_parser.add_argument(
-        "--rank", "-r", type=int, default=None, help="Worker rank for sharded view (0-indexed)"
+        "--rank",
+        "-r",
+        type=int,
+        default=None,
+        help="Worker rank for sharded view (0-indexed)",
     )
     batchplan_info_parser.add_argument(
         "--world-size", "-w", type=int, default=None, help="Total number of workers"
@@ -727,7 +826,11 @@ Examples:
         "--plan", "-p", required=True, help="Source batch plan directory"
     )
     batchplan_shard_parser.add_argument(
-        "--world-size", "-w", type=int, required=True, help="Number of distributed workers"
+        "--world-size",
+        "-w",
+        type=int,
+        required=True,
+        help="Number of distributed workers",
     )
     batchplan_shard_parser.add_argument(
         "--output", "-o", required=True, help="Output directory for sharded plans"
@@ -778,7 +881,11 @@ Examples:
     )
     batching_suggest_parser.add_argument("--cache", "-c", required=True, help="Length cache file")
     batching_suggest_parser.add_argument(
-        "--num-buckets", "-n", type=int, default=4, help="Number of buckets (default: 4)"
+        "--num-buckets",
+        "-n",
+        type=int,
+        default=4,
+        help="Number of buckets (default: 4)",
     )
     batching_suggest_parser.add_argument(
         "--goal",
@@ -788,7 +895,10 @@ Examples:
         help="Optimization goal: waste (minimize padding), balance (even bucket sizes), memory (power-of-2 edges)",
     )
     batching_suggest_parser.add_argument(
-        "--max-length", type=int, default=2048, help="Maximum sequence length (default: 2048)"
+        "--max-length",
+        type=int,
+        default=2048,
+        help="Maximum sequence length (default: 2048)",
     )
     batching_suggest_parser.set_defaults(func=data_batching_suggest)
 
@@ -895,6 +1005,125 @@ Examples:
     gym_info_parser.set_defaults(func=gym_info)
 
     # =========================================================================
+    # Experiment command - run experiments from experiments/ directory
+    # =========================================================================
+    exp_parser = subparsers.add_parser(
+        "experiment",
+        help="Discover and run experiments",
+        description="Run experiments from the experiments/ directory using the experiments framework.",
+    )
+    exp_subparsers = exp_parser.add_subparsers(dest="exp_command", help="Experiment commands")
+
+    # Experiment list command
+    exp_list_parser = exp_subparsers.add_parser("list", help="List all discovered experiments")
+    exp_list_parser.add_argument(
+        "--dir",
+        "-d",
+        help="Path to experiments directory (default: auto-detect)",
+    )
+    exp_list_parser.add_argument(
+        "--json",
+        "-j",
+        action="store_true",
+        help="Output as JSON",
+    )
+    exp_list_parser.set_defaults(
+        func=lambda args: experiment_list(
+            experiments_dir=args.dir,
+            json_output=args.json,
+        )
+    )
+
+    # Experiment info command
+    exp_info_parser = exp_subparsers.add_parser("info", help="Show detailed experiment information")
+    exp_info_parser.add_argument("name", help="Experiment name")
+    exp_info_parser.add_argument(
+        "--dir",
+        "-d",
+        help="Path to experiments directory",
+    )
+    exp_info_parser.add_argument(
+        "--json",
+        "-j",
+        action="store_true",
+        help="Output as JSON",
+    )
+    exp_info_parser.set_defaults(
+        func=lambda args: experiment_info(
+            name=args.name,
+            experiments_dir=args.dir,
+            json_output=args.json,
+        )
+    )
+
+    # Experiment run command
+    exp_run_parser = exp_subparsers.add_parser("run", help="Run an experiment")
+    exp_run_parser.add_argument("name", help="Experiment name")
+    exp_run_parser.add_argument(
+        "--dir",
+        "-d",
+        help="Path to experiments directory",
+    )
+    exp_run_parser.add_argument(
+        "--config",
+        "-c",
+        help="Path to custom config YAML file",
+    )
+    exp_run_parser.add_argument(
+        "--param",
+        "-p",
+        action="append",
+        dest="params",
+        help="Parameter override (key=value), can specify multiple",
+    )
+    exp_run_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate without running",
+    )
+    exp_run_parser.set_defaults(
+        func=lambda args: experiment_run(
+            name=args.name,
+            experiments_dir=args.dir,
+            config_file=args.config,
+            params=args.params,
+            dry_run=args.dry_run,
+        )
+    )
+
+    # Experiment status command
+    exp_status_parser = exp_subparsers.add_parser(
+        "status", help="Show experiment status and results"
+    )
+    exp_status_parser.add_argument("name", help="Experiment name")
+    exp_status_parser.add_argument(
+        "--dir",
+        "-d",
+        help="Path to experiments directory",
+    )
+    exp_status_parser.add_argument(
+        "--all",
+        "-a",
+        action="store_true",
+        dest="show_all",
+        help="Show all runs, not just latest",
+    )
+    exp_status_parser.add_argument(
+        "--json",
+        "-j",
+        action="store_true",
+        help="Output as JSON",
+    )
+    exp_status_parser.set_defaults(
+        func=lambda args: experiment_status(
+            name=args.name,
+            experiments_dir=args.dir,
+            show_all=args.show_all,
+            json_output=args.json,
+        )
+    )
+
+    # =========================================================================
     # Bench command - comprehensive pipeline benchmark
     # =========================================================================
     bench_parser = subparsers.add_parser(
@@ -972,6 +1201,11 @@ Examples:
         "-m",
         required=True,
         help="Model name or HuggingFace ID (e.g., TinyLlama/TinyLlama-1.1B-Chat-v1.0)",
+    )
+    analyze_parser.add_argument(
+        "--adapter",
+        "-a",
+        help="Path to LoRA adapter weights (for analyzing fine-tuned models)",
     )
     analyze_parser.add_argument(
         "--prompt",
@@ -1099,7 +1333,7 @@ Examples:
         type=int,
         help="Layer at which to inject computed answer (default: 80%% of model depth)",
     )
-    analyze_parser.set_defaults(func=introspect_analyze)
+    analyze_parser.set_defaults(func=lambda args: asyncio.run(introspect_analyze(args)))
 
     # Compare command - compare two models
     compare_introspect_parser = introspect_subparsers.add_parser(
@@ -1135,7 +1369,7 @@ Examples:
         "--track",
         help="Tokens to track evolution (comma-separated)",
     )
-    compare_introspect_parser.set_defaults(func=introspect_compare)
+    compare_introspect_parser.set_defaults(func=lambda args: asyncio.run(introspect_compare(args)))
 
     # Hooks command - low-level hook demonstration
     hooks_parser = introspect_subparsers.add_parser(
@@ -1174,7 +1408,7 @@ Examples:
         action="store_true",
         help="Skip logit lens analysis",
     )
-    hooks_parser.set_defaults(func=introspect_hooks)
+    hooks_parser.set_defaults(func=lambda args: asyncio.run(introspect_hooks(args)))
 
     # Ablation command - run ablation studies
     ablation_parser = introspect_subparsers.add_parser(
@@ -1420,7 +1654,7 @@ Examples:
         action="store_true",
         help="Use raw prompt without chat template (for non-chat models or direct testing)",
     )
-    generate_parser.set_defaults(func=introspect_generate)
+    generate_parser.set_defaults(func=lambda args: asyncio.run(introspect_generate(args)))
 
     # Metacognitive command - detect strategy switch
     metacog_parser = introspect_subparsers.add_parser(
@@ -1482,7 +1716,7 @@ This is the "metacognitive switch" - the model deciding HOW to solve, not WHAT t
         "-o",
         help="Save results to JSON file",
     )
-    metacog_parser.set_defaults(func=introspect_metacognitive)
+    metacog_parser.set_defaults(func=lambda args: asyncio.run(introspect_metacognitive(args)))
 
     # Steer command - activation steering
     steer_parser = introspect_subparsers.add_parser(
@@ -1675,7 +1909,7 @@ predicts output behavior.
         "-o",
         help="Save results to JSON file",
     )
-    uncertainty_parser.set_defaults(func=introspect_uncertainty)
+    uncertainty_parser.set_defaults(func=lambda args: asyncio.run(introspect_uncertainty(args)))
 
     # Probe command - train linear probe to find task classification layers
     probe_parser = introspect_subparsers.add_parser(
@@ -1744,7 +1978,7 @@ Example:
         default="logistic",
         help="Direction extraction method: 'logistic' (probe weights) or 'difference' (mean difference)",
     )
-    probe_parser.set_defaults(func=introspect_probe)
+    probe_parser.set_defaults(func=lambda args: asyncio.run(introspect_probe(args)))
 
     # Neurons command - analyze individual neuron activations
     neurons_parser = introspect_subparsers.add_parser(
@@ -1911,7 +2145,7 @@ Multi-class example:
         "--save-plot",
         help="Save matplotlib scatter plot to file (e.g., cluster.png)",
     )
-    cluster_parser.set_defaults(func=introspect_activation_cluster)
+    cluster_parser.set_defaults(func=lambda args: asyncio.run(introspect_activation_cluster(args)))
 
     # Memory command - extract memory organization structure
     memory_parser = introspect_subparsers.add_parser(
@@ -1983,7 +2217,7 @@ Examples:
         action="store_true",
         help="Show memorization classification (memorized/partial/weak/not memorized)",
     )
-    memory_parser.set_defaults(func=introspect_memory)
+    memory_parser.set_defaults(func=lambda args: asyncio.run(introspect_memory(args)))
 
     # Memory-inject command - external memory injection
     memory_inject_parser = introspect_subparsers.add_parser(
@@ -2080,7 +2314,7 @@ Examples:
         action="store_true",
         help="Evaluate baseline vs injected accuracy on all facts",
     )
-    memory_inject_parser.set_defaults(func=introspect_memory_inject)
+    memory_inject_parser.set_defaults(func=lambda args: asyncio.run(introspect_memory_inject(args)))
 
     # Directions command - compare multiple direction vectors for orthogonality
     directions_parser = introspect_subparsers.add_parser(
@@ -2113,6 +2347,279 @@ Example:
         help="Save similarity matrix to JSON file",
     )
     directions_parser.set_defaults(func=introspect_directions)
+
+    # Operand-directions command - analyze how operands are encoded
+    operand_directions_parser = introspect_subparsers.add_parser(
+        "operand-directions",
+        help="Analyze how operands A and B are encoded in activation space",
+        description="""Extract operand directions (A_d and B_d) to analyze encoding structure.
+
+This is useful for understanding if a model uses:
+- Compositional encoding (like GPT-OSS): A and B in separate orthogonal subspaces
+- Holistic encoding (like Gemma): entire expression encoded together
+
+Examples:
+    # Analyze multiplication operand encoding
+    lazarus introspect operand-directions -m model \\
+        --digits 2,3,4,5,6,7,8,9 --operation "*" --layers 8,16,20,24
+
+    # Save directions for later analysis
+    lazarus introspect operand-directions -m model \\
+        --output operand_dirs.npz
+        """,
+    )
+    operand_directions_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    operand_directions_parser.add_argument(
+        "--digits",
+        help="Digits to use (comma-separated, default: 2,3,4,5,6,7,8,9)",
+    )
+    operand_directions_parser.add_argument(
+        "--operation",
+        default="*",
+        help="Operation to test (default: '*')",
+    )
+    operand_directions_parser.add_argument(
+        "--layers",
+        help="Layers to analyze (comma-separated, default: auto key layers)",
+    )
+    operand_directions_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to file (.json or .npz)",
+    )
+    operand_directions_parser.set_defaults(func=introspect_operand_directions)
+
+    # Embedding command - analyze what's encoded at embedding level
+    embedding_parser = introspect_subparsers.add_parser(
+        "embedding",
+        help="Analyze what information is encoded at embedding level vs after layers",
+        description="""Test the RLVF backprop hypothesis: does task information exist in raw embeddings?
+
+Tests:
+1. Task type detection (arithmetic vs language) from embeddings
+2. Operation type detection (mult vs add) from embeddings
+3. Answer correlation with embeddings vs after layers
+
+If task type is 100% detectable from embeddings, this suggests RLVF gradients
+backpropagate all the way to the embedding layer.
+
+Examples:
+    # Test embedding analysis
+    lazarus introspect embedding -m model
+
+    # Test with specific operation
+    lazarus introspect embedding -m model --operation mult
+
+    # Analyze specific layers
+    lazarus introspect embedding -m model --layers 0,1,2,4
+        """,
+    )
+    embedding_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    embedding_parser.add_argument(
+        "--operation",
+        choices=["mult", "add", "all", "*", "+"],
+        help="Operation type to test (default: all)",
+    )
+    embedding_parser.add_argument(
+        "--layers",
+        help="Layers to compare against embeddings (comma-separated, default: 0,1,2)",
+    )
+    embedding_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    embedding_parser.set_defaults(func=introspect_embedding)
+
+    # Commutativity command - test if representations respect A*B = B*A
+    commutativity_parser = introspect_subparsers.add_parser(
+        "commutativity",
+        help="Test if internal representations respect commutativity (A*B = B*A)",
+        description="""Test commutativity in internal representations.
+
+For multiplication, A*B and B*A should produce the same answer. This test checks
+whether the internal representations for commutative pairs are similar, which
+would indicate a lookup table structure rather than an algorithm.
+
+High commutativity similarity (>0.99) suggests the model memorizes individual facts
+rather than computing them algorithmically.
+
+Examples:
+    # Test all commutative pairs (2-9)
+    lazarus introspect commutativity -m model
+
+    # Test specific pairs
+    lazarus introspect commutativity -m model \\
+        --pairs "2*3,3*2|7*8,8*7|4*5,5*4"
+
+    # Analyze at specific layer
+    lazarus introspect commutativity -m model --layer 20
+        """,
+    )
+    commutativity_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    commutativity_parser.add_argument(
+        "--pairs",
+        help="Explicit commutative pairs to test (e.g., '2*3,3*2|7*8,8*7')",
+    )
+    commutativity_parser.add_argument(
+        "--layer",
+        "-l",
+        type=int,
+        help="Layer to analyze (default: ~60%% of model depth)",
+    )
+    commutativity_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    commutativity_parser.set_defaults(func=introspect_commutativity)
+
+    # Patch command - activation patching between prompts
+    patch_parser = introspect_subparsers.add_parser(
+        "patch",
+        help="Perform activation patching between source and target prompts",
+        description="""Activation patching: transfer activations from source to target prompt.
+
+This is a causal intervention technique that tests whether activations from
+one prompt can transfer computation to another prompt.
+
+For example, patching activations from "7*8=" into "7+8=" at the right layer
+should cause the model to output "56" instead of "15".
+
+Examples:
+    # Patch multiplication into addition
+    lazarus introspect patch -m model \\
+        --source "7*8=" --target "7+8="
+
+    # Patch at specific layer
+    lazarus introspect patch -m model \\
+        --source "7*8=" --target "7+8=" --layer 20
+
+    # Patch with partial blend
+    lazarus introspect patch -m model \\
+        --source "7*8=" --target "7+8=" --blend 0.5
+        """,
+    )
+    patch_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    patch_parser.add_argument(
+        "--source",
+        "-s",
+        required=True,
+        help="Source prompt to patch FROM",
+    )
+    patch_parser.add_argument(
+        "--target",
+        "-t",
+        required=True,
+        help="Target prompt to patch INTO",
+    )
+    patch_parser.add_argument(
+        "--layer",
+        "-l",
+        type=int,
+        help="Single layer to patch at",
+    )
+    patch_parser.add_argument(
+        "--layers",
+        help="Multiple layers to sweep (comma-separated, default: all key layers)",
+    )
+    patch_parser.add_argument(
+        "--blend",
+        type=float,
+        default=1.0,
+        help="Blend factor: 0=no change, 1=full replacement (default: 1.0)",
+    )
+    patch_parser.add_argument(
+        "--max-tokens",
+        "-n",
+        type=int,
+        default=10,
+        help="Max tokens to generate (default: 10)",
+    )
+    patch_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    patch_parser.set_defaults(func=introspect_patch)
+
+    # Early layers command - analyze what information is encoded in early layers
+    early_layers_parser = introspect_subparsers.add_parser(
+        "early-layers",
+        help="Analyze what information is encoded in early layers",
+        description="""Analyze early layer information encoding using linear probes.
+
+This command reveals how information is organized in early transformer layers:
+- Cross-expression similarity at the '=' position
+- Linear probe extraction of operation type, operands, and answer
+- The "orthogonal subspaces paradox": high similarity but separable information
+
+Key insight: Even when cosine similarity is high (0.997), information can be
+linearly extracted because it's encoded in orthogonal directions.
+
+Examples:
+    # Basic analysis with default settings
+    lazarus introspect early-layers -m model
+
+    # Analyze specific layers
+    lazarus introspect early-layers -m model --layers 0,1,2,4,8
+
+    # Include position-wise analysis
+    lazarus introspect early-layers -m model --analyze-positions
+
+    # Test specific operations
+    lazarus introspect early-layers -m model --operations "*,+,-"
+        """,
+    )
+    early_layers_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    early_layers_parser.add_argument(
+        "--layers",
+        help="Layers to analyze (comma-separated, default: 0,1,2,4,8,12)",
+    )
+    early_layers_parser.add_argument(
+        "--operations",
+        help="Operations to test (comma-separated, default: *,+)",
+    )
+    early_layers_parser.add_argument(
+        "--digits",
+        help="Digit range for operands (e.g., 2-8, default: 2-8)",
+    )
+    early_layers_parser.add_argument(
+        "--analyze-positions",
+        action="store_true",
+        help="Include position-wise analysis (slower but more detailed)",
+    )
+    early_layers_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    early_layers_parser.set_defaults(func=introspect_early_layers)
 
     # Circuit command - direct circuit invocation and manipulation
     circuit_parser = introspect_subparsers.add_parser(
@@ -2187,7 +2694,7 @@ Examples:
         default="last",
         help="Position to capture: last token, answer position, or operator position",
     )
-    capture_parser.set_defaults(func=introspect_circuit_capture)
+    capture_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_capture(args)))
 
     # Circuit invoke
     invoke_parser = circuit_subparsers.add_parser(
@@ -2232,7 +2739,7 @@ Examples:
         "-o",
         help="Save result to file",
     )
-    invoke_parser.set_defaults(func=introspect_circuit_invoke)
+    invoke_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_invoke(args)))
 
     # Circuit decode
     decode_parser = circuit_subparsers.add_parser(
@@ -2282,7 +2789,7 @@ Examples:
         default=20,
         help="Max tokens to generate",
     )
-    decode_parser.set_defaults(func=introspect_circuit_decode)
+    decode_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_decode(args)))
 
     # Circuit test - apply trained direction to new activations (proper OOD testing)
     test_parser = circuit_subparsers.add_parser(
@@ -2322,7 +2829,7 @@ Examples:
         "-o",
         help="Save results to JSON file",
     )
-    test_parser.set_defaults(func=introspect_circuit_test)
+    test_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_test(args)))
 
     # Circuit compare - compare multiple circuits (directions)
     compare_circuit_parser = circuit_subparsers.add_parser(
@@ -2358,7 +2865,9 @@ Example:
         "-o",
         help="Save comparison results to JSON file",
     )
-    compare_circuit_parser.set_defaults(func=introspect_circuit_compare)
+    compare_circuit_parser.set_defaults(
+        func=lambda args: asyncio.run(introspect_circuit_compare(args))
+    )
 
     # Circuit view - display circuit contents
     view_parser = circuit_subparsers.add_parser(
@@ -2411,7 +2920,389 @@ Examples:
         default=10,
         help="Number of top neurons to show with --stats (default: 10)",
     )
-    view_parser.set_defaults(func=introspect_circuit_view)
+    view_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_view(args)))
+
+    # Circuit export - export circuit to various formats
+    export_parser = circuit_subparsers.add_parser(
+        "export",
+        help="Export circuit graph to DOT, JSON, Mermaid, or HTML format",
+        description="""Export ablation or direction results as a circuit graph.
+
+Supports multiple output formats:
+- DOT (Graphviz): For rendering with graphviz tools
+- JSON: For programmatic processing
+- Mermaid: For embedding in documentation
+- HTML: Interactive visualization using vis.js
+
+Examples:
+    # Export ablation results to DOT
+    lazarus introspect circuit export -i ablation_results.json -o circuit.dot --format dot
+
+    # Export to interactive HTML
+    lazarus introspect circuit export -i ablation_results.json -o circuit.html --format html
+
+    # Export directions to Mermaid diagram
+    lazarus introspect circuit export -i directions.json -o circuit.md --format mermaid
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    export_parser.add_argument(
+        "--input",
+        "-i",
+        required=True,
+        help="Input file (ablation results JSON or directions JSON)",
+    )
+    export_parser.add_argument(
+        "--output",
+        "-o",
+        required=True,
+        help="Output file path",
+    )
+    export_parser.add_argument(
+        "--format",
+        "-f",
+        choices=["dot", "json", "mermaid", "html"],
+        default="json",
+        help="Output format (default: json)",
+    )
+    export_parser.add_argument(
+        "--type",
+        choices=["ablation", "directions"],
+        default="ablation",
+        help="Input data type: ablation results or extracted directions (default: ablation)",
+    )
+    export_parser.add_argument(
+        "--name",
+        help="Circuit name (default: derived from input file)",
+    )
+    export_parser.add_argument(
+        "--threshold",
+        type=float,
+        default=0.1,
+        help="Minimum effect threshold for ablation circuits (default: 0.1)",
+    )
+    export_parser.add_argument(
+        "--direction",
+        choices=["TB", "LR", "BT", "RL"],
+        default="TB",
+        help="Graph direction: TB (top-bottom), LR (left-right), etc. (default: TB)",
+    )
+    export_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_export(args)))
+
+    # Virtual Expert command - add virtual experts to models
+    virtual_expert_parser = introspect_subparsers.add_parser(
+        "virtual-expert",
+        help="Add virtual expert (tool) capabilities to models",
+        description="""Virtual Expert System - route to external tools via MoE routing.
+
+For MoE models (like GPT-OSS), intercepts actual router decisions.
+For dense models (like LLaMA), creates virtual routing in activation space.
+
+Actions:
+  analyze   - Analyze which experts activate for different prompt categories (MoE only)
+  solve     - Solve a single problem with virtual expert
+  benchmark - Run benchmark comparing model vs virtual expert
+  compare   - Compare model-only vs virtual expert on a prompt
+  interactive - Interactive REPL mode
+
+Examples:
+    # Analyze expert routing (MoE models)
+    lazarus introspect virtual-expert analyze -m openai/gpt-oss-20b
+
+    # Solve with virtual expert
+    lazarus introspect virtual-expert solve -m model -p "127 * 89 = "
+
+    # Run benchmark
+    lazarus introspect virtual-expert benchmark -m model
+
+    # Compare approaches
+    lazarus introspect virtual-expert compare -m model -p "127 * 89 = "
+
+    # Interactive mode
+    lazarus introspect virtual-expert interactive -m model
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    virtual_expert_parser.add_argument(
+        "action",
+        nargs="?",
+        choices=["analyze", "solve", "benchmark", "compare", "interactive"],
+        default="solve",
+        help="Action to perform (default: solve)",
+    )
+    virtual_expert_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    virtual_expert_parser.add_argument(
+        "--prompt",
+        "-p",
+        help="Prompt to solve/compare (required for solve/compare)",
+    )
+    virtual_expert_parser.add_argument(
+        "--problems",
+        help="Problems for benchmark (pipe-separated or @file.txt)",
+    )
+    virtual_expert_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    virtual_expert_parser.set_defaults(
+        func=lambda args: asyncio.run(introspect_virtual_expert(args))
+    )
+
+    # MoE Expert command - direct expert manipulation
+    moe_expert_parser = introspect_subparsers.add_parser(
+        "moe-expert",
+        help="Direct manipulation of MoE expert routing",
+        description="""MoE Expert Explorer - Analyze how MoE models route tokens to experts.
+
+Actions:
+  explore       - Interactive REPL for real-time expert analysis (default)
+  analyze       - Identify expert specializations across all categories
+  chat          - Force all routing through a single expert
+  compare       - Compare outputs from multiple specific experts
+  ablate        - Remove an expert from routing (see what breaks)
+  weights       - Show router weights for a prompt
+  trace         - Trace expert assignments across layers
+  heatmap       - Generate routing heatmap visualization
+  full-taxonomy  - Semantic trigram pattern analysis across categories
+  domain-test    - Demonstrate that domain experts don't exist
+  token-routing  - Demonstrate that single token routing is context-dependent
+  context-test   - Test context independence of routing
+  context-window   - Test how much context the router uses (trigram vs attention)
+  attention-routing - Analyze how attention patterns drive expert routing
+  attention-pattern - Show attention weights for a specific position
+
+Quick Start:
+    # Interactive explorer (recommended starting point)
+    lazarus introspect moe-expert explore -m openai/gpt-oss-20b
+
+Examples:
+    # Prove domain experts don't exist (7+ experts handle ALL domains)
+    lazarus introspect moe-expert domain-test -m openai/gpt-oss-20b
+
+    # Show same token routes to different experts based on context
+    lazarus introspect moe-expert token-routing -m openai/gpt-oss-20b
+
+    # Full semantic trigram taxonomy analysis
+    lazarus introspect moe-expert full-taxonomy -m openai/gpt-oss-20b
+
+    # Generate routing heatmap visualization
+    lazarus introspect moe-expert heatmap -m model -p "def fibonacci(n):"
+
+    # Chat with Expert 6 (force all tokens through it)
+    lazarus introspect moe-expert chat -m openai/gpt-oss-20b --expert 6 -p "127 * 89 = "
+
+    # Kill an expert and see what breaks
+    lazarus introspect moe-expert ablate -m model --expert 6 -p "127 * 89 = " --benchmark
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    moe_expert_parser.add_argument(
+        "action",
+        nargs="?",
+        choices=[
+            # Interactive
+            "explore",
+            # Core analysis
+            "analyze",
+            "chat",
+            "compare",
+            "ablate",
+            # Routing visualization
+            "weights",
+            "trace",
+            "heatmap",
+            # Semantic trigram methodology
+            "full-taxonomy",
+            "domain-test",
+            "token-routing",
+            "context-test",
+            "context-window",
+            "attention-routing",
+            "attention-pattern",
+        ],
+        default="explore",
+        help="Action to perform (default: explore)",
+    )
+    moe_expert_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID (must be MoE model)",
+    )
+    moe_expert_parser.add_argument(
+        "--expert",
+        "-e",
+        type=int,
+        help="Expert index for chat/ablate (0-based)",
+    )
+    moe_expert_parser.add_argument(
+        "--experts",
+        help="Expert indices for compare (comma-separated, e.g., '6,7,20')",
+    )
+    moe_expert_parser.add_argument(
+        "--prompt",
+        "-p",
+        help="Prompt to test",
+    )
+    moe_expert_parser.add_argument(
+        "--benchmark",
+        action="store_true",
+        help="Run ablation benchmark on multiple problems",
+    )
+    moe_expert_parser.add_argument(
+        "--layer",
+        type=int,
+        help="Target MoE layer for analysis (default: middle layer)",
+    )
+    moe_expert_parser.add_argument(
+        "--layers",
+        help="Layers to analyze for trace (comma-separated or 'all')",
+    )
+    moe_expert_parser.add_argument(
+        "--examples",
+        type=int,
+        default=4,
+        help="Number of example prompts to show per pattern (default: 4)",
+    )
+    moe_expert_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    moe_expert_parser.add_argument(
+        "--token",
+        "-t",
+        help="Target token for context-test (e.g., 'the', 'def', '127')",
+    )
+    moe_expert_parser.add_argument(
+        "--contexts",
+        help="Comma-separated contexts to test (e.g., 'the cat,the dog,under the bridge')",
+    )
+    # Arguments for heatmap action
+    moe_expert_parser.add_argument(
+        "--prompts",
+        nargs="+",
+        help="Multiple prompts for heatmap (e.g., --prompts 'Hello' 'World')",
+    )
+    moe_expert_parser.add_argument(
+        "--show-weights",
+        action="store_true",
+        help="For heatmap: show raw weight values in addition to expert indices",
+    )
+    # Arguments for full-taxonomy action
+    moe_expert_parser.add_argument(
+        "--categories",
+        help="Comma-separated categories for full-taxonomy (e.g., 'arithmetic,code,analogy')",
+    )
+    moe_expert_parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Show detailed output (e.g., expert specializations for full-taxonomy)",
+    )
+    moe_expert_parser.set_defaults(func=introspect_moe_expert)
+
+    # =========================================================================
+    # Classifier Emergence Commands
+    # =========================================================================
+
+    # Multi-class classifier probe
+    classifier_parser = introspect_subparsers.add_parser(
+        "classifier",
+        help="Train multi-class linear probe for operation classification",
+        description="""Train logistic regression probes at each layer to find where
+the model distinguishes between multiple operation types (e.g., multiply, add, subtract, divide).
+
+Example:
+  lazarus introspect classifier -m meta-llama/Llama-3.2-1B \\
+    --classes "multiply:7*8=|12*5=" \\
+    --classes "add:23+45=|17+38=" \\
+    --classes "subtract:50-23=|89-34=" \\
+    --classes "divide:48/6=|81/9=" \\
+    --test "11*12=|11+12=|15-6=|12/4="
+        """,
+    )
+    classifier_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    classifier_parser.add_argument(
+        "--classes",
+        "-c",
+        action="append",
+        required=True,
+        help="Class definition in format 'label:prompt1|prompt2|...' (can specify multiple)",
+    )
+    classifier_parser.add_argument(
+        "--test",
+        "-t",
+        help="Test prompts to classify (pipe-separated or @file.txt)",
+    )
+    classifier_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    classifier_parser.set_defaults(func=lambda args: asyncio.run(introspect_classifier(args)))
+
+    # Logit lens analysis
+    logit_lens_parser = introspect_subparsers.add_parser(
+        "logit-lens",
+        help="Apply logit lens to check vocabulary-mappable classifiers",
+        description="""Project hidden states at specified layer through the unembedding
+matrix to see which vocabulary tokens emerge. Useful for checking if classifiers
+project to specific tokens (e.g., 'multiply', 'add').
+
+Example:
+  lazarus introspect logit-lens -m meta-llama/Llama-3.2-1B \\
+    --prompts "7*8=|23+45=|50-23=|48/6=" \\
+    --layer 8 \\
+    --targets "multiply|add|subtract|divide"
+        """,
+    )
+    logit_lens_parser.add_argument(
+        "--model",
+        "-m",
+        required=True,
+        help="Model name or HuggingFace ID",
+    )
+    logit_lens_parser.add_argument(
+        "--adapter",
+        "-a",
+        help="Path to LoRA adapter directory (for analyzing fine-tuned models)",
+    )
+    logit_lens_parser.add_argument(
+        "--prompts",
+        "-p",
+        required=True,
+        help="Prompts to analyze (pipe-separated or @file.txt)",
+    )
+    logit_lens_parser.add_argument(
+        "--layer",
+        "-l",
+        type=int,
+        help="Layer to analyze (default: 55%% depth)",
+    )
+    logit_lens_parser.add_argument(
+        "--targets",
+        "-t",
+        action="append",
+        help="Target tokens to track probability (can specify multiple)",
+    )
+    logit_lens_parser.add_argument(
+        "--output",
+        "-o",
+        help="Save results to JSON file",
+    )
+    logit_lens_parser.set_defaults(func=lambda args: asyncio.run(introspect_logit_lens(args)))
 
     return parser
 
@@ -2435,6 +3326,8 @@ def main():
         parser.parse_args(["gym", "--help"])
     elif args.command == "introspect" and getattr(args, "introspect_command", None) is None:
         parser.parse_args(["introspect", "--help"])
+    elif args.command == "experiment" and getattr(args, "exp_command", None) is None:
+        parser.parse_args(["experiment", "--help"])
 
 
 if __name__ == "__main__":

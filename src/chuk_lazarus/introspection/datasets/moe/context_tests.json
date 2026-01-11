@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "description": "Context independence test prompts - same token in different contexts to test if routing depends on context",
+  "target_token": "127",
+  "tests": [
+    {"prompt": "111 127", "context_type": "number", "description": "Number followed by target"},
+    {"prompt": "222 127", "context_type": "number", "description": "Different number followed by target"},
+    {"prompt": "abc 127", "context_type": "word", "description": "Word followed by target"},
+    {"prompt": "xyz 127", "context_type": "word", "description": "Different word followed by target"},
+    {"prompt": "the 127", "context_type": "article", "description": "Article followed by target"},
+    {"prompt": "127", "context_type": "standalone", "description": "Target alone"},
+    {"prompt": "= 127", "context_type": "operator", "description": "Operator followed by target"}
+  ]
+}

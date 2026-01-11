@@ -1,14 +1,14 @@
 {
-  "layer": 8,
+  "layer": 24,
   "commutativity": {
-    "avg_similarity": 0.9999694437154852,
-    "min_similarity": 0.9999401778715906,
-    "max_similarity": 0.9999844527322486
+    "avg_similarity": 0.9976164505914505,
+    "min_similarity": 0.9946039518946297,
+    "max_similarity": 0.9994257370243441
   },
   "row_column": {
-    "avg_row_similarity": 0.9999652475278662,
-    "avg_col_similarity": 0.9999660729683298,
-    "avg_random_similarity": 0.9999473017424747
+    "avg_row_similarity": 0.9788215322502485,
+    "avg_col_similarity": 0.9824751908951127,
+    "avg_random_similarity": 0.9749822116267445
   },
   "conclusion": "COMPUTE"
 }

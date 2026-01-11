@@ -10,8 +10,13 @@ import pytest
 from chuk_lazarus.introspection import CaptureConfig, CapturedState, ModelHooks
 from chuk_lazarus.introspection.attention import AttentionPattern
 from chuk_lazarus.introspection.logit_lens import LogitLens
-from chuk_lazarus.introspection.visualizers import render_attention_heatmap, render_logit_evolution
-from chuk_lazarus.introspection.visualizers.attention_heatmap import render_attention_summary
+from chuk_lazarus.introspection.visualizers import (
+    render_attention_heatmap,
+    render_logit_evolution,
+)
+from chuk_lazarus.introspection.visualizers.attention_heatmap import (
+    render_attention_summary,
+)
 from chuk_lazarus.introspection.visualizers.logit_evolution import render_logit_table
 
 

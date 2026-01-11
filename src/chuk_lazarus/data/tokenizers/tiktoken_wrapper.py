@@ -60,7 +60,14 @@ MODEL_TO_ENCODING: dict[str, str] = {
 }
 
 # Known encoding names
-KNOWN_ENCODINGS = {"o200k_base", "cl100k_base", "p50k_base", "r50k_base", "p50k_edit", "gpt2"}
+KNOWN_ENCODINGS = {
+    "o200k_base",
+    "cl100k_base",
+    "p50k_base",
+    "r50k_base",
+    "p50k_edit",
+    "gpt2",
+}
 
 
 def is_tiktoken_model(name: str) -> bool:
@@ -83,7 +90,15 @@ def is_tiktoken_model(name: str) -> bool:
         return True
 
     # Check prefixes for model families
-    tiktoken_prefixes = ("gpt-4", "gpt-3", "o1", "o3", "text-embedding", "text-davinci", "code-")
+    tiktoken_prefixes = (
+        "gpt-4",
+        "gpt-3",
+        "o1",
+        "o3",
+        "text-embedding",
+        "text-davinci",
+        "code-",
+    )
     return any(name_lower.startswith(prefix) for prefix in tiktoken_prefixes)
 
 

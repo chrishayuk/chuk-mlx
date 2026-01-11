@@ -73,3 +73,6 @@ sample_data/
 
 # ai
 .claude/
+
+# results
+results/

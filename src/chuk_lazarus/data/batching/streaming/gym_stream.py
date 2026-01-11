@@ -606,7 +606,7 @@ class MockGymStream:
                     dataset_id="mock_gym",
                     source=SampleSource.GYM,
                     episode_id=episode_id,
-                    episode_status=EpisodeStatus.SUCCESS if success else EpisodeStatus.FAILURE,
+                    episode_status=(EpisodeStatus.SUCCESS if success else EpisodeStatus.FAILURE),
                     step_index=step_idx,
                     total_steps=self.steps_per_episode,
                     reward=reward,

@@ -31,29 +31,33 @@ Example:
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     pass
 
 
-@dataclass
-class ProbeDataset:
+class ProbeDataset(BaseModel):
     """A labeled dataset for probing a specific feature.
 
     Generic - can probe any binary or multi-class feature.
     """
 
-    name: str
-    description: str
-    prompts: list[str]
-    labels: list[int]
-    label_names: list[str] = field(default_factory=lambda: ["class_0", "class_1"])
-    category: str = "custom"  # For grouping related probes
+    model_config = ConfigDict(frozen=True)
+
+    name: str = Field(description="Dataset name")
+    description: str = Field(description="Description of what is being probed")
+    prompts: list[str] = Field(description="List of prompts")
+    labels: list[int] = Field(description="Labels for each prompt")
+    label_names: list[str] = Field(
+        default_factory=lambda: ["class_0", "class_1"],
+        description="Names for label classes",
+    )
+    category: str = Field(default="custom", description="Category for grouping probes")
 
     def __len__(self) -> int:
         return len(self.prompts)
@@ -94,17 +98,18 @@ class ProbeDataset:
         return len(set(self.labels))
 
 
-@dataclass
-class ProbeResult:
+class ProbeResult(BaseModel):
     """Result of running a probe at a specific layer."""
 
-    probe_name: str
-    layer: int
-    accuracy: float
-    cv_std: float
-    baseline: float
-    above_chance: float
-    n_samples: int
+    model_config = ConfigDict(frozen=True)
+
+    probe_name: str = Field(description="Name of the probe")
+    layer: int = Field(description="Layer index")
+    accuracy: float = Field(description="Test accuracy")
+    cv_std: float = Field(description="Cross-validation standard deviation")
+    baseline: float = Field(description="Baseline (majority class) accuracy")
+    above_chance: float = Field(description="Accuracy above chance")
+    n_samples: int = Field(description="Number of samples")
 
     @property
     def is_significant(self) -> bool:
@@ -112,13 +117,16 @@ class ProbeResult:
         return self.above_chance > 0.1 and self.accuracy > 0.6
 
 
-@dataclass
-class StratigraphyResult:
+class StratigraphyResult(BaseModel):
     """Results of probing across all layers."""
 
-    model_id: str
-    num_layers: int
-    probes: dict[str, dict[int, ProbeResult]] = field(default_factory=dict)
+    model_config = ConfigDict(validate_default=True)
+
+    model_id: str = Field(description="Model identifier")
+    num_layers: int = Field(description="Number of layers in model")
+    probes: dict[str, dict[int, ProbeResult]] = Field(
+        default_factory=dict, description="Probe results by name and layer"
+    )
 
     def get_accuracy_matrix(self, layers: list[int] | None = None) -> dict[str, list[float]]:
         """Get accuracy matrix for visualization."""

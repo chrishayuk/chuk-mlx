@@ -300,7 +300,7 @@ def pack_sequences_first_fit(
     return [
         bin.to_packed_sequence(
             pad_to_max=config.pad_to_max,
-            separator_token_id=config.separator_token_id if config.add_separator else None,
+            separator_token_id=(config.separator_token_id if config.add_separator else None),
         )
         for bin in bins
         if bin.sequences
@@ -348,7 +348,7 @@ def pack_sequences_best_fit(
     return [
         bin.to_packed_sequence(
             pad_to_max=config.pad_to_max,
-            separator_token_id=config.separator_token_id if config.add_separator else None,
+            separator_token_id=(config.separator_token_id if config.add_separator else None),
         )
         for bin in bins
         if bin.sequences

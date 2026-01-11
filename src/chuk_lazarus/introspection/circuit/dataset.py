@@ -27,12 +27,13 @@ from __future__ import annotations
 import json
 import random
 from collections.abc import Iterator
-from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass
-class LabeledPrompt:
+class LabeledPrompt(BaseModel):
     """A single prompt with labels for circuit analysis.
 
     This is the generic version - labels can represent anything:
@@ -42,37 +43,24 @@ class LabeledPrompt:
     - Safe vs unsafe
     """
 
-    text: str
-    label: int  # Primary label (0 or 1 for binary, 0-N for multi-class)
-    category: str = "default"  # Grouping category
-    label_name: str | None = None  # Human-readable label name
-    expected_output: str | None = None  # Expected model output (if any)
-    metadata: dict = field(default_factory=dict)
+    model_config = ConfigDict(frozen=True)
 
-    def to_dict(self) -> dict:
-        return {
-            "text": self.text,
-            "label": self.label,
-            "category": self.category,
-            "label_name": self.label_name,
-            "expected_output": self.expected_output,
-            "metadata": self.metadata,
-        }
+    text: str = Field(description="The prompt text")
+    label: int = Field(description="Primary label (0 or 1 for binary, 0-N for multi-class)")
+    category: str = Field(default="default", description="Grouping category")
+    label_name: str | None = Field(default=None, description="Human-readable label name")
+    expected_output: str | None = Field(default=None, description="Expected model output")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+
+    def to_dict(self) -> dict[str, Any]:
+        return self.model_dump()
 
     @classmethod
-    def from_dict(cls, data: dict) -> LabeledPrompt:
-        return cls(
-            text=data["text"],
-            label=data["label"],
-            category=data.get("category", "default"),
-            label_name=data.get("label_name"),
-            expected_output=data.get("expected_output"),
-            metadata=data.get("metadata", {}),
-        )
+    def from_dict(cls, data: dict[str, Any]) -> LabeledPrompt:
+        return cls.model_validate(data)
 
 
-@dataclass
-class ContrastivePair:
+class ContrastivePair(BaseModel):
     """A pair of prompts for contrastive analysis.
 
     Useful for comparing:
@@ -81,19 +69,17 @@ class ContrastivePair:
     - Before/after some intervention
     """
 
-    positive: LabeledPrompt  # Should exhibit the behavior
-    negative: LabeledPrompt  # Should NOT exhibit the behavior
-    pair_name: str = ""
+    model_config = ConfigDict(frozen=True)
 
-    def to_dict(self) -> dict:
-        return {
-            "positive": self.positive.to_dict(),
-            "negative": self.negative.to_dict(),
-            "pair_name": self.pair_name,
-        }
+    positive: LabeledPrompt = Field(description="Should exhibit the behavior")
+    negative: LabeledPrompt = Field(description="Should NOT exhibit the behavior")
+    pair_name: str = Field(default="", description="Name of this pair")
+
+    def to_dict(self) -> dict[str, Any]:
+        return self.model_dump()
 
     @classmethod
-    def from_dict(cls, data: dict) -> ContrastivePair:
+    def from_dict(cls, data: dict[str, Any]) -> ContrastivePair:
         return cls(
             positive=LabeledPrompt.from_dict(data["positive"]),
             negative=LabeledPrompt.from_dict(data["negative"]),
@@ -101,8 +87,7 @@ class ContrastivePair:
         )
 
 
-@dataclass
-class CircuitDataset:
+class CircuitDataset(BaseModel):
     """Generic dataset for circuit analysis.
 
     Supports:
@@ -112,12 +97,16 @@ class CircuitDataset:
     - Arbitrary metadata
     """
 
-    prompts: list[LabeledPrompt] = field(default_factory=list)
-    contrastive_pairs: list[ContrastivePair] = field(default_factory=list)
-    name: str = "circuit_dataset"
-    version: str = "1.0"
-    label_names: dict[int, str] = field(default_factory=dict)  # Maps label int -> name
-    metadata: dict = field(default_factory=dict)
+    model_config = ConfigDict(validate_default=True)
+
+    prompts: list[LabeledPrompt] = Field(default_factory=list, description="All prompts")
+    contrastive_pairs: list[ContrastivePair] = Field(
+        default_factory=list, description="Contrastive pairs"
+    )
+    name: str = Field(default="circuit_dataset", description="Dataset name")
+    version: str = Field(default="1.0", description="Version string")
+    label_names: dict[int, str] = Field(default_factory=dict, description="Maps label int -> name")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
     def __len__(self) -> int:
         return len(self.prompts)
@@ -541,7 +530,10 @@ def create_factual_consistency_dataset(seed: int = 42) -> CircuitDataset:
                 category="contradiction",
                 label_name="contradiction",
                 expected_output=expected,
-                metadata={"ground_truth": expected, "context_claim": text.split(".")[0]},
+                metadata={
+                    "ground_truth": expected,
+                    "context_claim": text.split(".")[0],
+                },
             )
         )
 
@@ -633,16 +625,17 @@ class PromptCategory(str, Enum):
     MULTI_TOOL = "multi_tool"
 
 
-@dataclass
-class ToolPrompt:
+class ToolPrompt(BaseModel):
     """A prompt for tool-calling analysis (backwards compatibility wrapper)."""
 
-    text: str
-    category: PromptCategory
-    expected_tool: str | None = None
-    should_call_tool: bool = True
-    difficulty: str = "normal"
-    metadata: dict = field(default_factory=dict)
+    model_config = ConfigDict(frozen=True)
+
+    text: str = Field(description="The prompt text")
+    category: PromptCategory = Field(description="Prompt category")
+    expected_tool: str | None = Field(default=None, description="Expected tool to call")
+    should_call_tool: bool = Field(default=True, description="Whether tool should be called")
+    difficulty: str = Field(default="normal", description="Difficulty level")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
     def to_labeled_prompt(self) -> LabeledPrompt:
         """Convert to generic LabeledPrompt."""
@@ -658,26 +651,17 @@ class ToolPrompt:
             },
         )
 
-    def to_dict(self) -> dict:
-        return {
-            "text": self.text,
-            "category": self.category.value,
-            "expected_tool": self.expected_tool,
-            "should_call_tool": self.should_call_tool,
-            "difficulty": self.difficulty,
-            "metadata": self.metadata,
-        }
+    def to_dict(self) -> dict[str, Any]:
+        data = self.model_dump()
+        data["category"] = self.category.value
+        return data
 
     @classmethod
-    def from_dict(cls, data: dict) -> ToolPrompt:
-        return cls(
-            text=data["text"],
-            category=PromptCategory(data["category"]),
-            expected_tool=data.get("expected_tool"),
-            should_call_tool=data.get("should_call_tool", True),
-            difficulty=data.get("difficulty", "normal"),
-            metadata=data.get("metadata", {}),
-        )
+    def from_dict(cls, data: dict[str, Any]) -> ToolPrompt:
+        data_copy = dict(data)
+        if isinstance(data_copy.get("category"), str):
+            data_copy["category"] = PromptCategory(data_copy["category"])
+        return cls.model_validate(data_copy)
 
 
 class ToolPromptDataset:

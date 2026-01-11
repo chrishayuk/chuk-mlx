@@ -7,22 +7,25 @@ Handles loading and batching of prompt-response pairs.
 import json
 import logging
 from collections.abc import Iterator
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
+from pydantic import BaseModel, ConfigDict, Field
+
+from .tokenizers.types import ChatRole
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class SFTSample:
+class SFTSample(BaseModel):
     """A single SFT training sample."""
 
-    prompt: str
-    response: str
-    metadata: dict | None = None
+    model_config = ConfigDict(frozen=True)
+
+    prompt: str = Field(description="The input prompt")
+    response: str = Field(description="The expected response")
+    metadata: dict[str, Any] | None = Field(default=None, description="Optional metadata")
 
 
 class SFTDataset:
@@ -63,9 +66,10 @@ class SFTDataset:
                     prompt = ""
                     response = ""
                     for msg in messages:
-                        if msg["role"] in ["user", "system"]:
+                        role = msg["role"]
+                        if role in (ChatRole.USER.value, ChatRole.SYSTEM.value):
                             prompt += msg["content"] + "\n"
-                        elif msg["role"] == "assistant":
+                        elif role == ChatRole.ASSISTANT.value:
                             response = msg["content"]
                 else:
                     # Simple format
@@ -125,27 +129,28 @@ class SFTDataset:
 
         # Find max length
         max_len = max(len(item["input_ids"]) for item in items)
-        batch_size = len(items)
 
-        # Initialize arrays
-        input_ids = mx.full((batch_size, max_len), pad_token_id, dtype=mx.int32)
-        labels = mx.full((batch_size, max_len), pad_token_id, dtype=mx.int32)
-        loss_mask = mx.zeros((batch_size, max_len), dtype=mx.float32)
-        attention_mask = mx.zeros((batch_size, max_len), dtype=mx.float32)
+        # Build arrays as Python lists, then convert to MLX
+        input_ids_list = []
+        labels_list = []
+        loss_mask_list = []
+        attention_mask_list = []
 
-        for i, item in enumerate(items):
+        for item in items:
             seq_len = len(item["input_ids"])
+            pad_len = max_len - seq_len
 
-            input_ids = input_ids.at[i, :seq_len].set(mx.array(item["input_ids"], dtype=mx.int32))
-            labels = labels.at[i, :seq_len].set(mx.array(item["labels"], dtype=mx.int32))
-            loss_mask = loss_mask.at[i, :seq_len].set(mx.array(item["loss_mask"], dtype=mx.float32))
-            attention_mask = attention_mask.at[i, :seq_len].set(1.0)
+            # Pad each sequence
+            input_ids_list.append(item["input_ids"] + [pad_token_id] * pad_len)
+            labels_list.append(item["labels"] + [pad_token_id] * pad_len)
+            loss_mask_list.append(item["loss_mask"] + [0.0] * pad_len)
+            attention_mask_list.append([1.0] * seq_len + [0.0] * pad_len)
 
         return {
-            "input_ids": input_ids,
-            "labels": labels,
-            "loss_mask": loss_mask,
-            "attention_mask": attention_mask,
+            "input_ids": mx.array(input_ids_list, dtype=mx.int32),
+            "labels": mx.array(labels_list, dtype=mx.int32),
+            "loss_mask": mx.array(loss_mask_list, dtype=mx.float32),
+            "attention_mask": mx.array(attention_mask_list, dtype=mx.float32),
         }
 
     def iter_batches(

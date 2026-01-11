@@ -75,9 +75,17 @@ from .ablation import (
     LayerSweepResult,
     ModelAdapter,
 )
+
+# Model accessor for unified model component access
+from .accessor import AsyncModelAccessor, ModelAccessor
+
+# Service layer for CLI commands
 from .analyzer import (
     AnalysisConfig,
     AnalysisResult,
+    AnalyzerService,
+    AnalyzerServiceConfig,
+    ComparisonResult,
     LayerPredictionResult,
     LayerStrategy,
     LayerTransition,
@@ -98,6 +106,53 @@ from .attention import (
     AttentionPattern,
     extract_attention_weights,
 )
+from .circuit import (
+    CircuitCaptureConfig,
+    CircuitCaptureResult,
+    CircuitCompareConfig,
+    CircuitCompareResult,
+    CircuitDecodeConfig,
+    CircuitDecodeResult,
+    CircuitExportConfig,
+    CircuitExportResult,
+    CircuitInvokeConfig,
+    CircuitInvokeResult,
+    CircuitService,
+    CircuitTestConfig,
+    CircuitTestResult,
+    CircuitViewConfig,
+    CircuitViewResult,
+)
+from .classifier import ClassifierConfig, ClassifierResult, ClassifierService
+from .clustering import ClusteringConfig, ClusteringResult, ClusteringService
+
+# Enums for type-safe values
+from .enums import (
+    ArithmeticOperator,
+    CommutativityLevel,
+    ComputeStrategy,
+    ConfidenceLevel,
+    CriterionType,
+    Difficulty,
+    DirectionMethod,
+    FactType,
+    FormatDiagnosis,
+    InvocationMethod,
+    MemorizationLevel,
+    NeuronRole,
+    OverrideMode,
+    PatchEffect,
+    Region,
+    TestStatus,
+)
+from .generation import (
+    GenerationConfig,
+    GenerationResult,
+    GenerationService,
+    LogitEvolutionConfig,
+    LogitEvolutionResult,
+    LogitEvolutionService,
+)
 
 # Low-level hooks with enums
 from .hooks import (
@@ -106,6 +161,22 @@ from .hooks import (
     LayerSelection,
     ModelHooks,
     PositionSelection,
+)
+
+# Counterfactual interventions for causal analysis
+from .interventions import (
+    CausalTraceResult,
+    ComponentTarget,
+    CounterfactualIntervention,
+    FullCausalTrace,
+    InterventionConfig,
+    InterventionResult,
+    InterventionType,
+    patch_activations,
+    trace_causal_path,
+)
+from .interventions import (
+    PatchingResult as CounterfactualPatchingResult,
 )
 
 # Layer analysis
@@ -125,39 +196,131 @@ from .logit_lens import (
     TokenEvolution,
     run_logit_lens,
 )
+from .memory import MemoryAnalysisConfig, MemoryAnalysisResult, MemoryAnalysisService
 
-# MoE introspection
+# Pydantic models for structured results
+from .models import (
+    # Arithmetic
+    ArithmeticStats,
+    ArithmeticTestCase,
+    ArithmeticTestResult,
+    ArithmeticTestSuite,
+    # Memory
+    AttractorNode,
+    # Uncertainty
+    CalibrationResult,
+    # Facts
+    CapitalFact,
+    # Circuit
+    CapturedCircuit,
+    CircuitComparisonResult,
+    CircuitDirection,
+    CircuitEntry,
+    CircuitInvocationResult,
+    # Patching
+    CommutativityPair,
+    CommutativityResult,
+    ElementFact,
+    Fact,
+    FactNeighborhood,
+    FactSet,
+    MathFact,
+    MemoryStats,
+    MetacognitiveResult,
+    ParsedArithmeticPrompt,
+    PatchingLayerResult,
+    PatchingResult,
+    # Probing
+    ProbeLayerResult,
+    ProbeResult,
+    ProbeTopNeuron,
+    RetrievalResult,
+    UncertaintyResult,
+)
+
+# MoE introspection - from modular subpackage
 from .moe import (
-    CompressedMoEConfig,
+    # Identification
+    CategoryActivation,
+    # Datasets
+    CategoryPrompts,
+    # Models
+    CoactivationAnalysis,
+    # Compression
+    CompressionAnalysis,
     CompressionPlan,
     ExpertAblationResult,
+    # Enums
     ExpertCategory,
-    ExpertCompressor,
-    ExpertContribution,
-    ExpertIdentificationResult,
-    ExpertIdentifier,
     ExpertIdentity,
-    ExpertMergeResult,
-    ExpertSpecialization,
+    # Logit Lens
+    ExpertLogitContribution,
+    ExpertPair,
+    ExpertProfile,
+    ExpertRole,
+    ExpertSimilarity,
     ExpertUtilization,
-    MoEAblation,
+    LayerRoutingSnapshot,
+    # Config
+    MoEAblationConfig,
     MoEArchitecture,
-    MoECapturedState,
     MoECaptureConfig,
+    # Hooks
+    MoECapturedState,
     MoEHooks,
     MoELayerInfo,
-    MoELayerPrediction,
     MoELogitLens,
+    PromptCategory,
+    PromptCategoryGroup,
     RouterEntropy,
-    analyze_compression,
-    analyze_expert_specialization,
-    analyze_moe_model,
+    # Ablation
+    ablate_expert,
+    ablate_expert_batch,
+    # Router analysis
+    analyze_coactivation,
+    analyze_compression_opportunities,
+    analyze_expert_vocabulary,
+    cluster_experts_by_specialization,
+    compare_routing,
+    compute_expert_similarity,
+    compute_routing_diversity,
+    create_compression_plan,
+    # Detection
     detect_moe_architecture,
+    find_causal_experts,
+    find_generalists,
+    find_merge_candidates,
+    find_prune_candidates,
+    find_specialists,
+    get_all_prompts,
+    get_category_prompts,
+    get_dominant_experts,
+    get_grouped_prompts,
     get_moe_layer_info,
-    identify_experts,
-    plan_expert_compression,
-    print_expert_identities,
-    print_moe_analysis,
+    get_moe_layers,
+    get_prompts_by_group,
+    get_prompts_flat,
+    get_rare_experts,
+    identify_all_experts,
+    identify_expert,
+    is_moe_model,
+    print_compression_summary,
+    print_expert_summary,
+    sweep_layer_experts,
+)
+from .moe import (
+    compute_similarity_matrix as moe_compute_similarity_matrix,
+)
+
+# Activation patching for causal interventions
+from .patcher import ActivationPatcher, CommutativityAnalyzer
+from .probing import (
+    MetacognitiveConfig,
+    MetacognitiveService,
+    ProbeConfig,
+    ProbeService,
+    UncertaintyConfig,
+    UncertaintyService,
 )
 
 # Activation steering - from subpackage
@@ -172,6 +335,46 @@ from .steering import (
     compare_steering_effects,
     format_functiongemma_prompt,
     steer_model,
+)
+
+# Utilities for CLI and programmatic use
+from .utils import (
+    analyze_orthogonality,
+    apply_chat_template,
+    compute_similarity_matrix,
+    cosine_similarity,
+    extract_expected_answer,
+    find_answer_onset,
+    find_discriminative_neurons,
+    generate_arithmetic_prompts,
+    load_external_chat_template,
+    normalize_number_string,
+    parse_layers_arg,
+    parse_prompts_from_arg,
+)
+
+# Virtual expert system (re-exported from inference, with demo functions)
+from .virtual_expert import (
+    ExpertHijacker,
+    HybridEmbeddingInjector,
+    MathExpertPlugin,
+    SafeMathEvaluator,
+    VirtualExpertAnalysis,
+    VirtualExpertApproach,
+    VirtualExpertConfig,
+    VirtualExpertPlugin,
+    VirtualExpertRegistry,
+    VirtualExpertResult,
+    VirtualExpertService,
+    VirtualExpertServiceResult,
+    VirtualExpertSlot,
+    VirtualMoEWrapper,
+    VirtualRouter,
+    create_virtual_expert,
+    create_virtual_expert_wrapper,
+    demo_all_approaches,
+    demo_virtual_expert,
+    get_default_registry,
 )
 
 __all__ = [
@@ -231,30 +434,219 @@ __all__ = [
     "steer_model",
     "compare_steering_effects",
     "format_functiongemma_prompt",
-    # MoE introspection
-    "MoEHooks",
-    "MoECaptureConfig",
-    "MoECapturedState",
+    # MoE introspection - Enums
     "MoEArchitecture",
+    "ExpertCategory",
+    "ExpertRole",
+    # MoE introspection - Config
+    "MoECaptureConfig",
+    "MoEAblationConfig",
+    # MoE introspection - Models
     "MoELayerInfo",
-    "ExpertUtilization",
     "RouterEntropy",
-    "ExpertSpecialization",
-    "ExpertContribution",
+    "ExpertUtilization",
+    "ExpertIdentity",
+    "ExpertPair",
+    "CoactivationAnalysis",
     "ExpertAblationResult",
-    "MoEAblation",
-    "MoELogitLens",
-    "MoELayerPrediction",
+    "CompressionPlan",
+    # MoE introspection - Detection
     "detect_moe_architecture",
     "get_moe_layer_info",
-    "analyze_moe_model",
-    "analyze_expert_specialization",
-    "print_moe_analysis",
-    # Expert identification
-    "ExpertIdentifier",
-    "ExpertIdentity",
-    "ExpertIdentificationResult",
-    "ExpertCategory",
-    "identify_experts",
-    "print_expert_identities",
+    "get_moe_layers",
+    "is_moe_model",
+    # MoE introspection - Hooks
+    "MoEHooks",
+    "MoECapturedState",
+    # MoE introspection - Router analysis
+    "analyze_coactivation",
+    "compute_routing_diversity",
+    "get_dominant_experts",
+    "get_rare_experts",
+    "compare_routing",
+    # MoE introspection - Datasets
+    "PromptCategory",
+    "PromptCategoryGroup",
+    "CategoryPrompts",
+    "get_category_prompts",
+    "get_all_prompts",
+    "get_grouped_prompts",
+    "get_prompts_by_group",
+    "get_prompts_flat",
+    # MoE introspection - Ablation
+    "ablate_expert",
+    "ablate_expert_batch",
+    "find_causal_experts",
+    "sweep_layer_experts",
+    # MoE introspection - Logit Lens
+    "ExpertLogitContribution",
+    "LayerRoutingSnapshot",
+    "MoELogitLens",
+    "analyze_expert_vocabulary",
+    # MoE introspection - Identification
+    "CategoryActivation",
+    "ExpertProfile",
+    "identify_expert",
+    "identify_all_experts",
+    "find_specialists",
+    "find_generalists",
+    "cluster_experts_by_specialization",
+    "print_expert_summary",
+    # MoE introspection - Compression
+    "ExpertSimilarity",
+    "CompressionAnalysis",
+    "compute_expert_similarity",
+    "moe_compute_similarity_matrix",
+    "find_merge_candidates",
+    "find_prune_candidates",
+    "create_compression_plan",
+    "analyze_compression_opportunities",
+    "print_compression_summary",
+    # Utilities
+    "generate_arithmetic_prompts",
+    "cosine_similarity",
+    "compute_similarity_matrix",
+    "analyze_orthogonality",
+    "find_discriminative_neurons",
+    "normalize_number_string",
+    "parse_prompts_from_arg",
+    "parse_layers_arg",
+    "apply_chat_template",
+    "load_external_chat_template",
+    "extract_expected_answer",
+    "find_answer_onset",
+    # Model accessor
+    "ModelAccessor",
+    "AsyncModelAccessor",
+    # Activation patching
+    "ActivationPatcher",
+    "CommutativityAnalyzer",
+    # Enums
+    "ArithmeticOperator",
+    "CommutativityLevel",
+    "ComputeStrategy",
+    "ConfidenceLevel",
+    "CriterionType",
+    "Difficulty",
+    "DirectionMethod",
+    "FactType",
+    "FormatDiagnosis",
+    "InvocationMethod",
+    "MemorizationLevel",
+    "NeuronRole",
+    "OverrideMode",
+    "PatchEffect",
+    "Region",
+    "TestStatus",
+    # Pydantic models - Arithmetic
+    "ParsedArithmeticPrompt",
+    "ArithmeticTestCase",
+    "ArithmeticTestResult",
+    "ArithmeticStats",
+    "ArithmeticTestSuite",
+    # Pydantic models - Circuit
+    "CircuitEntry",
+    "CircuitDirection",
+    "CapturedCircuit",
+    "CircuitInvocationResult",
+    "CircuitTestResult",
+    "CircuitComparisonResult",
+    # Pydantic models - Facts
+    "Fact",
+    "MathFact",
+    "CapitalFact",
+    "ElementFact",
+    "FactSet",
+    "FactNeighborhood",
+    # Pydantic models - Memory
+    "RetrievalResult",
+    "AttractorNode",
+    "MemoryStats",
+    "MemoryAnalysisResult",
+    # Pydantic models - Patching
+    "CommutativityPair",
+    "CommutativityResult",
+    "PatchingLayerResult",
+    "PatchingResult",
+    # Pydantic models - Probing
+    "ProbeLayerResult",
+    "ProbeTopNeuron",
+    "ProbeResult",
+    # Pydantic models - Uncertainty
+    "MetacognitiveResult",
+    "UncertaintyResult",
+    "CalibrationResult",
+    # Virtual expert system
+    "VirtualExpertPlugin",
+    "VirtualExpertRegistry",
+    "VirtualExpertResult",
+    "VirtualExpertAnalysis",
+    "VirtualExpertApproach",
+    "VirtualMoEWrapper",
+    "VirtualRouter",
+    "MathExpertPlugin",
+    "SafeMathEvaluator",
+    "create_virtual_expert",
+    "create_virtual_expert_wrapper",
+    "get_default_registry",
+    "demo_virtual_expert",
+    "demo_all_approaches",
+    # Legacy aliases
+    "ExpertHijacker",
+    "VirtualExpertSlot",
+    "HybridEmbeddingInjector",
+    # Counterfactual interventions
+    "CounterfactualIntervention",
+    "InterventionConfig",
+    "InterventionResult",
+    "InterventionType",
+    "ComponentTarget",
+    "CounterfactualPatchingResult",
+    "CausalTraceResult",
+    "FullCausalTrace",
+    "patch_activations",
+    "trace_causal_path",
+    # Service layer for CLI
+    "AnalyzerService",
+    "AnalyzerServiceConfig",
+    "ComparisonResult",
+    "MemoryAnalysisConfig",
+    "MemoryAnalysisResult",
+    "MemoryAnalysisService",
+    "MetacognitiveConfig",
+    "MetacognitiveService",
+    "ProbeConfig",
+    "ProbeService",
+    "UncertaintyConfig",
+    "UncertaintyService",
+    "ClusteringConfig",
+    "ClusteringResult",
+    "ClusteringService",
+    "ClassifierConfig",
+    "ClassifierResult",
+    "ClassifierService",
+    "GenerationConfig",
+    "GenerationResult",
+    "GenerationService",
+    "LogitEvolutionConfig",
+    "LogitEvolutionResult",
+    "LogitEvolutionService",
+    "CircuitCaptureConfig",
+    "CircuitCaptureResult",
+    "CircuitCompareConfig",
+    "CircuitCompareResult",
+    "CircuitDecodeConfig",
+    "CircuitDecodeResult",
+    "CircuitExportConfig",
+    "CircuitExportResult",
+    "CircuitInvokeConfig",
+    "CircuitInvokeResult",
+    "CircuitService",
+    "CircuitTestConfig",
+    "CircuitTestResult",
+    "CircuitViewConfig",
+    "CircuitViewResult",
+    "VirtualExpertConfig",
+    "VirtualExpertService",
+    "VirtualExpertServiceResult",
 ]

@@ -26,11 +26,11 @@ Example:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     from .collector import CollectedActivations
@@ -44,17 +44,20 @@ class ProbeType(str, Enum):
     TOOL_TYPE = "tool_type"  # Which specific tool
 
 
-@dataclass
-class PCAResult:
+class PCAResult(BaseModel):
     """Result of PCA analysis."""
 
-    layer: int
-    n_components: int
-    explained_variance_ratio: np.ndarray
-    cumulative_variance: np.ndarray
-    components: np.ndarray  # [n_components, hidden_size]
-    mean: np.ndarray
-    transformed: np.ndarray | None = None  # [n_samples, n_components]
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    layer: int = Field(description="Layer index")
+    n_components: int = Field(description="Number of components computed")
+    explained_variance_ratio: np.ndarray = Field(description="Variance ratio per component")
+    cumulative_variance: np.ndarray = Field(description="Cumulative variance")
+    components: np.ndarray = Field(description="PCA components [n_components, hidden_size]")
+    mean: np.ndarray = Field(description="Data mean")
+    transformed: np.ndarray | None = Field(
+        default=None, description="Transformed data [n_samples, n_components]"
+    )
 
     def components_for_variance(self, threshold: float = 0.9) -> int:
         """Number of components needed to explain threshold variance."""
@@ -83,16 +86,17 @@ class PCAResult:
         }
 
 
-@dataclass
-class UMAPResult:
+class UMAPResult(BaseModel):
     """Result of UMAP projection."""
 
-    layer: int
-    embedding: np.ndarray  # [n_samples, 2 or 3]
-    labels: np.ndarray
-    category_labels: list[str]
-    n_neighbors: int
-    min_dist: float
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    layer: int = Field(description="Layer index")
+    embedding: np.ndarray = Field(description="UMAP embedding [n_samples, 2 or 3]")
+    labels: np.ndarray = Field(description="Labels per sample")
+    category_labels: list[str] = Field(description="Category per sample")
+    n_neighbors: int = Field(description="UMAP n_neighbors parameter")
+    min_dist: float = Field(description="UMAP min_dist parameter")
 
     def get_tool_mask(self) -> np.ndarray:
         """Boolean mask for tool-calling samples."""
@@ -104,27 +108,28 @@ class UMAPResult:
         return self.embedding[mask]
 
 
-@dataclass
-class ProbeResult:
+class GeometryProbeResult(BaseModel):
     """Result of linear probe training."""
 
-    layer: int
-    probe_type: ProbeType
-    accuracy: float
-    train_accuracy: float
-    weights: np.ndarray
-    bias: np.ndarray
-    classes: list[str | int]
+    model_config = ConfigDict(arbitrary_types_allowed=True, validate_default=True)
+
+    layer: int = Field(description="Layer index")
+    probe_type: ProbeType = Field(description="Type of probe")
+    accuracy: float = Field(description="Test accuracy")
+    train_accuracy: float = Field(description="Training accuracy")
+    weights: np.ndarray = Field(description="Probe weights")
+    bias: np.ndarray = Field(description="Probe bias")
+    classes: list[str | int] = Field(description="Class labels")
 
     # Per-class metrics
-    precision: dict[str, float] = field(default_factory=dict)
-    recall: dict[str, float] = field(default_factory=dict)
-    f1: dict[str, float] = field(default_factory=dict)
+    precision: dict[str, float] = Field(default_factory=dict, description="Per-class precision")
+    recall: dict[str, float] = Field(default_factory=dict, description="Per-class recall")
+    f1: dict[str, float] = Field(default_factory=dict, description="Per-class F1")
 
     # Cross-validation results
-    cv_accuracies: list[float] = field(default_factory=list)
-    cv_mean: float = 0.0
-    cv_std: float = 0.0
+    cv_accuracies: list[float] = Field(default_factory=list, description="CV accuracies")
+    cv_mean: float = Field(default=0.0, description="Mean CV accuracy")
+    cv_std: float = Field(default=0.0, description="CV standard deviation")
 
     def get_direction(self) -> np.ndarray:
         """Get the probe direction (for binary classification)."""
@@ -145,16 +150,17 @@ class ProbeResult:
         }
 
 
-@dataclass
-class ClusterResult:
+class ClusterResult(BaseModel):
     """Result of clustering analysis."""
 
-    layer: int
-    n_clusters: int
-    labels: np.ndarray  # Cluster assignment per sample
-    centroids: np.ndarray  # [n_clusters, hidden_size]
-    inertia: float
-    silhouette_score: float
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    layer: int = Field(description="Layer index")
+    n_clusters: int = Field(description="Number of clusters")
+    labels: np.ndarray = Field(description="Cluster assignment per sample")
+    centroids: np.ndarray = Field(description="Cluster centroids [n_clusters, hidden_size]")
+    inertia: float = Field(description="K-means inertia")
+    silhouette_score: float = Field(description="Silhouette score")
 
     def get_cluster_sizes(self) -> dict[int, int]:
         """Get number of samples per cluster."""
@@ -162,20 +168,23 @@ class ClusterResult:
         return dict(zip(unique.tolist(), counts.tolist()))
 
 
-@dataclass
-class GeometryResult:
+class GeometryResult(BaseModel):
     """Combined geometry analysis results."""
 
-    layer: int
-    pca: PCAResult | None = None
-    umap: UMAPResult | None = None
-    binary_probe: ProbeResult | None = None
-    category_probe: ProbeResult | None = None
-    tool_probe: ProbeResult | None = None
-    clusters: ClusterResult | None = None
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    layer: int = Field(description="Layer index")
+    pca: PCAResult | None = Field(default=None, description="PCA result")
+    umap: UMAPResult | None = Field(default=None, description="UMAP result")
+    binary_probe: GeometryProbeResult | None = Field(default=None, description="Binary probe")
+    category_probe: GeometryProbeResult | None = Field(default=None, description="Category probe")
+    tool_probe: GeometryProbeResult | None = Field(default=None, description="Tool probe")
+    clusters: ClusterResult | None = Field(default=None, description="Clustering result")
 
     # Cosine similarity matrix between categories
-    category_similarities: np.ndarray | None = None
+    category_similarities: np.ndarray | None = Field(
+        default=None, description="Category similarity matrix"
+    )
 
     def summary(self) -> dict:
         result = {"layer": self.layer}
@@ -294,7 +303,7 @@ class GeometryAnalyzer:
         probe_type: ProbeType = ProbeType.BINARY,
         test_size: float = 0.2,
         cv_folds: int = 5,
-    ) -> ProbeResult:
+    ) -> GeometryProbeResult:
         """
         Train a linear probe on activations.
 
@@ -305,7 +314,7 @@ class GeometryAnalyzer:
             cv_folds: Number of cross-validation folds
 
         Returns:
-            ProbeResult with accuracy and weights
+            GeometryProbeResult with accuracy and weights
         """
         from sklearn.linear_model import LogisticRegression
         from sklearn.metrics import precision_recall_fscore_support
@@ -343,7 +352,11 @@ class GeometryAnalyzer:
 
         # Split data
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=test_size, random_state=42, stratify=y if use_stratify else None
+            X,
+            y,
+            test_size=test_size,
+            random_state=42,
+            stratify=y if use_stratify else None,
         )
 
         # Train probe
@@ -367,7 +380,7 @@ class GeometryAnalyzer:
         recall_dict = {str(c): float(r) for c, r in zip(classes, recall)}
         f1_dict = {str(c): float(f) for c, f in zip(classes, f1)}
 
-        return ProbeResult(
+        return GeometryProbeResult(
             layer=layer,
             probe_type=probe_type,
             accuracy=test_acc,
@@ -567,7 +580,7 @@ def train_linear_probe(
     activations: CollectedActivations,
     layer: int,
     probe_type: ProbeType = ProbeType.BINARY,
-) -> ProbeResult:
+) -> GeometryProbeResult:
     """Convenience function to train a linear probe."""
     analyzer = GeometryAnalyzer(activations)
     return analyzer.train_probe(layer, probe_type)

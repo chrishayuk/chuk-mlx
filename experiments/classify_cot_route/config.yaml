@@ -1,0 +1,77 @@
+# Classify-CoT-Route Experiment
+# Tests: Do symbolic and semantic inputs converge to same representation?
+
+name: classify_cot_route
+description: "Test if semantic inputs normalize to same canonical form as symbolic"
+
+model: meta-llama/Llama-3.2-1B
+
+parameters:
+  # Classification layer (where task info is encoded)
+  classify_layer: 4  # 25% depth, 100% probe accuracy
+
+  # Convergence check layers
+  convergence_layers: [6, 8, 10, 12]
+
+  # Test pairs: symbolic vs semantic with same operation
+  test_pairs:
+    # Addition
+    - symbolic: "45 + 45 = "
+      semantic: "Janet has 45 apples and buys 45 more. How many total?"
+      task: addition
+      operands: [45, 45]
+      expected: 90
+
+    - symbolic: "12 + 7 = "
+      semantic: "A baker made 12 cookies in the morning and 7 more in the afternoon. How many cookies?"
+      task: addition
+      operands: [12, 7]
+      expected: 19
+
+    - symbolic: "100 + 50 = "
+      semantic: "Tom has $100 and earns $50 more. What is his total?"
+      task: addition
+      operands: [100, 50]
+      expected: 150
+
+    # Subtraction
+    - symbolic: "100 - 37 = "
+      semantic: "Maria had 100 stickers and gave away 37. How many remain?"
+      task: subtraction
+      operands: [100, 37]
+      expected: 63
+
+    - symbolic: "50 - 18 = "
+      semantic: "A store had 50 items and sold 18. How many are left?"
+      task: subtraction
+      operands: [50, 18]
+      expected: 32
+
+    # Multiplication
+    - symbolic: "8 * 9 = "
+      semantic: "There are 8 rows with 9 chairs each. How many chairs total?"
+      task: multiplication
+      operands: [8, 9]
+      expected: 72
+
+    - symbolic: "12 * 5 = "
+      semantic: "A pack has 12 items. If you buy 5 packs, how many items?"
+      task: multiplication
+      operands: [12, 5]
+      expected: 60
+
+    # Division
+    - symbolic: "100 / 5 = "
+      semantic: "Split 100 cookies equally among 5 kids. How many each?"
+      task: division
+      operands: [100, 5]
+      expected: 20
+
+    - symbolic: "36 / 6 = "
+      semantic: "Divide 36 apples into 6 equal groups. How many per group?"
+      task: division
+      operands: [36, 6]
+      expected: 6
+
+  # Analysis thresholds
+  similarity_threshold: 0.8  # Cosine similarity for "same representation"

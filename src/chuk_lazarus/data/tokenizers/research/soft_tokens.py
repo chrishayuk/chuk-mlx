@@ -205,7 +205,10 @@ def initialize_soft_embedding(
     elif config.init_method == InitializationMethod.ONES:
         return np.ones(dim, dtype=np.float32)
 
-    elif config.init_method in (InitializationMethod.FROM_TOKENS, InitializationMethod.FROM_TEXT):
+    elif config.init_method in (
+        InitializationMethod.FROM_TOKENS,
+        InitializationMethod.FROM_TEXT,
+    ):
         if source_embeddings is None:
             raise ValueError(f"{config.init_method} requires source_embeddings")
         # Average the source embeddings

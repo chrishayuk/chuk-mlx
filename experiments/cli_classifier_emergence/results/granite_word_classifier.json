@@ -1,0 +1,234 @@
+{
+  "model": "ibm-granite/granite-3.1-2b-base",
+  "num_layers": 40,
+  "classes": {
+    "multiply": [
+      "What is 7 times 8?",
+      "Calculate 12 times 5",
+      "Find 3 times 9",
+      "Compute 6 times 7"
+    ],
+    "add": [
+      "What is 23 plus 45?",
+      "Calculate 17 plus 38",
+      "Find 11 plus 22",
+      "Compute 5 plus 9"
+    ],
+    "subtract": [
+      "What is 50 minus 23?",
+      "Calculate 89 minus 34",
+      "Find 77 minus 11",
+      "Compute 40 minus 15"
+    ],
+    "divide": [
+      "What is 48 divided by 6?",
+      "Calculate 81 divided by 9",
+      "Find 36 divided by 4",
+      "Compute 24 divided by 3"
+    ]
+  },
+  "layer_results": [
+    {
+      "layer": 0,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 1,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 2,
+      "accuracy": 0.1875,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 3,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 4,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 5,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 6,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 7,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 8,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 9,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 10,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 11,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 12,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 13,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 14,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 15,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 16,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 17,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 18,
+      "accuracy": 0.0625,
+      "std": 0.10825317547305482
+    },
+    {
+      "layer": 19,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 20,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 21,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 22,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 23,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 24,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 25,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 26,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 27,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 28,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 29,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 30,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 31,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 32,
+      "accuracy": 0.125,
+      "std": 0.125
+    },
+    {
+      "layer": 33,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 34,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 35,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 36,
+      "accuracy": 0.1875,
+      "std": 0.2072890493972125
+    },
+    {
+      "layer": 37,
+      "accuracy": 0.3125,
+      "std": 0.2724311839712921
+    },
+    {
+      "layer": 38,
+      "accuracy": 0.25,
+      "std": 0.1767766952966369
+    },
+    {
+      "layer": 39,
+      "accuracy": 0.3125,
+      "std": 0.10825317547305482
+    }
+  ],
+  "best_layer": 37,
+  "best_accuracy": 0.3125
+}

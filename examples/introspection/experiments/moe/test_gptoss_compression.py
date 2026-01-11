@@ -32,7 +32,9 @@ def main():
 
     # Load GPT-OSS
     print("\nLoading GPT-OSS 20B (may take a minute)...")
-    model, tokenizer = load("lmstudio-community/gpt-oss-20b-MLX-8bit")
+    # Use local cached model path
+    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model, tokenizer = load(str(model_path))
 
     # Check architecture detection
     arch = detect_moe_architecture(model)

@@ -10,7 +10,11 @@ from __future__ import annotations
 import mlx.core as mx
 import mlx.nn as nn
 
-from ..components.attention import GroupedQueryAttention, MultiHeadAttention, SlidingWindowAttention
+from ..components.attention import (
+    GroupedQueryAttention,
+    MultiHeadAttention,
+    SlidingWindowAttention,
+)
 from ..components.ffn import GEGLU, MLP, SwiGLU
 from ..components.normalization import LayerNorm, RMSNorm
 from ..core.config import ModelConfig

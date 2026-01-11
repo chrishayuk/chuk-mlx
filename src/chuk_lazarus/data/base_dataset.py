@@ -63,7 +63,11 @@ class BaseDataset(ABC):
         pass
 
     def iter_batches(
-        self, batch_size: int, shuffle: bool = True, pad_token_id: int = 0, drop_last: bool = False
+        self,
+        batch_size: int,
+        shuffle: bool = True,
+        pad_token_id: int = 0,
+        drop_last: bool = False,
     ) -> Iterator[dict[str, mx.array]]:
         """
         Iterate over batches.

@@ -7,6 +7,8 @@ including predictions, evolutions, and complete analysis results.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -28,7 +30,8 @@ class LayerPredictionResult(BaseModel):
     predictions: list[TokenPrediction] = Field(description="Top-k predictions")
     entropy: float = Field(default=0.0, description="Shannon entropy of the full distribution")
     entropy_normalized: float = Field(
-        default=0.0, description="Entropy normalized by max entropy (0=certain, 1=uniform)"
+        default=0.0,
+        description="Entropy normalized by max entropy (0=certain, 1=uniform)",
     )
 
     @property
@@ -197,6 +200,66 @@ class AnalysisResult(BaseModel):
         if not self.residual_contributions:
             return None
         return max(self.residual_contributions, key=lambda c: c.ffn_norm).layer_idx
+
+    def to_display(self, top_k: int = 5) -> str:
+        """Format analysis result for display.
+
+        Args:
+            top_k: Number of top predictions to show per layer.
+
+        Returns:
+            Formatted string for terminal display.
+        """
+        lines = [
+            f"\n{'=' * 60}",
+            f"Logit Lens Analysis: {self.prompt[:50]}{'...' if len(self.prompt) > 50 else ''}",
+            f"{'=' * 60}",
+            f"\nTokens: {' '.join(self.tokens)}",
+            f"Layers: {self.num_layers} total, {len(self.captured_layers)} captured",
+        ]
+
+        # Final prediction
+        if self.final_prediction:
+            final = self.final_prediction[0]
+            lines.append(f"\nFinal prediction: '{final.token}' (p={final.probability:.4f})")
+
+        # Decision layer
+        if self.decision_layer is not None:
+            lines.append(f"Decision layer: L{self.decision_layer}")
+
+        # Layer predictions
+        lines.append(f"\n{'-' * 60}")
+        lines.append("Layer Predictions:")
+        for layer_pred in self.layer_predictions:
+            layer_str = f"L{layer_pred.layer_idx:3d}: "
+            preds = layer_pred.predictions[:top_k]
+            pred_strs = [f"'{p.token}' ({p.probability:.3f})" for p in preds]
+            layer_str += " | ".join(pred_strs)
+            if layer_pred.is_confident:
+                layer_str += " [confident]"
+            lines.append(layer_str)
+
+        # Token evolutions (if any)
+        if self.token_evolutions:
+            lines.append(f"\n{'-' * 60}")
+            lines.append("Token Evolutions:")
+            for evo in self.token_evolutions:
+                lines.append(
+                    f"  '{evo.token}': first top-1 at L{evo.first_appearance_layer or 'never'}"
+                )
+
+        return "\n".join(lines)
+
+    def save(self, path: str | Path) -> None:
+        """Save analysis result to JSON file.
+
+        Args:
+            path: Output file path.
+        """
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w") as f:
+            f.write(self.model_dump_json(indent=2))
 
     model_config = ConfigDict(frozen=True)
 

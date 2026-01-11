@@ -36,7 +36,11 @@ class TestGPT2Model:
         output = tiny_model(input_ids)
 
         # Check logits shape
-        assert output.logits.shape == (batch_size, seq_len, tiny_model.config.vocab_size)
+        assert output.logits.shape == (
+            batch_size,
+            seq_len,
+            tiny_model.config.vocab_size,
+        )
 
         # Check cache is returned
         assert output.cache is not None

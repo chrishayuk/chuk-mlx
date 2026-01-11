@@ -4,7 +4,10 @@ import os
 import transformers
 
 from chuk_lazarus.data.tokenizers.custom_tokenizer import CustomTokenizer
-from chuk_lazarus.data.tokenizers.tiktoken_wrapper import TiktokenWrapper, is_tiktoken_model
+from chuk_lazarus.data.tokenizers.tiktoken_wrapper import (
+    TiktokenWrapper,
+    is_tiktoken_model,
+)
 from chuk_lazarus.utils.huggingface import load_from_hub
 
 # Set the logger

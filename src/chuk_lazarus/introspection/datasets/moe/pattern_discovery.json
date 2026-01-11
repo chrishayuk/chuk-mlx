@@ -1,0 +1,85 @@
+{
+  "version": "1.0.0",
+  "description": "Test prompts for expert pattern discovery - organized by token/content type",
+  "categories": {
+    "num_seq": {
+      "description": "Pure number sequences",
+      "prompts": [
+        "1", "42", "127", "999", "3.14",
+        "1 2", "42 127", "100 200", "1 2 3", "10 20 30 40",
+        "1 + 2", "42 * 3", "100 - 50", "10 / 2"
+      ]
+    },
+    "word_seq": {
+      "description": "Pure word sequences",
+      "prompts": [
+        "the", "Hello", "world", "Python",
+        "the cat", "Hello world", "a b c",
+        "The quick brown fox"
+      ]
+    },
+    "mixed_seq": {
+      "description": "Mixed number and word sequences",
+      "prompts": [
+        "the 42", "hello 127", "x = 5", "y = 10",
+        "agent 007", "room 101", "chapter 1",
+        "I have 3 apples"
+      ]
+    },
+    "code_patterns": {
+      "description": "Code-like patterns",
+      "prompts": [
+        "def ", "class ", "import ", "return ",
+        "def foo():", "class Bar:", "import numpy",
+        "if x > 0:", "for i in range(", "while True:"
+      ]
+    },
+    "punctuation": {
+      "description": "Punctuation-heavy patterns",
+      "prompts": [
+        ".", ",", "!", "?", ";", ":",
+        "...", "!?", ",,,",
+        "\"Hello\"", "'world'", "(test)", "[1,2,3]"
+      ]
+    },
+    "special_tokens": {
+      "description": "Special token patterns",
+      "prompts": [
+        "<s>", "</s>", "<pad>", "<unk>",
+        "<|endoftext|>", "<|im_start|>", "<|im_end|>"
+      ]
+    },
+    "whitespace": {
+      "description": "Whitespace-sensitive patterns",
+      "prompts": [
+        " ", "  ", "   ", "\t", "\n",
+        "a b", "a  b", "a   b",
+        "hello ", " hello", " hello "
+      ]
+    },
+    "operators": {
+      "description": "Mathematical and logical operators",
+      "prompts": [
+        "+", "-", "*", "/", "=", "==",
+        "+=", "-=", "*=", "/=",
+        "&&", "||", "!", "!=", "<=", ">="
+      ]
+    },
+    "brackets": {
+      "description": "Various bracket types",
+      "prompts": [
+        "()", "[]", "{}", "<>",
+        "((()))", "[[[]]]", "{{{}}}",
+        "(a)", "[1]", "{x}", "<T>"
+      ]
+    },
+    "format_strings": {
+      "description": "Format string patterns",
+      "prompts": [
+        "%s", "%d", "%f", "%x",
+        "{}", "{0}", "{name}",
+        "f\"{x}\"", "f\"{x:.2f}\""
+      ]
+    }
+  }
+}

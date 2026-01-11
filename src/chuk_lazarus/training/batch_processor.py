@@ -56,9 +56,9 @@ class BatchProcessor:
         tokens_per_second = ntoks / batch_time if batch_time > 0 else 0
 
         return {
-            "loss": lvalue.item()
-            if hasattr(lvalue, "item")
-            else lvalue,  # Convert loss to a scalar if necessary
+            "loss": (
+                lvalue.item() if hasattr(lvalue, "item") else lvalue
+            ),  # Convert loss to a scalar if necessary
             "ntoks": ntoks,
             "batch_time": batch_time,
             "tokens_per_second": tokens_per_second,

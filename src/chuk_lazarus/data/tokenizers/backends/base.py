@@ -27,7 +27,8 @@ class TokenizationResult(BaseModel):
     token_ids: list[int] = Field(description="Token IDs")
     tokens: list[str] = Field(default_factory=list, description="Token strings (optional)")
     offsets: list[tuple[int, int]] = Field(
-        default_factory=list, description="Character offsets (start, end) for each token"
+        default_factory=list,
+        description="Character offsets (start, end) for each token",
     )
 
 

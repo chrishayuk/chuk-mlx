@@ -1,0 +1,44 @@
+"""Handler functions for MoE expert CLI actions.
+
+Each handler is a thin wrapper that:
+1. Validates arguments
+2. Calls the framework layer (ExpertRouter)
+3. Formats and prints output
+
+No business logic should be in handlers - only argument validation,
+framework calls, and output formatting.
+"""
+
+from .ablate import handle_ablate
+from .analyze import handle_analyze
+from .attention_pattern import handle_attention_pattern
+from .attention_routing import handle_attention_routing
+from .chat import handle_chat
+from .compare import handle_compare
+from .context_test import handle_context_test
+from .context_window import handle_context_window
+from .domain_test import handle_domain_test
+from .explore import handle_explore
+from .full_taxonomy import handle_full_taxonomy
+from .heatmap import handle_heatmap
+from .token_routing import handle_token_routing
+from .trace import handle_trace
+from .weights import handle_weights
+
+__all__ = [
+    "handle_ablate",
+    "handle_analyze",
+    "handle_attention_pattern",
+    "handle_attention_routing",
+    "handle_chat",
+    "handle_compare",
+    "handle_context_test",
+    "handle_context_window",
+    "handle_domain_test",
+    "handle_explore",
+    "handle_full_taxonomy",
+    "handle_heatmap",
+    "handle_token_routing",
+    "handle_trace",
+    "handle_weights",
+]

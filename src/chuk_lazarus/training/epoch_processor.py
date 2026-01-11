@@ -6,7 +6,10 @@ import time
 import mlx.core as mx
 from tqdm import tqdm
 
-from chuk_lazarus.training.epoch_processor_utils import calculate_epoch_metrics, update_progress_bar
+from chuk_lazarus.training.epoch_processor_utils import (
+    calculate_epoch_metrics,
+    update_progress_bar,
+)
 from chuk_lazarus.utils.memory import log_memory_usage
 
 logger = logging.getLogger(__name__)
@@ -91,7 +94,10 @@ class EpochProcessor:
                     # Update the progress bar
                     overhead_start = time.time()
                     update_progress_bar(
-                        batch_progress, batch_index, batch_metrics, self.progress_interval
+                        batch_progress,
+                        batch_index,
+                        batch_metrics,
+                        self.progress_interval,
                     )
 
                     # Check if we need to checkpoint

@@ -53,6 +53,22 @@ from .directions import (
     extract_all_directions,
     extract_direction,
 )
+from .export import (
+    CircuitEdge,
+    CircuitGraph,
+    CircuitNode,
+    EdgeType,
+    NodeType,
+    create_circuit_from_ablation,
+    create_circuit_from_directions,
+    export_circuit_to_dot,
+    export_circuit_to_html,
+    export_circuit_to_json,
+    export_circuit_to_mermaid,
+    load_circuit,
+    load_circuit_from_json,
+    save_circuit,
+)
 from .probes import (
     ProbeBattery,
     ProbeDataset,
@@ -65,6 +81,23 @@ from .probes import (
     create_suppression_probe,
     create_tool_decision_probe,
     get_default_probe_datasets,
+)
+from .service import (
+    CircuitCaptureConfig,
+    CircuitCaptureResult,
+    CircuitCompareConfig,
+    CircuitCompareResult,
+    CircuitDecodeConfig,
+    CircuitDecodeResult,
+    CircuitExportConfig,
+    CircuitExportResult,
+    CircuitInvokeConfig,
+    CircuitInvokeResult,
+    CircuitService,
+    CircuitTestConfig,
+    CircuitTestResult,
+    CircuitViewConfig,
+    CircuitViewResult,
 )
 
 # Optional geometry imports (may require additional dependencies)
@@ -112,6 +145,21 @@ __all__ = [
     "DirectionMethod",
     "extract_direction",
     "extract_all_directions",
+    # Export
+    "CircuitGraph",
+    "CircuitNode",
+    "CircuitEdge",
+    "NodeType",
+    "EdgeType",
+    "create_circuit_from_ablation",
+    "create_circuit_from_directions",
+    "export_circuit_to_dot",
+    "export_circuit_to_json",
+    "export_circuit_to_mermaid",
+    "export_circuit_to_html",
+    "save_circuit",
+    "load_circuit",
+    "load_circuit_from_json",
     # Probes
     "ProbeBattery",
     "ProbeDataset",
@@ -123,6 +171,22 @@ __all__ = [
     "create_tool_decision_probe",
     "create_suppression_probe",
     "get_default_probe_datasets",
+    # Service
+    "CircuitService",
+    "CircuitCaptureConfig",
+    "CircuitCaptureResult",
+    "CircuitInvokeConfig",
+    "CircuitInvokeResult",
+    "CircuitTestConfig",
+    "CircuitTestResult",
+    "CircuitViewConfig",
+    "CircuitViewResult",
+    "CircuitCompareConfig",
+    "CircuitCompareResult",
+    "CircuitDecodeConfig",
+    "CircuitDecodeResult",
+    "CircuitExportConfig",
+    "CircuitExportResult",
 ]
 
 # Add geometry exports if available

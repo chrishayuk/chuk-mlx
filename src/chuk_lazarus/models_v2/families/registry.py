@@ -46,6 +46,7 @@ class ModelFamilyType(str, Enum):
     GPT_NEO = "gpt_neo"
     GPT_NEOX = "gpt_neox"
     GPT_OSS = "gpt_oss"
+    OLMOE = "olmoe"
 
 
 # Model type patterns for auto-detection from config.json
@@ -67,6 +68,7 @@ MODEL_TYPE_PATTERNS = {
     "gpt-neo": ModelFamilyType.GPT_NEO,
     "gpt-neox": ModelFamilyType.GPT_NEOX,
     "gpt_oss": ModelFamilyType.GPT_OSS,
+    "olmoe": ModelFamilyType.OLMOE,
     # Gemma variants
     "gemma": ModelFamilyType.GEMMA,
     "gemma2": ModelFamilyType.GEMMA,
@@ -103,6 +105,7 @@ ARCHITECTURE_PATTERNS = {
     "GPTNeoForCausalLM": ModelFamilyType.GPT_NEO,
     "GPTNeoXForCausalLM": ModelFamilyType.GPT_NEOX,
     "GptOssForCausalLM": ModelFamilyType.GPT_OSS,
+    "OlmoeForCausalLM": ModelFamilyType.OLMOE,
 }
 
 
@@ -203,7 +206,19 @@ class ModelFamilyRegistry:
     def _register_builtin_families(self) -> None:
         """Register all built-in model families."""
         # Import families lazily to avoid circular imports
-        from . import gemma, gpt2, gpt_oss, granite, jamba, llama, llama4, mamba, qwen3, starcoder2
+        from . import (
+            gemma,
+            gpt2,
+            gpt_oss,
+            granite,
+            jamba,
+            llama,
+            llama4,
+            mamba,
+            olmoe,
+            qwen3,
+            starcoder2,
+        )
 
         # Llama family
         self.register(
@@ -338,6 +353,17 @@ class ModelFamilyRegistry:
                 model_class=gpt_oss.GptOssForCausalLM,
                 model_types=[HFModelType.GPT_OSS.value],
                 architectures=["GptOssForCausalLM"],
+            )
+        )
+
+        # OLMoE family (Allen AI's open MoE)
+        self.register(
+            FamilyInfo(
+                family_type=ModelFamilyType.OLMOE,
+                config_class=olmoe.OLMoEConfig,
+                model_class=olmoe.OLMoEForCausalLM,
+                model_types=["olmoe"],
+                architectures=["OlmoeForCausalLM"],
             )
         )
 

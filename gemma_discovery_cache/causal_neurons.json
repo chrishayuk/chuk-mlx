@@ -1,0 +1,51 @@
+{
+  "classification": {
+    "baseline": {
+      "20": 1.0,
+      "24": 1.0,
+      "28": 1.0
+    },
+    "ablate_19": {
+      "20": 1.0,
+      "24": 1.0,
+      "28": 1.0
+    },
+    "ablate_1698": {
+      "20": 1.0,
+      "24": 1.0,
+      "28": 1.0
+    },
+    "ablate_2309": {
+      "20": 1.0,
+      "24": 1.0,
+      "28": 1.0
+    },
+    "ablate_all_negative": {
+      "20": 1.0,
+      "24": 1.0,
+      "28": 1.0
+    },
+    "ablate_all_identified": {
+      "20": 1.0,
+      "24": 1.0,
+      "28": 1.0
+    },
+    "ablate_random_5": {
+      "20": 1.0,
+      "24": 1.0,
+      "28": 1.0
+    }
+  },
+  "generation": {
+    "baseline": 1.0,
+    "ablate_19": 1.0,
+    "ablate_1698": 1.0,
+    "ablate_2309": 1.0,
+    "ablate_all_identified": 1.0,
+    "ablate_random_5": 1.0
+  },
+  "patterns": {},
+  "gpt_oss_comparison": {
+    "comparison": "\nGPT-OSS-20B Compute Neurons (from prior research):\n- Located in middle layers (~L12-L19)\n- A-encoders: Respond to first operand\n- B-encoders: Respond to second operand\n- Product neurons: Respond to specific products\n\nGemma-3-4B Identified Neurons:\n- Neuron 19: Active at L20, L24, L28 - ARITHMETIC NEGATIVE\n- Neuron 1698: Active at L20, L24, L28 - ARITHMETIC POSITIVE\n- Neuron 2309: Active at L20, L24, L28 - ARITHMETIC NEGATIVE\n\nArchitectural Comparison:\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                    GPT-OSS-20B                                  \u2502\n\u2502  L0-L3: Encoding                                                \u2502\n\u2502  L4-L18: A/B encoders + retrieval                               \u2502\n\u2502  L19: Arithmetic Hub (crystallization)                          \u2502\n\u2502  L20-L23: Output (L22-23 dispensable)                           \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502                    Gemma-3-4B                                   \u2502\n\u2502  L0-L3: Encoding                                                \u2502\n\u2502  L4-L16: Retrieval (answer encoded)                             \u2502\n\u2502  L17-L22: Computation (L21 critical)                            \u2502\n\u2502  L20,L24,L28: Classification neurons active                     \u2502\n\u2502  L29-L33: Dispensable                                           \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\nKey Differences:\n1. GPT-OSS has distinct A/B encoder neurons\n2. Gemma classification neurons are in LATER layers (L20+)\n3. Both have ~15% dispensable late layers\n4. Both use lookup tables, not algorithms\n\nHypothesis:\n- GPT-OSS: Operand-specific neurons in middle layers\n- Gemma: Task-classification neurons in late layers\n- Different implementation, same 6-phase structure\n"
+  }
+}

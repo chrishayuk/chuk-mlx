@@ -61,7 +61,14 @@ def extract_log_probs(
         logits: Shape (batch, seq_len-1, vocab_size) - raw logits
     """
     # Forward pass (no cache for training)
-    logits, _ = model(input_ids, cache=None)
+    output = model(input_ids, cache=None)
+    # Handle both tuple and ModelOutput returns
+    if hasattr(output, "logits"):
+        logits = output.logits
+    elif isinstance(output, tuple):
+        logits = output[0]
+    else:
+        logits = output
 
     # Shift: logits[t] predicts token[t+1]
     # So we compare logits[:-1] with input_ids[1:]

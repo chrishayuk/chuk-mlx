@@ -1,15 +1,19 @@
 """
 Model loading utilities for the analyzer.
 
-This module handles loading models from HuggingFace and detecting
-model properties like quantization and architecture family.
+This module provides backwards-compatible wrappers around the centralized
+model loader in models_v2.loader.
+
+All new code should use:
+    from chuk_lazarus.models_v2 import load_model, load_model_tuple
 """
 
 from __future__ import annotations
 
-import json
 import math
 from typing import Any
+
+from ...models_v2.loader import load_model_tuple as _central_load
 
 
 def _is_quantized_model(config_data: dict, model_id: str) -> bool:
@@ -26,56 +30,37 @@ def _is_quantized_model(config_data: dict, model_id: str) -> bool:
 
 def _load_model_sync(
     model_id: str,
+    adapter_path: str | None = None,
 ) -> tuple[Any, Any, Any]:
     """
-    Load model synchronously using the models_v2 registry.
+    Load model synchronously.
+
+    This is a thin wrapper around the centralized loader in models_v2.
 
     Args:
         model_id: HuggingFace model ID or local path
+        adapter_path: Optional path to LoRA adapter weights
 
     Returns:
         Tuple of (model, tokenizer, config)
+
+    Note:
+        New code should use:
+            from chuk_lazarus.models_v2 import load_model_tuple
+            model, tokenizer, config = load_model_tuple(model_id, adapter_path=adapter_path)
     """
-    from ...inference.loader import DType, HFLoader
-    from ...models_v2.families.registry import detect_model_family, get_family_info
+    from pathlib import Path
 
-    # Download/locate model
-    result = HFLoader.download(model_id)
-    model_path = result.model_path
-
-    # Load config
-    config_path = model_path / "config.json"
-    with open(config_path) as f:
-        config_data = json.load(f)
-
-    # Detect family and load appropriately
-    family_type = detect_model_family(config_data)
-
-    if family_type is None:
-        raise ValueError(
-            f"Unsupported model family for model_type={config_data.get('model_type')}. "
-            f"Supported: gemma, llama, mistral, qwen3, granite, jamba, etc."
-        )
-
-    family_info = get_family_info(family_type)
-    config_class = family_info.config_class
-    model_class = family_info.model_class
-
-    # Create config and model
-    config = config_class.from_hf_config(config_data)
-    model = model_class(config)
-
-    # Load weights
-    HFLoader.apply_weights_to_model(model, model_path, config, dtype=DType.BFLOAT16)
-
-    # Load tokenizer
-    tokenizer = HFLoader.load_tokenizer(model_path)
+    adapter = Path(adapter_path) if adapter_path else None
+    model, tokenizer, config = _central_load(model_id, adapter_path=adapter)
 
     # For Gemma models, attach embedding scale for logit lens
-    if "gemma" in config_data.get("model_type", "").lower():
-        hidden_size = config_data.get("hidden_size", 2048)
-        embedding_scale = math.sqrt(hidden_size)
-        model._embedding_scale_for_hooks = embedding_scale
+    if config is not None:
+        model_type = getattr(config, "model_type", "")
+        if "gemma" in str(model_type).lower():
+            hidden_size = getattr(config, "hidden_size", 2048)
+            embedding_scale = math.sqrt(hidden_size)
+            model._embedding_scale_for_hooks = embedding_scale
 
     return model, tokenizer, config
 

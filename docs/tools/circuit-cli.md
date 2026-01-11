@@ -370,6 +370,50 @@ Use the main CLI for:
 - Activation steering experiments
 - Ablation studies
 
+---
+
+### `circuit export`
+
+Export circuit graphs to various visualization formats.
+
+```bash
+circuit export -i INPUT -o OUTPUT [OPTIONS]
+```
+
+**Required:**
+- `-i, --input FILE` - Input file (ablation results or directions JSON)
+- `-o, --output FILE` - Output file path
+
+**Options:**
+- `-f, --format FORMAT` - Output format: `json`, `dot`, `mermaid`, `html` (default: `json`)
+- `--type TYPE` - Input type: `ablation`, `directions` (default: `ablation`)
+- `--name NAME` - Circuit name (default: derived from input file)
+- `--threshold FLOAT` - Minimum effect threshold for ablation circuits (default: 0.1)
+- `--direction DIR` - Graph direction: `TB`, `LR`, `BT`, `RL` (default: `TB`)
+
+**Examples:**
+```bash
+# Export ablation results to DOT (Graphviz)
+lazarus introspect circuit export -i ablation_results.json -o circuit.dot -f dot
+
+# Export to interactive HTML visualization
+lazarus introspect circuit export -i ablation_results.json -o circuit.html -f html
+
+# Export directions to Mermaid diagram
+lazarus introspect circuit export -i directions.json -o circuit.md -f mermaid --type directions
+
+# Export with left-to-right layout
+lazarus introspect circuit export -i ablation.json -o circuit.dot -f dot --direction LR
+```
+
+**Output formats:**
+- **JSON**: Machine-readable graph structure with nodes, edges, and metadata
+- **DOT**: Graphviz format - render with `dot -Tpng circuit.dot -o circuit.png`
+- **Mermaid**: Markdown-compatible diagrams for documentation
+- **HTML**: Interactive visualization using vis.js (open in browser)
+
+---
+
 ## See Also
 
 - [introspection.md](../introspection.md) - Main introspection documentation

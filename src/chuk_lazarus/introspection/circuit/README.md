@@ -11,6 +11,7 @@ This module provides tools for:
 4. **Direction extraction** - Find interpretable directions (diff-of-means, LDA)
 5. **Probe battery** - Linear probes for computational stratigraphy
 6. **Visualization** - Charts and plots for analysis
+7. **Circuit export** - Export circuit graphs to DOT, JSON, Mermaid, HTML formats
 
 ## CLI Usage
 
@@ -297,3 +298,62 @@ Vectors in activation space that correspond to behaviors:
 These can be used for:
 - Understanding what the model represents
 - Steering behavior via activation addition
+
+## Circuit Export
+
+Export ablation results or extracted directions as circuit graphs for visualization and documentation.
+
+### CLI
+
+```bash
+# Export ablation results to interactive HTML
+lazarus introspect circuit export -i ablation_results.json -o circuit.html -f html
+
+# Export to DOT (Graphviz)
+lazarus introspect circuit export -i ablation_results.json -o circuit.dot -f dot
+# Render: dot -Tpng circuit.dot -o circuit.png
+
+# Export to Mermaid (for markdown/GitHub)
+lazarus introspect circuit export -i ablation_results.json -o circuit.md -f mermaid
+
+# Export directions instead of ablation
+lazarus introspect circuit export -i directions.json -o circuit.json -f json --type directions
+```
+
+### Python API
+
+```python
+from chuk_lazarus.introspection.circuit.export import (
+    create_circuit_from_ablation,
+    create_circuit_from_directions,
+    export_circuit_to_dot,
+    export_circuit_to_mermaid,
+    export_circuit_to_html,
+    save_circuit,
+)
+
+# Create circuit from ablation results
+ablation_results = [
+    {"layer": 5, "component": "mlp", "effect": 0.25},
+    {"layer": 10, "component": "attn", "effect": -0.15},
+]
+circuit = create_circuit_from_ablation(ablation_results, name="my_circuit")
+
+# Export to various formats
+dot_content = export_circuit_to_dot(circuit, rankdir="TB")
+mermaid_content = export_circuit_to_mermaid(circuit)
+html_content = export_circuit_to_html(circuit)
+
+# Save directly
+save_circuit(circuit, "circuit.json", format="json")
+save_circuit(circuit, "circuit.html", format="html")
+```
+
+### Output Formats
+
+| Format | Description | Use Case |
+|--------|-------------|----------|
+| **JSON** | Machine-readable graph structure | Programmatic processing, storage |
+| **DOT** | Graphviz format | High-quality static images (PNG, SVG, PDF) |
+| **Mermaid** | Markdown diagrams | Documentation, GitHub READMEs |
+| **HTML** | Interactive vis.js visualization | Exploration, presentations |

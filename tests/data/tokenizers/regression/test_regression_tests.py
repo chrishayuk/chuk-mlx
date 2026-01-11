@@ -488,8 +488,18 @@ class TestCreateTestSuite:
 
     def test_multiple_tests(self):
         tests = [
-            {"name": "test1", "text": "hello", "assertion": "max_tokens", "expected": 5},
-            {"name": "test2", "text": "world", "assertion": "exact_tokens", "expected": 1},
+            {
+                "name": "test1",
+                "text": "hello",
+                "assertion": "max_tokens",
+                "expected": 5,
+            },
+            {
+                "name": "test2",
+                "text": "world",
+                "assertion": "exact_tokens",
+                "expected": 1,
+            },
         ]
         suite = create_test_suite("MySuite", tests)
         assert len(suite.tests) == 2
