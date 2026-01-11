@@ -1,9 +1,5 @@
 """Tests for classifier service."""
 
-from unittest.mock import MagicMock, patch
-
-import pytest
-
 
 class TestClassifierService:
     """Tests for classifier service."""

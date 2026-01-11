@@ -1,7 +1,5 @@
 """Tests for RNN expert base module."""
 
-import pytest
-
 from chuk_lazarus.experts.rnn_expert_base import ExpertConfig
 
 

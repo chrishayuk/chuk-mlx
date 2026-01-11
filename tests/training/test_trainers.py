@@ -1,9 +1,5 @@
 """Tests for trainers."""
 
-from unittest.mock import MagicMock, patch
-
-import pytest
-
 
 class TestSFTTrainer:
     """Tests for SFTTrainer."""

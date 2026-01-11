@@ -1,7 +1,5 @@
 """Tests for introspection hooks."""
 
-import pytest
-
 from chuk_lazarus.introspection.hooks import (
     CaptureConfig,
     CapturedState,

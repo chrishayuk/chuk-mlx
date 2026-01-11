@@ -4,8 +4,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from chuk_lazarus.training.epoch_processor import EpochProcessor
 
 
@@ -37,7 +35,7 @@ class TestEpochProcessor:
         with tempfile.TemporaryDirectory() as tmpdir:
             checkpoint_path = Path(tmpdir) / "new_checkpoints"
 
-            processor = EpochProcessor(
+            _processor = EpochProcessor(
                 model=MagicMock(),
                 tokenizer=MagicMock(),
                 optimizer=MagicMock(),

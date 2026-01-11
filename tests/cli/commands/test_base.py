@@ -4,8 +4,6 @@ from argparse import Namespace
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from pydantic import Field
-
 from chuk_lazarus.cli.commands._base import (
     CommandConfig,
     CommandResult,
@@ -55,12 +53,12 @@ class TestCommandConfig:
 
     def test_config_frozen(self):
         """Test that config is frozen."""
+        import pytest
+        from pydantic import ValidationError
+
         config = ConcreteConfig(name="test", value=1)
-        try:
+        with pytest.raises(ValidationError):
             config.name = "changed"
-            assert False, "Should have raised"
-        except Exception:
-            pass  # Expected
 
 
 class TestCommandResult:
@@ -75,12 +73,12 @@ class TestCommandResult:
 
     def test_result_frozen(self):
         """Test that result is frozen."""
+        import pytest
+        from pydantic import ValidationError
+
         result = ConcreteResult(success=True, message="Test")
-        try:
+        with pytest.raises(ValidationError):
             result.success = False
-            assert False, "Should have raised"
-        except Exception:
-            pass  # Expected
 
 
 class TestOutputMixin:

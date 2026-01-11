@@ -2,8 +2,6 @@
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from chuk_lazarus.training.schedulers import (
     SchedulerType,
     schedule_learning_rate,
@@ -133,7 +131,7 @@ class TestScheduleLearningRate:
             decay_steps=1000,
         )
 
-        expected = 1e-4 * (0.96 ** 1)
+        expected = 1e-4 * (0.96**1)
         assert abs(lr - expected) < 1e-10
 
     def test_cosine_annealing(self):

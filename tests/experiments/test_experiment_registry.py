@@ -3,13 +3,11 @@
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from chuk_lazarus.experiments.registry import (
     ExperimentInfo,
     get_experiments_dir,
-    validate_experiment,
     list_experiments,
+    validate_experiment,
 )
 
 

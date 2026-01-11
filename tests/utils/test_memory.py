@@ -1,7 +1,5 @@
 """Tests for memory utilities."""
 
-from unittest.mock import MagicMock, patch
-
 
 class TestMemoryUtils:
     """Tests for memory utilities."""

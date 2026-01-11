@@ -51,7 +51,10 @@ class TestPiecewiseScheduler:
 
     def test_single_scheduler(self):
         """Test piecewise with single scheduler."""
-        sched1 = lambda x: 1.0 - x * 0.1
+
+        def sched1(x):
+            return 1.0 - x * 0.1
+
         schedule = piecewise_scheduler([sched1], [])
 
         assert schedule(0) == 1.0
@@ -59,8 +62,13 @@ class TestPiecewiseScheduler:
 
     def test_two_schedulers(self):
         """Test piecewise with two schedulers."""
-        sched1 = lambda x: 1.0  # constant 1.0
-        sched2 = lambda x: 0.5  # constant 0.5
+
+        def sched1(x):
+            return 1.0  # constant 1.0
+
+        def sched2(x):
+            return 0.5  # constant 0.5
+
         schedule = piecewise_scheduler([sched1, sched2], [10])
 
         # Before milestone 10, use sched1

@@ -1,9 +1,5 @@
 """Tests for GRU expert."""
 
-from unittest.mock import MagicMock, patch
-
-import pytest
-
 import mlx.core as mx
 
 from chuk_lazarus.experts.gru_expert import (

@@ -1,18 +1,18 @@
 """Tests for expert registry."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from chuk_lazarus.experts.registry import (
+    _EXPERT_CLASSES,
+    _EXPERT_INSTANCES,
     ExpertRegistry,
     create_expert,
     get_expert,
     list_experts,
     register_expert,
     register_expert_class,
-    _EXPERT_CLASSES,
-    _EXPERT_INSTANCES,
 )
 from chuk_lazarus.experts.rnn_expert_base import ExpertConfig
 

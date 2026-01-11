@@ -1,9 +1,5 @@
 """Tests for training losses."""
 
-import pytest
-
-import mlx.core as mx
-
 
 class TestDualRewardLoss:
     """Tests for dual reward loss."""
@@ -12,8 +8,8 @@ class TestDualRewardLoss:
         """Test dual reward loss can be imported."""
         from chuk_lazarus.training.losses.dual_reward_loss import (
             DualRewardLossConfig,
-            dual_reward_loss,
             classification_only_loss,
+            dual_reward_loss,
         )
 
         assert dual_reward_loss is not None
