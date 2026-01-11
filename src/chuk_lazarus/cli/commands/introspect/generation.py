@@ -27,9 +27,12 @@ async def introspect_generate(args: Namespace) -> None:
     """
     from ....introspection.generation import GenerationConfig, GenerationService
 
+    # Get prompt - CLI may use --prompts or --prompt
+    prompt = getattr(args, "prompts", None) or getattr(args, "prompt", "")
+
     config = GenerationConfig(
         model=args.model,
-        prompt=args.prompt,
+        prompt=prompt,
         max_tokens=getattr(args, "max_tokens", AnalysisDefaults.GEN_TOKENS),
         temperature=getattr(args, "temperature", 0.0),
         top_k=getattr(args, "top_k", AnalysisDefaults.TOP_K),

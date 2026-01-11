@@ -155,13 +155,21 @@ class HFLoader:
         """Download model from HuggingFace Hub synchronously.
 
         Args:
-            model_id: HuggingFace model ID
+            model_id: HuggingFace model ID or local path
             cache_dir: Optional cache directory
             prefer_sharded: Prefer sharded over consolidated safetensors
 
         Returns:
             DownloadResult with path and metadata
         """
+        # Check if it's a local path
+        local_path = Path(model_id)
+        if local_path.exists() and local_path.is_dir():
+            return DownloadResult(
+                model_path=local_path,
+                model_id=model_id,
+            )
+
         try:
             from huggingface_hub import list_repo_files, snapshot_download
         except ImportError as err:

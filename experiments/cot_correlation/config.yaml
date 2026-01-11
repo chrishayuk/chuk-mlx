@@ -1,0 +1,90 @@
+# CoT Correlation Experiment
+# Tests: Does L13 vocabulary signal predict CoT generation?
+name: cot_correlation
+description: "Correlate L13 vocab alignment with CoT generation strategy"
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+parameters:
+  seed: 42
+
+  # Layers to measure vocab alignment
+  measure_layers: [6, 9, 12, 13, 15, 18, 21]  # 25%, 38%, 50%, 54%, 63%, 75%, 88%
+
+  # Task tokens to check
+  task_tokens:
+    multiply: ["multiply", "multiplication", "times", "*"]
+    add: ["add", "addition", "plus", "sum", "+"]
+    subtract: ["subtract", "subtraction", "minus", "-"]
+
+  # CoT indicators in output
+  cot_indicators:
+    - "let me"
+    - "i need to"
+    - "first"
+    - "step"
+    - "calculate"
+    - "multiply"
+    - "add"
+    - "subtract"
+
+  # Generation settings
+  max_tokens: 50
+  temperature: 0.0  # Deterministic for reproducibility
+
+test_prompts:
+  # Direct format - may get direct answer
+  - input: "7 * 8 = "
+    task: multiply
+    expected: "56"
+    format: direct
+  - input: "23 + 45 = "
+    task: add
+    expected: "68"
+    format: direct
+  - input: "89 - 34 = "
+    task: subtract
+    expected: "55"
+    format: direct
+
+  # Question format - may get CoT
+  - input: "What is 7 times 8?"
+    task: multiply
+    expected: "56"
+    format: question
+  - input: "What is 23 plus 45?"
+    task: add
+    expected: "68"
+    format: question
+  - input: "What is 89 minus 34?"
+    task: subtract
+    expected: "55"
+    format: question
+
+  # Instruction format - likely CoT
+  - input: "Calculate 7 * 8"
+    task: multiply
+    expected: "56"
+    format: instruction
+  - input: "Calculate 23 + 45"
+    task: add
+    expected: "68"
+    format: instruction
+  - input: "Calculate 89 - 34"
+    task: subtract
+    expected: "55"
+    format: instruction
+
+  # Imperative format
+  - input: "Multiply 7 by 8"
+    task: multiply
+    expected: "56"
+    format: imperative
+  - input: "Add 23 and 45"
+    task: add
+    expected: "68"
+    format: imperative
+  - input: "Subtract 34 from 89"
+    task: subtract
+    expected: "55"
+    format: imperative

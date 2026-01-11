@@ -1,10 +1,104 @@
 """Tests for inference run command."""
 
+import asyncio
 from argparse import Namespace
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from chuk_lazarus.cli.commands.infer._types import InferenceConfig
+from chuk_lazarus.cli.commands.infer.run import run_inference_cmd
+
+
+class TestRunInferenceCmd:
+    """Tests for run_inference_cmd handler."""
+
+    @pytest.fixture
+    def basic_args(self):
+        """Create basic inference arguments."""
+        return Namespace(
+            model="test-model",
+            adapter=None,
+            prompt="What is 2+2?",
+            prompt_file=None,
+            max_tokens=256,
+            temperature=0.7,
+        )
+
+    def test_run_inference_cmd_basic(self, basic_args, capsys):
+        """Test basic inference command execution."""
+        mock_result = MagicMock()
+        mock_result.to_display.return_value = "The answer is 4."
+
+        mock_service = MagicMock()
+        mock_service.run = AsyncMock(return_value=mock_result)
+
+        with patch.dict(
+            "sys.modules",
+            {"chuk_lazarus.inference": MagicMock(InferenceService=mock_service)},
+        ):
+            asyncio.run(run_inference_cmd(basic_args))
+
+            # Verify service was called
+            mock_service.run.assert_called_once()
+
+            # Verify the config was passed correctly
+            call_args = mock_service.run.call_args[0]
+            config = call_args[0]
+            assert config.model == "test-model"
+            assert config.prompt == "What is 2+2?"
+
+        captured = capsys.readouterr()
+        assert "The answer is 4." in captured.out
+
+    def test_run_inference_cmd_with_adapter(self, capsys):
+        """Test inference with adapter path."""
+        args = Namespace(
+            model="test-model",
+            adapter="/path/to/adapter",
+            prompt="Test prompt",
+            prompt_file=None,
+            max_tokens=128,
+            temperature=0.5,
+        )
+
+        mock_result = MagicMock()
+        mock_result.to_display.return_value = "Response with adapter"
+
+        mock_service = MagicMock()
+        mock_service.run = AsyncMock(return_value=mock_result)
+
+        with patch.dict(
+            "sys.modules",
+            {"chuk_lazarus.inference": MagicMock(InferenceService=mock_service)},
+        ):
+            asyncio.run(run_inference_cmd(args))
+
+            call_args = mock_service.run.call_args[0]
+            config = call_args[0]
+            assert config.adapter == "/path/to/adapter"
+
+        captured = capsys.readouterr()
+        assert "Response with adapter" in captured.out
+
+    def test_run_inference_cmd_multiline_output(self, basic_args, capsys):
+        """Test inference with multiline output."""
+        mock_result = MagicMock()
+        mock_result.to_display.return_value = "Line 1\nLine 2\nLine 3"
+
+        mock_service = MagicMock()
+        mock_service.run = AsyncMock(return_value=mock_result)
+
+        with patch.dict(
+            "sys.modules",
+            {"chuk_lazarus.inference": MagicMock(InferenceService=mock_service)},
+        ):
+            asyncio.run(run_inference_cmd(basic_args))
+
+        captured = capsys.readouterr()
+        assert "Line 1" in captured.out
+        assert "Line 2" in captured.out
+        assert "Line 3" in captured.out
 
 
 class TestInferenceConfig:

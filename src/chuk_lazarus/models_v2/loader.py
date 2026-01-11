@@ -436,6 +436,8 @@ def save_adapter(
     output_path: Path | str,
     *,
     lora_config: LoRAConfig | None = None,
+    num_layers: int | None = None,
+    model_name: str | None = None,
 ) -> None:
     """
     Save LoRA adapter weights in standard format.
@@ -448,6 +450,8 @@ def save_adapter(
         lora_layers: LoRA layers from load_model_with_lora or apply_lora
         output_path: Directory to save adapter
         lora_config: Optional config to save (for reproducibility)
+        num_layers: Number of transformer layers (for mlx-lm compatibility)
+        model_name: Original model name/path (for mlx-lm compatibility)
     """
     output_path = Path(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -465,13 +469,23 @@ def save_adapter(
 
     # Save config
     if lora_config is not None:
+        # Calculate scale for mlx-lm compatibility
+        scale = lora_config.alpha / lora_config.rank if lora_config.rank > 0 else 1.0
+
         config_data = {
             "lora_parameters": {
                 "rank": lora_config.rank,
                 "alpha": lora_config.alpha,
-                "target_modules": lora_config.target_modules,
+                "scale": scale,  # Required by mlx-lm
+                "dropout": getattr(lora_config, 'dropout', 0.0),
             }
         }
+        # Add mlx-lm compatibility fields
+        if num_layers is not None:
+            config_data["num_layers"] = num_layers
+        if model_name is not None:
+            config_data["model"] = model_name
+
         config_path = output_path / "adapter_config.json"
         with open(config_path, "w") as f:
             json.dump(config_data, f, indent=2)

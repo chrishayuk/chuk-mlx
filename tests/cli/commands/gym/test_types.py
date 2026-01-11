@@ -108,6 +108,22 @@ class TestGymRunResult:
         assert "100" in display
         assert "80.0%" in display
 
+    def test_to_display_with_output_path(self):
+        """Test display formatting with output path."""
+        result = GymRunResult(
+            total_samples=100,
+            total_episodes=10,
+            buffer_size=100,
+            success_rate=0.8,
+            mean_difficulty=0.5,
+            mean_reward=0.9,
+            output_path=Path("/path/to/output.json"),
+        )
+        display = result.to_display()
+        assert "Gym Run Summary" in display
+        assert "Output" in display
+        assert "/path/to/output.json" in display
+
 
 class TestBenchmarkResult:
     """Tests for BenchmarkResult."""

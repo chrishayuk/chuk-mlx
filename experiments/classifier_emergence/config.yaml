@@ -1,0 +1,181 @@
+# Classifier Emergence Experiment
+# Compares classifier emergence across different training methods: SFT, GRPO, Dual-Reward
+name: classifier_emergence
+description: "Task classifier emergence comparison - SFT vs GRPO vs Dual-Reward"
+
+# Model configuration
+model: meta-llama/Llama-3.2-1B
+
+# Training configuration
+training:
+  max_steps: 1000
+  batch_size: 4
+  learning_rate: 0.0002
+  log_interval: 50
+  eval_interval: 200
+
+  # Checkpoints to analyze during training
+  checkpoint_steps:
+    - 200
+    - 500
+    - 1000
+
+  # Training methods to compare
+  # Each method produces a separate checkpoint and results
+  # use_lora: true = LoRA adapter training, false = full fine-tuning
+  training_methods:
+    # ============================================================
+    # SFT (Supervised Fine-Tuning)
+    # ============================================================
+
+    # SFT with LoRA adapters
+    sft_lora:
+      enabled: true
+      method: sft
+      use_lora: true
+      learning_rate: 0.0002
+      batch_size: 4
+      max_steps: 500
+      lora:
+        rank: 16
+        alpha: 32.0
+        targets: [q_proj, k_proj, v_proj, o_proj]
+
+    # SFT with full fine-tuning (no LoRA)
+    sft_full:
+      enabled: false  # Requires more VRAM
+      method: sft
+      use_lora: false
+      learning_rate: 0.00005  # Lower LR for full fine-tuning
+      batch_size: 2
+      max_steps: 500
+
+    # ============================================================
+    # Dual-Reward (Classification + Generation Loss)
+    # ============================================================
+
+    # Dual-reward with LoRA on V/O projections only
+    dual_reward_lora:
+      enabled: true
+      method: dual_reward
+      use_lora: true
+      learning_rate: 0.0005
+      max_steps: 500
+      classifier_weight: 0.7
+      classifier_layer_pct: 0.55
+      lora:
+        rank: 32
+        alpha: 64.0
+        targets: [v_proj, o_proj]
+      classifier_targets:
+        multiply: "multiply"
+        add: "add"
+        subtract: "subtract"
+
+    # Dual-reward with full fine-tuning
+    dual_reward_full:
+      enabled: false  # Requires more VRAM
+      method: dual_reward
+      use_lora: false
+      learning_rate: 0.0001
+      max_steps: 500
+      classifier_weight: 0.7
+      classifier_layer_pct: 0.55
+      classifier_targets:
+        multiply: "multiply"
+        add: "add"
+        subtract: "subtract"
+
+    # ============================================================
+    # GRPO (Group Relative Policy Optimization)
+    # ============================================================
+
+    # GRPO with LoRA adapters
+    grpo_lora:
+      enabled: false  # Disabled - takes too long for quick comparison
+      method: grpo
+      use_lora: true
+      learning_rate: 0.00001
+      num_iterations: 200
+      group_size: 4
+      lora:
+        rank: 16
+        alpha: 32.0
+        targets: [q_proj, k_proj, v_proj, o_proj]
+
+    # GRPO with full fine-tuning
+    grpo_full:
+      enabled: false  # Requires more VRAM + reward function
+      method: grpo
+      use_lora: false
+      learning_rate: 0.000005
+      num_iterations: 300
+      group_size: 4
+
+# Data generation parameters
+parameters:
+  # Number of arithmetic samples to generate
+  num_samples: 5000
+  seed: 42
+
+  # LoRA configuration (default, can be overridden per method)
+  lora:
+    rank: 16
+    alpha: 32.0
+    dropout: 0.0
+    targets:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+
+  # Task vocabulary for classifier detection
+  # Look for both operation words AND the numeric answer
+  task_vocabulary:
+    multiplication:
+      - multiply
+      - times
+      - product
+      - "*"
+      - "56"   # 7*8
+      - "60"   # 12*5
+      - "81"   # 9*9
+    addition:
+      - add
+      - plus
+      - sum
+      - "+"
+      - "68"   # 23+45
+      - "55"   # 17+38
+      - "82"   # 55+27
+    subtraction:
+      - subtract
+      - minus
+      - difference
+      - "-"
+      - "37"   # 65-28
+      - "57"   # 100-43
+
+  # Test prompts for evaluation
+  test_prompts:
+    multiplication:
+      - prompt: "7 * 8 = "
+        expected: "56"
+      - prompt: "12 * 5 = "
+        expected: "60"
+      - prompt: "9 * 9 = "
+        expected: "81"
+    addition:
+      - prompt: "23 + 45 = "
+        expected: "68"
+      - prompt: "17 + 38 = "
+        expected: "55"
+      - prompt: "55 + 27 = "
+        expected: "82"
+    subtraction:
+      - prompt: "89 - 34 = "
+        expected: "55"
+      - prompt: "65 - 28 = "
+        expected: "37"
+      - prompt: "100 - 43 = "
+        expected: "57"

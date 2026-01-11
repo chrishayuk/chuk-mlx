@@ -412,7 +412,13 @@ class DualRewardTrainer(BaseTrainer):
         checkpoint_path.mkdir(parents=True, exist_ok=True)
 
         # Save LoRA adapters using centralized save_adapter
-        save_adapter(self.lora_layers, checkpoint_path, lora_config=self.lora_config)
+        # Include num_layers for mlx-lm compatibility
+        save_adapter(
+            self.lora_layers,
+            checkpoint_path,
+            lora_config=self.lora_config,
+            num_layers=self.num_layers,
+        )
 
         # Save additional dual-reward config
         config_out = {

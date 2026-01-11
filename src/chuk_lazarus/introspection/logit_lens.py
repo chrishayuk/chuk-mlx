@@ -456,3 +456,170 @@ def run_logit_lens(
         result["tracked_token"] = evolution.to_dict()
 
     return result
+
+
+@dataclass
+class LogitLensConfig:
+    """Configuration for logit lens analysis."""
+
+    model: str
+    """Model identifier."""
+
+    prompt: str
+    """Prompt to analyze."""
+
+    layers: list[int] | None = None
+    """Specific layers to analyze (None = auto-select)."""
+
+    layer_step: int = 4
+    """Step size between layers when auto-selecting."""
+
+    top_k: int = 5
+    """Number of top predictions to show per layer."""
+
+    track_tokens: list[str] | None = None
+    """Tokens to specifically track through layers."""
+
+
+@dataclass
+class LogitLensResult:
+    """Results from logit lens analysis."""
+
+    prompt: str
+    """The analyzed prompt."""
+
+    layers: list[int]
+    """Layers that were analyzed."""
+
+    predictions: dict[int, list[tuple[str, float]]]
+    """Layer -> list of (token, prob) tuples."""
+
+    tracked_tokens: dict[str, TokenEvolution] | None = None
+    """Evolution of tracked tokens, if any."""
+
+    final_prediction: str = ""
+    """The final predicted token."""
+
+    decision_layer: int | None = None
+    """Layer where confident decision emerged."""
+
+    def to_display(self) -> str:
+        """Format for CLI display."""
+        lines = [
+            "=" * 60,
+            f"Logit Lens Analysis: {self.prompt}",
+            "=" * 60,
+            "",
+            f"Final prediction: '{self.final_prediction}'",
+        ]
+
+        if self.decision_layer is not None:
+            lines.append(f"Decision layer: L{self.decision_layer}")
+
+        lines.append("")
+        lines.append("-" * 60)
+        lines.append("Layer Predictions:")
+
+        for layer in sorted(self.predictions.keys()):
+            preds = self.predictions[layer]
+            pred_str = " | ".join(f"'{t}' ({p:.3f})" for t, p in preds[:5])
+            lines.append(f"L{layer:2d}: {pred_str}")
+
+        if self.tracked_tokens:
+            lines.append("")
+            lines.append("-" * 60)
+            lines.append("Tracked Tokens:")
+            for token, evolution in self.tracked_tokens.items():
+                emergence = evolution.emergence_layer
+                emergence_str = f"emerges at L{emergence}" if emergence else "never emerges"
+                lines.append(f"  '{token}': {emergence_str}")
+
+        return "\n".join(lines)
+
+
+class LogitLensService:
+    """Service for running logit lens analysis."""
+
+    @staticmethod
+    async def analyze(config: LogitLensConfig) -> LogitLensResult:
+        """Run logit lens analysis.
+
+        Args:
+            config: Analysis configuration
+
+        Returns:
+            LogitLensResult with predictions per layer
+        """
+        from ..models_v2.loader import load_model
+        from .hooks import CaptureConfig, ModelHooks
+
+        # Load model
+        loaded = load_model(config.model)
+        model = loaded.model
+        tokenizer = loaded.tokenizer
+
+        # Determine layers
+        num_layers = loaded.config.num_hidden_layers
+        if config.layers is not None:
+            layers = config.layers
+        else:
+            # Auto-select layers at step intervals
+            layers = list(range(0, num_layers, config.layer_step))
+            if num_layers - 1 not in layers:
+                layers.append(num_layers - 1)
+
+        # Tokenize
+        input_ids = mx.array(tokenizer.encode(config.prompt))[None, :]
+
+        # Setup hooks
+        hooks = ModelHooks(model)
+        hooks.configure(
+            CaptureConfig(
+                layers=layers,
+                capture_hidden_states=True,
+                positions="last",
+            )
+        )
+        hooks.forward(input_ids)
+
+        # Analyze
+        lens = LogitLens(hooks, tokenizer)
+        layer_preds = lens.get_layer_predictions(top_k=config.top_k)
+
+        # Build predictions dict
+        predictions = {}
+        for pred in layer_preds:
+            predictions[pred.layer_idx] = list(zip(pred.top_tokens, pred.top_probs))
+
+        # Track tokens if specified
+        tracked = None
+        if config.track_tokens:
+            tracked = {}
+            for token in config.track_tokens:
+                try:
+                    tracked[token] = lens.track_token(token)
+                except ValueError:
+                    pass  # Token not in vocabulary
+
+        # Find final prediction and decision layer
+        final_pred = ""
+        decision_layer = None
+        if layer_preds:
+            last_pred = layer_preds[-1]
+            final_pred = last_pred.top_tokens[0] if last_pred.top_tokens else ""
+
+            # Find where prediction became confident (> 0.5)
+            for pred in layer_preds:
+                if pred.top_probs and pred.top_probs[0] > 0.5:
+                    if pred.top_tokens[0] == final_pred:
+                        decision_layer = pred.layer_idx
+                        break
+
+        return LogitLensResult(
+            prompt=config.prompt,
+            layers=layers,
+            predictions=predictions,
+            tracked_tokens=tracked,
+            final_prediction=final_pred,
+            decision_layer=decision_layer,
+        )

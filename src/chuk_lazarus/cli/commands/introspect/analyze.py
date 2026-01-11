@@ -74,8 +74,8 @@ async def introspect_analyze(args: Namespace) -> None:
         # Compute override
         compute_override=getattr(args, "compute_override", "none"),
         compute_layer=getattr(args, "compute_layer", None),
-        # Answer finding
-        find_answer=getattr(args, "find_answer", None),
+        # Answer finding - convert bool flag to expected pattern or None
+        find_answer=getattr(args, "expected", None) if getattr(args, "find_answer", False) else None,
         no_find_answer=getattr(args, "no_find_answer", False),
         gen_tokens=getattr(args, "gen_tokens", 30),
         expected=getattr(args, "expected", None),

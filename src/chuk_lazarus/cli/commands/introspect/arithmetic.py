@@ -79,7 +79,7 @@ def introspect_arithmetic(args):
             for test_case in tests:
                 prompt = test_case.prompt
                 expected = test_case.expected
-                op = test_case.operation.value if test_case.operation else "unknown"
+                op = test_case.operator.value if test_case.operator else "unknown"
                 difficulty = test_case.difficulty.value if test_case.difficulty else "unknown"
                 magnitude = test_case.magnitude
 

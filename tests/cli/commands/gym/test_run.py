@@ -109,6 +109,79 @@ class TestGymRun:
                 Path(output_path).unlink()
 
 
+    @pytest.mark.asyncio
+    async def test_gym_run_non_mock_stream(
+        self, gym_run_args, mock_tokenizer, mock_replay_buffer, mock_stream, capsys
+    ):
+        """Test gym run with non-mock stream (GymEpisodeStream)."""
+        gym_run_args.mock = False
+        config = GymRunConfig.from_args(gym_run_args)
+
+        # Mock the GymEpisodeStream
+        mock_gym_stream = MagicMock()
+        mock_gym_stream.__aenter__ = AsyncMock(return_value=mock_gym_stream)
+        mock_gym_stream.__aexit__ = AsyncMock(return_value=None)
+
+        async def async_gen():
+            sample = MagicMock()
+            sample.episode_id = "ep_1"
+            for i in range(3):
+                yield sample
+
+        mock_gym_stream.__aiter__ = lambda self: async_gen()
+
+        GYM_STREAM_PATCH = "chuk_lazarus.data.batching.streaming.GymEpisodeStream"
+        GYM_CONFIG_PATCH = "chuk_lazarus.data.batching.streaming.GymConfig"
+        GYM_TRANSPORT_PATCH = "chuk_lazarus.data.batching.streaming.GymTransport"
+        GYM_OUTPUT_MODE_PATCH = "chuk_lazarus.data.batching.streaming.GymOutputMode"
+
+        with (
+            patch(LOAD_TOKENIZER_PATCH, create=True, return_value=mock_tokenizer),
+            patch(REPLAY_BUFFER_PATCH, create=True, return_value=mock_replay_buffer),
+            patch(REPLAY_CONFIG_PATCH, create=True),
+            patch(GYM_STREAM_PATCH, create=True, return_value=mock_gym_stream),
+            patch(GYM_CONFIG_PATCH, create=True),
+            patch(GYM_TRANSPORT_PATCH, create=True, return_value="telnet"),
+            patch(GYM_OUTPUT_MODE_PATCH, create=True, return_value="json"),
+        ):
+            result = await gym_run(config)
+
+            assert result.total_samples == 3
+            assert result.total_episodes == 1
+
+    @pytest.mark.asyncio
+    async def test_gym_run_progress_print(
+        self, gym_run_args, mock_tokenizer, mock_replay_buffer, mock_gym_sample, capsys
+    ):
+        """Test gym run prints progress at 100 sample intervals."""
+        gym_run_args.max_samples = 150
+        config = GymRunConfig.from_args(gym_run_args)
+
+        # Create stream that yields more than 100 samples
+        stream = MagicMock()
+        stream.__aenter__ = AsyncMock(return_value=stream)
+        stream.__aexit__ = AsyncMock(return_value=None)
+
+        async def async_gen():
+            for i in range(150):
+                yield mock_gym_sample
+
+        stream.__aiter__ = lambda self: async_gen()
+
+        with (
+            patch(LOAD_TOKENIZER_PATCH, create=True, return_value=mock_tokenizer),
+            patch(REPLAY_BUFFER_PATCH, create=True, return_value=mock_replay_buffer),
+            patch(REPLAY_CONFIG_PATCH, create=True),
+            patch(MOCK_STREAM_PATCH, create=True, return_value=stream),
+        ):
+            result = await gym_run(config)
+
+            # Should have printed progress at sample 100
+            captured = capsys.readouterr()
+            assert "Samples: 100" in captured.out
+            assert result.total_samples == 150
+
+
 class TestGymRunCmd:
     """Tests for gym_run_cmd CLI entry point."""
 

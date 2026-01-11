@@ -36,15 +36,26 @@ async def introspect_classifier(args: Namespace) -> None:
         with open(categories_file) as f:
             categories = json.load(f)
     else:
-        # Parse from CLI args: --category "label|p1|p2|p3"
+        # Parse from CLI args: --classes "label:p1|p2|p3" or --category "label|p1|p2|p3"
         categories = {}
-        for cat_arg in getattr(args, "category", []) or []:
-            parts = cat_arg.split("|")
-            if len(parts) < 2:
-                raise ValueError(f"Invalid category format: {cat_arg}. Use 'label|prompt1|prompt2'")
-            label = parts[0]
-            prompts = parts[1:]
-            categories[label] = prompts
+        # Try --classes first (format: "label:p1|p2")
+        classes_args = getattr(args, "classes", []) or []
+        if classes_args:
+            for cls_arg in classes_args:
+                if ":" not in cls_arg:
+                    raise ValueError(f"Invalid class format: {cls_arg}. Use 'label:prompt1|prompt2'")
+                label, prompts_str = cls_arg.split(":", 1)
+                prompts = prompts_str.split("|")
+                categories[label] = prompts
+        else:
+            # Fall back to --category (format: "label|p1|p2")
+            for cat_arg in getattr(args, "category", []) or []:
+                parts = cat_arg.split("|")
+                if len(parts) < 2:
+                    raise ValueError(f"Invalid category format: {cat_arg}. Use 'label|prompt1|prompt2'")
+                label = parts[0]
+                prompts = parts[1:]
+                categories[label] = prompts
 
     if len(categories) < 2:
         raise ValueError("Need at least 2 categories for classifier training")
@@ -101,9 +112,12 @@ async def introspect_logit_lens(args: Namespace) -> None:
     if getattr(args, "track", None):
         track_tokens = args.track.split(Delimiters.LAYER_SEPARATOR)
 
+    # Get prompt - CLI uses --prompts but we accept single prompt
+    prompt = getattr(args, "prompts", None) or getattr(args, "prompt", "")
+
     config = LogitLensConfig(
         model=args.model,
-        prompt=args.prompt,
+        prompt=prompt,
         layers=layers,
         layer_step=getattr(args, "layer_step", 4),
         top_k=getattr(args, "top_k", AnalysisDefaults.TOP_K),

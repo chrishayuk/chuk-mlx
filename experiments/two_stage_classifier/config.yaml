@@ -1,0 +1,68 @@
+# Two-Stage Classifier Training
+# Stage 1: SFT builds computation circuits
+# Stage 2: Light dual-reward adds classifiers without breaking computation
+name: two_stage_classifier
+description: "Two-stage training: computation first, then classifiers"
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+# Stage 1: SFT for computation
+stage1:
+  method: sft
+  max_steps: 500
+  batch_size: 4
+  learning_rate: 0.0002
+  lora:
+    rank: 16
+    alpha: 32.0
+    targets: [q_proj, k_proj, v_proj, o_proj]
+
+# Stage 2: Light dual-reward for classifiers
+# Key: Very low LR + 50/50 balance to add classifiers gently
+stage2:
+  method: dual_reward
+  max_steps: 500
+  learning_rate: 0.00005  # Very low LR to preserve stage 1
+  classifier_weight: 0.5  # 50/50 - balanced
+  classifier_layer_pct: 0.55
+  lora:
+    rank: 8  # Small rank to minimize perturbation
+    alpha: 16.0
+    targets: [v_proj, o_proj]
+  classifier_targets:
+    multiply: "multiply"
+    add: "add"
+    subtract: "subtract"
+
+parameters:
+  num_samples: 5000
+  seed: 42
+
+  # Test on BOTH symbolic and semantic
+  test_prompts:
+    symbolic:
+      - input: "7 * 8 = "
+        expected: "56"
+        task: multiply
+      - input: "12 * 5 = "
+        expected: "60"
+        task: multiply
+      - input: "23 + 45 = "
+        expected: "68"
+        task: add
+      - input: "89 - 34 = "
+        expected: "55"
+        task: subtract
+    semantic:
+      - input: "seven times eight"
+        expected: "56"
+        task: multiply
+      - input: "twelve multiplied by five"
+        expected: "60"
+        task: multiply
+      - input: "twenty three plus forty five"
+        expected: "68"
+        task: add
+      - input: "eighty nine minus thirty four"
+        expected: "55"
+        task: subtract

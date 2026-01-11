@@ -1,0 +1,40 @@
+# Neural Compiler: NL -> WASM IR -> Execute
+name: ir_emission
+description: "Neural Compiler that converts natural language to WASM IR and executes it"
+
+# Model configuration
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+# Classifier checkpoint (trained with dual-reward)
+classifier_checkpoint: checkpoints/dual_reward/final/adapters.safetensors
+
+# Which pipelines to run
+pipelines:
+  - single_op    # Single arithmetic operations
+  - multi_op     # Multi-operation chains
+  - loop         # Loop constructs (Turing completeness demo)
+
+# Experiment-specific parameters
+parameters:
+  # Layer at which to extract classifier logits (as percentage of total layers)
+  decision_layer_pct: 0.55
+
+  # LoRA configuration for classifier
+  lora_rank: 32
+  lora_alpha: 64.0
+  lora_targets:
+    - v_proj
+    - o_proj
+
+  # Classifier token IDs (in TinyLlama vocabulary)
+  classifier_tokens:
+    add: 788
+    subtract: 23197
+    multiply: 22932
+    divide: 16429
+
+# Training settings (for reference, not used in evaluation)
+training:
+  learning_rate: 0.001
+  max_steps: 500
+  classifier_weight: 0.4

@@ -109,6 +109,12 @@ from .commands.data import (
     data_lengths_build,
     data_lengths_stats,
 )
+from .commands.experiment import (
+    experiment_info,
+    experiment_list,
+    experiment_run,
+    experiment_status,
+)
 from .commands.gym import bench_pipeline, gym_info, gym_run
 from .commands.infer import run_inference
 from .commands.introspect import (
@@ -962,6 +968,121 @@ Examples:
     gym_info_parser.set_defaults(func=gym_info)
 
     # =========================================================================
+    # Experiment command - run experiments from experiments/ directory
+    # =========================================================================
+    exp_parser = subparsers.add_parser(
+        "experiment",
+        help="Discover and run experiments",
+        description="Run experiments from the experiments/ directory using the experiments framework.",
+    )
+    exp_subparsers = exp_parser.add_subparsers(dest="exp_command", help="Experiment commands")
+
+    # Experiment list command
+    exp_list_parser = exp_subparsers.add_parser(
+        "list", help="List all discovered experiments"
+    )
+    exp_list_parser.add_argument(
+        "--dir", "-d",
+        help="Path to experiments directory (default: auto-detect)",
+    )
+    exp_list_parser.add_argument(
+        "--json", "-j",
+        action="store_true",
+        help="Output as JSON",
+    )
+    exp_list_parser.set_defaults(
+        func=lambda args: experiment_list(
+            experiments_dir=args.dir,
+            json_output=args.json,
+        )
+    )
+
+    # Experiment info command
+    exp_info_parser = exp_subparsers.add_parser(
+        "info", help="Show detailed experiment information"
+    )
+    exp_info_parser.add_argument("name", help="Experiment name")
+    exp_info_parser.add_argument(
+        "--dir", "-d",
+        help="Path to experiments directory",
+    )
+    exp_info_parser.add_argument(
+        "--json", "-j",
+        action="store_true",
+        help="Output as JSON",
+    )
+    exp_info_parser.set_defaults(
+        func=lambda args: experiment_info(
+            name=args.name,
+            experiments_dir=args.dir,
+            json_output=args.json,
+        )
+    )
+
+    # Experiment run command
+    exp_run_parser = exp_subparsers.add_parser(
+        "run", help="Run an experiment"
+    )
+    exp_run_parser.add_argument("name", help="Experiment name")
+    exp_run_parser.add_argument(
+        "--dir", "-d",
+        help="Path to experiments directory",
+    )
+    exp_run_parser.add_argument(
+        "--config", "-c",
+        help="Path to custom config YAML file",
+    )
+    exp_run_parser.add_argument(
+        "--param", "-p",
+        action="append",
+        dest="params",
+        help="Parameter override (key=value), can specify multiple",
+    )
+    exp_run_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate without running",
+    )
+    exp_run_parser.set_defaults(
+        func=lambda args: experiment_run(
+            name=args.name,
+            experiments_dir=args.dir,
+            config_file=args.config,
+            params=args.params,
+            dry_run=args.dry_run,
+        )
+    )
+
+    # Experiment status command
+    exp_status_parser = exp_subparsers.add_parser(
+        "status", help="Show experiment status and results"
+    )
+    exp_status_parser.add_argument("name", help="Experiment name")
+    exp_status_parser.add_argument(
+        "--dir", "-d",
+        help="Path to experiments directory",
+    )
+    exp_status_parser.add_argument(
+        "--all", "-a",
+        action="store_true",
+        dest="show_all",
+        help="Show all runs, not just latest",
+    )
+    exp_status_parser.add_argument(
+        "--json", "-j",
+        action="store_true",
+        help="Output as JSON",
+    )
+    exp_status_parser.set_defaults(
+        func=lambda args: experiment_status(
+            name=args.name,
+            experiments_dir=args.dir,
+            show_all=args.show_all,
+            json_output=args.json,
+        )
+    )
+
+    # =========================================================================
     # Bench command - comprehensive pipeline benchmark
     # =========================================================================
     bench_parser = subparsers.add_parser(
@@ -1171,7 +1292,7 @@ Examples:
         type=int,
         help="Layer at which to inject computed answer (default: 80%% of model depth)",
     )
-    analyze_parser.set_defaults(func=introspect_analyze)
+    analyze_parser.set_defaults(func=lambda args: asyncio.run(introspect_analyze(args)))
 
     # Compare command - compare two models
     compare_introspect_parser = introspect_subparsers.add_parser(
@@ -1207,7 +1328,7 @@ Examples:
         "--track",
         help="Tokens to track evolution (comma-separated)",
     )
-    compare_introspect_parser.set_defaults(func=introspect_compare)
+    compare_introspect_parser.set_defaults(func=lambda args: asyncio.run(introspect_compare(args)))
 
     # Hooks command - low-level hook demonstration
     hooks_parser = introspect_subparsers.add_parser(
@@ -1246,7 +1367,7 @@ Examples:
         action="store_true",
         help="Skip logit lens analysis",
     )
-    hooks_parser.set_defaults(func=introspect_hooks)
+    hooks_parser.set_defaults(func=lambda args: asyncio.run(introspect_hooks(args)))
 
     # Ablation command - run ablation studies
     ablation_parser = introspect_subparsers.add_parser(
@@ -1492,7 +1613,7 @@ Examples:
         action="store_true",
         help="Use raw prompt without chat template (for non-chat models or direct testing)",
     )
-    generate_parser.set_defaults(func=introspect_generate)
+    generate_parser.set_defaults(func=lambda args: asyncio.run(introspect_generate(args)))
 
     # Metacognitive command - detect strategy switch
     metacog_parser = introspect_subparsers.add_parser(
@@ -1554,7 +1675,7 @@ This is the "metacognitive switch" - the model deciding HOW to solve, not WHAT t
         "-o",
         help="Save results to JSON file",
     )
-    metacog_parser.set_defaults(func=introspect_metacognitive)
+    metacog_parser.set_defaults(func=lambda args: asyncio.run(introspect_metacognitive(args)))
 
     # Steer command - activation steering
     steer_parser = introspect_subparsers.add_parser(
@@ -1747,7 +1868,7 @@ predicts output behavior.
         "-o",
         help="Save results to JSON file",
     )
-    uncertainty_parser.set_defaults(func=introspect_uncertainty)
+    uncertainty_parser.set_defaults(func=lambda args: asyncio.run(introspect_uncertainty(args)))
 
     # Probe command - train linear probe to find task classification layers
     probe_parser = introspect_subparsers.add_parser(
@@ -1816,7 +1937,7 @@ Example:
         default="logistic",
         help="Direction extraction method: 'logistic' (probe weights) or 'difference' (mean difference)",
     )
-    probe_parser.set_defaults(func=introspect_probe)
+    probe_parser.set_defaults(func=lambda args: asyncio.run(introspect_probe(args)))
 
     # Neurons command - analyze individual neuron activations
     neurons_parser = introspect_subparsers.add_parser(
@@ -1983,7 +2104,7 @@ Multi-class example:
         "--save-plot",
         help="Save matplotlib scatter plot to file (e.g., cluster.png)",
     )
-    cluster_parser.set_defaults(func=introspect_activation_cluster)
+    cluster_parser.set_defaults(func=lambda args: asyncio.run(introspect_activation_cluster(args)))
 
     # Memory command - extract memory organization structure
     memory_parser = introspect_subparsers.add_parser(
@@ -2055,7 +2176,7 @@ Examples:
         action="store_true",
         help="Show memorization classification (memorized/partial/weak/not memorized)",
     )
-    memory_parser.set_defaults(func=introspect_memory)
+    memory_parser.set_defaults(func=lambda args: asyncio.run(introspect_memory(args)))
 
     # Memory-inject command - external memory injection
     memory_inject_parser = introspect_subparsers.add_parser(
@@ -2152,7 +2273,7 @@ Examples:
         action="store_true",
         help="Evaluate baseline vs injected accuracy on all facts",
     )
-    memory_inject_parser.set_defaults(func=introspect_memory_inject)
+    memory_inject_parser.set_defaults(func=lambda args: asyncio.run(introspect_memory_inject(args)))
 
     # Directions command - compare multiple direction vectors for orthogonality
     directions_parser = introspect_subparsers.add_parser(
@@ -2532,7 +2653,7 @@ Examples:
         default="last",
         help="Position to capture: last token, answer position, or operator position",
     )
-    capture_parser.set_defaults(func=introspect_circuit_capture)
+    capture_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_capture(args)))
 
     # Circuit invoke
     invoke_parser = circuit_subparsers.add_parser(
@@ -2577,7 +2698,7 @@ Examples:
         "-o",
         help="Save result to file",
     )
-    invoke_parser.set_defaults(func=introspect_circuit_invoke)
+    invoke_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_invoke(args)))
 
     # Circuit decode
     decode_parser = circuit_subparsers.add_parser(
@@ -2627,7 +2748,7 @@ Examples:
         default=20,
         help="Max tokens to generate",
     )
-    decode_parser.set_defaults(func=introspect_circuit_decode)
+    decode_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_decode(args)))
 
     # Circuit test - apply trained direction to new activations (proper OOD testing)
     test_parser = circuit_subparsers.add_parser(
@@ -2667,7 +2788,7 @@ Examples:
         "-o",
         help="Save results to JSON file",
     )
-    test_parser.set_defaults(func=introspect_circuit_test)
+    test_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_test(args)))
 
     # Circuit compare - compare multiple circuits (directions)
     compare_circuit_parser = circuit_subparsers.add_parser(
@@ -2703,7 +2824,7 @@ Example:
         "-o",
         help="Save comparison results to JSON file",
     )
-    compare_circuit_parser.set_defaults(func=introspect_circuit_compare)
+    compare_circuit_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_compare(args)))
 
     # Circuit view - display circuit contents
     view_parser = circuit_subparsers.add_parser(
@@ -2756,7 +2877,7 @@ Examples:
         default=10,
         help="Number of top neurons to show with --stats (default: 10)",
     )
-    view_parser.set_defaults(func=introspect_circuit_view)
+    view_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_view(args)))
 
     # Circuit export - export circuit to various formats
     export_parser = circuit_subparsers.add_parser(
@@ -2823,7 +2944,7 @@ Examples:
         default="TB",
         help="Graph direction: TB (top-bottom), LR (left-right), etc. (default: TB)",
     )
-    export_parser.set_defaults(func=introspect_circuit_export)
+    export_parser.set_defaults(func=lambda args: asyncio.run(introspect_circuit_export(args)))
 
     # Virtual Expert command - add virtual experts to models
     virtual_expert_parser = introspect_subparsers.add_parser(
@@ -2886,7 +3007,7 @@ Examples:
         "-o",
         help="Save results to JSON file",
     )
-    virtual_expert_parser.set_defaults(func=introspect_virtual_expert)
+    virtual_expert_parser.set_defaults(func=lambda args: asyncio.run(introspect_virtual_expert(args)))
 
     # MoE Expert command - direct expert manipulation
     moe_expert_parser = introspect_subparsers.add_parser(
@@ -3085,7 +3206,7 @@ Example:
         "-o",
         help="Save results to JSON file",
     )
-    classifier_parser.set_defaults(func=introspect_classifier)
+    classifier_parser.set_defaults(func=lambda args: asyncio.run(introspect_classifier(args)))
 
     # Logit lens analysis
     logit_lens_parser = introspect_subparsers.add_parser(
@@ -3136,7 +3257,7 @@ Example:
         "-o",
         help="Save results to JSON file",
     )
-    logit_lens_parser.set_defaults(func=introspect_logit_lens)
+    logit_lens_parser.set_defaults(func=lambda args: asyncio.run(introspect_logit_lens(args)))
 
     return parser
 
@@ -3160,6 +3281,8 @@ def main():
         parser.parse_args(["gym", "--help"])
     elif args.command == "introspect" and getattr(args, "introspect_command", None) is None:
         parser.parse_args(["introspect", "--help"])
+    elif args.command == "experiment" and getattr(args, "exp_command", None) is None:
+        parser.parse_args(["experiment", "--help"])
 
 
 if __name__ == "__main__":

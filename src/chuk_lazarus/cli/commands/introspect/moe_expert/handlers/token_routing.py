@@ -2,6 +2,7 @@
 
 Shows that single token classification doesn't predict routing -
 the same token routes to different experts in different contexts.
+Also shows how the token influences routing of the following token.
 """
 
 from __future__ import annotations
@@ -9,19 +10,36 @@ from __future__ import annotations
 import asyncio
 from argparse import Namespace
 from collections import Counter
+from dataclasses import dataclass
 
 from ......introspection.moe import ExpertRouter
 from ..formatters import format_header
 
+
+@dataclass
+class TokenRoutingResult:
+    """Result of routing analysis for a single context."""
+
+    context: str
+    description: str
+    target_token: str
+    target_experts: list[int]
+    next_token: str | None = None
+    next_experts: list[int] | None = None
+
+
 # Test contexts for common tokens
+# Include contexts with tokens AFTER target to test next-token routing
 TOKEN_CONTEXTS = {
     "127": [
         ("127", "solo - just the token"),
-        ("111 127", "after another number"),
-        ("abc 127", "after a word"),
-        ("= 127", "after operator (assignment)"),
-        ("127 * 89", "before operator (multiplication)"),
+        ("127 + 5", "before addition"),
+        ("127 * 89", "before multiplication"),
+        ("127 / 2", "before division"),
+        ("x = 127;", "in assignment"),
         ("The value is 127.", "in a sentence"),
+        ("print(127)", "in function call"),
+        ("arr[127]", "as array index"),
     ],
     "the": [
         ("the", "solo - just the token"),
@@ -108,26 +126,52 @@ async def _async_token_routing(args: Namespace) -> None:
     print("  For each context, we:")
     print("    1. Pass the full context through the model")
     print(f"    2. Find the position of token '{token}'")
-    print("    3. Record which experts are selected for that position")
+    print("    3. Record experts for BOTH the target token AND the next token")
     print("    4. Compare across all contexts")
     print()
 
     async with await ExpertRouter.from_pretrained(model_id) as router:
         # Track routing for each context
-        context_routing: list[tuple[str, str, list[int]]] = []
+        routing_results: list[TokenRoutingResult] = []
 
         print("  Processing contexts...")
         for context, desc in contexts_with_desc:
             weights = await router.capture_router_weights(context, layers=[layer])
 
-            # Find the target token in the positions
+            # Find the target token and the next token
             for layer_weights in weights:
-                for pos in layer_weights.positions:
+                positions = layer_weights.positions
+                for i, pos in enumerate(positions):
                     pos_token = pos.token.strip() if pos.token else ""
+                    # Skip empty tokens (like spaces)
+                    if not pos_token:
+                        continue
                     # Check if this position contains our target token
                     if token.lower() in pos_token.lower() or pos_token.lower() in token.lower():
-                        context_routing.append((context, desc, list(pos.expert_indices)))
-                        print(f"    Found '{token}' in \"{context}\" -> {pos.expert_indices}")
+                        # Get next token info if available
+                        next_token = None
+                        next_experts = None
+                        if i + 1 < len(positions):
+                            next_pos = positions[i + 1]
+                            next_token = next_pos.token.strip() if next_pos.token else None
+                            next_experts = list(next_pos.expert_indices)
+
+                        result = TokenRoutingResult(
+                            context=context,
+                            description=desc,
+                            target_token=pos_token,
+                            target_experts=list(pos.expert_indices),
+                            next_token=next_token,
+                            next_experts=next_experts,
+                        )
+                        routing_results.append(result)
+
+                        if next_token:
+                            print(f"    '{token}' in \"{context}\"")
+                            print(f"      -> target '{pos_token}': {pos.expert_indices}")
+                            print(f"      -> next '{next_token}': {next_experts}")
+                        else:
+                            print(f"    '{token}' in \"{context}\" -> {pos.expert_indices} (no next token)")
                         break
 
         print()
@@ -135,44 +179,76 @@ async def _async_token_routing(args: Namespace) -> None:
         print("RESULTS")
         print("=" * 70)
         print()
-        print(f"ROUTING FOR TOKEN '{token}' BY CONTEXT")
+        print(f"ROUTING FOR TOKEN '{token}' AND NEXT TOKEN BY CONTEXT")
         print("-" * 70)
         print()
 
-        all_experts: set[int] = set()
-        expert_counts: Counter = Counter()
+        target_experts: set[int] = set()
+        target_counts: Counter = Counter()
+        next_experts_all: set[int] = set()
+        next_counts: Counter = Counter()
+        results_with_next = 0
 
-        for context, desc, experts in context_routing:
-            exp_str = ", ".join(f"E{e}" for e in experts)
-            all_experts.update(experts)
-            for e in experts:
-                expert_counts[e] += 1
-            print(f'  Context: "{context}"')
-            print(f"  Purpose: {desc}")
-            print(f"  Experts: [{exp_str}]")
+        for result in routing_results:
+            exp_str = ", ".join(f"E{e}" for e in result.target_experts)
+            target_experts.update(result.target_experts)
+            for e in result.target_experts:
+                target_counts[e] += 1
+
+            print(f'  Context: "{result.context}"')
+            print(f"  Purpose: {result.description}")
+            print(f"  Target '{result.target_token}': [{exp_str}]")
+
+            if result.next_token and result.next_experts:
+                results_with_next += 1
+                next_exp_str = ", ".join(f"E{e}" for e in result.next_experts)
+                next_experts_all.update(result.next_experts)
+                for e in result.next_experts:
+                    next_counts[e] += 1
+                print(f"  Next '{result.next_token}': [{next_exp_str}]")
+            else:
+                print("  Next: (no following token)")
             print()
 
         print("-" * 70)
         print()
 
-        # Calculate routing variance
-        num_contexts = len(context_routing)
-        num_unique_experts = len(all_experts)
+        # Calculate routing variance for target token
+        num_contexts = len(routing_results)
+        num_unique_target = len(target_experts)
 
-        print("ANALYSIS")
+        print("ANALYSIS: TARGET TOKEN")
         print("-" * 70)
         print()
         print(f"  Same token '{token}' tested in {num_contexts} contexts")
-        print(f"  Total unique experts used: {num_unique_experts}")
-        print(f"  Experts: {sorted(all_experts)}")
+        print(f"  Total unique experts used: {num_unique_target}")
+        print(f"  Experts: {sorted(target_experts)}")
         print()
 
-        # Show frequency
-        print("  Expert frequency across contexts:")
-        for exp, count in expert_counts.most_common():
+        # Show frequency for target
+        print("  Expert frequency for TARGET token:")
+        for exp, count in target_counts.most_common():
             pct = 100 * count / num_contexts
             bar = "#" * int(pct / 10)
             print(f"    E{exp:02d}: {count}/{num_contexts} ({pct:.0f}%) {bar}")
+
+        # Analysis for next token
+        if results_with_next > 0:
+            print()
+            print("-" * 70)
+            print("ANALYSIS: NEXT TOKEN (token immediately after target)")
+            print("-" * 70)
+            print()
+            print(f"  Contexts with a next token: {results_with_next}")
+            print(f"  Total unique experts used: {len(next_experts_all)}")
+            print(f"  Experts: {sorted(next_experts_all)}")
+            print()
+
+            print("  Expert frequency for NEXT token:")
+            for exp, count in next_counts.most_common():
+                pct = 100 * count / results_with_next
+                bar = "#" * int(pct / 10)
+                print(f"    E{exp:02d}: {count}/{results_with_next} ({pct:.0f}%) {bar}")
 
         print()
         print("=" * 70)
@@ -180,18 +256,27 @@ async def _async_token_routing(args: Namespace) -> None:
         print("=" * 70)
         print()
 
-        if num_unique_experts == 1:
+        if num_unique_target == 1:
             print(f"  Token '{token}' routes to SAME expert in all contexts.")
             print("  (This is rare - try other tokens like 'the' or 'def')")
         else:
-            print(f"  FINDING: Token '{token}' routes to {num_unique_experts} DIFFERENT experts!")
+            print(f"  FINDING: Token '{token}' routes to {num_unique_target} DIFFERENT experts!")
             print()
+            print("  TARGET TOKEN:")
             print("  - The SAME token routes to DIFFERENT experts")
             print("  - Context CHANGES which experts are selected")
             print("  - Single-token classification CANNOT predict routing")
+
+        if results_with_next > 0:
             print()
-            print("  IMPLICATION: We need to consider CONTEXT, not just token identity.")
-            print("  This leads us to the trigram approach: PREV -> CURR -> NEXT")
+            print("  NEXT TOKEN:")
+            print(f"  - Tokens after '{token}' use {len(next_experts_all)} different experts")
+            print("  - The preceding context (including target) influences next token routing")
+            print("  - This confirms bidirectional context dependency")
+
+        print()
+        print("  IMPLICATION: We need to consider CONTEXT, not just token identity.")
+        print("  This leads us to the trigram approach: PREV -> CURR -> NEXT")
 
         print()
         print("=" * 70)

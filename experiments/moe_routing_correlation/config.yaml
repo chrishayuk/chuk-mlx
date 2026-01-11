@@ -1,0 +1,110 @@
+# MoE Routing Correlation Experiment
+# Tests: Does MoE architecture create vocabulary-aligned task representations?
+
+name: moe_routing_correlation
+description: "Test if MoE routing creates pressure for vocabulary-aligned classifiers"
+
+# Primary model: OLMoE-1B-7B (MoE: 64 experts, 8 active, ~14GB)
+model: allenai/OLMoE-1B-7B-0924
+
+# Dense baseline for comparison
+baseline_model: meta-llama/Llama-3.2-1B
+
+parameters:
+  # Layers to analyze (OLMoE has 16 layers, so L6-L8 is ~40-50% depth)
+  target_layers: [4, 6, 8, 10, 12, 14]
+
+  # Equivalent depth layers for baseline (Llama-3.2-1B has 16 layers)
+  baseline_layers: [4, 6, 8, 10, 12, 14]
+
+  # Task tokens to track via logit lens
+  task_tokens:
+    addition:
+      - "add"
+      - "plus"
+      - "sum"
+      - "addition"
+      - "+"
+    subtraction:
+      - "subtract"
+      - "minus"
+      - "difference"
+      - "subtraction"
+      - "-"
+    multiplication:
+      - "multiply"
+      - "times"
+      - "product"
+      - "multiplication"
+      - "*"
+      - "×"
+    division:
+      - "divide"
+      - "divided"
+      - "quotient"
+      - "division"
+      - "/"
+      - "÷"
+
+  # Test prompts with known operations
+  test_prompts:
+    # Addition
+    - input: "5 + 3 = "
+      task: addition
+      expected: "8"
+    - input: "12 + 7 = "
+      task: addition
+      expected: "19"
+    - input: "45 + 23 = "
+      task: addition
+      expected: "68"
+
+    # Subtraction
+    - input: "10 - 4 = "
+      task: subtraction
+      expected: "6"
+    - input: "25 - 8 = "
+      task: subtraction
+      expected: "17"
+    - input: "100 - 37 = "
+      task: subtraction
+      expected: "63"
+
+    # Multiplication
+    - input: "6 * 7 = "
+      task: multiplication
+      expected: "42"
+    - input: "8 * 9 = "
+      task: multiplication
+      expected: "72"
+    - input: "12 * 11 = "
+      task: multiplication
+      expected: "132"
+
+    # Division
+    - input: "20 / 4 = "
+      task: division
+      expected: "5"
+    - input: "36 / 6 = "
+      task: division
+      expected: "6"
+    - input: "100 / 5 = "
+      task: division
+      expected: "20"
+
+  # Semantic prompts (tests if vocab alignment extends beyond symbolic)
+  semantic_prompts:
+    - input: "What is five plus three?"
+      task: addition
+      expected: "8"
+    - input: "Calculate seven times eight"
+      task: multiplication
+      expected: "56"
+    - input: "If I have 20 apples and give away 5, how many remain?"
+      task: subtraction
+      expected: "15"
+
+  # Analysis settings
+  top_k_vocab: 20        # Top tokens to check in logit lens
+  min_prob_threshold: 0.01  # Minimum probability to consider "present"
+  significant_threshold: 0.10  # Threshold for "significant" vocab alignment

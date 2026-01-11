@@ -1,0 +1,62 @@
+# CLI Classifier Emergence Experiment
+# Trains vocabulary-aligned operation classifiers using dual-reward architecture
+name: cli_classifier_emergence
+description: "Dual-reward training for vocabulary-aligned arithmetic classifiers"
+
+# Model configuration
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+# Training configuration
+training:
+  max_steps: 1000
+  batch_size: 1
+  learning_rate: 0.0005  # Lower LR for more stable training
+  log_interval: 100
+
+# LoRA configuration - V/O projections only for classifier emergence
+lora:
+  enabled: true
+  rank: 32  # Higher rank for more capacity
+  alpha: 64.0
+  targets:
+    - v_proj
+    - o_proj
+
+# Classifier configuration
+classifier:
+  # Layer at which to extract classifier logits (as percentage of total layers)
+  # 55% depth is optimal for TinyLlama
+  layer_pct: 0.55
+  # Weight of classifier loss vs generation loss
+  # Higher weight to prioritize classification
+  weight: 0.7
+  # Classification targets - use operator symbols which are in the prompts
+  targets:
+    multiply: "*"
+    add: "+"
+    subtract: "-"
+    divide: "/"
+
+# Data generation parameters
+data_generation:
+  samples: 2000  # More samples for better coverage
+  seed: 42
+
+# Evaluation prompts
+evaluation_prompts:
+  - prompt: "7 * 8 = "
+    expected: multiply
+  - prompt: "12 * 5 = "
+    expected: multiply
+  - prompt: "23 + 45 = "
+    expected: add
+  - prompt: "17 + 38 = "
+    expected: add
+  - prompt: "50 - 23 = "
+    expected: subtract
+  - prompt: "89 - 34 = "
+    expected: subtract
+  - prompt: "48 / 6 = "
+    expected: divide
+  - prompt: "81 / 9 = "
+    expected: divide

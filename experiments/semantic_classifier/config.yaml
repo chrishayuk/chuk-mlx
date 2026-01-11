@@ -1,0 +1,98 @@
+# Semantic Classifier Experiment
+# Tests whether explicit classifiers help when parsing natural language to arithmetic
+name: semantic_classifier
+description: "Do explicit classifiers improve accuracy on semantic arithmetic inputs?"
+
+# Model configuration
+model: meta-llama/Llama-3.2-1B
+
+# Training configuration
+training:
+  max_steps: 500
+  batch_size: 4
+  learning_rate: 0.0002
+  log_interval: 50
+
+  training_methods:
+    # SFT baseline - let model figure out classification implicitly
+    sft_lora:
+      enabled: true
+      method: sft
+      use_lora: true
+      learning_rate: 0.0002
+      batch_size: 4
+      max_steps: 500
+      lora:
+        rank: 16
+        alpha: 32.0
+        targets: [q_proj, k_proj, v_proj, o_proj]
+
+    # Dual-reward - explicit classifier for operation type
+    dual_reward_lora:
+      enabled: true
+      method: dual_reward
+      use_lora: true
+      learning_rate: 0.0005
+      max_steps: 500
+      classifier_weight: 0.7
+      classifier_layer_pct: 0.55
+      lora:
+        rank: 32
+        alpha: 64.0
+        targets: [v_proj, o_proj]
+      # Classifier targets: operation words (not symbols!)
+      classifier_targets:
+        multiply: "multiply"
+        add: "add"
+        subtract: "subtract"
+
+# Data generation parameters
+parameters:
+  num_samples: 5000
+  seed: 42
+
+  # Natural language patterns for each operation
+  # These require PARSING, not just reading a symbol
+  input_patterns:
+    multiply:
+      - "{a} times {b}"
+      - "{a} multiplied by {b}"
+      - "the product of {a} and {b}"
+      - "multiply {a} by {b}"
+      - "what is {a} times {b}"
+    add:
+      - "{a} plus {b}"
+      - "{a} and {b}"
+      - "the sum of {a} and {b}"
+      - "add {a} and {b}"
+      - "what is {a} plus {b}"
+    subtract:
+      - "{a} minus {b}"
+      - "{a} take away {b}"
+      - "the difference between {a} and {b}"
+      - "subtract {b} from {a}"
+      - "what is {a} minus {b}"
+
+  # Test prompts - semantic only, no symbols
+  test_prompts:
+    multiply:
+      - input: "seven times eight"
+        expected: "56"
+      - input: "twelve multiplied by five"
+        expected: "60"
+      - input: "the product of nine and nine"
+        expected: "81"
+    add:
+      - input: "twenty three plus forty five"
+        expected: "68"
+      - input: "seventeen and thirty eight"
+        expected: "55"
+      - input: "the sum of fifty five and twenty seven"
+        expected: "82"
+    subtract:
+      - input: "eighty nine minus thirty four"
+        expected: "55"
+      - input: "sixty five take away twenty eight"
+        expected: "37"
+      - input: "the difference between one hundred and forty three"
+        expected: "57"

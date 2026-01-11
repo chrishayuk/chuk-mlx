@@ -17,6 +17,7 @@ from chuk_lazarus.cli.commands.introspect._utils import (
     normalize_number,
     parse_layers,
     parse_prompts,
+    parse_value_list,
     print_analysis_result,
     validate_prompt_args,
 )
@@ -95,6 +96,53 @@ class TestParsePrompts:
 
             result = parse_prompts(f"@{f.name}")
             assert result == ["prompt 1", "prompt 2"]
+
+
+class TestParseValueList:
+    """Tests for parse_value_list function."""
+
+    def test_parse_value_list_pipe_separated(self):
+        """Test parsing pipe-separated values."""
+        result = parse_value_list("a|b|c")
+        assert result == ["a", "b", "c"]
+
+    def test_parse_value_list_custom_delimiter(self):
+        """Test parsing with custom delimiter."""
+        result = parse_value_list("1,2,3", delimiter=",")
+        assert result == ["1", "2", "3"]
+
+    def test_parse_value_list_int_type(self):
+        """Test parsing as integers."""
+        result = parse_value_list("1|2|3", value_type=int)
+        assert result == [1, 2, 3]
+
+    def test_parse_value_list_float_type(self):
+        """Test parsing as floats."""
+        result = parse_value_list("1.5|2.5", value_type=float)
+        assert result == [1.5, 2.5]
+
+    def test_parse_value_list_from_file(self):
+        """Test parsing values from a file."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("value1\n")
+            f.write("value2\n")
+            f.write("\n")  # empty line should be skipped
+            f.write("value3\n")
+            f.flush()
+
+            result = parse_value_list(f"@{f.name}")
+            assert result == ["value1", "value2", "value3"]
+
+    def test_parse_value_list_from_file_int_type(self):
+        """Test parsing integer values from a file."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("10\n")
+            f.write("20\n")
+            f.write("30\n")
+            f.flush()
+
+            result = parse_value_list(f"@{f.name}", value_type=int)
+            assert result == [10, 20, 30]
 
 
 class TestNormalizeNumber:
