@@ -1,0 +1,70 @@
+# Attention-as-Router Decomposition Experiment
+#
+# Tests whether attention dominates MoE routing universally (True MoE and Pseudo-MoE)
+# or if this is specific to Pseudo-MoE architectures.
+
+name: attention_router
+description: >
+  Decompose router input into embedding vs attention contribution to test
+  whether attention drives MoE routing universally or only in Pseudo-MoE.
+
+# Primary model to test (True MoE)
+model: allenai/OLMoE-1B-7B-0924
+
+# Models to compare
+models:
+  - allenai/OLMoE-1B-7B-0924  # True MoE (64 experts, 8 active)
+  # - openai/gpt-oss-20b      # Pseudo-MoE (32 experts, gate rank 1) - uncomment if available
+
+# Layers to analyze (null = auto-select early/middle/late)
+layers: null
+
+# Test prompts for decomposition analysis
+test_prompts:
+  # Arithmetic (symbolic)
+  - "127 + 45 ="
+  - "999 * 3 ="
+
+  # Arithmetic (semantic)
+  - "What is forty-five times thirty-seven?"
+
+  # Code
+  - "def fibonacci(n):"
+  - "import numpy as np"
+
+  # Language
+  - "The capital of France is"
+  - "A synonym for happy is"
+
+  # Mixed context
+  - "Calculate the sum: 100 + 200 + 300 ="
+  - "In Python, compute 45 * 37:"
+
+# Context sensitivity tests
+context_tests:
+  - target: "127"
+    contexts:
+      - ["numbers", "111 127"]
+      - ["letters", "abc 127"]
+      - ["words", "The number 127"]
+      - ["operator", "= 127"]
+
+  - target: "+"
+    contexts:
+      - ["math", "3 + 5"]
+      - ["code", "x + y"]
+      - ["concat", "\"a\" + \"b\""]
+      - ["increment", "count +="]
+
+  - target: "def"
+    contexts:
+      - ["function", "def foo():"]
+      - ["class", "class Foo:\n    def"]
+      - ["lambda", "f = lambda: def"]
+      - ["string", "word = 'def'"]
+
+# Hypothesis thresholds
+thresholds:
+  h1_attention_min: 0.85  # Attention dominates universally
+  h2_attention_range: [0.50, 0.80]  # True MoE more balanced
+  h3_attention_max: 0.50  # Token embedding dominates
