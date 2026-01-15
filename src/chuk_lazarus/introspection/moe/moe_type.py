@@ -61,6 +61,64 @@ class ProjectionRankAnalysis(BaseModel):
         return original / factorized
 
 
+class TrainingOriginSignals(BaseModel):
+    """Signals indicating how the MoE model was trained."""
+
+    model_config = ConfigDict(frozen=True)
+
+    # Primary signals
+    expert_similarity: float = Field(
+        ge=-1.0,
+        le=1.0,
+        description="Mean cosine similarity (high=upcycled, low=pretrained)",
+    )
+    rank_ratio: float = Field(
+        ge=0.0,
+        le=1.0,
+        description="Effective rank / max rank (low=upcycled, high=pretrained)",
+    )
+
+    # Additional signals
+    layer_consistency: float = Field(
+        default=1.0,
+        ge=0.0,
+        le=1.0,
+        description="How consistent the pattern is across layers (1.0=same across all layers)",
+    )
+    expert_norm_variance: float = Field(
+        default=0.0,
+        ge=0.0,
+        description="Variance in expert weight norms (low=upcycled, high=pretrained)",
+    )
+    router_entropy: float = Field(
+        default=0.0,
+        ge=0.0,
+        description="Router weight entropy (low=specialized, high=uniform)",
+    )
+
+    @property
+    def upcycled_score(self) -> float:
+        """Score indicating likelihood of upcycling (0-1)."""
+        # High similarity + low rank = upcycled
+        sim_score = max(0, min(1, (self.expert_similarity - 0.1) / 0.4))  # 0.1->0, 0.5->1
+        rank_score = max(0, min(1, 1 - (self.rank_ratio / 0.2)))  # 0->1, 0.2->0
+        consistency_score = self.layer_consistency
+        norm_score = max(0, min(1, 1 - self.expert_norm_variance * 10))  # Low variance = upcycled
+
+        # Weighted combination
+        return 0.4 * sim_score + 0.3 * rank_score + 0.2 * consistency_score + 0.1 * norm_score
+
+    @property
+    def pretrained_score(self) -> float:
+        """Score indicating likelihood of pretraining as MoE (0-1)."""
+        # Low similarity + high rank = pretrained
+        sim_score = max(0, min(1, (0.1 - self.expert_similarity) / 0.1))  # 0.1->0, 0->1
+        rank_score = max(0, min(1, (self.rank_ratio - 0.3) / 0.3))  # 0.3->0, 0.6->1
+
+        # Weighted combination
+        return 0.5 * sim_score + 0.5 * rank_score
+
+
 class MoETypeAnalysis(BaseModel):
     """Complete MoE type analysis result."""
 
@@ -69,7 +127,7 @@ class MoETypeAnalysis(BaseModel):
     model_id: str = Field(description="Model identifier")
     layer_idx: int = Field(ge=0, description="Analyzed layer index")
     num_experts: int = Field(ge=1, description="Number of experts")
-    moe_type: MoEType = Field(description="Detected MoE type (pseudo/native/unknown)")
+    moe_type: MoEType = Field(description="Detected MoE type (upcycled/pretrained_moe/unknown)")
     architecture: MoEArchitecture = Field(
         default=MoEArchitecture.GENERIC,
         description="Detected MoE architecture",
@@ -91,6 +149,18 @@ class MoETypeAnalysis(BaseModel):
         description="Std dev of pairwise cosine similarities",
     )
 
+    # Training origin detection
+    confidence: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Confidence in the classification (0-1)",
+    )
+    training_signals: TrainingOriginSignals | None = Field(
+        default=None,
+        description="Detailed signals for training origin detection",
+    )
+
     # Optional detailed similarity data (for visualization)
     similarity_matrix: tuple[tuple[float, ...], ...] | None = Field(
         default=None,
@@ -108,8 +178,30 @@ class MoETypeAnalysis(BaseModel):
 
     @property
     def is_compressible(self) -> bool:
-        """Whether model benefits from SVD compression (pseudo-MoE only)."""
-        return self.moe_type == MoEType.PSEUDO
+        """Whether model benefits from SVD compression (upcycled MoE only)."""
+        return self.moe_type == MoEType.UPCYCLED
+
+    @property
+    def training_origin(self) -> str:
+        """Human-readable training origin description."""
+        if self.moe_type == MoEType.UPCYCLED:
+            return "Upcycled from dense model"
+        elif self.moe_type == MoEType.PRETRAINED_MOE:
+            return "Pretrained as MoE from scratch"
+        else:
+            return "Unknown training origin"
+
+    @property
+    def confidence_label(self) -> str:
+        """Human-readable confidence level."""
+        if self.confidence >= 0.8:
+            return "High"
+        elif self.confidence >= 0.5:
+            return "Medium"
+        elif self.confidence >= 0.3:
+            return "Low"
+        else:
+            return "Very Low"
 
 
 # =============================================================================
@@ -210,10 +302,14 @@ class MoETypeService:
         logger.info("Computing expert similarities...")
         mean_sim, std_sim, sim_matrix = cls._compute_similarities(down_w)
 
+        # Compute expert norm variance (additional signal)
+        expert_norm_variance = cls._compute_expert_norm_variance(down_w)
+
         # Classify based on gate rank and similarity
-        moe_type = cls._classify(
+        moe_type, confidence, training_signals = cls._classify(
             gate_rank_ratio=gate_analysis.rank_ratio,
             similarity=mean_sim,
+            expert_norm_variance=expert_norm_variance,
         )
 
         return MoETypeAnalysis(
@@ -227,6 +323,8 @@ class MoETypeService:
             down=down_analysis,
             mean_cosine_similarity=mean_sim,
             std_cosine_similarity=std_sim,
+            confidence=confidence,
+            training_signals=training_signals,
             similarity_matrix=sim_matrix,
         )
 
@@ -235,31 +333,43 @@ class MoETypeService:
         cls,
         gate_rank_ratio: float,
         similarity: float,
-    ) -> MoEType:
+        expert_norm_variance: float = 0.0,
+    ) -> tuple[MoEType, float, TrainingOriginSignals]:
         """Classify MoE type from gate rank ratio and similarity.
 
         Args:
             gate_rank_ratio: Effective rank / max rank for gate projection
             similarity: Mean pairwise cosine similarity
+            expert_norm_variance: Variance in expert weight norms
 
         Returns:
-            Classified MoEType
+            Tuple of (MoEType, confidence, TrainingOriginSignals)
         """
-        # Pseudo-MoE: low rank (shared gate) + high similarity (clustered experts)
-        if (
-            gate_rank_ratio < cls.PSEUDO_RANK_RATIO_THRESHOLD
-            and similarity > cls.PSEUDO_SIMILARITY_THRESHOLD
-        ):
-            return MoEType.PSEUDO
+        # Build training signals
+        signals = TrainingOriginSignals(
+            expert_similarity=similarity,
+            rank_ratio=gate_rank_ratio,
+            expert_norm_variance=expert_norm_variance,
+        )
 
-        # Native-MoE: high rank (diverse gates) + low similarity (orthogonal experts)
-        if (
-            gate_rank_ratio > cls.NATIVE_RANK_RATIO_THRESHOLD
-            and similarity < cls.NATIVE_SIMILARITY_THRESHOLD
-        ):
-            return MoEType.NATIVE
+        # Compute scores
+        upcycled_score = signals.upcycled_score
+        pretrained_score = signals.pretrained_score
 
-        return MoEType.UNKNOWN
+        # Classify based on scores
+        if upcycled_score > 0.6 and upcycled_score > pretrained_score:
+            # Upcycled: low rank (shared gate) + high similarity (clustered experts)
+            confidence = min(1.0, upcycled_score)
+            return MoEType.UPCYCLED, confidence, signals
+
+        if pretrained_score > 0.6 and pretrained_score > upcycled_score:
+            # Pretrained MoE: high rank (diverse gates) + low similarity (orthogonal experts)
+            confidence = min(1.0, pretrained_score)
+            return MoEType.PRETRAINED_MOE, confidence, signals
+
+        # Unknown - compute confidence as how far from clear classification
+        confidence = max(0.0, 1.0 - abs(upcycled_score - pretrained_score) - 0.3)
+        return MoEType.UNKNOWN, confidence, signals
 
     @classmethod
     def _load_model(cls, model_id: str) -> nn.Module:
@@ -326,12 +436,17 @@ class MoETypeService:
 
     @classmethod
     def _extract_batched_weights(cls, experts) -> tuple[mx.array, mx.array, mx.array, int]:
-        """Extract weights from GPT-OSS batched/quantized experts (MXFP4)."""
+        """Extract weights from GPT-OSS batched/quantized experts (MXFP4).
+
+        Note: Biases are NOT included in the returned weights. Biases should be
+        applied separately after matrix multiplication during inference.
+        """
         import mlx.core as mx
 
         num_experts = experts.num_experts
 
         # Dequantize gate_up (interleaved gate and up projections) using MXFP4 mode
+        # Note: We do NOT add bias here - bias should be applied to output, not weights
         gate_up = mx.dequantize(
             experts.gate_up_proj_blocks,
             experts.gate_up_proj_scales,
@@ -340,12 +455,11 @@ class MoETypeService:
             bits=4,
             mode="mxfp4",
         )
-        if hasattr(experts, "gate_up_proj_bias") and experts.gate_up_proj_bias is not None:
-            gate_up = gate_up + experts.gate_up_proj_bias[:, :, None]
         mx.eval(gate_up)
         gate_up = gate_up.astype(mx.float32)
 
         # Dequantize down using MXFP4 mode
+        # Note: We do NOT add bias here - bias should be applied to output, not weights
         down = mx.dequantize(
             experts.down_proj_blocks,
             experts.down_proj_scales,
@@ -354,8 +468,6 @@ class MoETypeService:
             bits=4,
             mode="mxfp4",
         )
-        if hasattr(experts, "down_proj_bias") and experts.down_proj_bias is not None:
-            down = down + experts.down_proj_bias[:, :, None]
         mx.eval(down)
         down = down.astype(mx.float32)
 
@@ -364,6 +476,30 @@ class MoETypeService:
         up = gate_up[:, 1::2, :]  # Odd indices
 
         return gate, up, down, num_experts
+
+    @classmethod
+    def _extract_biases(cls, experts) -> tuple[mx.array | None, mx.array | None, mx.array | None]:
+        """Extract biases from GPT-OSS batched experts.
+
+        Returns:
+            (gate_bias, up_bias, down_bias) - each of shape (num_experts, out_dim) or None
+        """
+        import mlx.core as mx
+
+        gate_bias = None
+        up_bias = None
+        down_bias = None
+
+        if hasattr(experts, "gate_up_proj_bias") and experts.gate_up_proj_bias is not None:
+            # gate_up_proj_bias is interleaved: (num_experts, 2 * intermediate_size)
+            gate_up_bias = experts.gate_up_proj_bias.astype(mx.float32)
+            gate_bias = gate_up_bias[:, 0::2]  # Even indices
+            up_bias = gate_up_bias[:, 1::2]  # Odd indices
+
+        if hasattr(experts, "down_proj_bias") and experts.down_proj_bias is not None:
+            down_bias = experts.down_proj_bias.astype(mx.float32)
+
+        return gate_bias, up_bias, down_bias
 
     @classmethod
     def _extract_list_weights(cls, experts: list) -> tuple[mx.array, mx.array, mx.array, int]:
@@ -513,3 +649,33 @@ class MoETypeService:
         matrix_tuple = tuple(tuple(float(v) for v in row) for row in sim_matrix)
 
         return float(np.mean(sims)), float(np.std(sims)), matrix_tuple
+
+    @classmethod
+    def _compute_expert_norm_variance(cls, weights: mx.array) -> float:
+        """Compute variance in expert weight norms.
+
+        Low variance suggests upcycling (experts started from same initialization).
+        High variance suggests native pretraining (experts developed independently).
+
+        Args:
+            weights: Shape (num_experts, out_dim, in_dim)
+
+        Returns:
+            Normalized variance of expert norms (0 = identical, higher = more varied)
+        """
+        import mlx.core as mx
+
+        num_experts = weights.shape[0]
+
+        # Compute norm of each expert
+        flat = weights.reshape(num_experts, -1)
+        mx.eval(flat)
+        flat_np = np.array(flat.astype(mx.float32))
+
+        norms = np.linalg.norm(flat_np, axis=1)
+        mean_norm = np.mean(norms)
+
+        # Coefficient of variation (normalized variance)
+        if mean_norm > 0:
+            return float(np.std(norms) / mean_norm)
+        return 0.0

@@ -40,7 +40,7 @@ class TestAsyncMoETypeAnalyze:
             model_id="test/model",
             layer_idx=0,
             num_experts=32,
-            moe_type=MoEType.PSEUDO,
+            moe_type=MoEType.UPCYCLED,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(2880, 2880), max_rank=2880, effective_rank_95=1
             ),
@@ -73,7 +73,7 @@ class TestAsyncMoETypeAnalyze:
             captured = capsys.readouterr()
             assert "Analyzing MoE type" in captured.out
             assert "MOE TYPE ANALYSIS" in captured.out
-            assert "PSEUDO-MOE" in captured.out
+            assert "UPCYCLED" in captured.out
 
     @pytest.mark.asyncio
     async def test_analyze_with_layer(self, capsys, mock_analysis_result):

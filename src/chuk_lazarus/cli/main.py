@@ -3251,19 +3251,33 @@ MoE Compression Examples:
     )
     # Arguments for moe-overlay-* actions (compression)
     moe_expert_parser.add_argument(
+        "--quality",
+        "-q",
+        choices=["fast", "balanced", "quality"],
+        default="balanced",
+        help="Compression quality preset: fast (~12x), balanced (~8x, default), quality (~5x)",
+    )
+    moe_expert_parser.add_argument(
         "--gate-rank",
         type=int,
-        help="Rank for gate projection (default: auto from SVD)",
+        help="Override gate projection rank (advanced)",
     )
     moe_expert_parser.add_argument(
         "--up-rank",
         type=int,
-        help="Rank for up projection (default: auto from SVD)",
+        help="Override up projection rank (advanced)",
     )
     moe_expert_parser.add_argument(
         "--down-rank",
         type=int,
-        help="Rank for down projection (default: auto from SVD)",
+        help="Override down projection rank (advanced)",
+    )
+    moe_expert_parser.add_argument(
+        "--no-resume",
+        dest="resume",
+        action="store_false",
+        default=True,
+        help="Start fresh instead of resuming from checkpoint (for moe-overlay-compress)",
     )
     moe_expert_parser.set_defaults(func=introspect_moe_expert)
 

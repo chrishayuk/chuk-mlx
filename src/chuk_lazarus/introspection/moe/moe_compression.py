@@ -22,6 +22,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
 from .detector import get_moe_layers
+from .enums import MoEArchitecture
 from .moe_type import MoETypeService
 
 logger = logging.getLogger(__name__)
@@ -191,6 +192,9 @@ class CompressionConfig(BaseModel):
     up_rank: int = Field(ge=1, description="Rank for up projection")
     down_rank: int = Field(ge=1, description="Rank for down projection")
 
+    # Bias info
+    has_biases: bool = Field(default=False, description="Whether biases are stored separately")
+
     # Storage stats
     original_bytes: int = Field(ge=0, description="Original expert storage in bytes")
     compressed_bytes: int = Field(ge=0, description="Compressed storage in bytes")
@@ -357,6 +361,7 @@ class MoECompressionService:
         up_rank: int | None = None,
         down_rank: int | None = None,
         dtype: str = "bfloat16",
+        resume: bool = True,
     ) -> CompressionResult:
         """Compress MoE model to overlay format.
 
@@ -375,6 +380,7 @@ class MoECompressionService:
             up_rank: Rank for up projection (default: auto from SVD)
             down_rank: Rank for down projection (default: auto from SVD)
             dtype: Weight dtype for saved tensors (default: bfloat16)
+            resume: If True, resume from checkpoint if available (default: True)
 
         Returns:
             CompressionResult with paths and metrics
@@ -387,6 +393,7 @@ class MoECompressionService:
             up_rank,
             down_rank,
             dtype,
+            resume,
         )
 
     # =========================================================================
@@ -605,6 +612,7 @@ class MoECompressionService:
         up_rank: int | None,
         down_rank: int | None,
         dtype: str,
+        resume: bool = True,
     ) -> CompressionResult:
         """Synchronous implementation of compress_model."""
         import mlx.core as mx
@@ -625,9 +633,7 @@ class MoECompressionService:
         if experts is None:
             raise ValueError("Could not extract experts")
 
-        gate_w, up_w, down_w, num_experts = MoETypeService._extract_weights(
-            experts, architecture
-        )
+        gate_w, up_w, down_w, num_experts = MoETypeService._extract_weights(experts, architecture)
 
         # Auto-select ranks if not provided
         if gate_rank is None or up_rank is None or down_rank is None:
@@ -642,10 +648,34 @@ class MoECompressionService:
         # Create output directory
         output_path.mkdir(parents=True, exist_ok=True)
 
-        # Containers for weights
+        # Checkpoint paths
+        checkpoint_path = output_path / "checkpoint.json"
+        base_checkpoint_path = output_path / "base_weights_checkpoint.safetensors"
+        delta_checkpoint_path = output_path / "deltas_checkpoint.safetensors"
+
+        # Load checkpoint if resuming
+        completed_layers: set[int] = set()
         base_weights: dict[str, mx.array] = {}
         delta_weights: dict[str, mx.array] = {}
         all_errors: list[float] = []
+
+        if resume and checkpoint_path.exists():
+            checkpoint_data = json.loads(checkpoint_path.read_text())
+            completed_layers = set(checkpoint_data.get("completed_layers", []))
+            all_errors = checkpoint_data.get("errors", [])
+
+            if base_checkpoint_path.exists():
+                base_weights = {
+                    k: mx.array(v) for k, v in mx.load(str(base_checkpoint_path)).items()
+                }
+            if delta_checkpoint_path.exists():
+                delta_weights = {
+                    k: mx.array(v) for k, v in mx.load(str(delta_checkpoint_path)).items()
+                }
+
+            logger.info(
+                f"Resuming from checkpoint: {len(completed_layers)}/{len(moe_layers)} layers complete"
+            )
 
         # Map dtype string to mlx dtype
         dtype_map = {
@@ -655,12 +685,70 @@ class MoECompressionService:
         }
         target_dtype = dtype_map.get(dtype, mx.bfloat16)
 
+        # Helper to save checkpoint
+        def save_checkpoint(completed: set[int], errors: list[float]) -> None:
+            """Save checkpoint after each layer."""
+
+            def to_numpy_ckpt(arr):
+                if arr.dtype == mx.bfloat16:
+                    return np.array(arr.astype(mx.float16))
+                return np.array(arr)
+
+            # Save weights checkpoint
+            if base_weights:
+                base_np = {k: to_numpy_ckpt(v) for k, v in base_weights.items()}
+                save_safetensors(base_np, str(base_checkpoint_path))
+            if delta_weights:
+                delta_np = {k: to_numpy_ckpt(v) for k, v in delta_weights.items()}
+                save_safetensors(delta_np, str(delta_checkpoint_path))
+
+            # Save progress
+            checkpoint_path.write_text(
+                json.dumps(
+                    {
+                        "completed_layers": list(completed),
+                        "errors": errors,
+                        "gate_rank": gate_rank,
+                        "up_rank": up_rank,
+                        "down_rank": down_rank,
+                    },
+                    indent=2,
+                )
+            )
+
         # Process each MoE layer with progress bar
+        # Determine number of workers (use CPU count, but cap at 8 to avoid memory issues)
+        import os
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        from sklearn.utils.extmath import randomized_svd
         from tqdm import tqdm
 
-        total_ops = len(moe_layers) * 3 * num_experts  # layers * projections * experts
-        with tqdm(total=total_ops, desc="Compressing", unit="expert") as pbar:
+        num_workers = min(8, os.cpu_count() or 4)
+
+        def process_expert(args: tuple) -> tuple:
+            """Process single expert SVD (runs in thread pool)."""
+            expert_idx, delta_np, rank, seed = args
+            U_trunc, S_trunc, Vh_trunc = randomized_svd(
+                delta_np,
+                n_components=rank,
+                n_iter=2,
+                random_state=seed + expert_idx,  # Vary seed per expert
+            )
+            U_scaled = U_trunc @ np.diag(S_trunc)
+            reconstructed = U_scaled @ Vh_trunc
+            error = float(np.mean((delta_np - reconstructed) ** 2))
+            return expert_idx, U_scaled, Vh_trunc, error
+
+        remaining_layers = [layer for layer in moe_layers if layer not in completed_layers]
+        total_experts = len(remaining_layers) * 3 * num_experts
+
+        with tqdm(total=total_experts, desc="Compressing", unit="expert") as pbar:
             for layer_idx in moe_layers:
+                # Skip already completed layers
+                if layer_idx in completed_layers:
+                    continue
+
                 experts = MoETypeService._get_experts(model, layer_idx)
                 if experts is None:
                     raise ValueError(f"Could not extract experts from layer {layer_idx}")
@@ -673,53 +761,83 @@ class MoECompressionService:
                     ("up", up_w, up_rank),
                     ("down", down_w, down_rank),
                 ]:
+                    pbar.set_description(f"Layer {layer_idx}/{moe_layers[-1]} {proj_name}")
+
                     # Compute base (mean expert)
                     base = mx.mean(weights, axis=0)
                     mx.eval(base)
                     base_key = f"layer_{layer_idx}_{proj_name}_base"
                     base_weights[base_key] = base.astype(target_dtype)
 
-                    # Compute low-rank factors for each expert
+                    # Prepare all expert deltas
+                    expert_deltas = []
                     for expert_idx in range(num_experts):
-                        pbar.set_description(
-                            f"Layer {layer_idx}/{len(moe_layers)-1} {proj_name} expert {expert_idx}"
-                        )
-
                         delta = weights[expert_idx] - base
                         mx.eval(delta)
-
-                        # SVD on delta
                         delta_np = np.array(delta.astype(mx.float32))
-                        U, S, Vh = np.linalg.svd(delta_np, full_matrices=False)
+                        expert_deltas.append((expert_idx, delta_np, rank, 42))
 
-                        # Truncate to rank
-                        U_trunc = U[:, :rank]
-                        S_trunc = S[:rank]
-                        Vh_trunc = Vh[:rank, :]
+                    # Process all experts in parallel with progress updates
+                    results_dict = {}
+                    with ThreadPoolExecutor(max_workers=num_workers) as executor:
+                        futures = {
+                            executor.submit(process_expert, args): args[0] for args in expert_deltas
+                        }
+                        for future in as_completed(futures):
+                            expert_idx, U_scaled, Vh_trunc, error = future.result()
+                            results_dict[expert_idx] = (U_scaled, Vh_trunc, error)
+                            pbar.update(1)
 
-                        # Merge U @ diag(S) for efficient inference
-                        # expert_i = base + U_scaled @ V
-                        U_scaled = U_trunc @ np.diag(S_trunc)
-
-                        # Save factors
+                    # Store results in order
+                    for expert_idx in range(num_experts):
+                        U_scaled, Vh_trunc, error = results_dict[expert_idx]
                         u_key = f"layer_{layer_idx}_{proj_name}_expert_{expert_idx}_U"
                         v_key = f"layer_{layer_idx}_{proj_name}_expert_{expert_idx}_V"
                         delta_weights[u_key] = mx.array(U_scaled).astype(target_dtype)
                         delta_weights[v_key] = mx.array(Vh_trunc).astype(target_dtype)
+                        all_errors.append(error)
 
-                        # Compute reconstruction error
-                        reconstructed = U_scaled @ Vh_trunc
-                        error = np.mean((delta_np - reconstructed) ** 2)
-                        all_errors.append(float(error))
+                # Mark layer complete and save checkpoint
+                completed_layers.add(layer_idx)
+                save_checkpoint(completed_layers, all_errors)
+                logger.info(
+                    f"Checkpoint saved: layer {layer_idx} complete ({len(completed_layers)}/{len(moe_layers)})"
+                )
 
-                        pbar.update(1)
-
-        # Save weights (convert mlx arrays to numpy for safetensors)
+        # Save final weights (convert mlx arrays to numpy for safetensors)
+        # Note: numpy doesn't support bfloat16, so convert to float16 for saving
         logger.info("Saving compressed weights...")
-        base_np = {k: np.array(v) for k, v in base_weights.items()}
-        delta_np = {k: np.array(v) for k, v in delta_weights.items()}
-        save_safetensors(str(output_path / "base_weights.safetensors"), base_np)
-        save_safetensors(str(output_path / "deltas.safetensors"), delta_np)
+
+        def to_numpy(arr):
+            """Convert mlx array to numpy, handling bfloat16."""
+            if arr.dtype == mx.bfloat16:
+                return np.array(arr.astype(mx.float16))
+            return np.array(arr)
+
+        base_np = {k: to_numpy(v) for k, v in base_weights.items()}
+        delta_np = {k: to_numpy(v) for k, v in delta_weights.items()}
+        save_safetensors(base_np, str(output_path / "base_weights.safetensors"))
+        save_safetensors(delta_np, str(output_path / "deltas.safetensors"))
+
+        # Extract and save biases (same for all layers, stored per-expert)
+        # Get experts from first MoE layer
+        first_experts = MoETypeService._get_experts(model, moe_layers[0])
+        has_biases = False
+        if first_experts is not None and architecture == MoEArchitecture.GPT_OSS:
+            gate_bias, up_bias, down_bias = MoETypeService._extract_biases(first_experts)
+            if gate_bias is not None or up_bias is not None or down_bias is not None:
+                has_biases = True
+                bias_weights = {}
+                if gate_bias is not None:
+                    bias_weights["gate_bias"] = to_numpy(gate_bias)
+                if up_bias is not None:
+                    bias_weights["up_bias"] = to_numpy(up_bias)
+                if down_bias is not None:
+                    bias_weights["down_bias"] = to_numpy(down_bias)
+                save_safetensors(bias_weights, str(output_path / "biases.safetensors"))
+                logger.info(
+                    f"Saved biases: gate={gate_bias is not None}, up={up_bias is not None}, down={down_bias is not None}"
+                )
 
         # Calculate storage
         _, gate_out, gate_in = gate_w.shape
@@ -762,12 +880,21 @@ class MoECompressionService:
             gate_rank=gate_rank,
             up_rank=up_rank,
             down_rank=down_rank,
+            has_biases=has_biases,
             original_bytes=original_bytes,
             compressed_bytes=compressed_bytes,
         )
 
         config_path = output_path / "config.json"
         config_path.write_text(json.dumps(config.model_dump(), indent=2))
+
+        # Clean up checkpoint files on successful completion
+        if checkpoint_path.exists():
+            checkpoint_path.unlink()
+        if base_checkpoint_path.exists():
+            base_checkpoint_path.unlink()
+        if delta_checkpoint_path.exists():
+            delta_checkpoint_path.unlink()
 
         logger.info(
             f"Compression complete: {original_bytes / 1e9:.2f}GB -> "
@@ -940,7 +1067,7 @@ class MoECompressionService:
         return mx.array(delta_recon) + base
 
     @classmethod
-    def load_compressed(cls, compressed_path: str | Path) -> "OverlayExperts":
+    def load_compressed(cls, compressed_path: str | Path) -> OverlayExperts:
         """Load compressed model for inference.
 
         Args:
@@ -963,6 +1090,7 @@ class OverlayExperts:
     Instead of storing full expert weights, stores:
     - base: Mean expert weight (shared)
     - U, V: Low-rank factors per expert
+    - biases: Per-expert biases (if model has them)
 
     Reconstruction: expert_i = base + U_i @ V_i
 
@@ -978,14 +1106,16 @@ class OverlayExperts:
         config: CompressionConfig,
         base_weights: dict,
         delta_weights: dict,
+        biases: dict | None = None,
     ) -> None:
         """Initialize from loaded weights."""
         self.config = config
         self._base = base_weights
         self._deltas = delta_weights
+        self._biases = biases or {}
 
     @classmethod
-    def load(cls, path: str | Path) -> "OverlayExperts":
+    def load(cls, path: str | Path) -> OverlayExperts:
         """Load compressed model from disk."""
         import mlx.core as mx
 
@@ -1010,12 +1140,19 @@ class OverlayExperts:
         base_weights = mx.load(str(base_path))
         delta_weights = mx.load(str(deltas_path))
 
+        # Load biases if available
+        biases = None
+        biases_path = path / "biases.safetensors"
+        if biases_path.exists():
+            biases = mx.load(str(biases_path))
+            logger.info(f"Loaded biases: {list(biases.keys())}")
+
         logger.info(
             f"Loaded compressed model: {config.num_layers} layers, "
             f"{config.num_experts} experts, {config.compression_ratio:.1f}x compression"
         )
 
-        return cls(config, base_weights, delta_weights)
+        return cls(config, base_weights, delta_weights, biases)
 
     def get_expert_weight(
         self,
@@ -1063,8 +1200,8 @@ class OverlayExperts:
     ):
         """Apply expert to input efficiently using low-rank factorization.
 
-        Instead of: y = x @ (base + U @ V).T
-        Computes:   y = x @ base.T + (x @ V.T) @ U.T
+        Instead of: y = x @ (base + U @ V).T + bias
+        Computes:   y = x @ base.T + (x @ V.T) @ U.T + bias
 
         This is more efficient when rank << min(in_dim, out_dim).
 
@@ -1077,7 +1214,6 @@ class OverlayExperts:
         Returns:
             Output tensor of shape (..., out_dim)
         """
-        import mlx.core as mx
 
         base_key = f"layer_{layer}_{projection}_base"
         u_key = f"layer_{layer}_{projection}_expert_{expert}_U"
@@ -1091,8 +1227,16 @@ class OverlayExperts:
         # y = x @ base.T + x @ V.T @ U.T
         base_out = x @ base.T
         delta_out = (x @ V.T) @ U.T
+        out = base_out + delta_out
 
-        return base_out + delta_out
+        # Apply bias if available
+        # Biases are stored per-expert: (num_experts, out_dim)
+        bias_key = f"{projection}_bias"
+        if bias_key in self._biases:
+            bias = self._biases[bias_key][expert]  # (out_dim,)
+            out = out + bias
+
+        return out
 
     @property
     def num_layers(self) -> int:

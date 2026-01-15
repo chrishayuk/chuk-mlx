@@ -6,6 +6,18 @@ import asyncio
 from argparse import Namespace
 from pathlib import Path
 
+# Quality presets as fractions of hidden dimension
+# (gate_fraction, up_fraction, down_fraction)
+# These scale automatically based on model size
+QUALITY_PRESETS = {
+    "fast": (0.001, 0.01, 0.005),  # ~12x compression, fastest
+    "balanced": (0.001, 0.02, 0.01),  # ~8x compression, good tradeoff (default)
+    "quality": (0.002, 0.04, 0.02),  # ~5x compression, best reconstruction
+}
+
+# Minimum ranks to ensure reasonable quality
+MIN_RANKS = {"gate": 2, "up": 16, "down": 8}
+
 
 def handle_moe_overlay_compress(args: Namespace) -> None:
     """Compress MoE model to overlay format (base + low-rank deltas)."""
@@ -17,17 +29,42 @@ async def _async_moe_overlay_compress(args: Namespace) -> None:
 
     model_id: str = args.model
     output_path: str = getattr(args, "output", None) or _default_output_path(model_id)
+    dtype: str = getattr(args, "dtype", "bfloat16")
+    resume: bool = getattr(args, "resume", True)
+
+    # Resolve ranks from preset or explicit values
+    quality: str = getattr(args, "quality", "balanced")
     gate_rank: int | None = getattr(args, "gate_rank", None)
     up_rank: int | None = getattr(args, "up_rank", None)
     down_rank: int | None = getattr(args, "down_rank", None)
-    dtype: str = getattr(args, "dtype", "bfloat16")
 
     print(f"Compressing model: {model_id}")
     print(f"Output: {output_path}")
-    if gate_rank or up_rank or down_rank:
-        print(f"Ranks: gate={gate_rank}, up={up_rank}, down={down_rank}")
+
+    # If no explicit ranks, compute from model dimensions and preset
+    if gate_rank is None and up_rank is None and down_rank is None:
+        print("Detecting model dimensions...")
+        hidden_dim = await _get_hidden_dim(model_id)
+
+        gate_frac, up_frac, down_frac = QUALITY_PRESETS[quality]
+        gate_rank = max(MIN_RANKS["gate"], int(hidden_dim * gate_frac))
+        up_rank = max(MIN_RANKS["up"], int(hidden_dim * up_frac))
+        down_rank = max(MIN_RANKS["down"], int(hidden_dim * down_frac))
+        rank_source = f"quality={quality}"
+        print(f"Hidden dim: {hidden_dim}")
     else:
-        print("Ranks: auto-selecting from SVD analysis")
+        # Fill in any missing ranks with balanced defaults
+        if gate_rank is None or up_rank is None or down_rank is None:
+            hidden_dim = await _get_hidden_dim(model_id)
+            gate_frac, up_frac, down_frac = QUALITY_PRESETS["balanced"]
+            gate_rank = gate_rank or max(MIN_RANKS["gate"], int(hidden_dim * gate_frac))
+            up_rank = up_rank or max(MIN_RANKS["up"], int(hidden_dim * up_frac))
+            down_rank = down_rank or max(MIN_RANKS["down"], int(hidden_dim * down_frac))
+        rank_source = "custom"
+
+    print(f"Quality: {rank_source} (gate={gate_rank}, up={up_rank}, down={down_rank})")
+    if resume:
+        print("Resume: enabled (will continue from checkpoint if found)")
     print()
 
     result = await MoECompressionService.compress_model(
@@ -37,9 +74,33 @@ async def _async_moe_overlay_compress(args: Namespace) -> None:
         up_rank=up_rank,
         down_rank=down_rank,
         dtype=dtype,
+        resume=resume,
     )
 
     _print_compression_result(result)
+
+
+async def _get_hidden_dim(model_id: str) -> int:
+    """Get hidden dimension from model config."""
+    import asyncio
+
+    def _load_dim() -> int:
+        from ......introspection.moe.moe_type import MoETypeService
+
+        model = MoETypeService._load_model(model_id)
+        # Try common config attribute names
+        config = getattr(model, "config", None) or getattr(model, "args", None)
+        if config:
+            for attr in ["hidden_size", "hidden_dim", "d_model", "n_embd"]:
+                if hasattr(config, attr):
+                    return getattr(config, attr)
+        # Fallback: check first layer embedding
+        if hasattr(model, "model") and hasattr(model.model, "embed_tokens"):
+            return model.model.embed_tokens.weight.shape[1]
+        # Default for unknown models
+        return 2048
+
+    return await asyncio.to_thread(_load_dim)
 
 
 def _default_output_path(model_id: str) -> str:

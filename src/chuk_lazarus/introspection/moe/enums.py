@@ -74,14 +74,21 @@ class MoEType(str, Enum):
     or trained natively as MoE. This affects compression strategies.
     """
 
-    PSEUDO = "pseudo"
-    """Dense→MoE conversion. Experts share a base with low-rank deltas. Compressible via SVD."""
+    UPCYCLED = "upcycled"
+    """Dense→MoE conversion (upcycling). Experts share a base with low-rank deltas. Compressible via SVD."""
 
-    NATIVE = "native"
-    """Trained natively as MoE. Orthogonal experts. Not compressible via SVD overlay."""
+    PRETRAINED_MOE = "pretrained_moe"
+    """Trained natively as MoE from scratch. Orthogonal experts. Not compressible via SVD overlay."""
 
     UNKNOWN = "unknown"
     """Inconclusive metrics. Requires manual inspection."""
+
+    # Legacy aliases for backwards compatibility
+    PSEUDO = "upcycled"
+    """Alias for UPCYCLED (deprecated)."""
+
+    NATIVE = "pretrained_moe"
+    """Alias for PRETRAINED_MOE (deprecated)."""
 
 
 class MoEAction(str, Enum):

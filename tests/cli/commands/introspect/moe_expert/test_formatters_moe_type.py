@@ -33,7 +33,7 @@ class TestFormatMoETypeResult:
             model_id="openai/gpt-oss-20b",
             layer_idx=0,
             num_experts=32,
-            moe_type=MoEType.PSEUDO,
+            moe_type=MoEType.UPCYCLED,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(2880, 2880), max_rank=2880, effective_rank_95=1
             ),
@@ -54,7 +54,7 @@ class TestFormatMoETypeResult:
             model_id="allenai/OLMoE-1B-7B-0924",
             layer_idx=0,
             num_experts=64,
-            moe_type=MoEType.NATIVE,
+            moe_type=MoEType.PRETRAINED_MOE,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(1024, 2048), max_rank=1024, effective_rank_95=755
             ),
@@ -95,7 +95,7 @@ class TestFormatMoETypeResult:
 
         assert "MOE TYPE ANALYSIS" in output
         assert "openai/gpt-oss-20b" in output
-        assert "PSEUDO-MOE" in output
+        assert "UPCYCLED" in output
         assert "Gate Rank:" in output
         assert "0.0%" in output  # Gate rank ratio
         assert "0.418" in output  # Cosine similarity
@@ -105,7 +105,7 @@ class TestFormatMoETypeResult:
         """Test formatter output for native-MoE."""
         output = format_moe_type_result(native_moe_analysis)
 
-        assert "NATIVE-MOE" in output
+        assert "PRETRAINED" in output
         assert "allenai/OLMoE-1B-7B-0924" in output
         assert "755" in output  # Gate rank
         assert "0.000" in output  # Cosine similarity
@@ -154,7 +154,7 @@ class TestFormatMoETypeComparison:
             model_id="openai/gpt-oss-20b",
             layer_idx=0,
             num_experts=32,
-            moe_type=MoEType.PSEUDO,
+            moe_type=MoEType.UPCYCLED,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(2880, 2880), max_rank=2880, effective_rank_95=1
             ),
@@ -175,7 +175,7 @@ class TestFormatMoETypeComparison:
             model_id="allenai/OLMoE-1B-7B-0924",
             layer_idx=0,
             num_experts=64,
-            moe_type=MoEType.NATIVE,
+            moe_type=MoEType.PRETRAINED_MOE,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(1024, 2048), max_rank=1024, effective_rank_95=755
             ),
@@ -209,8 +209,8 @@ class TestFormatMoETypeComparison:
         """Test Type row in comparison."""
         output = format_moe_type_comparison(pseudo_analysis, native_analysis)
 
-        assert "PSEUDO" in output
-        assert "NATIVE" in output
+        assert "UPCYCLED" in output
+        assert "PRETRAINED" in output
 
     def test_comparison_gate_rank_row(self, pseudo_analysis, native_analysis):
         """Test Gate Rank row in comparison."""

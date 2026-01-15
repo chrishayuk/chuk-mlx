@@ -194,6 +194,9 @@ from .moe_type import (
     ProjectionRankAnalysis,
 )
 
+# Overlay Inference
+from .overlay_inference import OverlayMoEModel
+
 # Router analysis
 from .router import (
     analyze_coactivation,
@@ -402,6 +405,8 @@ __all__ = [
     "ReconstructionError",
     "ReconstructionVerification",
     "StorageEstimate",
+    # Overlay Inference
+    "OverlayMoEModel",
     # Visualization
     "routing_weights_to_matrix",
     "multi_layer_routing_matrix",

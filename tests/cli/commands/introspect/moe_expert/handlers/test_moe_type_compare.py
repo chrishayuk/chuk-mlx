@@ -40,7 +40,7 @@ class TestAsyncMoETypeCompare:
             model_id="pseudo/model",
             layer_idx=0,
             num_experts=32,
-            moe_type=MoEType.PSEUDO,
+            moe_type=MoEType.UPCYCLED,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(2880, 2880), max_rank=2880, effective_rank_95=1
             ),
@@ -61,7 +61,7 @@ class TestAsyncMoETypeCompare:
             model_id="native/model",
             layer_idx=0,
             num_experts=64,
-            moe_type=MoEType.NATIVE,
+            moe_type=MoEType.PRETRAINED_MOE,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(1024, 2048), max_rank=1024, effective_rank_95=755
             ),

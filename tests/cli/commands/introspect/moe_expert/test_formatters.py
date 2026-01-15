@@ -417,7 +417,7 @@ class TestFormatOrthogonalityAscii:
             model_id="openai/gpt-oss-20b",
             layer_idx=0,
             num_experts=4,
-            moe_type=MoEType.PSEUDO,
+            moe_type=MoEType.UPCYCLED,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(2880, 2880), max_rank=2880, effective_rank_95=1
             ),
@@ -446,7 +446,7 @@ class TestFormatOrthogonalityAscii:
             model_id="allenai/OLMoE-1B-7B-0924",
             layer_idx=0,
             num_experts=4,
-            moe_type=MoEType.NATIVE,
+            moe_type=MoEType.PRETRAINED_MOE,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(1024, 2048), max_rank=1024, effective_rank_95=755
             ),
@@ -469,14 +469,14 @@ class TestFormatOrthogonalityAscii:
         assert "EXPERT ORTHOGONALITY VISUALIZATION" in result
         assert "openai/gpt-oss-20b" in result
         assert "Layer:   0" in result
-        assert "PSEUDO" in result
+        assert "UPCYCLED" in result
 
         # Check heatmap is present
         assert "Expert Similarity Heatmap" in result
         assert "Legend:" in result
 
         # Check interpretation for pseudo-MoE
-        assert "PSEUDO-MoE" in result
+        assert "UPCYCLED MoE" in result or "COMPRESSIBLE" in result
         assert "COMPRESSIBLE" in result
         assert "BASE" in result
 
@@ -487,13 +487,13 @@ class TestFormatOrthogonalityAscii:
         # Check header and model info
         assert "EXPERT ORTHOGONALITY VISUALIZATION" in result
         assert "allenai/OLMoE-1B-7B-0924" in result
-        assert "NATIVE" in result
+        assert "PRETRAINED" in result
 
         # Check heatmap is present
         assert "Expert Similarity Heatmap" in result
 
         # Check interpretation for native-MoE
-        assert "NATIVE-MoE" in result
+        assert "PRETRAINED MoE" in result or "NOT compressible" in result
         assert "NOT compressible" in result
         assert "orthogonal" in result.lower()
 
@@ -553,7 +553,7 @@ class TestFormatOrthogonalityAscii:
             model_id="test/model",
             layer_idx=0,
             num_experts=n,
-            moe_type=MoEType.NATIVE,
+            moe_type=MoEType.PRETRAINED_MOE,
             gate=ProjectionRankAnalysis(
                 name="gate", shape=(1024, 1024), max_rank=1024, effective_rank_95=800
             ),
