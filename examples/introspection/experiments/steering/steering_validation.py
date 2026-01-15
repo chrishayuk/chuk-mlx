@@ -11,13 +11,14 @@ from the tool cluster?
 Run: uv run python examples/introspection/steering_validation.py
 """
 
-import numpy as np
+import warnings
+
 import mlx.core as mx
 import mlx.nn as nn
+import numpy as np
 from sklearn.linear_model import LogisticRegression
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 class SteeringValidation:
@@ -38,7 +39,7 @@ class SteeringValidation:
         self.layers = self.model.model.layers
         self.final_norm = self.model.model.norm
         self.hidden_size = self.model.model.hidden_size
-        self.embed_scale = self.hidden_size ** 0.5
+        self.embed_scale = self.hidden_size**0.5
         self.num_layers = len(self.layers)
 
     def get_final_activations_with_steering(
@@ -67,7 +68,7 @@ class SteeringValidation:
 
             if layer_idx == CONTROL_LAYER and mode != "normal":
                 # Apply steering
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     normed = layer.input_layernorm(h)
                 else:
                     normed = h
@@ -77,13 +78,13 @@ class SteeringValidation:
                     attn_out = attn_out[0]
                 h = h + attn_out
 
-                if hasattr(layer, 'post_attention_layernorm'):
+                if hasattr(layer, "post_attention_layernorm"):
                     mlp_input = layer.post_attention_layernorm(h)
                 else:
                     mlp_input = h
 
                 mlp = layer.mlp
-                if hasattr(mlp, 'gate_proj'):
+                if hasattr(mlp, "gate_proj"):
                     gate = mlp.gate_proj(mlp_input)
                     up = mlp.up_proj(mlp_input)
                     mlp_hidden = nn.gelu(gate) * up
@@ -213,7 +214,9 @@ class SteeringValidation:
             prob_prevent = probe.predict_proba([act_prevent])[0, 1]
 
             prompt_short = prompt[:33] + ".." if len(prompt) > 35 else prompt
-            print(f"   {prompt_short:<35} {prob_normal:>9.1%} {prob_force:>9.1%} {prob_prevent:>9.1%}")
+            print(
+                f"   {prompt_short:<35} {prob_normal:>9.1%} {prob_force:>9.1%} {prob_prevent:>9.1%}"
+            )
 
         print("\n   TOOL prompts with steering:")
         print(f"   {'Prompt':<35} {'Normal':>10} {'Force':>10} {'Prevent':>10}")
@@ -234,7 +237,9 @@ class SteeringValidation:
             prob_prevent = probe.predict_proba([act_prevent])[0, 1]
 
             prompt_short = prompt[:33] + ".." if len(prompt) > 35 else prompt
-            print(f"   {prompt_short:<35} {prob_normal:>9.1%} {prob_force:>9.1%} {prob_prevent:>9.1%}")
+            print(
+                f"   {prompt_short:<35} {prob_normal:>9.1%} {prob_force:>9.1%} {prob_prevent:>9.1%}"
+            )
 
         # Step 3: Quantify steering effect
         print("\n3. Quantifying steering effect...")
@@ -258,7 +263,7 @@ class SteeringValidation:
             force_increases.append(prob_force - prob_normal)
             prevent_decreases.append(prob_normal - prob_prevent)
 
-        print(f"   On NO-TOOL prompts:")
+        print("   On NO-TOOL prompts:")
         print(f"     Force tool increases P(tool) by: {np.mean(force_increases):+.1%} (avg)")
         print(f"     Prevent tool decreases P(tool) by: {np.mean(prevent_decreases):+.1%} (avg)")
 
@@ -281,7 +286,7 @@ class SteeringValidation:
             force_increases.append(prob_force - prob_normal)
             prevent_decreases.append(prob_normal - prob_prevent)
 
-        print(f"\n   On TOOL prompts:")
+        print("\n   On TOOL prompts:")
         print(f"     Force tool increases P(tool) by: {np.mean(force_increases):+.1%} (avg)")
         print(f"     Prevent tool decreases P(tool) by: {np.mean(prevent_decreases):+.1%} (avg)")
 

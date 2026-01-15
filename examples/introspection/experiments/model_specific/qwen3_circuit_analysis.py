@@ -14,14 +14,15 @@ Run: uv run python examples/introspection/qwen3_circuit_analysis.py
 """
 
 import json
-import numpy as np
+import warnings
+
 import mlx.core as mx
 import mlx.nn as nn
-from sklearn.linear_model import LogisticRegression
+import numpy as np
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 class Qwen3CircuitAnalysis:
@@ -68,7 +69,7 @@ class Qwen3CircuitAnalysis:
             output = layer(h, mask=mask, cache=None)
             if isinstance(output, tuple):
                 h = output[0]
-            elif hasattr(output, 'hidden_states'):
+            elif hasattr(output, "hidden_states"):
                 h = output.hidden_states
             else:
                 h = output
@@ -98,7 +99,7 @@ class Qwen3CircuitAnalysis:
         for i, layer in enumerate(self.layers):
             if i == layer_idx:
                 # Get MLP activations specifically
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     normed = layer.input_layernorm(h)
                 else:
                     normed = h
@@ -110,14 +111,14 @@ class Qwen3CircuitAnalysis:
                 h = h + attn_out
 
                 # MLP input
-                if hasattr(layer, 'post_attention_layernorm'):
+                if hasattr(layer, "post_attention_layernorm"):
                     mlp_input = layer.post_attention_layernorm(h)
                 else:
                     mlp_input = h
 
                 # Get MLP intermediate
                 mlp = layer.mlp
-                if hasattr(mlp, 'gate_proj'):
+                if hasattr(mlp, "gate_proj"):
                     gate = mlp.gate_proj(mlp_input)
                     up = mlp.up_proj(mlp_input)
                     # SwiGLU: silu(gate) * up
@@ -131,7 +132,7 @@ class Qwen3CircuitAnalysis:
             output = layer(h, mask=mask, cache=None)
             if isinstance(output, tuple):
                 h = output[0]
-            elif hasattr(output, 'hidden_states'):
+            elif hasattr(output, "hidden_states"):
                 h = output.hidden_states
             else:
                 h = output
@@ -211,8 +212,8 @@ class Qwen3CircuitAnalysis:
             separation = np.linalg.norm(action_mean - question_mean)
 
             layer_results[layer_idx] = {
-                'accuracy': acc,
-                'separation': separation,
+                "accuracy": acc,
+                "separation": separation,
             }
 
             print(f"   L{layer_idx:2d}: Probe accuracy = {acc:.1%}, Separation = {separation:.1f}")
@@ -333,15 +334,15 @@ class Qwen3CircuitAnalysis:
         pca = PCA(n_components=3)
         pca.fit(all_acts)
 
-        print(f"\n4. PCA variance explained:")
+        print("\n4. PCA variance explained:")
         for i, var in enumerate(pca.explained_variance_ratio_[:3]):
-            print(f"   PC{i+1}: {var:.1%}")
+            print(f"   PC{i + 1}: {var:.1%}")
 
         return {
-            'target_layer': target_layer,
-            'action_neurons': top_action.tolist(),
-            'question_neurons': top_question.tolist(),
-            'pc1_variance': float(pca.explained_variance_ratio_[0]),
+            "target_layer": target_layer,
+            "action_neurons": top_action.tolist(),
+            "question_neurons": top_question.tolist(),
+            "pc1_variance": float(pca.explained_variance_ratio_[0]),
         }
 
     def run_comparison(self):
@@ -374,11 +375,11 @@ FunctionGemma 270M:
 Qwen3-0.6B (this analysis):""")
 
         # Find early high accuracy
-        early_acc = [probe_results[l]['accuracy'] for l in sorted(probe_results.keys())[:5]]
+        early_acc = [probe_results[l]["accuracy"] for l in sorted(probe_results.keys())[:5]]
         print(f"  - Early layer accuracy: {max(early_acc):.1%}")
 
         # Find when accuracy stabilizes
-        accs = [(l, probe_results[l]['accuracy']) for l in sorted(probe_results.keys())]
+        accs = [(l, probe_results[l]["accuracy"]) for l in sorted(probe_results.keys())]
         print(f"  - Layer probe accuracies: {[(l, f'{a:.1%}') for l, a in accs]}")
 
         print(f"  - Target layer (scaled L11): {neuron_results['target_layer']}")
@@ -388,14 +389,14 @@ Qwen3-0.6B (this analysis):""")
 
         # Save results
         results = {
-            'model': self.model_id,
-            'num_layers': self.num_layers,
-            'hidden_size': self.hidden_size,
-            'probe_results': {str(k): v for k, v in probe_results.items()},
-            'neuron_analysis': neuron_results,
+            "model": self.model_id,
+            "num_layers": self.num_layers,
+            "hidden_size": self.hidden_size,
+            "probe_results": {str(k): v for k, v in probe_results.items()},
+            "neuron_analysis": neuron_results,
         }
 
-        with open('qwen3_circuit_results.json', 'w') as f:
+        with open("qwen3_circuit_results.json", "w") as f:
             json.dump(results, f, indent=2)
 
         print("\nResults saved to qwen3_circuit_results.json")

@@ -31,6 +31,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class RoutingDecision:
     """Result of routing decision."""
+
     prompt: str
     route: str  # "MODEL" or "CALCULATOR"
     uncertainty_score: float
@@ -166,7 +167,11 @@ class ToolRouter:
                 out = lyr(h, mask=mask)
             except TypeError:
                 out = lyr(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             if idx == self.detection_layer:
                 return np.array(h[0, -1, :].tolist())
@@ -198,7 +203,11 @@ class ToolRouter:
                     out = layer(h, mask=mask)
                 except TypeError:
                     out = layer(h)
-                h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+                h = (
+                    out.hidden_states
+                    if hasattr(out, "hidden_states")
+                    else (out[0] if isinstance(out, tuple) else out)
+                )
 
             h_n = norm(h) if norm else h
             logits = head(h_n)
@@ -307,7 +316,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Route between model and tools")
     parser.add_argument("--model", "-m", default="mlx-community/gemma-3-4b-it-bf16")
     parser.add_argument(
-        "--prompts", "-p", nargs="+",
+        "--prompts",
+        "-p",
+        nargs="+",
         default=[
             "100 - 37 = ",
             "100 - 37 =",
@@ -315,7 +326,7 @@ if __name__ == "__main__":
             "50 + 25 =",
             "What is 999 * 888?",
             "Calculate 144 / 12",
-        ]
+        ],
     )
     parser.add_argument("--threshold", "-t", type=float, default=0)
 

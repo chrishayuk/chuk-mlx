@@ -54,7 +54,7 @@ class ExpertDeltaSVD:
         m, n = self.original_shape
         original_params = m * n
         lora_params = self.rank_95 * (m + n)
-        return original_params / lora_params if lora_params > 0 else float('inf')
+        return original_params / lora_params if lora_params > 0 else float("inf")
 
 
 @dataclass
@@ -78,9 +78,9 @@ class LayerSVDAnalysis:
 
     def compute_summaries(self):
         """Compute summary statistics."""
-        gate_ranks = [s.rank_95 for (_, p), s in self.expert_svds.items() if p == 'gate']
-        up_ranks = [s.rank_95 for (_, p), s in self.expert_svds.items() if p == 'up']
-        down_ranks = [s.rank_95 for (_, p), s in self.expert_svds.items() if p == 'down']
+        gate_ranks = [s.rank_95 for (_, p), s in self.expert_svds.items() if p == "gate"]
+        up_ranks = [s.rank_95 for (_, p), s in self.expert_svds.items() if p == "up"]
+        down_ranks = [s.rank_95 for (_, p), s in self.expert_svds.items() if p == "down"]
 
         self.mean_rank_95_gate = np.mean(gate_ranks) if gate_ranks else 0.0
         self.mean_rank_95_up = np.mean(up_ranks) if up_ranks else 0.0
@@ -99,13 +99,13 @@ def compute_effective_rank(singular_values: np.ndarray, threshold: float) -> int
         Minimum rank to capture threshold fraction of total variance
     """
     # Total variance is sum of squared singular values
-    total_variance = np.sum(singular_values ** 2)
+    total_variance = np.sum(singular_values**2)
 
     if total_variance == 0:
         return 0
 
     # Cumulative variance
-    cumsum = np.cumsum(singular_values ** 2)
+    cumsum = np.cumsum(singular_values**2)
     cumsum_ratio = cumsum / total_variance
 
     # Find first index where we exceed threshold
@@ -153,7 +153,7 @@ def analyze_expert_delta(
             original_shape=delta_np.shape,
         )
 
-    total_variance = float(np.sum(S ** 2))
+    total_variance = float(np.sum(S**2))
 
     return ExpertDeltaSVD(
         expert_idx=expert_idx,
@@ -255,7 +255,7 @@ def _analyze_batched_experts(
 
     # Dequantize gate_up_proj for all experts
     # Shape after dequant: (num_experts, 2*intermediate, hidden)
-    print(f"    Dequantizing gate_up_proj...", flush=True)
+    print("    Dequantizing gate_up_proj...", flush=True)
     gate_up_weights = _dequantize_mxfp4(
         experts.gate_up_proj_blocks,
         experts.gate_up_proj_scales,
@@ -266,7 +266,7 @@ def _analyze_batched_experts(
 
     # Dequantize down_proj for all experts
     # Shape after dequant: (num_experts, hidden, intermediate)
-    print(f"    Dequantizing down_proj...", flush=True)
+    print("    Dequantizing down_proj...", flush=True)
     down_weights = _dequantize_mxfp4(
         experts.down_proj_blocks,
         experts.down_proj_scales,
@@ -278,7 +278,7 @@ def _analyze_batched_experts(
     # gate_up is interleaved: gate at even indices, up at odd
     # Split them: gate_up_weights is (num_experts, 2*intermediate, hidden)
     gate_weights = gate_up_weights[:, 0::2, :]  # (num_experts, intermediate, hidden)
-    up_weights = gate_up_weights[:, 1::2, :]    # (num_experts, intermediate, hidden)
+    up_weights = gate_up_weights[:, 1::2, :]  # (num_experts, intermediate, hidden)
     print(f"    Split gate: {gate_weights.shape}, up: {up_weights.shape}", flush=True)
 
     # Analyze each projection type
@@ -336,7 +336,9 @@ def _analyze_list_experts(
             continue
 
         # Compute base (mean) expert - convert to float32 for precision
-        stacked = mx.stack([w.astype(mx.float32) for w in weights], axis=0)  # (num_experts, out, in)
+        stacked = mx.stack(
+            [w.astype(mx.float32) for w in weights], axis=0
+        )  # (num_experts, out, in)
         base = mx.mean(stacked, axis=0)  # (out, in)
         mx.eval(base)
 
@@ -469,9 +471,13 @@ def print_analysis_summary(analyses: list[LayerSVDAnalysis]):
     all_down = []
 
     for analysis in analyses:
-        avg = (analysis.mean_rank_95_gate + analysis.mean_rank_95_up + analysis.mean_rank_95_down) / 3
-        print(f"{analysis.layer_idx:>6} | {analysis.mean_rank_95_gate:>8.1f} | "
-              f"{analysis.mean_rank_95_up:>8.1f} | {analysis.mean_rank_95_down:>8.1f} | {avg:>8.1f}")
+        avg = (
+            analysis.mean_rank_95_gate + analysis.mean_rank_95_up + analysis.mean_rank_95_down
+        ) / 3
+        print(
+            f"{analysis.layer_idx:>6} | {analysis.mean_rank_95_gate:>8.1f} | "
+            f"{analysis.mean_rank_95_up:>8.1f} | {analysis.mean_rank_95_down:>8.1f} | {avg:>8.1f}"
+        )
 
         all_gate.append(analysis.mean_rank_95_gate)
         all_up.append(analysis.mean_rank_95_up)
@@ -479,8 +485,10 @@ def print_analysis_summary(analyses: list[LayerSVDAnalysis]):
 
     print("-" * 80)
     avg_all = (np.mean(all_gate) + np.mean(all_up) + np.mean(all_down)) / 3
-    print(f"{'Mean':>6} | {np.mean(all_gate):>8.1f} | {np.mean(all_up):>8.1f} | "
-          f"{np.mean(all_down):>8.1f} | {avg_all:>8.1f}")
+    print(
+        f"{'Mean':>6} | {np.mean(all_gate):>8.1f} | {np.mean(all_up):>8.1f} | "
+        f"{np.mean(all_down):>8.1f} | {avg_all:>8.1f}"
+    )
 
     # Compression ratio estimate
     print("\n" + "-" * 80)
@@ -513,7 +521,7 @@ def print_analysis_summary(analyses: list[LayerSVDAnalysis]):
 
     if analyses:
         first = analyses[0]
-        down_svds = [(idx, svd) for (idx, proj), svd in first.expert_svds.items() if proj == 'down']
+        down_svds = [(idx, svd) for (idx, proj), svd in first.expert_svds.items() if proj == "down"]
         down_svds.sort(key=lambda x: x[0])
 
         ranks = [svd.rank_95 for _, svd in down_svds]
@@ -535,7 +543,7 @@ def visualize_singular_values(analyses: list[LayerSVDAnalysis], output_path: str
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
-    for ax, proj_name in zip(axes, ['gate', 'up', 'down']):
+    for ax, proj_name in zip(axes, ["gate", "up", "down"]):
         # Plot singular values for first 3 experts in first layer
         first = analyses[0]
         for expert_idx in range(min(3, first.num_experts)):
@@ -544,19 +552,19 @@ def visualize_singular_values(analyses: list[LayerSVDAnalysis], output_path: str
                 svd = first.expert_svds[key]
                 # Normalize by largest singular value
                 normalized = svd.singular_values / (svd.singular_values[0] + 1e-10)
-                ax.semilogy(normalized[:100], label=f'Expert {expert_idx}', alpha=0.7)
+                ax.semilogy(normalized[:100], label=f"Expert {expert_idx}", alpha=0.7)
 
-        ax.set_xlabel('Rank')
-        ax.set_ylabel('Normalized Singular Value')
-        ax.set_title(f'{proj_name.capitalize()} Projection')
+        ax.set_xlabel("Rank")
+        ax.set_ylabel("Normalized Singular Value")
+        ax.set_title(f"{proj_name.capitalize()} Projection")
         ax.legend()
         ax.grid(True, alpha=0.3)
 
-    plt.suptitle('Singular Value Decay in Expert Deltas', fontsize=14)
+    plt.suptitle("Singular Value Decay in Expert Deltas", fontsize=14)
     plt.tight_layout()
 
     if output_path:
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        plt.savefig(output_path, dpi=150, bbox_inches="tight")
         print(f"Saved visualization to {output_path}")
     else:
         plt.show()
@@ -591,7 +599,8 @@ def main():
 
     # Load model using the framework's loader (required for GPT-OSS)
     import sys
-    sys.path.insert(0, '/Users/christopherhay/chris-source/chuk-mlx/src')
+
+    sys.path.insert(0, "/Users/christopherhay/chris-source/chuk-mlx/src")
 
     try:
         from chuk_lazarus.models_v2.loader import load_model
@@ -650,9 +659,9 @@ def main():
             med_sim = np.sum((off_diag > 0.7) & (off_diag <= 0.9))
             low_sim = np.sum(off_diag <= 0.7)
             total = len(off_diag)
-            print(f"\nPairs with similarity > 0.9: {high_sim} ({100*high_sim/total:.1f}%)")
-            print(f"Pairs with similarity 0.7-0.9: {med_sim} ({100*med_sim/total:.1f}%)")
-            print(f"Pairs with similarity < 0.7: {low_sim} ({100*low_sim/total:.1f}%)")
+            print(f"\nPairs with similarity > 0.9: {high_sim} ({100 * high_sim / total:.1f}%)")
+            print(f"Pairs with similarity 0.7-0.9: {med_sim} ({100 * med_sim / total:.1f}%)")
+            print(f"Pairs with similarity < 0.7: {low_sim} ({100 * low_sim / total:.1f}%)")
 
     # Visualize
     if args.output_plot:

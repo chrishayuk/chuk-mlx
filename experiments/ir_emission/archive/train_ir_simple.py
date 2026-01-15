@@ -41,8 +41,8 @@ class SimpleIRPredictor(nn.Module):
 
 def load_model_with_lora(model_name: str, adapter_path: str):
     """Load model and apply LoRA weights."""
-    from chuk_lazarus.models_v2.loader import load_model
     from chuk_lazarus.models_v2.adapters.lora import LoRAConfig, apply_lora
+    from chuk_lazarus.models_v2.loader import load_model
 
     result = load_model(model_name)
     model = result.model
@@ -165,9 +165,9 @@ def main():
     # Classifier token IDs (from dual-reward training)
     classifier_tokens = {
         "multiply": 22932,  # maps to idx 2 (mul)
-        "add": 788,         # maps to idx 0
+        "add": 788,  # maps to idx 0
         "subtract": 23197,  # maps to idx 1
-        "divide": 16429,    # maps to idx 3
+        "divide": 16429,  # maps to idx 3
     }
     # Order matters: we want logits in [add, sub, mul, div] order
     classifier_token_ids = [
@@ -229,7 +229,7 @@ def main():
     # IR generation helper
     def indices_to_wasm(op_idx, operands):
         """Build WASM for: operand[0] op operand[1]"""
-        from codebook import encode_i32_const, OPCODE_TO_WASM
+        from codebook import OPCODE_TO_WASM, encode_i32_const
 
         ir_op = idx_to_ir[op_idx]
         body = bytearray()
@@ -262,8 +262,8 @@ def main():
             pass
 
     logger.info(f"Operation prediction accuracy: {correct}/{total}")
-    logger.info(f"Execution accuracy: {correct}/{total} = {correct/total:.1%}")
-    logger.info(f"Valid IR: {valid}/{total} = {valid/total:.1%}")
+    logger.info(f"Execution accuracy: {correct}/{total} = {correct / total:.1%}")
+    logger.info(f"Valid IR: {valid}/{total} = {valid / total:.1%}")
 
     # Show confusion matrix
     logger.info("\nPer-operation breakdown:")
@@ -277,7 +277,7 @@ def main():
             pred = int(mx.argmax(predictor(cls_logits), axis=-1).item())
             if pred == idx:
                 op_correct += 1
-        logger.info(f"  {op}: {op_correct}/{len(op_samples)} = {op_correct/len(op_samples):.1%}")
+        logger.info(f"  {op}: {op_correct}/{len(op_samples)} = {op_correct / len(op_samples):.1%}")
 
 
 if __name__ == "__main__":

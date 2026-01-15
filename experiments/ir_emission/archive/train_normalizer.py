@@ -39,19 +39,23 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-    parser.add_argument("--train-data", default="experiments/ir_emission/data/normalizer_train.jsonl")
+    parser.add_argument(
+        "--train-data", default="experiments/ir_emission/data/normalizer_train.jsonl"
+    )
     parser.add_argument("--val-data", default="experiments/ir_emission/data/normalizer_val.jsonl")
     parser.add_argument("--steps", type=int, default=500)
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--lora-rank", type=int, default=16)
-    parser.add_argument("--checkpoint-dir", default="experiments/ir_emission/checkpoints/normalizer")
+    parser.add_argument(
+        "--checkpoint-dir", default="experiments/ir_emission/checkpoints/normalizer"
+    )
     args = parser.parse_args()
 
     # Load model
     logger.info(f"Loading model: {args.model}")
-    from chuk_lazarus.models_v2.loader import load_model
     from chuk_lazarus.models_v2.adapters.lora import LoRAConfig, apply_lora
+    from chuk_lazarus.models_v2.loader import load_model
 
     result = load_model(args.model)
     model = result.model
@@ -74,7 +78,7 @@ def main():
     # Count trainable params
     trainable = sum(p.size for _, p in nn.utils.tree_flatten(model.trainable_parameters()))
     total = sum(p.size for _, p in nn.utils.tree_flatten(model.parameters()))
-    logger.info(f"Trainable parameters: {trainable:,} / {total:,} ({100*trainable/total:.2f}%)")
+    logger.info(f"Trainable parameters: {trainable:,} / {total:,} ({100 * trainable / total:.2f}%)")
 
     # Load data
     train_samples = load_samples(args.train_data)
@@ -102,14 +106,18 @@ def main():
             full_ids = tokenizer.encode(full_text)
 
             # Target is only the canonical output part
-            target_ids = [-100] * len(input_ids) + full_ids[len(input_ids):]
+            target_ids = [-100] * len(input_ids) + full_ids[len(input_ids) :]
 
             input_ids_list.append(full_ids)
             target_ids_list.append(target_ids)
             max_len = max(max_len, len(full_ids))
 
         # Pad sequences
-        pad_id = tokenizer.pad_token_id if hasattr(tokenizer, 'pad_token_id') and tokenizer.pad_token_id else 0
+        pad_id = (
+            tokenizer.pad_token_id
+            if hasattr(tokenizer, "pad_token_id") and tokenizer.pad_token_id
+            else 0
+        )
         for i in range(len(input_ids_list)):
             pad_len = max_len - len(input_ids_list[i])
             input_ids_list[i] = input_ids_list[i] + [pad_id] * pad_len
@@ -120,7 +128,7 @@ def main():
     def loss_fn(model, input_ids, target_ids):
         """Compute cross-entropy loss on target tokens only."""
         output = model(input_ids)
-        logits = output.logits if hasattr(output, 'logits') else output
+        logits = output.logits if hasattr(output, "logits") else output
 
         # Shift for next-token prediction
         shift_logits = logits[:, :-1, :]
@@ -163,15 +171,17 @@ def main():
             mx.eval(val_batch_input, val_batch_target)
             val_loss = loss_fn(model, val_batch_input, val_batch_target)
 
-            logger.info(f"Step {step + 1}: train_loss={float(loss.item()):.4f}, val_loss={float(val_loss.item()):.4f}")
+            logger.info(
+                f"Step {step + 1}: train_loss={float(loss.item()):.4f}, val_loss={float(val_loss.item()):.4f}"
+            )
 
     # Save checkpoint
     checkpoint_dir = Path(args.checkpoint_dir)
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
     # Save LoRA weights
-    from safetensors.numpy import save_file
     import numpy as np
+    from safetensors.numpy import save_file
 
     lora_weights = {}
     for name, param in nn.utils.tree_flatten(model.trainable_parameters()):
@@ -217,7 +227,7 @@ def main():
         generated_ids = input_ids
         for _ in range(12):  # Max 12 tokens for "123 + 456 = "
             output = model(generated_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
             generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
             mx.eval(generated_ids)
@@ -232,7 +242,7 @@ def main():
             if decoded_so_far.rstrip().endswith("="):
                 # Add one more token to get the space, then stop
                 output = model(generated_ids)
-                logits = output.logits if hasattr(output, 'logits') else output
+                logits = output.logits if hasattr(output, "logits") else output
                 next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
                 generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
                 break
@@ -245,7 +255,7 @@ def main():
         if "=" in equation:
             # Take up to first "= " or "=\n"
             eq_pos = equation.find("=")
-            equation = equation[:eq_pos + 1].strip() + " "
+            equation = equation[: eq_pos + 1].strip() + " "
 
         logger.info(f"  {nl_input[:40]:40} → {equation}")
 

@@ -27,22 +27,20 @@ Usage:
 """
 
 import argparse
+
+# Add parent to path for imports
+import sys
 from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
 
-# Add parent to path for imports
-import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
 from chuk_lazarus.introspection.moe import (
-    MoEArchitecture,
     MoECaptureConfig,
     MoEHooks,
-    analyze_moe_model,
     detect_moe_architecture,
-    print_moe_analysis,
 )
 
 
@@ -150,11 +148,13 @@ def analyze_routing_patterns(model, input_ids: mx.array, tokenizer=None):
 
     # Create hooks
     hooks = MoEHooks(model)
-    hooks.configure(MoECaptureConfig(
-        capture_router_logits=True,
-        capture_router_weights=True,
-        capture_selected_experts=True,
-    ))
+    hooks.configure(
+        MoECaptureConfig(
+            capture_router_logits=True,
+            capture_router_weights=True,
+            capture_selected_experts=True,
+        )
+    )
 
     # Run forward pass
     print(f"\nInput shape: {input_ids.shape}")
@@ -174,7 +174,7 @@ def analyze_routing_patterns(model, input_ids: mx.array, tokenizer=None):
         # Expert utilization
         util = hooks.get_expert_utilization(layer_idx)
         if util:
-            print(f"\n  Expert Utilization:")
+            print("\n  Expert Utilization:")
             print(f"    Load balance score: {util.load_balance_score:.2%}")
             print(f"    Most used expert:   #{util.most_used_expert}")
             print(f"    Least used expert:  #{util.least_used_expert}")
@@ -191,7 +191,7 @@ def analyze_routing_patterns(model, input_ids: mx.array, tokenizer=None):
         # Router entropy
         entropy = hooks.get_router_entropy(layer_idx)
         if entropy:
-            print(f"\n  Router Confidence:")
+            print("\n  Router Confidence:")
             print(f"    Mean entropy:       {entropy.mean_entropy:.4f}")
             print(f"    Max entropy:        {entropy.max_entropy:.4f}")
             print(f"    Normalized entropy: {entropy.normalized_entropy:.2%}")
@@ -209,7 +209,7 @@ def analyze_routing_patterns(model, input_ids: mx.array, tokenizer=None):
         # Show routing for last token
         pattern = hooks.get_routing_pattern(layer_idx, position=-1)
         if pattern:
-            print(f"\n  Last token routing:")
+            print("\n  Last token routing:")
             print(f"    Selected experts: {pattern['selected_experts']}")
             print(f"    Routing weights:  {[f'{w:.3f}' for w in pattern['routing_weights']]}")
 
@@ -232,10 +232,12 @@ def compare_prompts(model, prompts: list[str], tokenizer):
         mx.eval(hooks.state.router_weights)
 
         comparison = hooks.compare_routing_across_layers()
-        results.append({
-            "prompt": prompt[:50] + "..." if len(prompt) > 50 else prompt,
-            "stats": comparison,
-        })
+        results.append(
+            {
+                "prompt": prompt[:50] + "..." if len(prompt) > 50 else prompt,
+                "stats": comparison,
+            }
+        )
 
     # Print comparison table
     if results and results[0]["stats"]:
@@ -283,9 +285,9 @@ def main():
         print("\n" + "=" * 70)
         print("TEST MODEL ANALYSIS")
         print("=" * 70)
-        print(f"Model: Test MoE (8 experts, 2 active per token)")
-        print(f"Layers: 4")
-        print(f"Hidden size: 64")
+        print("Model: Test MoE (8 experts, 2 active per token)")
+        print("Layers: 4")
+        print("Hidden size: 64")
 
         analyze_routing_patterns(model, input_ids)
 
@@ -294,8 +296,8 @@ def main():
         print(f"Loading model: {args.model}")
 
         try:
-            from transformers import AutoTokenizer
             from mlx_lm import load
+            from transformers import AutoTokenizer
 
             model, tokenizer = load(args.model)
 

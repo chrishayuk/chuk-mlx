@@ -15,16 +15,14 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
-import mlx.core as mx
 from mlx_lm import load
 
 from chuk_lazarus.introspection.moe import (
     ExpertCompressor,
     MoEHooks,
-    estimate_model_size,
     estimate_compressed_size,
+    estimate_model_size,
     print_compression_summary,
-    get_moe_layer_info,
 )
 
 
@@ -35,7 +33,10 @@ def main():
 
     # Load GPT-OSS
     print("\nLoading GPT-OSS 20B...")
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
     model, tokenizer = load(str(model_path))
 
     # Get baseline model size
@@ -52,10 +53,18 @@ def main():
     other_b = size_breakdown["other"] / 1e9
 
     print(f"\n  Total parameters:     {total_b:.2f}B")
-    print(f"  Expert parameters:    {expert_b:.2f}B ({size_breakdown['expert']/size_breakdown['total']*100:.1f}%)")
-    print(f"  Attention parameters: {attention_b:.2f}B ({size_breakdown['attention']/size_breakdown['total']*100:.1f}%)")
-    print(f"  Embedding parameters: {embeddings_b:.2f}B ({size_breakdown['embeddings']/size_breakdown['total']*100:.1f}%)")
-    print(f"  Other parameters:     {other_b:.2f}B ({size_breakdown['other']/size_breakdown['total']*100:.1f}%)")
+    print(
+        f"  Expert parameters:    {expert_b:.2f}B ({size_breakdown['expert'] / size_breakdown['total'] * 100:.1f}%)"
+    )
+    print(
+        f"  Attention parameters: {attention_b:.2f}B ({size_breakdown['attention'] / size_breakdown['total'] * 100:.1f}%)"
+    )
+    print(
+        f"  Embedding parameters: {embeddings_b:.2f}B ({size_breakdown['embeddings'] / size_breakdown['total'] * 100:.1f}%)"
+    )
+    print(
+        f"  Other parameters:     {other_b:.2f}B ({size_breakdown['other'] / size_breakdown['total'] * 100:.1f}%)"
+    )
 
     # Create compression plans for all MoE layers
     print("\n" + "-" * 70)
@@ -82,7 +91,9 @@ def main():
             compression_plans.append(plan)
             reduction = plan.original_num_experts - plan.target_num_experts
             if reduction > 0:
-                print(f"  Layer {layer_idx}: {plan.original_num_experts} -> {plan.target_num_experts} experts (-{reduction})")
+                print(
+                    f"  Layer {layer_idx}: {plan.original_num_experts} -> {plan.target_num_experts} experts (-{reduction})"
+                )
         except Exception as e:
             print(f"  Layer {layer_idx}: Error - {e}")
 
@@ -106,9 +117,11 @@ def main():
 
     print(f"\n  Original model:   {original_b:.2f}B parameters")
     print(f"  After compression: {compressed_b:.2f}B parameters")
-    print(f"  Parameters removed: {removed_b:.2f}B ({compressed_info['reduction_ratio']*100:.1f}%)")
-    print(f"\n  Expert params before: {compressed_info['expert_params_original']/1e9:.2f}B")
-    print(f"  Expert params after:  {compressed_info['expert_params_compressed']/1e9:.2f}B")
+    print(
+        f"  Parameters removed: {removed_b:.2f}B ({compressed_info['reduction_ratio'] * 100:.1f}%)"
+    )
+    print(f"\n  Expert params before: {compressed_info['expert_params_original'] / 1e9:.2f}B")
+    print(f"  Expert params after:  {compressed_info['expert_params_compressed'] / 1e9:.2f}B")
 
     print("\n" + "=" * 70)
     print(f"GPT-OSS 20B -> GPT-OSS {compressed_b:.1f}B (with balanced compression)")

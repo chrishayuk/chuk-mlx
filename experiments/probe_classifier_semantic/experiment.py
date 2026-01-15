@@ -11,7 +11,6 @@ import json
 import logging
 import random
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -24,13 +23,34 @@ logger = logging.getLogger(__name__)
 
 # Number to words conversion
 NUM_WORDS = {
-    0: "zero", 1: "one", 2: "two", 3: "three", 4: "four",
-    5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine",
-    10: "ten", 11: "eleven", 12: "twelve", 13: "thirteen",
-    14: "fourteen", 15: "fifteen", 16: "sixteen", 17: "seventeen",
-    18: "eighteen", 19: "nineteen", 20: "twenty",
-    30: "thirty", 40: "forty", 50: "fifty",
-    60: "sixty", 70: "seventy", 80: "eighty", 90: "ninety",
+    0: "zero",
+    1: "one",
+    2: "two",
+    3: "three",
+    4: "four",
+    5: "five",
+    6: "six",
+    7: "seven",
+    8: "eight",
+    9: "nine",
+    10: "ten",
+    11: "eleven",
+    12: "twelve",
+    13: "thirteen",
+    14: "fourteen",
+    15: "fifteen",
+    16: "sixteen",
+    17: "seventeen",
+    18: "eighteen",
+    19: "nineteen",
+    20: "twenty",
+    30: "thirty",
+    40: "forty",
+    50: "fifty",
+    60: "sixty",
+    70: "seventy",
+    80: "eighty",
+    90: "ninety",
 }
 
 
@@ -56,6 +76,7 @@ def number_to_words(n: int) -> str:
 @dataclass
 class ProbeResult:
     """Results for a single layer probe."""
+
     layer_idx: int
     layer_pct: float
     train_accuracy: float
@@ -136,12 +157,14 @@ class ProbeClassifierSemanticExperiment(ExperimentBase):
                 # "seven times eight"
                 prompt = f"{a_word} {phrase} {b_word}"
 
-            data.append({
-                "prompt": prompt,
-                "task": op_name,
-                "a": a,
-                "b": b,
-            })
+            data.append(
+                {
+                    "prompt": prompt,
+                    "task": op_name,
+                    "a": a,
+                    "b": b,
+                }
+            )
 
         split = int(len(data) * 0.8)
         train_data, test_data = data[:split], data[split:]
@@ -222,7 +245,11 @@ class ProbeClassifierSemanticExperiment(ExperimentBase):
 
             for i, layer in enumerate(model.model.layers):
                 layer_out = layer(h, mask=None, cache=None)
-                h = layer_out.hidden_states if hasattr(layer_out, 'hidden_states') else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+                h = (
+                    layer_out.hidden_states
+                    if hasattr(layer_out, "hidden_states")
+                    else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+                )
 
                 if i == layer_idx:
                     # Take last token's hidden state
@@ -249,7 +276,7 @@ class ProbeClassifierSemanticExperiment(ExperimentBase):
         test_prompts = [d["prompt"] for d in test_data]
         test_labels = mx.array([self.task_to_idx[d["task"]] for d in test_data])
 
-        self.log(f"  Extracting hidden states...")
+        self.log("  Extracting hidden states...")
         train_hidden = self._extract_hidden_states(model, tokenizer, train_prompts, layer_idx)
         test_hidden = self._extract_hidden_states(model, tokenizer, test_prompts, layer_idx)
         mx.eval(train_hidden, test_hidden)
@@ -275,8 +302,8 @@ class ProbeClassifierSemanticExperiment(ExperimentBase):
             num_batches = 0
 
             for i in range(0, len(train_data), batch_size):
-                batch_x = train_hidden_shuffled[i:i + batch_size]
-                batch_y = train_labels_shuffled[i:i + batch_size]
+                batch_x = train_hidden_shuffled[i : i + batch_size]
+                batch_y = train_labels_shuffled[i : i + batch_size]
 
                 loss, grads = loss_and_grad_fn(probe, batch_x, batch_y)
                 optimizer.update(probe, grads)
@@ -309,9 +336,7 @@ class ProbeClassifierSemanticExperiment(ExperimentBase):
         logits = probe(x)
         return mx.mean(nn.losses.cross_entropy(logits, y))
 
-    def _evaluate_probe(
-        self, probe: LinearProbe, hidden: mx.array, labels: mx.array
-    ) -> float:
+    def _evaluate_probe(self, probe: LinearProbe, hidden: mx.array, labels: mx.array) -> float:
         """Evaluate probe accuracy."""
         logits = probe(hidden)
         preds = mx.argmax(logits, axis=-1)

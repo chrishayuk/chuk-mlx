@@ -27,8 +27,6 @@ from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
-import mlx.nn as nn
-import numpy as np
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -37,6 +35,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class FormatProbeResult:
     """Result for a single layer's format probe."""
+
     layer: int
     train_accuracy: float
     test_accuracy: float
@@ -47,6 +46,7 @@ class FormatProbeResult:
 @dataclass
 class GenerationResult:
     """Result for generation analysis."""
+
     prompt: str
     expected_format: str  # "direct" or "cot"
     probe_prediction: str
@@ -129,7 +129,7 @@ class FormatGateExperiment:
     def _get_hidden_state(self, prompt: str, layer: int) -> mx.array:
         """Get hidden state at specified layer for last token."""
         # Use chat template for instruct models
-        if hasattr(self.tokenizer, 'chat_template') and self.tokenizer.chat_template:
+        if hasattr(self.tokenizer, "chat_template") and self.tokenizer.chat_template:
             if "Instruct" in self.config["model"]:
                 messages = [{"role": "user", "content": prompt}]
                 formatted = self.tokenizer.apply_chat_template(
@@ -235,7 +235,9 @@ class FormatGateExperiment:
 
         return results
 
-    def _train_probe(self, X: mx.array, y: mx.array, epochs: int = 100) -> tuple[mx.array, mx.array]:
+    def _train_probe(
+        self, X: mx.array, y: mx.array, epochs: int = 100
+    ) -> tuple[mx.array, mx.array]:
         """Train a linear probe using gradient descent."""
         hidden_dim = X.shape[1]
         num_classes = 2
@@ -320,23 +322,27 @@ class FormatGateExperiment:
             # Detect actual format from generation
             actual_format = self._detect_generation_format(generated)
 
-            results.append(GenerationResult(
-                prompt=prompt,
-                expected_format=expected_format,
-                probe_prediction=probe_prediction,
-                probe_confidence=confidence,
-                generated_text=generated,
-                actual_format=actual_format,
-                prediction_correct=(probe_prediction == actual_format),
-            ))
+            results.append(
+                GenerationResult(
+                    prompt=prompt,
+                    expected_format=expected_format,
+                    probe_prediction=probe_prediction,
+                    probe_confidence=confidence,
+                    generated_text=generated,
+                    actual_format=actual_format,
+                    prediction_correct=(probe_prediction == actual_format),
+                )
+            )
 
-            logger.info(f"  '{prompt[:30]}...' → probe: {probe_prediction}, actual: {actual_format}")
+            logger.info(
+                f"  '{prompt[:30]}...' → probe: {probe_prediction}, actual: {actual_format}"
+            )
 
         return results
 
     def _generate(self, prompt: str, max_tokens: int = 150) -> str:
         """Generate response from model."""
-        if hasattr(self.tokenizer, 'chat_template') and self.tokenizer.chat_template:
+        if hasattr(self.tokenizer, "chat_template") and self.tokenizer.chat_template:
             if "Instruct" in self.config["model"]:
                 messages = [{"role": "user", "content": prompt}]
                 formatted = self.tokenizer.apply_chat_template(
@@ -403,10 +409,16 @@ class FormatGateExperiment:
         steering_strength = self.config["parameters"].get("steering_strength", 2.0)
 
         # Compute format direction vector
-        symbolic_prompts = [item["prompt"] for item in self.config["parameters"]["train_data"]
-                          if item["format"] == "symbolic"]
-        semantic_prompts = [item["prompt"] for item in self.config["parameters"]["train_data"]
-                          if item["format"] == "semantic"]
+        symbolic_prompts = [
+            item["prompt"]
+            for item in self.config["parameters"]["train_data"]
+            if item["format"] == "symbolic"
+        ]
+        semantic_prompts = [
+            item["prompt"]
+            for item in self.config["parameters"]["train_data"]
+            if item["format"] == "semantic"
+        ]
 
         symbolic_hiddens = [self._get_hidden_state(p, steering_layer) for p in symbolic_prompts]
         semantic_hiddens = [self._get_hidden_state(p, steering_layer) for p in semantic_prompts]
@@ -436,12 +448,14 @@ class FormatGateExperiment:
             h = self._get_hidden_state(prompt, steering_layer)
             projection = mx.sum(h * cot_direction).item()
 
-            results.append({
-                "prompt": prompt,
-                "normal_output": normal_output[:100],
-                "normal_format": normal_format,
-                "cot_direction_projection": projection,
-            })
+            results.append(
+                {
+                    "prompt": prompt,
+                    "normal_output": normal_output[:100],
+                    "normal_format": normal_format,
+                    "cot_direction_projection": projection,
+                }
+            )
 
         return {
             "steering_layer": steering_layer,
@@ -503,7 +517,9 @@ class FormatGateExperiment:
                             "generated": r.generated_text[:200],
                         }
                         for r in generation_results
-                    ] if generation_results else [],
+                    ]
+                    if generation_results
+                    else [],
                 },
                 "steering": steering_results,
             },
@@ -534,24 +550,24 @@ class FormatGateExperiment:
         print(f"\nModel: {results['model']}")
         print(f"Layers: {results['num_layers']}")
 
-        print(f"\n1. FORMAT CLASSIFICATION (symbolic vs semantic)")
+        print("\n1. FORMAT CLASSIFICATION (symbolic vs semantic)")
         print(f"   Emergence layer: {fc['emergence_layer']} (≥90% accuracy)")
         print(f"   Peak layer: {fc['peak_layer']} ({fc['peak_accuracy']:.1%} accuracy)")
-        print(f"\n   Layer-by-layer accuracy:")
+        print("\n   Layer-by-layer accuracy:")
         for layer, data in sorted(fc["probe_accuracy_by_layer"].items()):
             bar = "█" * int(data["test_accuracy"] * 20)
             print(f"   L{layer:2d}: {data['test_accuracy']:5.1%} {bar}")
 
         gc = findings["generation_correlation"]
         if gc["correlation"] is not None:
-            print(f"\n2. GENERATION CORRELATION")
+            print("\n2. GENERATION CORRELATION")
             print(f"   Probe predicts generation mode: {gc['correlation']:.1%}")
             for detail in gc["details"]:
                 status = "✓" if detail["correct"] else "✗"
                 print(f"   {status} '{detail['prompt'][:25]}...' → {detail['actual_format']}")
 
         if findings.get("steering"):
-            print(f"\n3. STEERING POTENTIAL")
+            print("\n3. STEERING POTENTIAL")
             print(f"   CoT direction norm: {findings['steering']['cot_direction_norm']:.3f}")
 
         print("\n" + "=" * 60)

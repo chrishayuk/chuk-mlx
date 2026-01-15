@@ -15,11 +15,9 @@ Method:
 4. Test context sensitivity (same token, different context -> different expert?)
 """
 
-import json
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -27,7 +25,6 @@ import mlx.nn as nn
 from chuk_lazarus.experiments import ExperimentBase
 from chuk_lazarus.introspection.moe.detector import (
     detect_moe_architecture,
-    get_moe_layer_info,
     get_moe_layers,
 )
 
@@ -140,9 +137,7 @@ class AttentionRouterExperiment(ExperimentBase):
                 self.context_results[model_name] = context_results
                 all_results[model_name] = {
                     "decomposition": self._summarize_decomposition(decomp_results),
-                    "context_sensitivity": self._summarize_context_sensitivity(
-                        context_results
-                    ),
+                    "context_sensitivity": self._summarize_context_sensitivity(context_results),
                 }
             except Exception as e:
                 self.log(f"ERROR analyzing {model_name}: {e}")
@@ -183,14 +178,10 @@ class AttentionRouterExperiment(ExperimentBase):
         self.log(f"Target layers for analysis: {target_layers}")
 
         # Run decomposition analysis
-        decomp_results = self._run_decomposition(
-            model, tokenizer, target_layers, model_name
-        )
+        decomp_results = self._run_decomposition(model, tokenizer, target_layers, model_name)
 
         # Run context sensitivity analysis
-        context_results = self._run_context_sensitivity(
-            model, tokenizer, target_layers, model_name
-        )
+        context_results = self._run_context_sensitivity(model, tokenizer, target_layers, model_name)
 
         return decomp_results, context_results
 
@@ -241,9 +232,7 @@ class AttentionRouterExperiment(ExperimentBase):
             self.log(f"  Decomposing: {prompt[:40]}...")
 
             for layer_idx in target_layers:
-                result = self._decompose_router_signal(
-                    model, tokenizer, prompt, layer_idx
-                )
+                result = self._decompose_router_signal(model, tokenizer, prompt, layer_idx)
                 if result:
                     results_by_layer[layer_idx].append(result)
                     self.log(
@@ -349,8 +338,7 @@ class AttentionRouterExperiment(ExperimentBase):
         # Cosine similarity between components in router space
         if embed_norm > 0 and attention_norm > 0:
             cosine = float(
-                mx.sum(router_from_embed * router_from_attention)
-                / (embed_norm * attention_norm)
+                mx.sum(router_from_embed * router_from_attention) / (embed_norm * attention_norm)
             )
         else:
             cosine = 0.0
@@ -570,9 +558,7 @@ class AttentionRouterExperiment(ExperimentBase):
         variance = sum((v - mean) ** 2 for v in values) / len(values)
         return variance**0.5
 
-    def _summarize_decomposition(
-        self, results: list[LayerDecomposition]
-    ) -> dict:
+    def _summarize_decomposition(self, results: list[LayerDecomposition]) -> dict:
         """Summarize decomposition results."""
         if not results:
             return {}
@@ -597,9 +583,7 @@ class AttentionRouterExperiment(ExperimentBase):
         summary["overall_attention_ratio"] = total_ratio / len(results)
         return summary
 
-    def _summarize_context_sensitivity(
-        self, results: list[ContextSensitivityResult]
-    ) -> dict:
+    def _summarize_context_sensitivity(self, results: list[ContextSensitivityResult]) -> dict:
         """Summarize context sensitivity results."""
         if not results:
             return {}
@@ -643,9 +627,7 @@ class AttentionRouterExperiment(ExperimentBase):
 
         # Determine pattern
         ratios = [
-            v["attention_ratio"]
-            for v in comparison["models"].values()
-            if "attention_ratio" in v
+            v["attention_ratio"] for v in comparison["models"].values() if "attention_ratio" in v
         ]
 
         if ratios:
@@ -677,7 +659,7 @@ class AttentionRouterExperiment(ExperimentBase):
             return {
                 "conclusion": "H1_SUPPORTED",
                 "hypothesis": "Attention dominates universally",
-                "evidence": f"All models show >{int(min_ratio*100)}% attention contribution",
+                "evidence": f"All models show >{int(min_ratio * 100)}% attention contribution",
                 "implication": (
                     "Router is redundant in ALL MoE architectures. "
                     "Attention-gated-subspace applies everywhere."
@@ -691,8 +673,8 @@ class AttentionRouterExperiment(ExperimentBase):
                 "conclusion": "H2_SUPPORTED",
                 "hypothesis": "True MoE uses more token embedding signal",
                 "evidence": (
-                    f"True MoE shows {int(min_ratio*100)}% attention "
-                    f"vs Pseudo-MoE {int(max_ratio*100)}%"
+                    f"True MoE shows {int(min_ratio * 100)}% attention "
+                    f"vs Pseudo-MoE {int(max_ratio * 100)}%"
                 ),
                 "implication": (
                     "Different optimization strategies needed per architecture type. "
@@ -707,7 +689,7 @@ class AttentionRouterExperiment(ExperimentBase):
                 "conclusion": "H3_SUPPORTED",
                 "hypothesis": "True MoE uses fundamentally different routing",
                 "evidence": (
-                    f"Token embedding dominates in True MoE ({int(min_ratio*100)}% attention)"
+                    f"Token embedding dominates in True MoE ({int(min_ratio * 100)}% attention)"
                 ),
                 "implication": (
                     "Cannot generalize Pseudo-MoE findings. "
@@ -730,9 +712,7 @@ class AttentionRouterExperiment(ExperimentBase):
             return {"error": "No results"}
 
         return {
-            "conclusion": latest.get("hypothesis_evaluation", {}).get(
-                "conclusion", "Unknown"
-            ),
+            "conclusion": latest.get("hypothesis_evaluation", {}).get("conclusion", "Unknown"),
             "comparison": latest.get("comparison", {}),
         }
 

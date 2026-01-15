@@ -42,9 +42,9 @@ def load_model(model_id: str):
     from chuk_lazarus.inference.loader import DType, HFLoader
     from chuk_lazarus.models_v2.families.registry import detect_model_family, get_family_info
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"Loading: {model_id}")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     result = HFLoader.download(model_id)
     model_path = result.model_path
@@ -70,6 +70,7 @@ def load_model(model_id: str):
 # SECTION 1: Multi-Use Expert Problem
 # =============================================================================
 
+
 def demo_multi_use_expert(model, tokenizer, model_id: str):
     """
     Show that the "math expert" handles more than just math.
@@ -81,11 +82,11 @@ def demo_multi_use_expert(model, tokenizer, model_id: str):
     - "And symbolic logic..."
     - "If we hijack it, we break these other capabilities"
     """
-    from chuk_lazarus.introspection.moe import MoEHooks, MoECaptureConfig, get_moe_layer_info
+    from chuk_lazarus.introspection.moe import MoECaptureConfig, MoEHooks, get_moe_layer_info
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("FAILURE CASE 1: The Multi-Use Expert Problem")
-    print("="*70)
+    print("=" * 70)
     print("\nThe naive approach: Find the 'math expert' and hijack it.")
     print("But experts aren't specialists—they're generalists with preferences.\n")
 
@@ -139,10 +140,12 @@ def demo_multi_use_expert(model, tokenizer, model_id: str):
     category_expert_counts = {cat: defaultdict(int) for cat in categories}
 
     hooks = MoEHooks(model)
-    hooks.configure(MoECaptureConfig(
-        capture_selected_experts=True,
-        layers=[target_layer],
-    ))
+    hooks.configure(
+        MoECaptureConfig(
+            capture_selected_experts=True,
+            layers=[target_layer],
+        )
+    )
 
     for category, prompts in categories.items():
         for prompt in prompts:
@@ -183,16 +186,20 @@ def demo_multi_use_expert(model, tokenizer, model_id: str):
         marker = " ← 'math expert'" if exp_idx == math_expert else ""
         print(f"Expert {exp_idx:<3} {math:<10} {code:<10} {logic:<10} {lang:<10}{marker}")
 
-    print("\n" + "-"*70)
-    print(f"PROBLEM: Expert {math_expert} handles MATH ({math_counts.get(math_expert, 0)} activations)")
-    print(f"         But also CODE ({category_expert_counts['CODE'].get(math_expert, 0)} activations)")
+    print("\n" + "-" * 70)
+    print(
+        f"PROBLEM: Expert {math_expert} handles MATH ({math_counts.get(math_expert, 0)} activations)"
+    )
+    print(
+        f"         But also CODE ({category_expert_counts['CODE'].get(math_expert, 0)} activations)"
+    )
     print(f"         And LOGIC ({category_expert_counts['LOGIC'].get(math_expert, 0)} activations)")
-    print("\nIf we hijack Expert {}, we might fix math but BREAK code and logic!".format(math_expert))
-    print("-"*70)
+    print(f"\nIf we hijack Expert {math_expert}, we might fix math but BREAK code and logic!")
+    print("-" * 70)
 
     # Demonstrate the problem conceptually
     print("\n\nThe problem with hijacking:")
-    print("-"*40)
+    print("-" * 40)
     print(f"\nIf we intercept Expert {math_expert} for all inputs:")
     print()
 
@@ -207,18 +214,19 @@ def demo_multi_use_expert(model, tokenizer, model_id: str):
 
         print(f"[{category}] {prompt}")
         if is_math:
-            print(f"  → Would route to hijacked expert ✓ (intended)")
+            print("  → Would route to hijacked expert ✓ (intended)")
         elif would_hit:
-            print(f"  → Would ALSO route to hijacked expert ⚠ (PROBLEM!)")
-            print(f"     This isn't math, but we'd intercept it anyway")
+            print("  → Would ALSO route to hijacked expert ⚠ (PROBLEM!)")
+            print("     This isn't math, but we'd intercept it anyway")
         else:
-            print(f"  → Would NOT route to hijacked expert ✓")
+            print("  → Would NOT route to hijacked expert ✓")
         print()
 
 
 # =============================================================================
 # SECTION 2: Layer Specificity Issue
 # =============================================================================
+
 
 def demo_layer_specificity(model, tokenizer, model_id: str):
     """
@@ -233,12 +241,10 @@ def demo_layer_specificity(model, tokenizer, model_id: str):
     - "Hijack too early → miss the computation"
     - "Hijack too late → model already committed to wrong answer"
     """
-    from chuk_lazarus.introspection.moe import MoEHooks, MoECaptureConfig
-    from chuk_lazarus.introspection.hooks import ModelHooks, CaptureConfig
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("FAILURE CASE 2: The Layer Specificity Problem")
-    print("="*70)
+    print("=" * 70)
     print("\nMath computation isn't localized to one layer.")
     print("It flows through the network—hijack wrong, and you miss it.\n")
 
@@ -359,7 +365,7 @@ def demo_layer_specificity(model, tokenizer, model_id: str):
         peak_layer = num_layers // 2
         peak_prob = 0.0
 
-    print("\n" + "-"*70)
+    print("\n" + "-" * 70)
     print(f"Peak probability at Layer {peak_layer}: {peak_prob:.1%}")
     print()
     print("INSIGHT:")
@@ -368,12 +374,13 @@ def demo_layer_specificity(model, tokenizer, model_id: str):
     print(f"  • Sweet spot: Around layer {peak_layer}")
     print()
     print("But even then, we're guessing! Different problems may peak at different layers.")
-    print("-"*70)
+    print("-" * 70)
 
 
 # =============================================================================
 # SECTION 3: Routing Ambiguity
 # =============================================================================
+
 
 def demo_routing_ambiguity(model, tokenizer, model_id: str):
     """
@@ -386,12 +393,13 @@ def demo_routing_ambiguity(model, tokenizer, model_id: str):
     - "'Is 127 * 89 > 10000?' shouldn't compute (wants comparison)"
     - "Hijacking is all-or-nothing—no granularity"
     """
-    from chuk_lazarus.introspection.virtual_expert import VirtualMoEWrapper
     import re
 
-    print("\n" + "="*70)
+    from chuk_lazarus.introspection.virtual_expert import VirtualMoEWrapper
+
+    print("\n" + "=" * 70)
     print("FAILURE CASE 3: Routing Ambiguity")
-    print("="*70)
+    print("=" * 70)
     print("\nNot all math-like prompts want exact computation.")
     print("Pattern matching is binary—it can't distinguish intent.\n")
 
@@ -400,26 +408,22 @@ def demo_routing_ambiguity(model, tokenizer, model_id: str):
         # Should compute exactly
         ("127 * 89 = ", "exact", "Wants exact answer"),
         ("Calculate: 127 * 89", "exact", "Explicit calculation request"),
-
         # Should NOT compute (wants approximation)
         ("127 * 89 is approximately", "approx", "Wants rough estimate"),
         ("Roughly, what is 127 * 89?", "approx", "Asking for ballpark"),
-
         # Should NOT compute (wants comparison)
         ("Is 127 * 89 greater than 10000?", "compare", "Wants yes/no"),
         ("Which is bigger: 127 * 89 or 12000?", "compare", "Wants comparison"),
-
         # Should NOT compute (wants explanation)
         ("How would you compute 127 * 89?", "explain", "Wants method"),
         ("Explain the steps to multiply 127 by 89", "explain", "Wants process"),
-
         # Edge cases
         ("127 * 89", "ambiguous", "No equals sign—ambiguous"),
         ("The product 127 * 89 is known as", "context", "Wants context/name"),
     ]
 
     # Simple regex pattern (what hijacking would use)
-    math_pattern = re.compile(r'\d+\s*[+\-*/×÷]\s*\d+')
+    math_pattern = re.compile(r"\d+\s*[+\-*/×÷]\s*\d+")
 
     print(f"{'Prompt':<45} {'Intent':<12} {'Regex?':<10} {'Problem'}")
     print("-" * 90)
@@ -437,16 +441,16 @@ def demo_routing_ambiguity(model, tokenizer, model_id: str):
         match_str = "YES" if would_match else "no"
         print(f"{prompt:<45} {intent:<12} {match_str:<10} {problem}")
 
-    print("\n" + "-"*70)
+    print("\n" + "-" * 70)
     print("PROBLEM: Pattern matching (regex) matches ALL of these!")
     print("         It can't understand INTENT—only surface patterns.")
     print()
     print("What we need: A LEARNED routing decision that understands context.")
-    print("-"*70)
+    print("-" * 70)
 
     # Now show how the real VirtualMoEWrapper handles it
     print("\n\nVirtual Expert Slot - Two-Stage Routing:")
-    print("-"*50)
+    print("-" * 50)
     print("Stage 1: Learned geometry (is it math-like?)")
     print("Stage 2: Can we parse it? (is it computable?)")
     print()
@@ -455,10 +459,11 @@ def demo_routing_ambiguity(model, tokenizer, model_id: str):
     wrapper.calibrate()
 
     from chuk_lazarus.introspection.virtual_expert import SafeMathEvaluator
+
     math_eval = SafeMathEvaluator()
 
     print(f"{'Prompt':<40} {'Parse?':<8} {'V Selected':<12} {'Route'}")
-    print("-"*75)
+    print("-" * 75)
 
     for prompt, intent, _ in prompts:
         result = wrapper.solve(prompt)
@@ -488,6 +493,7 @@ def demo_routing_ambiguity(model, tokenizer, model_id: str):
 # SECTION 4: Calibration Visualization
 # =============================================================================
 
+
 def demo_calibration_visualization(model, tokenizer, model_id: str):
     """
     Show the calibration process with visual clustering.
@@ -501,9 +507,9 @@ def demo_calibration_visualization(model, tokenizer, model_id: str):
     """
     import numpy as np
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("THE SOLUTION: Learned Routing via Calibration")
-    print("="*70)
+    print("=" * 70)
     print("\nInstead of pattern matching, we LEARN a direction in activation space")
     print("that separates math from non-math.\n")
 
@@ -610,9 +616,9 @@ def demo_calibration_visualization(model, tokenizer, model_id: str):
     direction = math_mean - non_math_mean
     direction = direction / (np.linalg.norm(direction) + 1e-10)
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("LEARNED MATH DIRECTION")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     # Project all points onto direction
     math_projections = [np.dot(h, direction) for h in math_activations]
@@ -659,26 +665,27 @@ def demo_calibration_visualization(model, tokenizer, model_id: str):
     best_threshold = (np.mean(math_projections) + np.mean(non_math_projections)) / 2
     threshold_pos = to_position(best_threshold, width)
 
-    print(f"\nOptimal threshold:")
+    print("\nOptimal threshold:")
     line = [" "] * width
     line[threshold_pos] = "|"
     print(f"  {''.join(line)}")
     print(f"  {' ' * threshold_pos}↑")
     print(f"  {' ' * (threshold_pos - 5)}THRESHOLD")
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("Now routing is simple:")
     print("  • Project input onto learned direction")
     print("  • If projection > threshold → route to virtual expert (Python)")
     print("  • If projection < threshold → route to model")
     print()
     print("No pattern matching. No expert hijacking. Just geometry.")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
 
 # =============================================================================
 # SECTION 5: The Solution
 # =============================================================================
+
 
 def demo_solution(model, tokenizer, model_id: str):
     """
@@ -693,9 +700,9 @@ def demo_solution(model, tokenizer, model_id: str):
     """
     from chuk_lazarus.introspection.virtual_expert import VirtualMoEWrapper
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("THE SOLUTION: Virtual Expert Slot")
-    print("="*70)
+    print("=" * 70)
     print("\nInstead of HIJACKING an expert, we ADD a virtual one.")
     print("The router learns when to use it. No interference.\n")
 
@@ -708,15 +715,12 @@ def demo_solution(model, tokenizer, model_id: str):
         ("127 * 89 = ", 11303, "math"),
         ("456 * 78 = ", 35568, "math"),
         ("999 * 888 = ", 887112, "math"),
-
         # Code - should NOT use virtual expert
         ("def fibonacci(n):", None, "code"),
         ("for i in range(10):", None, "code"),
-
         # Language - should NOT use virtual expert
         ("The capital of France is", None, "language"),
         ("Once upon a time", None, "language"),
-
         # Edge cases
         ("Is 127 * 89 > 10000?", None, "comparison"),
         ("127 * 89 is approximately", None, "approximation"),
@@ -759,8 +763,10 @@ def demo_solution(model, tokenizer, model_id: str):
 
         print(f"{prompt:<32} {ptype:<12} {routing:<10} {status} {answer}")
 
-    print("\n" + "-"*85)
-    print(f"Math accuracy:     {math_correct}/{math_total} ({100*math_correct/math_total:.0f}%)")
+    print("\n" + "-" * 85)
+    print(
+        f"Math accuracy:     {math_correct}/{math_total} ({100 * math_correct / math_total:.0f}%)"
+    )
     print(f"Non-math routing:  {non_math_correct}/{non_math_total} correctly stayed with model")
     print()
     print("KEY ADVANTAGES:")
@@ -768,21 +774,30 @@ def demo_solution(model, tokenizer, model_id: str):
     print("  ✓ Learned routing - adapts to model's activation space")
     print("  ✓ Tunable threshold - adjust precision/recall tradeoff")
     print("  ✓ Explicit routing score - interpretable decisions")
-    print("-"*85)
+    print("-" * 85)
 
 
 # =============================================================================
 # MAIN
 # =============================================================================
 
+
 def main():
     parser = argparse.ArgumentParser(description="Virtual Expert Video Demo")
     parser.add_argument("--model", "-m", default="openai/gpt-oss-20b")
     parser.add_argument(
-        "--section", "-s",
-        choices=["all", "multi-use", "layer-specificity", "routing-ambiguity", "calibration-viz", "solution"],
+        "--section",
+        "-s",
+        choices=[
+            "all",
+            "multi-use",
+            "layer-specificity",
+            "routing-ambiguity",
+            "calibration-viz",
+            "solution",
+        ],
         default="all",
-        help="Which section to run"
+        help="Which section to run",
     )
 
     args = parser.parse_args()

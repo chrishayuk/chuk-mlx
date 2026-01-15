@@ -35,19 +35,25 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-    parser.add_argument("--train-data", default="experiments/ir_emission/data/normalizer_train_v2.jsonl")
-    parser.add_argument("--val-data", default="experiments/ir_emission/data/normalizer_val_v2.jsonl")
+    parser.add_argument(
+        "--train-data", default="experiments/ir_emission/data/normalizer_train_v2.jsonl"
+    )
+    parser.add_argument(
+        "--val-data", default="experiments/ir_emission/data/normalizer_val_v2.jsonl"
+    )
     parser.add_argument("--steps", type=int, default=2000)
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--lr", type=float, default=2e-4)
     parser.add_argument("--lora-rank", type=int, default=32)
-    parser.add_argument("--checkpoint-dir", default="experiments/ir_emission/checkpoints/normalizer_v2")
+    parser.add_argument(
+        "--checkpoint-dir", default="experiments/ir_emission/checkpoints/normalizer_v2"
+    )
     args = parser.parse_args()
 
     # Load model
     logger.info(f"Loading model: {args.model}")
-    from chuk_lazarus.models_v2.loader import load_model
     from chuk_lazarus.models_v2.adapters.lora import LoRAConfig, apply_lora
+    from chuk_lazarus.models_v2.loader import load_model
 
     result = load_model(args.model)
     model = result.model
@@ -68,7 +74,7 @@ def main():
 
     trainable = sum(p.size for _, p in nn.utils.tree_flatten(model.trainable_parameters()))
     total = sum(p.size for _, p in nn.utils.tree_flatten(model.parameters()))
-    logger.info(f"Trainable: {trainable:,} / {total:,} ({100*trainable/total:.2f}%)")
+    logger.info(f"Trainable: {trainable:,} / {total:,} ({100 * trainable / total:.2f}%)")
 
     # Load data
     def load_samples(path):
@@ -100,7 +106,7 @@ def main():
             input_ids = tokenizer.encode(prompt)
             full_ids = tokenizer.encode(full_text)
 
-            target_ids = [-100] * len(input_ids) + full_ids[len(input_ids):]
+            target_ids = [-100] * len(input_ids) + full_ids[len(input_ids) :]
 
             input_ids_list.append(full_ids)
             target_ids_list.append(target_ids)
@@ -116,7 +122,7 @@ def main():
 
     def loss_fn(model, input_ids, target_ids):
         output = model(input_ids)
-        logits = output.logits if hasattr(output, 'logits') else output
+        logits = output.logits if hasattr(output, "logits") else output
 
         shift_logits = logits[:, :-1, :]
         shift_targets = target_ids[:, 1:]
@@ -152,14 +158,16 @@ def main():
             val_input, val_target = get_batch(val_samples, 8, step)
             mx.eval(val_input, val_target)
             val_loss = loss_fn(model, val_input, val_target)
-            logger.info(f"Step {step + 1}: train={float(loss.item()):.4f}, val={float(val_loss.item()):.4f}")
+            logger.info(
+                f"Step {step + 1}: train={float(loss.item()):.4f}, val={float(val_loss.item()):.4f}"
+            )
 
     # Save
     checkpoint_dir = Path(args.checkpoint_dir)
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-    from safetensors.numpy import save_file
     import numpy as np
+    from safetensors.numpy import save_file
 
     lora_weights = {}
     for name, param in nn.utils.tree_flatten(model.trainable_parameters()):
@@ -201,7 +209,7 @@ def main():
         generated_ids = input_ids
         for _ in range(15):
             output = model(generated_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
             generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
             mx.eval(generated_ids)
@@ -216,7 +224,7 @@ def main():
         canonical = canonical.replace("</s>", "").strip()
         if "=" in canonical:
             eq_pos = canonical.find("=")
-            canonical = canonical[:eq_pos + 1].strip() + " "
+            canonical = canonical[: eq_pos + 1].strip() + " "
 
         logger.info(f"  {nl_input[:45]:45} → {canonical}")
 

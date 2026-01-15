@@ -21,7 +21,6 @@ import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
 
 from chuk_lazarus.inference.loader import DType, HFLoader
 from chuk_lazarus.models_v2.families.registry import detect_model_family, get_family_info
@@ -76,7 +75,7 @@ class PhaseBoundaryAnalyzer:
         else:
             head = None
 
-        embed_scale = float(self.hidden_size ** 0.5)
+        embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -293,7 +292,7 @@ class PhaseBoundaryAnalyzer:
             if layer % 4 == 0 or layer == -1:
                 print(f"{layer_name:<8} {acc1:>9.1%}   {acc2:>9.1%}   {diff:>+.1%}")
 
-            results[layer] = {'op1': acc1, 'op2': acc2, 'diff': diff}
+            results[layer] = {"op1": acc1, "op2": acc2, "diff": diff}
 
         return results
 
@@ -386,16 +385,16 @@ class PhaseBoundaryAnalyzer:
                 print(f"{layer_name:<8} {accuracy:>9.1%}   {avg_entropy:>12.3f}   {crystal}")
 
             results[layer] = {
-                'accuracy': accuracy,
-                'entropy': avg_entropy,
-                'crystallized': accuracy >= 0.9 and avg_entropy < 0.5,
+                "accuracy": accuracy,
+                "entropy": avg_entropy,
+                "crystallized": accuracy >= 0.9 and avg_entropy < 0.5,
             }
             prev_acc = accuracy
 
         # Find crystallization point
         crystal_layer = None
         for layer in sorted(results.keys()):
-            if results[layer]['crystallized']:
+            if results[layer]["crystallized"]:
                 crystal_layer = layer
                 break
 
@@ -453,7 +452,9 @@ class PhaseBoundaryAnalyzer:
 
             if prev_rep is not None:
                 # Cosine similarity to previous layer
-                cos_sim = np.dot(avg_rep, prev_rep) / (np.linalg.norm(avg_rep) * np.linalg.norm(prev_rep) + 1e-10)
+                cos_sim = np.dot(avg_rep, prev_rep) / (
+                    np.linalg.norm(avg_rep) * np.linalg.norm(prev_rep) + 1e-10
+                )
 
                 layer_name = "Embed" if layer == -1 else f"L{layer}"
 
@@ -468,9 +469,9 @@ class PhaseBoundaryAnalyzer:
                 print(f"{layer_name:<8} {cos_sim:>15.3f}   {change}")
 
                 results[layer] = {
-                    'cos_sim_to_prev': cos_sim,
-                    'major_boundary': cos_sim < 0.5,
-                    'minor_boundary': cos_sim < 0.8,
+                    "cos_sim_to_prev": cos_sim,
+                    "major_boundary": cos_sim < 0.5,
+                    "minor_boundary": cos_sim < 0.8,
                 }
 
             prev_rep = avg_rep
@@ -484,10 +485,10 @@ class PhaseBoundaryAnalyzer:
         """Run all phase boundary experiments."""
         results = {}
 
-        results['operation_classification'] = self.test_operation_classification()
-        results['operand_binding'] = self.test_operand_binding()
-        results['answer_crystallization'] = self.test_answer_uncertainty()
-        results['phase_boundaries'] = self.detect_phase_boundaries()
+        results["operation_classification"] = self.test_operation_classification()
+        results["operand_binding"] = self.test_operand_binding()
+        results["answer_crystallization"] = self.test_answer_uncertainty()
+        results["phase_boundaries"] = self.detect_phase_boundaries()
 
         # Summary
         print("\n" + "=" * 70)

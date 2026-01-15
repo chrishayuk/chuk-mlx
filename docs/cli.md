@@ -264,9 +264,20 @@ lazarus introspect logit-lens -m model \
 
 # Dual reward training (classifier + answer)
 lazarus introspect dual-reward -m model --steps 500 --cls-weight 0.4
+
+# MoE expert analysis (semantic trigram methodology)
+lazarus introspect moe-expert explore -m openai/gpt-oss-20b
+
+# MoE type detection (pseudo vs native)
+lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b --visualize
+
+# Compare MoE types between models
+lazarus introspect moe-expert moe-type-compare -m openai/gpt-oss-20b -c allenai/OLMoE-1B-7B-0924
 ```
 
-**All introspect subcommands:** analyze, compare, generate, hooks, probe, classifier, logit-lens, dual-reward, neurons, directions, operand-directions, embedding, early-layers, activation-cluster, steer, ablate, patch, weight-diff, activation-diff, layer, format-sensitivity, arithmetic, commutativity, metacognitive, uncertainty, memory, memory-inject, circuit (capture, invoke, test, view, compare, decode).
+**All introspect subcommands:** analyze, compare, generate, hooks, probe, classifier, logit-lens, dual-reward, neurons, directions, operand-directions, embedding, early-layers, activation-cluster, steer, ablate, patch, weight-diff, activation-diff, layer, format-sensitivity, arithmetic, commutativity, metacognitive, uncertainty, memory, memory-inject, circuit (capture, invoke, test, view, compare, decode), moe-expert (explore, domain-test, token-routing, full-taxonomy, moe-type-analyze, moe-type-compare, moe-overlay-compute, moe-overlay-verify, moe-overlay-estimate).
+
+See [introspect-moe-expert.md](tools/introspect-moe-expert.md) for full MoE expert documentation.
 
 ## Data Formats
 

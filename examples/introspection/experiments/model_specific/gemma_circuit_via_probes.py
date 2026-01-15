@@ -10,17 +10,17 @@ Usage:
 """
 
 import json
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 from chuk_lazarus.introspection.circuit import (
-    create_arithmetic_dataset,
     ActivationCollector,
     CollectorConfig,
+    create_arithmetic_dataset,
 )
 
 
@@ -144,8 +144,7 @@ def run_circuit_analysis():
     print("-" * 50)
 
     multi_layer_neurons = [
-        (idx, layers) for idx, layers in neuron_importance.items()
-        if len(layers) >= 2
+        (idx, layers) for idx, layers in neuron_importance.items() if len(layers) >= 2
     ]
     multi_layer_neurons.sort(key=lambda x: -sum(w for _, w in x[1]))
 
@@ -169,18 +168,18 @@ def run_circuit_analysis():
     # Find peak layer
     peak_layer = max(layer_results.keys(), key=lambda l: layer_results[l]["accuracy"])
 
-    print(f"\nArithmetic classification:")
+    print("\nArithmetic classification:")
     print(f"  Emergence layer (>70%): L{emergence_layer}")
     print(f"  Peak accuracy: L{peak_layer} ({layer_results[peak_layer]['accuracy']:.1%})")
 
-    print(f"\nCircuit structure:")
-    print(f"  Early layers (L0-L12): Context encoding")
+    print("\nCircuit structure:")
+    print("  Early layers (L0-L12): Context encoding")
     if emergence_layer and emergence_layer <= 16:
         print(f"  L{emergence_layer}: Arithmetic detection emerges")
-    print(f"  L20-L28: Computation phase")
+    print("  L20-L28: Computation phase")
     print(f"  L{peak_layer}: Peak classification")
 
-    print(f"\nKey neurons (cross-layer):")
+    print("\nKey neurons (cross-layer):")
     for idx, layer_weights in multi_layer_neurons[:5]:
         layers_str = ", ".join(f"L{l}" for l, w in layer_weights)
         print(f"  Neuron {idx}: active in {layers_str}")
@@ -198,7 +197,11 @@ def run_circuit_analysis():
         "emergence_layer": int(emergence_layer) if emergence_layer else None,
         "peak_layer": int(peak_layer),
         "key_neurons": [
-            {"neuron": int(idx), "layers": [int(l) for l, w in lw], "importance": float(sum(w for _, w in lw))}
+            {
+                "neuron": int(idx),
+                "layers": [int(l) for l, w in lw],
+                "importance": float(sum(w for _, w in lw)),
+            }
             for idx, lw in multi_layer_neurons[:20]
         ],
     }

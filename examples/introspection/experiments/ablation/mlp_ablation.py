@@ -16,8 +16,6 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-import mlx.core as mx
-
 from _loader import (
     format_tool_prompt,
     generate,
@@ -31,6 +29,7 @@ from _loader import (
 @dataclass
 class AblationResult:
     """Result of an ablation experiment."""
+
     experiment_name: str
     layer: int
     original_output: str
@@ -65,7 +64,9 @@ def run_single_ablation(
 
     # Generate with ablation
     ablated = generate_with_layer_ablation(
-        model, tokenizer, prompt,
+        model,
+        tokenizer,
+        prompt,
         ablate_layer=layer,
         ablation_type=ablation_type,
         max_new_tokens=50,
@@ -88,8 +89,9 @@ def run_single_ablation(
 
 def main():
     parser = argparse.ArgumentParser(description="MLP Ablation Study")
-    parser.add_argument("--model", default="mlx-community/functiongemma-270m-it-bf16",
-                        help="Model ID to test")
+    parser.add_argument(
+        "--model", default="mlx-community/functiongemma-270m-it-bf16", help="Model ID to test"
+    )
     parser.add_argument("--layers", default=None, help="Comma-separated layer indices to test")
     args = parser.parse_args()
 
@@ -108,18 +110,20 @@ def main():
         return
 
     # Create test prompts
-    tools = [{
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "Get current weather for a location",
-            "parameters": {
-                "type": "object",
-                "properties": {"location": {"type": "string"}},
-                "required": ["location"],
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get current weather for a location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {"location": {"type": "string"}},
+                    "required": ["location"],
+                },
             },
-        },
-    }]
+        }
+    ]
 
     prompts = [
         format_tool_prompt(template, "What is the weather in Tokyo?", tools),
@@ -132,12 +136,12 @@ def main():
     else:
         # Default: key layers based on typical architecture
         layers_to_test = [
-            int(num_layers * 0.3),   # ~30% depth
-            int(num_layers * 0.5),   # ~50% depth
-            int(num_layers * 0.6),   # ~60% depth (typical decision zone)
-            int(num_layers * 0.7),   # ~70% depth
-            num_layers - 2,          # near-final
-            num_layers - 1,          # final
+            int(num_layers * 0.3),  # ~30% depth
+            int(num_layers * 0.5),  # ~50% depth
+            int(num_layers * 0.6),  # ~60% depth (typical decision zone)
+            int(num_layers * 0.7),  # ~70% depth
+            num_layers - 2,  # near-final
+            num_layers - 1,  # final
         ]
         layers_to_test = sorted(set(layers_to_test))
 
@@ -146,7 +150,7 @@ def main():
     # Run experiments
     all_results = []
     for layer in layers_to_test:
-        print(f"\nLayer {layer} ({(layer+1)/num_layers*100:.0f}% depth):")
+        print(f"\nLayer {layer} ({(layer + 1) / num_layers * 100:.0f}% depth):")
 
         for i, prompt in enumerate(prompts):
             result = run_single_ablation(model, tokenizer, prompt, layer, "mlp")
@@ -154,7 +158,7 @@ def main():
 
             status = "BROKE" if result.broken else "survives"
             coherent = "coherent" if result.coherent else "gibberish"
-            print(f"  Prompt {i+1}: {status} ({coherent})")
+            print(f"  Prompt {i + 1}: {status} ({coherent})")
 
     # Summary
     print("\n" + "=" * 80)
@@ -181,7 +185,9 @@ def main():
         else:
             status = "survives"
 
-        print(f"{layer:<8} {pct:>7.0f}% {broken}/{total:<8} {coherent}/{broken if broken else '-':<8} {status}")
+        print(
+            f"{layer:<8} {pct:>7.0f}% {broken}/{total:<8} {coherent}/{broken if broken else '-':<8} {status}"
+        )
 
     # Find causal layers
     causal_layers = []

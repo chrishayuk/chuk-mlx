@@ -12,11 +12,9 @@ Key measurements:
 3. Comparison to dense baseline (Llama-3.2-1B shows ~0% at intermediate layers)
 """
 
-import json
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import mlx.core as mx
 
@@ -42,9 +40,7 @@ class PromptAnalysis:
 
     # Expert routing per layer
     # layer_idx -> list of (position, [expert_indices], [weights])
-    routing: dict[int, list[tuple[int, list[int], list[float]]]] = field(
-        default_factory=dict
-    )
+    routing: dict[int, list[tuple[int, list[int], list[float]]]] = field(default_factory=dict)
 
     # Generated output
     generated: str = ""
@@ -307,9 +303,7 @@ class MoERoutingCorrelationExperiment(ExperimentBase):
                 return obj
         return None
 
-    def _resolve_task_tokens(
-        self, tokenizer, task_tokens: dict
-    ) -> dict[str, dict[str, int]]:
+    def _resolve_task_tokens(self, tokenizer, task_tokens: dict) -> dict[str, dict[str, int]]:
         """Resolve task token strings to IDs."""
         result = {}
         for task, tokens in task_tokens.items():
@@ -552,9 +546,7 @@ class MoERoutingCorrelationExperiment(ExperimentBase):
 
         return summary
 
-    def _compute_expert_task_correlation(
-        self, results: list[PromptAnalysis]
-    ) -> dict:
+    def _compute_expert_task_correlation(self, results: list[PromptAnalysis]) -> dict:
         """Compute correlation between experts and task types."""
         # Count expert activations by task
         expert_task_counts: dict[str, dict[int, int]] = defaultdict(lambda: defaultdict(int))

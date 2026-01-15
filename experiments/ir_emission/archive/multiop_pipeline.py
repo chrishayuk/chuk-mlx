@@ -8,7 +8,6 @@ Extends the neural compiler to handle multi-step operations:
 Uses few-shot prompting to parse chains into sequences of canonical operations.
 """
 
-import json
 import logging
 import re
 import sys
@@ -19,7 +18,7 @@ import mlx.nn as nn
 from safetensors import safe_open
 
 sys.path.insert(0, str(Path(__file__).parent))
-from codebook import IROpcode, encode_i32_const, OPCODE_TO_WASM
+from codebook import OPCODE_TO_WASM, IROpcode, encode_i32_const
 from wasm_runtime import WASMRuntime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
@@ -42,8 +41,8 @@ class MultiOpCompiler:
         model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         classifier_path: str = "experiments/ir_emission/checkpoints/dual_reward/final/adapters.safetensors",
     ):
-        from chuk_lazarus.models_v2.loader import load_model
         from chuk_lazarus.models_v2.adapters.lora import LoRAConfig, apply_lora
+        from chuk_lazarus.models_v2.loader import load_model
 
         logger.info("Loading models...")
         result = load_model(model_name)
@@ -81,12 +80,12 @@ class MultiOpCompiler:
         self.cls_model.freeze()
         self.runtime = WASMRuntime()
 
-        self.classifier_tokens = {
-            "add": 788, "subtract": 23197, "multiply": 22932, "divide": 16429
-        }
+        self.classifier_tokens = {"add": 788, "subtract": 23197, "multiply": 22932, "divide": 16429}
         self.class_to_ir = {
-            "add": IROpcode.I32_ADD, "subtract": IROpcode.I32_SUB,
-            "multiply": IROpcode.I32_MUL, "divide": IROpcode.I32_DIV_S
+            "add": IROpcode.I32_ADD,
+            "subtract": IROpcode.I32_SUB,
+            "multiply": IROpcode.I32_MUL,
+            "divide": IROpcode.I32_DIV_S,
         }
         self.decision_layer = int(self.config.num_hidden_layers * 0.55)
 
@@ -142,7 +141,7 @@ Step 1: 6 * 7 =</s>
         step_count = 0
         for _ in range(40):
             output = self.base_model(generated_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
             generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
             mx.eval(generated_ids)
@@ -195,20 +194,24 @@ Step 1: 6 * 7 =</s>
 
             if num_match:
                 a, op, b = num_match.groups()
-                steps.append({
-                    "a": int(a),
-                    "b": int(b),
-                    "op": op,
-                    "use_result": False,
-                })
+                steps.append(
+                    {
+                        "a": int(a),
+                        "b": int(b),
+                        "op": op,
+                        "use_result": False,
+                    }
+                )
             elif result_match:
                 op, b = result_match.groups()
-                steps.append({
-                    "a": None,  # Will use previous result
-                    "b": int(b),
-                    "op": op,
-                    "use_result": True,
-                })
+                steps.append(
+                    {
+                        "a": None,  # Will use previous result
+                        "b": int(b),
+                        "op": op,
+                        "use_result": True,
+                    }
+                )
 
         return steps
 
@@ -311,14 +314,14 @@ def main():
 
     test_cases = [
         # Two-op chains
-        ("16 - 3, then multiply by 5", (16 - 3) * 5),        # 65
-        ("Add 10 and 20, then subtract 5", (10 + 20) - 5),   # 25
-        ("Multiply 4 by 7, then add 8", (4 * 7) + 8),        # 36
+        ("16 - 3, then multiply by 5", (16 - 3) * 5),  # 65
+        ("Add 10 and 20, then subtract 5", (10 + 20) - 5),  # 25
+        ("Multiply 4 by 7, then add 8", (4 * 7) + 8),  # 36
         ("Start with 50, subtract 20, then divide by 3", (50 - 20) // 3),  # 10
-        ("(8 + 4) * 3", (8 + 4) * 3),                        # 36
-        ("(20 - 5) * 2", (20 - 5) * 2),                      # 30
-        ("6 * 7, then add 10", (6 * 7) + 10),                # 52
-        ("100 - 40, then divide by 2", (100 - 40) // 2),     # 30
+        ("(8 + 4) * 3", (8 + 4) * 3),  # 36
+        ("(20 - 5) * 2", (20 - 5) * 2),  # 30
+        ("6 * 7, then add 10", (6 * 7) + 10),  # 52
+        ("100 - 40, then divide by 2", (100 - 40) // 2),  # 30
     ]
 
     logger.info("\n" + "=" * 70)
@@ -342,11 +345,11 @@ def main():
             logger.info(f"  Steps: {len(result['steps'])}")
             for i, s in enumerate(result["steps"]):
                 a = "result" if s.get("use_result") else s["a"]
-                logger.info(f"    {i+1}: {a} {s['op']} {s['b']}")
+                logger.info(f"    {i + 1}: {a} {s['op']} {s['b']}")
         logger.info(f"  Result: {result.get('result', 'N/A')} (expected {expected}) [{status}]")
 
     logger.info("\n" + "=" * 70)
-    logger.info(f"ACCURACY: {correct}/{len(test_cases)} = {100*correct/len(test_cases):.1f}%")
+    logger.info(f"ACCURACY: {correct}/{len(test_cases)} = {100 * correct / len(test_cases):.1f}%")
     logger.info("=" * 70)
 
 

@@ -102,10 +102,7 @@ async def main():
     print("\n4. Sample microbatches from epoch 0:")
     epoch0 = plan.get_epoch(0)
     for i, mb in enumerate(epoch0.microbatches[:5]):
-        print(
-            f"   MB {i}: {mb.batch_size} samples, "
-            f"bucket={mb.bucket_id}, max_len={mb.max_len}"
-        )
+        print(f"   MB {i}: {mb.batch_size} samples, bucket={mb.bucket_id}, max_len={mb.max_len}")
         if mb.batch_size <= 4:
             print(f"         samples: {list(mb.samples)}")
 
@@ -175,6 +172,7 @@ async def main():
 
     # Count remaining per epoch
     from collections import Counter
+
     epoch_counts = Counter(ep for ep, _, _ in remaining)
     for ep, count in sorted(epoch_counts.items()):
         print(f"   Epoch {ep}: {count} microbatches remaining")
@@ -222,10 +220,7 @@ async def main():
         mbs1 = list(plan.iter_epoch(ep))
         mbs2 = list(plan2.iter_epoch(ep))
         if len(mbs1) == len(mbs2):
-            all_match = all(
-                mb1.samples == mb2.samples
-                for mb1, mb2 in zip(mbs1, mbs2)
-            )
+            all_match = all(mb1.samples == mb2.samples for mb1, mb2 in zip(mbs1, mbs2))
             if all_match:
                 print(f"   ✓ Epoch {ep}: identical ordering")
             else:

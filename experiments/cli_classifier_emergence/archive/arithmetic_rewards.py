@@ -11,7 +11,6 @@ Usage:
 
 import random
 import re
-from typing import Callable
 
 # Arithmetic operations
 OPS = {
@@ -46,11 +45,11 @@ def extract_number(response: str) -> int | None:
     """Extract the first number from a response."""
     # Try to find a number at the start or after common patterns
     patterns = [
-        r"^[-]?\d+",           # Number at start
-        r"=\s*([-]?\d+)",      # After equals
-        r"is\s+([-]?\d+)",     # After "is"
-        r":\s*([-]?\d+)",      # After colon
-        r"([-]?\d+)\s*$",      # Number at end
+        r"^[-]?\d+",  # Number at start
+        r"=\s*([-]?\d+)",  # After equals
+        r"is\s+([-]?\d+)",  # After "is"
+        r":\s*([-]?\d+)",  # After colon
+        r"([-]?\d+)\s*$",  # Number at end
     ]
 
     for pattern in patterns:

@@ -101,7 +101,7 @@ from .detector import (
     get_moe_layers,
     is_moe_model,
 )
-from .enums import ExpertCategory, ExpertRole, MoEAction, MoEArchitecture
+from .enums import ExpertCategory, ExpertRole, MoEAction, MoEArchitecture, MoEType
 
 # Expert Router
 from .expert_router import ExpertRouter
@@ -174,6 +174,26 @@ from .models import (
     VocabExpertAnalysis,
 )
 
+# MoE Compression
+from .moe_compression import (
+    CompressionConfig,
+    CompressionResult,
+    MoECompressionService,
+    OverlayExperts,
+    OverlayRepresentation,
+    ProjectionOverlay,
+    ReconstructionError,
+    ReconstructionVerification,
+    StorageEstimate,
+)
+
+# MoE Type Detection
+from .moe_type import (
+    MoETypeAnalysis,
+    MoETypeService,
+    ProjectionRankAnalysis,
+)
+
 # Router analysis
 from .router import (
     analyze_coactivation,
@@ -226,6 +246,7 @@ __all__ = [
     # Enums
     "MoEArchitecture",
     "MoEAction",
+    "MoEType",
     "ExpertCategory",
     "ExpertRole",
     # Config
@@ -367,6 +388,20 @@ __all__ = [
     "TOKEN_CONTEXTS",
     # Expert Router
     "ExpertRouter",
+    # MoE Type Detection
+    "MoETypeService",
+    "MoETypeAnalysis",
+    "ProjectionRankAnalysis",
+    # MoE Compression
+    "CompressionConfig",
+    "CompressionResult",
+    "MoECompressionService",
+    "OverlayExperts",
+    "OverlayRepresentation",
+    "ProjectionOverlay",
+    "ReconstructionError",
+    "ReconstructionVerification",
+    "StorageEstimate",
     # Visualization
     "routing_weights_to_matrix",
     "multi_layer_routing_matrix",

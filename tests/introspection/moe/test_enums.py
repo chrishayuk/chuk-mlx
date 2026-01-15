@@ -164,12 +164,12 @@ class TestMoEAction:
         assert MoEAction.ATTENTION_PATTERN.handler_name == "attention_pattern"
 
     def test_all_actions_count(self):
-        """Test that we have exactly 15 actions."""
+        """Test that we have exactly 20 actions."""
         actions = list(MoEAction)
-        assert len(actions) == 15
+        assert len(actions) == 20
 
     def test_all_expected_actions_exist(self):
-        """Test all 15 expected actions are defined."""
+        """Test all 20 expected actions are defined."""
         expected_actions = [
             "analyze",
             "chat",
@@ -186,6 +186,11 @@ class TestMoEAction:
             "attention-routing",
             "attention-pattern",
             "explore",
+            "moe-type-analyze",
+            "moe-type-compare",
+            "moe-overlay-compute",
+            "moe-overlay-verify",
+            "moe-overlay-estimate",
         ]
         actual_values = [a.value for a in MoEAction]
         for expected in expected_actions:

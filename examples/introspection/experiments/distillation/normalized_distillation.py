@@ -13,13 +13,14 @@ Match the DIRECTION, not the magnitude.
 Run: uv run python examples/introspection/normalized_distillation.py
 """
 
+import warnings
+
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 import numpy as np
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 class NormalizedStudent(nn.Module):
@@ -112,7 +113,7 @@ class StudentBlock(nn.Module):
         q = self.rope(q)
         k = self.rope(k)
 
-        scale = self.head_dim ** -0.5
+        scale = self.head_dim**-0.5
         attn_out = mx.fast.scaled_dot_product_attention(q, k, v, scale=scale, mask=mask)
         attn_out = attn_out.transpose(0, 2, 1, 3).reshape(batch_size, seq_len, -1)
         x = x + self.o_proj(attn_out)
@@ -145,7 +146,7 @@ class NormalizedDistillation:
         self.layers = self.model.model.layers
         self.final_norm = self.model.model.norm
         self.hidden_size = self.model.model.hidden_size
-        self.embed_scale = self.hidden_size ** 0.5
+        self.embed_scale = self.hidden_size**0.5
         self.lm_head = self.model.lm_head
         self.num_layers = len(self.layers)
 
@@ -430,7 +431,7 @@ class NormalizedDistillation:
         results = []
 
         for config in configs:
-            print(f"\n{'='*50}")
+            print(f"\n{'=' * 50}")
             print(f"{config['desc']}")
             print("=" * 50)
 
@@ -448,7 +449,7 @@ class NormalizedDistillation:
 
             metrics = self.evaluate(student, test_prompts, config["up_to"])
 
-            print(f"\n  Results:")
+            print("\n  Results:")
             print(f"    Cosine to full: {metrics['cosine']:.3f}")
             print(f"    Top-1 match: {metrics['top1']:.1%}")
             print(f"    Top-5 match: {metrics['top5']:.1%}")
@@ -458,11 +459,13 @@ class NormalizedDistillation:
             remaining = self.num_layers - layers_replaced
             speedup = self.num_layers / (config["blocks"] + remaining)
 
-            results.append({
-                **config,
-                **metrics,
-                "speedup": speedup,
-            })
+            results.append(
+                {
+                    **config,
+                    **metrics,
+                    "speedup": speedup,
+                }
+            )
 
         # Summary
         print("\n" + "=" * 60)
@@ -473,10 +476,12 @@ class NormalizedDistillation:
         print("-" * 56)
 
         for r in results:
-            print(f"{r['desc']:<20} {r['cosine']:>7.3f} {r['top1']:>7.1%} {r['top5']:>7.1%} {r['speedup']:>7.2f}x")
+            print(
+                f"{r['desc']:<20} {r['cosine']:>7.3f} {r['top1']:>7.1%} {r['top5']:>7.1%} {r['speedup']:>7.2f}x"
+            )
 
         # Best result
-        best = max(results, key=lambda x: x['top1'])
+        best = max(results, key=lambda x: x["top1"])
         print(f"\nBest config: {best['desc']}")
         print(f"  Top-1: {best['top1']:.1%}, Speedup: {best['speedup']:.2f}x")
 

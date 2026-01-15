@@ -11,13 +11,14 @@ Fixed distillation with:
 Run: uv run python examples/introspection/adapted_distillation.py
 """
 
+import warnings
+
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 import numpy as np
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 class SpliceAdapter(nn.Module):
@@ -129,7 +130,7 @@ class StudentBlock(nn.Module):
         q = self.rope(q)
         k = self.rope(k)
 
-        scale = self.head_dim ** -0.5
+        scale = self.head_dim**-0.5
         attn_out = mx.fast.scaled_dot_product_attention(q, k, v, scale=scale, mask=mask)
         attn_out = attn_out.transpose(0, 2, 1, 3).reshape(batch_size, seq_len, -1)
         x = x + self.o_proj(attn_out)
@@ -160,7 +161,7 @@ class AdaptedDistillation:
         self.layers = self.model.model.layers
         self.final_norm = self.model.model.norm
         self.hidden_size = self.model.model.hidden_size
-        self.embed_scale = self.hidden_size ** 0.5
+        self.embed_scale = self.hidden_size**0.5
         self.lm_head = self.model.lm_head
         self.num_layers = len(self.layers)
 
@@ -297,7 +298,9 @@ class AdaptedDistillation:
             "l2_dist_normalized": l2_dist,
         }
 
-    def kl_divergence(self, teacher_logits: mx.array, student_logits: mx.array, temperature: float = 2.0) -> mx.array:
+    def kl_divergence(
+        self, teacher_logits: mx.array, student_logits: mx.array, temperature: float = 2.0
+    ) -> mx.array:
         """Compute KL divergence with temperature."""
         # Apply temperature
         t_scaled = teacher_logits / temperature
@@ -328,7 +331,7 @@ class AdaptedDistillation:
         """Train with hidden + KL loss."""
 
         print(f"\n  Training student to match L0-{teacher_up_to}...")
-        print(f"  Using: per-channel scale+bias + KL on logits")
+        print("  Using: per-channel scale+bias + KL on logits")
 
         # Initialize scale/bias from teacher statistics
         sample_tokens = self.tokenizer.encode(train_prompts[0])
@@ -384,9 +387,7 @@ class AdaptedDistillation:
 
             # KL divergence on logits (last token)
             kl = self.kl_divergence(
-                teacher_logits[:, -1, :],
-                student_logits[:, -1, :],
-                temperature=2.0
+                teacher_logits[:, -1, :], student_logits[:, -1, :], temperature=2.0
             )
             kl_loss = mx.mean(kl)
 
@@ -450,18 +451,16 @@ class AdaptedDistillation:
 
             # KL divergence on logits (last token)
             kl = self.kl_divergence(
-                teacher_logits[:, -1, :],
-                student_logits[:, -1, :],
-                temperature=2.0
+                teacher_logits[:, -1, :], student_logits[:, -1, :], temperature=2.0
             )
             kl_loss = mx.mean(kl)
 
             # Combined loss - include std and mean matching
             total_loss = (
-                hidden_mse * 0.01 +
-                std_loss * 1.0 +
-                mean_loss * 1.0 +
-                kl_loss * 10.0  # Weight KL even more heavily
+                hidden_mse * 0.01
+                + std_loss * 1.0
+                + mean_loss * 1.0
+                + kl_loss * 10.0  # Weight KL even more heavily
             )
 
             return total_loss
@@ -493,15 +492,19 @@ class AdaptedDistillation:
             avg_hidden = epoch_hidden / n
             avg_kl = epoch_kl / n
 
-            history.append({
-                "epoch": epoch,
-                "total": avg_total,
-                "hidden": avg_hidden,
-                "kl": avg_kl,
-            })
+            history.append(
+                {
+                    "epoch": epoch,
+                    "total": avg_total,
+                    "hidden": avg_hidden,
+                    "kl": avg_kl,
+                }
+            )
 
             if epoch % 40 == 0 or epoch == num_epochs - 1:
-                print(f"    Epoch {epoch}: total={avg_total:.4f}, hidden={avg_hidden:.4f}, kl={avg_kl:.4f}")
+                print(
+                    f"    Epoch {epoch}: total={avg_total:.4f}, hidden={avg_hidden:.4f}, kl={avg_kl:.4f}"
+                )
 
         return history
 
@@ -558,7 +561,7 @@ class AdaptedDistillation:
             kl = self.kl_divergence(
                 full_logits[:, -1, :],
                 student_logits[:, -1, :],
-                temperature=1.0  # Use T=1 for eval
+                temperature=1.0,  # Use T=1 for eval
             )
             kls.append(float(mx.mean(kl)))
 
@@ -583,10 +586,7 @@ class AdaptedDistillation:
         n = len(test_prompts)
 
         # Aggregate diagnostics
-        avg_diag = {
-            k: np.mean([d[k] for d in all_diagnostics])
-            for k in all_diagnostics[0].keys()
-        }
+        avg_diag = {k: np.mean([d[k] for d in all_diagnostics]) for k in all_diagnostics[0].keys()}
 
         return {
             "cosine_final": np.mean(cosines),
@@ -658,7 +658,7 @@ class AdaptedDistillation:
         results = []
 
         for config in configs:
-            print(f"\n{'='*50}")
+            print(f"\n{'=' * 50}")
             print(f"{config['desc']}")
             print("=" * 50)
 
@@ -678,7 +678,7 @@ class AdaptedDistillation:
 
             metrics = self.evaluate(student, adapter, test_prompts, config["up_to"])
 
-            print(f"\n  Results:")
+            print("\n  Results:")
             print(f"    Cosine to full (final): {metrics['cosine_final']:.3f}")
             print(f"    KL divergence: {metrics['kl_mean']:.3f}")
             print(f"    Top-1 match: {metrics['top1']:.1%}")
@@ -686,14 +686,16 @@ class AdaptedDistillation:
             print(f"    Top-10 match: {metrics['top10']:.1%}")
             print(f"    Top-50 match: {metrics['top50']:.1%}")
 
-            print(f"\n  Boundary diagnostics:")
-            for k, v in metrics['boundary_diagnostics'].items():
+            print("\n  Boundary diagnostics:")
+            for k, v in metrics["boundary_diagnostics"].items():
                 print(f"    {k}: {v:.4f}")
 
-            results.append({
-                **config,
-                **metrics,
-            })
+            results.append(
+                {
+                    **config,
+                    **metrics,
+                }
+            )
 
         print("\n" + "=" * 60)
         print("INTERPRETATION")

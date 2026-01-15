@@ -9,20 +9,20 @@ This script unpacks what's already there before computation begins.
 Run: uv run python examples/introspection/early_layer_analysis.py
 """
 
-import json
-import numpy as np
-from pathlib import Path
-from dataclasses import dataclass
-from typing import Any
-from collections import defaultdict
 import re
+from collections import defaultdict
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 import mlx.core as mx
+import numpy as np
 
 
 @dataclass
 class TokenAnalysis:
     """Analysis of a single token's representation"""
+
     token_id: int
     token_str: str
     position: int
@@ -93,48 +93,48 @@ class EarlyLayerAnalyzer:
         """Classify a token into types"""
 
         # Clean up token representation
-        clean = token_str.replace('▁', '').replace('Ġ', '').strip()
+        clean = token_str.replace("▁", "").replace("Ġ", "").strip()
 
         if not clean:
-            return 'whitespace'
+            return "whitespace"
 
         # Special tokens
-        if token_str.startswith('<') and token_str.endswith('>'):
-            return 'special'
-        if token_str in ['<bos>', '<eos>', '<pad>', '<unk>', '<s>', '</s>']:
-            return 'special'
+        if token_str.startswith("<") and token_str.endswith(">"):
+            return "special"
+        if token_str in ["<bos>", "<eos>", "<pad>", "<unk>", "<s>", "</s>"]:
+            return "special"
 
         # Punctuation
-        if all(c in '.,!?;:()[]{}"\'-–—…' for c in clean):
-            return 'punctuation'
+        if all(c in ".,!?;:()[]{}\"'-–—…" for c in clean):
+            return "punctuation"
 
         # Numbers
-        if clean.isdigit() or re.match(r'^[\d.,]+$', clean):
-            return 'number'
+        if clean.isdigit() or re.match(r"^[\d.,]+$", clean):
+            return "number"
 
         # Subword (starts with ## or lowercase continuation)
-        if token_str.startswith('##') or (not token_str.startswith('▁') and
-                                           not token_str.startswith('Ġ') and
-                                           len(clean) > 0 and
-                                           not clean[0].isupper() and
-                                           len(clean) < 4):
-            return 'subword'
+        if token_str.startswith("##") or (
+            not token_str.startswith("▁")
+            and not token_str.startswith("Ġ")
+            and len(clean) > 0
+            and not clean[0].isupper()
+            and len(clean) < 4
+        ):
+            return "subword"
 
         # Regular word
         if clean.isalpha():
-            return 'word'
+            return "word"
 
         # Mixed
-        return 'mixed'
+        return "mixed"
 
     # ==========================================
     # Activation Collection
     # ==========================================
 
     def get_all_token_activations(
-        self,
-        prompt: str,
-        layers: list[int] | None = None
+        self, prompt: str, layers: list[int] | None = None
     ) -> dict[int, list[TokenAnalysis]]:
         """Get activations for every token at specified layers"""
 
@@ -147,18 +147,20 @@ class EarlyLayerAnalyzer:
         tokens = self.tokenizer.encode(prompt)
         if isinstance(tokens, np.ndarray):
             tokens = tokens.flatten().tolist()
-        elif hasattr(tokens, 'tolist'):
+        elif hasattr(tokens, "tolist"):
             tokens = tokens.tolist()
 
         token_strs = [self.tokenizer.decode([t]) for t in tokens]
 
         # Setup hooks
         hooks = ModelHooks(self.model)
-        hooks.configure(CaptureConfig(
-            layers=layers,
-            capture_hidden_states=True,
-            positions=PositionSelection.ALL,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=layers,
+                capture_hidden_states=True,
+                positions=PositionSelection.ALL,
+            )
+        )
 
         # Forward pass
         input_ids = mx.array([tokens])
@@ -184,14 +186,16 @@ class EarlyLayerAnalyzer:
                     activation = h_np[pos]
                     token_type = self.classify_token(token_str)
 
-                    results[layer].append(TokenAnalysis(
-                        token_id=token_id,
-                        token_str=token_str,
-                        position=pos,
-                        layer=layer,
-                        activation=activation,
-                        token_type=token_type
-                    ))
+                    results[layer].append(
+                        TokenAnalysis(
+                            token_id=token_id,
+                            token_str=token_str,
+                            position=pos,
+                            layer=layer,
+                            activation=activation,
+                            token_type=token_type,
+                        )
+                    )
 
         return results
 
@@ -202,9 +206,9 @@ class EarlyLayerAnalyzer:
     def analyze_position_encoding(self, prompts: list[str], layer: int = 0):
         """How is position encoded in activations?"""
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"POSITION ENCODING ANALYSIS - Layer {layer}")
-        print('='*60)
+        print("=" * 60)
 
         position_activations = defaultdict(list)
 
@@ -266,7 +270,7 @@ class EarlyLayerAnalyzer:
 
         if len(all_acts) < 10:
             print("  Not enough samples for regression")
-            return {'r2_score': 0}
+            return {"r2_score": 0}
 
         X = np.array(all_acts)
         y = np.array(all_pos)
@@ -276,7 +280,7 @@ class EarlyLayerAnalyzer:
         from sklearn.model_selection import cross_val_score
 
         reg = Ridge()
-        scores = cross_val_score(reg, X, y, cv=min(5, len(X) // 2), scoring='r2')
+        scores = cross_val_score(reg, X, y, cv=min(5, len(X) // 2), scoring="r2")
         print(f"  R² for position prediction: {scores.mean():.3f} ± {scores.std():.3f}")
 
         # Fit and get direction
@@ -293,9 +297,9 @@ class EarlyLayerAnalyzer:
             print("  → Position encoding is WEAK or nonlinear")
 
         return {
-            'similarity_matrix': sim_matrix,
-            'position_direction': position_direction,
-            'r2_score': scores.mean()
+            "similarity_matrix": sim_matrix,
+            "position_direction": position_direction,
+            "r2_score": scores.mean(),
         }
 
     # ==========================================
@@ -305,9 +309,9 @@ class EarlyLayerAnalyzer:
     def analyze_token_types(self, prompts: list[str], layer: int = 0):
         """How do different token types cluster?"""
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"TOKEN TYPE CLUSTERING - Layer {layer}")
-        print('='*60)
+        print("=" * 60)
 
         type_activations = defaultdict(list)
         type_tokens = defaultdict(list)
@@ -360,8 +364,8 @@ class EarlyLayerAnalyzer:
         print("\nToken type linear separability:")
 
         from sklearn.linear_model import LogisticRegression
-        from sklearn.preprocessing import LabelEncoder
         from sklearn.model_selection import cross_val_score
+        from sklearn.preprocessing import LabelEncoder
 
         all_acts = []
         all_types = []
@@ -372,7 +376,7 @@ class EarlyLayerAnalyzer:
 
         if len(all_acts) < 10:
             print("  Not enough samples")
-            return {'classification_accuracy': 0}
+            return {"classification_accuracy": 0}
 
         X = np.array(all_acts)
         le = LabelEncoder()
@@ -381,7 +385,7 @@ class EarlyLayerAnalyzer:
         clf = LogisticRegression(max_iter=1000, random_state=42)
         scores = cross_val_score(clf, X, y, cv=min(5, len(set(y))))
         print(f"  Classification accuracy: {scores.mean():.3f} ± {scores.std():.3f}")
-        print(f"  Chance baseline: {1/len(types):.3f}")
+        print(f"  Chance baseline: {1 / len(types):.3f}")
 
         if scores.mean() > 0.8:
             print("  → Token types ARE clearly separable")
@@ -390,10 +394,7 @@ class EarlyLayerAnalyzer:
         else:
             print("  → Token types are NOT well separable")
 
-        return {
-            'type_centroids': type_centroids,
-            'classification_accuracy': scores.mean()
-        }
+        return {"type_centroids": type_centroids, "classification_accuracy": scores.mean()}
 
     # ==========================================
     # Semantic Content at L0
@@ -402,18 +403,18 @@ class EarlyLayerAnalyzer:
     def analyze_semantic_similarity(self, layer: int = 0):
         """Is semantic similarity present in early layers?"""
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"SEMANTIC SIMILARITY - Layer {layer}")
-        print('='*60)
+        print("=" * 60)
 
         # Semantic groups to test
         semantic_groups = {
-            'weather': ["weather", "rain", "temperature", "sunny", "forecast", "cloudy"],
-            'communication': ["email", "send", "message", "write", "reply", "contact"],
-            'time': ["tomorrow", "today", "yesterday", "morning", "evening", "schedule"],
-            'locations': ["Tokyo", "London", "Paris", "airport", "restaurant", "hotel"],
-            'actions': ["get", "find", "search", "create", "delete", "update"],
-            'questions': ["what", "where", "when", "how", "why", "who"],
+            "weather": ["weather", "rain", "temperature", "sunny", "forecast", "cloudy"],
+            "communication": ["email", "send", "message", "write", "reply", "contact"],
+            "time": ["tomorrow", "today", "yesterday", "morning", "evening", "schedule"],
+            "locations": ["Tokyo", "London", "Paris", "airport", "restaurant", "hotel"],
+            "actions": ["get", "find", "search", "create", "delete", "update"],
+            "questions": ["what", "where", "when", "how", "why", "who"],
         }
 
         group_centroids = {}
@@ -435,9 +436,9 @@ class EarlyLayerAnalyzer:
 
             if activations:
                 group_centroids[group_name] = {
-                    'centroid': np.mean(activations, axis=0),
-                    'words': found_words,
-                    'activations': activations
+                    "centroid": np.mean(activations, axis=0),
+                    "words": found_words,
+                    "activations": activations,
                 }
 
         # Group similarity matrix
@@ -451,8 +452,8 @@ class EarlyLayerAnalyzer:
         for g1 in groups:
             print(f"{g1:<12}", end=" ")
             for g2 in groups:
-                v1 = group_centroids[g1]['centroid']
-                v2 = group_centroids[g2]['centroid']
+                v1 = group_centroids[g1]["centroid"]
+                v2 = group_centroids[g2]["centroid"]
                 norm1 = np.linalg.norm(v1)
                 norm2 = np.linalg.norm(v2)
                 if norm1 > 0 and norm2 > 0:
@@ -474,7 +475,7 @@ class EarlyLayerAnalyzer:
         between_sims = []
 
         for g1 in groups:
-            acts1 = group_centroids[g1]['activations']
+            acts1 = group_centroids[g1]["activations"]
             for i, a1 in enumerate(acts1):
                 for j, a2 in enumerate(acts1):
                     if i < j:
@@ -486,7 +487,7 @@ class EarlyLayerAnalyzer:
 
                 for g2 in groups:
                     if g1 != g2:
-                        acts2 = group_centroids[g2]['activations']
+                        acts2 = group_centroids[g2]["activations"]
                         for a2 in acts2:
                             norm1 = np.linalg.norm(a1)
                             norm2 = np.linalg.norm(a2)
@@ -507,9 +508,9 @@ class EarlyLayerAnalyzer:
             print("  → Semantic clustering is WEAK at this layer")
 
         return {
-            'group_centroids': {k: v['centroid'] for k, v in group_centroids.items()},
-            'within_similarity': within_mean,
-            'between_similarity': between_mean
+            "group_centroids": {k: v["centroid"] for k, v in group_centroids.items()},
+            "within_similarity": within_mean,
+            "between_similarity": between_mean,
         }
 
     # ==========================================
@@ -522,9 +523,9 @@ class EarlyLayerAnalyzer:
         if layers is None:
             layers = [0, 1, 2, 3]
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("PRINCIPAL COMPONENT ANALYSIS")
-        print('='*60)
+        print("=" * 60)
 
         from sklearn.decomposition import PCA
 
@@ -549,11 +550,13 @@ class EarlyLayerAnalyzer:
             pca.fit(X)
 
             print(f"\nLayer {layer}:")
-            print(f"  Variance explained by top components:")
+            print("  Variance explained by top components:")
             cumvar = np.cumsum(pca.explained_variance_ratio_)
             for i in [0, 1, 2, 4, 9, 19]:
                 if i < len(pca.explained_variance_ratio_):
-                    print(f"    PC{i+1}: {pca.explained_variance_ratio_[i]*100:.1f}% (cumulative: {cumvar[i]*100:.1f}%)")
+                    print(
+                        f"    PC{i + 1}: {pca.explained_variance_ratio_[i] * 100:.1f}% (cumulative: {cumvar[i] * 100:.1f}%)"
+                    )
 
             # How many components for 90% variance?
             n_90 = np.searchsorted(cumvar, 0.9) + 1
@@ -565,13 +568,13 @@ class EarlyLayerAnalyzer:
             projections = pca.transform(X)
             positions = np.array(all_positions)
 
-            print(f"  Top PC correlations with position:")
+            print("  Top PC correlations with position:")
             for i in range(min(5, projections.shape[1])):
                 corr = np.corrcoef(projections[:, i], positions)[0, 1]
                 if abs(corr) > 0.3:
-                    print(f"    PC{i+1}: r={corr:.3f} ***")
+                    print(f"    PC{i + 1}: r={corr:.3f} ***")
                 else:
-                    print(f"    PC{i+1}: r={corr:.3f}")
+                    print(f"    PC{i + 1}: r={corr:.3f}")
 
     # ==========================================
     # Layer-by-Layer Comparison
@@ -583,9 +586,9 @@ class EarlyLayerAnalyzer:
         if layers is None:
             layers = [0, 1, 2, 3]
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("LAYER EVOLUTION ANALYSIS")
-        print('='*60)
+        print("=" * 60)
 
         # Collect same-token activations across layers
         token_evolution = defaultdict(lambda: {})
@@ -618,17 +621,17 @@ class EarlyLayerAnalyzer:
                 if sims:
                     mean_sim = np.mean(sims)
                     if l1 == l2:
-                        print(f"  1.00*", end="")
+                        print("  1.00*", end="")
                     else:
                         print(f"  {mean_sim:.2f} ", end="")
                 else:
-                    print(f"  -   ", end="")
+                    print("  -   ", end="")
             print()
 
         # How much does each layer change from previous?
         print("\nRepresentation change per layer:")
         for i, layer in enumerate(layers[1:], 1):
-            prev_layer = layers[i-1]
+            prev_layer = layers[i - 1]
             changes = []
             for key, layer_acts in token_evolution.items():
                 if prev_layer in layer_acts and layer in layer_acts:
@@ -649,36 +652,36 @@ class EarlyLayerAnalyzer:
     def analyze_tool_features_early(self, layer: int = 0):
         """Are tool-relevant features present at L0?"""
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"TOOL-RELEVANT FEATURES - Layer {layer}")
-        print('='*60)
+        print("=" * 60)
 
         # Test specific features
         feature_tests = {
-            'question_words': {
-                'positive': ["What is the weather?", "Where is the restaurant?", "How do I send?"],
-                'negative': ["Send the email.", "Create an event.", "Get the temperature."]
+            "question_words": {
+                "positive": ["What is the weather?", "Where is the restaurant?", "How do I send?"],
+                "negative": ["Send the email.", "Create an event.", "Get the temperature."],
             },
-            'imperative_verbs': {
-                'positive': ["Send an email now.", "Create the event.", "Get the weather."],
-                'negative': ["The weather is nice.", "I sent an email.", "The event exists."]
+            "imperative_verbs": {
+                "positive": ["Send an email now.", "Create the event.", "Get the weather."],
+                "negative": ["The weather is nice.", "I sent an email.", "The event exists."],
             },
-            'location_mentions': {
-                'positive': ["Weather in Tokyo", "Fly to Paris", "Restaurant near London"],
-                'negative': ["Send an email", "Create a meeting", "Search for news"]
+            "location_mentions": {
+                "positive": ["Weather in Tokyo", "Fly to Paris", "Restaurant near London"],
+                "negative": ["Send an email", "Create a meeting", "Search for news"],
             },
-            'api_like_syntax': {
-                'positive': ["get_weather()", "send_email to:", "search: query"],
-                'negative': ["The weather is nice", "I sent mail", "I searched"]
-            }
+            "api_like_syntax": {
+                "positive": ["get_weather()", "send_email to:", "search: query"],
+                "negative": ["The weather is nice", "I sent mail", "I searched"],
+            },
         }
 
         from sklearn.linear_model import LogisticRegression
         from sklearn.model_selection import cross_val_score
 
         for feature_name, prompts_dict in feature_tests.items():
-            pos_prompts = prompts_dict['positive']
-            neg_prompts = prompts_dict['negative']
+            pos_prompts = prompts_dict["positive"]
+            neg_prompts = prompts_dict["negative"]
 
             pos_acts = []
             neg_acts = []
@@ -699,7 +702,7 @@ class EarlyLayerAnalyzer:
                 continue
 
             X = np.vstack(pos_acts + neg_acts)
-            y = np.array([1]*len(pos_acts) + [0]*len(neg_acts))
+            y = np.array([1] * len(pos_acts) + [0] * len(neg_acts))
 
             clf = LogisticRegression(max_iter=1000, random_state=42)
             scores = cross_val_score(clf, X, y, cv=min(3, len(X) // 2))
@@ -731,10 +734,10 @@ class EarlyLayerAnalyzer:
         output_path = Path(output_dir)
         output_path.mkdir(exist_ok=True)
 
-        print("="*60)
+        print("=" * 60)
         print("EARLY LAYER ANALYSIS (L0-L3)")
         print("Understanding what embeddings already encode")
-        print("="*60)
+        print("=" * 60)
         print(f"\nModel: {self.model_id}")
         print(f"Layers: {self.num_layers}, Hidden: {self.hidden_size}")
 
@@ -747,7 +750,6 @@ class EarlyLayerAnalyzer:
             "Search for Italian restaurants nearby",
             "Get the stock price of Apple",
             "Set a timer for 10 minutes",
-
             # Non-tool
             "The capital of France is Paris",
             "Once upon a time there was a princess",
@@ -755,7 +757,6 @@ class EarlyLayerAnalyzer:
             "What is the meaning of life?",
             "2 + 2 equals 4",
             "The quick brown fox jumps over the lazy dog",
-
             # Mixed/ambiguous
             "Tell me about Tokyo",
             "I need help with email",
@@ -772,18 +773,18 @@ class EarlyLayerAnalyzer:
         self.analyze_tool_features_early(layer=0)
 
         # Compare L0 vs L3
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("L0 vs L3 COMPARISON")
-        print('='*60)
+        print("=" * 60)
 
         print("\nRunning same analyses on L3...")
         self.analyze_token_types(prompts, layer=3)
         self.analyze_semantic_similarity(layer=3)
         self.analyze_tool_features_early(layer=3)
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("SUMMARY")
-        print('='*60)
+        print("=" * 60)
         print("""
 Key questions answered:
 1. Is position encoding present at L0? (Check R² score)
@@ -807,6 +808,7 @@ If features emerge later:
 # ==========================================
 # Main
 # ==========================================
+
 
 def main():
     MODEL_ID = "mlx-community/functiongemma-270m-it-bf16"

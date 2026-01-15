@@ -60,7 +60,7 @@ def visualize_attention_mask(mask: np.ndarray, segment_ids: tuple, max_display: 
     """Visualize attention mask with segment boundaries."""
     size = min(len(segment_ids), max_display)
     print(f"\n   Attention mask (first {size}x{size} positions):")
-    print("   " + "".join(f"{i%10}" for i in range(size)))
+    print("   " + "".join(f"{i % 10}" for i in range(size)))
 
     for i in range(size):
         row = ""
@@ -150,9 +150,11 @@ def main():
     # Compare with no packing
     no_pack_tokens = len(sequences) * max_length
     pack_tokens = len(packed) * max_length
-    print(f"\n   Without packing: {len(sequences)} batches × {max_length} = {no_pack_tokens} tokens")
+    print(
+        f"\n   Without packing: {len(sequences)} batches × {max_length} = {no_pack_tokens} tokens"
+    )
     print(f"   With packing:    {len(packed)} batches × {max_length} = {pack_tokens} tokens")
-    print(f"   Token reduction: {(1 - pack_tokens/no_pack_tokens):.1%}")
+    print(f"   Token reduction: {(1 - pack_tokens / no_pack_tokens):.1%}")
 
     # 6. Create segment attention mask
     print("\n6. Creating segment-aware attention mask...")
@@ -178,7 +180,9 @@ def main():
         seg0_last = max(i for i, s in enumerate(first_pack.segment_ids) if s == 0)
         seg1_first = min(i for i, s in enumerate(first_pack.segment_ids) if s == 1)
         blocked = mask[seg1_first, seg0_last] == 0
-        print(f"   Cross-segment: position {seg1_first} (seg 1) blocked from {seg0_last} (seg 0)? {blocked}")
+        print(
+            f"   Cross-segment: position {seg1_first} (seg 1) blocked from {seg0_last} (seg 0)? {blocked}"
+        )
 
     # 7. Compare packing algorithms
     print("\n7. Comparing packing algorithms...")

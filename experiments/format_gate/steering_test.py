@@ -122,7 +122,7 @@ class SteeringTest:
         prompt: str,
         steering_strength: float = 0.0,
         steering_layer: int = 4,
-        max_tokens: int = 150
+        max_tokens: int = 150,
     ) -> str:
         """Generate with steering at specified layer.
 
@@ -150,6 +150,7 @@ class SteeringTest:
 
             # Create causal mask
             import mlx.nn as nn
+
             mask = nn.MultiHeadAttention.create_additive_causal_mask(seq_len)
             mask = mask.astype(hidden_states.dtype)
 
@@ -213,10 +214,18 @@ class SteeringTest:
     def _detect_format(self, text: str) -> str:
         """Detect if output is CoT or direct."""
         import re
+
         cot_patterns = [
-            r"to find", r"we need to", r"let's", r"first,",
-            r"step \d", r"therefore", r"so,", r"this means",
-            r"calculate", r"the answer is"
+            r"to find",
+            r"we need to",
+            r"let's",
+            r"first,",
+            r"step \d",
+            r"therefore",
+            r"so,",
+            r"this means",
+            r"calculate",
+            r"the answer is",
         ]
         text_lower = text.lower()
         cot_matches = sum(1 for p in cot_patterns if re.search(p, text_lower))
@@ -245,14 +254,11 @@ class SteeringTest:
             "model": self.config["model"],
             "steering_layer": steering_layer,
             "cot_direction_norm": mx.linalg.norm(self.cot_direction_unnorm).item(),
-            "tests": []
+            "tests": [],
         }
 
         for prompt in test_prompts:
-            prompt_results = {
-                "prompt": prompt,
-                "generations": []
-            }
+            prompt_results = {"prompt": prompt, "generations": []}
 
             for strength in steering_strengths:
                 logger.info(f"  Testing '{prompt}' with strength {strength}")
@@ -264,9 +270,7 @@ class SteeringTest:
                     # Use steering generation
                     try:
                         output = self._generate_with_steering(
-                            prompt,
-                            steering_strength=strength,
-                            steering_layer=steering_layer
+                            prompt, steering_strength=strength, steering_layer=steering_layer
                         )
                     except Exception as e:
                         logger.warning(f"Steering failed: {e}, using baseline")
@@ -274,12 +278,14 @@ class SteeringTest:
 
                 detected = self._detect_format(output)
 
-                prompt_results["generations"].append({
-                    "strength": strength,
-                    "output": output[:200],
-                    "format": detected,
-                    "word_count": len(output.split())
-                })
+                prompt_results["generations"].append(
+                    {
+                        "strength": strength,
+                        "output": output[:200],
+                        "format": detected,
+                        "word_count": len(output.split()),
+                    }
+                )
 
             results["tests"].append(prompt_results)
 
@@ -315,7 +321,9 @@ class SteeringTest:
                 words = gen["word_count"]
                 output_preview = gen["output"][:50].replace("\n", " ")
                 marker = "←" if fmt == "cot" else ""
-                print(f"  strength={strength:.1f}: {fmt:6s} ({words:2d} words) \"{output_preview}...\" {marker}")
+                print(
+                    f'  strength={strength:.1f}: {fmt:6s} ({words:2d} words) "{output_preview}..." {marker}'
+                )
 
         # Summary
         print("\n" + "-" * 70)
@@ -324,7 +332,8 @@ class SteeringTest:
 
         for strength in [0.0, 1.0, 2.0, 3.0, 5.0]:
             cot_count = sum(
-                1 for test in results["tests"]
+                1
+                for test in results["tests"]
                 for gen in test["generations"]
                 if gen["strength"] == strength and gen["format"] == "cot"
             )

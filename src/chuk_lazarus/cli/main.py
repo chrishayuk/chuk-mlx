@@ -3077,6 +3077,14 @@ Actions:
   attention-routing - Analyze how attention patterns drive expert routing
   attention-pattern - Show attention weights for a specific position
 
+MoE Type Detection & Compression:
+  moe-type-analyze   - Detect pseudo vs native MoE (is it compressible?)
+  moe-type-compare   - Compare MoE types between two models
+  moe-overlay-compute  - Compute overlay representation (base + low-rank deltas)
+  moe-overlay-verify   - Verify reconstruction accuracy (<1% error)
+  moe-overlay-estimate - Estimate storage savings for full model
+  moe-overlay-compress - Compress model to overlay format (saves to disk)
+
 Quick Start:
     # Interactive explorer (recommended starting point)
     lazarus introspect moe-expert explore -m openai/gpt-oss-20b
@@ -3092,13 +3100,28 @@ Examples:
     lazarus introspect moe-expert full-taxonomy -m openai/gpt-oss-20b
 
     # Generate routing heatmap visualization
-    lazarus introspect moe-expert heatmap -m model -p "def fibonacci(n):"
+    lazarus introspect moe-expert heatmap -m openai/gpt-oss-20b -p "def fibonacci(n):"
 
     # Chat with Expert 6 (force all tokens through it)
     lazarus introspect moe-expert chat -m openai/gpt-oss-20b --expert 6 -p "127 * 89 = "
 
     # Kill an expert and see what breaks
-    lazarus introspect moe-expert ablate -m model --expert 6 -p "127 * 89 = " --benchmark
+    lazarus introspect moe-expert ablate -m openai/gpt-oss-20b --expert 6 -p "127 * 89 = " --benchmark
+
+MoE Compression Examples:
+    # Detect if model is compressible (pseudo-MoE vs native-MoE)
+    lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b
+
+    # Compare two models
+    lazarus introspect moe-expert moe-type-compare -m openai/gpt-oss-20b -c allenai/OLMoE-1B-7B-0924
+
+    # Full compression pipeline
+    lazarus introspect moe-expert moe-overlay-compute -m openai/gpt-oss-20b
+    lazarus introspect moe-expert moe-overlay-verify -m openai/gpt-oss-20b
+    lazarus introspect moe-expert moe-overlay-estimate -m openai/gpt-oss-20b
+
+    # Actually compress model to disk (36GB -> ~7GB)
+    lazarus introspect moe-expert moe-overlay-compress -m openai/gpt-oss-20b
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -3125,6 +3148,14 @@ Examples:
             "context-window",
             "attention-routing",
             "attention-pattern",
+            # MoE type detection
+            "moe-type-analyze",
+            "moe-type-compare",
+            # MoE compression
+            "moe-overlay-compute",
+            "moe-overlay-verify",
+            "moe-overlay-estimate",
+            "moe-overlay-compress",
         ],
         default="explore",
         help="Action to perform (default: explore)",
@@ -3205,6 +3236,34 @@ Examples:
         "-v",
         action="store_true",
         help="Show detailed output (e.g., expert specializations for full-taxonomy)",
+    )
+    # Arguments for moe-type-compare action
+    moe_expert_parser.add_argument(
+        "--compare-model",
+        "-c",
+        help="Second model for moe-type-compare action",
+    )
+    # Arguments for moe-type-analyze action
+    moe_expert_parser.add_argument(
+        "--visualize",
+        action="store_true",
+        help="Show expert orthogonality heatmap visualization (for moe-type-analyze)",
+    )
+    # Arguments for moe-overlay-* actions (compression)
+    moe_expert_parser.add_argument(
+        "--gate-rank",
+        type=int,
+        help="Rank for gate projection (default: auto from SVD)",
+    )
+    moe_expert_parser.add_argument(
+        "--up-rank",
+        type=int,
+        help="Rank for up projection (default: auto from SVD)",
+    )
+    moe_expert_parser.add_argument(
+        "--down-rank",
+        type=int,
+        help="Rank for down projection (default: auto from SVD)",
     )
     moe_expert_parser.set_defaults(func=introspect_moe_expert)
 

@@ -177,9 +177,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--num-samples", type=int, default=2000)
     parser.add_argument("--word-problem-ratio", type=float, default=0.3)
-    parser.add_argument(
-        "--output-dir", default="experiments/ir_emission/data"
-    )
+    parser.add_argument("--output-dir", default="experiments/ir_emission/data")
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)

@@ -60,10 +60,30 @@ class ExpertAnalysisExperiment(ExperimentBase):
             return "NUM"
 
         code_keywords = {
-            "def", "class", "import", "return", "if", "else", "for", "while",
-            "function", "const", "let", "var", "async", "await",
-            "SELECT", "FROM", "WHERE", "INSERT", "CREATE",
-            "fn", "mut", "impl", "struct", "enum",
+            "def",
+            "class",
+            "import",
+            "return",
+            "if",
+            "else",
+            "for",
+            "while",
+            "function",
+            "const",
+            "let",
+            "var",
+            "async",
+            "await",
+            "SELECT",
+            "FROM",
+            "WHERE",
+            "INSERT",
+            "CREATE",
+            "fn",
+            "mut",
+            "impl",
+            "struct",
+            "enum",
         }
         if clean in code_keywords or lower in code_keywords:
             return "KW"
@@ -77,9 +97,37 @@ class ExpertAnalysisExperiment(ExperimentBase):
         if re.match(r"^[^\w\s]+$", clean):
             return "PN"
 
-        func_words = {"the", "a", "an", "in", "on", "at", "to", "for", "with", "by", "of",
-                      "and", "or", "but", "is", "are", "was", "were", "be", "been",
-                      "i", "you", "he", "she", "it", "we", "they", "this", "that"}
+        func_words = {
+            "the",
+            "a",
+            "an",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "with",
+            "by",
+            "of",
+            "and",
+            "or",
+            "but",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "i",
+            "you",
+            "he",
+            "she",
+            "it",
+            "we",
+            "they",
+            "this",
+            "that",
+        }
         if lower in func_words:
             return "FW"
 
@@ -117,13 +165,44 @@ class ExpertAnalysisExperiment(ExperimentBase):
         if clean in ["the", "a", "an", "of", "is", "are", "was", "were"]:
             return "FUNC"
 
-        adjectives = {"happy", "sad", "hot", "cold", "big", "small", "fast", "slow",
-                      "good", "bad", "old", "new", "light", "dark", "high", "low"}
+        adjectives = {
+            "happy",
+            "sad",
+            "hot",
+            "cold",
+            "big",
+            "small",
+            "fast",
+            "slow",
+            "good",
+            "bad",
+            "old",
+            "new",
+            "light",
+            "dark",
+            "high",
+            "low",
+        }
         if clean in adjectives:
             return "ADJ"
 
-        nouns = {"dog", "cat", "car", "tree", "book", "house", "person", "animal",
-                 "king", "queen", "man", "woman", "doctor", "teacher", "student"}
+        nouns = {
+            "dog",
+            "cat",
+            "car",
+            "tree",
+            "book",
+            "house",
+            "person",
+            "animal",
+            "king",
+            "queen",
+            "man",
+            "woman",
+            "doctor",
+            "teacher",
+            "student",
+        }
         if clean in nouns:
             return "NOUN"
 
@@ -133,7 +212,7 @@ class ExpertAnalysisExperiment(ExperimentBase):
         """Find the most specialized experts by pattern."""
         from chuk_lazarus.introspection.moe import get_prompts_flat
 
-        all_prompts = get_prompts_flat()[:self.num_prompts]
+        all_prompts = get_prompts_flat()[: self.num_prompts]
         self.log(f"Analyzing {len(all_prompts)} prompts for pattern specialists...")
 
         expert_trigrams: dict[tuple, Counter] = defaultdict(Counter)
@@ -148,9 +227,9 @@ class ExpertAnalysisExperiment(ExperimentBase):
                 types = [self._classify_token(p.token) for p in positions]
 
                 for i, pos in enumerate(positions):
-                    prev_t = types[i-1] if i > 0 else "^"
+                    prev_t = types[i - 1] if i > 0 else "^"
                     curr_t = types[i]
-                    next_t = types[i+1] if i < len(types)-1 else "$"
+                    next_t = types[i + 1] if i < len(types) - 1 else "$"
                     trigram = f"{prev_t}→{curr_t}→{next_t}"
 
                     for exp in pos.expert_indices:
@@ -170,15 +249,17 @@ class ExpertAnalysisExperiment(ExperimentBase):
             concentration = top_count / total
             top_3 = counts.most_common(3)
 
-            specialists.append({
-                "layer": layer,
-                "expert": exp,
-                "top_pattern": top_pattern,
-                "concentration": concentration,
-                "top_3": [(p, c) for p, c in top_3],
-                "total": total,
-                "examples": [e[1] for e in expert_examples[(layer, exp)][:5]],
-            })
+            specialists.append(
+                {
+                    "layer": layer,
+                    "expert": exp,
+                    "top_pattern": top_pattern,
+                    "concentration": concentration,
+                    "top_3": [(p, c) for p, c in top_3],
+                    "total": total,
+                    "examples": [e[1] for e in expert_examples[(layer, exp)][:5]],
+                }
+            )
 
         specialists.sort(key=lambda x: (-x["concentration"], x["layer"]))
         return {"specialists": specialists[:50]}
@@ -209,9 +290,9 @@ class ExpertAnalysisExperiment(ExperimentBase):
                 sem_types = [self._get_semantic_type(p.token) for p in positions]
 
                 for i, pos in enumerate(positions):
-                    prev_t = sem_types[i-1] if i > 0 else "^"
+                    prev_t = sem_types[i - 1] if i > 0 else "^"
                     curr_t = sem_types[i]
-                    next_t = sem_types[i+1] if i < len(sem_types)-1 else "$"
+                    next_t = sem_types[i + 1] if i < len(sem_types) - 1 else "$"
                     trigram = f"{prev_t}→{curr_t}→{next_t}"
 
                     for exp in pos.expert_indices:
@@ -234,12 +315,14 @@ class ExpertAnalysisExperiment(ExperimentBase):
             for (layer, exp), counts in expert_semantic_trigrams.items():
                 for trigram, count in counts.items():
                     if pattern in trigram:
-                        experts.append({
-                            "layer": layer,
-                            "expert": exp,
-                            "trigram": trigram,
-                            "count": count,
-                        })
+                        experts.append(
+                            {
+                                "layer": layer,
+                                "expert": exp,
+                                "trigram": trigram,
+                                "count": count,
+                            }
+                        )
             experts.sort(key=lambda x: -x["count"])
             results[name] = experts[:10]
 
@@ -320,6 +403,7 @@ class ExpertAnalysisExperiment(ExperimentBase):
 # For backwards compatibility
 if __name__ == "__main__":
     import sys
+
     import yaml
 
     config_path = Path(__file__).parent / "config.yaml"

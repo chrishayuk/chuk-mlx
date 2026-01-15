@@ -18,7 +18,6 @@ import logging
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -27,7 +26,7 @@ import mlx.optimizers as optim
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
-from codebook import CodebookConfig, IRCodebook, IROpcode, IRSequenceDecoder
+from codebook import CodebookConfig, IROpcode, IRSequenceDecoder
 from wasm_runtime import WASMRuntime
 
 logging.basicConfig(
@@ -77,7 +76,8 @@ def load_samples(path: str) -> list[dict]:
 def extract_numbers(text: str) -> list[int]:
     """Extract numbers from text for operand slots."""
     import re
-    numbers = re.findall(r'\d+', text)
+
+    numbers = re.findall(r"\d+", text)
     return [int(n) for n in numbers]
 
 
@@ -144,7 +144,7 @@ class IREmissionTrainer:
         input_ids = mx.array([tokens])
 
         # Access backbone (model.model for LlamaForCausalLM)
-        backbone = self.model.model if hasattr(self.model, 'model') else self.model
+        backbone = self.model.model if hasattr(self.model, "model") else self.model
 
         # Forward through embedding
         h = backbone.embed_tokens(input_ids)
@@ -158,7 +158,7 @@ class IREmissionTrainer:
                 break
             # Layer returns BlockOutput, extract hidden_states
             output = layer(h, mask=mask)
-            h = output.hidden_states if hasattr(output, 'hidden_states') else output
+            h = output.hidden_states if hasattr(output, "hidden_states") else output
 
         # Return last token's hidden state
         return h[0, -1, :]  # (hidden_dim,)

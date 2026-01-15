@@ -20,9 +20,9 @@ Usage:
 
 import argparse
 import asyncio
+import json
 from dataclasses import dataclass
 from typing import Any
-import json
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -34,6 +34,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class PatchResult:
     """Result of patching activations from source to target."""
+
     source_prompt: str
     target_prompt: str
     patch_layer: int
@@ -345,13 +346,13 @@ async def run_patch_experiment(
 ):
     """Run activation patching experiment."""
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("ACTIVATION PATCHING EXPERIMENT")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"Model: {model_id}")
     print(f"Source: {repr(source_prompt)}")
     print(f"Target: {repr(target_prompt)}")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     print("\nLoading model...")
     patcher = await ActivationPatcher.from_pretrained(model_id)
@@ -368,7 +369,9 @@ async def run_patch_experiment(
     print()
 
     # Header
-    print(f"{'Layer':<8} {'Src Pred':<12} {'Tgt Pred':<12} {'Patched':<12} {'Transfer?':<12} {'Xfer Prob'}")
+    print(
+        f"{'Layer':<8} {'Src Pred':<12} {'Tgt Pred':<12} {'Patched':<12} {'Transfer?':<12} {'Xfer Prob'}"
+    )
     print("-" * 70)
 
     results = []
@@ -388,9 +391,9 @@ async def run_patch_experiment(
 
     # Find causal layers
     print()
-    print("="*70)
+    print("=" * 70)
     print("ANALYSIS")
-    print("="*70)
+    print("=" * 70)
 
     causal_layers = [r for r in results if r.answer_transferred]
     if causal_layers:
@@ -400,7 +403,7 @@ async def run_patch_experiment(
         # Find the earliest causal layer
         earliest = min(causal_layers, key=lambda r: r.patch_layer)
         print(f"✓ Earliest causal layer: {earliest.patch_layer}")
-        print(f"  → This is where the arithmetic computation happens!")
+        print("  → This is where the arithmetic computation happens!")
     else:
         print("\n✗ Answer did not transfer at any layer")
         print("  → Computation may be more distributed")
@@ -413,22 +416,26 @@ def main():
         description="Activation patching to find causal computation layers",
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="mlx-community/gemma-3-4b-it-bf16",
         help="Model to analyze",
     )
     parser.add_argument(
-        "--source", "-s",
+        "--source",
+        "-s",
         default="347 * 892 = ",
         help="Source prompt (answer to transfer)",
     )
     parser.add_argument(
-        "--target", "-t",
+        "--target",
+        "-t",
         default="100 * 100 = ",
         help="Target prompt (to inject into)",
     )
     parser.add_argument(
-        "--layer", "-l",
+        "--layer",
+        "-l",
         type=int,
         default=None,
         help="Specific layer to patch (otherwise sweeps)",
@@ -438,12 +445,14 @@ def main():
 
     layers = [args.layer] if args.layer is not None else None
 
-    asyncio.run(run_patch_experiment(
-        args.model,
-        args.source,
-        args.target,
-        layers,
-    ))
+    asyncio.run(
+        run_patch_experiment(
+            args.model,
+            args.source,
+            args.target,
+            layers,
+        )
+    )
 
 
 if __name__ == "__main__":

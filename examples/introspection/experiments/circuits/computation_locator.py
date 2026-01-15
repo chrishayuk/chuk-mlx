@@ -38,11 +38,11 @@ Usage:
 
 import argparse
 import asyncio
+import json
 import re
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
-import json
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -74,17 +74,19 @@ def auto_detect_answer(prompt: str) -> str | None:
 
 class ComputationType(str, Enum):
     """What kind of computation pattern was observed."""
+
     EARLY_EMERGENCE = "early_emergence"  # Answer appears early, stays
-    LATE_EMERGENCE = "late_emergence"   # Answer appears late
-    SPIKE_AND_FADE = "spike_and_fade"   # Answer peaks mid-network, fades
-    PROGRESSIVE = "progressive"          # Answer probability grows steadily
-    SUDDEN = "sudden"                    # Answer appears suddenly at one layer
-    SERIALIZED = "serialized"            # Full answer → first token pattern
+    LATE_EMERGENCE = "late_emergence"  # Answer appears late
+    SPIKE_AND_FADE = "spike_and_fade"  # Answer peaks mid-network, fades
+    PROGRESSIVE = "progressive"  # Answer probability grows steadily
+    SUDDEN = "sudden"  # Answer appears suddenly at one layer
+    SERIALIZED = "serialized"  # Full answer → first token pattern
 
 
 @dataclass
 class LayerProbe:
     """Probe result at a single layer."""
+
     layer_idx: int
     top_token: str
     top_probability: float
@@ -98,6 +100,7 @@ class LayerProbe:
 @dataclass
 class ComputationProfile:
     """Complete profile of where computation happens."""
+
     prompt: str
     target_answer: str
     model_id: str
@@ -107,10 +110,10 @@ class ComputationProfile:
     layer_probes: list[LayerProbe] = field(default_factory=list)
 
     # Key layers
-    emergence_layer: int | None = None      # First layer where answer is top-1
-    peak_layer: int | None = None           # Layer with highest answer probability
+    emergence_layer: int | None = None  # First layer where answer is top-1
+    peak_layer: int | None = None  # Layer with highest answer probability
     peak_probability: float = 0.0
-    transition_layer: int | None = None     # Where answer fades (serialization)
+    transition_layer: int | None = None  # Where answer fades (serialization)
 
     # Computation type
     computation_type: ComputationType | None = None
@@ -134,7 +137,9 @@ class ComputationProfile:
             lines.append("✗ Answer never becomes top-1")
 
         if self.peak_layer is not None:
-            lines.append(f"✓ Peak confidence at layer {self.peak_layer} ({self.peak_probability:.1%})")
+            lines.append(
+                f"✓ Peak confidence at layer {self.peak_layer} ({self.peak_probability:.1%})"
+            )
 
         if self.transition_layer is not None:
             lines.append(f"✓ Serialization begins at layer {self.transition_layer}")
@@ -402,16 +407,18 @@ class ComputationLocator:
             # Entropy
             entropy = self._compute_entropy(probs)
 
-            probes.append(LayerProbe(
-                layer_idx=layer_idx,
-                top_token=top_token,
-                top_probability=top_prob,
-                target_token=target_answer,
-                target_probability=target_prob,
-                target_rank=target_rank,
-                entropy=entropy,
-                is_target_top1=target_rank == 1,
-            ))
+            probes.append(
+                LayerProbe(
+                    layer_idx=layer_idx,
+                    top_token=top_token,
+                    top_probability=top_prob,
+                    target_token=target_answer,
+                    target_probability=target_prob,
+                    target_rank=target_rank,
+                    entropy=entropy,
+                    is_target_top1=target_rank == 1,
+                )
+            )
 
         # Analyze probes
         profile = ComputationProfile(
@@ -488,15 +495,17 @@ class ComputationLocator:
             return ComputationType.LATE_EMERGENCE
 
         # Check for spike and fade
-        if (profile.peak_layer is not None
+        if (
+            profile.peak_layer is not None
             and profile.peak_probability > 0.5
-            and not probes[-1].is_target_top1):
+            and not probes[-1].is_target_top1
+        ):
             return ComputationType.SPIKE_AND_FADE
 
         # Check for sudden
         probs = [p.target_probability for p in probes]
         if len(probs) > 3:
-            max_jump = max(probs[i+1] - probs[i] for i in range(len(probs)-1))
+            max_jump = max(probs[i + 1] - probs[i] for i in range(len(probs) - 1))
             if max_jump > 0.3:
                 return ComputationType.SUDDEN
 
@@ -505,7 +514,9 @@ class ComputationLocator:
 
 def print_probe_table(profile: ComputationProfile):
     """Print a nice table of layer probes."""
-    print(f"\n{'Layer':<8} {'Top Token':<15} {'Top Prob':<10} {'Target Prob':<12} {'Rank':<8} {'Top1?'}")
+    print(
+        f"\n{'Layer':<8} {'Top Token':<15} {'Top Prob':<10} {'Target Prob':<12} {'Rank':<8} {'Top1?'}"
+    )
     print("-" * 70)
 
     for probe in profile.layer_probes:
@@ -531,9 +542,9 @@ async def main_analyze(
 ):
     """Run computation location analysis."""
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("COMPUTATION LOCATOR")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     locator = await ComputationLocator.from_pretrained(model_id)
 
@@ -544,9 +555,9 @@ async def main_analyze(
 
     print_probe_table(profile)
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("ANALYSIS")
-    print("="*70)
+    print("=" * 70)
     print(profile.summary())
 
     return profile
@@ -558,22 +569,26 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="mlx-community/gemma-3-4b-it-bf16",
         help="Any supported model",
     )
     parser.add_argument(
-        "--prompt", "-p",
+        "--prompt",
+        "-p",
         default="347 * 892 = ",
         help="Input prompt",
     )
     parser.add_argument(
-        "--answer", "-a",
+        "--answer",
+        "-a",
         default=None,
         help="Target answer/token to locate (auto-detected for arithmetic if not specified)",
     )
     parser.add_argument(
-        "--layer-step", "-s",
+        "--layer-step",
+        "-s",
         type=int,
         default=2,
         help="Probe every Nth layer (1=all, 2=every other)",
@@ -589,12 +604,14 @@ def main():
 
     print(f"Tracking answer: {repr(answer)}")
 
-    asyncio.run(main_analyze(
-        args.model,
-        args.prompt,
-        answer,
-        args.layer_step,
-    ))
+    asyncio.run(
+        main_analyze(
+            args.model,
+            args.prompt,
+            answer,
+            args.layer_step,
+        )
+    )
 
 
 if __name__ == "__main__":

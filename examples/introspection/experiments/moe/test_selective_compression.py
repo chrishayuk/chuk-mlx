@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
 import mlx.core as mx
-from mlx_lm import load, generate
+from mlx_lm import generate, load
 
 from chuk_lazarus.introspection.moe import (
     ExpertCompressor,
@@ -44,13 +44,15 @@ def test_compression_config(
     # Only compress specified layers
     for layer_idx in layers_to_compress:
         if layer_idx in hooks.moe_layer_indices:
-            plan = compressor.plan_compression(layer_idx, target_experts=target_experts, strategy="aggressive")
+            plan = compressor.plan_compression(
+                layer_idx, target_experts=target_experts, strategy="aggressive"
+            )
             compressor.apply_compression(plan, layer_idx, inplace=True)
 
     mx.eval(model.parameters())
 
     new_size = estimate_model_size(model)
-    reduction = (1 - new_size['total'] / baseline_size) * 100
+    reduction = (1 - new_size["total"] / baseline_size) * 100
 
     quality_scores = []
     outputs = []
@@ -66,7 +68,7 @@ def test_compression_config(
         "name": config_name,
         "layers_compressed": len(layers_to_compress),
         "target_experts": target_experts,
-        "size_after": new_size['total'],
+        "size_after": new_size["total"],
         "reduction": reduction,
         "quality": sum(quality_scores) / len(quality_scores),
         "outputs": outputs,
@@ -78,14 +80,17 @@ def main():
     print("Selective Layer Compression - Quality Preservation Test")
     print("=" * 70)
 
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
 
     # Get baseline
     print("\nLoading GPT-OSS for baseline...")
     model, tokenizer = load(str(model_path))
     baseline = estimate_model_size(model)
-    baseline_size = baseline['total']
-    print(f"Baseline: {baseline_size/1e9:.2f}B params")
+    baseline_size = baseline["total"]
+    print(f"Baseline: {baseline_size / 1e9:.2f}B params")
 
     # All MoE layers: 0-23
     all_layers = list(range(24))
@@ -122,19 +127,22 @@ def main():
     ]
 
     for config_name, layers, target in configs:
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print(f"Testing: {config_name}")
-        print(f"  Layers: {len(layers)} ({min(layers) if layers else 'N/A'}-{max(layers) if layers else 'N/A'})")
+        print(
+            f"  Layers: {len(layers)} ({min(layers) if layers else 'N/A'}-{max(layers) if layers else 'N/A'})"
+        )
         print(f"  Target experts: {target}")
         print("=" * 70)
 
         result = test_compression_config(
-            model_path, config_name, layers, target,
-            prompts, baseline_outputs, baseline_size
+            model_path, config_name, layers, target, prompts, baseline_outputs, baseline_size
         )
         results.append(result)
 
-        print(f"Size: {baseline_size/1e9:.2f}B -> {result['size_after']/1e9:.2f}B ({result['reduction']:.1f}% reduction)")
+        print(
+            f"Size: {baseline_size / 1e9:.2f}B -> {result['size_after'] / 1e9:.2f}B ({result['reduction']:.1f}% reduction)"
+        )
         print(f"Quality: {result['quality']:.0%}")
         for i, p in enumerate(prompts):
             print(f"  {p[:25]}... -> {result['outputs'][i][:35]}...")
@@ -147,23 +155,27 @@ def main():
     print("-" * 65)
 
     # Sort by quality descending
-    results.sort(key=lambda x: x['quality'], reverse=True)
+    results.sort(key=lambda x: x["quality"], reverse=True)
 
     for r in results:
-        print(f"{r['name']:<30} {r['size_after']/1e9:.2f}B{'':>4} {r['reduction']:.1f}%{'':>6} {r['quality']:.0%}")
+        print(
+            f"{r['name']:<30} {r['size_after'] / 1e9:.2f}B{'':>4} {r['reduction']:.1f}%{'':>6} {r['quality']:.0%}"
+        )
 
     print("-" * 65)
 
     # Find best quality with >20% reduction
-    good_results = [r for r in results if r['reduction'] > 20 and r['quality'] >= 0.5]
+    good_results = [r for r in results if r["reduction"] > 20 and r["quality"] >= 0.5]
     if good_results:
-        best = max(good_results, key=lambda x: x['quality'])
+        best = max(good_results, key=lambda x: x["quality"])
         print(f"\nBest config (>20% reduction, >50% quality): {best['name']}")
         print(f"  -> {best['reduction']:.1f}% reduction, {best['quality']:.0%} quality")
     else:
         print("\nNo config achieved >20% reduction with >50% quality")
-        best = max(results, key=lambda x: x['quality'])
-        print(f"Highest quality: {best['name']} ({best['quality']:.0%} quality, {best['reduction']:.1f}% reduction)")
+        best = max(results, key=lambda x: x["quality"])
+        print(
+            f"Highest quality: {best['name']} ({best['quality']:.0%} quality, {best['reduction']:.1f}% reduction)"
+        )
 
     print("=" * 70)
 

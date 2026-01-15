@@ -35,7 +35,6 @@ import argparse
 import asyncio
 import json
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
@@ -49,6 +48,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class UncertaintyResult:
     """Result of uncertainty detection."""
+
     prompt: str
     score: float  # Positive = confident, Negative = uncertain
     prediction: str  # "CONFIDENT" or "UNCERTAIN"
@@ -156,7 +156,11 @@ class UncertaintyDetector:
                 out = lyr(h, mask=mask)
             except TypeError:
                 out = lyr(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             if idx == self.detection_layer:
                 return np.array(h[0, -1, :].tolist())
@@ -185,7 +189,11 @@ class UncertaintyDetector:
                 out = layer(h, mask=mask)
             except TypeError:
                 out = layer(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
         h_n = norm(h) if norm else h
         logits = head(h_n)
@@ -201,7 +209,9 @@ class UncertaintyDetector:
         broken_prompts: list[str],
     ):
         """Calibrate detector using example prompts."""
-        print(f"\nCalibrating on {len(working_prompts)} working + {len(broken_prompts)} broken examples...")
+        print(
+            f"\nCalibrating on {len(working_prompts)} working + {len(broken_prompts)} broken examples..."
+        )
 
         # Collect hidden states
         working_hiddens = [self.get_hidden_state(p) for p in working_prompts]
@@ -322,7 +332,7 @@ def print_results(results: list[UncertaintyResult], show_distances: bool = False
         correct = sum(1 for r in results if r.correct_prediction)
         total = len(results)
         print("-" * len(header))
-        print(f"Accuracy: {correct}/{total} ({100*correct/total:.1f}%)")
+        print(f"Accuracy: {correct}/{total} ({100 * correct / total:.1f}%)")
 
 
 async def interactive_mode(detector: UncertaintyDetector):
@@ -441,12 +451,14 @@ Examples:
     working = [x.strip() for x in args.working.split(",")] if args.working else None
     broken = [x.strip() for x in args.broken.split(",")] if args.broken else None
 
-    asyncio.run(main(
-        args.model,
-        prompts=prompts,
-        working=working,
-        broken=broken,
-        interactive=args.interactive,
-        verify=not args.no_verify,
-        layer=args.layer,
-    ))
+    asyncio.run(
+        main(
+            args.model,
+            prompts=prompts,
+            working=working,
+            broken=broken,
+            interactive=args.interactive,
+            verify=not args.no_verify,
+            layer=args.layer,
+        )
+    )

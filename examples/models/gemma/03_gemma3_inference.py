@@ -41,7 +41,6 @@ from chuk_lazarus.models_v2.families.gemma import (
     GemmaForCausalLM,
 )
 
-
 # Chat template for Gemma 3 instruction-tuned models
 GEMMA3_CHAT_TEMPLATE = """<bos><start_of_turn>user
 {prompt}<end_of_turn>
@@ -144,7 +143,9 @@ def load_config_from_hf(model_path: Path, weights: dict | None = None) -> GemmaC
         head_dim=head_dim,
         query_pre_attn_scalar=text_config.get("query_pre_attn_scalar", 256.0),
         sliding_window=text_config.get("sliding_window", 512),
-        sliding_window_pattern=text_config.get("sliding_window_pattern", text_config.get("_sliding_window_pattern", 6)),
+        sliding_window_pattern=text_config.get(
+            "sliding_window_pattern", text_config.get("_sliding_window_pattern", 6)
+        ),
         max_position_embeddings=text_config.get("max_position_embeddings", 32768),
         rope_theta=text_config.get("rope_theta", 1000000.0),
         rope_local_base_freq=text_config.get("rope_local_base_freq", 10000.0),
@@ -446,7 +447,7 @@ def main():
         ]
 
         for prompt in demo_prompts:
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"Prompt: {prompt}")
             print("-" * 60)
 

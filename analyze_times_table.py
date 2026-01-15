@@ -53,7 +53,9 @@ print("\nFor each multiplication, what activates alongside it?")
 print("(Row = same first operand, Col = same second operand)")
 
 # Create a table showing for each problem: row/col bias
-print(f"\n{'Problem':<10} {'Correct':<8} {'Rank':<6} {'Same Row':<10} {'Same Col':<10} {'Bias':<12}")
+print(
+    f"\n{'Problem':<10} {'Correct':<8} {'Rank':<6} {'Same Row':<10} {'Same Col':<10} {'Bias':<12}"
+)
 print("-" * 60)
 
 row_bias_count = 0
@@ -124,7 +126,11 @@ for val, count in sorted_wrongs:
 print("\n\n5. HARDEST MULTIPLICATIONS (correct not in top-3)")
 print("-" * 40)
 
-hard = [r for r in data if r["neighborhood"]["correct_rank"] is None or r["neighborhood"]["correct_rank"] > 3]
+hard = [
+    r
+    for r in data
+    if r["neighborhood"]["correct_rank"] is None or r["neighborhood"]["correct_rank"] > 3
+]
 hard.sort(key=lambda x: x["neighborhood"]["correct_rank"] or 999)
 
 for r in hard:
@@ -166,7 +172,7 @@ print("\nDistance from correct answer (buckets of 5):")
 for bucket in sorted(diff_counts.keys()):
     count = diff_counts[bucket]
     bar = "#" * (count // 3)
-    print(f"  {bucket:>3}-{bucket+4:<3}: {count:>3} {bar}")
+    print(f"  {bucket:>3}-{bucket + 4:<3}: {count:>3} {bar}")
 
 # 7. Asymmetry analysis
 print("\n\n7. ASYMMETRY ANALYSIS (a*b vs b*a)")
@@ -175,7 +181,7 @@ print("-" * 40)
 print("\nDoes the model treat a*b differently from b*a?")
 
 for a in range(2, 9):
-    for b in range(a+1, 10):
+    for b in range(a + 1, 10):
         # Find both
         ab = next((r for r in data if r["a"] == a and r["b"] == b), None)
         ba = next((r for r in data if r["a"] == b and r["b"] == a), None)
@@ -189,5 +195,5 @@ for a in range(2, 9):
             if abs(rank_ab - rank_ba) > 2 or abs(prob_ab - prob_ba) > 0.1:
                 print(f"  {a}*{b}: rank={rank_ab}, prob={prob_ab:.3f}")
                 print(f"  {b}*{a}: rank={rank_ba}, prob={prob_ba:.3f}")
-                print(f"    Δrank={rank_ab-rank_ba:+d}, Δprob={prob_ab-prob_ba:+.3f}")
+                print(f"    Δrank={rank_ab - rank_ba:+d}, Δprob={prob_ab - prob_ba:+.3f}")
                 print()

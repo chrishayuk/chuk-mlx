@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 
 def load_model_with_lora(model_name: str, adapter_path: str):
     """Load model and apply LoRA weights."""
-    from chuk_lazarus.models_v2.loader import load_model
     from chuk_lazarus.models_v2.adapters.lora import LoRAConfig, apply_lora
+    from chuk_lazarus.models_v2.loader import load_model
 
     result = load_model(model_name)
     model = result.model
@@ -213,6 +213,7 @@ def main():
 
     # Training loop
     import random
+
     random.shuffle(samples)
 
     logger.info(f"\nTraining IR decoder for {args.steps} steps...")
@@ -288,7 +289,7 @@ def main():
         if (step + 1) % 50 == 0:
             logger.info(
                 f"Step {step + 1}: loss={float(loss.item()):.4f}, "
-                f"acc={correct/batch_size:.1%}, valid_ir={valid_ir/batch_size:.1%}"
+                f"acc={correct / batch_size:.1%}, valid_ir={valid_ir / batch_size:.1%}"
             )
 
     # Final evaluation
@@ -317,8 +318,8 @@ def main():
         except Exception:
             pass
 
-    logger.info(f"Accuracy: {correct}/{total} = {correct/total:.1%}")
-    logger.info(f"Valid IR: {valid}/{total} = {valid/total:.1%}")
+    logger.info(f"Accuracy: {correct}/{total} = {correct / total:.1%}")
+    logger.info(f"Valid IR: {valid}/{total} = {valid / total:.1%}")
 
 
 if __name__ == "__main__":

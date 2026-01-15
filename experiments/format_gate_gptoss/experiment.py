@@ -28,7 +28,6 @@ from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
-import numpy as np
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -37,6 +36,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class VocabAlignmentResult:
     """Result for vocab alignment analysis."""
+
     layer: int
     task: str  # "addition", "multiplication", etc.
     top_tokens: list[tuple[str, float]]  # (token, projection)
@@ -197,7 +197,9 @@ class GptOssFormatGateExperiment:
 
         return results
 
-    def _train_probe(self, X: mx.array, y: mx.array, epochs: int = 100) -> tuple[mx.array, mx.array]:
+    def _train_probe(
+        self, X: mx.array, y: mx.array, epochs: int = 100
+    ) -> tuple[mx.array, mx.array]:
         """Train a linear probe."""
         hidden_dim = X.shape[1]
         W = mx.random.normal((hidden_dim, 2)) * 0.01
@@ -269,21 +271,21 @@ class GptOssFormatGateExperiment:
 
         # Get unembedding matrix (lm_head weight)
         unembed = None
-        if hasattr(self.model, 'lm_head'):
+        if hasattr(self.model, "lm_head"):
             lm_head = self.model.lm_head
             # Case 1: Untied weights - lm_head.lm_head is nn.Linear
-            if hasattr(lm_head, 'lm_head') and lm_head.lm_head is not None:
+            if hasattr(lm_head, "lm_head") and lm_head.lm_head is not None:
                 unembed = lm_head.lm_head.weight  # [vocab, hidden]
             # Case 2: Tied weights - use embedding
-            elif hasattr(lm_head, 'tied_embeddings') and lm_head.tied_embeddings is not None:
+            elif hasattr(lm_head, "tied_embeddings") and lm_head.tied_embeddings is not None:
                 emb = lm_head.tied_embeddings
-                if hasattr(emb, 'weight'):
-                    if hasattr(emb.weight, 'weight'):
+                if hasattr(emb, "weight"):
+                    if hasattr(emb.weight, "weight"):
                         unembed = emb.weight.weight  # TokenEmbedding wrapper
                     else:
                         unembed = emb.weight
             # Case 3: Direct proj attribute
-            elif hasattr(lm_head, 'proj'):
+            elif hasattr(lm_head, "proj"):
                 unembed = lm_head.proj.weight
 
         if unembed is None:
@@ -297,11 +299,13 @@ class GptOssFormatGateExperiment:
         for task, expected_tokens in vocab_tokens.items():
             # Get task-specific prompts
             task_symbolic = [
-                item["prompt"] for item in train_data
+                item["prompt"]
+                for item in train_data
                 if item["format"] == "symbolic" and self._infer_task(item["prompt"]) == task
             ]
             task_semantic = [
-                item["prompt"] for item in train_data
+                item["prompt"]
+                for item in train_data
                 if item["format"] == "semantic" and self._infer_task(item["prompt"]) == task
             ]
 
@@ -346,7 +350,9 @@ class GptOssFormatGateExperiment:
                 "num_prompts": len(all_prompts),
             }
 
-            logger.info(f"  {task}: top token = '{top_tokens_list[0][0]}' ({top_tokens_list[0][1]:.3f})")
+            logger.info(
+                f"  {task}: top token = '{top_tokens_list[0][0]}' ({top_tokens_list[0][1]:.3f})"
+            )
 
         return results
 
@@ -354,11 +360,26 @@ class GptOssFormatGateExperiment:
         """Infer task type from prompt."""
         if "*" in prompt or "times" in prompt.lower() or "multiply" in prompt.lower():
             return "multiplication"
-        elif "+" in prompt or "add" in prompt.lower() or "plus" in prompt.lower() or "more" in prompt.lower():
+        elif (
+            "+" in prompt
+            or "add" in prompt.lower()
+            or "plus" in prompt.lower()
+            or "more" in prompt.lower()
+        ):
             return "addition"
-        elif "-" in prompt or "subtract" in prompt.lower() or "minus" in prompt.lower() or "gave away" in prompt.lower():
+        elif (
+            "-" in prompt
+            or "subtract" in prompt.lower()
+            or "minus" in prompt.lower()
+            or "gave away" in prompt.lower()
+        ):
             return "subtraction"
-        elif "/" in prompt or "divide" in prompt.lower() or "split" in prompt.lower() or "each" in prompt.lower():
+        elif (
+            "/" in prompt
+            or "divide" in prompt.lower()
+            or "split" in prompt.lower()
+            or "each" in prompt.lower()
+        ):
             return "division"
         return "unknown"
 
@@ -390,15 +411,17 @@ class GptOssFormatGateExperiment:
             generated = self._generate(prompt)
             actual_format = self._detect_format(generated)
 
-            results.append({
-                "prompt": prompt,
-                "expected": expected,
-                "probe_prediction": pred_format,
-                "probe_confidence": probs[pred_idx].item(),
-                "actual_format": actual_format,
-                "correct": pred_format == actual_format,
-                "generated": generated[:200],
-            })
+            results.append(
+                {
+                    "prompt": prompt,
+                    "expected": expected,
+                    "probe_prediction": pred_format,
+                    "probe_confidence": probs[pred_idx].item(),
+                    "actual_format": actual_format,
+                    "correct": pred_format == actual_format,
+                    "generated": generated[:200],
+                }
+            )
 
         correlation = sum(1 for r in results if r["correct"]) / len(results) if results else 0
         return {
@@ -452,11 +475,13 @@ class GptOssFormatGateExperiment:
                 else:
                     output = self._generate_with_steering(prompt, steering_layer, strength)
                 detected = self._detect_format(output)
-                prompt_results["generations"].append({
-                    "strength": strength,
-                    "output": output[:150],
-                    "format": detected,
-                })
+                prompt_results["generations"].append(
+                    {
+                        "strength": strength,
+                        "output": output[:150],
+                        "format": detected,
+                    }
+                )
             results.append(prompt_results)
 
         return {"layer": steering_layer, "results": results}
@@ -518,14 +543,14 @@ class GptOssFormatGateExperiment:
 
         if "format_classification" in results:
             fc = results["format_classification"]
-            print(f"\n1. FORMAT CLASSIFICATION")
+            print("\n1. FORMAT CLASSIFICATION")
             for layer, data in sorted(fc.get("by_layer", {}).items()):
                 bar = "█" * int(data["test_accuracy"] * 20)
                 print(f"   L{layer:2d}: {data['test_accuracy']:5.1%} {bar}")
 
         if "cot_direction" in results:
             cd = results["cot_direction"]
-            print(f"\n2. CoT DIRECTION")
+            print("\n2. CoT DIRECTION")
             print(f"   Layer: {cd['layer']}")
             print(f"   Direction norm: {cd['direction_norm']:.3f}")
 

@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class VocabAlignmentResult:
     """Results for vocabulary alignment check."""
+
     stage: str
     answer_accuracy: float
     vocab_alignment: dict[int, float]  # layer -> avg prob of task token
@@ -102,14 +103,18 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
             result = op_fn(a, b)
 
             # Direct format: "7 * 8 = 56"
-            direct_data.append({
-                "text": f"{a} {op_sym} {b} = {result}",
-            })
+            direct_data.append(
+                {
+                    "text": f"{a} {op_sym} {b} = {result}",
+                }
+            )
 
             # CoT format: "7 * 8 = multiply: 56"
-            cot_data.append({
-                "text": f"{a} {op_sym} {b} = {op_name}: {result}",
-            })
+            cot_data.append(
+                {
+                    "text": f"{a} {op_sym} {b} = {op_name}: {result}",
+                }
+            )
 
         # Save direct format
         with open(direct_path, "w") as f:
@@ -132,8 +137,8 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
                 f.write(json.dumps(e) + "\n")
 
         self.log(f"Generated {num_samples} samples in both formats")
-        self.log(f"  Direct: '7 * 8 = 56'")
-        self.log(f"  CoT:    '7 * 8 = multiply: 56'")
+        self.log("  Direct: '7 * 8 = 56'")
+        self.log("  CoT:    '7 * 8 = multiply: 56'")
 
     def run(self) -> dict:
         """Run the experiment."""
@@ -167,7 +172,7 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
     def _log_result(self, result: VocabAlignmentResult):
         """Log result summary."""
         self.log(f"\n  Answer accuracy: {result.answer_accuracy:.1%}")
-        self.log(f"  Vocabulary alignment by layer:")
+        self.log("  Vocabulary alignment by layer:")
         for layer, prob in sorted(result.vocab_alignment.items()):
             marker = "***" if prob > 0.3 else ""
             self.log(f"    L{layer}: {prob:.1%} {marker}")
@@ -235,7 +240,7 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
 
         for _ in range(max_tokens):
             output = model(input_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1)
             mx.eval(next_token)
 
@@ -248,9 +253,7 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
 
         return tokenizer.decode(generated_ids)
 
-    def _check_vocab_alignment(
-        self, stage: str, adapter_path: Path | None
-    ) -> VocabAlignmentResult:
+    def _check_vocab_alignment(self, stage: str, adapter_path: Path | None) -> VocabAlignmentResult:
         """Check vocabulary alignment at each layer."""
         # Load model
         if adapter_path and adapter_path.exists():
@@ -263,7 +266,7 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
             self.log("Loaded base model")
 
         num_layers = loaded.config.num_hidden_layers
-        embed_weight = model.model.embed_tokens.weight.parameters()['weight']
+        embed_weight = model.model.embed_tokens.weight.parameters()["weight"]
 
         # Layers to check
         layer_pcts = self.params.get("check_layers_pct", [0.25, 0.5, 0.75, 0.95])
@@ -283,7 +286,7 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
             response = self._simple_generate(model, tokenizer, input_text, max_tokens=20)
             # Extract number from response (handle CoT format too)
             generated = self._extract_number(response)
-            is_correct = (generated == expected)
+            is_correct = generated == expected
             if is_correct:
                 correct += 1
 
@@ -294,7 +297,11 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
             prompt_layer_probs = {}
             for i, layer in enumerate(model.model.layers):
                 layer_out = layer(h, mask=None, cache=None)
-                h = layer_out.hidden_states if hasattr(layer_out, 'hidden_states') else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+                h = (
+                    layer_out.hidden_states
+                    if hasattr(layer_out, "hidden_states")
+                    else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+                )
 
                 if i in layer_indices:
                     # Project to vocabulary
@@ -315,14 +322,16 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
                     layer_probs[i].append(max_prob)
                     prompt_layer_probs[i] = max_prob
 
-            per_prompt_results.append({
-                "input": input_text,
-                "expected": expected,
-                "generated": generated,
-                "correct": is_correct,
-                "task": task,
-                "layer_probs": prompt_layer_probs,
-            })
+            per_prompt_results.append(
+                {
+                    "input": input_text,
+                    "expected": expected,
+                    "generated": generated,
+                    "correct": is_correct,
+                    "task": task,
+                    "layer_probs": prompt_layer_probs,
+                }
+            )
 
         # Average probs per layer
         vocab_alignment = {l: sum(probs) / len(probs) for l, probs in layer_probs.items()}
@@ -340,7 +349,7 @@ class CoTVocabAlignmentExperiment(ExperimentBase):
         # Handle CoT format: "multiply: 56" -> "56"
         if ":" in text:
             text = text.split(":")[-1]
-        match = re.search(r'-?\d+', text)
+        match = re.search(r"-?\d+", text)
         return match.group() if match else text.strip()
 
     def _build_results(self) -> dict:

@@ -46,6 +46,7 @@ import mlx.optimizers as optim
 @dataclass
 class ArithmeticExample:
     """An arithmetic problem with solution."""
+
     prompt: str
     answer: int
     operation: str  # '+', '-', '*', '/'
@@ -80,11 +81,13 @@ def generate_arithmetic_dataset(
             a = b * answer  # Ensure clean division
 
         prompt = f"{a} {op} {b} = "
-        examples.append(ArithmeticExample(
-            prompt=prompt,
-            answer=answer,
-            operation=op,
-        ))
+        examples.append(
+            ArithmeticExample(
+                prompt=prompt,
+                answer=answer,
+                operation=op,
+            )
+        )
 
     return examples
 
@@ -111,10 +114,7 @@ class DigitReadoutHead(nn.Module):
         self.proj = nn.Linear(hidden_size, intermediate_size)
 
         # Digit predictors (one per position)
-        self.digit_heads = [
-            nn.Linear(intermediate_size, 10)
-            for _ in range(max_digits)
-        ]
+        self.digit_heads = [nn.Linear(intermediate_size, 10) for _ in range(max_digits)]
 
         # Length predictor (how many digits)
         self.length_head = nn.Linear(intermediate_size, max_digits + 1)
@@ -218,13 +218,15 @@ class ArithmeticReadout:
 
     def get_hidden_state(self, prompt: str, layer: int) -> mx.array:
         """Get hidden state at layer for last position."""
-        from chuk_lazarus.introspection.hooks import ModelHooks, CaptureConfig
+        from chuk_lazarus.introspection.hooks import CaptureConfig, ModelHooks
 
         hooks = ModelHooks(self.model)
-        hooks.configure(CaptureConfig(
-            layers=[layer],
-            capture_hidden_states=True,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=[layer],
+                capture_hidden_states=True,
+            )
+        )
 
         input_ids = self.tokenizer.encode(prompt, return_tensors="np")
         input_ids = mx.array(input_ids)
@@ -273,10 +275,20 @@ class ArithmeticReadout:
             for tokens, log_prob in beams:
                 # Build current sequence
                 if tokens:
-                    seq = mx.concatenate([
-                        current_ids,
-                        mx.array([[self.tokenizer.encode(t, add_special_tokens=False)[-1] for t in tokens]])
-                    ], axis=1)
+                    seq = mx.concatenate(
+                        [
+                            current_ids,
+                            mx.array(
+                                [
+                                    [
+                                        self.tokenizer.encode(t, add_special_tokens=False)[-1]
+                                        for t in tokens
+                                    ]
+                                ]
+                            ),
+                        ],
+                        axis=1,
+                    )
                 else:
                     seq = current_ids
 
@@ -294,10 +306,7 @@ class ArithmeticReadout:
                 for tid, digit in digit_tokens.items():
                     prob = float(probs[tid])
                     if prob > 0.001:  # Threshold
-                        new_beams.append((
-                            tokens + [digit],
-                            log_prob + mx.log(probs[tid])
-                        ))
+                        new_beams.append((tokens + [digit], log_prob + mx.log(probs[tid])))
 
                 # Also consider stopping (newline/space)
                 if tokens:  # At least one digit
@@ -400,7 +409,7 @@ class ArithmeticReadout:
         digit_targets = mx.array([t[0] for t in targets])  # [n, 8]
         length_targets = mx.array([t[1] for t in targets])  # [n]
 
-        print(f"\nTraining readout head...")
+        print("\nTraining readout head...")
         print(f"  Hidden states: {H.shape}")
         print(f"  Digit targets: {digit_targets.shape}")
 
@@ -425,10 +434,14 @@ class ArithmeticReadout:
                 # Only count loss for positions within actual length
                 mask = (i < length_targets).astype(mx.float32)
                 ce = nn.losses.cross_entropy(logits_i, targets_i, reduction="none")
-                digit_loss = digit_loss + mx.sum(ce * mask) / mx.maximum(mx.sum(mask), mx.array(1.0))
+                digit_loss = digit_loss + mx.sum(ce * mask) / mx.maximum(
+                    mx.sum(mask), mx.array(1.0)
+                )
 
             # Length loss
-            length_loss = mx.mean(nn.losses.cross_entropy(length_logits, length_targets, reduction="none"))
+            length_loss = mx.mean(
+                nn.losses.cross_entropy(length_logits, length_targets, reduction="none")
+            )
 
             return digit_loss + length_loss
 
@@ -451,7 +464,9 @@ class ArithmeticReadout:
                     if pred == examples[i].answer:
                         correct += 1
 
-                print(f"  Epoch {epoch}: loss={float(loss):.4f}, length_acc={length_acc:.1%}, answer_acc={correct/len(examples):.1%}")
+                print(
+                    f"  Epoch {epoch}: loss={float(loss):.4f}, length_acc={length_acc:.1%}, answer_acc={correct / len(examples):.1%}"
+                )
 
         self.readout_head = head
 
@@ -556,7 +571,7 @@ class ArithmeticReadout:
         if verified is not None:
             print(f"   Verified: {verified} ✓")
         else:
-            print(f"   No verified answer found")
+            print("   No verified answer found")
         print(f"   Top candidates: {candidates[:5]}")
 
         # Readout head (if available)
@@ -600,6 +615,7 @@ class ArithmeticReadout:
     def _extract_number(self, text: str) -> int | None:
         """Extract first number from text."""
         import re
+
         match = re.search(r"\d+", text)
         if match:
             return int(match.group())
@@ -613,17 +629,20 @@ def main():
         epilog=__doc__,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="mlx-community/gemma-3-4b-it-bf16",
         help="Model ID",
     )
     parser.add_argument(
-        "--prompt", "-p",
+        "--prompt",
+        "-p",
         default="127 * 89 = ",
         help="Arithmetic prompt",
     )
     parser.add_argument(
-        "--layer", "-l",
+        "--layer",
+        "-l",
         type=int,
         default=28,
         help="Layer for readout head",

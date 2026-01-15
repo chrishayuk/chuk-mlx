@@ -95,9 +95,7 @@ def create_dataset(path: Path, num_samples: int = 100) -> Path:
 # =============================================================================
 
 
-def tokenize_sample(
-    sample: dict, tokenizer: MockTokenizer
-) -> tuple[list[int], list[int], int]:
+def tokenize_sample(sample: dict, tokenizer: MockTokenizer) -> tuple[list[int], list[int], int]:
     """Tokenize sample into (input_ids, loss_mask, length)."""
     prompt = f"### Instruction:\n{sample['instruction']}\n\n### Response:\n"
     full_text = prompt + sample["response"]
@@ -138,9 +136,7 @@ def load_and_tokenize(
 # =============================================================================
 
 
-def collate(
-    batch_samples: list[dict], max_len: int, pad_id: int = 0
-) -> dict[str, np.ndarray]:
+def collate(batch_samples: list[dict], max_len: int, pad_id: int = 0) -> dict[str, np.ndarray]:
     """Collate samples into padded batch arrays."""
 
     def pad(seq: list[int], pad_val: int) -> list[int]:
@@ -256,7 +252,9 @@ async def main():
                 total_loss += loss
                 num_batches += 1
 
-            print(f"    Epoch {epoch}: {num_batches} batches, avg_loss={total_loss / num_batches:.4f}")
+            print(
+                f"    Epoch {epoch}: {num_batches} batches, avg_loss={total_loss / num_batches:.4f}"
+            )
 
         # -----------------------------------------------------------------
         # Path B: Cache to NPZ using BatchWriter/BatchReader

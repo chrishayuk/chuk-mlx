@@ -49,7 +49,9 @@ def main():
         return
 
     model_id = args.model_id or MODEL_ALIASES[args.model].value
-    config = UnifiedPipelineConfig(default_max_tokens=args.max_tokens, default_temperature=args.temperature)
+    config = UnifiedPipelineConfig(
+        default_max_tokens=args.max_tokens, default_temperature=args.temperature
+    )
     pipeline = UnifiedPipeline.from_pretrained(model_id, pipeline_config=config)
 
     # Use raw generate for code completion (not chat)

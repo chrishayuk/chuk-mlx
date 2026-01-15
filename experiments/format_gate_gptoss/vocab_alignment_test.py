@@ -6,10 +6,10 @@ Tests if hidden states at L13 project onto operation tokens in vocab space.
 IMPORTANT: Applies layer normalization before vocab projection (standard logit lens).
 """
 
-import logging
 import json
-from pathlib import Path
+import logging
 from datetime import datetime
+from pathlib import Path
 
 import mlx.core as mx
 import yaml
@@ -40,7 +40,7 @@ def run_vocab_alignment_test():
 
     # Get final layer norm (CRITICAL for proper logit lens)
     final_norm = None
-    if hasattr(model, 'model') and hasattr(model.model, 'norm'):
+    if hasattr(model, "model") and hasattr(model.model, "norm"):
         final_norm = model.model.norm
         logger.info("Found final layer norm: model.model.norm")
     else:
@@ -78,14 +78,13 @@ def run_vocab_alignment_test():
         if layer >= num_layers:
             continue
 
-        logger.info(f"\n=== Layer {layer} ({layer/num_layers*100:.0f}% depth) ===")
+        logger.info(f"\n=== Layer {layer} ({layer / num_layers * 100:.0f}% depth) ===")
         layer_results = {}
 
         for task, expected_tokens in vocab_tokens.items():
             # Get prompts for this task
             task_prompts = [
-                item["prompt"] for item in train_data
-                if infer_task(item["prompt"]) == task
+                item["prompt"] for item in train_data if infer_task(item["prompt"]) == task
             ]
 
             if not task_prompts:
@@ -102,7 +101,7 @@ def run_vocab_alignment_test():
             # Project to vocab using lm_head
             h_batched = mean_hidden[None, None, :]  # Add batch and seq dims
             head_out = lm_head_module(h_batched)
-            if hasattr(head_out, 'logits'):
+            if hasattr(head_out, "logits"):
                 logits = head_out.logits[0, 0, :]
             else:
                 logits = head_out[0, 0, :]

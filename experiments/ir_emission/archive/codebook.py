@@ -12,7 +12,6 @@ Design choices:
 
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Optional
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -27,10 +26,10 @@ class IROpcode(IntEnum):
     END = 2
 
     # Operand slots (filled from extracted numbers)
-    SLOT_0 = 3   # First extracted number
-    SLOT_1 = 4   # Second extracted number
-    SLOT_2 = 5   # Third extracted number
-    SLOT_3 = 6   # Fourth extracted number
+    SLOT_0 = 3  # First extracted number
+    SLOT_1 = 4  # Second extracted number
+    SLOT_2 = 5  # Third extracted number
+    SLOT_3 = 6  # Fourth extracted number
 
     # Integer constants
     CONST_0 = 7
@@ -60,8 +59,8 @@ class IROpcode(IntEnum):
     # Control flow
     LOOP_BEGIN = 40
     LOOP_END = 41
-    BR = 42        # Branch
-    BR_IF = 43     # Branch if true
+    BR = 42  # Branch
+    BR_IF = 43  # Branch if true
     IF_BEGIN = 44
     ELSE = 45
     IF_END = 46
@@ -80,30 +79,30 @@ class IROpcode(IntEnum):
 
 # WASM bytecode mappings
 OPCODE_TO_WASM = {
-    IROpcode.I32_ADD: bytes([0x6a]),      # i32.add
-    IROpcode.I32_SUB: bytes([0x6b]),      # i32.sub
-    IROpcode.I32_MUL: bytes([0x6c]),      # i32.mul
-    IROpcode.I32_DIV_S: bytes([0x6d]),    # i32.div_s
-    IROpcode.I32_REM_S: bytes([0x6f]),    # i32.rem_s
-    IROpcode.I32_EQ: bytes([0x46]),       # i32.eq
-    IROpcode.I32_NE: bytes([0x47]),       # i32.ne
-    IROpcode.I32_LT_S: bytes([0x48]),     # i32.lt_s
-    IROpcode.I32_GT_S: bytes([0x4a]),     # i32.gt_s
-    IROpcode.I32_LE_S: bytes([0x4c]),     # i32.le_s
-    IROpcode.I32_GE_S: bytes([0x4e]),     # i32.ge_s
+    IROpcode.I32_ADD: bytes([0x6A]),  # i32.add
+    IROpcode.I32_SUB: bytes([0x6B]),  # i32.sub
+    IROpcode.I32_MUL: bytes([0x6C]),  # i32.mul
+    IROpcode.I32_DIV_S: bytes([0x6D]),  # i32.div_s
+    IROpcode.I32_REM_S: bytes([0x6F]),  # i32.rem_s
+    IROpcode.I32_EQ: bytes([0x46]),  # i32.eq
+    IROpcode.I32_NE: bytes([0x47]),  # i32.ne
+    IROpcode.I32_LT_S: bytes([0x48]),  # i32.lt_s
+    IROpcode.I32_GT_S: bytes([0x4A]),  # i32.gt_s
+    IROpcode.I32_LE_S: bytes([0x4C]),  # i32.le_s
+    IROpcode.I32_GE_S: bytes([0x4E]),  # i32.ge_s
     IROpcode.LOCAL_GET_0: bytes([0x20, 0x00]),  # local.get 0
     IROpcode.LOCAL_SET_0: bytes([0x21, 0x00]),  # local.set 0
     IROpcode.LOCAL_GET_1: bytes([0x20, 0x01]),  # local.get 1
     IROpcode.LOCAL_SET_1: bytes([0x21, 0x01]),  # local.set 1
     IROpcode.LOCAL_TEE_0: bytes([0x22, 0x00]),  # local.tee 0
-    IROpcode.DROP: bytes([0x1a]),         # drop
+    IROpcode.DROP: bytes([0x1A]),  # drop
     IROpcode.LOOP_BEGIN: bytes([0x03, 0x40]),  # loop (void)
-    IROpcode.LOOP_END: bytes([0x0b]),     # end
-    IROpcode.IF_BEGIN: bytes([0x04, 0x40]),    # if (void)
-    IROpcode.ELSE: bytes([0x05]),         # else
-    IROpcode.IF_END: bytes([0x0b]),       # end
-    IROpcode.BR: bytes([0x0c, 0x00]),     # br 0
-    IROpcode.BR_IF: bytes([0x0d, 0x00]),  # br_if 0
+    IROpcode.LOOP_END: bytes([0x0B]),  # end
+    IROpcode.IF_BEGIN: bytes([0x04, 0x40]),  # if (void)
+    IROpcode.ELSE: bytes([0x05]),  # else
+    IROpcode.IF_END: bytes([0x0B]),  # end
+    IROpcode.BR: bytes([0x0C, 0x00]),  # br 0
+    IROpcode.BR_IF: bytes([0x0D, 0x00]),  # br_if 0
 }
 
 
@@ -138,9 +137,9 @@ class CodebookConfig:
     """Configuration for the IR codebook."""
 
     codebook_size: int = 64  # Number of discrete codes
-    hidden_dim: int = 2048   # Model hidden dimension
+    hidden_dim: int = 2048  # Model hidden dimension
     embedding_dim: int = 128  # Codebook embedding dimension
-    max_ir_length: int = 16   # Maximum IR sequence length
+    max_ir_length: int = 16  # Maximum IR sequence length
     commitment_cost: float = 0.25  # VQ commitment loss weight
 
 
@@ -159,9 +158,7 @@ class IRCodebook(nn.Module):
         self.input_proj = nn.Linear(config.hidden_dim, config.embedding_dim)
 
         # Codebook embeddings (learnable)
-        self.embeddings = mx.random.normal(
-            shape=(config.codebook_size, config.embedding_dim)
-        ) * 0.1
+        self.embeddings = mx.random.normal(shape=(config.codebook_size, config.embedding_dim)) * 0.1
 
         # Output projection for autoregressive decoding
         self.output_proj = nn.Linear(config.embedding_dim, config.codebook_size)
@@ -181,9 +178,9 @@ class IRCodebook(nn.Module):
         # Compute distances to all codebook entries
         # z: (batch, embed_dim), embeddings: (codebook_size, embed_dim)
         distances = (
-            mx.sum(z ** 2, axis=-1, keepdims=True)
+            mx.sum(z**2, axis=-1, keepdims=True)
             - 2 * z @ self.embeddings.T
-            + mx.sum(self.embeddings ** 2, axis=-1)
+            + mx.sum(self.embeddings**2, axis=-1)
         )
 
         # Find nearest
@@ -279,7 +276,7 @@ class IRCodebook(nn.Module):
             elif opcode == IROpcode.I32_NEG:
                 # Negate: 0 - x
                 wasm_bytes.extend(encode_i32_const(0))
-                wasm_bytes.extend(bytes([0x6b]))  # i32.sub (swap args)
+                wasm_bytes.extend(bytes([0x6B]))  # i32.sub (swap args)
 
             elif opcode == IROpcode.DUP:
                 # Duplicate: local.tee 0, local.get 0 (requires local)
@@ -317,7 +314,7 @@ class IRSequenceDecoder(nn.Module):
     def __call__(
         self,
         hidden_state: mx.array,
-        target_ir: Optional[mx.array] = None,
+        target_ir: mx.array | None = None,
     ) -> tuple[mx.array, mx.array]:
         """
         Generate IR sequence from hidden state.
@@ -395,7 +392,7 @@ class IRSequenceDecoder(nn.Module):
         self,
         hidden_state: mx.array,
         temperature: float = 1.0,
-        max_length: Optional[int] = None,
+        max_length: int | None = None,
     ) -> list[int]:
         """
         Generate IR sequence greedily or with sampling.

@@ -148,7 +148,7 @@ def run_inference(
         )
 
         print(f"\nResponse: {result.text}")
-        print(f"\nStats:")
+        print("\nStats:")
         print(f"  Tokens generated: {result.stats.tokens_generated}")
         print(f"  Tokens/second: {result.stats.tokens_per_second:.1f}")
 

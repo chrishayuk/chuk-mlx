@@ -130,7 +130,7 @@ def demo_data_generation():
 
     for i in range(3):
         problem = generate_math_problem()
-        print(f"\nProblem {i+1}:")
+        print(f"\nProblem {i + 1}:")
         print(f"  Q: {problem['question']}")
         print(f"  A: {problem['full_response'][:100]}...")
 
@@ -142,9 +142,7 @@ def demo_dataset_creation(output_dir: Path):
     print("=" * 60)
 
     # Generate training data
-    train_data = generate_sft_dataset(
-        num_samples=100, output_path=output_dir / "sft_train.jsonl"
-    )
+    train_data = generate_sft_dataset(num_samples=100, output_path=output_dir / "sft_train.jsonl")
 
     # Generate eval data
     eval_data = generate_sft_dataset(num_samples=20, output_path=output_dir / "sft_eval.jsonl")
@@ -180,13 +178,13 @@ def demo_training_config():
         print(f"  {k}: {v}")
 
     print("\nCLI command:")
-    print('  uvx chuk-lazarus train sft \\')
-    print('    --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \\')
-    print('    --data ./data/math/sft_train.jsonl \\')
-    print('    --eval-data ./data/math/sft_eval.jsonl \\')
-    print('    --use-lora --lora-rank 8 \\')
-    print('    --epochs 1 --batch-size 4 \\')
-    print('    --output ./checkpoints/math-sft')
+    print("  uvx chuk-lazarus train sft \\")
+    print("    --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \\")
+    print("    --data ./data/math/sft_train.jsonl \\")
+    print("    --eval-data ./data/math/sft_eval.jsonl \\")
+    print("    --use-lora --lora-rank 8 \\")
+    print("    --epochs 1 --batch-size 4 \\")
+    print("    --output ./checkpoints/math-sft")
 
 
 def demo_inference():
@@ -197,9 +195,9 @@ def demo_inference():
 
     print("\nAfter training, test the model:")
     print("\nCLI command:")
-    print('  uvx chuk-lazarus infer \\')
-    print('    --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \\')
-    print('    --adapter ./checkpoints/math-sft/final \\')
+    print("  uvx chuk-lazarus infer \\")
+    print("    --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \\")
+    print("    --adapter ./checkpoints/math-sft/final \\")
     print('    --prompt "What is 42 + 58?"')
 
     print("\nPython code:")
@@ -238,5 +236,9 @@ if __name__ == "__main__":
     print("=" * 60)
     print("\nTo run actual training:")
     print("  1. Generate data: uvx chuk-lazarus generate --type math --output ./data/math")
-    print("  2. Train model:   uvx chuk-lazarus train sft --model TinyLlama/... --data ./data/math/sft_train.jsonl")
-    print("  3. Test model:    uvx chuk-lazarus infer --model TinyLlama/... --adapter ./checkpoints/...")
+    print(
+        "  2. Train model:   uvx chuk-lazarus train sft --model TinyLlama/... --data ./data/math/sft_train.jsonl"
+    )
+    print(
+        "  3. Test model:    uvx chuk-lazarus infer --model TinyLlama/... --adapter ./checkpoints/..."
+    )

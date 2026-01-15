@@ -27,14 +27,13 @@ Usage:
 
 import json
 import re
-from pathlib import Path
 
 try:
     from huggingface_hub import hf_hub_download
     from jinja2 import Template
     from mlx_lm import generate, load
-except ImportError as e:
-    print(f"Please install required packages: pip install mlx-lm huggingface_hub jinja2")
+except ImportError:
+    print("Please install required packages: pip install mlx-lm huggingface_hub jinja2")
     raise
 
 

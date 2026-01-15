@@ -17,7 +17,6 @@ tool-calling decisions are made in the model.
 Run: uv run python examples/introspection/circuit_analysis.py
 """
 
-import json
 from pathlib import Path
 
 # Model to analyze - FunctionGemma vs base Gemma
@@ -38,22 +37,22 @@ def step1_create_dataset():
 
     dataset = create_tool_calling_dataset(
         prompts_per_tool=15,  # 15 prompts per tool type (weather, calendar, etc.)
-        no_tool_prompts=60,   # 60 no-tool prompts
+        no_tool_prompts=60,  # 60 no-tool prompts
         include_edge_cases=True,
         seed=42,
     )
 
     summary = dataset.summary()
-    print(f"\nDataset created:")
+    print("\nDataset created:")
     print(f"  Total prompts: {summary['total']}")
     print(f"  Tool-calling: {summary['tool_calling']}")
     print(f"  No-tool: {summary['no_tool']}")
 
-    print(f"\n  By category:")
+    print("\n  By category:")
     for cat, count in summary["by_category"].items():
         print(f"    {cat}: {count}")
 
-    print(f"\n  Sample prompts:")
+    print("\n  Sample prompts:")
     for p in dataset.sample(5, seed=42):
         tool = f"[{p.expected_tool}]" if p.expected_tool else "[no-tool]"
         print(f"    {tool}: {p.text[:50]}...")
@@ -73,9 +72,7 @@ def step2_collect_activations(dataset):
     print("STEP 2: Collect Model Activations")
     print("=" * 60)
 
-    from chuk_lazarus.introspection.circuit import (
-        ActivationCollector, CollectorConfig
-    )
+    from chuk_lazarus.introspection.circuit import ActivationCollector, CollectorConfig
 
     print(f"\nLoading model: {MODEL_ID}...")
     collector = ActivationCollector.from_pretrained(MODEL_ID)
@@ -88,10 +85,10 @@ def step2_collect_activations(dataset):
         max_new_tokens=0,  # Don't generate for speed
     )
 
-    print(f"\nCollecting activations...")
+    print("\nCollecting activations...")
     activations = collector.collect(dataset, config, progress=True)
 
-    print(f"\nCollection complete:")
+    print("\nCollection complete:")
     print(f"  Samples: {len(activations)}")
     print(f"  Layers captured: {activations.captured_layers}")
     print(f"  Hidden size: {activations.hidden_size}")
@@ -125,7 +122,9 @@ def step3_geometry_analysis(activations):
 
         # Binary probe: Can we separate tool vs no-tool?
         probe = analyzer.train_probe(layer, ProbeType.BINARY)
-        print(f"  Binary probe: {probe.accuracy:.1%} accuracy (CV: {probe.cv_mean:.1%}±{probe.cv_std:.1%})")
+        print(
+            f"  Binary probe: {probe.accuracy:.1%} accuracy (CV: {probe.cv_mean:.1%}±{probe.cv_std:.1%})"
+        )
 
         # Category probe: Can we separate categories?
         cat_probe = analyzer.train_probe(layer, ProbeType.MULTICLASS)
@@ -134,8 +133,7 @@ def step3_geometry_analysis(activations):
     # Find the best layer for tool classification
     results = analyzer.compare_layers()
     best_layer = max(
-        results.items(),
-        key=lambda x: x[1].binary_probe.accuracy if x[1].binary_probe else 0
+        results.items(), key=lambda x: x[1].binary_probe.accuracy if x[1].binary_probe else 0
     )[0]
     print(f"\n  Best layer for binary probe: L{best_layer}")
 
@@ -147,11 +145,14 @@ def step3_geometry_analysis(activations):
 
         # Save UMAP coordinates
         import numpy as np
+
         umap_path = OUTPUT_DIR / f"umap_L{best_layer}.npz"
-        np.savez(umap_path,
-                 embedding=umap_result.embedding,
-                 labels=umap_result.labels,
-                 categories=umap_result.category_labels)
+        np.savez(
+            umap_path,
+            embedding=umap_result.embedding,
+            labels=umap_result.labels,
+            categories=umap_result.category_labels,
+        )
         print(f"  Saved UMAP to: {umap_path}")
     except ImportError:
         print("  UMAP not available (pip install umap-learn)")
@@ -165,9 +166,7 @@ def step4_extract_directions(activations):
     print("STEP 4: Direction Extraction")
     print("=" * 60)
 
-    from chuk_lazarus.introspection.circuit import (
-        DirectionExtractor, DirectionMethod
-    )
+    from chuk_lazarus.introspection.circuit import DirectionExtractor, DirectionMethod
 
     extractor = DirectionExtractor(activations)
 
@@ -178,10 +177,9 @@ def step4_extract_directions(activations):
 
     # Tool mode direction (separates tool vs no-tool)
     tool_dir = extractor.extract_tool_mode_direction(
-        decision_layer,
-        method=DirectionMethod.DIFFERENCE_OF_MEANS
+        decision_layer, method=DirectionMethod.DIFFERENCE_OF_MEANS
     )
-    print(f"\nTool-mode direction:")
+    print("\nTool-mode direction:")
     print(f"  Separation score: {tool_dir.separation_score:.3f}")
     print(f"  Classification accuracy: {tool_dir.accuracy:.2%}")
     print(f"  Mean projection (tool): {tool_dir.mean_projection_positive:.3f}")
@@ -194,9 +192,10 @@ def step4_extract_directions(activations):
         print(f"  {name}: separation={direction.separation_score:.3f}")
 
     # Check orthogonality
-    print(f"\nOrthogonality check:")
+    print("\nOrthogonality check:")
     similarities = extractor.check_orthogonality(per_tool)
     import numpy as np
+
     off_diag = similarities[np.triu_indices(len(per_tool), k=1)]
     print(f"  Mean off-diagonal cosine similarity: {off_diag.mean():.3f}")
     print(f"  Max off-diagonal similarity: {off_diag.max():.3f}")
@@ -268,10 +267,10 @@ def main():
     print("ANALYSIS COMPLETE")
     print("=" * 60)
     print(f"\nArtifacts saved to: {OUTPUT_DIR}")
-    print(f"  - tool_prompts.json: Prompt dataset")
-    print(f"  - activations.safetensors: Model activations")
-    print(f"  - directions_L*.npz: Interpretable directions")
-    print(f"  - probe_battery_results.json: Stratigraphy results")
+    print("  - tool_prompts.json: Prompt dataset")
+    print("  - activations.safetensors: Model activations")
+    print("  - directions_L*.npz: Interpretable directions")
+    print("  - probe_battery_results.json: Stratigraphy results")
 
     print("""
 Next steps:

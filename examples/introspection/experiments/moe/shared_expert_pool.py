@@ -17,11 +17,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
 import mlx.core as mx
-import mlx.nn as nn
-import numpy as np
-from mlx_lm import load, generate
+from mlx_lm import generate, load
 
-from chuk_lazarus.introspection.moe import MoEHooks, estimate_model_size
+from chuk_lazarus.introspection.moe import estimate_model_size
 
 
 def find_best_expert_match(source_weights: mx.array, pool_weights: mx.array) -> tuple[int, float]:
@@ -177,14 +175,21 @@ def apply_shared_pool(model, pool: dict, layers_to_share: list[int] | None = Non
                 router.bias = router.bias[:pool_size]
 
 
-def test_pool(model, tokenizer, pool: dict, pool_name: str, baseline: dict,
-               prompts: list, baseline_outputs: list) -> dict:
+def test_pool(
+    model,
+    tokenizer,
+    pool: dict,
+    pool_name: str,
+    baseline: dict,
+    prompts: list,
+    baseline_outputs: list,
+) -> dict:
     """Test a pool configuration and return results."""
     apply_shared_pool(model, pool)
     mx.eval(model.parameters())
 
     new_size = estimate_model_size(model)
-    reduction = (1 - new_size['total'] / baseline['total']) * 100
+    reduction = (1 - new_size["total"] / baseline["total"]) * 100
 
     quality_scores = []
     outputs = []
@@ -198,8 +203,8 @@ def test_pool(model, tokenizer, pool: dict, pool_name: str, baseline: dict,
 
     return {
         "name": pool_name,
-        "size_before": baseline['total'],
-        "size_after": new_size['total'],
+        "size_before": baseline["total"],
+        "size_after": new_size["total"],
         "reduction": reduction,
         "quality": sum(quality_scores) / len(quality_scores),
         "outputs": outputs,
@@ -211,13 +216,16 @@ def main():
     print("Shared Expert Pool - Cross-Layer Expert Sharing")
     print("=" * 70)
 
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
 
     # Load and get baseline
     print("\nLoading GPT-OSS...")
     model, tokenizer = load(str(model_path))
     baseline = estimate_model_size(model)
-    print(f"Baseline: {baseline['total']/1e9:.2f}B params")
+    print(f"Baseline: {baseline['total'] / 1e9:.2f}B params")
 
     prompts = [
         "The capital of France is",
@@ -236,53 +244,69 @@ def main():
     results = []
 
     # Test 1: Shared pool from layer 12 (16 experts)
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("TEST 1: Copy layer 12's experts to all layers (16 experts)")
     print("=" * 70)
     model, tokenizer = load(str(model_path))
     pool = create_shared_pool_from_layer(model, source_layer_idx=12, pool_size=16)
-    result = test_pool(model, tokenizer, pool, "Copy Layer 12 (16)", baseline, prompts, baseline_outputs)
+    result = test_pool(
+        model, tokenizer, pool, "Copy Layer 12 (16)", baseline, prompts, baseline_outputs
+    )
     results.append(result)
-    print(f"Size: {result['size_before']/1e9:.2f}B -> {result['size_after']/1e9:.2f}B ({result['reduction']:.1f}%)")
+    print(
+        f"Size: {result['size_before'] / 1e9:.2f}B -> {result['size_after'] / 1e9:.2f}B ({result['reduction']:.1f}%)"
+    )
     print(f"Quality: {result['quality']:.0%}")
     for i, p in enumerate(prompts):
         print(f"  {p[:30]}... -> {result['outputs'][i][:40]}...")
 
     # Test 2: Copy layer 12's experts (32 experts - no size reduction)
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("TEST 2: Copy layer 12's experts to all layers (32 experts - full)")
     print("=" * 70)
     model, tokenizer = load(str(model_path))
     pool = create_shared_pool_from_layer(model, source_layer_idx=12, pool_size=32)
-    result = test_pool(model, tokenizer, pool, "Copy Layer 12 (32)", baseline, prompts, baseline_outputs)
+    result = test_pool(
+        model, tokenizer, pool, "Copy Layer 12 (32)", baseline, prompts, baseline_outputs
+    )
     results.append(result)
-    print(f"Size: {result['size_before']/1e9:.2f}B -> {result['size_after']/1e9:.2f}B ({result['reduction']:.1f}%)")
+    print(
+        f"Size: {result['size_before'] / 1e9:.2f}B -> {result['size_after'] / 1e9:.2f}B ({result['reduction']:.1f}%)"
+    )
     print(f"Quality: {result['quality']:.0%}")
     for i, p in enumerate(prompts):
         print(f"  {p[:30]}... -> {result['outputs'][i][:40]}...")
 
     # Test 3: Copy layer 0's experts (early layer, 16 experts)
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("TEST 3: Copy layer 0's experts to all layers (16 experts)")
     print("=" * 70)
     model, tokenizer = load(str(model_path))
     pool = create_shared_pool_from_layer(model, source_layer_idx=0, pool_size=16)
-    result = test_pool(model, tokenizer, pool, "Copy Layer 0 (16)", baseline, prompts, baseline_outputs)
+    result = test_pool(
+        model, tokenizer, pool, "Copy Layer 0 (16)", baseline, prompts, baseline_outputs
+    )
     results.append(result)
-    print(f"Size: {result['size_before']/1e9:.2f}B -> {result['size_after']/1e9:.2f}B ({result['reduction']:.1f}%)")
+    print(
+        f"Size: {result['size_before'] / 1e9:.2f}B -> {result['size_after'] / 1e9:.2f}B ({result['reduction']:.1f}%)"
+    )
     print(f"Quality: {result['quality']:.0%}")
     for i, p in enumerate(prompts):
         print(f"  {p[:30]}... -> {result['outputs'][i][:40]}...")
 
     # Test 4: Copy layer 23's experts (last layer, 16 experts)
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("TEST 4: Copy layer 23's experts to all layers (16 experts)")
     print("=" * 70)
     model, tokenizer = load(str(model_path))
     pool = create_shared_pool_from_layer(model, source_layer_idx=23, pool_size=16)
-    result = test_pool(model, tokenizer, pool, "Copy Layer 23 (16)", baseline, prompts, baseline_outputs)
+    result = test_pool(
+        model, tokenizer, pool, "Copy Layer 23 (16)", baseline, prompts, baseline_outputs
+    )
     results.append(result)
-    print(f"Size: {result['size_before']/1e9:.2f}B -> {result['size_after']/1e9:.2f}B ({result['reduction']:.1f}%)")
+    print(
+        f"Size: {result['size_before'] / 1e9:.2f}B -> {result['size_after'] / 1e9:.2f}B ({result['reduction']:.1f}%)"
+    )
     print(f"Quality: {result['quality']:.0%}")
     for i, p in enumerate(prompts):
         print(f"  {p[:30]}... -> {result['outputs'][i][:40]}...")
@@ -294,10 +318,14 @@ def main():
     print(f"\n{'Method':<25} {'Size':<15} {'Reduction':<12} {'Quality':<10}")
     print("-" * 62)
     for r in results:
-        print(f"{r['name']:<25} {r['size_after']/1e9:.2f}B{'':>8} {r['reduction']:.1f}%{'':>6} {r['quality']:.0%}")
+        print(
+            f"{r['name']:<25} {r['size_after'] / 1e9:.2f}B{'':>8} {r['reduction']:.1f}%{'':>6} {r['quality']:.0%}"
+        )
     print("-" * 62)
     print("\nConclusion: Tests whether expert weights can be shared across layers")
-    print("High quality = weights are redundant, Low quality = layer-specific specialization needed")
+    print(
+        "High quality = weights are redundant, Low quality = layer-specific specialization needed"
+    )
     print("=" * 70)
 
 

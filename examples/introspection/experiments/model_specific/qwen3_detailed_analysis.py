@@ -13,14 +13,13 @@ Run: uv run python examples/introspection/qwen3_detailed_analysis.py
 """
 
 import json
-import numpy as np
+import warnings
+
 import mlx.core as mx
 import mlx.nn as nn
-from sklearn.linear_model import LogisticRegression
-from sklearn.decomposition import PCA
+import numpy as np
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 class Qwen3DetailedAnalysis:
@@ -66,7 +65,7 @@ class Qwen3DetailedAnalysis:
             output = layer(h, mask=mask, cache=None)
             if isinstance(output, tuple):
                 h = output[0]
-            elif hasattr(output, 'hidden_states'):
+            elif hasattr(output, "hidden_states"):
                 h = output.hidden_states
             else:
                 h = output
@@ -170,7 +169,7 @@ class Qwen3DetailedAnalysis:
             separations.append(sep)
 
         # Find where separation increases most
-        sep_increases = [separations[i+1] - separations[i] for i in range(len(separations)-1)]
+        sep_increases = [separations[i + 1] - separations[i] for i in range(len(separations) - 1)]
         peak_increase_layers = np.argsort(sep_increases)[-5:][::-1]
 
         print("\n  Layer separations:")
@@ -234,15 +233,15 @@ Key Finding: Decision is made EARLY (L0-L5), not late.
 
         # Save results
         results = {
-            'model': self.model_id,
-            'num_layers': self.num_layers,
-            'representation_changes': change_results.tolist(),
-            'task_separations': sep_results,
-            'separation_increases': sep_increases,
-            'logit_changes': logit_results,
+            "model": self.model_id,
+            "num_layers": self.num_layers,
+            "representation_changes": change_results.tolist(),
+            "task_separations": sep_results,
+            "separation_increases": sep_increases,
+            "logit_changes": logit_results,
         }
 
-        with open('qwen3_detailed_results.json', 'w') as f:
+        with open("qwen3_detailed_results.json", "w") as f:
             json.dump(results, f, indent=2)
 
         print("\nResults saved to qwen3_detailed_results.json")

@@ -36,6 +36,12 @@ def _get_handlers() -> dict[MoEAction, HandlerFunc]:
         handle_explore,
         handle_full_taxonomy,
         handle_heatmap,
+        handle_moe_overlay_compress,
+        handle_moe_overlay_compute,
+        handle_moe_overlay_estimate,
+        handle_moe_overlay_verify,
+        handle_moe_type_analyze,
+        handle_moe_type_compare,
         handle_token_routing,
         handle_trace,
         handle_weights,
@@ -57,6 +63,12 @@ def _get_handlers() -> dict[MoEAction, HandlerFunc]:
         MoEAction.DOMAIN_TEST: handle_domain_test,
         MoEAction.TOKEN_ROUTING: handle_token_routing,
         MoEAction.EXPLORE: handle_explore,
+        MoEAction.MOE_TYPE_ANALYZE: handle_moe_type_analyze,
+        MoEAction.MOE_TYPE_COMPARE: handle_moe_type_compare,
+        MoEAction.MOE_OVERLAY_COMPUTE: handle_moe_overlay_compute,
+        MoEAction.MOE_OVERLAY_VERIFY: handle_moe_overlay_verify,
+        MoEAction.MOE_OVERLAY_ESTIMATE: handle_moe_overlay_estimate,
+        MoEAction.MOE_OVERLAY_COMPRESS: handle_moe_overlay_compress,
     }
 
 

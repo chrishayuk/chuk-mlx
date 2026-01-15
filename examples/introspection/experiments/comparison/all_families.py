@@ -22,9 +22,9 @@ from chuk_lazarus.introspection import (
 
 def test_model_family(name: str, model: nn.Module, vocab_size: int, num_layers: int):
     """Test introspection on a model family."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Testing: {name}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Create sample input
     input_ids = mx.array([[1, 42, 100, 7, 99]])
@@ -47,11 +47,13 @@ def test_model_family(name: str, model: nn.Module, vocab_size: int, num_layers: 
     print("\n2. Hooked forward pass...")
     try:
         hooks = ModelHooks(model)
-        hooks.configure(CaptureConfig(
-            layers=LayerSelection.ALL,
-            capture_hidden_states=True,
-            positions=PositionSelection.ALL,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=LayerSelection.ALL,
+                capture_hidden_states=True,
+                positions=PositionSelection.ALL,
+            )
+        )
         hooked_logits = hooks.forward(input_ids)
         print(f"   Output shape: {hooked_logits.shape}")
         print(f"   Sample logits: {hooked_logits[0, -1, :5].tolist()}")
@@ -77,7 +79,11 @@ def test_model_family(name: str, model: nn.Module, vocab_size: int, num_layers: 
     print("\n4. Checking hidden state shapes...")
     try:
         for layer_idx, hidden in hooks.state.hidden_states.items():
-            expected_shape = (1, 5, model.config.hidden_size if hasattr(model, 'config') else hidden.shape[-1])
+            expected_shape = (
+                1,
+                5,
+                model.config.hidden_size if hasattr(model, "config") else hidden.shape[-1],
+            )
             if hidden.shape != expected_shape:
                 print(f"   Layer {layer_idx}: {hidden.shape} (expected {expected_shape})")
             else:
@@ -93,6 +99,7 @@ def test_model_family(name: str, model: nn.Module, vocab_size: int, num_layers: 
         class MockTokenizer:
             def decode(self, ids):
                 return f"[{ids[0]}]"
+
             def encode(self, text):
                 return [0]
 
@@ -133,9 +140,12 @@ def main():
     print("#" * 60)
     try:
         from chuk_lazarus.models_v2.families.llama import LlamaConfig, LlamaForCausalLM
+
         config = LlamaConfig.tiny()
         model = LlamaForCausalLM(config)
-        results["Llama"] = test_model_family("Llama", model, config.vocab_size, config.num_hidden_layers)
+        results["Llama"] = test_model_family(
+            "Llama", model, config.vocab_size, config.num_hidden_layers
+        )
     except Exception as e:
         print(f"Failed to load Llama: {e}")
         results["Llama"] = False
@@ -146,9 +156,12 @@ def main():
     print("#" * 60)
     try:
         from chuk_lazarus.models_v2.families.gemma import GemmaConfig, GemmaForCausalLM
+
         config = GemmaConfig.tiny()
         model = GemmaForCausalLM(config)
-        results["Gemma"] = test_model_family("Gemma", model, config.vocab_size, config.num_hidden_layers)
+        results["Gemma"] = test_model_family(
+            "Gemma", model, config.vocab_size, config.num_hidden_layers
+        )
     except Exception as e:
         print(f"Failed to load Gemma: {e}")
         results["Gemma"] = False
@@ -158,10 +171,16 @@ def main():
     print("# STARCODER2 FAMILY")
     print("#" * 60)
     try:
-        from chuk_lazarus.models_v2.families.starcoder2 import StarCoder2Config, StarCoder2ForCausalLM
+        from chuk_lazarus.models_v2.families.starcoder2 import (
+            StarCoder2Config,
+            StarCoder2ForCausalLM,
+        )
+
         config = StarCoder2Config.tiny()
         model = StarCoder2ForCausalLM(config)
-        results["StarCoder2"] = test_model_family("StarCoder2", model, config.vocab_size, config.num_hidden_layers)
+        results["StarCoder2"] = test_model_family(
+            "StarCoder2", model, config.vocab_size, config.num_hidden_layers
+        )
     except Exception as e:
         print(f"Failed to load StarCoder2: {e}")
         results["StarCoder2"] = False
@@ -172,9 +191,12 @@ def main():
     print("#" * 60)
     try:
         from chuk_lazarus.models_v2.families.granite import GraniteConfig, GraniteForCausalLM
+
         config = GraniteConfig.tiny()
         model = GraniteForCausalLM(config)
-        results["Granite"] = test_model_family("Granite", model, config.vocab_size, config.num_hidden_layers)
+        results["Granite"] = test_model_family(
+            "Granite", model, config.vocab_size, config.num_hidden_layers
+        )
     except Exception as e:
         print(f"Failed to load Granite: {e}")
         results["Granite"] = False
@@ -184,10 +206,13 @@ def main():
     print("# LLAMA4 FAMILY")
     print("#" * 60)
     try:
-        from chuk_lazarus.models_v2.families.llama4 import Llama4TextConfig, Llama4ForCausalLM
+        from chuk_lazarus.models_v2.families.llama4 import Llama4ForCausalLM, Llama4TextConfig
+
         config = Llama4TextConfig.tiny()
         model = Llama4ForCausalLM(config)
-        results["Llama4"] = test_model_family("Llama4", model, config.vocab_size, config.num_hidden_layers)
+        results["Llama4"] = test_model_family(
+            "Llama4", model, config.vocab_size, config.num_hidden_layers
+        )
     except Exception as e:
         print(f"Failed to load Llama4: {e}")
         results["Llama4"] = False
@@ -198,9 +223,12 @@ def main():
     print("#" * 60)
     try:
         from chuk_lazarus.models_v2.families.jamba import JambaConfig, JambaForCausalLM
+
         config = JambaConfig.tiny()
         model = JambaForCausalLM(config)
-        results["Jamba"] = test_model_family("Jamba", model, config.vocab_size, config.num_hidden_layers)
+        results["Jamba"] = test_model_family(
+            "Jamba", model, config.vocab_size, config.num_hidden_layers
+        )
     except Exception as e:
         print(f"Failed to load Jamba: {e}")
         results["Jamba"] = False
@@ -211,9 +239,12 @@ def main():
     print("#" * 60)
     try:
         from chuk_lazarus.models_v2.families.mamba import MambaConfig, MambaForCausalLM
+
         config = MambaConfig.tiny()
         model = MambaForCausalLM(config)
-        results["Mamba"] = test_model_family("Mamba", model, config.vocab_size, config.num_hidden_layers)
+        results["Mamba"] = test_model_family(
+            "Mamba", model, config.vocab_size, config.num_hidden_layers
+        )
     except Exception as e:
         print(f"Failed to load Mamba: {e}")
         results["Mamba"] = False
@@ -223,10 +254,16 @@ def main():
     print("# GRANITE HYBRID FAMILY")
     print("#" * 60)
     try:
-        from chuk_lazarus.models_v2.families.granite import GraniteHybridConfig, GraniteHybridForCausalLM
+        from chuk_lazarus.models_v2.families.granite import (
+            GraniteHybridConfig,
+            GraniteHybridForCausalLM,
+        )
+
         config = GraniteHybridConfig.tiny()
         model = GraniteHybridForCausalLM(config)
-        results["GraniteHybrid"] = test_model_family("GraniteHybrid", model, config.vocab_size, config.num_hidden_layers)
+        results["GraniteHybrid"] = test_model_family(
+            "GraniteHybrid", model, config.vocab_size, config.num_hidden_layers
+        )
     except Exception as e:
         print(f"Failed to load GraniteHybrid: {e}")
         results["GraniteHybrid"] = False

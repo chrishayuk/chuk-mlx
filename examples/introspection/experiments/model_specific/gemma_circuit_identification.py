@@ -18,9 +18,9 @@ Usage:
 
 import argparse
 import json
-from dataclasses import dataclass, field
-from pathlib import Path
 from collections import defaultdict
+from dataclasses import dataclass
+from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -35,10 +35,11 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class AttentionHeadProfile:
     """Profile of a single attention head."""
+
     layer: int
     head: int
     operand_attention: float  # How much it attends to operand tokens
-    equals_attention: float   # How much it attends to "=" token
+    equals_attention: float  # How much it attends to "=" token
     arithmetic_specificity: float  # Higher for arithmetic vs language
     importance_score: float  # Combined importance metric
 
@@ -46,6 +47,7 @@ class AttentionHeadProfile:
 @dataclass
 class NeuronProfile:
     """Profile of a single MLP neuron."""
+
     layer: int
     neuron_idx: int
     mean_arithmetic: float
@@ -57,6 +59,7 @@ class NeuronProfile:
 @dataclass
 class CircuitComponent:
     """A component of the multiplication circuit."""
+
     component_type: str  # "attention_head" or "mlp_neuron"
     layer: int
     index: int  # head index or neuron index
@@ -68,6 +71,7 @@ class CircuitComponent:
 @dataclass
 class MultiplicationCircuit:
     """The identified multiplication circuit."""
+
     components: list[CircuitComponent]
     accuracy_baseline: float
     accuracy_ablated: float  # With all circuit components ablated
@@ -105,7 +109,7 @@ class GemmaCircuitIdentifier:
         self.num_heads = self.config.num_attention_heads
 
         # Get intermediate size for MLP
-        if hasattr(self.config, 'intermediate_size'):
+        if hasattr(self.config, "intermediate_size"):
             self.intermediate_size = self.config.intermediate_size
         else:
             self.intermediate_size = self.hidden_size * 4
@@ -133,7 +137,7 @@ class GemmaCircuitIdentifier:
 
         embed_scale = getattr(self.config, "embedding_scale", None)
         if embed_scale is None:
-            embed_scale = float(self.hidden_size ** 0.5)
+            embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -159,13 +163,13 @@ class GemmaCircuitIdentifier:
                 attn = layer.self_attn
 
                 # Get attention input
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     h_normed = layer.input_layernorm(h)
                 else:
                     h_normed = h
 
                 # Get Q, K, V projections
-                if hasattr(attn, 'q_proj'):
+                if hasattr(attn, "q_proj"):
                     q = attn.q_proj(h_normed)
                     k = attn.k_proj(h_normed)
 
@@ -175,7 +179,7 @@ class GemmaCircuitIdentifier:
                     k = k.reshape(1, seq_len, self.num_heads, head_dim).transpose(0, 2, 1, 3)
 
                     # Compute attention weights
-                    scale = head_dim ** -0.5
+                    scale = head_dim**-0.5
                     scores = (q @ k.transpose(0, 1, 3, 2)) * scale
 
                     # Apply mask
@@ -219,7 +223,7 @@ class GemmaCircuitIdentifier:
         for i, layer in enumerate(layers):
             if i == layer_idx:
                 # Run attention first
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     h_normed = layer.input_layernorm(h)
                 else:
                     h_normed = h
@@ -235,7 +239,7 @@ class GemmaCircuitIdentifier:
                 h = h + attn_out
 
                 # Now get MLP activations
-                if hasattr(layer, 'post_attention_layernorm'):
+                if hasattr(layer, "post_attention_layernorm"):
                     mlp_input = layer.post_attention_layernorm(h)
                 else:
                     mlp_input = h
@@ -243,7 +247,7 @@ class GemmaCircuitIdentifier:
                 mlp = layer.mlp
 
                 # Get gate and up projections
-                if hasattr(mlp, 'gate_proj'):
+                if hasattr(mlp, "gate_proj"):
                     gate = mlp.gate_proj(mlp_input)
                     up = mlp.up_proj(mlp_input)
                     # Apply activation
@@ -416,7 +420,7 @@ class GemmaCircuitIdentifier:
                 lang_patterns.append(patterns)
 
         if not arith_patterns:
-            print(f"    Warning: Could not get attention patterns")
+            print("    Warning: Could not get attention patterns")
             return []
 
         profiles = []
@@ -463,14 +467,16 @@ class GemmaCircuitIdentifier:
             # Importance score
             importance = avg_operand_attn * max(0, specificity + 1)
 
-            profiles.append(AttentionHeadProfile(
-                layer=layer_idx,
-                head=head_idx,
-                operand_attention=float(avg_operand_attn),
-                equals_attention=0.0,  # TODO: compute if needed
-                arithmetic_specificity=float(specificity),
-                importance_score=float(importance),
-            ))
+            profiles.append(
+                AttentionHeadProfile(
+                    layer=layer_idx,
+                    head=head_idx,
+                    operand_attention=float(avg_operand_attn),
+                    equals_attention=0.0,  # TODO: compute if needed
+                    arithmetic_specificity=float(specificity),
+                    importance_score=float(importance),
+                )
+            )
 
         # Sort by importance
         profiles.sort(key=lambda x: -x.importance_score)
@@ -502,7 +508,7 @@ class GemmaCircuitIdentifier:
                 lang_activations.append(last_token)
 
         if not arith_activations or not lang_activations:
-            print(f"    Warning: Could not collect MLP activations")
+            print("    Warning: Could not collect MLP activations")
             return []
 
         arith_activations = np.array(arith_activations)
@@ -527,14 +533,16 @@ class GemmaCircuitIdentifier:
             else:
                 separation = 0.0
 
-            profiles.append(NeuronProfile(
-                layer=layer_idx,
-                neuron_idx=neuron_idx,
-                mean_arithmetic=mean_arith,
-                mean_language=mean_lang,
-                separation_score=float(separation),
-                top_activating_prompts=[],  # Fill later if needed
-            ))
+            profiles.append(
+                NeuronProfile(
+                    layer=layer_idx,
+                    neuron_idx=neuron_idx,
+                    mean_arithmetic=mean_arith,
+                    mean_language=mean_lang,
+                    separation_score=float(separation),
+                    top_activating_prompts=[],  # Fill later if needed
+                )
+            )
 
         # Sort by separation
         profiles.sort(key=lambda x: -x.separation_score)
@@ -561,14 +569,16 @@ class GemmaCircuitIdentifier:
             # Keep top heads
             for profile in profiles[:3]:  # Top 3 per layer
                 if profile.importance_score > 0.1:
-                    components.append(CircuitComponent(
-                        component_type="attention_head",
-                        layer=profile.layer,
-                        index=profile.head,
-                        role="operand_reader" if profile.operand_attention > 0.2 else "context",
-                        importance=profile.importance_score,
-                        ablation_effect=0.0,  # Compute later
-                    ))
+                    components.append(
+                        CircuitComponent(
+                            component_type="attention_head",
+                            layer=profile.layer,
+                            index=profile.head,
+                            role="operand_reader" if profile.operand_attention > 0.2 else "context",
+                            importance=profile.importance_score,
+                            ablation_effect=0.0,  # Compute later
+                        )
+                    )
 
         # Profile MLP neurons in key layers
         print("\n--- MLP Neuron Profiling ---")
@@ -578,15 +588,21 @@ class GemmaCircuitIdentifier:
             # Keep top neurons
             for profile in profiles[:20]:  # Top 20 per layer
                 if profile.separation_score > 2.0:  # Highly discriminative
-                    role = "arithmetic_activator" if profile.mean_arithmetic > profile.mean_language else "language_suppressor"
-                    components.append(CircuitComponent(
-                        component_type="mlp_neuron",
-                        layer=profile.layer,
-                        index=profile.neuron_idx,
-                        role=role,
-                        importance=profile.separation_score,
-                        ablation_effect=0.0,
-                    ))
+                    role = (
+                        "arithmetic_activator"
+                        if profile.mean_arithmetic > profile.mean_language
+                        else "language_suppressor"
+                    )
+                    components.append(
+                        CircuitComponent(
+                            component_type="mlp_neuron",
+                            layer=profile.layer,
+                            index=profile.neuron_idx,
+                            role=role,
+                            importance=profile.separation_score,
+                            ablation_effect=0.0,
+                        )
+                    )
 
         # Compute baseline accuracy using probes
         print("\n--- Computing Baseline Accuracy ---")
@@ -660,7 +676,7 @@ class GemmaCircuitIdentifier:
             print(f"L{c.layer:<7} N{c.index:<9} {c.role:<20} {c.importance:.4f}")
 
         # Summary by layer
-        print(f"\n--- Components by Layer ---")
+        print("\n--- Components by Layer ---")
         by_layer = defaultdict(list)
         for c in circuit.components:
             by_layer[c.layer].append(c)

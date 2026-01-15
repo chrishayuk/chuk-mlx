@@ -1,0 +1,77 @@
+# Expert SVD Compression Experiment
+#
+# Validates that MoE experts are low-rank perturbations of a shared base,
+# enabling 8x compression via overlay representation.
+
+name: expert_svd_analysis
+description: >
+  Analyze effective rank of expert weight deltas via SVD.
+  Test hypothesis: experts = base + low_rank_delta.
+  Compute overlay representation and verify reconstruction accuracy.
+
+# Model to analyze
+model: allenai/OLMoE-1B-7B-0924
+
+# For GPT-OSS (requires special loader), use:
+# model: openai/gpt-oss-20b
+
+# Layers to analyze (null = auto-select representative layers)
+layers: null
+
+# Set to true to analyze ALL MoE layers (slower but complete)
+analyze_all_layers: false
+
+# Target ranks for overlay compression
+# Based on initial SVD analysis of GPT-OSS:
+#   Gate: rank ~1 (captures 95% variance)
+#   Up: rank ~260 (captures 95% variance)
+#   Down: rank ~141 (captures 95% variance)
+gate_rank: 2
+up_rank: 128
+down_rank: 64
+
+# Rank configurations to test for quality/size tradeoff
+rank_configs:
+  high:
+    gate_rank: 2
+    up_rank: 256
+    down_rank: 128
+  medium:
+    gate_rank: 1
+    up_rank: 128
+    down_rank: 64
+  low:
+    gate_rank: 1
+    up_rank: 64
+    down_rank: 32
+  tiny:
+    gate_rank: 1
+    up_rank: 32
+    down_rank: 16
+
+# Variance thresholds for effective rank computation
+variance_thresholds:
+  - 0.90
+  - 0.95
+  - 0.99
+
+# Whether to run perplexity evaluation (slow)
+run_perplexity: false
+
+# Test prompts for output verification
+test_prompts:
+  - "The capital of France is"
+  - "def fibonacci(n):"
+  - "127 + 45 ="
+
+# Success criteria
+success_criteria:
+  # Max allowed relative reconstruction error
+  max_weight_error: 0.01  # 1%
+  max_output_error: 0.001  # 0.1%
+
+  # Min required compression ratio
+  min_compression_ratio: 4.0
+
+  # Max perplexity increase (if running perplexity eval)
+  max_perplexity_increase: 0.01  # 1%

@@ -61,6 +61,7 @@ def auto_detect_tokens(prompt: str) -> list[str]:
 @dataclass
 class TokenTrajectory:
     """Probability trajectory for a single token."""
+
     token: str
     token_id: int
     probabilities: list[tuple[int, float]]  # (layer, prob)
@@ -73,6 +74,7 @@ class TokenTrajectory:
 @dataclass
 class FlowVisualization:
     """Data for visualization."""
+
     prompt: str
     model_id: str
     num_layers: int
@@ -248,15 +250,17 @@ class ComputationFlow:
                     emergence = layer_idx
                     break
 
-            result_trajectories.append(TokenTrajectory(
-                token=tok,
-                token_id=track_ids[tok],
-                probabilities=probs,
-                ranks=ranks,
-                peak_layer=peak_layer,
-                peak_prob=peak_prob,
-                emergence_layer=emergence,
-            ))
+            result_trajectories.append(
+                TokenTrajectory(
+                    token=tok,
+                    token_id=track_ids[tok],
+                    probabilities=probs,
+                    ranks=ranks,
+                    peak_layer=peak_layer,
+                    peak_prob=peak_prob,
+                    emergence_layer=emergence,
+                )
+            )
 
         return FlowVisualization(
             prompt=prompt,
@@ -270,9 +274,9 @@ class ComputationFlow:
 def render_flow_chart(viz: FlowVisualization, width: int = 60):
     """Render ASCII flow chart."""
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("COMPUTATION FLOW VISUALIZATION")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print(f"Prompt: {repr(viz.prompt)}")
     print(f"Model: {viz.model_id} ({viz.num_layers} layers)")
     print()
@@ -358,7 +362,9 @@ def render_flow_chart(viz: FlowVisualization, width: int = 60):
             status = f"emerges at L{traj.emergence_layer}"
         else:
             status = "never reaches rank 1"
-        print(f"  {repr(traj.token):15} peaks at L{traj.peak_layer} ({traj.peak_prob:.1%}), {status}")
+        print(
+            f"  {repr(traj.token):15} peaks at L{traj.peak_layer} ({traj.peak_prob:.1%}), {status}"
+        )
 
 
 async def main(
@@ -380,8 +386,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", "-m", default="mlx-community/gemma-3-4b-it-bf16")
     parser.add_argument("--prompt", "-p", default="347 * 892 = ")
-    parser.add_argument("--track", "-t", nargs="+", default=None,
-                        help="Tokens to track. If not specified, auto-detects for arithmetic.")
+    parser.add_argument(
+        "--track",
+        "-t",
+        nargs="+",
+        default=None,
+        help="Tokens to track. If not specified, auto-detects for arithmetic.",
+    )
     parser.add_argument("--layer-step", "-s", type=int, default=2)
     args = parser.parse_args()
 
@@ -393,6 +404,8 @@ if __name__ == "__main__":
     if "-pt" in args.model or args.model.endswith("-pt"):
         print("\n⚠️  WARNING: You're using a base/pretrained model (not instruction-tuned).")
         print("   Base models may not perform arithmetic correctly.")
-        print("   Consider using an instruction-tuned model like 'mlx-community/gemma-3-4b-it-bf16'\n")
+        print(
+            "   Consider using an instruction-tuned model like 'mlx-community/gemma-3-4b-it-bf16'\n"
+        )
 
     asyncio.run(main(args.model, args.prompt, tokens, args.layer_step))

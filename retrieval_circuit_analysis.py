@@ -13,11 +13,7 @@ This reveals the boundary between:
 """
 
 import json
-from collections import defaultdict
 from dataclasses import dataclass
-
-import mlx.core as mx
-import numpy as np
 
 from chuk_lazarus.introspection.layer_analysis import LayerAnalyzer
 
@@ -124,7 +120,7 @@ def analyze_retrieval_circuit(
             convergence_delta=max_delta,
         )
 
-        print(f"  Layer similarities:")
+        print("  Layer similarities:")
         for layer in sorted_layers:
             marker = " ← CONVERGENCE" if layer == convergence_layer else ""
             print(f"    L{layer:2d}: {layer_sims[layer]:.4f}{marker}")
@@ -157,7 +153,7 @@ def analyze_retrieval_circuit(
 
             layer_sims[layer_idx] = total / count if count > 0 else 0.0
 
-        print(f"  Layer similarities:")
+        print("  Layer similarities:")
         for layer in sorted(layer_sims.keys()):
             print(f"    L{layer:2d}: {layer_sims[layer]:.4f}")
 
@@ -169,8 +165,9 @@ def analyze_retrieval_circuit(
     convergence_layers = [r.convergence_layer for r in results.values() if r.convergence_layer]
     if convergence_layers:
         from collections import Counter
+
         layer_counts = Counter(convergence_layers)
-        print(f"\nConvergence layer distribution:")
+        print("\nConvergence layer distribution:")
         for layer, count in sorted(layer_counts.items()):
             print(f"  Layer {layer}: {count} answer groups")
 

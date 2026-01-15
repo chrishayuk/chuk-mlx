@@ -21,6 +21,12 @@ from .domain_test import handle_domain_test
 from .explore import handle_explore
 from .full_taxonomy import handle_full_taxonomy
 from .heatmap import handle_heatmap
+from .moe_overlay_compress import handle_moe_overlay_compress
+from .moe_overlay_compute import handle_moe_overlay_compute
+from .moe_overlay_estimate import handle_moe_overlay_estimate
+from .moe_overlay_verify import handle_moe_overlay_verify
+from .moe_type_analyze import handle_moe_type_analyze
+from .moe_type_compare import handle_moe_type_compare
 from .token_routing import handle_token_routing
 from .trace import handle_trace
 from .weights import handle_weights
@@ -38,6 +44,12 @@ __all__ = [
     "handle_explore",
     "handle_full_taxonomy",
     "handle_heatmap",
+    "handle_moe_type_analyze",
+    "handle_moe_type_compare",
+    "handle_moe_overlay_compress",
+    "handle_moe_overlay_compute",
+    "handle_moe_overlay_verify",
+    "handle_moe_overlay_estimate",
     "handle_token_routing",
     "handle_trace",
     "handle_weights",

@@ -24,10 +24,8 @@ from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
-import mlx.nn as nn
-import mlx.optimizers as optim
 
-from chuk_lazarus.experiments import ExperimentBase, ExperimentConfig
+from chuk_lazarus.experiments import ExperimentBase
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +33,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ClassifierSignal:
     """Track classifier signal at a layer."""
+
     layer: int
     top_token: str
     top_prob: float
@@ -46,6 +45,7 @@ class ClassifierSignal:
 @dataclass
 class TaskResult:
     """Result of analyzing a single task prompt."""
+
     task: str
     prompt: str
     expected_answer: str
@@ -60,6 +60,7 @@ class TaskResult:
 @dataclass
 class MethodResult:
     """Results for a single training method."""
+
     method_name: str
     training_steps: int
     task_results: list[TaskResult] = field(default_factory=list)
@@ -111,11 +112,14 @@ class ClassifierEmergenceExperiment(ExperimentBase):
         self.test_prompts = self._build_test_prompts()
 
         # Get task vocabulary
-        self.task_vocabulary = self.params.get("task_vocabulary", {
-            "multiplication": ["multiply", "times", "product", "*", "×"],
-            "addition": ["add", "plus", "sum", "+"],
-            "subtraction": ["subtract", "minus", "difference", "-"],
-        })
+        self.task_vocabulary = self.params.get(
+            "task_vocabulary",
+            {
+                "multiplication": ["multiply", "times", "product", "*", "×"],
+                "addition": ["add", "plus", "sum", "+"],
+                "subtraction": ["subtract", "minus", "difference", "-"],
+            },
+        )
 
         # Generate training data if needed
         self.data_path = self.config.data_dir / "arithmetic_train.jsonl"
@@ -152,11 +156,13 @@ class ClassifierEmergenceExperiment(ExperimentBase):
 
         for task, task_prompts in test_config.items():
             for p in task_prompts:
-                prompts.append({
-                    "task": task,
-                    "prompt": p["prompt"],
-                    "expected": p["expected"],
-                })
+                prompts.append(
+                    {
+                        "task": task,
+                        "prompt": p["prompt"],
+                        "expected": p["expected"],
+                    }
+                )
 
         return prompts
 
@@ -184,12 +190,14 @@ class ClassifierEmergenceExperiment(ExperimentBase):
                     a, b = max(a, b), min(a, b)
 
             result = op_fn(a, b)
-            data.append({
-                "prompt": f"{a} {op_sym} {b} = ",
-                "response": str(result),
-                "text": f"{a} {op_sym} {b} = {result}",
-                "operation": op_label,  # For dual-reward classification
-            })
+            data.append(
+                {
+                    "prompt": f"{a} {op_sym} {b} = ",
+                    "response": str(result),
+                    "text": f"{a} {op_sym} {b} = {result}",
+                    "operation": op_label,  # For dual-reward classification
+                }
+            )
 
         # Split data
         split_idx = int(len(data) * 0.9)
@@ -214,11 +222,16 @@ class ClassifierEmergenceExperiment(ExperimentBase):
         dr_train_path = self.config.data_dir / "train_dual_reward.jsonl"
         with open(dr_train_path, "w") as f:
             for entry in train_data:
-                f.write(json.dumps({
-                    "prompt": entry["prompt"],
-                    "response": entry["response"],
-                    "operation": entry["operation"],
-                }) + "\n")
+                f.write(
+                    json.dumps(
+                        {
+                            "prompt": entry["prompt"],
+                            "response": entry["response"],
+                            "operation": entry["operation"],
+                        }
+                    )
+                    + "\n"
+                )
 
         # Save full data
         with open(self.data_path, "w") as f:
@@ -244,8 +257,7 @@ class ClassifierEmergenceExperiment(ExperimentBase):
 
         # 2. Run each enabled training method
         enabled_methods = {
-            name: cfg for name, cfg in self.training_methods.items()
-            if cfg.get("enabled", False)
+            name: cfg for name, cfg in self.training_methods.items() if cfg.get("enabled", False)
         }
 
         if not enabled_methods:
@@ -264,7 +276,9 @@ class ClassifierEmergenceExperiment(ExperimentBase):
             checkpoint_dir = self.config.checkpoint_dir / method_name
 
             # Train
-            self.log(f"Training {method} ({'LoRA' if use_lora else 'Full'}) for {max_steps} steps...")
+            self.log(
+                f"Training {method} ({'LoRA' if use_lora else 'Full'}) for {max_steps} steps..."
+            )
 
             if method == "sft":
                 success = self._train_sft(checkpoint_dir, method_config)
@@ -298,8 +312,12 @@ class ClassifierEmergenceExperiment(ExperimentBase):
         # Per-prompt results
         for r in result.task_results:
             status = "✓" if r.answer_correct else "✗"
-            classifier_info = f"L{r.peak_task_layer} {r.peak_task_prob:.1%}" if r.peak_task_layer else "none"
-            self.log(f"  {r.prompt} → {r.generated_answer} ({r.expected_answer}) {status} | classifier: {classifier_info}")
+            classifier_info = (
+                f"L{r.peak_task_layer} {r.peak_task_prob:.1%}" if r.peak_task_layer else "none"
+            )
+            self.log(
+                f"  {r.prompt} → {r.generated_answer} ({r.expected_answer}) {status} | classifier: {classifier_info}"
+            )
 
     def _simple_generate(self, model, tokenizer, prompt: str, max_tokens: int = 10) -> str:
         """Simple greedy generation that works with the framework's model."""
@@ -308,7 +326,7 @@ class ClassifierEmergenceExperiment(ExperimentBase):
 
         for _ in range(max_tokens):
             output = model(input_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1)
             mx.eval(next_token)
 
@@ -351,11 +369,15 @@ class ClassifierEmergenceExperiment(ExperimentBase):
             if hasattr(model.model, "embed_scale"):
                 h = h * model.model.embed_scale
 
-            embed_weight = model.model.embed_tokens.weight.parameters()['weight']
+            embed_weight = model.model.embed_tokens.weight.parameters()["weight"]
 
             for layer_idx, layer in enumerate(model.model.layers):
                 layer_output = layer(h, mask=None, cache=None)
-                h = layer_output.hidden_states if hasattr(layer_output, 'hidden_states') else (layer_output[0] if isinstance(layer_output, tuple) else layer_output)
+                h = (
+                    layer_output.hidden_states
+                    if hasattr(layer_output, "hidden_states")
+                    else (layer_output[0] if isinstance(layer_output, tuple) else layer_output)
+                )
 
                 # Logit lens projection
                 h_normed = model.model.norm(h)
@@ -405,7 +427,7 @@ class ClassifierEmergenceExperiment(ExperimentBase):
             # Extract just the first number from response
             generated = self._extract_number(response)
             task_result.generated_answer = generated
-            task_result.answer_correct = (generated == expected)
+            task_result.answer_correct = generated == expected
 
             result.task_results.append(task_result)
 
@@ -414,7 +436,7 @@ class ClassifierEmergenceExperiment(ExperimentBase):
     def _extract_number(self, text: str) -> str:
         """Extract the first number from generated text."""
         # Handle negative numbers and decimals
-        match = re.search(r'-?\d+\.?\d*', text)
+        match = re.search(r"-?\d+\.?\d*", text)
         if match:
             num_str = match.group()
             # Convert to int if it's a whole number
@@ -444,6 +466,7 @@ class ClassifierEmergenceExperiment(ExperimentBase):
         # Create a config file for the training
         config_path = output_dir / "train_config.yaml"
         import yaml
+
         train_config = {
             "model": self.config.model,
             "train": True,
@@ -472,8 +495,12 @@ class ClassifierEmergenceExperiment(ExperimentBase):
             yaml.dump(train_config, f)
 
         cmd = [
-            sys.executable, "-m", "mlx_lm", "lora",
-            "-c", str(config_path),
+            sys.executable,
+            "-m",
+            "mlx_lm",
+            "lora",
+            "-c",
+            str(config_path),
         ]
 
         self.log(f"Running: {' '.join(cmd)}")
@@ -500,11 +527,14 @@ class ClassifierEmergenceExperiment(ExperimentBase):
 
         # Configure trainer
         lora_config = config.get("lora", {})
-        classifier_targets = config.get("classifier_targets", {
-            "multiply": "multiply",
-            "add": "add",
-            "subtract": "subtract",
-        })
+        classifier_targets = config.get(
+            "classifier_targets",
+            {
+                "multiply": "multiply",
+                "add": "add",
+                "subtract": "subtract",
+            },
+        )
 
         trainer_config = DualRewardTrainerConfig(
             num_epochs=1,
@@ -537,6 +567,7 @@ class ClassifierEmergenceExperiment(ExperimentBase):
         final_path = output_dir / "final"
         if final_path.exists():
             import shutil
+
             adapter_dest = output_dir / "adapters"
             if adapter_dest.exists():
                 shutil.rmtree(adapter_dest)
@@ -547,8 +578,8 @@ class ClassifierEmergenceExperiment(ExperimentBase):
     def _train_grpo(self, output_dir: Path, config: dict) -> bool:
         """Train using GRPO with arithmetic reward."""
         from chuk_lazarus.models_v2.adapters.lora import LoRAConfig, apply_lora
-        from chuk_lazarus.training.trainers.grpo_trainer import GRPOTrainer, GRPOTrainerConfig
         from chuk_lazarus.training.losses.grpo_loss import GRPOConfig
+        from chuk_lazarus.training.trainers.grpo_trainer import GRPOTrainer, GRPOTrainerConfig
 
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -575,25 +606,25 @@ class ClassifierEmergenceExperiment(ExperimentBase):
         def arithmetic_reward(prompt: str, response: str) -> float:
             """Reward function for arithmetic correctness."""
             # Parse prompt to get expected answer
-            match = re.match(r'(\d+)\s*([+\-*/])\s*(\d+)\s*=', prompt)
+            match = re.match(r"(\d+)\s*([+\-*/])\s*(\d+)\s*=", prompt)
             if not match:
                 return 0.0
 
             a, op, b = int(match.group(1)), match.group(2), int(match.group(3))
 
-            if op == '+':
+            if op == "+":
                 expected = a + b
-            elif op == '-':
+            elif op == "-":
                 expected = a - b
-            elif op == '*':
+            elif op == "*":
                 expected = a * b
-            elif op == '/':
+            elif op == "/":
                 expected = a // b if b != 0 else 0
             else:
                 return 0.0
 
             # Extract answer from response
-            answer_match = re.search(r'-?\d+', response)
+            answer_match = re.search(r"-?\d+", response)
             if not answer_match:
                 return 0.0
 
@@ -657,6 +688,7 @@ class ClassifierEmergenceExperiment(ExperimentBase):
             final_path = output_dir / "final"
             if final_path.exists():
                 import shutil
+
                 adapter_dest = output_dir / "adapters"
                 if adapter_dest.exists():
                     shutil.rmtree(adapter_dest)
@@ -710,8 +742,12 @@ class ClassifierEmergenceExperiment(ExperimentBase):
     def _build_summary(self) -> dict:
         """Build comparison summary."""
         summary = {
-            "baseline_accuracy": self.baseline_result.answer_accuracy if self.baseline_result else 0.0,
-            "baseline_has_classifiers": self.baseline_result.has_classifiers if self.baseline_result else False,
+            "baseline_accuracy": self.baseline_result.answer_accuracy
+            if self.baseline_result
+            else 0.0,
+            "baseline_has_classifiers": self.baseline_result.has_classifiers
+            if self.baseline_result
+            else False,
             "methods": {},
         }
 

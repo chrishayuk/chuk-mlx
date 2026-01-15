@@ -85,11 +85,13 @@ def analyze_prompt(model, tokenizer, config, prompt: str, model_name: str = "Mod
     layers_to_capture = sorted(set(layers_to_capture))
 
     hooks = ModelHooks(model)
-    hooks.configure(CaptureConfig(
-        layers=layers_to_capture,
-        capture_hidden_states=True,
-        positions=PositionSelection.LAST,
-    ))
+    hooks.configure(
+        CaptureConfig(
+            layers=layers_to_capture,
+            capture_hidden_states=True,
+            positions=PositionSelection.LAST,
+        )
+    )
 
     # Forward pass
     logits = hooks.forward(input_ids)
@@ -117,9 +119,9 @@ def analyze_prompt(model, tokenizer, config, prompt: str, model_name: str = "Mod
 
 def print_comparison(results: list[dict], prompt: str):
     """Print a side-by-side comparison."""
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"Prompt: {prompt}")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     # Final predictions
     print("\n--- Final Predictions ---")
@@ -151,12 +153,14 @@ def print_comparison(results: list[dict], prompt: str):
         print()
 
 
-def track_token_comparison(models_data: list[tuple], tokenizer, config, prompt: str, tokens_to_track: list[str]):
+def track_token_comparison(
+    models_data: list[tuple], tokenizer, config, prompt: str, tokens_to_track: list[str]
+):
     """Track specific tokens across layers for both models."""
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"Token Tracking: {tokens_to_track}")
     print(f"Prompt: {prompt}")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     for model, model_name in models_data:
         # Tokenize
@@ -169,11 +173,13 @@ def track_token_comparison(models_data: list[tuple], tokenizer, config, prompt: 
         layers_to_capture = sorted(set(layers_to_capture))
 
         hooks = ModelHooks(model)
-        hooks.configure(CaptureConfig(
-            layers=layers_to_capture,
-            capture_hidden_states=True,
-            positions=PositionSelection.LAST,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=layers_to_capture,
+                capture_hidden_states=True,
+                positions=PositionSelection.LAST,
+            )
+        )
         hooks.forward(input_ids)
 
         lens = LogitLens(hooks, tokenizer)
@@ -210,7 +216,9 @@ def main():
 
     # Try to use 270M Gemma if available, else fallback
     try:
-        gemma3_model, gemma3_tokenizer, gemma3_config, _ = load_gemma_model("mlx-community/gemma-3-270m-it-bf16")
+        gemma3_model, gemma3_tokenizer, gemma3_config, _ = load_gemma_model(
+            "mlx-community/gemma-3-270m-it-bf16"
+        )
     except Exception:
         print("Gemma 3 270M not found, using 1B variant...")
         try:
@@ -224,11 +232,15 @@ def main():
             class MockTokenizer:
                 def encode(self, text, return_tensors=None):
                     return [[1, 2, 3, 4, 5]]
+
                 def decode(self, ids):
                     return f"[{ids[0] if isinstance(ids, list) else ids}]"
+
             gemma3_tokenizer = MockTokenizer()
 
-    functiongemma_model, functiongemma_tokenizer, functiongemma_config, _ = load_gemma_model(functiongemma_id)
+    functiongemma_model, functiongemma_tokenizer, functiongemma_config, _ = load_gemma_model(
+        functiongemma_id
+    )
 
     # Load chat template for FunctionGemma
     functiongemma_template = load_chat_template(functiongemma_id)
@@ -244,8 +256,16 @@ def main():
     ]
 
     for prompt in test_prompts:
-        gemma_result = analyze_prompt(gemma3_model, gemma3_tokenizer, gemma3_config, prompt, "Gemma3")
-        func_result = analyze_prompt(functiongemma_model, functiongemma_tokenizer, functiongemma_config, prompt, "FunctionGemma")
+        gemma_result = analyze_prompt(
+            gemma3_model, gemma3_tokenizer, gemma3_config, prompt, "Gemma3"
+        )
+        func_result = analyze_prompt(
+            functiongemma_model,
+            functiongemma_tokenizer,
+            functiongemma_config,
+            prompt,
+            "FunctionGemma",
+        )
         print_comparison([gemma_result, func_result], prompt)
 
     print("\n\n" + "#" * 80)
@@ -262,8 +282,16 @@ def main():
 
     for prompt in function_prompts:
         try:
-            gemma_result = analyze_prompt(gemma3_model, gemma3_tokenizer, gemma3_config, prompt, "Gemma3")
-            func_result = analyze_prompt(functiongemma_model, functiongemma_tokenizer, functiongemma_config, prompt, "FunctionGemma")
+            gemma_result = analyze_prompt(
+                gemma3_model, gemma3_tokenizer, gemma3_config, prompt, "Gemma3"
+            )
+            func_result = analyze_prompt(
+                functiongemma_model,
+                functiongemma_tokenizer,
+                functiongemma_config,
+                prompt,
+                "FunctionGemma",
+            )
             print_comparison([gemma_result, func_result], prompt)
         except Exception as e:
             print(f"Error with prompt '{prompt}': {e}")
@@ -340,23 +368,26 @@ def main():
             input_ids = functiongemma_tokenizer.encode(prompt_with_tools, return_tensors="np")
             input_ids_list = input_ids[0].tolist()
             print(f"Total tokens: {len(input_ids_list)}")
-            print(f"Last 20 tokens decoded:")
+            print("Last 20 tokens decoded:")
             for i, tid in enumerate(input_ids_list[-20:]):
                 tok = functiongemma_tokenizer.decode([tid])
                 print(f"  {i}: [{tid}] '{repr(tok)}'")
 
             func_result = analyze_prompt(
-                functiongemma_model, functiongemma_tokenizer, functiongemma_config,
-                prompt_with_tools, variant["name"]
+                functiongemma_model,
+                functiongemma_tokenizer,
+                functiongemma_config,
+                prompt_with_tools,
+                variant["name"],
             )
 
-            print(f"\nFinal predictions:")
+            print("\nFinal predictions:")
             for tok, prob in func_result["top_5"][:5]:
                 bar = "#" * int(prob * 40)
                 clean_tok = repr(tok) if tok.startswith("<") else f"'{tok}'"
                 print(f"  {prob:.4f} {bar} {clean_tok}")
 
-            print(f"\nLayer evolution:")
+            print("\nLayer evolution:")
             for layer, tok, prob in func_result["layer_predictions"]:
                 clean_tok = repr(tok) if tok.startswith("<") else tok
                 print(f"  Layer {layer:2d}: {clean_tok} ({prob:.4f})")

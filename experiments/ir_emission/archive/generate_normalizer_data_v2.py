@@ -404,7 +404,7 @@ def main():
         type_counts[t] = type_counts.get(t, 0) + 1
     print("\nTemplate distribution:")
     for t, c in sorted(type_counts.items()):
-        print(f"  {t}: {c} ({100*c/len(train_samples):.1f}%)")
+        print(f"  {t}: {c} ({100 * c / len(train_samples):.1f}%)")
 
     # Show examples
     print("\nExamples:")

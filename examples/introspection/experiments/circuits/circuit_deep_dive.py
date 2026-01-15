@@ -11,22 +11,23 @@ Run: uv run python examples/introspection/circuit_deep_dive.py
 """
 
 import json
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
-from sklearn.linear_model import LogisticRegression
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 @dataclass
 class NeuronAnalysis:
     """Deep analysis of a single neuron."""
+
     layer: int
     neuron_idx: int
     mean_tool: float
@@ -57,7 +58,7 @@ class CircuitDeepDive:
         self.final_norm = self.model.model.norm
         self.lm_head = self.model.lm_head
         self.hidden_size = self.model.model.hidden_size
-        self.embed_scale = self.hidden_size ** 0.5
+        self.embed_scale = self.hidden_size**0.5
         self.num_layers = len(self.layers)
 
         print(f"  Layers: {self.num_layers}, Hidden: {self.hidden_size}")
@@ -100,10 +101,7 @@ class CircuitDeepDive:
             "Describe the solar system",
         ]
 
-        return (
-            [(p, True) for p in tool_prompts],
-            [(p, False) for p in no_tool_prompts]
-        )
+        return ([(p, True) for p in tool_prompts], [(p, False) for p in no_tool_prompts])
 
     def get_mlp_activations(self, tokens: list[int], layer: int) -> mx.array:
         """Get MLP intermediate activations at a layer."""
@@ -132,7 +130,7 @@ class CircuitDeepDive:
         # Now at target layer
         target_layer = self.layers[layer]
 
-        if hasattr(target_layer, 'input_layernorm'):
+        if hasattr(target_layer, "input_layernorm"):
             normed = target_layer.input_layernorm(h)
         else:
             normed = h
@@ -142,13 +140,13 @@ class CircuitDeepDive:
             attn_out = attn_out[0]
         h = h + attn_out
 
-        if hasattr(target_layer, 'post_attention_layernorm'):
+        if hasattr(target_layer, "post_attention_layernorm"):
             mlp_input = target_layer.post_attention_layernorm(h)
         else:
             mlp_input = h
 
         mlp = target_layer.mlp
-        if hasattr(mlp, 'gate_proj'):
+        if hasattr(mlp, "gate_proj"):
             gate = mlp.gate_proj(mlp_input)
             up = mlp.up_proj(mlp_input)
             mlp_hidden = nn.gelu(gate) * up
@@ -213,29 +211,35 @@ class CircuitDeepDive:
                 no_tool_activations.append(act_val)
 
         # Statistics
-        print(f"\n  Activation Statistics:")
-        print(f"    Tool prompts:    mean={np.mean(tool_activations):+.1f}, std={np.std(tool_activations):.1f}")
-        print(f"    No-tool prompts: mean={np.mean(no_tool_activations):+.1f}, std={np.std(no_tool_activations):.1f}")
-        print(f"    Separation: {abs(np.mean(tool_activations) - np.mean(no_tool_activations)) / np.std(tool_activations + no_tool_activations):.2f}σ")
+        print("\n  Activation Statistics:")
+        print(
+            f"    Tool prompts:    mean={np.mean(tool_activations):+.1f}, std={np.std(tool_activations):.1f}"
+        )
+        print(
+            f"    No-tool prompts: mean={np.mean(no_tool_activations):+.1f}, std={np.std(no_tool_activations):.1f}"
+        )
+        print(
+            f"    Separation: {abs(np.mean(tool_activations) - np.mean(no_tool_activations)) / np.std(tool_activations + no_tool_activations):.2f}σ"
+        )
 
         # Top/bottom activating prompts
         all_prompts_activations.sort(key=lambda x: x[2])
 
-        print(f"\n  Top activating prompts (HIGHEST activation):")
+        print("\n  Top activating prompts (HIGHEST activation):")
         for prompt, label, act, _ in all_prompts_activations[-5:]:
             label_str = "TOOL" if label else "NO_TOOL"
             print(f"    [{label_str}] {act:+.1f}: {prompt[:50]}")
 
-        print(f"\n  Bottom activating prompts (LOWEST activation):")
+        print("\n  Bottom activating prompts (LOWEST activation):")
         for prompt, label, act, _ in all_prompts_activations[:5]:
             label_str = "TOOL" if label else "NO_TOOL"
             print(f"    [{label_str}] {act:+.1f}: {prompt[:50]}")
 
         # Analyze input weights
-        print(f"\n  Input Weight Analysis:")
+        print("\n  Input Weight Analysis:")
         mlp = self.layers[layer].mlp
 
-        if hasattr(mlp, 'gate_proj'):
+        if hasattr(mlp, "gate_proj"):
             gate_weights = np.array(mlp.gate_proj.weight[neuron_idx, :].tolist())
             up_weights = np.array(mlp.up_proj.weight[neuron_idx, :].tolist())
 
@@ -248,21 +252,21 @@ class CircuitDeepDive:
             print(f"    Up proj top dims: {up_top.tolist()}")
 
         # Output weight analysis
-        print(f"\n  Output Weight Analysis:")
-        if hasattr(mlp, 'down_proj'):
+        print("\n  Output Weight Analysis:")
+        if hasattr(mlp, "down_proj"):
             down_weights = np.array(mlp.down_proj.weight[:, neuron_idx].tolist())
             down_top = np.argsort(np.abs(down_weights))[-10:][::-1]
             print(f"    Down proj top dims: {down_top.tolist()}")
             print(f"    Down proj top weights: {down_weights[down_top].tolist()[:5]}")
 
         # Hypothesis: What does this neuron detect?
-        print(f"\n  Interpretation:")
+        print("\n  Interpretation:")
         if np.mean(tool_activations) > np.mean(no_tool_activations):
-            print(f"    Neuron 230 fires HIGH for TOOL prompts")
-            print(f"    It's a TOOL DETECTOR / AMPLIFIER")
+            print("    Neuron 230 fires HIGH for TOOL prompts")
+            print("    It's a TOOL DETECTOR / AMPLIFIER")
         else:
-            print(f"    Neuron 230 fires HIGH for NO-TOOL prompts")
-            print(f"    It's a NO-TOOL DETECTOR / SUPPRESSOR")
+            print("    Neuron 230 fires HIGH for NO-TOOL prompts")
+            print("    It's a NO-TOOL DETECTOR / SUPPRESSOR")
 
         return all_prompts_activations
 
@@ -304,10 +308,10 @@ class CircuitDeepDive:
             direction = direction / (np.linalg.norm(direction) + 1e-8)
 
             layer_representations[layer] = {
-                'tool_mean': tool_mean,
-                'no_tool_mean': no_tool_mean,
-                'direction': direction,
-                'separation': np.linalg.norm(tool_mean - no_tool_mean),
+                "tool_mean": tool_mean,
+                "no_tool_mean": no_tool_mean,
+                "direction": direction,
+                "separation": np.linalg.norm(tool_mean - no_tool_mean),
             }
 
             print(f"\n  Layer {layer}:")
@@ -322,19 +326,19 @@ class CircuitDeepDive:
             print(f"    Probe accuracy: {acc:.1%}")
 
         # Direction consistency across layers
-        print(f"\n  Direction Consistency (cosine similarity):")
+        print("\n  Direction Consistency (cosine similarity):")
         for l1 in [0, 1, 3, 5]:
             for l2 in [l1 + 1, l1 + 2]:
                 if l2 <= 5:
-                    d1 = layer_representations[l1]['direction']
-                    d2 = layer_representations[l2]['direction']
+                    d1 = layer_representations[l1]["direction"]
+                    d2 = layer_representations[l2]["direction"]
                     cos = np.dot(d1, d2)
                     print(f"    L{l1} → L{l2}: {cos:.3f}")
 
         # Find the most important dimensions
-        print(f"\n  Key Dimensions (highest in tool direction):")
+        print("\n  Key Dimensions (highest in tool direction):")
         for layer in [0, 5]:
-            direction = layer_representations[layer]['direction']
+            direction = layer_representations[layer]["direction"]
             top_dims = np.argsort(np.abs(direction))[-10:][::-1]
             print(f"    L{layer}: dims {top_dims.tolist()}")
 
@@ -378,16 +382,16 @@ class CircuitDeepDive:
         steering_magnitude = np.linalg.norm(steering_direction)
         steering_direction_normalized = steering_direction / (steering_magnitude + 1e-8)
 
-        print(f"\n  Steering Vector:")
+        print("\n  Steering Vector:")
         print(f"    Magnitude: {steering_magnitude:.1f}")
         print(f"    Non-zero dims: {np.sum(np.abs(steering_direction) > 1)}")
 
         # Top neurons in steering direction
         top_neurons = np.argsort(np.abs(steering_direction))[-20:][::-1]
-        print(f"\n  Top neurons in steering direction:")
+        print("\n  Top neurons in steering direction:")
         for i, neuron in enumerate(top_neurons[:10]):
             val = steering_direction[neuron]
-            print(f"    {i+1}. Neuron {neuron}: {val:+.1f}")
+            print(f"    {i + 1}. Neuron {neuron}: {val:+.1f}")
 
         # Verify these match our known control neurons
         known_control = [1237, 551, 1069, 821, 1710]
@@ -397,7 +401,7 @@ class CircuitDeepDive:
         print(f"    Found in top 20: {list(overlap)}")
 
         # PCA analysis
-        print(f"\n  PCA Analysis:")
+        print("\n  PCA Analysis:")
         all_acts = np.vstack([tool_acts, no_tool_acts])
         pca = PCA(n_components=10)
         pca.fit(all_acts)
@@ -408,14 +412,14 @@ class CircuitDeepDive:
         for i in range(5):
             pc = pca.components_[i]
             projection = np.dot(steering_direction_normalized, pc)
-            print(f"    Steering direction on PC{i+1}: {abs(projection):.3f}")
+            print(f"    Steering direction on PC{i + 1}: {abs(projection):.3f}")
 
         # Save steering direction for later use
         steering_data = {
-            'layer': layer,
-            'direction': steering_direction.tolist(),
-            'magnitude': float(steering_magnitude),
-            'top_neurons': top_neurons.tolist(),
+            "layer": layer,
+            "direction": steering_direction.tolist(),
+            "magnitude": float(steering_magnitude),
+            "top_neurons": top_neurons.tolist(),
         }
 
         return steering_data
@@ -426,13 +430,13 @@ class CircuitDeepDive:
         print("STEERING VERIFICATION")
         print("=" * 60)
 
-        layer = steering_data['layer']
-        direction = np.array(steering_data['direction'])
+        layer = steering_data["layer"]
+        direction = np.array(steering_data["direction"])
 
         # Test: Add steering direction to no-tool prompts
         # Check if representation moves toward tool cluster
 
-        print(f"\n  Testing: Add steering to no-tool prompts")
+        print("\n  Testing: Add steering to no-tool prompts")
 
         for prompt, _ in no_tool_prompts[:5]:
             tokens = self.tokenizer.encode(prompt)
@@ -444,13 +448,20 @@ class CircuitDeepDive:
 
             # Add steering
             scales = [0.0, 0.5, 1.0, 2.0]
-            tool_mean = np.mean([
-                np.array(self.get_mlp_activations(
-                    self.tokenizer.encode(p).flatten().tolist() if isinstance(self.tokenizer.encode(p), np.ndarray) else self.tokenizer.encode(p),
-                    layer
-                )[0][0, -1, :].tolist())
-                for p, l in tool_prompts[:5]
-            ], axis=0)
+            tool_mean = np.mean(
+                [
+                    np.array(
+                        self.get_mlp_activations(
+                            self.tokenizer.encode(p).flatten().tolist()
+                            if isinstance(self.tokenizer.encode(p), np.ndarray)
+                            else self.tokenizer.encode(p),
+                            layer,
+                        )[0][0, -1, :].tolist()
+                    )
+                    for p, l in tool_prompts[:5]
+                ],
+                axis=0,
+            )
 
             print(f"\n    Prompt: {prompt[:40]}...")
             for scale in scales:
@@ -508,14 +519,14 @@ PRACTICAL APPLICATIONS:
 
         # Save results
         results = {
-            'kill_switch': {'layer': 12, 'neuron': 230},
-            'control_point': {
-                'layer': 11,
-                'top_neurons': steering_data['top_neurons'][:10],
+            "kill_switch": {"layer": 12, "neuron": 230},
+            "control_point": {
+                "layer": 11,
+                "top_neurons": steering_data["top_neurons"][:10],
             },
-            'compute_zone': {
-                'layers': [0, 1, 3, 5],
-                'separations': {l: float(layer_reps[l]['separation']) for l in [0, 1, 3, 5]},
+            "compute_zone": {
+                "layers": [0, 1, 3, 5],
+                "separations": {l: float(layer_reps[l]["separation"]) for l in [0, 1, 3, 5]},
             },
         }
 

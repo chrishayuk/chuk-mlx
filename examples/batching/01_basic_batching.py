@@ -173,10 +173,7 @@ async def main():
         batches_run2 = [b async for b in sampler.iter_epoch(epoch=0)]
 
         if len(batches) == len(batches_run2):
-            all_match = all(
-                b1.sample_ids == b2.sample_ids
-                for b1, b2 in zip(batches, batches_run2)
-            )
+            all_match = all(b1.sample_ids == b2.sample_ids for b1, b2 in zip(batches, batches_run2))
             if all_match:
                 print("   ✓ Same epoch produces identical batches")
             else:

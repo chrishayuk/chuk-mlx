@@ -38,13 +38,15 @@ def main():
     parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--lora-rank", type=int, default=32)
-    parser.add_argument("--checkpoint-dir", default="experiments/ir_emission/checkpoints/classifier_varied")
+    parser.add_argument(
+        "--checkpoint-dir", default="experiments/ir_emission/checkpoints/classifier_varied"
+    )
     args = parser.parse_args()
 
     # Load model
     logger.info(f"Loading model: {args.model}")
-    from chuk_lazarus.models_v2.loader import load_model
     from chuk_lazarus.models_v2.adapters.lora import LoRAConfig, apply_lora
+    from chuk_lazarus.models_v2.loader import load_model
 
     result = load_model(args.model)
     model = result.model
@@ -71,10 +73,10 @@ def main():
 
     # Classifier token IDs - the tokens we want to emerge
     classifier_tokens = {
-        "add": 788,         # "add" token
-        "sub": 23197,       # "subtract" token
-        "mul": 22932,       # "multiply" token
-        "div": 16429,       # "divide" token
+        "add": 788,  # "add" token
+        "sub": 23197,  # "subtract" token
+        "mul": 22932,  # "multiply" token
+        "div": 16429,  # "divide" token
     }
 
     # Load data - use nl_input not canonical_output
@@ -163,8 +165,8 @@ def main():
     checkpoint_dir = Path(args.checkpoint_dir)
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-    from safetensors.numpy import save_file
     import numpy as np
+    from safetensors.numpy import save_file
 
     lora_weights = {}
     for name, param in nn.utils.tree_flatten(model.trainable_parameters()):
@@ -218,7 +220,7 @@ def main():
             correct += 1
         logger.info(f"  {prompt[:50]:50} → {best_class:10} ({best_prob:.1%}) [{status}]")
 
-    logger.info(f"\nAccuracy: {correct}/{len(test_cases)} = {100*correct/len(test_cases):.1f}%")
+    logger.info(f"\nAccuracy: {correct}/{len(test_cases)} = {100 * correct / len(test_cases):.1f}%")
 
 
 if __name__ == "__main__":

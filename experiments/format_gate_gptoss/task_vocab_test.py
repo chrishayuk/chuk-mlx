@@ -7,13 +7,12 @@ not operation tokens (multiply, add).
 IMPORTANT: Applies layer normalization before vocab projection (standard logit lens).
 """
 
-import logging
 import json
-from pathlib import Path
+import logging
 from datetime import datetime
+from pathlib import Path
 
 import mlx.core as mx
-import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +28,6 @@ TEST_PROMPTS = {
         "0.35 * 6 = ",
         "2 ^ 10 = ",
     ],
-
     # Synonym task - expect 'synonyms'
     "synonym": [
         "A synonym for happy is",
@@ -37,7 +35,6 @@ TEST_PROMPTS = {
         "A synonym for big is",
         "What is another word for angry?",
     ],
-
     # Antonym task - expect 'opposite'
     "antonym": [
         "The opposite of hot is",
@@ -45,7 +42,6 @@ TEST_PROMPTS = {
         "The opposite of fast is",
         "What is the antonym of happy?",
     ],
-
     # Sentiment - expect 'positive' or 'negative'
     "sentiment": [
         "This movie is great! Sentiment:",
@@ -53,7 +49,6 @@ TEST_PROMPTS = {
         "The food was amazing! Sentiment:",
         "Terrible service. Sentiment:",
     ],
-
     # General/default - expect 'responses'
     "general": [
         "Capital of France?",
@@ -62,7 +57,6 @@ TEST_PROMPTS = {
         "def add(a, b):",
         "x = 45 * 45",
     ],
-
     # Word problems (semantic math) - what does this get?
     "word_problem": [
         "Janet has 45 apples and buys 45 more. How many total?",
@@ -74,7 +68,15 @@ TEST_PROMPTS = {
 # Expected task tokens based on prior experiments
 # Note: Many tokens in LLM vocabs have a leading space - we check both variants
 TASK_TOKENS = {
-    "math_calculator": [" arithmetic", " integer", " sum", " subtract", " calculated", " decimal", " multiplied"],
+    "math_calculator": [
+        " arithmetic",
+        " integer",
+        " sum",
+        " subtract",
+        " calculated",
+        " decimal",
+        " multiplied",
+    ],
     "synonym": [" synonyms", " synonym"],
     "antonym": [" opposite", " antonym", " antonyms"],
     "sentiment": [" positive", " negative", " sentiment", " classification"],
@@ -102,7 +104,7 @@ def run_task_vocab_test():
 
     # Get final layer norm (CRITICAL for proper logit lens)
     final_norm = None
-    if hasattr(model, 'model') and hasattr(model.model, 'norm'):
+    if hasattr(model, "model") and hasattr(model.model, "norm"):
         final_norm = model.model.norm
         logger.info("Found final layer norm: model.model.norm")
     else:
@@ -120,11 +122,7 @@ def run_task_vocab_test():
 
     # Test at L13 (the reported vocab alignment layer)
     test_layer = 13
-    results = {
-        "model": "openai/gpt-oss-20b",
-        "layer": test_layer,
-        "tasks": {}
-    }
+    results = {"model": "openai/gpt-oss-20b", "layer": test_layer, "tasks": {}}
 
     print("\n" + "=" * 80)
     print(f"TASK-LEVEL VOCAB ALIGNMENT TEST (Layer {test_layer})")
@@ -145,7 +143,7 @@ def run_task_vocab_test():
             # Project to vocab using lm_head
             h_batched = h[None, None, :]  # Add batch and seq dims
             head_out = lm_head_module(h_batched)
-            if hasattr(head_out, 'logits'):
+            if hasattr(head_out, "logits"):
                 logits = head_out.logits[0, 0, :]
             else:
                 logits = head_out[0, 0, :]
@@ -214,6 +212,7 @@ def run_task_vocab_test():
 
         # Most common top token
         from collections import Counter
+
         most_common = Counter(all_top).most_common(3)
         print(f"  Most common top tokens: {most_common}")
 

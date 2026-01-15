@@ -19,10 +19,10 @@ from chuk_lazarus.experiments import ExperimentBase, ExperimentConfig
 
 # Import pipelines - use relative import from same package
 from .pipelines import (
+    LoopPipeline,
+    MultiOpPipeline,
     NeuralCompilerBase,
     SingleOpPipeline,
-    MultiOpPipeline,
-    LoopPipeline,
 )
 
 logger = logging.getLogger(__name__)
@@ -49,8 +49,7 @@ class IREmissionExperiment(ExperimentBase):
         # Load classifier model with LoRA using framework
         self.log("Loading classifier model with LoRA...")
         classifier_checkpoint = self.config.parameters.get(
-            "classifier_checkpoint",
-            "checkpoints/dual_reward/final"
+            "classifier_checkpoint", "checkpoints/dual_reward/final"
         )
         # Handle both directory and file path formats
         classifier_path = self.config.experiment_dir / classifier_checkpoint
@@ -72,17 +71,20 @@ class IREmissionExperiment(ExperimentBase):
         self.cls_model.freeze()
 
         # Classifier tokens
-        self.classifier_tokens = self.config.parameters.get("classifier_tokens", {
-            "add": 788,
-            "subtract": 23197,
-            "multiply": 22932,
-            "divide": 16429,
-        })
+        self.classifier_tokens = self.config.parameters.get(
+            "classifier_tokens",
+            {
+                "add": 788,
+                "subtract": 23197,
+                "multiply": 22932,
+                "divide": 16429,
+            },
+        )
 
         # Decision layer
         decision_pct = self.config.parameters.get("decision_layer_pct", 0.55)
         self.decision_layer = int(self.model_config.num_hidden_layers * decision_pct)
-        self.log(f"Decision layer: {self.decision_layer} ({decision_pct*100:.0f}% depth)")
+        self.log(f"Decision layer: {self.decision_layer} ({decision_pct * 100:.0f}% depth)")
 
         # Create compiler
         self.compiler = NeuralCompilerBase(
@@ -117,8 +119,10 @@ class IREmissionExperiment(ExperimentBase):
             result = pipeline.run(self.compiler)
             results[pipeline_name] = result.to_dict()
 
-            self.log(f"  {pipeline_name}: {result.passed}/{result.total_tests} "
-                     f"({result.accuracy*100:.1f}%)")
+            self.log(
+                f"  {pipeline_name}: {result.passed}/{result.total_tests} "
+                f"({result.accuracy * 100:.1f}%)"
+            )
 
         return results
 
@@ -160,8 +164,9 @@ class IREmissionExperiment(ExperimentBase):
 
 # For backwards compatibility with direct script execution
 if __name__ == "__main__":
-    import yaml
     from pathlib import Path
+
+    import yaml
 
     # Load config
     config_path = Path(__file__).parent / "config.yaml"
@@ -183,8 +188,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 60)
     print("EVALUATION RESULTS")
     print("=" * 60)
-    print(f"Overall Accuracy: {eval_results.get('overall_accuracy', 0)*100:.1f}%")
+    print(f"Overall Accuracy: {eval_results.get('overall_accuracy', 0) * 100:.1f}%")
     print(f"Tests: {eval_results.get('total_passed', 0)}/{eval_results.get('total_tests', 0)}")
 
     for name, acc in eval_results.get("pipeline_accuracies", {}).items():
-        print(f"  {name}: {acc*100:.1f}%")
+        print(f"  {name}: {acc * 100:.1f}%")

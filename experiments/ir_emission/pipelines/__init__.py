@@ -8,9 +8,9 @@ Each pipeline tests a specific capability of the neural compiler:
 """
 
 from .base import NeuralCompilerBase, PipelineResult
-from .single_op import SingleOpPipeline
-from .multi_op import MultiOpPipeline
 from .loop import LoopPipeline
+from .multi_op import MultiOpPipeline
+from .single_op import SingleOpPipeline
 
 __all__ = [
     "NeuralCompilerBase",

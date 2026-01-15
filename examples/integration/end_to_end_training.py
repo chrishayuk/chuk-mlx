@@ -161,7 +161,9 @@ def demo_classification_pipeline(data_dir: Path):
     # 7. Evaluate
     from chuk_lazarus.training import evaluate_classifier
 
-    results = evaluate_classifier(model, tokenizer, eval_dataset, label_names=["negative", "positive"])
+    results = evaluate_classifier(
+        model, tokenizer, eval_dataset, label_names=["negative", "positive"]
+    )
     print(f"\nEvaluation accuracy: {results['accuracy']:.2%}")
 
 

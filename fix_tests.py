@@ -10,7 +10,7 @@ with open(test_file) as f:
 # Replace all instances
 content = content.replace(
     'patch("chuk_lazarus.cli.commands.tokenizer.load_tokenizer"',
-    'patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer"'
+    'patch("chuk_lazarus.utils.tokenizer_loader.load_tokenizer"',
 )
 
 # Write it back

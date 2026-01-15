@@ -50,6 +50,7 @@ def auto_detect_answer(prompt: str) -> str | None:
 
     return None
 
+
 from chuk_lazarus.inference.loader import DType, HFLoader
 from chuk_lazarus.models_v2.families.registry import detect_model_family, get_family_info
 
@@ -57,6 +58,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class CircuitSummary:
     """Summary of computation circuit."""
+
     prompt: str
     answer: str
     model_id: str
@@ -64,8 +66,8 @@ class CircuitSummary:
 
     # Key findings
     computation_layer: int | None  # Where answer peaks
-    emergence_layer: int | None     # Where answer becomes #1
-    serialization_layer: int | None # Where first-token takes over
+    emergence_layer: int | None  # Where answer becomes #1
+    serialization_layer: int | None  # Where first-token takes over
 
     # Probabilities
     peak_probability: float
@@ -138,13 +140,32 @@ class CircuitAnalyzer:
 
         return cls(model, tokenizer, config, model_id)
 
-    def _get_layers(self): return list(self.model.model.layers) if hasattr(self.model, "model") else list(self.model.layers)
-    def _get_embed(self): return self.model.model.embed_tokens if hasattr(self.model, "model") else self.model.embed_tokens
-    def _get_norm(self): return getattr(self.model.model if hasattr(self.model, "model") else self.model, "norm", None)
+    def _get_layers(self):
+        return (
+            list(self.model.model.layers)
+            if hasattr(self.model, "model")
+            else list(self.model.layers)
+        )
+
+    def _get_embed(self):
+        return (
+            self.model.model.embed_tokens
+            if hasattr(self.model, "model")
+            else self.model.embed_tokens
+        )
+
+    def _get_norm(self):
+        return getattr(
+            self.model.model if hasattr(self.model, "model") else self.model, "norm", None
+        )
+
     def _get_head(self):
-        if hasattr(self.model, "lm_head"): return self.model.lm_head
+        if hasattr(self.model, "lm_head"):
+            return self.model.lm_head
         return self._get_embed().as_linear if hasattr(self._get_embed(), "as_linear") else None
-    def _get_scale(self): return getattr(self.config, "embedding_scale", None)
+
+    def _get_scale(self):
+        return getattr(self.config, "embedding_scale", None)
 
     def analyze(self, prompt: str, answer: str) -> CircuitSummary:
         """Run full circuit analysis."""
@@ -167,7 +188,8 @@ class CircuitAnalyzer:
         num_layers = len(layers)
 
         h = embed(input_ids)
-        if scale: h = h * scale
+        if scale:
+            h = h * scale
 
         seq_len = input_ids.shape[1]
         mask = nn.MultiHeadAttention.create_additive_causal_mask(seq_len).astype(h.dtype)
@@ -184,12 +206,17 @@ class CircuitAnalyzer:
             except TypeError:
                 out = layer(h)
 
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Project to logits
             h_n = norm(h) if norm else h
             logits = head(h_n)
-            if hasattr(logits, "logits"): logits = logits.logits
+            if hasattr(logits, "logits"):
+                logits = logits.logits
 
             probs = mx.softmax(logits[0, -1, :])
             top_idx = int(mx.argmax(probs))
@@ -197,7 +224,9 @@ class CircuitAnalyzer:
 
             answer_prob = float(probs[answer_id]) if answer_id else 0.0
             sorted_idx = mx.argsort(probs)[::-1][:100].tolist()
-            answer_rank = sorted_idx.index(answer_id) + 1 if answer_id and answer_id in sorted_idx else None
+            answer_rank = (
+                sorted_idx.index(answer_id) + 1 if answer_id and answer_id in sorted_idx else None
+            )
 
             trajectory.append((layer_idx, top_token, answer_prob, answer_rank))
 
@@ -222,7 +251,9 @@ class CircuitAnalyzer:
         correct = answer.strip() in final_pred or (answer_rank == 1 if answer_rank else False)
 
         # Classify
-        comp_type = classify_computation(num_layers, emergence_layer, peak_layer, serialization_layer, peak_prob)
+        comp_type = classify_computation(
+            num_layers, emergence_layer, peak_layer, serialization_layer, peak_prob
+        )
 
         return CircuitSummary(
             prompt=prompt,
@@ -243,36 +274,40 @@ class CircuitAnalyzer:
 
 def print_summary(s: CircuitSummary):
     """Print circuit summary."""
-    print(f"\n{'═'*70}")
+    print(f"\n{'═' * 70}")
     print("⚡ CIRCUIT ANALYSIS SUMMARY")
-    print(f"{'═'*70}")
+    print(f"{'═' * 70}")
     print(f"Prompt: {repr(s.prompt)}")
     print(f"Expected: {repr(s.answer)}")
     print(f"Model: {s.model_id} ({s.num_layers} layers)")
-    print(f"{'─'*70}")
+    print(f"{'─' * 70}")
 
     # Key layers
     print("\n📍 KEY LAYERS:")
     if s.computation_layer is not None:
-        print(f"   Computation peak:  Layer {s.computation_layer} ({s.peak_probability:.1%} probability)")
+        print(
+            f"   Computation peak:  Layer {s.computation_layer} ({s.peak_probability:.1%} probability)"
+        )
     else:
-        print(f"   Computation peak:  Not found (answer probability < 1%)")
+        print("   Computation peak:  Not found (answer probability < 1%)")
 
     if s.emergence_layer is not None:
         print(f"   Answer emerges:    Layer {s.emergence_layer} (becomes #1 prediction)")
     else:
-        print(f"   Answer emerges:    Never (doesn't become #1)")
+        print("   Answer emerges:    Never (doesn't become #1)")
 
     if s.serialization_layer is not None:
         print(f"   Serialization:     Layer {s.serialization_layer} (switches to first token)")
 
     # Result
-    print(f"\n📊 RESULT:")
-    print(f"   Final prediction: {repr(s.final_prediction)} ({'✅ CORRECT' if s.correct else '❌ WRONG'})")
+    print("\n📊 RESULT:")
+    print(
+        f"   Final prediction: {repr(s.final_prediction)} ({'✅ CORRECT' if s.correct else '❌ WRONG'})"
+    )
     print(f"   Computation type: {s.computation_type}")
 
     # Interpretation
-    print(f"\n💡 INTERPRETATION:")
+    print("\n💡 INTERPRETATION:")
     if s.computation_type == "HOLISTIC_THEN_SERIAL":
         print("   The model computes the FULL answer holistically, then")
         print("   serializes it to output one token at a time.")
@@ -293,9 +328,9 @@ def print_summary(s: CircuitSummary):
         print("   Computation distributed across layers")
 
     # Mini visualization
-    print(f"\n📈 TRAJECTORY (every 4 layers):")
+    print("\n📈 TRAJECTORY (every 4 layers):")
     print(f"   {'Layer':<6} {'Top Token':<12} {'Answer Prob':<12} {'Rank'}")
-    print(f"   {'─'*45}")
+    print(f"   {'─' * 45}")
     for layer, top, prob, rank in s.trajectory[::4]:
         rank_str = f"#{rank}" if rank else ">100"
         bar = "█" * int(prob * 20)
@@ -303,7 +338,7 @@ def print_summary(s: CircuitSummary):
     # Always show final
     layer, top, prob, rank = s.trajectory[-1]
     rank_str = f"#{rank}" if rank else ">100"
-    print(f"   L{layer:<4} {repr(top):<12} {prob:.3f} {'█'*int(prob*20):<8} {rank_str}")
+    print(f"   L{layer:<4} {repr(top):<12} {prob:.3f} {'█' * int(prob * 20):<8} {rank_str}")
 
 
 async def main(model_id: str, prompt: str, answer: str):
@@ -321,8 +356,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", "-m", default="mlx-community/gemma-3-4b-it-bf16")
     parser.add_argument("--prompt", "-p", default="347 * 892 = ")
-    parser.add_argument("--answer", "-a", default=None,
-                        help="Expected answer token. Auto-detected for arithmetic if not specified.")
+    parser.add_argument(
+        "--answer",
+        "-a",
+        default=None,
+        help="Expected answer token. Auto-detected for arithmetic if not specified.",
+    )
     args = parser.parse_args()
 
     # Auto-detect answer for arithmetic

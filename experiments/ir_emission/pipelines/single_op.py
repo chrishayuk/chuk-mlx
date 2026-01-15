@@ -26,13 +26,11 @@ class SingleOpPipeline(BasePipeline):
             ("Subtract 49 from 69", 20),
             ("Multiply 7 by 8", 56),
             ("Divide 48 by 6", 8),
-
             # Varied phrasing
             ("The sum of 25 and 17 is", 42),
             ("The difference of 100 and 37 is", 63),
             ("What is 12 times 9?", 108),
             ("What is 144 divided by 12?", 12),
-
             # Word problems
             ("Janet has 50 apples. She gives away 15. How many remain?", 35),
             ("Each box holds 8 items. How many in 7 boxes?", 56),

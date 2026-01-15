@@ -83,7 +83,9 @@ def main():
     mx.eval(output_with_loss.loss)
 
     print(f"   Loss: {float(output_with_loss.loss):.4f}")
-    print(f"   (Cross-entropy on random labels, expected ~log({config.vocab_size}) = {mx.log(mx.array(config.vocab_size)).item():.2f})")
+    print(
+        f"   (Cross-entropy on random labels, expected ~log({config.vocab_size}) = {mx.log(mx.array(config.vocab_size)).item():.2f})"
+    )
 
     # Generate next token prediction
     print("\n6. Next token prediction...")

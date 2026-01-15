@@ -21,9 +21,9 @@ Usage:
 
 import argparse
 import json
-from dataclasses import dataclass, field
-from pathlib import Path
 from collections import defaultdict
+from dataclasses import dataclass
+from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -36,6 +36,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class LayerContribution:
     """What a single layer contributes."""
+
     layer_idx: int
 
     # Logit lens: what does this layer predict?
@@ -56,6 +57,7 @@ class LayerContribution:
 @dataclass
 class LayerProfile:
     """Aggregate profile of a layer across many prompts."""
+
     layer_idx: int
 
     # Average contributions
@@ -126,7 +128,7 @@ class GemmaLayerAnalyzer:
         # Embedding scale (critical for Gemma)
         embed_scale = getattr(self.config, "embedding_scale", None)
         if embed_scale is None:
-            embed_scale = float(self.hidden_size ** 0.5)
+            embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -188,7 +190,7 @@ class GemmaLayerAnalyzer:
             # Attention contribution
             h_after_attn = h + attn_out
             attn_contribution = attn_out[0, -1, :]
-            attn_norm = float(mx.sqrt(mx.sum(attn_contribution ** 2)))
+            attn_norm = float(mx.sqrt(mx.sum(attn_contribution**2)))
 
             # === Run MLP ===
             if hasattr(layer, "post_attention_layernorm"):
@@ -202,11 +204,11 @@ class GemmaLayerAnalyzer:
             # MLP contribution
             h = h_after_attn + mlp_out
             mlp_contribution = mlp_out[0, -1, :]
-            mlp_norm = float(mx.sqrt(mx.sum(mlp_contribution ** 2)))
+            mlp_norm = float(mx.sqrt(mx.sum(mlp_contribution**2)))
 
             # Residual change
             residual_change = h[0, -1, :] - h_before[0, -1, :]
-            residual_norm = float(mx.sqrt(mx.sum(residual_change ** 2)))
+            residual_norm = float(mx.sqrt(mx.sum(residual_change**2)))
 
             # === Logit lens ===
             h_probe = h
@@ -239,17 +241,19 @@ class GemmaLayerAnalyzer:
             h_current = np.array(h[0, -1, :].tolist())
             sim = np.dot(h_current, h_final) / (np.linalg.norm(h_current) * np.linalg.norm(h_final))
 
-            results.append(LayerContribution(
-                layer_idx=layer_idx,
-                top_prediction=top_token,
-                top_probability=top_prob,
-                target_probability=target_prob,
-                target_rank=target_rank,
-                residual_norm=residual_norm,
-                attention_norm=attn_norm,
-                mlp_norm=mlp_norm,
-                similarity_to_final=float(sim),
-            ))
+            results.append(
+                LayerContribution(
+                    layer_idx=layer_idx,
+                    top_prediction=top_token,
+                    top_probability=top_prob,
+                    target_probability=target_prob,
+                    target_rank=target_rank,
+                    residual_norm=residual_norm,
+                    attention_norm=attn_norm,
+                    mlp_norm=mlp_norm,
+                    similarity_to_final=float(sim),
+                )
+            )
 
         return results
 
@@ -289,13 +293,15 @@ class GemmaLayerAnalyzer:
         print(f"\nProfiling {self.num_layers} layers across {len(prompts)} prompts...")
 
         # Collect per-layer stats
-        layer_stats = defaultdict(lambda: {
-            "residual_norms": [],
-            "attention_norms": [],
-            "mlp_norms": [],
-            "target_probs": [],
-            "is_top1": [],
-        })
+        layer_stats = defaultdict(
+            lambda: {
+                "residual_norms": [],
+                "attention_norms": [],
+                "mlp_norms": [],
+                "target_probs": [],
+                "is_top1": [],
+            }
+        )
 
         for prompt, target in prompts:
             contributions = self.analyze_prompt(prompt, target)
@@ -348,17 +354,19 @@ class GemmaLayerAnalyzer:
             else:
                 specialization = "balanced"
 
-            profiles.append(LayerProfile(
-                layer_idx=layer_idx,
-                avg_residual_change=avg_residual,
-                avg_attention_contribution=avg_attention,
-                avg_mlp_contribution=avg_mlp,
-                attention_mlp_ratio=ratio,
-                avg_target_probability=avg_target_prob,
-                emergence_rate=emergence_rate,
-                role=role,
-                specialization=specialization,
-            ))
+            profiles.append(
+                LayerProfile(
+                    layer_idx=layer_idx,
+                    avg_residual_change=avg_residual,
+                    avg_attention_contribution=avg_attention,
+                    avg_mlp_contribution=avg_mlp,
+                    attention_mlp_ratio=ratio,
+                    avg_target_probability=avg_target_prob,
+                    emergence_rate=emergence_rate,
+                    role=role,
+                    specialization=specialization,
+                )
+            )
 
         return profiles
 
@@ -369,11 +377,13 @@ class GemmaLayerAnalyzer:
         target: str,
     ):
         """Pretty print layer analysis."""
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"LAYER ANALYSIS: {repr(prompt)} -> {repr(target)}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
-        print(f"\n{'Layer':<8} {'Prediction':<15} {'Prob':>8} {'Target':>8} {'Rank':>6} {'Attn':>10} {'MLP':>10} {'Ratio':>8}")
+        print(
+            f"\n{'Layer':<8} {'Prediction':<15} {'Prob':>8} {'Target':>8} {'Rank':>6} {'Attn':>10} {'MLP':>10} {'Ratio':>8}"
+        )
         print("-" * 90)
 
         for c in contributions:
@@ -385,22 +395,32 @@ class GemmaLayerAnalyzer:
             marker = ""
             if c.target_rank == 1:
                 marker = " <-- EMERGES"
-            elif c.target_probability > 0.1 and (not contributions[c.layer_idx-1].target_probability > 0.1 if c.layer_idx > 0 else True):
+            elif c.target_probability > 0.1 and (
+                not contributions[c.layer_idx - 1].target_probability > 0.1
+                if c.layer_idx > 0
+                else True
+            ):
                 marker = " <-- RISING"
 
-            print(f"L{c.layer_idx:<6} {pred_display:<15} {c.top_probability:>8.3f} {c.target_probability:>8.3f} {rank_display:>6} {c.attention_norm:>10.1f} {c.mlp_norm:>10.1f} {ratio:>8.2f}{marker}")
+            print(
+                f"L{c.layer_idx:<6} {pred_display:<15} {c.top_probability:>8.3f} {c.target_probability:>8.3f} {rank_display:>6} {c.attention_norm:>10.1f} {c.mlp_norm:>10.1f} {ratio:>8.2f}{marker}"
+            )
 
     def print_profiles(self, profiles: list[LayerProfile]):
         """Pretty print layer profiles."""
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print("LAYER PROFILES (aggregated across all prompts)")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
-        print(f"\n{'Layer':<8} {'Role':<12} {'Spec':<16} {'Attn':>10} {'MLP':>10} {'Ratio':>8} {'TargetP':>10} {'Emerge':>8}")
+        print(
+            f"\n{'Layer':<8} {'Role':<12} {'Spec':<16} {'Attn':>10} {'MLP':>10} {'Ratio':>8} {'TargetP':>10} {'Emerge':>8}"
+        )
         print("-" * 100)
 
         for p in profiles:
-            print(f"L{p.layer_idx:<6} {p.role:<12} {p.specialization:<16} {p.avg_attention_contribution:>10.1f} {p.avg_mlp_contribution:>10.1f} {p.attention_mlp_ratio:>8.2f} {p.avg_target_probability:>10.3f} {p.emergence_rate:>8.1%}")
+            print(
+                f"L{p.layer_idx:<6} {p.role:<12} {p.specialization:<16} {p.avg_attention_contribution:>10.1f} {p.avg_mlp_contribution:>10.1f} {p.attention_mlp_ratio:>8.2f} {p.avg_target_probability:>10.3f} {p.emergence_rate:>8.1%}"
+            )
 
     def find_phase_transitions(self, profiles: list[LayerProfile]) -> dict:
         """Identify phase transitions in the network."""
@@ -412,7 +432,7 @@ class GemmaLayerAnalyzer:
 
         # Find attention->MLP transition
         for i, p in enumerate(profiles):
-            if i > 0 and profiles[i-1].attention_mlp_ratio < 1.0 and p.attention_mlp_ratio >= 1.0:
+            if i > 0 and profiles[i - 1].attention_mlp_ratio < 1.0 and p.attention_mlp_ratio >= 1.0:
                 transitions["attention_to_mlp"] = p.layer_idx
                 break
 
@@ -424,7 +444,7 @@ class GemmaLayerAnalyzer:
 
         # Find stabilization (where emergence rate plateaus)
         for i in range(len(profiles) - 3):
-            rates = [profiles[i+j].emergence_rate for j in range(4)]
+            rates = [profiles[i + j].emergence_rate for j in range(4)]
             if all(r > 0.8 for r in rates):
                 transitions["stabilization_layer"] = profiles[i].layer_idx
                 break
@@ -489,9 +509,9 @@ class GemmaLayerAnalyzer:
         # Phase transitions
         transitions = self.find_phase_transitions(profiles)
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print("PHASE TRANSITIONS")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         for name, layer in transitions.items():
             if layer is not None:
@@ -500,9 +520,9 @@ class GemmaLayerAnalyzer:
                 print(f"  {name}: Not detected")
 
         # Layer role summary
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print("LAYER ROLE SUMMARY")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         # Group by specialization
         attn_heavy = [p for p in profiles if p.specialization == "attention-heavy"]
@@ -519,9 +539,9 @@ class GemmaLayerAnalyzer:
         print(f"  Layers: {[p.layer_idx for p in balanced]}")
 
         # Interpretation
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print("INTERPRETATION")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         print("""
 Based on the analysis:

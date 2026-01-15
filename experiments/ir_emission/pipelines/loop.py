@@ -16,20 +16,21 @@ Expected accuracy: 100%
 """
 
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
-import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from codebook import encode_i32_const
 from wasm_runtime import WASMRuntime
 
-from .base import BasePipeline, PipelineResult, NeuralCompilerBase
+from .base import BasePipeline, NeuralCompilerBase, PipelineResult
 
 
 @dataclass
 class LoopIntent:
     """Parsed loop intent from natural language."""
+
     loop_type: str  # "sum", "product", "count"
     start: int
     end: int
@@ -51,12 +52,10 @@ class LoopPipeline(BasePipeline):
             ("Sum 1 to 100", 5050),
             ("Add numbers from 5 to 15", 110),
             ("Sum from 1 to 5", 15),
-
             # Product loops (factorial-like)
-            ("Multiply 1 to 5", 120),      # 5! = 120
-            ("Product of 1 to 6", 720),    # 6! = 720
+            ("Multiply 1 to 5", 120),  # 5! = 120
+            ("Product of 1 to 6", 720),  # 6! = 720
             ("Multiply numbers from 2 to 4", 24),  # 2*3*4 = 24
-
             # Count loops
             ("Count down from 10", 0),
             ("Count from 5 to 0", 0),
@@ -119,32 +118,42 @@ class LoopPipeline(BasePipeline):
 
         # Initialize: acc = 0 (local 0), counter = start (local 1)
         body.extend(encode_i32_const(0))
-        body.append(0x21); body.append(0x00)  # local.set 0 (acc)
+        body.append(0x21)
+        body.append(0x00)  # local.set 0 (acc)
         body.extend(encode_i32_const(start))
-        body.append(0x21); body.append(0x01)  # local.set 1 (counter)
+        body.append(0x21)
+        body.append(0x01)  # local.set 1 (counter)
 
         # Loop block
-        body.append(0x03); body.append(0x40)  # loop void
+        body.append(0x03)
+        body.append(0x40)  # loop void
 
         # acc += counter
-        body.append(0x20); body.append(0x00)  # local.get 0 (acc)
-        body.append(0x20); body.append(0x01)  # local.get 1 (counter)
-        body.append(0x6a)                      # i32.add
-        body.append(0x21); body.append(0x00)  # local.set 0 (acc)
+        body.append(0x20)
+        body.append(0x00)  # local.get 0 (acc)
+        body.append(0x20)
+        body.append(0x01)  # local.get 1 (counter)
+        body.append(0x6A)  # i32.add
+        body.append(0x21)
+        body.append(0x00)  # local.set 0 (acc)
 
         # counter++
-        body.append(0x20); body.append(0x01)  # local.get 1 (counter)
+        body.append(0x20)
+        body.append(0x01)  # local.get 1 (counter)
         body.extend(encode_i32_const(1))
-        body.append(0x6a)                      # i32.add
-        body.append(0x22); body.append(0x01)  # local.tee 1 (counter)
+        body.append(0x6A)  # i32.add
+        body.append(0x22)
+        body.append(0x01)  # local.tee 1 (counter)
 
         # if counter <= end: branch back
         body.extend(encode_i32_const(end))
-        body.append(0x4c)                      # i32.le_s
-        body.append(0x0d); body.append(0x00)  # br_if 0
+        body.append(0x4C)  # i32.le_s
+        body.append(0x0D)
+        body.append(0x00)  # br_if 0
 
-        body.append(0x0b)                      # end loop
-        body.append(0x20); body.append(0x00)  # return acc
+        body.append(0x0B)  # end loop
+        body.append(0x20)
+        body.append(0x00)  # return acc
 
         return bytes(body)
 
@@ -154,32 +163,42 @@ class LoopPipeline(BasePipeline):
 
         # Initialize: acc = 1 (local 0), counter = start (local 1)
         body.extend(encode_i32_const(1))
-        body.append(0x21); body.append(0x00)  # local.set 0 (acc)
+        body.append(0x21)
+        body.append(0x00)  # local.set 0 (acc)
         body.extend(encode_i32_const(start))
-        body.append(0x21); body.append(0x01)  # local.set 1 (counter)
+        body.append(0x21)
+        body.append(0x01)  # local.set 1 (counter)
 
         # Loop block
-        body.append(0x03); body.append(0x40)  # loop void
+        body.append(0x03)
+        body.append(0x40)  # loop void
 
         # acc *= counter
-        body.append(0x20); body.append(0x00)  # local.get 0 (acc)
-        body.append(0x20); body.append(0x01)  # local.get 1 (counter)
-        body.append(0x6c)                      # i32.mul
-        body.append(0x21); body.append(0x00)  # local.set 0 (acc)
+        body.append(0x20)
+        body.append(0x00)  # local.get 0 (acc)
+        body.append(0x20)
+        body.append(0x01)  # local.get 1 (counter)
+        body.append(0x6C)  # i32.mul
+        body.append(0x21)
+        body.append(0x00)  # local.set 0 (acc)
 
         # counter++
-        body.append(0x20); body.append(0x01)  # local.get 1 (counter)
+        body.append(0x20)
+        body.append(0x01)  # local.get 1 (counter)
         body.extend(encode_i32_const(1))
-        body.append(0x6a)                      # i32.add
-        body.append(0x22); body.append(0x01)  # local.tee 1 (counter)
+        body.append(0x6A)  # i32.add
+        body.append(0x22)
+        body.append(0x01)  # local.tee 1 (counter)
 
         # if counter <= end: branch back
         body.extend(encode_i32_const(end))
-        body.append(0x4c)                      # i32.le_s
-        body.append(0x0d); body.append(0x00)  # br_if 0
+        body.append(0x4C)  # i32.le_s
+        body.append(0x0D)
+        body.append(0x00)  # br_if 0
 
-        body.append(0x0b)                      # end loop
-        body.append(0x20); body.append(0x00)  # return acc
+        body.append(0x0B)  # end loop
+        body.append(0x20)
+        body.append(0x00)  # return acc
 
         return bytes(body)
 
@@ -189,24 +208,30 @@ class LoopPipeline(BasePipeline):
 
         # Initialize: counter = start (local 0)
         body.extend(encode_i32_const(start))
-        body.append(0x21); body.append(0x00)  # local.set 0 (counter)
+        body.append(0x21)
+        body.append(0x00)  # local.set 0 (counter)
 
         # Loop block
-        body.append(0x03); body.append(0x40)  # loop void
+        body.append(0x03)
+        body.append(0x40)  # loop void
 
         # counter--
-        body.append(0x20); body.append(0x00)  # local.get 0 (counter)
+        body.append(0x20)
+        body.append(0x00)  # local.get 0 (counter)
         body.extend(encode_i32_const(1))
-        body.append(0x6b)                      # i32.sub
-        body.append(0x22); body.append(0x00)  # local.tee 0 (counter)
+        body.append(0x6B)  # i32.sub
+        body.append(0x22)
+        body.append(0x00)  # local.tee 0 (counter)
 
         # if counter > end: branch back
         body.extend(encode_i32_const(end))
-        body.append(0x4a)                      # i32.gt_s
-        body.append(0x0d); body.append(0x00)  # br_if 0
+        body.append(0x4A)  # i32.gt_s
+        body.append(0x0D)
+        body.append(0x00)  # br_if 0
 
-        body.append(0x0b)                      # end loop
-        body.append(0x20); body.append(0x00)  # return counter
+        body.append(0x0B)  # end loop
+        body.append(0x20)
+        body.append(0x00)  # return counter
 
         return bytes(body)
 
@@ -220,13 +245,15 @@ class LoopPipeline(BasePipeline):
             intent = self.parse_loop_intent(text)
 
             if intent is None:
-                details.append({
-                    "input": text,
-                    "expected": expected,
-                    "actual": None,
-                    "status": "parse_error",
-                    "error": "Failed to parse loop intent",
-                })
+                details.append(
+                    {
+                        "input": text,
+                        "expected": expected,
+                        "actual": None,
+                        "status": "parse_error",
+                        "error": "Failed to parse loop intent",
+                    }
+                )
                 continue
 
             try:
@@ -250,25 +277,29 @@ class LoopPipeline(BasePipeline):
                 else:
                     status = "error"
 
-                details.append({
-                    "input": text,
-                    "expected": expected,
-                    "actual": result.result if result.success else None,
-                    "loop_type": intent.loop_type,
-                    "range": f"{intent.start}..{intent.end}",
-                    "ir_hex": ir_bytes.hex(),
-                    "status": status,
-                    "error": result.error,
-                })
+                details.append(
+                    {
+                        "input": text,
+                        "expected": expected,
+                        "actual": result.result if result.success else None,
+                        "loop_type": intent.loop_type,
+                        "range": f"{intent.start}..{intent.end}",
+                        "ir_hex": ir_bytes.hex(),
+                        "status": status,
+                        "error": result.error,
+                    }
+                )
 
             except Exception as e:
-                details.append({
-                    "input": text,
-                    "expected": expected,
-                    "actual": None,
-                    "status": "error",
-                    "error": str(e),
-                })
+                details.append(
+                    {
+                        "input": text,
+                        "expected": expected,
+                        "actual": None,
+                        "status": "error",
+                        "error": str(e),
+                    }
+                )
 
         total = len(test_cases)
         return PipelineResult(

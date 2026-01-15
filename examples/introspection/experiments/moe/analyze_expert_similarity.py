@@ -107,7 +107,10 @@ def main():
 
     # Load
     print("\nLoading GPT-OSS...")
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
     model, _ = load(str(model_path))
 
     layers = model.model.layers
@@ -124,13 +127,15 @@ def main():
         stats = analyze_layer_experts(layer, i)
         if stats:
             layer_stats.append(stats)
-            print(f"{i:<8} {stats['mean_similarity']:.3f}    {stats['max_similarity']:.3f}    "
-                  f"{stats['pct_redundant']:.1f}%{'':<7} {stats['high_sim_pairs']}")
+            print(
+                f"{i:<8} {stats['mean_similarity']:.3f}    {stats['max_similarity']:.3f}    "
+                f"{stats['pct_redundant']:.1f}%{'':<7} {stats['high_sim_pairs']}"
+            )
 
     # Summary
     if layer_stats:
-        avg_mean = np.mean([s['mean_similarity'] for s in layer_stats])
-        avg_redundant = np.mean([s['pct_redundant'] for s in layer_stats])
+        avg_mean = np.mean([s["mean_similarity"] for s in layer_stats])
+        avg_redundant = np.mean([s["pct_redundant"] for s in layer_stats])
         print("-" * 50)
         print(f"{'AVG':<8} {avg_mean:.3f}    {'-':<8} {avg_redundant:.1f}%")
 
@@ -142,17 +147,23 @@ def main():
     print("-" * 50)
 
     cross_pairs = [
-        (0, 1), (0, 2), (0, 12), (0, 23),  # Layer 0 vs others
-        (11, 12), (11, 13),  # Middle layers
+        (0, 1),
+        (0, 2),
+        (0, 12),
+        (0, 23),  # Layer 0 vs others
+        (11, 12),
+        (11, 13),  # Middle layers
         (22, 23),  # Late layers
     ]
 
     for layer_a, layer_b in cross_pairs:
         if layer_a < len(layers) and layer_b < len(layers):
             stats = analyze_cross_layer_experts(layers, layer_a, layer_b)
-            print(f"{layer_a}->{layer_b:<6} {stats['mean_cross_similarity']:.3f}    "
-                  f"{stats['max_cross_similarity']:.3f}    {stats['avg_best_match']:.3f}      "
-                  f"{stats['shareable_experts']}/32")
+            print(
+                f"{layer_a}->{layer_b:<6} {stats['mean_cross_similarity']:.3f}    "
+                f"{stats['max_cross_similarity']:.3f}    {stats['avg_best_match']:.3f}      "
+                f"{stats['shareable_experts']}/32"
+            )
 
     # Conclusions
     print("\n" + "=" * 70)
@@ -161,15 +172,17 @@ def main():
 
     if layer_stats:
         total_redundant = avg_redundant
-        print(f"\n  Within-layer redundancy: {total_redundant:.1f}% of expert pairs are highly similar")
+        print(
+            f"\n  Within-layer redundancy: {total_redundant:.1f}% of expert pairs are highly similar"
+        )
         print(f"  Average pairwise similarity: {avg_mean:.3f}")
 
         if total_redundant > 50:
-            print(f"\n  -> HIGH REDUNDANCY: Could potentially share 50%+ of experts")
+            print("\n  -> HIGH REDUNDANCY: Could potentially share 50%+ of experts")
         elif total_redundant > 30:
-            print(f"\n  -> MODERATE REDUNDANCY: Could potentially share 30-50% of experts")
+            print("\n  -> MODERATE REDUNDANCY: Could potentially share 30-50% of experts")
         else:
-            print(f"\n  -> LOW REDUNDANCY: Experts are relatively diverse")
+            print("\n  -> LOW REDUNDANCY: Experts are relatively diverse")
 
     print("=" * 70)
 

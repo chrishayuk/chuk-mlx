@@ -12,7 +12,6 @@ while preserving other model capabilities.
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -22,6 +21,7 @@ import numpy as np
 @dataclass
 class HeadAblationResult:
     """Result of ablating a single attention head."""
+
     layer: int
     head: int
     original_answer: str
@@ -149,7 +149,11 @@ def analyze_attention_heads(
                         out = lyr(h, mask=mask)
                     except TypeError:
                         out = lyr(h)
-                    h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+                    h = (
+                        out.hidden_states
+                        if hasattr(out, "hidden_states")
+                        else (out[0] if isinstance(out, tuple) else out)
+                    )
                     continue
 
                 # Reshape for multi-head attention
@@ -158,7 +162,7 @@ def analyze_attention_heads(
                 v = v.reshape(B, L, num_heads, head_dim).transpose(0, 2, 1, 3)
 
                 # Compute attention scores
-                scale_factor = head_dim ** -0.5
+                scale_factor = head_dim**-0.5
                 scores = (q @ k.transpose(0, 1, 3, 2)) * scale_factor
 
                 # Apply causal mask
@@ -176,11 +180,9 @@ def analyze_attention_heads(
 
                 # Instead, create a mask
                 head_mask = mx.ones((num_heads,))
-                head_mask = mx.concatenate([
-                    head_mask[:ablate_head],
-                    mx.zeros((1,)),
-                    head_mask[ablate_head + 1:]
-                ])
+                head_mask = mx.concatenate(
+                    [head_mask[:ablate_head], mx.zeros((1,)), head_mask[ablate_head + 1 :]]
+                )
                 head_mask = head_mask.reshape(1, num_heads, 1, 1)
                 attn_output = attn_output * head_mask
 
@@ -218,7 +220,11 @@ def analyze_attention_heads(
                     out = lyr(h, mask=mask)
                 except TypeError:
                     out = lyr(h)
-                h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+                h = (
+                    out.hidden_states
+                    if hasattr(out, "hidden_states")
+                    else (out[0] if isinstance(out, tuple) else out)
+                )
 
         # Final prediction
         if norm is not None:
@@ -265,15 +271,17 @@ def analyze_attention_heads(
                 if impact > 0.1:  # Significant impact
                     layer_impacts.append((head, impact, ablated_token, ablated_prob))
 
-                query_results.append(HeadAblationResult(
-                    layer=layer,
-                    head=head,
-                    original_answer=baseline_token,
-                    original_prob=baseline_prob,
-                    ablated_answer=ablated_token,
-                    ablated_prob=ablated_prob,
-                    impact=impact,
-                ))
+                query_results.append(
+                    HeadAblationResult(
+                        layer=layer,
+                        head=head,
+                        original_answer=baseline_token,
+                        original_prob=baseline_prob,
+                        ablated_answer=ablated_token,
+                        ablated_prob=ablated_prob,
+                        impact=impact,
+                    )
+                )
 
             if layer_impacts:
                 print(f"high-impact heads: {[(h, f'{i:.2f}') for h, i, _, _ in layer_impacts[:5]]}")
@@ -295,16 +303,15 @@ def analyze_attention_heads(
                 head_importance[(r.layer, r.head)].append(r.impact)
 
     # Sort by average impact
-    sorted_heads = sorted(
-        head_importance.items(),
-        key=lambda x: -np.mean(x[1])
-    )[:20]
+    sorted_heads = sorted(head_importance.items(), key=lambda x: -np.mean(x[1]))[:20]
 
     print("\nTop 20 most important heads (across all test queries):")
     for (layer, head), impacts in sorted_heads:
         avg_impact = np.mean(impacts)
         count = len(impacts)
-        print(f"  Layer {layer:2d}, Head {head:2d}: avg_impact={avg_impact:.3f}, affects {count}/{len(test_queries)} queries")
+        print(
+            f"  Layer {layer:2d}, Head {head:2d}: avg_impact={avg_impact:.3f}, affects {count}/{len(test_queries)} queries"
+        )
 
     return results
 

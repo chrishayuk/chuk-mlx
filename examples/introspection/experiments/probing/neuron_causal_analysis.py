@@ -12,21 +12,20 @@ Three experiments:
 Run: uv run python examples/introspection/neuron_causal_analysis.py
 """
 
-import json
+import warnings
 from dataclasses import dataclass
-from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 @dataclass
 class AblationResult:
     """Result of ablating neurons."""
+
     layer: int
     neurons_ablated: list[int]
     original_accuracy: float
@@ -37,6 +36,7 @@ class AblationResult:
 @dataclass
 class PatchingResult:
     """Result of patching activations."""
+
     source_prompt: str
     target_prompt: str
     source_label: bool
@@ -74,7 +74,7 @@ class NeuronCausalAnalysis:
         self.final_norm = self.model.model.norm
         self.lm_head = self.model.lm_head
         self.hidden_size = self.model.model.hidden_size
-        self.embed_scale = self.hidden_size ** 0.5
+        self.embed_scale = self.hidden_size**0.5
         self.num_layers = len(self.layers)
 
         print(f"  Layers: {self.num_layers}, Hidden: {self.hidden_size}")
@@ -130,7 +130,7 @@ class NeuronCausalAnalysis:
             if layer_idx == ablate_layer:
                 # Manual forward with ablation
                 # Attention
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     normed = layer.input_layernorm(h)
                 else:
                     normed = h
@@ -141,14 +141,14 @@ class NeuronCausalAnalysis:
                 h = h + attn_out
 
                 # MLP with ablation
-                if hasattr(layer, 'post_attention_layernorm'):
+                if hasattr(layer, "post_attention_layernorm"):
                     mlp_input = layer.post_attention_layernorm(h)
                 else:
                     mlp_input = h
 
                 mlp = layer.mlp
 
-                if hasattr(mlp, 'gate_proj'):
+                if hasattr(mlp, "gate_proj"):
                     gate = mlp.gate_proj(mlp_input)
                     up = mlp.up_proj(mlp_input)
                     gate_activated = nn.gelu(gate)
@@ -159,11 +159,9 @@ class NeuronCausalAnalysis:
                     mask_arr = mx.ones(mlp_hidden.shape[-1])
                     for neuron_idx in ablate_neurons:
                         if neuron_idx < mlp_hidden.shape[-1]:
-                            mask_arr = mx.concatenate([
-                                mask_arr[:neuron_idx],
-                                mx.array([0.0]),
-                                mask_arr[neuron_idx + 1:]
-                            ])
+                            mask_arr = mx.concatenate(
+                                [mask_arr[:neuron_idx], mx.array([0.0]), mask_arr[neuron_idx + 1 :]]
+                            )
                     mlp_hidden = mlp_hidden * mask_arr
 
                     mlp_out = mlp.down_proj(mlp_hidden)
@@ -241,7 +239,7 @@ class NeuronCausalAnalysis:
 
             if layer_idx == patch_layer:
                 # Get MLP activations
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     normed = layer.input_layernorm(source_h)
                 else:
                     normed = source_h
@@ -251,13 +249,13 @@ class NeuronCausalAnalysis:
                     attn_out = attn_out[0]
                 source_h = source_h + attn_out
 
-                if hasattr(layer, 'post_attention_layernorm'):
+                if hasattr(layer, "post_attention_layernorm"):
                     mlp_input = layer.post_attention_layernorm(source_h)
                 else:
                     mlp_input = source_h
 
                 mlp = layer.mlp
-                if hasattr(mlp, 'gate_proj'):
+                if hasattr(mlp, "gate_proj"):
                     gate = mlp.gate_proj(mlp_input)
                     up = mlp.up_proj(mlp_input)
                     source_mlp_hidden = nn.gelu(gate) * up
@@ -287,7 +285,7 @@ class NeuronCausalAnalysis:
 
             if layer_idx == patch_layer:
                 # Patch activations
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     normed = layer.input_layernorm(h)
                 else:
                     normed = h
@@ -297,13 +295,13 @@ class NeuronCausalAnalysis:
                     attn_out = attn_out[0]
                 h = h + attn_out
 
-                if hasattr(layer, 'post_attention_layernorm'):
+                if hasattr(layer, "post_attention_layernorm"):
                     mlp_input = layer.post_attention_layernorm(h)
                 else:
                     mlp_input = h
 
                 mlp = layer.mlp
-                if hasattr(mlp, 'gate_proj'):
+                if hasattr(mlp, "gate_proj"):
                     gate = mlp.gate_proj(mlp_input)
                     up = mlp.up_proj(mlp_input)
                     mlp_hidden = nn.gelu(gate) * up
@@ -318,20 +316,25 @@ class NeuronCausalAnalysis:
                     patch_mask = mx.zeros(mlp_hidden.shape[-1])
                     for neuron_idx in patch_neurons:
                         if neuron_idx < mlp_hidden.shape[-1]:
-                            patch_mask = mx.concatenate([
-                                patch_mask[:neuron_idx],
-                                mx.array([1.0]),
-                                patch_mask[neuron_idx + 1:]
-                            ])
+                            patch_mask = mx.concatenate(
+                                [
+                                    patch_mask[:neuron_idx],
+                                    mx.array([1.0]),
+                                    patch_mask[neuron_idx + 1 :],
+                                ]
+                            )
 
                     # Blend: patched = source * mask + target * (1 - mask)
                     patched_last = source_last * patch_mask + patched_last * (1 - patch_mask)
 
                     # Reconstruct mlp_hidden with patched last token
-                    mlp_hidden = mx.concatenate([
-                        mlp_hidden[:, :-1, :],
-                        patched_last.reshape(1, 1, -1).astype(mlp_hidden.dtype)
-                    ], axis=1)
+                    mlp_hidden = mx.concatenate(
+                        [
+                            mlp_hidden[:, :-1, :],
+                            patched_last.reshape(1, 1, -1).astype(mlp_hidden.dtype),
+                        ],
+                        axis=1,
+                    )
 
                     mlp_out = mlp.down_proj(mlp_hidden)
                 else:
@@ -367,7 +370,7 @@ class NeuronCausalAnalysis:
         try:
             decoded = self.tokenizer.decode([top_token])
             # Heuristic: tool calls often start with [, {, or action-like tokens
-            tool_indicators = ['[', '{', '<', 'function', 'tool', 'call', 'action']
+            tool_indicators = ["[", "{", "<", "function", "tool", "call", "action"]
             return any(ind in decoded.lower() for ind in tool_indicators)
         except:
             return False
@@ -420,15 +423,19 @@ class NeuronCausalAnalysis:
                 ablated_acc = correct_ablated / len(test_data)
                 drop = normal_acc - ablated_acc
 
-                print(f"  Ablate top {k:2d}: normal={normal_acc:.1%}, ablated={ablated_acc:.1%}, drop={drop:+.1%}")
+                print(
+                    f"  Ablate top {k:2d}: normal={normal_acc:.1%}, ablated={ablated_acc:.1%}, drop={drop:+.1%}"
+                )
 
-                results.append(AblationResult(
-                    layer=layer,
-                    neurons_ablated=neurons_to_ablate,
-                    original_accuracy=normal_acc,
-                    ablated_accuracy=ablated_acc,
-                    accuracy_drop=drop,
-                ))
+                results.append(
+                    AblationResult(
+                        layer=layer,
+                        neurons_ablated=neurons_to_ablate,
+                        original_accuracy=normal_acc,
+                        ablated_accuracy=ablated_acc,
+                        accuracy_drop=drop,
+                    )
+                )
 
         return results
 
@@ -473,20 +480,22 @@ class NeuronCausalAnalysis:
                     )
                     patched_pred = self.predict_tool_calling(patched_logits)
 
-                    flipped = (original_pred != patched_pred)
+                    flipped = original_pred != patched_pred
                     if flipped:
                         flips += 1
                     total += 1
 
-                    results.append(PatchingResult(
-                        source_prompt=source_prompt,
-                        target_prompt=target_prompt,
-                        source_label=source_label,
-                        target_label=target_label,
-                        original_prediction=original_pred,
-                        patched_prediction=patched_pred,
-                        flipped=flipped,
-                    ))
+                    results.append(
+                        PatchingResult(
+                            source_prompt=source_prompt,
+                            target_prompt=target_prompt,
+                            source_label=source_label,
+                            target_label=target_label,
+                            original_prediction=original_pred,
+                            patched_prediction=patched_pred,
+                            flipped=flipped,
+                        )
+                    )
 
             flip_rate = flips / total if total > 0 else 0
             print(f"  Patch top 5 neurons: {flips}/{total} flipped ({flip_rate:.1%})")
@@ -537,7 +546,7 @@ class NeuronCausalAnalysis:
 
             # L11 MLP
             layer = self.layers[11]
-            if hasattr(layer, 'input_layernorm'):
+            if hasattr(layer, "input_layernorm"):
                 normed = layer.input_layernorm(h)
             else:
                 normed = h
@@ -547,13 +556,13 @@ class NeuronCausalAnalysis:
                 attn_out = attn_out[0]
             h_post_attn = h + attn_out
 
-            if hasattr(layer, 'post_attention_layernorm'):
+            if hasattr(layer, "post_attention_layernorm"):
                 mlp_input = layer.post_attention_layernorm(h_post_attn)
             else:
                 mlp_input = h_post_attn
 
             mlp = layer.mlp
-            if hasattr(mlp, 'gate_proj'):
+            if hasattr(mlp, "gate_proj"):
                 gate = mlp.gate_proj(mlp_input)
                 up = mlp.up_proj(mlp_input)
                 mlp_hidden = nn.gelu(gate) * up
@@ -572,14 +581,14 @@ class NeuronCausalAnalysis:
         # Analysis 1: Sparsity
         tool_sparsity = np.mean(np.abs(tool_acts) < 1e-3)
         no_tool_sparsity = np.mean(np.abs(no_tool_acts) < 1e-3)
-        print(f"\n  Sparsity (|x| < 1e-3):")
+        print("\n  Sparsity (|x| < 1e-3):")
         print(f"    Tool prompts: {tool_sparsity:.1%}")
         print(f"    No-tool prompts: {no_tool_sparsity:.1%}")
 
         # Analysis 2: Activation magnitude
         tool_norm = np.mean(np.linalg.norm(tool_acts, axis=1))
         no_tool_norm = np.mean(np.linalg.norm(no_tool_acts, axis=1))
-        print(f"\n  Activation L2 norm:")
+        print("\n  Activation L2 norm:")
         print(f"    Tool prompts: {tool_norm:.1f}")
         print(f"    No-tool prompts: {no_tool_norm:.1f}")
 
@@ -590,12 +599,12 @@ class NeuronCausalAnalysis:
 
         high_var_neurons = np.sum(pooled_var > np.percentile(pooled_var, 90))
         low_var_neurons = np.sum(pooled_var < np.percentile(pooled_var, 10))
-        print(f"\n  Neuron variance:")
+        print("\n  Neuron variance:")
         print(f"    High variance (top 10%): {high_var_neurons} neurons")
         print(f"    Low variance (bottom 10%): {low_var_neurons} neurons")
 
         # Analysis 4: Compare to L10 and L12
-        print(f"\n  Hypothesis: L11 has more distributed activations (harder to classify)")
+        print("\n  Hypothesis: L11 has more distributed activations (harder to classify)")
 
         # Get separation scores
         mean_diff = np.abs(np.mean(tool_acts, axis=0) - np.mean(no_tool_acts, axis=0))
@@ -639,7 +648,9 @@ class NeuronCausalAnalysis:
         print("   If patching flips predictions → neurons carry decision signal")
         l11_flips = sum(1 for r in patching_results if r.flipped and "L11" in str(r))
         l12_flips = sum(1 for r in patching_results if r.flipped)
-        print(f"   Flip rate: {l12_flips}/{len(patching_results)} = {l12_flips/len(patching_results):.1%}")
+        print(
+            f"   Flip rate: {l12_flips}/{len(patching_results)} = {l12_flips / len(patching_results):.1%}"
+        )
 
         print("\n3. L11 INVESTIGATION:")
         print("   L11 may be a 'transformation' layer rather than 'decision' layer")

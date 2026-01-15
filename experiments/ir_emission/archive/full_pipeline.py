@@ -24,7 +24,7 @@ import mlx.nn as nn
 from safetensors import safe_open
 
 sys.path.insert(0, str(Path(__file__).parent))
-from codebook import IROpcode, encode_i32_const, OPCODE_TO_WASM
+from codebook import OPCODE_TO_WASM, IROpcode, encode_i32_const
 from wasm_runtime import WASMRuntime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
@@ -33,8 +33,8 @@ logger = logging.getLogger(__name__)
 
 def load_model_with_lora(model_name: str, adapter_path: str, target_modules: list[str]):
     """Load model and apply LoRA weights."""
-    from chuk_lazarus.models_v2.loader import load_model
     from chuk_lazarus.models_v2.adapters.lora import LoRAConfig, apply_lora
+    from chuk_lazarus.models_v2.loader import load_model
 
     result = load_model(model_name)
     model = result.model
@@ -153,7 +153,7 @@ class NeuralCompiler:
         generated_ids = input_ids
         for _ in range(12):
             output = self.norm_model(generated_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
             generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
             mx.eval(generated_ids)
@@ -162,7 +162,7 @@ class NeuralCompiler:
             if decoded.rstrip().endswith("="):
                 # Get one more token for space
                 output = self.norm_model(generated_ids)
-                logits = output.logits if hasattr(output, 'logits') else output
+                logits = output.logits if hasattr(output, "logits") else output
                 next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
                 generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
                 break
@@ -171,7 +171,7 @@ class NeuralCompiler:
         # Clean up
         if "=" in canonical:
             eq_pos = canonical.find("=")
-            canonical = canonical[:eq_pos + 1].strip() + " "
+            canonical = canonical[: eq_pos + 1].strip() + " "
         return canonical
 
     def classify(self, canonical: str) -> str:
@@ -337,14 +337,14 @@ def main():
 
         logger.info(f"\nInput: {nl_input}")
         logger.info(f"  Canonical: {result['canonical']}")
-        if result.get('operation'):
+        if result.get("operation"):
             logger.info(f"  Operation: {result['operation']}")
             logger.info(f"  Operands:  {result.get('operands', 'N/A')}")
             logger.info(f"  IR:        {result.get('ir_hex', 'N/A')}")
         logger.info(f"  Result:    {result.get('result', 'N/A')} (expected {expected}) [{status}]")
 
     logger.info("\n" + "=" * 70)
-    logger.info(f"ACCURACY: {correct}/{total} = {100*correct/total:.1f}%")
+    logger.info(f"ACCURACY: {correct}/{total} = {100 * correct / total:.1f}%")
     logger.info("=" * 70)
 
     # Component breakdown
@@ -352,7 +352,7 @@ def main():
     logger.info("  Stage 1 (NL → Canonical):   trained separately")
     logger.info("  Stage 2 (Canonical → IR):   100% (from previous test)")
     logger.info("  Stage 3 (IR → Execute):     100% (deterministic)")
-    logger.info(f"  End-to-end:                 {100*correct/total:.1f}%")
+    logger.info(f"  End-to-end:                 {100 * correct / total:.1f}%")
 
 
 if __name__ == "__main__":

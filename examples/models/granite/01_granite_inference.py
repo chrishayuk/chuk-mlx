@@ -95,9 +95,7 @@ def download_model(model_id: str, cache_dir: str | None = None) -> Path:
     try:
         from huggingface_hub import list_repo_files, snapshot_download
     except ImportError:
-        raise ImportError(
-            "huggingface_hub not installed. Run: pip install huggingface_hub"
-        )
+        raise ImportError("huggingface_hub not installed. Run: pip install huggingface_hub")
 
     print(f"Downloading {model_id}...")
 
@@ -255,7 +253,14 @@ def format_chat_prompt(tokenizer, user_message: str, system_message: str | None 
     return prompt
 
 
-def generate_text(model, tokenizer, prompt: str, max_new_tokens: int = 100, temperature: float = 0.7, verbose: bool = True) -> str:
+def generate_text(
+    model,
+    tokenizer,
+    prompt: str,
+    max_new_tokens: int = 100,
+    temperature: float = 0.7,
+    verbose: bool = True,
+) -> str:
     """Generate text."""
     input_ids = tokenizer.encode(prompt, return_tensors="np")
     input_ids = mx.array(input_ids)
@@ -280,7 +285,7 @@ def generate_text(model, tokenizer, prompt: str, max_new_tokens: int = 100, temp
     mx.eval(output_ids)
     gen_time = time.time() - start_time
 
-    new_tokens = output_ids[0, input_ids.shape[1]:]
+    new_tokens = output_ids[0, input_ids.shape[1] :]
     generated_text = tokenizer.decode(new_tokens.tolist(), skip_special_tokens=True)
 
     if verbose:
@@ -336,7 +341,9 @@ def test_tiny_models():
     model4_moe = GraniteHybridForCausalLM(config4_moe)
     params4_moe = count_parameters(model4_moe)
     print(f"   {params4_moe.summary()}")
-    print(f"   Experts: {config4_moe.num_local_experts} total, {config4_moe.num_experts_per_tok} active")
+    print(
+        f"   Experts: {config4_moe.num_local_experts} total, {config4_moe.num_experts_per_tok} active"
+    )
 
     output4_moe = model4_moe(input_ids)
     mx.eval(output4_moe.logits)
@@ -440,13 +447,17 @@ Examples:
     actual_model_type = config_data.get("model_type", model_type)
     if actual_model_type == "granitemoehybrid":
         config = GraniteHybridConfig(**config_data)
-        print(f"   Type: Granite 4.x Hybrid")
-        print(f"   Mamba layers: {config.num_mamba_layers}, Attention: {config.num_attention_layers}")
+        print("   Type: Granite 4.x Hybrid")
+        print(
+            f"   Mamba layers: {config.num_mamba_layers}, Attention: {config.num_attention_layers}"
+        )
         if config.is_moe:
-            print(f"   MoE: {config.num_local_experts} experts, {config.num_experts_per_tok} active")
+            print(
+                f"   MoE: {config.num_local_experts} experts, {config.num_experts_per_tok} active"
+            )
     else:
         config = GraniteConfig(**config_data)
-        print(f"   Type: Granite 3.x Dense")
+        print("   Type: Granite 3.x Dense")
 
     print(f"   Hidden: {config.hidden_size}, Layers: {config.num_hidden_layers}")
 
