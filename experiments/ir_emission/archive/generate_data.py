@@ -10,10 +10,16 @@ Creates datasets mapping NL prompts to IR sequences:
 
 import json
 import random
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from codebook import IROpcode
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from experiments.ir_emission.shared import IROpcode
 
 
 @dataclass

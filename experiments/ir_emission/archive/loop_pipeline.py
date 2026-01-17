@@ -17,9 +17,12 @@ from pathlib import Path
 
 import mlx.core as mx
 
-sys.path.insert(0, str(Path(__file__).parent))
-from codebook import encode_i32_const
-from wasm_runtime import WASMRuntime
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from experiments.ir_emission.shared import encode_i32_const, WASMRuntime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)

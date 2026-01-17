@@ -1,0 +1,31 @@
+# CoT Learned Parser Experiment Configuration
+# NL → Canonical Format → Parse → Execute
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+# Test suites to run
+test_suites:
+  - simple_expressions   # Word forms, phrase forms (8 tests)
+  - complex_expressions  # Precedence, parentheses (11 tests)
+  - word_problems        # Semantic understanding (8 tests)
+
+# Generation parameters
+parameters:
+  max_tokens: 15          # For canonical output
+  use_shunting_yard: true # For precedence handling
+
+# Few-shot examples for prompt
+few_shot_examples:
+  simple:
+    - input: "five plus three"
+      output: "5 + 3 ="
+    - input: "twelve times nine"
+      output: "12 * 9 ="
+    - input: "48 divided by 6"
+      output: "48 / 6 ="
+
+  word_problems:
+    - input: "Janet has 20 apples. She gives 7 to Bob. How many left?"
+      output: "20 - 7 ="
+    - input: "10 cookies. 2 kids each eat 3. How many left?"
+      output: "10 - 2 * 3 ="

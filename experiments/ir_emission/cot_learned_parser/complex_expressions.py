@@ -14,12 +14,13 @@ import re
 
 import mlx.core as mx
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root for chuk_lazarus imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
 from chuk_lazarus.models_v2.loader import load_model
-from archive.codebook import OPCODE_TO_WASM, IROpcode, encode_i32_const
-from archive.wasm_runtime import WASMRuntime
+from experiments.ir_emission.shared import OPCODE_TO_WASM, IROpcode, encode_i32_const, WASMRuntime
 
 
 def parse_to_ir_sequence(text: str) -> list[dict]:

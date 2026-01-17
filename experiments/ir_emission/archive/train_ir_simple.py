@@ -16,9 +16,12 @@ import mlx.nn as nn
 import mlx.optimizers as optim
 from safetensors import safe_open
 
-sys.path.insert(0, str(Path(__file__).parent))
-from codebook import IROpcode
-from wasm_runtime import WASMRuntime
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from experiments.ir_emission.shared import IROpcode, WASMRuntime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -229,7 +232,7 @@ def main():
     # IR generation helper
     def indices_to_wasm(op_idx, operands):
         """Build WASM for: operand[0] op operand[1]"""
-        from codebook import OPCODE_TO_WASM, encode_i32_const
+        from experiments.ir_emission.shared import OPCODE_TO_WASM, encode_i32_const
 
         ir_op = idx_to_ir[op_idx]
         body = bytearray()

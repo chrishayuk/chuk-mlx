@@ -163,6 +163,34 @@ class MoEAction(str, Enum):
     MOE_OVERLAY_COMPRESS = "moe-overlay-compress"
     """Compress model to overlay format (base + low-rank deltas)."""
 
+    # Expert Dynamics Analysis
+    COLD_EXPERTS = "cold-experts"
+    """Analyze cold (rarely-activated) experts and their triggers."""
+
+    GENERATION_DYNAMICS = "generation-dynamics"
+    """Analyze expert routing during autoregressive generation."""
+
+    EXPERT_CIRCUITS = "expert-circuits"
+    """Identify cross-layer expert circuits."""
+
+    EXPERT_INTERFERENCE = "expert-interference"
+    """Analyze multi-expert interference patterns."""
+
+    EXPERT_MERGING = "expert-merging"
+    """Analyze expert merging opportunities."""
+
+    ATTENTION_PREDICTION = "attention-prediction"
+    """Predict routing from attention patterns (routing without router)."""
+
+    TASK_PREDICTION = "task-prediction"
+    """Predict needed experts from early-layer activations (task-aware loading)."""
+
+    ROUTING_MANIPULATION = "routing-manipulation"
+    """Analyze and craft inputs for specific expert routing patterns."""
+
+    CONTEXT_ATTENTION_ROUTING = "context-attention-routing"
+    """Analyze attention-routing correlation with context awareness."""
+
     @property
     def handler_name(self) -> str:
         """Get the handler function/module name for this action."""

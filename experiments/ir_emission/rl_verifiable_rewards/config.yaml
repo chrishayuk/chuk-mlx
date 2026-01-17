@@ -1,0 +1,34 @@
+# RL with Verifiable Rewards Experiment Configuration
+# WASM execution as reward signal
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+training:
+  # SFT phase
+  sft_examples: 500
+  sft_epochs: 8
+  sft_batch_size: 8
+  sft_learning_rate: 2e-5
+
+  # RL phase
+  rl_iterations: 30
+  rl_batch_size: 16
+  rl_learning_rate: 1e-5
+  kl_penalty: 0.1
+
+# Reward structure
+reward:
+  correct: 1.0           # parse + execute to correct answer
+  parsed_but_wrong: 0.3  # parse succeeds, wrong answer
+  parse_failure: 0.0     # cannot parse output
+
+# Output format
+format:
+  expression_only: true      # Model emits "42 - 15 =" not "42 - 15 = 27"
+  use_underscore_chain: true # Use _ for previous result
+  end_token: "[END]"
+
+# Evaluation
+evaluation:
+  synthetic_test_size: 100
+  gsm8k_test_size: 100

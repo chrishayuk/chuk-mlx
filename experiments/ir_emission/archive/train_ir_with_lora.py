@@ -16,9 +16,12 @@ import mlx.nn as nn
 import mlx.optimizers as optim
 from safetensors import safe_open
 
-sys.path.insert(0, str(Path(__file__).parent))
-from codebook import CodebookConfig, IROpcode, IRSequenceDecoder
-from wasm_runtime import WASMRuntime
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from experiments.ir_emission.shared import CodebookConfig, IROpcode, IRSequenceDecoder, WASMRuntime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)

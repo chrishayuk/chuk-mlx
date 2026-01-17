@@ -15,9 +15,12 @@ import mlx.core as mx
 import mlx.nn as nn
 from safetensors import safe_open
 
-sys.path.insert(0, str(Path(__file__).parent))
-from codebook import OPCODE_TO_WASM, IROpcode, encode_i32_const
-from wasm_runtime import WASMRuntime
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from experiments.ir_emission.shared import OPCODE_TO_WASM, IROpcode, encode_i32_const, WASMRuntime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)

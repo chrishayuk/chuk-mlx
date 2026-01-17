@@ -23,11 +23,12 @@ import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
-from codebook import CodebookConfig, IROpcode, IRSequenceDecoder
-from wasm_runtime import WASMRuntime
+from experiments.ir_emission.shared import CodebookConfig, IROpcode, IRSequenceDecoder, WASMRuntime
 
 logging.basicConfig(
     level=logging.INFO,

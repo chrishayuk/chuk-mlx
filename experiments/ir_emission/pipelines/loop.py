@@ -16,13 +16,9 @@ Expected accuracy: 100%
 """
 
 import re
-import sys
 from dataclasses import dataclass
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from codebook import encode_i32_const
-from wasm_runtime import WASMRuntime
+from experiments.ir_emission.shared import encode_i32_const, WASMRuntime
 
 from .base import BasePipeline, NeuralCompilerBase, PipelineResult
 

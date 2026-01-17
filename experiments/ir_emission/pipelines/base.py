@@ -7,19 +7,13 @@ single_op, multi_op, and loop pipelines.
 
 import logging
 import re
-
-# Import from archive subdirectory
-import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "archive"))
-from codebook import OPCODE_TO_WASM, IROpcode, encode_i32_const
-from wasm_runtime import WASMRuntime
+from experiments.ir_emission.shared import OPCODE_TO_WASM, IROpcode, encode_i32_const, WASMRuntime
 
 logger = logging.getLogger(__name__)
 

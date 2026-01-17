@@ -1,14 +1,10 @@
 """
-Quick sanity check for IR head concept.
-
-Tests in stages:
-1. Operation classification only (should work - we proved this)
-2. Single operand extraction
-3. Full IR extraction
+Quick test v2: More training data, verify concept works.
 """
 
 import sys
 from pathlib import Path
+import random
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -34,176 +30,121 @@ def get_hidden_states(model, input_ids, layer_idx=12):
         output = layer(h, mask=mask)
         h = output.hidden_states if hasattr(output, "hidden_states") else output
 
-    # Normalize!
     h = backbone.norm(h)
     return h
 
 
-def test_operation_classification():
-    """Test 1: Can we classify operations from L12?"""
-    print("\n" + "=" * 50)
-    print("TEST 1: Operation Classification")
-    print("=" * 50)
-
+def main():
     print("Loading model...")
     result = load_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
     model, tokenizer = result.model, result.tokenizer
     model.freeze()
-
-    # Simple training data
-    train_data = [
-        ("5 + 3", 0),  # add
-        ("10 + 20", 0),
-        ("7 - 2", 1),  # subtract
-        ("100 - 50", 1),
-        ("4 * 6", 2),  # multiply
-        ("8 * 9", 2),
-        ("20 / 4", 3),  # divide
-        ("100 / 10", 3),
-    ]
-
-    # Simple classifier
     hidden_dim = 2048
-    classifier = nn.Linear(hidden_dim, 4)
-    optimizer = optim.Adam(learning_rate=0.01)
 
-    def loss_fn(classifier, h, target):
-        logits = classifier(h)
-        return nn.losses.cross_entropy(logits, target, reduction="mean")
+    # Generate more training data
+    random.seed(42)
+    train_data = []
+    ops = [("+", 0), ("-", 1), ("*", 2), ("/", 3)]
 
-    loss_and_grad = nn.value_and_grad(classifier, loss_fn)
+    for _ in range(100):  # 100 examples
+        op_sym, op_idx = random.choice(ops)
+        a = random.randint(1, 50)
+        b = random.randint(1, 20)
+        if op_sym == "/":
+            a = b * random.randint(1, 10)  # Clean division
+        train_data.append((f"{a} {op_sym} {b}", op_idx, a, b))
 
-    print("Training operation classifier (100 steps)...")
-    for step in range(100):
-        for text, label in train_data:
-            tokens = mx.array([tokenizer.encode(text)])
-            h = get_hidden_states(model, tokens)[:, -1, :]  # Last token
-            mx.eval(h)
+    # Simple IR head: operation + first operand
+    class SimpleIRHead(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.shared = nn.Sequential(
+                nn.Linear(hidden_dim, 512),
+                nn.ReLU(),
+            )
+            self.op_head = nn.Linear(512, 4)
+            self.num_head = nn.Linear(512, 1)
 
-            target = mx.array([label])
-            loss, grads = loss_and_grad(classifier, h, target)
-            optimizer.update(classifier, grads)
-            mx.eval(classifier.parameters())
+        def __call__(self, h):
+            shared = self.shared(h)
+            return self.op_head(shared), self.num_head(shared).squeeze()
 
-    # Test
-    print("\nTesting:")
-    test_data = [
-        ("15 + 25", 0, "add"),
-        ("30 - 12", 1, "subtract"),
-        ("7 * 8", 2, "multiply"),
-        ("48 / 6", 3, "divide"),
-    ]
+    head = SimpleIRHead()
+    optimizer = optim.Adam(learning_rate=0.005)
 
-    correct = 0
-    for text, label, name in test_data:
-        tokens = mx.array([tokenizer.encode(text)])
-        h = get_hidden_states(model, tokens)[:, -1, :]
-        logits = classifier(h)
-        pred = int(mx.argmax(logits).item())
-        status = "✓" if pred == label else "✗"
-        if pred == label:
-            correct += 1
-        print(f"  {status} '{text}' → pred={pred}, expected={label} ({name})")
-
-    print(f"\nOperation accuracy: {correct}/{len(test_data)} = {correct/len(test_data):.0%}")
-    return correct == len(test_data)
-
-
-def test_number_extraction():
-    """Test 2: Can we extract numbers from hidden states?"""
-    print("\n" + "=" * 50)
-    print("TEST 2: Number Extraction (first operand only)")
-    print("=" * 50)
-
-    print("Loading model...")
-    result = load_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-    model, tokenizer = result.model, result.tokenizer
-    model.freeze()
-
-    # Training data: simple "X + Y" format, predict X
-    train_data = [
-        ("5 + 3", 5),
-        ("10 + 7", 10),
-        ("25 + 12", 25),
-        ("3 + 9", 3),
-        ("50 + 20", 50),
-        ("8 + 4", 8),
-        ("15 + 6", 15),
-        ("42 + 11", 42),
-    ]
-
-    # Regression head for first number
-    hidden_dim = 2048
-    head = nn.Sequential(
-        nn.Linear(hidden_dim, 256),
-        nn.ReLU(),
-        nn.Linear(256, 1),
-    )
-    optimizer = optim.Adam(learning_rate=0.001)
-
-    def loss_fn(head, h, target):
-        pred = head(h).squeeze()
-        return mx.mean((pred - target) ** 2)
+    def loss_fn(head, h, op_target, num_target):
+        op_logits, num_pred = head(h)
+        op_loss = nn.losses.cross_entropy(op_logits, op_target, reduction="mean")
+        num_loss = mx.mean((num_pred - num_target) ** 2) / 1000  # Scale down
+        return op_loss + num_loss
 
     loss_and_grad = nn.value_and_grad(head, loss_fn)
 
-    print("Training number extractor (200 steps)...")
-    for step in range(200):
+    print(f"Training on {len(train_data)} examples...")
+    print("-" * 40)
+
+    for epoch in range(10):
+        random.shuffle(train_data)
         total_loss = 0
-        for text, num in train_data:
+
+        for text, op_idx, a, b in train_data:
             tokens = mx.array([tokenizer.encode(text)])
             h = get_hidden_states(model, tokens)[:, -1, :]
             mx.eval(h)
 
-            target = mx.array([float(num)])
-            loss, grads = loss_and_grad(head, h, target)
+            loss, grads = loss_and_grad(
+                head, h,
+                mx.array([op_idx]),
+                mx.array([float(a)])
+            )
             optimizer.update(head, grads)
             mx.eval(head.parameters())
             total_loss += float(loss.item())
 
-        if (step + 1) % 50 == 0:
-            print(f"  Step {step + 1}: loss={total_loss/len(train_data):.4f}")
+        print(f"Epoch {epoch + 1}: loss={total_loss/len(train_data):.4f}")
 
-    # Test
-    print("\nTesting:")
+    # Test on held-out examples
+    print("\n" + "=" * 40)
+    print("Testing on new examples:")
+    print("=" * 40)
+
     test_data = [
-        ("20 + 5", 20),
-        ("7 + 3", 7),
-        ("35 + 10", 35),
-        ("12 + 8", 12),
+        ("25 + 13", 0, 25, "add"),
+        ("47 - 19", 1, 47, "subtract"),
+        ("6 * 9", 2, 6, "multiply"),
+        ("72 / 8", 3, 72, "divide"),
+        ("33 + 7", 0, 33, "add"),
+        ("18 - 5", 1, 18, "subtract"),
     ]
 
-    total_error = 0
-    for text, expected in test_data:
+    op_correct = 0
+    num_errors = []
+
+    for text, expected_op, expected_num, op_name in test_data:
         tokens = mx.array([tokenizer.encode(text)])
         h = get_hidden_states(model, tokens)[:, -1, :]
-        pred = float(head(h).squeeze().item())
-        error = abs(pred - expected)
-        total_error += error
-        print(f"  '{text}' → pred={pred:.1f}, expected={expected}, error={error:.1f}")
+        op_logits, num_pred = head(h)
 
-    avg_error = total_error / len(test_data)
-    print(f"\nAverage error: {avg_error:.1f}")
-    return avg_error < 10  # Success if average error < 10
+        pred_op = int(mx.argmax(op_logits).item())
+        pred_num = float(num_pred.item())
+
+        op_ok = pred_op == expected_op
+        if op_ok:
+            op_correct += 1
+        num_err = abs(pred_num - expected_num)
+        num_errors.append(num_err)
+
+        status = "✓" if op_ok else "✗"
+        print(f"{status} '{text}' → op={pred_op}({op_name}), num={pred_num:.1f} (expected {expected_num})")
+
+    print(f"\nOperation accuracy: {op_correct}/{len(test_data)} = {op_correct/len(test_data):.0%}")
+    print(f"Avg number error: {sum(num_errors)/len(num_errors):.1f}")
+
+    if op_correct >= 5 and sum(num_errors)/len(num_errors) < 10:
+        print("\n✓ CONCEPT VALIDATED: L12 encodes both operation and operands!")
+    else:
+        print("\n⚠ Needs more training or different approach")
 
 
 if __name__ == "__main__":
-    print("=" * 50)
-    print("  QUICK IR HEAD SANITY CHECK")
-    print("=" * 50)
-
-    op_ok = test_operation_classification()
-    num_ok = test_number_extraction()
-
-    print("\n" + "=" * 50)
-    print("  RESULTS")
-    print("=" * 50)
-    print(f"  Operation classification: {'✓ PASS' if op_ok else '✗ FAIL'}")
-    print(f"  Number extraction: {'✓ PASS' if num_ok else '✗ FAIL'}")
-
-    if op_ok and num_ok:
-        print("\n  → Both tests pass! Full IR head should work.")
-    elif op_ok:
-        print("\n  → Operations work, but numbers need different approach.")
-    else:
-        print("\n  → Fundamental issues with hidden state extraction.")
+    main()

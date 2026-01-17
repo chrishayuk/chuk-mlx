@@ -13,13 +13,9 @@ Accuracy: 100% (8/8) - both sequential and parenthesized expressions supported
 """
 
 import re
-import sys
 from dataclasses import dataclass
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from codebook import OPCODE_TO_WASM, IROpcode, encode_i32_const
-from wasm_runtime import WASMRuntime
+from experiments.ir_emission.shared import OPCODE_TO_WASM, IROpcode, encode_i32_const, WASMRuntime
 
 from .base import BasePipeline, NeuralCompilerBase, PipelineResult
 
