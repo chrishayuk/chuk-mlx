@@ -1,14 +1,16 @@
-"""MoE type detection: pseudo vs native classification.
+"""MoE type detection: native vs upcycled classification.
 
-Determines whether an MoE model was converted from a dense model (pseudo-MoE)
-or trained natively as MoE. This affects compression strategies:
+Determines whether an MoE model was trained natively as MoE or converted from
+a dense model (upcycled). This affects compression strategies:
 
-- Pseudo-MoE: Experts share a base with low-rank deltas. Compressible via SVD overlay.
 - Native-MoE: Experts are orthogonal. Not compressible via SVD (need quantization/pruning).
+- Upcycled-MoE: Experts share a base with low-rank deltas. Potentially compressible via SVD overlay.
 
 Key metrics:
-- Gate rank: Pseudo-MoE has rank ≈ 1 (all experts share same gate)
-- Cosine similarity: Pseudo-MoE has high similarity (>0.3), Native has ~0
+- Gate rank: Native-MoE has high rank (>50%), Upcycled would have low rank (<5%)
+- Cosine similarity: Native-MoE has ~0 (orthogonal), Upcycled would have >0.3 (clustered)
+
+Note: Both GPT-OSS and OLMoE show native MoE characteristics (high gate rank, low similarity).
 """
 
 from __future__ import annotations

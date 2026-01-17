@@ -422,6 +422,8 @@ class GPT2ForCausalLM(Model):
         """Sanitize weights for loading.
 
         Maps HuggingFace weight names to our format.
+        GPT-2 uses Conv1D which stores weights as (in, out) instead of (out, in),
+        so we need to transpose linear layer weights.
         """
         from .convert import _map_weight_name
 
@@ -429,5 +431,9 @@ class GPT2ForCausalLM(Model):
         for name, weight in weights.items():
             new_name = _map_weight_name(name)
             if new_name is not None:
+                # GPT-2 Conv1D weights need transposition for nn.Linear
+                # HF stores as (in_features, out_features), MLX expects (out_features, in_features)
+                if ".weight" in name and weight.ndim == 2 and "wte" not in name and "wpe" not in name:
+                    weight = weight.T
                 sanitized[new_name] = weight
         return sanitized

@@ -59,8 +59,8 @@ python -m chuk_lazarus.cli.main experiment run ir_emission
 # Single-op pipeline (100% accuracy)
 python experiments/ir_emission/full_pipeline_v2.py
 
-# Multi-op chains (75% accuracy)
-python experiments/ir_emission/multiop_pipeline.py
+# Multi-op chains (100% accuracy)
+python experiments/ir_emission/pipelines/multi_op.py
 
 # Loop constructs (100% accuracy)
 python experiments/ir_emission/loop_pipeline.py
@@ -90,7 +90,7 @@ parameters:
 | Pipeline | Accuracy | Test Cases | Description |
 |----------|----------|------------|-------------|
 | single_op | **100%** | 12/12 | Single arithmetic operations |
-| multi_op | **75%** | 6/8 | Multi-operation chains |
+| multi_op | **100%** | 8/8 | Multi-operation chains |
 | loop | **100%** | 9/9 | Loop constructs (sum/product/count) |
 
 ### Pipeline Details
@@ -113,7 +113,7 @@ Test cases:
 - Questions: "What is 12 times 9?", "What is 144 divided by 12?"
 - Word problems: "Janet has 50 apples. She gives away 15."
 
-#### Multi-Op (multiop_pipeline.py)
+#### Multi-Op (pipelines/multi_op.py)
 
 Handles sequential operations with stack-based execution:
 
@@ -125,7 +125,7 @@ IR:     [i32.const 16, i32.const 3, i32.sub, i32.const 5, i32.mul]
 Result: 65
 ```
 
-**Note**: Parenthesized expressions like "(8 + 4) * 3" need improved parsing.
+Both sequential ("then") and parenthesized ("(8 + 4) * 3") expressions are fully supported.
 
 #### Loop (loop_pipeline.py)
 
@@ -183,9 +183,10 @@ ir_emission/
 ├── codebook.py                # IR opcode vocabulary, WASM encoding
 ├── wasm_runtime.py            # WASM module builder and executor
 │
-├── full_pipeline_v2.py        # Standalone single-op script
-├── multiop_pipeline.py        # Standalone multi-op script
-├── loop_pipeline.py           # Standalone loop script
+├── archive/                   # Reference implementations
+│   ├── full_pipeline_v2.py    # Standalone single-op example
+│   ├── codebook.py            # IR opcode vocabulary
+│   └── wasm_runtime.py        # WASM execution engine
 │
 ├── data/                      # Training data
 ├── checkpoints/               # Trained LoRA weights

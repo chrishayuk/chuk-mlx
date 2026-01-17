@@ -1,0 +1,988 @@
+{"q": "Tom earns $19/hour for 6 hours. Spends $17 on supplies. Gets $17 tip. Final amount?", "expr": "earned = 19 * 6\nafter_expense = earned - 17\nfinal = after_expense + 17\n[END]", "ans": 114, "pattern": "rate_expense_bonus"}
+{"q": "Emma has 47 eggs. Gets 18 more. Total?", "expr": "total = 47 + 18\n[END]", "ans": 65, "pattern": "single_op"}
+{"q": "Lisa has 62 pencils. Uses 43. How many left?", "expr": "remaining = 62 - 43\n[END]", "ans": 19, "pattern": "single_op"}
+{"q": "Split 60 oranges among 6 people. Each gets?", "expr": "each = 60 / 6\n[END]", "ans": 10, "pattern": "single_op"}
+{"q": "Tom has 23 oranges. Mike has 3 times as many. Combined total?", "expr": "a_count = 23\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 92, "pattern": "two_people_compare"}
+{"q": "Mike has 33 coins. Uses 6. Sells rest at $5 each. Revenue?", "expr": "remaining = 33 - 6\nrevenue = remaining * 5\n[END]", "ans": 135, "pattern": "two_step_sequential"}
+{"q": "3 trays with 15 cards each. Total?", "expr": "total = 3 * 15\n[END]", "ans": 45, "pattern": "single_op"}
+{"q": "Chris buys 19 cookies at $8 each. 6 break. Sells rest at $11 each. Profit?", "expr": "cost = 19 * 8\nremaining = 19 - 6\nrevenue = remaining * 11\nprofit = revenue - cost\n[END]", "ans": -9, "pattern": "buy_sell_profit"}
+{"q": "A apple costs $120. It's 20% off. Final price?", "expr": "original = 120\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 96, "pattern": "discount_calculation"}
+{"q": "114 cookies split into 3 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 114\nper_group = total / 3\neach_gets = per_group / 2\n[END]", "ans": 19, "pattern": "split_and_share"}
+{"q": "Amy has 35 eggs. Uses 10. Sells rest at $4 each. Revenue?", "expr": "remaining = 35 - 10\nrevenue = remaining * 4\n[END]", "ans": 100, "pattern": "two_step_sequential"}
+{"q": "Ben has 88 oranges. Loses 10, then loses 12. Remaining?", "expr": "after_first = 88 - 10\nremaining = after_first - 12\n[END]", "ans": 66, "pattern": "two_step_sequential"}
+{"q": "Chris has 73 stickers. Uses 46. How many left?", "expr": "remaining = 73 - 46\n[END]", "ans": 27, "pattern": "single_op"}
+{"q": "Sam makes coins for $6 each, sells for $14 each. Sells 5. Total profit?", "expr": "profit_each = 14 - 6\ntotal_profit = profit_each * 5\n[END]", "ans": 40, "pattern": "profit_margin"}
+{"q": "Ben makes candys for $4 each, sells for $7 each. Sells 14. Total profit?", "expr": "profit_each = 7 - 4\ntotal_profit = profit_each * 14\n[END]", "ans": 42, "pattern": "profit_margin"}
+{"q": "Maria buys 40 pencils at $12 each. 6 are damaged. Sells good ones at $22 each. Profit?", "expr": "total_cost = 40 * 12\ngood_items = 40 - 6\nrevenue = good_items * 22\nprofit = revenue - total_cost\n[END]", "ans": 268, "pattern": "four_step_business"}
+{"q": "12 rows with 10 pencils each. Total?", "expr": "total = 12 * 10\n[END]", "ans": 120, "pattern": "single_op"}
+{"q": "Jake has 22. Gets 11 more. Spends 8. Left?", "expr": "after_gain = 22 + 11\nremaining = after_gain - 8\n[END]", "ans": 25, "pattern": "two_step_sequential"}
+{"q": "Split 36 coins among 4 people. Each gets?", "expr": "each = 36 / 4\n[END]", "ans": 9, "pattern": "single_op"}
+{"q": "Amy has 47 toys. Uses 5. Sells rest at $2 each. Revenue?", "expr": "remaining = 47 - 5\nrevenue = remaining * 2\n[END]", "ans": 84, "pattern": "two_step_sequential"}
+{"q": "Ryan earns $20/hour for 6 hours. Spends $34 on supplies. Gets $30 tip. Final amount?", "expr": "earned = 20 * 6\nafter_expense = earned - 34\nfinal = after_expense + 30\n[END]", "ans": 116, "pattern": "rate_expense_bonus"}
+{"q": "7 packs with 5 each. Uses 28. Left?", "expr": "total = 7 * 5\nremaining = total - 28\n[END]", "ans": 7, "pattern": "two_step_sequential"}
+{"q": "Anna earns $82/day on weekdays, $131/day on weekends. Weekly expenses are $113. Weekly savings?", "expr": "weekday_total = 82 * 5\nweekend_total = 131 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 113\n[END]", "ans": 559, "pattern": "five_step_weekly"}
+{"q": "Zoe buys 40 balls at $8 each. 4 are damaged. Sells good ones at $16 each. Profit?", "expr": "total_cost = 40 * 8\ngood_items = 40 - 4\nrevenue = good_items * 16\nprofit = revenue - total_cost\n[END]", "ans": 256, "pattern": "four_step_business"}
+{"q": "108 toys split into 6 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 108\nper_group = total / 6\neach_gets = per_group / 2\n[END]", "ans": 9, "pattern": "split_and_share"}
+{"q": "Nick has 21 cookies. Tom has 3 times as many. Combined total?", "expr": "a_count = 21\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 84, "pattern": "two_people_compare"}
+{"q": "Kate has 55 shirts. Loses 20, then loses 7. Remaining?", "expr": "after_first = 55 - 20\nremaining = after_first - 7\n[END]", "ans": 28, "pattern": "two_step_sequential"}
+{"q": "Ryan earns $99/day on weekdays, $123/day on weekends. Weekly expenses are $116. Weekly savings?", "expr": "weekday_total = 99 * 5\nweekend_total = 123 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 116\n[END]", "ans": 625, "pattern": "five_step_weekly"}
+{"q": "Ryan earns $10/hour for 6 hours. Spends $26 on supplies. Gets $29 tip. Final amount?", "expr": "earned = 10 * 6\nafter_expense = earned - 26\nfinal = after_expense + 29\n[END]", "ans": 63, "pattern": "rate_expense_bonus"}
+{"q": "9 shelfs with 9 each. Uses 56. Left?", "expr": "total = 9 * 9\nremaining = total - 56\n[END]", "ans": 25, "pattern": "two_step_sequential"}
+{"q": "Sara has 65 flowers. Loses 12, then loses 7. Remaining?", "expr": "after_first = 65 - 12\nremaining = after_first - 7\n[END]", "ans": 46, "pattern": "two_step_sequential"}
+{"q": "8 bags with 8 each. Uses 5. Left?", "expr": "total = 8 * 8\nremaining = total - 5\n[END]", "ans": 59, "pattern": "two_step_sequential"}
+{"q": "A apple costs $50. It's 10% off. Final price?", "expr": "original = 50\ndiscount = original / 10\nfinal = original - discount\n[END]", "ans": 45, "pattern": "discount_calculation"}
+{"q": "Maria buys 36 cookies at $8 each. 5 are damaged. Sells good ones at $18 each. Profit?", "expr": "total_cost = 36 * 8\ngood_items = 36 - 5\nrevenue = good_items * 18\nprofit = revenue - total_cost\n[END]", "ans": 270, "pattern": "four_step_business"}
+{"q": "Jake has 27. Gets 25 more. Spends 31. Left?", "expr": "after_gain = 27 + 25\nremaining = after_gain - 31\n[END]", "ans": 21, "pattern": "two_step_sequential"}
+{"q": "Split 72 eggs among 8 people. Each gets?", "expr": "each = 72 / 8\n[END]", "ans": 9, "pattern": "single_op"}
+{"q": "Sam has 53 eggs. Loses 17, then loses 15. Remaining?", "expr": "after_first = 53 - 17\nremaining = after_first - 15\n[END]", "ans": 21, "pattern": "two_step_sequential"}
+{"q": "Kate makes cookies for $6 each, sells for $9 each. Sells 13. Total profit?", "expr": "profit_each = 9 - 6\ntotal_profit = profit_each * 13\n[END]", "ans": 39, "pattern": "profit_margin"}
+{"q": "Dan has 44 books. Uses 8. Sells rest at $2 each. Revenue?", "expr": "remaining = 44 - 8\nrevenue = remaining * 2\n[END]", "ans": 72, "pattern": "two_step_sequential"}
+{"q": "Ryan has 91 cookies. Loses 5, then loses 7. Remaining?", "expr": "after_first = 91 - 5\nremaining = after_first - 7\n[END]", "ans": 79, "pattern": "two_step_sequential"}
+{"q": "Kate buys 33 books at $12 each. 6 are damaged. Sells good ones at $18 each. Profit?", "expr": "total_cost = 33 * 12\ngood_items = 33 - 6\nrevenue = good_items * 18\nprofit = revenue - total_cost\n[END]", "ans": 90, "pattern": "four_step_business"}
+{"q": "Sam buys 32 books at $5 each. 6 are damaged. Sells good ones at $12 each. Profit?", "expr": "total_cost = 32 * 5\ngood_items = 32 - 6\nrevenue = good_items * 12\nprofit = revenue - total_cost\n[END]", "ans": 152, "pattern": "four_step_business"}
+{"q": "Amy buys 33 stickers at $12 each. 4 are damaged. Sells good ones at $18 each. Profit?", "expr": "total_cost = 33 * 12\ngood_items = 33 - 4\nrevenue = good_items * 18\nprofit = revenue - total_cost\n[END]", "ans": 126, "pattern": "four_step_business"}
+{"q": "Sam has 97 cards. Loses 15, then loses 6. Remaining?", "expr": "after_first = 97 - 15\nremaining = after_first - 6\n[END]", "ans": 76, "pattern": "two_step_sequential"}
+{"q": "Nick has 33 toys. Uses 21. How many left?", "expr": "remaining = 33 - 21\n[END]", "ans": 12, "pattern": "single_op"}
+{"q": "Anna has 25 cookies. Gets 17 more. Total?", "expr": "total = 25 + 17\n[END]", "ans": 42, "pattern": "single_op"}
+{"q": "Mia has 49 pencils. Gets 7 more. Total?", "expr": "total = 49 + 7\n[END]", "ans": 56, "pattern": "single_op"}
+{"q": "Mia has 59 cards. Uses 9. Sells rest at $3 each. Revenue?", "expr": "remaining = 59 - 9\nrevenue = remaining * 3\n[END]", "ans": 150, "pattern": "two_step_sequential"}
+{"q": "Maria earns $11/hour for 6 hours. Spends $22 on supplies. Gets $14 tip. Final amount?", "expr": "earned = 11 * 6\nafter_expense = earned - 22\nfinal = after_expense + 14\n[END]", "ans": 58, "pattern": "rate_expense_bonus"}
+{"q": "Zoe earns $15/hour for 6 hours. Spends $39 on supplies. Gets $12 tip. Final amount?", "expr": "earned = 15 * 6\nafter_expense = earned - 39\nfinal = after_expense + 12\n[END]", "ans": 63, "pattern": "rate_expense_bonus"}
+{"q": "Evan has 14 cards. Gets 22 more. Total?", "expr": "total = 14 + 22\n[END]", "ans": 36, "pattern": "single_op"}
+{"q": "Ben has 58 books. Uses 6. Sells rest at $3 each. Revenue?", "expr": "remaining = 58 - 6\nrevenue = remaining * 3\n[END]", "ans": 156, "pattern": "two_step_sequential"}
+{"q": "Anna has 49 flowers. Uses 15. Sells rest at $2 each. Revenue?", "expr": "remaining = 49 - 15\nrevenue = remaining * 2\n[END]", "ans": 68, "pattern": "two_step_sequential"}
+{"q": "Ryan earns $12/hour for 9 hours. Spends $13 on supplies. Gets $14 tip. Final amount?", "expr": "earned = 12 * 9\nafter_expense = earned - 13\nfinal = after_expense + 14\n[END]", "ans": 109, "pattern": "rate_expense_bonus"}
+{"q": "6 jars with 9 each. Uses 43. Left?", "expr": "total = 6 * 9\nremaining = total - 43\n[END]", "ans": 11, "pattern": "two_step_sequential"}
+{"q": "A pencil costs $120. It's 25% off. Final price?", "expr": "original = 120\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 90, "pattern": "discount_calculation"}
+{"q": "Ben buys 11 shirts at $4 each. 5 break. Sells rest at $12 each. Profit?", "expr": "cost = 11 * 4\nremaining = 11 - 5\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 28, "pattern": "buy_sell_profit"}
+{"q": "9 trays with 9 each. Uses 25. Left?", "expr": "total = 9 * 9\nremaining = total - 25\n[END]", "ans": 56, "pattern": "two_step_sequential"}
+{"q": "Dan has 13 apples. Mia has twice as many. Combined total?", "expr": "a_count = 13\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 39, "pattern": "two_people_compare"}
+{"q": "Jake earns $84/day on weekdays, $105/day on weekends. Weekly expenses are $147. Weekly savings?", "expr": "weekday_total = 84 * 5\nweekend_total = 105 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 147\n[END]", "ans": 483, "pattern": "five_step_weekly"}
+{"q": "Jake has 11 books. Amy has 3 times as many. Combined total?", "expr": "a_count = 11\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 44, "pattern": "two_people_compare"}
+{"q": "Sam has 36 shirts. Uses 15. Sells rest at $3 each. Revenue?", "expr": "remaining = 36 - 15\nrevenue = remaining * 3\n[END]", "ans": 63, "pattern": "two_step_sequential"}
+{"q": "Alex earns $20/hour for 8 hours. Spends $38 on supplies. Gets $23 tip. Final amount?", "expr": "earned = 20 * 8\nafter_expense = earned - 38\nfinal = after_expense + 23\n[END]", "ans": 145, "pattern": "rate_expense_bonus"}
+{"q": "Jake earns $65/day on weekdays, $112/day on weekends. Weekly expenses are $120. Weekly savings?", "expr": "weekday_total = 65 * 5\nweekend_total = 112 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 120\n[END]", "ans": 429, "pattern": "five_step_weekly"}
+{"q": "Anna earns $76/day on weekdays, $96/day on weekends. Weekly expenses are $122. Weekly savings?", "expr": "weekday_total = 76 * 5\nweekend_total = 96 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 122\n[END]", "ans": 450, "pattern": "five_step_weekly"}
+{"q": "A marble costs $80. It's 20% off. Final price?", "expr": "original = 80\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 64, "pattern": "discount_calculation"}
+{"q": "Emma has 80 candys. Loses 12, then loses 11. Remaining?", "expr": "after_first = 80 - 12\nremaining = after_first - 11\n[END]", "ans": 57, "pattern": "two_step_sequential"}
+{"q": "Alex makes flowers for $7 each, sells for $15 each. Sells 8. Total profit?", "expr": "profit_each = 15 - 7\ntotal_profit = profit_each * 8\n[END]", "ans": 64, "pattern": "profit_margin"}
+{"q": "Mike has 38 candys. Uses 6. Sells rest at $4 each. Revenue?", "expr": "remaining = 38 - 6\nrevenue = remaining * 4\n[END]", "ans": 128, "pattern": "two_step_sequential"}
+{"q": "Sara has 60 candys. Uses 5. Sells rest at $2 each. Revenue?", "expr": "remaining = 60 - 5\nrevenue = remaining * 2\n[END]", "ans": 110, "pattern": "two_step_sequential"}
+{"q": "Ben buys 38 books at $9 each. 3 are damaged. Sells good ones at $13 each. Profit?", "expr": "total_cost = 38 * 9\ngood_items = 38 - 3\nrevenue = good_items * 13\nprofit = revenue - total_cost\n[END]", "ans": 113, "pattern": "four_step_business"}
+{"q": "Alex has 29 candys. Maria has 4 times as many. Combined total?", "expr": "a_count = 29\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 145, "pattern": "two_people_compare"}
+{"q": "3 rows with 15 pencils each. Total?", "expr": "total = 3 * 15\n[END]", "ans": 45, "pattern": "single_op"}
+{"q": "Ryan has 53 eggs. Uses 32. How many left?", "expr": "remaining = 53 - 32\n[END]", "ans": 21, "pattern": "single_op"}
+{"q": "4 packs with 15 cards each. Total?", "expr": "total = 4 * 15\n[END]", "ans": 60, "pattern": "single_op"}
+{"q": "Dan buys 22 marbles at $7 each. 6 break. Sells rest at $10 each. Profit?", "expr": "cost = 22 * 7\nremaining = 22 - 6\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": 6, "pattern": "buy_sell_profit"}
+{"q": "Chris has 69 eggs. Uses 41. How many left?", "expr": "remaining = 69 - 41\n[END]", "ans": 28, "pattern": "single_op"}
+{"q": "Ryan has 69 balls. Loses 14, then loses 11. Remaining?", "expr": "after_first = 69 - 14\nremaining = after_first - 11\n[END]", "ans": 44, "pattern": "two_step_sequential"}
+{"q": "Mia has 44 cards. Uses 12. Sells rest at $5 each. Revenue?", "expr": "remaining = 44 - 12\nrevenue = remaining * 5\n[END]", "ans": 160, "pattern": "two_step_sequential"}
+{"q": "Sara earns $15/hour for 10 hours. Spends $38 on supplies. Gets $15 tip. Final amount?", "expr": "earned = 15 * 10\nafter_expense = earned - 38\nfinal = after_expense + 15\n[END]", "ans": 127, "pattern": "rate_expense_bonus"}
+{"q": "Zoe earns $16/hour for 9 hours. Spends $30 on supplies. Gets $29 tip. Final amount?", "expr": "earned = 16 * 9\nafter_expense = earned - 30\nfinal = after_expense + 29\n[END]", "ans": 143, "pattern": "rate_expense_bonus"}
+{"q": "Kate has 37 eggs. Uses 8. Sells rest at $3 each. Revenue?", "expr": "remaining = 37 - 8\nrevenue = remaining * 3\n[END]", "ans": 87, "pattern": "two_step_sequential"}
+{"q": "Kate has 39 flowers. Gets 18 more. Total?", "expr": "total = 39 + 18\n[END]", "ans": 57, "pattern": "single_op"}
+{"q": "Mia buys 32 pencils at $12 each. 6 are damaged. Sells good ones at $18 each. Profit?", "expr": "total_cost = 32 * 12\ngood_items = 32 - 6\nrevenue = good_items * 18\nprofit = revenue - total_cost\n[END]", "ans": 84, "pattern": "four_step_business"}
+{"q": "Tom has 37 shirts. Gets 12 more. Total?", "expr": "total = 37 + 12\n[END]", "ans": 49, "pattern": "single_op"}
+{"q": "Sara has 45 flowers. Gets 12 more. Total?", "expr": "total = 45 + 12\n[END]", "ans": 57, "pattern": "single_op"}
+{"q": "Emma buys 24 flowers at $12 each. 8 are damaged. Sells good ones at $20 each. Profit?", "expr": "total_cost = 24 * 12\ngood_items = 24 - 8\nrevenue = good_items * 20\nprofit = revenue - total_cost\n[END]", "ans": 32, "pattern": "four_step_business"}
+{"q": "Amy earns $89/day on weekdays, $135/day on weekends. Weekly expenses are $192. Weekly savings?", "expr": "weekday_total = 89 * 5\nweekend_total = 135 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 192\n[END]", "ans": 523, "pattern": "five_step_weekly"}
+{"q": "Dan buys 37 balls at $12 each. 4 are damaged. Sells good ones at $22 each. Profit?", "expr": "total_cost = 37 * 12\ngood_items = 37 - 4\nrevenue = good_items * 22\nprofit = revenue - total_cost\n[END]", "ans": 282, "pattern": "four_step_business"}
+{"q": "Kate buys 18 balls at $10 each. 3 break. Sells rest at $14 each. Profit?", "expr": "cost = 18 * 10\nremaining = 18 - 3\nrevenue = remaining * 14\nprofit = revenue - cost\n[END]", "ans": 30, "pattern": "buy_sell_profit"}
+{"q": "Zoe has 40 pencils. Uses 10. Sells rest at $2 each. Revenue?", "expr": "remaining = 40 - 10\nrevenue = remaining * 2\n[END]", "ans": 60, "pattern": "two_step_sequential"}
+{"q": "Kate has 75 candys. Uses 32. How many left?", "expr": "remaining = 75 - 32\n[END]", "ans": 43, "pattern": "single_op"}
+{"q": "Split 27 marbles among 9 people. Each gets?", "expr": "each = 27 / 9\n[END]", "ans": 3, "pattern": "single_op"}
+{"q": "Dan has 98 candys. Loses 17, then loses 20. Remaining?", "expr": "after_first = 98 - 17\nremaining = after_first - 20\n[END]", "ans": 61, "pattern": "two_step_sequential"}
+{"q": "Split 99 stickers among 9 people. Each gets?", "expr": "each = 99 / 9\n[END]", "ans": 11, "pattern": "single_op"}
+{"q": "A toy costs $100. It's 20% off. Final price?", "expr": "original = 100\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 80, "pattern": "discount_calculation"}
+{"q": "Ben buys 25 candys at $3 each. 5 break. Sells rest at $7 each. Profit?", "expr": "cost = 25 * 3\nremaining = 25 - 5\nrevenue = remaining * 7\nprofit = revenue - cost\n[END]", "ans": 65, "pattern": "buy_sell_profit"}
+{"q": "Chris earns $19/hour for 5 hours. Spends $36 on supplies. Gets $24 tip. Final amount?", "expr": "earned = 19 * 5\nafter_expense = earned - 36\nfinal = after_expense + 24\n[END]", "ans": 83, "pattern": "rate_expense_bonus"}
+{"q": "Evan buys 20 toys at $11 each. 7 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 20 * 11\ngood_items = 20 - 7\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": -38, "pattern": "four_step_business"}
+{"q": "Split 15 books among 5 people. Each gets?", "expr": "each = 15 / 5\n[END]", "ans": 3, "pattern": "single_op"}
+{"q": "Maria has 30. Gets 20 more. Spends 29. Left?", "expr": "after_gain = 30 + 20\nremaining = after_gain - 29\n[END]", "ans": 21, "pattern": "two_step_sequential"}
+{"q": "Dan has 80 stickers. Loses 5, then loses 6. Remaining?", "expr": "after_first = 80 - 5\nremaining = after_first - 6\n[END]", "ans": 69, "pattern": "two_step_sequential"}
+{"q": "Alex earns $64/day on weekdays, $104/day on weekends. Weekly expenses are $108. Weekly savings?", "expr": "weekday_total = 64 * 5\nweekend_total = 104 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 108\n[END]", "ans": 420, "pattern": "five_step_weekly"}
+{"q": "Mike earns $51/day on weekdays, $90/day on weekends. Weekly expenses are $119. Weekly savings?", "expr": "weekday_total = 51 * 5\nweekend_total = 90 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 119\n[END]", "ans": 316, "pattern": "five_step_weekly"}
+{"q": "Nick has 86 eggs. Loses 11, then loses 19. Remaining?", "expr": "after_first = 86 - 11\nremaining = after_first - 19\n[END]", "ans": 56, "pattern": "two_step_sequential"}
+{"q": "A coin costs $60. It's 20% off. Final price?", "expr": "original = 60\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 48, "pattern": "discount_calculation"}
+{"q": "Emma has 13 stickers. Mike has 4 times as many. Combined total?", "expr": "a_count = 13\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 65, "pattern": "two_people_compare"}
+{"q": "Split 54 cards among 9 people. Each gets?", "expr": "each = 54 / 9\n[END]", "ans": 6, "pattern": "single_op"}
+{"q": "12 boxs with 5 cookies each. Total?", "expr": "total = 12 * 5\n[END]", "ans": 60, "pattern": "single_op"}
+{"q": "Dan has 32 eggs. Uses 13. Sells rest at $4 each. Revenue?", "expr": "remaining = 32 - 13\nrevenue = remaining * 4\n[END]", "ans": 76, "pattern": "two_step_sequential"}
+{"q": "Split 36 balls among 4 people. Each gets?", "expr": "each = 36 / 4\n[END]", "ans": 9, "pattern": "single_op"}
+{"q": "Amy earns $95/day on weekdays, $119/day on weekends. Weekly expenses are $155. Weekly savings?", "expr": "weekday_total = 95 * 5\nweekend_total = 119 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 155\n[END]", "ans": 558, "pattern": "five_step_weekly"}
+{"q": "12 trays with 12 eggs each. Total?", "expr": "total = 12 * 12\n[END]", "ans": 144, "pattern": "single_op"}
+{"q": "Mia buys 20 stickers at $6 each. 2 break. Sells rest at $10 each. Profit?", "expr": "cost = 20 * 6\nremaining = 20 - 2\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": 60, "pattern": "buy_sell_profit"}
+{"q": "Kate buys 34 coins at $11 each. 5 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 34 * 11\ngood_items = 34 - 5\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 32, "pattern": "four_step_business"}
+{"q": "Maria buys 25 books at $6 each. 4 break. Sells rest at $14 each. Profit?", "expr": "cost = 25 * 6\nremaining = 25 - 4\nrevenue = remaining * 14\nprofit = revenue - cost\n[END]", "ans": 144, "pattern": "buy_sell_profit"}
+{"q": "Ben has 47 shirts. Uses 5. Sells rest at $3 each. Revenue?", "expr": "remaining = 47 - 5\nrevenue = remaining * 3\n[END]", "ans": 126, "pattern": "two_step_sequential"}
+{"q": "Dan has 74 flowers. Uses 65. How many left?", "expr": "remaining = 74 - 65\n[END]", "ans": 9, "pattern": "single_op"}
+{"q": "Nick earns $15/hour for 10 hours. Spends $10 on supplies. Gets $12 tip. Final amount?", "expr": "earned = 15 * 10\nafter_expense = earned - 10\nfinal = after_expense + 12\n[END]", "ans": 152, "pattern": "rate_expense_bonus"}
+{"q": "6 crates with 10 each. Uses 35. Left?", "expr": "total = 6 * 10\nremaining = total - 35\n[END]", "ans": 25, "pattern": "two_step_sequential"}
+{"q": "Dan buys 20 oranges at $8 each. 5 break. Sells rest at $12 each. Profit?", "expr": "cost = 20 * 8\nremaining = 20 - 5\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 20, "pattern": "buy_sell_profit"}
+{"q": "6 crates with 6 each. Uses 28. Left?", "expr": "total = 6 * 6\nremaining = total - 28\n[END]", "ans": 8, "pattern": "two_step_sequential"}
+{"q": "Anna earns $62/day on weekdays, $88/day on weekends. Weekly expenses are $194. Weekly savings?", "expr": "weekday_total = 62 * 5\nweekend_total = 88 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 194\n[END]", "ans": 292, "pattern": "five_step_weekly"}
+{"q": "Mia buys 19 coins at $4 each. 3 break. Sells rest at $8 each. Profit?", "expr": "cost = 19 * 4\nremaining = 19 - 3\nrevenue = remaining * 8\nprofit = revenue - cost\n[END]", "ans": 52, "pattern": "buy_sell_profit"}
+{"q": "Anna has 95 stickers. Loses 9, then loses 13. Remaining?", "expr": "after_first = 95 - 9\nremaining = after_first - 13\n[END]", "ans": 73, "pattern": "two_step_sequential"}
+{"q": "5 trays with 14 toys each. Total?", "expr": "total = 5 * 14\n[END]", "ans": 70, "pattern": "single_op"}
+{"q": "10 trays with 11 cards each. Total?", "expr": "total = 10 * 11\n[END]", "ans": 110, "pattern": "single_op"}
+{"q": "Sam has 23. Gets 12 more. Spends 17. Left?", "expr": "after_gain = 23 + 12\nremaining = after_gain - 17\n[END]", "ans": 18, "pattern": "two_step_sequential"}
+{"q": "Mia buys 11 eggs at $5 each. 3 break. Sells rest at $13 each. Profit?", "expr": "cost = 11 * 5\nremaining = 11 - 3\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": 49, "pattern": "buy_sell_profit"}
+{"q": "Zoe has 13 pencils. Lisa has 4 times as many. Combined total?", "expr": "a_count = 13\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 65, "pattern": "two_people_compare"}
+{"q": "96 cards split into 6 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 96\nper_group = total / 6\neach_gets = per_group / 2\n[END]", "ans": 8, "pattern": "split_and_share"}
+{"q": "Mia has 48 candys. Uses 14. Sells rest at $2 each. Revenue?", "expr": "remaining = 48 - 14\nrevenue = remaining * 2\n[END]", "ans": 68, "pattern": "two_step_sequential"}
+{"q": "Emma has 16 eggs. Kate has 3 times as many. Combined total?", "expr": "a_count = 16\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 64, "pattern": "two_people_compare"}
+{"q": "Anna earns $11/hour for 5 hours. Spends $27 on supplies. Gets $12 tip. Final amount?", "expr": "earned = 11 * 5\nafter_expense = earned - 27\nfinal = after_expense + 12\n[END]", "ans": 40, "pattern": "rate_expense_bonus"}
+{"q": "Split 21 flowers among 7 people. Each gets?", "expr": "each = 21 / 7\n[END]", "ans": 3, "pattern": "single_op"}
+{"q": "Zoe has 22. Gets 17 more. Spends 34. Left?", "expr": "after_gain = 22 + 17\nremaining = after_gain - 34\n[END]", "ans": 5, "pattern": "two_step_sequential"}
+{"q": "7 baskets with 6 each. Uses 19. Left?", "expr": "total = 7 * 6\nremaining = total - 19\n[END]", "ans": 23, "pattern": "two_step_sequential"}
+{"q": "Jake buys 21 cookies at $7 each. 5 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 21 * 7\ngood_items = 21 - 5\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 77, "pattern": "four_step_business"}
+{"q": "Amy has 52 oranges. Uses 11. Sells rest at $4 each. Revenue?", "expr": "remaining = 52 - 11\nrevenue = remaining * 4\n[END]", "ans": 164, "pattern": "two_step_sequential"}
+{"q": "Nick buys 12 flowers at $3 each. 5 break. Sells rest at $10 each. Profit?", "expr": "cost = 12 * 3\nremaining = 12 - 5\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": 34, "pattern": "buy_sell_profit"}
+{"q": "Ben has 64 apples. Loses 5, then loses 13. Remaining?", "expr": "after_first = 64 - 5\nremaining = after_first - 13\n[END]", "ans": 46, "pattern": "two_step_sequential"}
+{"q": "Anna has 30 toys. Sara has 3 times as many. Combined total?", "expr": "a_count = 30\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 120, "pattern": "two_people_compare"}
+{"q": "Anna buys 33 cards at $12 each. 3 are damaged. Sells good ones at $22 each. Profit?", "expr": "total_cost = 33 * 12\ngood_items = 33 - 3\nrevenue = good_items * 22\nprofit = revenue - total_cost\n[END]", "ans": 264, "pattern": "four_step_business"}
+{"q": "Maria has 60 marbles. Loses 15, then loses 18. Remaining?", "expr": "after_first = 60 - 15\nremaining = after_first - 18\n[END]", "ans": 27, "pattern": "two_step_sequential"}
+{"q": "A sticker costs $120. It's 50% off. Final price?", "expr": "original = 120\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 60, "pattern": "discount_calculation"}
+{"q": "Sam makes toys for $10 each, sells for $12 each. Sells 10. Total profit?", "expr": "profit_each = 12 - 10\ntotal_profit = profit_each * 10\n[END]", "ans": 20, "pattern": "profit_margin"}
+{"q": "Emma has 47. Gets 26 more. Spends 5. Left?", "expr": "after_gain = 47 + 26\nremaining = after_gain - 5\n[END]", "ans": 68, "pattern": "two_step_sequential"}
+{"q": "Ryan earns $15/hour for 7 hours. Spends $11 on supplies. Gets $16 tip. Final amount?", "expr": "earned = 15 * 7\nafter_expense = earned - 11\nfinal = after_expense + 16\n[END]", "ans": 110, "pattern": "rate_expense_bonus"}
+{"q": "Evan buys 25 coins at $10 each. 2 break. Sells rest at $13 each. Profit?", "expr": "cost = 25 * 10\nremaining = 25 - 2\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": 49, "pattern": "buy_sell_profit"}
+{"q": "Jake has 44 shirts. Uses 12. Sells rest at $2 each. Revenue?", "expr": "remaining = 44 - 12\nrevenue = remaining * 2\n[END]", "ans": 64, "pattern": "two_step_sequential"}
+{"q": "Evan has 75 coins. Uses 25. How many left?", "expr": "remaining = 75 - 25\n[END]", "ans": 50, "pattern": "single_op"}
+{"q": "Tom has 22. Gets 17 more. Spends 31. Left?", "expr": "after_gain = 22 + 17\nremaining = after_gain - 31\n[END]", "ans": 8, "pattern": "two_step_sequential"}
+{"q": "Amy buys 40 cookies at $7 each. 6 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 40 * 7\ngood_items = 40 - 6\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 196, "pattern": "four_step_business"}
+{"q": "Ben buys 25 candys at $10 each. 3 break. Sells rest at $15 each. Profit?", "expr": "cost = 25 * 10\nremaining = 25 - 3\nrevenue = remaining * 15\nprofit = revenue - cost\n[END]", "ans": 80, "pattern": "buy_sell_profit"}
+{"q": "Chris has 29 shirts. Mike has 4 times as many. Combined total?", "expr": "a_count = 29\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 145, "pattern": "two_people_compare"}
+{"q": "A book costs $40. It's 25% off. Final price?", "expr": "original = 40\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 30, "pattern": "discount_calculation"}
+{"q": "84 balls split into 4 groups. Each group shared among 3 people. Each person gets?", "expr": "total = 84\nper_group = total / 4\neach_gets = per_group / 3\n[END]", "ans": 7, "pattern": "split_and_share"}
+{"q": "Zoe makes stickers for $10 each, sells for $18 each. Sells 7. Total profit?", "expr": "profit_each = 18 - 10\ntotal_profit = profit_each * 7\n[END]", "ans": 56, "pattern": "profit_margin"}
+{"q": "Nick has 47 marbles. Uses 13. Sells rest at $5 each. Revenue?", "expr": "remaining = 47 - 13\nrevenue = remaining * 5\n[END]", "ans": 170, "pattern": "two_step_sequential"}
+{"q": "Maria buys 16 balls at $6 each. 6 break. Sells rest at $11 each. Profit?", "expr": "cost = 16 * 6\nremaining = 16 - 6\nrevenue = remaining * 11\nprofit = revenue - cost\n[END]", "ans": 14, "pattern": "buy_sell_profit"}
+{"q": "Dan has 53 apples. Uses 12. Sells rest at $5 each. Revenue?", "expr": "remaining = 53 - 12\nrevenue = remaining * 5\n[END]", "ans": 205, "pattern": "two_step_sequential"}
+{"q": "Jake has 58 flowers. Loses 15, then loses 8. Remaining?", "expr": "after_first = 58 - 15\nremaining = after_first - 8\n[END]", "ans": 35, "pattern": "two_step_sequential"}
+{"q": "Amy buys 36 cookies at $12 each. 3 are damaged. Sells good ones at $17 each. Profit?", "expr": "total_cost = 36 * 12\ngood_items = 36 - 3\nrevenue = good_items * 17\nprofit = revenue - total_cost\n[END]", "ans": 129, "pattern": "four_step_business"}
+{"q": "Jake has 45. Gets 18 more. Spends 26. Left?", "expr": "after_gain = 45 + 18\nremaining = after_gain - 26\n[END]", "ans": 37, "pattern": "two_step_sequential"}
+{"q": "Chris has 20 balls. Lisa has 4 times as many. Combined total?", "expr": "a_count = 20\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 100, "pattern": "two_people_compare"}
+{"q": "Maria has 47. Gets 27 more. Spends 9. Left?", "expr": "after_gain = 47 + 27\nremaining = after_gain - 9\n[END]", "ans": 65, "pattern": "two_step_sequential"}
+{"q": "Kate has 12 pencils. Maria has 3 times as many. Combined total?", "expr": "a_count = 12\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 48, "pattern": "two_people_compare"}
+{"q": "Emma earns $78/day on weekdays, $103/day on weekends. Weekly expenses are $188. Weekly savings?", "expr": "weekday_total = 78 * 5\nweekend_total = 103 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 188\n[END]", "ans": 408, "pattern": "five_step_weekly"}
+{"q": "Tom has 55 apples. Uses 5. Sells rest at $4 each. Revenue?", "expr": "remaining = 55 - 5\nrevenue = remaining * 4\n[END]", "ans": 200, "pattern": "two_step_sequential"}
+{"q": "8 baskets with 11 each. Uses 77. Left?", "expr": "total = 8 * 11\nremaining = total - 77\n[END]", "ans": 11, "pattern": "two_step_sequential"}
+{"q": "Split 60 cards among 6 people. Each gets?", "expr": "each = 60 / 6\n[END]", "ans": 10, "pattern": "single_op"}
+{"q": "Jake buys 34 pencils at $9 each. 6 are damaged. Sells good ones at $16 each. Profit?", "expr": "total_cost = 34 * 9\ngood_items = 34 - 6\nrevenue = good_items * 16\nprofit = revenue - total_cost\n[END]", "ans": 142, "pattern": "four_step_business"}
+{"q": "Amy earns $12/hour for 9 hours. Spends $27 on supplies. Gets $15 tip. Final amount?", "expr": "earned = 12 * 9\nafter_expense = earned - 27\nfinal = after_expense + 15\n[END]", "ans": 96, "pattern": "rate_expense_bonus"}
+{"q": "9 packs with 15 cards each. Total?", "expr": "total = 9 * 15\n[END]", "ans": 135, "pattern": "single_op"}
+{"q": "Zoe buys 22 pencils at $10 each. 2 break. Sells rest at $13 each. Profit?", "expr": "cost = 22 * 10\nremaining = 22 - 2\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": 40, "pattern": "buy_sell_profit"}
+{"q": "Alex has 52 cards. Uses 9. Sells rest at $2 each. Revenue?", "expr": "remaining = 52 - 9\nrevenue = remaining * 2\n[END]", "ans": 86, "pattern": "two_step_sequential"}
+{"q": "Chris earns $67/day on weekdays, $87/day on weekends. Weekly expenses are $172. Weekly savings?", "expr": "weekday_total = 67 * 5\nweekend_total = 87 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 172\n[END]", "ans": 337, "pattern": "five_step_weekly"}
+{"q": "Sam buys 39 shirts at $12 each. 5 are damaged. Sells good ones at $18 each. Profit?", "expr": "total_cost = 39 * 12\ngood_items = 39 - 5\nrevenue = good_items * 18\nprofit = revenue - total_cost\n[END]", "ans": 144, "pattern": "four_step_business"}
+{"q": "Alex has 16 eggs. Kate has 4 times as many. Combined total?", "expr": "a_count = 16\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 80, "pattern": "two_people_compare"}
+{"q": "Jake has 90 eggs. Loses 6, then loses 14. Remaining?", "expr": "after_first = 90 - 6\nremaining = after_first - 14\n[END]", "ans": 70, "pattern": "two_step_sequential"}
+{"q": "96 apples split into 4 groups. Each group shared among 3 people. Each person gets?", "expr": "total = 96\nper_group = total / 4\neach_gets = per_group / 3\n[END]", "ans": 8, "pattern": "split_and_share"}
+{"q": "Split 30 marbles among 5 people. Each gets?", "expr": "each = 30 / 5\n[END]", "ans": 6, "pattern": "single_op"}
+{"q": "11 packs with 12 shirts each. Total?", "expr": "total = 11 * 12\n[END]", "ans": 132, "pattern": "single_op"}
+{"q": "Nick makes stickers for $7 each, sells for $14 each. Sells 10. Total profit?", "expr": "profit_each = 14 - 7\ntotal_profit = profit_each * 10\n[END]", "ans": 70, "pattern": "profit_margin"}
+{"q": "Lisa makes flowers for $5 each, sells for $13 each. Sells 8. Total profit?", "expr": "profit_each = 13 - 5\ntotal_profit = profit_each * 8\n[END]", "ans": 64, "pattern": "profit_margin"}
+{"q": "Chris buys 37 balls at $10 each. 3 are damaged. Sells good ones at $19 each. Profit?", "expr": "total_cost = 37 * 10\ngood_items = 37 - 3\nrevenue = good_items * 19\nprofit = revenue - total_cost\n[END]", "ans": 276, "pattern": "four_step_business"}
+{"q": "Split 56 cookies among 8 people. Each gets?", "expr": "each = 56 / 8\n[END]", "ans": 7, "pattern": "single_op"}
+{"q": "Alex has 17 eggs. Emma has 3 times as many. Combined total?", "expr": "a_count = 17\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 68, "pattern": "two_people_compare"}
+{"q": "Ryan has 71 marbles. Uses 9. How many left?", "expr": "remaining = 71 - 9\n[END]", "ans": 62, "pattern": "single_op"}
+{"q": "Amy earns $19/hour for 6 hours. Spends $30 on supplies. Gets $23 tip. Final amount?", "expr": "earned = 19 * 6\nafter_expense = earned - 30\nfinal = after_expense + 23\n[END]", "ans": 107, "pattern": "rate_expense_bonus"}
+{"q": "10 bags with 5 apples each. Total?", "expr": "total = 10 * 5\n[END]", "ans": 50, "pattern": "single_op"}
+{"q": "Ryan has 34. Gets 21 more. Spends 47. Left?", "expr": "after_gain = 34 + 21\nremaining = after_gain - 47\n[END]", "ans": 8, "pattern": "two_step_sequential"}
+{"q": "Ryan earns $76/day on weekdays, $114/day on weekends. Weekly expenses are $195. Weekly savings?", "expr": "weekday_total = 76 * 5\nweekend_total = 114 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 195\n[END]", "ans": 413, "pattern": "five_step_weekly"}
+{"q": "A shirt costs $80. It's 10% off. Final price?", "expr": "original = 80\ndiscount = original / 10\nfinal = original - discount\n[END]", "ans": 72, "pattern": "discount_calculation"}
+{"q": "Dan makes cards for $7 each, sells for $9 each. Sells 10. Total profit?", "expr": "profit_each = 9 - 7\ntotal_profit = profit_each * 10\n[END]", "ans": 20, "pattern": "profit_margin"}
+{"q": "Amy has 33 pencils. Uses 15. Sells rest at $4 each. Revenue?", "expr": "remaining = 33 - 15\nrevenue = remaining * 4\n[END]", "ans": 72, "pattern": "two_step_sequential"}
+{"q": "Alex buys 22 apples at $7 each. 3 break. Sells rest at $9 each. Profit?", "expr": "cost = 22 * 7\nremaining = 22 - 3\nrevenue = remaining * 9\nprofit = revenue - cost\n[END]", "ans": 17, "pattern": "buy_sell_profit"}
+{"q": "Amy earns $55/day on weekdays, $96/day on weekends. Weekly expenses are $127. Weekly savings?", "expr": "weekday_total = 55 * 5\nweekend_total = 96 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 127\n[END]", "ans": 340, "pattern": "five_step_weekly"}
+{"q": "Evan earns $8/hour for 4 hours. Spends $35 on supplies. Gets $20 tip. Final amount?", "expr": "earned = 8 * 4\nafter_expense = earned - 35\nfinal = after_expense + 20\n[END]", "ans": 17, "pattern": "rate_expense_bonus"}
+{"q": "4 jars with 8 each. Uses 23. Left?", "expr": "total = 4 * 8\nremaining = total - 23\n[END]", "ans": 9, "pattern": "two_step_sequential"}
+{"q": "Maria makes pencils for $5 each, sells for $13 each. Sells 14. Total profit?", "expr": "profit_each = 13 - 5\ntotal_profit = profit_each * 14\n[END]", "ans": 112, "pattern": "profit_margin"}
+{"q": "5 boxs with 5 books each. Total?", "expr": "total = 5 * 5\n[END]", "ans": 25, "pattern": "single_op"}
+{"q": "Alex has 67 coins. Uses 25. How many left?", "expr": "remaining = 67 - 25\n[END]", "ans": 42, "pattern": "single_op"}
+{"q": "Ben has 77 apples. Uses 58. How many left?", "expr": "remaining = 77 - 58\n[END]", "ans": 19, "pattern": "single_op"}
+{"q": "Lisa buys 24 flowers at $8 each. 6 break. Sells rest at $14 each. Profit?", "expr": "cost = 24 * 8\nremaining = 24 - 6\nrevenue = remaining * 14\nprofit = revenue - cost\n[END]", "ans": 60, "pattern": "buy_sell_profit"}
+{"q": "Sara has 43 pencils. Gets 14 more. Total?", "expr": "total = 43 + 14\n[END]", "ans": 57, "pattern": "single_op"}
+{"q": "Tom buys 25 apples at $9 each. 5 break. Sells rest at $16 each. Profit?", "expr": "cost = 25 * 9\nremaining = 25 - 5\nrevenue = remaining * 16\nprofit = revenue - cost\n[END]", "ans": 95, "pattern": "buy_sell_profit"}
+{"q": "Amy has 30 cookies. Gets 24 more. Total?", "expr": "total = 30 + 24\n[END]", "ans": 54, "pattern": "single_op"}
+{"q": "9 crates with 13 stickers each. Total?", "expr": "total = 9 * 13\n[END]", "ans": 117, "pattern": "single_op"}
+{"q": "Sara has 23. Gets 13 more. Spends 25. Left?", "expr": "after_gain = 23 + 13\nremaining = after_gain - 25\n[END]", "ans": 11, "pattern": "two_step_sequential"}
+{"q": "Ryan earns $19/hour for 10 hours. Spends $16 on supplies. Gets $23 tip. Final amount?", "expr": "earned = 19 * 10\nafter_expense = earned - 16\nfinal = after_expense + 23\n[END]", "ans": 197, "pattern": "rate_expense_bonus"}
+{"q": "Kate buys 20 candys at $10 each. 5 break. Sells rest at $15 each. Profit?", "expr": "cost = 20 * 10\nremaining = 20 - 5\nrevenue = remaining * 15\nprofit = revenue - cost\n[END]", "ans": 25, "pattern": "buy_sell_profit"}
+{"q": "A marble costs $80. It's 25% off. Final price?", "expr": "original = 80\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 60, "pattern": "discount_calculation"}
+{"q": "Alex earns $10/hour for 9 hours. Spends $39 on supplies. Gets $25 tip. Final amount?", "expr": "earned = 10 * 9\nafter_expense = earned - 39\nfinal = after_expense + 25\n[END]", "ans": 76, "pattern": "rate_expense_bonus"}
+{"q": "Split 32 cookies among 4 people. Each gets?", "expr": "each = 32 / 4\n[END]", "ans": 8, "pattern": "single_op"}
+{"q": "Sam makes toys for $8 each, sells for $15 each. Sells 6. Total profit?", "expr": "profit_each = 15 - 8\ntotal_profit = profit_each * 6\n[END]", "ans": 42, "pattern": "profit_margin"}
+{"q": "Dan has 68 balls. Loses 14, then loses 16. Remaining?", "expr": "after_first = 68 - 14\nremaining = after_first - 16\n[END]", "ans": 38, "pattern": "two_step_sequential"}
+{"q": "Sara has 72 pencils. Uses 35. How many left?", "expr": "remaining = 72 - 35\n[END]", "ans": 37, "pattern": "single_op"}
+{"q": "Emma has 33 marbles. Uses 9. Sells rest at $3 each. Revenue?", "expr": "remaining = 33 - 9\nrevenue = remaining * 3\n[END]", "ans": 72, "pattern": "two_step_sequential"}
+{"q": "Ryan makes balls for $3 each, sells for $9 each. Sells 15. Total profit?", "expr": "profit_each = 9 - 3\ntotal_profit = profit_each * 15\n[END]", "ans": 90, "pattern": "profit_margin"}
+{"q": "Tom makes stickers for $5 each, sells for $9 each. Sells 9. Total profit?", "expr": "profit_each = 9 - 5\ntotal_profit = profit_each * 9\n[END]", "ans": 36, "pattern": "profit_margin"}
+{"q": "Alex buys 25 apples at $7 each. 7 are damaged. Sells good ones at $16 each. Profit?", "expr": "total_cost = 25 * 7\ngood_items = 25 - 7\nrevenue = good_items * 16\nprofit = revenue - total_cost\n[END]", "ans": 113, "pattern": "four_step_business"}
+{"q": "Tom has 54 cookies. Uses 31. How many left?", "expr": "remaining = 54 - 31\n[END]", "ans": 23, "pattern": "single_op"}
+{"q": "Anna buys 19 marbles at $8 each. 6 break. Sells rest at $14 each. Profit?", "expr": "cost = 19 * 8\nremaining = 19 - 6\nrevenue = remaining * 14\nprofit = revenue - cost\n[END]", "ans": 30, "pattern": "buy_sell_profit"}
+{"q": "Sam has 78 books. Uses 11. How many left?", "expr": "remaining = 78 - 11\n[END]", "ans": 67, "pattern": "single_op"}
+{"q": "Ben earns $15/hour for 9 hours. Spends $23 on supplies. Gets $25 tip. Final amount?", "expr": "earned = 15 * 9\nafter_expense = earned - 23\nfinal = after_expense + 25\n[END]", "ans": 137, "pattern": "rate_expense_bonus"}
+{"q": "Dan has 26 pencils. Ben has twice as many. Combined total?", "expr": "a_count = 26\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 78, "pattern": "two_people_compare"}
+{"q": "Emma has 36. Gets 19 more. Spends 7. Left?", "expr": "after_gain = 36 + 19\nremaining = after_gain - 7\n[END]", "ans": 48, "pattern": "two_step_sequential"}
+{"q": "Evan has 63 apples. Loses 14, then loses 11. Remaining?", "expr": "after_first = 63 - 14\nremaining = after_first - 11\n[END]", "ans": 38, "pattern": "two_step_sequential"}
+{"q": "Tom has 25. Gets 14 more. Spends 17. Left?", "expr": "after_gain = 25 + 14\nremaining = after_gain - 17\n[END]", "ans": 22, "pattern": "two_step_sequential"}
+{"q": "Kate buys 21 toys at $4 each. 5 break. Sells rest at $12 each. Profit?", "expr": "cost = 21 * 4\nremaining = 21 - 5\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 108, "pattern": "buy_sell_profit"}
+{"q": "A candy costs $40. It's 50% off. Final price?", "expr": "original = 40\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 20, "pattern": "discount_calculation"}
+{"q": "Maria buys 33 cards at $11 each. 8 are damaged. Sells good ones at $20 each. Profit?", "expr": "total_cost = 33 * 11\ngood_items = 33 - 8\nrevenue = good_items * 20\nprofit = revenue - total_cost\n[END]", "ans": 137, "pattern": "four_step_business"}
+{"q": "Chris has 35 apples. Uses 14. Sells rest at $5 each. Revenue?", "expr": "remaining = 35 - 14\nrevenue = remaining * 5\n[END]", "ans": 105, "pattern": "two_step_sequential"}
+{"q": "Alex makes shirts for $4 each, sells for $9 each. Sells 6. Total profit?", "expr": "profit_each = 9 - 4\ntotal_profit = profit_each * 6\n[END]", "ans": 30, "pattern": "profit_margin"}
+{"q": "Mia has 75 candys. Loses 14, then loses 15. Remaining?", "expr": "after_first = 75 - 14\nremaining = after_first - 15\n[END]", "ans": 46, "pattern": "two_step_sequential"}
+{"q": "Anna has 83 cookies. Loses 11, then loses 16. Remaining?", "expr": "after_first = 83 - 11\nremaining = after_first - 16\n[END]", "ans": 56, "pattern": "two_step_sequential"}
+{"q": "Jake has 59 pencils. Loses 13, then loses 11. Remaining?", "expr": "after_first = 59 - 13\nremaining = after_first - 11\n[END]", "ans": 35, "pattern": "two_step_sequential"}
+{"q": "Jake has 21 coins. Gets 29 more. Total?", "expr": "total = 21 + 29\n[END]", "ans": 50, "pattern": "single_op"}
+{"q": "Amy has 28 coins. Evan has 3 times as many. Combined total?", "expr": "a_count = 28\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 112, "pattern": "two_people_compare"}
+{"q": "Mia earns $18/hour for 9 hours. Spends $29 on supplies. Gets $20 tip. Final amount?", "expr": "earned = 18 * 9\nafter_expense = earned - 29\nfinal = after_expense + 20\n[END]", "ans": 153, "pattern": "rate_expense_bonus"}
+{"q": "Maria buys 34 books at $6 each. 6 are damaged. Sells good ones at $16 each. Profit?", "expr": "total_cost = 34 * 6\ngood_items = 34 - 6\nrevenue = good_items * 16\nprofit = revenue - total_cost\n[END]", "ans": 244, "pattern": "four_step_business"}
+{"q": "Ben earns $17/hour for 4 hours. Spends $21 on supplies. Gets $26 tip. Final amount?", "expr": "earned = 17 * 4\nafter_expense = earned - 21\nfinal = after_expense + 26\n[END]", "ans": 73, "pattern": "rate_expense_bonus"}
+{"q": "Amy has 13 flowers. Gets 16 more. Total?", "expr": "total = 13 + 16\n[END]", "ans": 29, "pattern": "single_op"}
+{"q": "Lisa makes cookies for $9 each, sells for $14 each. Sells 14. Total profit?", "expr": "profit_each = 14 - 9\ntotal_profit = profit_each * 14\n[END]", "ans": 70, "pattern": "profit_margin"}
+{"q": "Sam has 28 shirts. Nick has twice as many. Combined total?", "expr": "a_count = 28\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 84, "pattern": "two_people_compare"}
+{"q": "4 shelfs with 12 each. Uses 11. Left?", "expr": "total = 4 * 12\nremaining = total - 11\n[END]", "ans": 37, "pattern": "two_step_sequential"}
+{"q": "Lisa earns $82/day on weekdays, $122/day on weekends. Weekly expenses are $122. Weekly savings?", "expr": "weekday_total = 82 * 5\nweekend_total = 122 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 122\n[END]", "ans": 532, "pattern": "five_step_weekly"}
+{"q": "Amy has 53 flowers. Uses 28. How many left?", "expr": "remaining = 53 - 28\n[END]", "ans": 25, "pattern": "single_op"}
+{"q": "Chris buys 30 candys at $5 each. 8 are damaged. Sells good ones at $13 each. Profit?", "expr": "total_cost = 30 * 5\ngood_items = 30 - 8\nrevenue = good_items * 13\nprofit = revenue - total_cost\n[END]", "ans": 136, "pattern": "four_step_business"}
+{"q": "Split 49 toys among 7 people. Each gets?", "expr": "each = 49 / 7\n[END]", "ans": 7, "pattern": "single_op"}
+{"q": "A egg costs $100. It's 20% off. Final price?", "expr": "original = 100\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 80, "pattern": "discount_calculation"}
+{"q": "6 rows with 9 each. Uses 46. Left?", "expr": "total = 6 * 9\nremaining = total - 46\n[END]", "ans": 8, "pattern": "two_step_sequential"}
+{"q": "Split 40 stickers among 8 people. Each gets?", "expr": "each = 40 / 8\n[END]", "ans": 5, "pattern": "single_op"}
+{"q": "Sara earns $9/hour for 9 hours. Spends $31 on supplies. Gets $23 tip. Final amount?", "expr": "earned = 9 * 9\nafter_expense = earned - 31\nfinal = after_expense + 23\n[END]", "ans": 73, "pattern": "rate_expense_bonus"}
+{"q": "Tom buys 19 marbles at $5 each. 3 break. Sells rest at $9 each. Profit?", "expr": "cost = 19 * 5\nremaining = 19 - 3\nrevenue = remaining * 9\nprofit = revenue - cost\n[END]", "ans": 49, "pattern": "buy_sell_profit"}
+{"q": "Nick earns $62/day on weekdays, $89/day on weekends. Weekly expenses are $117. Weekly savings?", "expr": "weekday_total = 62 * 5\nweekend_total = 89 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 117\n[END]", "ans": 371, "pattern": "five_step_weekly"}
+{"q": "Zoe has 42 balls. Gets 29 more. Total?", "expr": "total = 42 + 29\n[END]", "ans": 71, "pattern": "single_op"}
+{"q": "Sara buys 20 apples at $5 each. 6 break. Sells rest at $10 each. Profit?", "expr": "cost = 20 * 5\nremaining = 20 - 6\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": 40, "pattern": "buy_sell_profit"}
+{"q": "Anna has 76 balls. Uses 61. How many left?", "expr": "remaining = 76 - 61\n[END]", "ans": 15, "pattern": "single_op"}
+{"q": "Alex has 58 eggs. Uses 44. How many left?", "expr": "remaining = 58 - 44\n[END]", "ans": 14, "pattern": "single_op"}
+{"q": "6 jars with 12 each. Uses 62. Left?", "expr": "total = 6 * 12\nremaining = total - 62\n[END]", "ans": 10, "pattern": "two_step_sequential"}
+{"q": "Mia has 44. Gets 19 more. Spends 54. Left?", "expr": "after_gain = 44 + 19\nremaining = after_gain - 54\n[END]", "ans": 9, "pattern": "two_step_sequential"}
+{"q": "10 packs with 8 each. Uses 22. Left?", "expr": "total = 10 * 8\nremaining = total - 22\n[END]", "ans": 58, "pattern": "two_step_sequential"}
+{"q": "11 crates with 5 balls each. Total?", "expr": "total = 11 * 5\n[END]", "ans": 55, "pattern": "single_op"}
+{"q": "Zoe buys 25 cookies at $9 each. 6 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 25 * 9\ngood_items = 25 - 6\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 41, "pattern": "four_step_business"}
+{"q": "Kate makes cookies for $10 each, sells for $14 each. Sells 5. Total profit?", "expr": "profit_each = 14 - 10\ntotal_profit = profit_each * 5\n[END]", "ans": 20, "pattern": "profit_margin"}
+{"q": "Chris has 37 toys. Uses 11. Sells rest at $2 each. Revenue?", "expr": "remaining = 37 - 11\nrevenue = remaining * 2\n[END]", "ans": 52, "pattern": "two_step_sequential"}
+{"q": "Tom has 95 marbles. Loses 15, then loses 9. Remaining?", "expr": "after_first = 95 - 15\nremaining = after_first - 9\n[END]", "ans": 71, "pattern": "two_step_sequential"}
+{"q": "Split 50 shirts among 5 people. Each gets?", "expr": "each = 50 / 5\n[END]", "ans": 10, "pattern": "single_op"}
+{"q": "Tom has 51 shirts. Loses 13, then loses 11. Remaining?", "expr": "after_first = 51 - 13\nremaining = after_first - 11\n[END]", "ans": 27, "pattern": "two_step_sequential"}
+{"q": "Evan makes toys for $9 each, sells for $11 each. Sells 9. Total profit?", "expr": "profit_each = 11 - 9\ntotal_profit = profit_each * 9\n[END]", "ans": 18, "pattern": "profit_margin"}
+{"q": "7 bags with 12 each. Uses 13. Left?", "expr": "total = 7 * 12\nremaining = total - 13\n[END]", "ans": 71, "pattern": "two_step_sequential"}
+{"q": "Evan makes flowers for $3 each, sells for $10 each. Sells 13. Total profit?", "expr": "profit_each = 10 - 3\ntotal_profit = profit_each * 13\n[END]", "ans": 91, "pattern": "profit_margin"}
+{"q": "Jake has 10 candys. Maria has 4 times as many. Combined total?", "expr": "a_count = 10\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 50, "pattern": "two_people_compare"}
+{"q": "9 shelfs with 6 each. Uses 38. Left?", "expr": "total = 9 * 6\nremaining = total - 38\n[END]", "ans": 16, "pattern": "two_step_sequential"}
+{"q": "Sara has 34 toys. Gets 20 more. Total?", "expr": "total = 34 + 20\n[END]", "ans": 54, "pattern": "single_op"}
+{"q": "3 bags with 9 marbles each. Total?", "expr": "total = 3 * 9\n[END]", "ans": 27, "pattern": "single_op"}
+{"q": "Emma has 34 coins. Uses 5. Sells rest at $4 each. Revenue?", "expr": "remaining = 34 - 5\nrevenue = remaining * 4\n[END]", "ans": 116, "pattern": "two_step_sequential"}
+{"q": "Anna buys 24 balls at $10 each. 3 break. Sells rest at $18 each. Profit?", "expr": "cost = 24 * 10\nremaining = 24 - 3\nrevenue = remaining * 18\nprofit = revenue - cost\n[END]", "ans": 138, "pattern": "buy_sell_profit"}
+{"q": "6 jars with 4 apples each. Total?", "expr": "total = 6 * 4\n[END]", "ans": 24, "pattern": "single_op"}
+{"q": "Maria buys 29 shirts at $11 each. 7 are damaged. Sells good ones at $21 each. Profit?", "expr": "total_cost = 29 * 11\ngood_items = 29 - 7\nrevenue = good_items * 21\nprofit = revenue - total_cost\n[END]", "ans": 143, "pattern": "four_step_business"}
+{"q": "Mike has 57 stickers. Uses 5. Sells rest at $4 each. Revenue?", "expr": "remaining = 57 - 5\nrevenue = remaining * 4\n[END]", "ans": 208, "pattern": "two_step_sequential"}
+{"q": "Alex has 43. Gets 24 more. Spends 62. Left?", "expr": "after_gain = 43 + 24\nremaining = after_gain - 62\n[END]", "ans": 5, "pattern": "two_step_sequential"}
+{"q": "Maria earns $61/day on weekdays, $96/day on weekends. Weekly expenses are $188. Weekly savings?", "expr": "weekday_total = 61 * 5\nweekend_total = 96 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 188\n[END]", "ans": 309, "pattern": "five_step_weekly"}
+{"q": "Sara buys 12 stickers at $9 each. 2 break. Sells rest at $14 each. Profit?", "expr": "cost = 12 * 9\nremaining = 12 - 2\nrevenue = remaining * 14\nprofit = revenue - cost\n[END]", "ans": 32, "pattern": "buy_sell_profit"}
+{"q": "Anna has 20 stickers. Mia has twice as many. Combined total?", "expr": "a_count = 20\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 60, "pattern": "two_people_compare"}
+{"q": "Split 45 stickers among 9 people. Each gets?", "expr": "each = 45 / 9\n[END]", "ans": 5, "pattern": "single_op"}
+{"q": "Alex earns $15/hour for 4 hours. Spends $33 on supplies. Gets $21 tip. Final amount?", "expr": "earned = 15 * 4\nafter_expense = earned - 33\nfinal = after_expense + 21\n[END]", "ans": 48, "pattern": "rate_expense_bonus"}
+{"q": "Dan has 11 eggs. Ben has twice as many. Combined total?", "expr": "a_count = 11\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 33, "pattern": "two_people_compare"}
+{"q": "Chris earns $13/hour for 8 hours. Spends $35 on supplies. Gets $15 tip. Final amount?", "expr": "earned = 13 * 8\nafter_expense = earned - 35\nfinal = after_expense + 15\n[END]", "ans": 84, "pattern": "rate_expense_bonus"}
+{"q": "Jake earns $88/day on weekdays, $129/day on weekends. Weekly expenses are $200. Weekly savings?", "expr": "weekday_total = 88 * 5\nweekend_total = 129 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 200\n[END]", "ans": 498, "pattern": "five_step_weekly"}
+{"q": "10 rows with 10 each. Uses 51. Left?", "expr": "total = 10 * 10\nremaining = total - 51\n[END]", "ans": 49, "pattern": "two_step_sequential"}
+{"q": "Sam earns $88/day on weekdays, $112/day on weekends. Weekly expenses are $186. Weekly savings?", "expr": "weekday_total = 88 * 5\nweekend_total = 112 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 186\n[END]", "ans": 478, "pattern": "five_step_weekly"}
+{"q": "Alex has 44. Gets 12 more. Spends 41. Left?", "expr": "after_gain = 44 + 12\nremaining = after_gain - 41\n[END]", "ans": 15, "pattern": "two_step_sequential"}
+{"q": "7 bags with 7 candys each. Total?", "expr": "total = 7 * 7\n[END]", "ans": 49, "pattern": "single_op"}
+{"q": "Split 28 flowers among 4 people. Each gets?", "expr": "each = 28 / 4\n[END]", "ans": 7, "pattern": "single_op"}
+{"q": "Zoe earns $94/day on weekdays, $143/day on weekends. Weekly expenses are $162. Weekly savings?", "expr": "weekday_total = 94 * 5\nweekend_total = 143 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 162\n[END]", "ans": 594, "pattern": "five_step_weekly"}
+{"q": "Jake has 78 balls. Loses 10, then loses 19. Remaining?", "expr": "after_first = 78 - 10\nremaining = after_first - 19\n[END]", "ans": 49, "pattern": "two_step_sequential"}
+{"q": "Maria earns $92/day on weekdays, $123/day on weekends. Weekly expenses are $190. Weekly savings?", "expr": "weekday_total = 92 * 5\nweekend_total = 123 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 190\n[END]", "ans": 516, "pattern": "five_step_weekly"}
+{"q": "5 baskets with 15 stickers each. Total?", "expr": "total = 5 * 15\n[END]", "ans": 75, "pattern": "single_op"}
+{"q": "Jake earns $65/day on weekdays, $110/day on weekends. Weekly expenses are $163. Weekly savings?", "expr": "weekday_total = 65 * 5\nweekend_total = 110 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 163\n[END]", "ans": 382, "pattern": "five_step_weekly"}
+{"q": "10 baskets with 12 cards each. Total?", "expr": "total = 10 * 12\n[END]", "ans": 120, "pattern": "single_op"}
+{"q": "Lisa has 22 stickers. Emma has 3 times as many. Combined total?", "expr": "a_count = 22\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 88, "pattern": "two_people_compare"}
+{"q": "Dan buys 12 balls at $5 each. 4 break. Sells rest at $12 each. Profit?", "expr": "cost = 12 * 5\nremaining = 12 - 4\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 36, "pattern": "buy_sell_profit"}
+{"q": "5 baskets with 12 eggs each. Total?", "expr": "total = 5 * 12\n[END]", "ans": 60, "pattern": "single_op"}
+{"q": "84 books split into 6 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 84\nper_group = total / 6\neach_gets = per_group / 2\n[END]", "ans": 7, "pattern": "split_and_share"}
+{"q": "Jake makes toys for $7 each, sells for $10 each. Sells 7. Total profit?", "expr": "profit_each = 10 - 7\ntotal_profit = profit_each * 7\n[END]", "ans": 21, "pattern": "profit_margin"}
+{"q": "Kate has 57 marbles. Uses 6. Sells rest at $4 each. Revenue?", "expr": "remaining = 57 - 6\nrevenue = remaining * 4\n[END]", "ans": 204, "pattern": "two_step_sequential"}
+{"q": "Ryan has 70 stickers. Uses 24. How many left?", "expr": "remaining = 70 - 24\n[END]", "ans": 46, "pattern": "single_op"}
+{"q": "Lisa has 15 eggs. Ryan has 4 times as many. Combined total?", "expr": "a_count = 15\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 75, "pattern": "two_people_compare"}
+{"q": "Jake earns $60/day on weekdays, $101/day on weekends. Weekly expenses are $179. Weekly savings?", "expr": "weekday_total = 60 * 5\nweekend_total = 101 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 179\n[END]", "ans": 323, "pattern": "five_step_weekly"}
+{"q": "A card costs $60. It's 10% off. Final price?", "expr": "original = 60\ndiscount = original / 10\nfinal = original - discount\n[END]", "ans": 54, "pattern": "discount_calculation"}
+{"q": "Lisa makes apples for $3 each, sells for $10 each. Sells 14. Total profit?", "expr": "profit_each = 10 - 3\ntotal_profit = profit_each * 14\n[END]", "ans": 98, "pattern": "profit_margin"}
+{"q": "Mike has 39. Gets 30 more. Spends 6. Left?", "expr": "after_gain = 39 + 30\nremaining = after_gain - 6\n[END]", "ans": 63, "pattern": "two_step_sequential"}
+{"q": "Ryan buys 19 stickers at $10 each. 3 break. Sells rest at $18 each. Profit?", "expr": "cost = 19 * 10\nremaining = 19 - 3\nrevenue = remaining * 18\nprofit = revenue - cost\n[END]", "ans": 98, "pattern": "buy_sell_profit"}
+{"q": "Zoe makes candys for $10 each, sells for $12 each. Sells 5. Total profit?", "expr": "profit_each = 12 - 10\ntotal_profit = profit_each * 5\n[END]", "ans": 10, "pattern": "profit_margin"}
+{"q": "Split 48 flowers among 6 people. Each gets?", "expr": "each = 48 / 6\n[END]", "ans": 8, "pattern": "single_op"}
+{"q": "Maria has 21 oranges. Alex has 3 times as many. Combined total?", "expr": "a_count = 21\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 84, "pattern": "two_people_compare"}
+{"q": "Alex has 30 toys. Gets 12 more. Total?", "expr": "total = 30 + 12\n[END]", "ans": 42, "pattern": "single_op"}
+{"q": "Ben buys 17 flowers at $5 each. 2 break. Sells rest at $7 each. Profit?", "expr": "cost = 17 * 5\nremaining = 17 - 2\nrevenue = remaining * 7\nprofit = revenue - cost\n[END]", "ans": 20, "pattern": "buy_sell_profit"}
+{"q": "Chris has 27. Gets 15 more. Spends 25. Left?", "expr": "after_gain = 27 + 15\nremaining = after_gain - 25\n[END]", "ans": 17, "pattern": "two_step_sequential"}
+{"q": "Maria earns $62/day on weekdays, $106/day on weekends. Weekly expenses are $120. Weekly savings?", "expr": "weekday_total = 62 * 5\nweekend_total = 106 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 120\n[END]", "ans": 402, "pattern": "five_step_weekly"}
+{"q": "Sara buys 25 flowers at $7 each. 5 break. Sells rest at $9 each. Profit?", "expr": "cost = 25 * 7\nremaining = 25 - 5\nrevenue = remaining * 9\nprofit = revenue - cost\n[END]", "ans": 5, "pattern": "buy_sell_profit"}
+{"q": "Split 36 toys among 6 people. Each gets?", "expr": "each = 36 / 6\n[END]", "ans": 6, "pattern": "single_op"}
+{"q": "Sam has 25 stickers. Lisa has 4 times as many. Combined total?", "expr": "a_count = 25\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 125, "pattern": "two_people_compare"}
+{"q": "Nick buys 37 stickers at $5 each. 3 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 37 * 5\ngood_items = 37 - 3\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 291, "pattern": "four_step_business"}
+{"q": "9 boxs with 9 oranges each. Total?", "expr": "total = 9 * 9\n[END]", "ans": 81, "pattern": "single_op"}
+{"q": "6 rows with 9 each. Uses 9. Left?", "expr": "total = 6 * 9\nremaining = total - 9\n[END]", "ans": 45, "pattern": "two_step_sequential"}
+{"q": "Ryan buys 13 stickers at $5 each. 2 break. Sells rest at $10 each. Profit?", "expr": "cost = 13 * 5\nremaining = 13 - 2\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": 45, "pattern": "buy_sell_profit"}
+{"q": "Maria has 54 toys. Uses 7. Sells rest at $3 each. Revenue?", "expr": "remaining = 54 - 7\nrevenue = remaining * 3\n[END]", "ans": 141, "pattern": "two_step_sequential"}
+{"q": "Chris has 11 apples. Ryan has twice as many. Combined total?", "expr": "a_count = 11\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 33, "pattern": "two_people_compare"}
+{"q": "Split 50 coins among 10 people. Each gets?", "expr": "each = 50 / 10\n[END]", "ans": 5, "pattern": "single_op"}
+{"q": "Sara has 29 marbles. Jake has 3 times as many. Combined total?", "expr": "a_count = 29\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 116, "pattern": "two_people_compare"}
+{"q": "12 crates with 9 oranges each. Total?", "expr": "total = 12 * 9\n[END]", "ans": 108, "pattern": "single_op"}
+{"q": "Nick makes toys for $7 each, sells for $12 each. Sells 5. Total profit?", "expr": "profit_each = 12 - 7\ntotal_profit = profit_each * 5\n[END]", "ans": 25, "pattern": "profit_margin"}
+{"q": "Emma has 55 candys. Uses 15. Sells rest at $2 each. Revenue?", "expr": "remaining = 55 - 15\nrevenue = remaining * 2\n[END]", "ans": 80, "pattern": "two_step_sequential"}
+{"q": "Ben has 17 cards. Evan has twice as many. Combined total?", "expr": "a_count = 17\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 51, "pattern": "two_people_compare"}
+{"q": "Anna has 29 eggs. Ryan has 3 times as many. Combined total?", "expr": "a_count = 29\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 116, "pattern": "two_people_compare"}
+{"q": "Kate has 22 apples. Gets 5 more. Total?", "expr": "total = 22 + 5\n[END]", "ans": 27, "pattern": "single_op"}
+{"q": "Dan has 42. Gets 16 more. Spends 31. Left?", "expr": "after_gain = 42 + 16\nremaining = after_gain - 31\n[END]", "ans": 27, "pattern": "two_step_sequential"}
+{"q": "Evan buys 25 shirts at $3 each. 3 break. Sells rest at $9 each. Profit?", "expr": "cost = 25 * 3\nremaining = 25 - 3\nrevenue = remaining * 9\nprofit = revenue - cost\n[END]", "ans": 123, "pattern": "buy_sell_profit"}
+{"q": "Maria has 36. Gets 22 more. Spends 25. Left?", "expr": "after_gain = 36 + 22\nremaining = after_gain - 25\n[END]", "ans": 33, "pattern": "two_step_sequential"}
+{"q": "Amy earns $84/day on weekdays, $114/day on weekends. Weekly expenses are $169. Weekly savings?", "expr": "weekday_total = 84 * 5\nweekend_total = 114 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 169\n[END]", "ans": 479, "pattern": "five_step_weekly"}
+{"q": "Ben has 26. Gets 17 more. Spends 22. Left?", "expr": "after_gain = 26 + 17\nremaining = after_gain - 22\n[END]", "ans": 21, "pattern": "two_step_sequential"}
+{"q": "Kate has 19 coins. Maria has twice as many. Combined total?", "expr": "a_count = 19\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 57, "pattern": "two_people_compare"}
+{"q": "A flower costs $60. It's 50% off. Final price?", "expr": "original = 60\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 30, "pattern": "discount_calculation"}
+{"q": "Ben has 86 stickers. Loses 17, then loses 17. Remaining?", "expr": "after_first = 86 - 17\nremaining = after_first - 17\n[END]", "ans": 52, "pattern": "two_step_sequential"}
+{"q": "Jake makes coins for $7 each, sells for $9 each. Sells 9. Total profit?", "expr": "profit_each = 9 - 7\ntotal_profit = profit_each * 9\n[END]", "ans": 18, "pattern": "profit_margin"}
+{"q": "Lisa earns $72/day on weekdays, $121/day on weekends. Weekly expenses are $156. Weekly savings?", "expr": "weekday_total = 72 * 5\nweekend_total = 121 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 156\n[END]", "ans": 446, "pattern": "five_step_weekly"}
+{"q": "Nick earns $11/hour for 5 hours. Spends $36 on supplies. Gets $27 tip. Final amount?", "expr": "earned = 11 * 5\nafter_expense = earned - 36\nfinal = after_expense + 27\n[END]", "ans": 46, "pattern": "rate_expense_bonus"}
+{"q": "Ryan has 34 oranges. Uses 6. Sells rest at $3 each. Revenue?", "expr": "remaining = 34 - 6\nrevenue = remaining * 3\n[END]", "ans": 84, "pattern": "two_step_sequential"}
+{"q": "4 shelfs with 6 each. Uses 11. Left?", "expr": "total = 4 * 6\nremaining = total - 11\n[END]", "ans": 13, "pattern": "two_step_sequential"}
+{"q": "A cookie costs $120. It's 20% off. Final price?", "expr": "original = 120\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 96, "pattern": "discount_calculation"}
+{"q": "Ryan has 56 shirts. Uses 46. How many left?", "expr": "remaining = 56 - 46\n[END]", "ans": 10, "pattern": "single_op"}
+{"q": "Nick earns $80/day on weekdays, $120/day on weekends. Weekly expenses are $125. Weekly savings?", "expr": "weekday_total = 80 * 5\nweekend_total = 120 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 125\n[END]", "ans": 515, "pattern": "five_step_weekly"}
+{"q": "80 stickers split into 4 groups. Each group shared among 5 people. Each person gets?", "expr": "total = 80\nper_group = total / 4\neach_gets = per_group / 5\n[END]", "ans": 4, "pattern": "split_and_share"}
+{"q": "Lisa has 64 eggs. Uses 52. How many left?", "expr": "remaining = 64 - 52\n[END]", "ans": 12, "pattern": "single_op"}
+{"q": "A shirt costs $40. It's 20% off. Final price?", "expr": "original = 40\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 32, "pattern": "discount_calculation"}
+{"q": "Anna has 75 shirts. Loses 20, then loses 10. Remaining?", "expr": "after_first = 75 - 20\nremaining = after_first - 10\n[END]", "ans": 45, "pattern": "two_step_sequential"}
+{"q": "Zoe earns $52/day on weekdays, $72/day on weekends. Weekly expenses are $138. Weekly savings?", "expr": "weekday_total = 52 * 5\nweekend_total = 72 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 138\n[END]", "ans": 266, "pattern": "five_step_weekly"}
+{"q": "Emma has 24 stickers. Alex has 4 times as many. Combined total?", "expr": "a_count = 24\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 120, "pattern": "two_people_compare"}
+{"q": "Jake buys 24 balls at $7 each. 3 break. Sells rest at $15 each. Profit?", "expr": "cost = 24 * 7\nremaining = 24 - 3\nrevenue = remaining * 15\nprofit = revenue - cost\n[END]", "ans": 147, "pattern": "buy_sell_profit"}
+{"q": "Split 35 oranges among 7 people. Each gets?", "expr": "each = 35 / 7\n[END]", "ans": 5, "pattern": "single_op"}
+{"q": "12 jars with 14 coins each. Total?", "expr": "total = 12 * 14\n[END]", "ans": 168, "pattern": "single_op"}
+{"q": "Split 32 balls among 8 people. Each gets?", "expr": "each = 32 / 8\n[END]", "ans": 4, "pattern": "single_op"}
+{"q": "7 jars with 10 each. Uses 64. Left?", "expr": "total = 7 * 10\nremaining = total - 64\n[END]", "ans": 6, "pattern": "two_step_sequential"}
+{"q": "Split 56 pencils among 7 people. Each gets?", "expr": "each = 56 / 7\n[END]", "ans": 8, "pattern": "single_op"}
+{"q": "Mia has 50 apples. Uses 10. Sells rest at $3 each. Revenue?", "expr": "remaining = 50 - 10\nrevenue = remaining * 3\n[END]", "ans": 120, "pattern": "two_step_sequential"}
+{"q": "5 crates with 10 flowers each. Total?", "expr": "total = 5 * 10\n[END]", "ans": 50, "pattern": "single_op"}
+{"q": "Zoe buys 23 oranges at $9 each. 5 are damaged. Sells good ones at $15 each. Profit?", "expr": "total_cost = 23 * 9\ngood_items = 23 - 5\nrevenue = good_items * 15\nprofit = revenue - total_cost\n[END]", "ans": 63, "pattern": "four_step_business"}
+{"q": "7 crates with 10 each. Uses 31. Left?", "expr": "total = 7 * 10\nremaining = total - 31\n[END]", "ans": 39, "pattern": "two_step_sequential"}
+{"q": "Ryan buys 26 coins at $8 each. 8 are damaged. Sells good ones at $12 each. Profit?", "expr": "total_cost = 26 * 8\ngood_items = 26 - 8\nrevenue = good_items * 12\nprofit = revenue - total_cost\n[END]", "ans": 8, "pattern": "four_step_business"}
+{"q": "Sara buys 21 oranges at $4 each. 6 break. Sells rest at $6 each. Profit?", "expr": "cost = 21 * 4\nremaining = 21 - 6\nrevenue = remaining * 6\nprofit = revenue - cost\n[END]", "ans": 6, "pattern": "buy_sell_profit"}
+{"q": "Ryan has 66 shirts. Uses 39. How many left?", "expr": "remaining = 66 - 39\n[END]", "ans": 27, "pattern": "single_op"}
+{"q": "Split 24 balls among 4 people. Each gets?", "expr": "each = 24 / 4\n[END]", "ans": 6, "pattern": "single_op"}
+{"q": "A flower costs $40. It's 50% off. Final price?", "expr": "original = 40\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 20, "pattern": "discount_calculation"}
+{"q": "Jake makes flowers for $9 each, sells for $14 each. Sells 14. Total profit?", "expr": "profit_each = 14 - 9\ntotal_profit = profit_each * 14\n[END]", "ans": 70, "pattern": "profit_margin"}
+{"q": "3 packs with 10 eggs each. Total?", "expr": "total = 3 * 10\n[END]", "ans": 30, "pattern": "single_op"}
+{"q": "Mike makes oranges for $4 each, sells for $6 each. Sells 11. Total profit?", "expr": "profit_each = 6 - 4\ntotal_profit = profit_each * 11\n[END]", "ans": 22, "pattern": "profit_margin"}
+{"q": "Lisa has 54 toys. Loses 20, then loses 6. Remaining?", "expr": "after_first = 54 - 20\nremaining = after_first - 6\n[END]", "ans": 28, "pattern": "two_step_sequential"}
+{"q": "10 rows with 11 each. Uses 52. Left?", "expr": "total = 10 * 11\nremaining = total - 52\n[END]", "ans": 58, "pattern": "two_step_sequential"}
+{"q": "Chris has 93 candys. Loses 9, then loses 16. Remaining?", "expr": "after_first = 93 - 9\nremaining = after_first - 16\n[END]", "ans": 68, "pattern": "two_step_sequential"}
+{"q": "Ryan has 76 candys. Uses 33. How many left?", "expr": "remaining = 76 - 33\n[END]", "ans": 43, "pattern": "single_op"}
+{"q": "Tom makes coins for $7 each, sells for $12 each. Sells 15. Total profit?", "expr": "profit_each = 12 - 7\ntotal_profit = profit_each * 15\n[END]", "ans": 75, "pattern": "profit_margin"}
+{"q": "A candy costs $100. It's 50% off. Final price?", "expr": "original = 100\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 50, "pattern": "discount_calculation"}
+{"q": "Amy makes pencils for $8 each, sells for $11 each. Sells 9. Total profit?", "expr": "profit_each = 11 - 8\ntotal_profit = profit_each * 9\n[END]", "ans": 27, "pattern": "profit_margin"}
+{"q": "Split 18 apples among 3 people. Each gets?", "expr": "each = 18 / 3\n[END]", "ans": 6, "pattern": "single_op"}
+{"q": "Emma has 78 cards. Loses 6, then loses 12. Remaining?", "expr": "after_first = 78 - 6\nremaining = after_first - 12\n[END]", "ans": 60, "pattern": "two_step_sequential"}
+{"q": "A candy costs $80. It's 20% off. Final price?", "expr": "original = 80\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 64, "pattern": "discount_calculation"}
+{"q": "Sam buys 19 books at $6 each. 6 break. Sells rest at $10 each. Profit?", "expr": "cost = 19 * 6\nremaining = 19 - 6\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": 16, "pattern": "buy_sell_profit"}
+{"q": "Maria has 14 stickers. Kate has 4 times as many. Combined total?", "expr": "a_count = 14\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 70, "pattern": "two_people_compare"}
+{"q": "Zoe has 85 stickers. Loses 10, then loses 18. Remaining?", "expr": "after_first = 85 - 10\nremaining = after_first - 18\n[END]", "ans": 57, "pattern": "two_step_sequential"}
+{"q": "Sam has 22 eggs. Chris has 4 times as many. Combined total?", "expr": "a_count = 22\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 110, "pattern": "two_people_compare"}
+{"q": "6 crates with 11 each. Uses 16. Left?", "expr": "total = 6 * 11\nremaining = total - 16\n[END]", "ans": 50, "pattern": "two_step_sequential"}
+{"q": "Kate buys 14 stickers at $10 each. 2 break. Sells rest at $16 each. Profit?", "expr": "cost = 14 * 10\nremaining = 14 - 2\nrevenue = remaining * 16\nprofit = revenue - cost\n[END]", "ans": 52, "pattern": "buy_sell_profit"}
+{"q": "7 jars with 8 each. Uses 21. Left?", "expr": "total = 7 * 8\nremaining = total - 21\n[END]", "ans": 35, "pattern": "two_step_sequential"}
+{"q": "Lisa has 47. Gets 21 more. Spends 10. Left?", "expr": "after_gain = 47 + 21\nremaining = after_gain - 10\n[END]", "ans": 58, "pattern": "two_step_sequential"}
+{"q": "Mike buys 18 apples at $9 each. 6 break. Sells rest at $15 each. Profit?", "expr": "cost = 18 * 9\nremaining = 18 - 6\nrevenue = remaining * 15\nprofit = revenue - cost\n[END]", "ans": 18, "pattern": "buy_sell_profit"}
+{"q": "Lisa has 60 pencils. Uses 18. How many left?", "expr": "remaining = 60 - 18\n[END]", "ans": 42, "pattern": "single_op"}
+{"q": "Maria buys 20 stickers at $8 each. 4 are damaged. Sells good ones at $12 each. Profit?", "expr": "total_cost = 20 * 8\ngood_items = 20 - 4\nrevenue = good_items * 12\nprofit = revenue - total_cost\n[END]", "ans": 32, "pattern": "four_step_business"}
+{"q": "A coin costs $80. It's 20% off. Final price?", "expr": "original = 80\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 64, "pattern": "discount_calculation"}
+{"q": "A orange costs $50. It's 50% off. Final price?", "expr": "original = 50\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 25, "pattern": "discount_calculation"}
+{"q": "Ryan buys 29 marbles at $11 each. 6 are damaged. Sells good ones at $19 each. Profit?", "expr": "total_cost = 29 * 11\ngood_items = 29 - 6\nrevenue = good_items * 19\nprofit = revenue - total_cost\n[END]", "ans": 118, "pattern": "four_step_business"}
+{"q": "Alex has 34. Gets 13 more. Spends 35. Left?", "expr": "after_gain = 34 + 13\nremaining = after_gain - 35\n[END]", "ans": 12, "pattern": "two_step_sequential"}
+{"q": "117 marbles split into 3 groups. Each group shared among 3 people. Each person gets?", "expr": "total = 117\nper_group = total / 3\neach_gets = per_group / 3\n[END]", "ans": 13, "pattern": "split_and_share"}
+{"q": "9 packs with 7 each. Uses 6. Left?", "expr": "total = 9 * 7\nremaining = total - 6\n[END]", "ans": 57, "pattern": "two_step_sequential"}
+{"q": "Mia has 23 oranges. Evan has 3 times as many. Combined total?", "expr": "a_count = 23\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 92, "pattern": "two_people_compare"}
+{"q": "Split 60 pencils among 6 people. Each gets?", "expr": "each = 60 / 6\n[END]", "ans": 10, "pattern": "single_op"}
+{"q": "Maria has 25 coins. Ben has 3 times as many. Combined total?", "expr": "a_count = 25\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 100, "pattern": "two_people_compare"}
+{"q": "Alex buys 14 books at $10 each. 3 break. Sells rest at $16 each. Profit?", "expr": "cost = 14 * 10\nremaining = 14 - 3\nrevenue = remaining * 16\nprofit = revenue - cost\n[END]", "ans": 36, "pattern": "buy_sell_profit"}
+{"q": "Sam earns $83/day on weekdays, $104/day on weekends. Weekly expenses are $109. Weekly savings?", "expr": "weekday_total = 83 * 5\nweekend_total = 104 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 109\n[END]", "ans": 514, "pattern": "five_step_weekly"}
+{"q": "Sam earns $98/day on weekdays, $118/day on weekends. Weekly expenses are $152. Weekly savings?", "expr": "weekday_total = 98 * 5\nweekend_total = 118 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 152\n[END]", "ans": 574, "pattern": "five_step_weekly"}
+{"q": "Kate has 30 cookies. Uses 11. How many left?", "expr": "remaining = 30 - 11\n[END]", "ans": 19, "pattern": "single_op"}
+{"q": "Alex buys 25 apples at $10 each. 2 break. Sells rest at $12 each. Profit?", "expr": "cost = 25 * 10\nremaining = 25 - 2\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 26, "pattern": "buy_sell_profit"}
+{"q": "Dan buys 10 apples at $7 each. 6 break. Sells rest at $11 each. Profit?", "expr": "cost = 10 * 7\nremaining = 10 - 6\nrevenue = remaining * 11\nprofit = revenue - cost\n[END]", "ans": -26, "pattern": "buy_sell_profit"}
+{"q": "Dan has 36 coins. Uses 8. How many left?", "expr": "remaining = 36 - 8\n[END]", "ans": 28, "pattern": "single_op"}
+{"q": "Kate buys 18 pencils at $8 each. 4 break. Sells rest at $16 each. Profit?", "expr": "cost = 18 * 8\nremaining = 18 - 4\nrevenue = remaining * 16\nprofit = revenue - cost\n[END]", "ans": 80, "pattern": "buy_sell_profit"}
+{"q": "Alex has 38. Gets 17 more. Spends 49. Left?", "expr": "after_gain = 38 + 17\nremaining = after_gain - 49\n[END]", "ans": 6, "pattern": "two_step_sequential"}
+{"q": "Lisa has 55 eggs. Loses 17, then loses 17. Remaining?", "expr": "after_first = 55 - 17\nremaining = after_first - 17\n[END]", "ans": 21, "pattern": "two_step_sequential"}
+{"q": "Nick has 94 apples. Loses 10, then loses 7. Remaining?", "expr": "after_first = 94 - 10\nremaining = after_first - 7\n[END]", "ans": 77, "pattern": "two_step_sequential"}
+{"q": "Dan buys 20 eggs at $4 each. 6 break. Sells rest at $6 each. Profit?", "expr": "cost = 20 * 4\nremaining = 20 - 6\nrevenue = remaining * 6\nprofit = revenue - cost\n[END]", "ans": 4, "pattern": "buy_sell_profit"}
+{"q": "Mia has 31 flowers. Uses 6. Sells rest at $4 each. Revenue?", "expr": "remaining = 31 - 6\nrevenue = remaining * 4\n[END]", "ans": 100, "pattern": "two_step_sequential"}
+{"q": "Mia buys 21 eggs at $7 each. 5 are damaged. Sells good ones at $10 each. Profit?", "expr": "total_cost = 21 * 7\ngood_items = 21 - 5\nrevenue = good_items * 10\nprofit = revenue - total_cost\n[END]", "ans": 13, "pattern": "four_step_business"}
+{"q": "Mia earns $59/day on weekdays, $103/day on weekends. Weekly expenses are $191. Weekly savings?", "expr": "weekday_total = 59 * 5\nweekend_total = 103 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 191\n[END]", "ans": 310, "pattern": "five_step_weekly"}
+{"q": "Lisa makes shirts for $7 each, sells for $10 each. Sells 14. Total profit?", "expr": "profit_each = 10 - 7\ntotal_profit = profit_each * 14\n[END]", "ans": 42, "pattern": "profit_margin"}
+{"q": "Chris has 42 eggs. Uses 7. Sells rest at $2 each. Revenue?", "expr": "remaining = 42 - 7\nrevenue = remaining * 2\n[END]", "ans": 70, "pattern": "two_step_sequential"}
+{"q": "Alex buys 13 apples at $9 each. 3 break. Sells rest at $17 each. Profit?", "expr": "cost = 13 * 9\nremaining = 13 - 3\nrevenue = remaining * 17\nprofit = revenue - cost\n[END]", "ans": 53, "pattern": "buy_sell_profit"}
+{"q": "Split 24 coins among 8 people. Each gets?", "expr": "each = 24 / 8\n[END]", "ans": 3, "pattern": "single_op"}
+{"q": "Amy earns $15/hour for 5 hours. Spends $21 on supplies. Gets $27 tip. Final amount?", "expr": "earned = 15 * 5\nafter_expense = earned - 21\nfinal = after_expense + 27\n[END]", "ans": 81, "pattern": "rate_expense_bonus"}
+{"q": "Dan earns $61/day on weekdays, $102/day on weekends. Weekly expenses are $174. Weekly savings?", "expr": "weekday_total = 61 * 5\nweekend_total = 102 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 174\n[END]", "ans": 335, "pattern": "five_step_weekly"}
+{"q": "Lisa earns $20/hour for 8 hours. Spends $19 on supplies. Gets $17 tip. Final amount?", "expr": "earned = 20 * 8\nafter_expense = earned - 19\nfinal = after_expense + 17\n[END]", "ans": 158, "pattern": "rate_expense_bonus"}
+{"q": "A cookie costs $60. It's 20% off. Final price?", "expr": "original = 60\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 48, "pattern": "discount_calculation"}
+{"q": "Jake has 30. Gets 21 more. Spends 11. Left?", "expr": "after_gain = 30 + 21\nremaining = after_gain - 11\n[END]", "ans": 40, "pattern": "two_step_sequential"}
+{"q": "7 baskets with 5 flowers each. Total?", "expr": "total = 7 * 5\n[END]", "ans": 35, "pattern": "single_op"}
+{"q": "Split 12 flowers among 4 people. Each gets?", "expr": "each = 12 / 4\n[END]", "ans": 3, "pattern": "single_op"}
+{"q": "9 packs with 4 cookies each. Total?", "expr": "total = 9 * 4\n[END]", "ans": 36, "pattern": "single_op"}
+{"q": "8 rows with 7 each. Uses 48. Left?", "expr": "total = 8 * 7\nremaining = total - 48\n[END]", "ans": 8, "pattern": "two_step_sequential"}
+{"q": "10 bags with 6 stickers each. Total?", "expr": "total = 10 * 6\n[END]", "ans": 60, "pattern": "single_op"}
+{"q": "10 shelfs with 5 candys each. Total?", "expr": "total = 10 * 5\n[END]", "ans": 50, "pattern": "single_op"}
+{"q": "Kate has 39. Gets 29 more. Spends 17. Left?", "expr": "after_gain = 39 + 29\nremaining = after_gain - 17\n[END]", "ans": 51, "pattern": "two_step_sequential"}
+{"q": "Jake buys 10 stickers at $9 each. 4 break. Sells rest at $17 each. Profit?", "expr": "cost = 10 * 9\nremaining = 10 - 4\nrevenue = remaining * 17\nprofit = revenue - cost\n[END]", "ans": 12, "pattern": "buy_sell_profit"}
+{"q": "Maria has 23 marbles. Nick has 4 times as many. Combined total?", "expr": "a_count = 23\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 115, "pattern": "two_people_compare"}
+{"q": "Maria has 60 cards. Uses 25. How many left?", "expr": "remaining = 60 - 25\n[END]", "ans": 35, "pattern": "single_op"}
+{"q": "10 jars with 13 marbles each. Total?", "expr": "total = 10 * 13\n[END]", "ans": 130, "pattern": "single_op"}
+{"q": "Ben has 31. Gets 13 more. Spends 17. Left?", "expr": "after_gain = 31 + 13\nremaining = after_gain - 17\n[END]", "ans": 27, "pattern": "two_step_sequential"}
+{"q": "Ryan has 27 eggs. Anna has twice as many. Combined total?", "expr": "a_count = 27\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 81, "pattern": "two_people_compare"}
+{"q": "Amy earns $95/day on weekdays, $121/day on weekends. Weekly expenses are $156. Weekly savings?", "expr": "weekday_total = 95 * 5\nweekend_total = 121 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 156\n[END]", "ans": 561, "pattern": "five_step_weekly"}
+{"q": "104 balls split into 2 groups. Each group shared among 4 people. Each person gets?", "expr": "total = 104\nper_group = total / 2\neach_gets = per_group / 4\n[END]", "ans": 13, "pattern": "split_and_share"}
+{"q": "Jake earns $18/hour for 6 hours. Spends $17 on supplies. Gets $18 tip. Final amount?", "expr": "earned = 18 * 6\nafter_expense = earned - 17\nfinal = after_expense + 18\n[END]", "ans": 109, "pattern": "rate_expense_bonus"}
+{"q": "Dan earns $20/hour for 7 hours. Spends $12 on supplies. Gets $24 tip. Final amount?", "expr": "earned = 20 * 7\nafter_expense = earned - 12\nfinal = after_expense + 24\n[END]", "ans": 152, "pattern": "rate_expense_bonus"}
+{"q": "Nick earns $87/day on weekdays, $119/day on weekends. Weekly expenses are $168. Weekly savings?", "expr": "weekday_total = 87 * 5\nweekend_total = 119 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 168\n[END]", "ans": 505, "pattern": "five_step_weekly"}
+{"q": "Dan buys 11 toys at $8 each. 6 break. Sells rest at $14 each. Profit?", "expr": "cost = 11 * 8\nremaining = 11 - 6\nrevenue = remaining * 14\nprofit = revenue - cost\n[END]", "ans": -18, "pattern": "buy_sell_profit"}
+{"q": "Lisa earns $9/hour for 10 hours. Spends $17 on supplies. Gets $21 tip. Final amount?", "expr": "earned = 9 * 10\nafter_expense = earned - 17\nfinal = after_expense + 21\n[END]", "ans": 94, "pattern": "rate_expense_bonus"}
+{"q": "Split 72 apples among 8 people. Each gets?", "expr": "each = 72 / 8\n[END]", "ans": 9, "pattern": "single_op"}
+{"q": "Emma has 62 stickers. Uses 52. How many left?", "expr": "remaining = 62 - 52\n[END]", "ans": 10, "pattern": "single_op"}
+{"q": "Mia buys 17 oranges at $10 each. 4 break. Sells rest at $15 each. Profit?", "expr": "cost = 17 * 10\nremaining = 17 - 4\nrevenue = remaining * 15\nprofit = revenue - cost\n[END]", "ans": 25, "pattern": "buy_sell_profit"}
+{"q": "Mia buys 14 oranges at $8 each. 2 break. Sells rest at $13 each. Profit?", "expr": "cost = 14 * 8\nremaining = 14 - 2\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": 44, "pattern": "buy_sell_profit"}
+{"q": "Dan has 17 shirts. Gets 28 more. Total?", "expr": "total = 17 + 28\n[END]", "ans": 45, "pattern": "single_op"}
+{"q": "Split 66 marbles among 6 people. Each gets?", "expr": "each = 66 / 6\n[END]", "ans": 11, "pattern": "single_op"}
+{"q": "Nick buys 24 cookies at $10 each. 4 break. Sells rest at $12 each. Profit?", "expr": "cost = 24 * 10\nremaining = 24 - 4\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 0, "pattern": "buy_sell_profit"}
+{"q": "Emma has 50 apples. Uses 6. Sells rest at $3 each. Revenue?", "expr": "remaining = 50 - 6\nrevenue = remaining * 3\n[END]", "ans": 132, "pattern": "two_step_sequential"}
+{"q": "Kate buys 25 toys at $7 each. 5 are damaged. Sells good ones at $16 each. Profit?", "expr": "total_cost = 25 * 7\ngood_items = 25 - 5\nrevenue = good_items * 16\nprofit = revenue - total_cost\n[END]", "ans": 145, "pattern": "four_step_business"}
+{"q": "Kate earns $75/day on weekdays, $115/day on weekends. Weekly expenses are $123. Weekly savings?", "expr": "weekday_total = 75 * 5\nweekend_total = 115 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 123\n[END]", "ans": 482, "pattern": "five_step_weekly"}
+{"q": "Dan has 49 candys. Gets 11 more. Total?", "expr": "total = 49 + 11\n[END]", "ans": 60, "pattern": "single_op"}
+{"q": "Dan has 95 candys. Loses 11, then loses 11. Remaining?", "expr": "after_first = 95 - 11\nremaining = after_first - 11\n[END]", "ans": 73, "pattern": "two_step_sequential"}
+{"q": "Lisa has 84 cards. Loses 10, then loses 16. Remaining?", "expr": "after_first = 84 - 10\nremaining = after_first - 16\n[END]", "ans": 58, "pattern": "two_step_sequential"}
+{"q": "Amy has 51 cookies. Uses 12. Sells rest at $4 each. Revenue?", "expr": "remaining = 51 - 12\nrevenue = remaining * 4\n[END]", "ans": 156, "pattern": "two_step_sequential"}
+{"q": "Evan has 13 cards. Chris has 3 times as many. Combined total?", "expr": "a_count = 13\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 52, "pattern": "two_people_compare"}
+{"q": "10 bags with 9 each. Uses 83. Left?", "expr": "total = 10 * 9\nremaining = total - 83\n[END]", "ans": 7, "pattern": "two_step_sequential"}
+{"q": "Maria earns $9/hour for 5 hours. Spends $19 on supplies. Gets $13 tip. Final amount?", "expr": "earned = 9 * 5\nafter_expense = earned - 19\nfinal = after_expense + 13\n[END]", "ans": 39, "pattern": "rate_expense_bonus"}
+{"q": "Split 108 toys among 9 people. Each gets?", "expr": "each = 108 / 9\n[END]", "ans": 12, "pattern": "single_op"}
+{"q": "Chris has 61 candys. Uses 45. How many left?", "expr": "remaining = 61 - 45\n[END]", "ans": 16, "pattern": "single_op"}
+{"q": "Anna buys 15 toys at $10 each. 4 break. Sells rest at $13 each. Profit?", "expr": "cost = 15 * 10\nremaining = 15 - 4\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": -7, "pattern": "buy_sell_profit"}
+{"q": "Amy has 32 cards. Gets 5 more. Total?", "expr": "total = 32 + 5\n[END]", "ans": 37, "pattern": "single_op"}
+{"q": "Mike buys 22 balls at $10 each. 5 break. Sells rest at $17 each. Profit?", "expr": "cost = 22 * 10\nremaining = 22 - 5\nrevenue = remaining * 17\nprofit = revenue - cost\n[END]", "ans": 69, "pattern": "buy_sell_profit"}
+{"q": "Amy buys 15 flowers at $4 each. 6 break. Sells rest at $6 each. Profit?", "expr": "cost = 15 * 4\nremaining = 15 - 6\nrevenue = remaining * 6\nprofit = revenue - cost\n[END]", "ans": -6, "pattern": "buy_sell_profit"}
+{"q": "78 pencils split into 2 groups. Each group shared among 3 people. Each person gets?", "expr": "total = 78\nper_group = total / 2\neach_gets = per_group / 3\n[END]", "ans": 13, "pattern": "split_and_share"}
+{"q": "Zoe has 38. Gets 25 more. Spends 40. Left?", "expr": "after_gain = 38 + 25\nremaining = after_gain - 40\n[END]", "ans": 23, "pattern": "two_step_sequential"}
+{"q": "Mia buys 18 cookies at $8 each. 6 break. Sells rest at $16 each. Profit?", "expr": "cost = 18 * 8\nremaining = 18 - 6\nrevenue = remaining * 16\nprofit = revenue - cost\n[END]", "ans": 48, "pattern": "buy_sell_profit"}
+{"q": "105 coins split into 5 groups. Each group shared among 3 people. Each person gets?", "expr": "total = 105\nper_group = total / 5\neach_gets = per_group / 3\n[END]", "ans": 7, "pattern": "split_and_share"}
+{"q": "Emma earns $97/day on weekdays, $143/day on weekends. Weekly expenses are $183. Weekly savings?", "expr": "weekday_total = 97 * 5\nweekend_total = 143 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 183\n[END]", "ans": 588, "pattern": "five_step_weekly"}
+{"q": "114 stickers split into 2 groups. Each group shared among 3 people. Each person gets?", "expr": "total = 114\nper_group = total / 2\neach_gets = per_group / 3\n[END]", "ans": 19, "pattern": "split_and_share"}
+{"q": "Lisa has 99 flowers. Loses 12, then loses 11. Remaining?", "expr": "after_first = 99 - 12\nremaining = after_first - 11\n[END]", "ans": 76, "pattern": "two_step_sequential"}
+{"q": "Alex makes cards for $9 each, sells for $12 each. Sells 14. Total profit?", "expr": "profit_each = 12 - 9\ntotal_profit = profit_each * 14\n[END]", "ans": 42, "pattern": "profit_margin"}
+{"q": "Mike has 33 balls. Uses 23. How many left?", "expr": "remaining = 33 - 23\n[END]", "ans": 10, "pattern": "single_op"}
+{"q": "6 packs with 9 each. Uses 23. Left?", "expr": "total = 6 * 9\nremaining = total - 23\n[END]", "ans": 31, "pattern": "two_step_sequential"}
+{"q": "Sara earns $93/day on weekdays, $139/day on weekends. Weekly expenses are $112. Weekly savings?", "expr": "weekday_total = 93 * 5\nweekend_total = 139 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 112\n[END]", "ans": 631, "pattern": "five_step_weekly"}
+{"q": "Dan has 27 shirts. Gets 25 more. Total?", "expr": "total = 27 + 25\n[END]", "ans": 52, "pattern": "single_op"}
+{"q": "Jake has 75 pencils. Uses 46. How many left?", "expr": "remaining = 75 - 46\n[END]", "ans": 29, "pattern": "single_op"}
+{"q": "Chris makes coins for $10 each, sells for $13 each. Sells 14. Total profit?", "expr": "profit_each = 13 - 10\ntotal_profit = profit_each * 14\n[END]", "ans": 42, "pattern": "profit_margin"}
+{"q": "Dan earns $14/hour for 7 hours. Spends $12 on supplies. Gets $30 tip. Final amount?", "expr": "earned = 14 * 7\nafter_expense = earned - 12\nfinal = after_expense + 30\n[END]", "ans": 116, "pattern": "rate_expense_bonus"}
+{"q": "Ben buys 21 oranges at $10 each. 5 break. Sells rest at $14 each. Profit?", "expr": "cost = 21 * 10\nremaining = 21 - 5\nrevenue = remaining * 14\nprofit = revenue - cost\n[END]", "ans": 14, "pattern": "buy_sell_profit"}
+{"q": "Lisa has 21 eggs. Nick has twice as many. Combined total?", "expr": "a_count = 21\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 63, "pattern": "two_people_compare"}
+{"q": "70 candys split into 5 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 70\nper_group = total / 5\neach_gets = per_group / 2\n[END]", "ans": 7, "pattern": "split_and_share"}
+{"q": "Maria buys 19 balls at $8 each. 6 break. Sells rest at $14 each. Profit?", "expr": "cost = 19 * 8\nremaining = 19 - 6\nrevenue = remaining * 14\nprofit = revenue - cost\n[END]", "ans": 30, "pattern": "buy_sell_profit"}
+{"q": "3 bags with 4 coins each. Total?", "expr": "total = 3 * 4\n[END]", "ans": 12, "pattern": "single_op"}
+{"q": "Amy has 15 cookies. Tom has 3 times as many. Combined total?", "expr": "a_count = 15\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 60, "pattern": "two_people_compare"}
+{"q": "Dan buys 14 pencils at $7 each. 3 break. Sells rest at $15 each. Profit?", "expr": "cost = 14 * 7\nremaining = 14 - 3\nrevenue = remaining * 15\nprofit = revenue - cost\n[END]", "ans": 67, "pattern": "buy_sell_profit"}
+{"q": "Ben earns $55/day on weekdays, $95/day on weekends. Weekly expenses are $146. Weekly savings?", "expr": "weekday_total = 55 * 5\nweekend_total = 95 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 146\n[END]", "ans": 319, "pattern": "five_step_weekly"}
+{"q": "4 jars with 11 each. Uses 24. Left?", "expr": "total = 4 * 11\nremaining = total - 24\n[END]", "ans": 20, "pattern": "two_step_sequential"}
+{"q": "Lisa has 50 oranges. Loses 11, then loses 20. Remaining?", "expr": "after_first = 50 - 11\nremaining = after_first - 20\n[END]", "ans": 19, "pattern": "two_step_sequential"}
+{"q": "Split 9 pencils among 3 people. Each gets?", "expr": "each = 9 / 3\n[END]", "ans": 3, "pattern": "single_op"}
+{"q": "A ball costs $40. It's 50% off. Final price?", "expr": "original = 40\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 20, "pattern": "discount_calculation"}
+{"q": "A flower costs $40. It's 20% off. Final price?", "expr": "original = 40\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 32, "pattern": "discount_calculation"}
+{"q": "Emma has 41 cookies. Uses 9. Sells rest at $3 each. Revenue?", "expr": "remaining = 41 - 9\nrevenue = remaining * 3\n[END]", "ans": 96, "pattern": "two_step_sequential"}
+{"q": "4 baskets with 5 each. Uses 14. Left?", "expr": "total = 4 * 5\nremaining = total - 14\n[END]", "ans": 6, "pattern": "two_step_sequential"}
+{"q": "7 bags with 12 each. Uses 32. Left?", "expr": "total = 7 * 12\nremaining = total - 32\n[END]", "ans": 52, "pattern": "two_step_sequential"}
+{"q": "Jake buys 23 coins at $11 each. 5 are damaged. Sells good ones at $20 each. Profit?", "expr": "total_cost = 23 * 11\ngood_items = 23 - 5\nrevenue = good_items * 20\nprofit = revenue - total_cost\n[END]", "ans": 107, "pattern": "four_step_business"}
+{"q": "Jake has 50 pencils. Uses 6. Sells rest at $3 each. Revenue?", "expr": "remaining = 50 - 6\nrevenue = remaining * 3\n[END]", "ans": 132, "pattern": "two_step_sequential"}
+{"q": "Evan has 10 coins. Zoe has 3 times as many. Combined total?", "expr": "a_count = 10\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 40, "pattern": "two_people_compare"}
+{"q": "9 boxs with 11 each. Uses 42. Left?", "expr": "total = 9 * 11\nremaining = total - 42\n[END]", "ans": 57, "pattern": "two_step_sequential"}
+{"q": "75 coins split into 5 groups. Each group shared among 5 people. Each person gets?", "expr": "total = 75\nper_group = total / 5\neach_gets = per_group / 5\n[END]", "ans": 3, "pattern": "split_and_share"}
+{"q": "Nick has 43 eggs. Gets 5 more. Total?", "expr": "total = 43 + 5\n[END]", "ans": 48, "pattern": "single_op"}
+{"q": "Maria earns $58/day on weekdays, $90/day on weekends. Weekly expenses are $172. Weekly savings?", "expr": "weekday_total = 58 * 5\nweekend_total = 90 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 172\n[END]", "ans": 298, "pattern": "five_step_weekly"}
+{"q": "10 bags with 12 each. Uses 103. Left?", "expr": "total = 10 * 12\nremaining = total - 103\n[END]", "ans": 17, "pattern": "two_step_sequential"}
+{"q": "6 boxs with 4 apples each. Total?", "expr": "total = 6 * 4\n[END]", "ans": 24, "pattern": "single_op"}
+{"q": "Chris earns $82/day on weekdays, $111/day on weekends. Weekly expenses are $180. Weekly savings?", "expr": "weekday_total = 82 * 5\nweekend_total = 111 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 180\n[END]", "ans": 452, "pattern": "five_step_weekly"}
+{"q": "A coin costs $80. It's 50% off. Final price?", "expr": "original = 80\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 40, "pattern": "discount_calculation"}
+{"q": "A cookie costs $120. It's 20% off. Final price?", "expr": "original = 120\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 96, "pattern": "discount_calculation"}
+{"q": "10 shelfs with 7 each. Uses 39. Left?", "expr": "total = 10 * 7\nremaining = total - 39\n[END]", "ans": 31, "pattern": "two_step_sequential"}
+{"q": "Lisa has 43. Gets 17 more. Spends 8. Left?", "expr": "after_gain = 43 + 17\nremaining = after_gain - 8\n[END]", "ans": 52, "pattern": "two_step_sequential"}
+{"q": "Dan has 39. Gets 29 more. Spends 8. Left?", "expr": "after_gain = 39 + 29\nremaining = after_gain - 8\n[END]", "ans": 60, "pattern": "two_step_sequential"}
+{"q": "Anna has 95 cookies. Loses 9, then loses 5. Remaining?", "expr": "after_first = 95 - 9\nremaining = after_first - 5\n[END]", "ans": 81, "pattern": "two_step_sequential"}
+{"q": "5 baskets with 9 toys each. Total?", "expr": "total = 5 * 9\n[END]", "ans": 45, "pattern": "single_op"}
+{"q": "A ball costs $60. It's 10% off. Final price?", "expr": "original = 60\ndiscount = original / 10\nfinal = original - discount\n[END]", "ans": 54, "pattern": "discount_calculation"}
+{"q": "80 apples split into 5 groups. Each group shared among 4 people. Each person gets?", "expr": "total = 80\nper_group = total / 5\neach_gets = per_group / 4\n[END]", "ans": 4, "pattern": "split_and_share"}
+{"q": "Ben buys 12 oranges at $10 each. 5 break. Sells rest at $16 each. Profit?", "expr": "cost = 12 * 10\nremaining = 12 - 5\nrevenue = remaining * 16\nprofit = revenue - cost\n[END]", "ans": -8, "pattern": "buy_sell_profit"}
+{"q": "6 bags with 7 each. Uses 21. Left?", "expr": "total = 6 * 7\nremaining = total - 21\n[END]", "ans": 21, "pattern": "two_step_sequential"}
+{"q": "Emma buys 36 pencils at $5 each. 3 are damaged. Sells good ones at $8 each. Profit?", "expr": "total_cost = 36 * 5\ngood_items = 36 - 3\nrevenue = good_items * 8\nprofit = revenue - total_cost\n[END]", "ans": 84, "pattern": "four_step_business"}
+{"q": "Nick has 49. Gets 14 more. Spends 16. Left?", "expr": "after_gain = 49 + 14\nremaining = after_gain - 16\n[END]", "ans": 47, "pattern": "two_step_sequential"}
+{"q": "Sam earns $85/day on weekdays, $130/day on weekends. Weekly expenses are $191. Weekly savings?", "expr": "weekday_total = 85 * 5\nweekend_total = 130 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 191\n[END]", "ans": 494, "pattern": "five_step_weekly"}
+{"q": "A candy costs $50. It's 25% off. Final price?", "expr": "original = 50\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 38, "pattern": "discount_calculation"}
+{"q": "Maria has 86 stickers. Loses 16, then loses 8. Remaining?", "expr": "after_first = 86 - 16\nremaining = after_first - 8\n[END]", "ans": 62, "pattern": "two_step_sequential"}
+{"q": "Sam buys 17 books at $3 each. 5 break. Sells rest at $5 each. Profit?", "expr": "cost = 17 * 3\nremaining = 17 - 5\nrevenue = remaining * 5\nprofit = revenue - cost\n[END]", "ans": 9, "pattern": "buy_sell_profit"}
+{"q": "Zoe buys 29 coins at $10 each. 3 are damaged. Sells good ones at $20 each. Profit?", "expr": "total_cost = 29 * 10\ngood_items = 29 - 3\nrevenue = good_items * 20\nprofit = revenue - total_cost\n[END]", "ans": 230, "pattern": "four_step_business"}
+{"q": "12 trays with 7 stickers each. Total?", "expr": "total = 12 * 7\n[END]", "ans": 84, "pattern": "single_op"}
+{"q": "9 boxs with 8 each. Uses 14. Left?", "expr": "total = 9 * 8\nremaining = total - 14\n[END]", "ans": 58, "pattern": "two_step_sequential"}
+{"q": "Tom earns $64/day on weekdays, $101/day on weekends. Weekly expenses are $144. Weekly savings?", "expr": "weekday_total = 64 * 5\nweekend_total = 101 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 144\n[END]", "ans": 378, "pattern": "five_step_weekly"}
+{"q": "Tom earns $13/hour for 4 hours. Spends $34 on supplies. Gets $22 tip. Final amount?", "expr": "earned = 13 * 4\nafter_expense = earned - 34\nfinal = after_expense + 22\n[END]", "ans": 40, "pattern": "rate_expense_bonus"}
+{"q": "Zoe makes oranges for $4 each, sells for $7 each. Sells 13. Total profit?", "expr": "profit_each = 7 - 4\ntotal_profit = profit_each * 13\n[END]", "ans": 39, "pattern": "profit_margin"}
+{"q": "Dan earns $81/day on weekdays, $131/day on weekends. Weekly expenses are $107. Weekly savings?", "expr": "weekday_total = 81 * 5\nweekend_total = 131 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 107\n[END]", "ans": 560, "pattern": "five_step_weekly"}
+{"q": "Jake earns $95/day on weekdays, $123/day on weekends. Weekly expenses are $111. Weekly savings?", "expr": "weekday_total = 95 * 5\nweekend_total = 123 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 111\n[END]", "ans": 610, "pattern": "five_step_weekly"}
+{"q": "Split 80 shirts among 8 people. Each gets?", "expr": "each = 80 / 8\n[END]", "ans": 10, "pattern": "single_op"}
+{"q": "Lisa earns $87/day on weekdays, $110/day on weekends. Weekly expenses are $164. Weekly savings?", "expr": "weekday_total = 87 * 5\nweekend_total = 110 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 164\n[END]", "ans": 491, "pattern": "five_step_weekly"}
+{"q": "Chris has 37 cookies. Gets 26 more. Total?", "expr": "total = 37 + 26\n[END]", "ans": 63, "pattern": "single_op"}
+{"q": "Kate earns $68/day on weekdays, $96/day on weekends. Weekly expenses are $140. Weekly savings?", "expr": "weekday_total = 68 * 5\nweekend_total = 96 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 140\n[END]", "ans": 392, "pattern": "five_step_weekly"}
+{"q": "Chris buys 30 oranges at $10 each. 6 are damaged. Sells good ones at $17 each. Profit?", "expr": "total_cost = 30 * 10\ngood_items = 30 - 6\nrevenue = good_items * 17\nprofit = revenue - total_cost\n[END]", "ans": 108, "pattern": "four_step_business"}
+{"q": "Mike has 59 books. Loses 8, then loses 10. Remaining?", "expr": "after_first = 59 - 8\nremaining = after_first - 10\n[END]", "ans": 41, "pattern": "two_step_sequential"}
+{"q": "Maria has 84 candys. Loses 16, then loses 11. Remaining?", "expr": "after_first = 84 - 16\nremaining = after_first - 11\n[END]", "ans": 57, "pattern": "two_step_sequential"}
+{"q": "Amy buys 13 stickers at $4 each. 3 break. Sells rest at $12 each. Profit?", "expr": "cost = 13 * 4\nremaining = 13 - 3\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 68, "pattern": "buy_sell_profit"}
+{"q": "Evan earns $8/hour for 5 hours. Spends $36 on supplies. Gets $20 tip. Final amount?", "expr": "earned = 8 * 5\nafter_expense = earned - 36\nfinal = after_expense + 20\n[END]", "ans": 24, "pattern": "rate_expense_bonus"}
+{"q": "Split 21 marbles among 3 people. Each gets?", "expr": "each = 21 / 3\n[END]", "ans": 7, "pattern": "single_op"}
+{"q": "Anna has 47. Gets 24 more. Spends 40. Left?", "expr": "after_gain = 47 + 24\nremaining = after_gain - 40\n[END]", "ans": 31, "pattern": "two_step_sequential"}
+{"q": "A pencil costs $40. It's 50% off. Final price?", "expr": "original = 40\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 20, "pattern": "discount_calculation"}
+{"q": "Jake has 13 cookies. Gets 29 more. Total?", "expr": "total = 13 + 29\n[END]", "ans": 42, "pattern": "single_op"}
+{"q": "Jake earns $62/day on weekdays, $108/day on weekends. Weekly expenses are $151. Weekly savings?", "expr": "weekday_total = 62 * 5\nweekend_total = 108 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 151\n[END]", "ans": 375, "pattern": "five_step_weekly"}
+{"q": "Lisa has 59 cards. Uses 6. Sells rest at $2 each. Revenue?", "expr": "remaining = 59 - 6\nrevenue = remaining * 2\n[END]", "ans": 106, "pattern": "two_step_sequential"}
+{"q": "Mike earns $91/day on weekdays, $125/day on weekends. Weekly expenses are $116. Weekly savings?", "expr": "weekday_total = 91 * 5\nweekend_total = 125 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 116\n[END]", "ans": 589, "pattern": "five_step_weekly"}
+{"q": "Maria has 39 cookies. Gets 6 more. Total?", "expr": "total = 39 + 6\n[END]", "ans": 45, "pattern": "single_op"}
+{"q": "Split 30 candys among 10 people. Each gets?", "expr": "each = 30 / 10\n[END]", "ans": 3, "pattern": "single_op"}
+{"q": "Dan has 36 books. Uses 7. Sells rest at $4 each. Revenue?", "expr": "remaining = 36 - 7\nrevenue = remaining * 4\n[END]", "ans": 116, "pattern": "two_step_sequential"}
+{"q": "9 rows with 9 each. Uses 68. Left?", "expr": "total = 9 * 9\nremaining = total - 68\n[END]", "ans": 13, "pattern": "two_step_sequential"}
+{"q": "Nick buys 22 apples at $9 each. 6 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 22 * 9\ngood_items = 22 - 6\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 26, "pattern": "four_step_business"}
+{"q": "Sara has 74 pencils. Loses 16, then loses 20. Remaining?", "expr": "after_first = 74 - 16\nremaining = after_first - 20\n[END]", "ans": 38, "pattern": "two_step_sequential"}
+{"q": "Nick buys 20 marbles at $9 each. 4 break. Sells rest at $12 each. Profit?", "expr": "cost = 20 * 9\nremaining = 20 - 4\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 12, "pattern": "buy_sell_profit"}
+{"q": "Evan has 27 pencils. Gets 6 more. Total?", "expr": "total = 27 + 6\n[END]", "ans": 33, "pattern": "single_op"}
+{"q": "Sara makes flowers for $8 each, sells for $16 each. Sells 14. Total profit?", "expr": "profit_each = 16 - 8\ntotal_profit = profit_each * 14\n[END]", "ans": 112, "pattern": "profit_margin"}
+{"q": "Anna earns $56/day on weekdays, $83/day on weekends. Weekly expenses are $184. Weekly savings?", "expr": "weekday_total = 56 * 5\nweekend_total = 83 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 184\n[END]", "ans": 262, "pattern": "five_step_weekly"}
+{"q": "Ryan has 98 balls. Loses 12, then loses 17. Remaining?", "expr": "after_first = 98 - 12\nremaining = after_first - 17\n[END]", "ans": 69, "pattern": "two_step_sequential"}
+{"q": "8 boxs with 10 each. Uses 50. Left?", "expr": "total = 8 * 10\nremaining = total - 50\n[END]", "ans": 30, "pattern": "two_step_sequential"}
+{"q": "A marble costs $100. It's 20% off. Final price?", "expr": "original = 100\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 80, "pattern": "discount_calculation"}
+{"q": "Mike has 19 toys. Sara has twice as many. Combined total?", "expr": "a_count = 19\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 57, "pattern": "two_people_compare"}
+{"q": "Lisa buys 17 apples at $6 each. 2 break. Sells rest at $12 each. Profit?", "expr": "cost = 17 * 6\nremaining = 17 - 2\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 78, "pattern": "buy_sell_profit"}
+{"q": "Maria buys 16 shirts at $5 each. 4 break. Sells rest at $12 each. Profit?", "expr": "cost = 16 * 5\nremaining = 16 - 4\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 64, "pattern": "buy_sell_profit"}
+{"q": "Maria has 19 apples. Gets 23 more. Total?", "expr": "total = 19 + 23\n[END]", "ans": 42, "pattern": "single_op"}
+{"q": "A book costs $40. It's 25% off. Final price?", "expr": "original = 40\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 30, "pattern": "discount_calculation"}
+{"q": "Alex earns $95/day on weekdays, $145/day on weekends. Weekly expenses are $184. Weekly savings?", "expr": "weekday_total = 95 * 5\nweekend_total = 145 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 184\n[END]", "ans": 581, "pattern": "five_step_weekly"}
+{"q": "Emma has 40 marbles. Uses 7. Sells rest at $3 each. Revenue?", "expr": "remaining = 40 - 7\nrevenue = remaining * 3\n[END]", "ans": 99, "pattern": "two_step_sequential"}
+{"q": "A candy costs $120. It's 50% off. Final price?", "expr": "original = 120\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 60, "pattern": "discount_calculation"}
+{"q": "Anna earns $19/hour for 8 hours. Spends $32 on supplies. Gets $29 tip. Final amount?", "expr": "earned = 19 * 8\nafter_expense = earned - 32\nfinal = after_expense + 29\n[END]", "ans": 149, "pattern": "rate_expense_bonus"}
+{"q": "Zoe makes candys for $7 each, sells for $10 each. Sells 7. Total profit?", "expr": "profit_each = 10 - 7\ntotal_profit = profit_each * 7\n[END]", "ans": 21, "pattern": "profit_margin"}
+{"q": "A orange costs $100. It's 50% off. Final price?", "expr": "original = 100\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 50, "pattern": "discount_calculation"}
+{"q": "Mia buys 25 apples at $10 each. 7 are damaged. Sells good ones at $16 each. Profit?", "expr": "total_cost = 25 * 10\ngood_items = 25 - 7\nrevenue = good_items * 16\nprofit = revenue - total_cost\n[END]", "ans": 38, "pattern": "four_step_business"}
+{"q": "Emma earns $15/hour for 5 hours. Spends $20 on supplies. Gets $12 tip. Final amount?", "expr": "earned = 15 * 5\nafter_expense = earned - 20\nfinal = after_expense + 12\n[END]", "ans": 67, "pattern": "rate_expense_bonus"}
+{"q": "Maria has 95 books. Loses 15, then loses 19. Remaining?", "expr": "after_first = 95 - 15\nremaining = after_first - 19\n[END]", "ans": 61, "pattern": "two_step_sequential"}
+{"q": "Mike has 32 pencils. Gets 13 more. Total?", "expr": "total = 32 + 13\n[END]", "ans": 45, "pattern": "single_op"}
+{"q": "60 oranges split into 2 groups. Each group shared among 6 people. Each person gets?", "expr": "total = 60\nper_group = total / 2\neach_gets = per_group / 6\n[END]", "ans": 5, "pattern": "split_and_share"}
+{"q": "Dan has 35. Gets 22 more. Spends 27. Left?", "expr": "after_gain = 35 + 22\nremaining = after_gain - 27\n[END]", "ans": 30, "pattern": "two_step_sequential"}
+{"q": "Emma buys 25 balls at $6 each. 3 break. Sells rest at $11 each. Profit?", "expr": "cost = 25 * 6\nremaining = 25 - 3\nrevenue = remaining * 11\nprofit = revenue - cost\n[END]", "ans": 92, "pattern": "buy_sell_profit"}
+{"q": "Sam has 30 stickers. Gets 13 more. Total?", "expr": "total = 30 + 13\n[END]", "ans": 43, "pattern": "single_op"}
+{"q": "Lisa earns $71/day on weekdays, $96/day on weekends. Weekly expenses are $148. Weekly savings?", "expr": "weekday_total = 71 * 5\nweekend_total = 96 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 148\n[END]", "ans": 399, "pattern": "five_step_weekly"}
+{"q": "Lisa has 31 toys. Gets 24 more. Total?", "expr": "total = 31 + 24\n[END]", "ans": 55, "pattern": "single_op"}
+{"q": "Nick earns $95/day on weekdays, $115/day on weekends. Weekly expenses are $155. Weekly savings?", "expr": "weekday_total = 95 * 5\nweekend_total = 115 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 155\n[END]", "ans": 550, "pattern": "five_step_weekly"}
+{"q": "Anna earns $88/day on weekdays, $136/day on weekends. Weekly expenses are $155. Weekly savings?", "expr": "weekday_total = 88 * 5\nweekend_total = 136 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 155\n[END]", "ans": 557, "pattern": "five_step_weekly"}
+{"q": "Emma has 42 marbles. Uses 31. How many left?", "expr": "remaining = 42 - 31\n[END]", "ans": 11, "pattern": "single_op"}
+{"q": "A orange costs $120. It's 25% off. Final price?", "expr": "original = 120\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 90, "pattern": "discount_calculation"}
+{"q": "Zoe earns $11/hour for 4 hours. Spends $11 on supplies. Gets $22 tip. Final amount?", "expr": "earned = 11 * 4\nafter_expense = earned - 11\nfinal = after_expense + 22\n[END]", "ans": 55, "pattern": "rate_expense_bonus"}
+{"q": "Nick has 21 apples. Jake has twice as many. Combined total?", "expr": "a_count = 21\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 63, "pattern": "two_people_compare"}
+{"q": "Zoe has 26. Gets 13 more. Spends 5. Left?", "expr": "after_gain = 26 + 13\nremaining = after_gain - 5\n[END]", "ans": 34, "pattern": "two_step_sequential"}
+{"q": "Zoe has 47. Gets 13 more. Spends 24. Left?", "expr": "after_gain = 47 + 13\nremaining = after_gain - 24\n[END]", "ans": 36, "pattern": "two_step_sequential"}
+{"q": "88 flowers split into 4 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 88\nper_group = total / 4\neach_gets = per_group / 2\n[END]", "ans": 11, "pattern": "split_and_share"}
+{"q": "Chris earns $10/hour for 6 hours. Spends $38 on supplies. Gets $22 tip. Final amount?", "expr": "earned = 10 * 6\nafter_expense = earned - 38\nfinal = after_expense + 22\n[END]", "ans": 44, "pattern": "rate_expense_bonus"}
+{"q": "Amy has 44 apples. Uses 12. Sells rest at $4 each. Revenue?", "expr": "remaining = 44 - 12\nrevenue = remaining * 4\n[END]", "ans": 128, "pattern": "two_step_sequential"}
+{"q": "Ben has 59 cards. Loses 8, then loses 7. Remaining?", "expr": "after_first = 59 - 8\nremaining = after_first - 7\n[END]", "ans": 44, "pattern": "two_step_sequential"}
+{"q": "Ryan earns $14/hour for 10 hours. Spends $28 on supplies. Gets $17 tip. Final amount?", "expr": "earned = 14 * 10\nafter_expense = earned - 28\nfinal = after_expense + 17\n[END]", "ans": 129, "pattern": "rate_expense_bonus"}
+{"q": "Chris has 27 candys. Ryan has 3 times as many. Combined total?", "expr": "a_count = 27\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 108, "pattern": "two_people_compare"}
+{"q": "Kate has 12 stickers. Sara has 3 times as many. Combined total?", "expr": "a_count = 12\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 48, "pattern": "two_people_compare"}
+{"q": "Sam buys 38 toys at $7 each. 3 are damaged. Sells good ones at $17 each. Profit?", "expr": "total_cost = 38 * 7\ngood_items = 38 - 3\nrevenue = good_items * 17\nprofit = revenue - total_cost\n[END]", "ans": 329, "pattern": "four_step_business"}
+{"q": "Anna has 38 pencils. Uses 6. How many left?", "expr": "remaining = 38 - 6\n[END]", "ans": 32, "pattern": "single_op"}
+{"q": "10 bags with 9 each. Uses 45. Left?", "expr": "total = 10 * 9\nremaining = total - 45\n[END]", "ans": 45, "pattern": "two_step_sequential"}
+{"q": "7 trays with 12 candys each. Total?", "expr": "total = 7 * 12\n[END]", "ans": 84, "pattern": "single_op"}
+{"q": "Tom buys 39 coins at $11 each. 3 are damaged. Sells good ones at $20 each. Profit?", "expr": "total_cost = 39 * 11\ngood_items = 39 - 3\nrevenue = good_items * 20\nprofit = revenue - total_cost\n[END]", "ans": 291, "pattern": "four_step_business"}
+{"q": "Mia has 16 cards. Gets 23 more. Total?", "expr": "total = 16 + 23\n[END]", "ans": 39, "pattern": "single_op"}
+{"q": "Dan buys 32 stickers at $12 each. 7 are damaged. Sells good ones at $22 each. Profit?", "expr": "total_cost = 32 * 12\ngood_items = 32 - 7\nrevenue = good_items * 22\nprofit = revenue - total_cost\n[END]", "ans": 166, "pattern": "four_step_business"}
+{"q": "Ben has 69 candys. Uses 43. How many left?", "expr": "remaining = 69 - 43\n[END]", "ans": 26, "pattern": "single_op"}
+{"q": "Chris earns $8/hour for 7 hours. Spends $38 on supplies. Gets $20 tip. Final amount?", "expr": "earned = 8 * 7\nafter_expense = earned - 38\nfinal = after_expense + 20\n[END]", "ans": 38, "pattern": "rate_expense_bonus"}
+{"q": "A apple costs $120. It's 50% off. Final price?", "expr": "original = 120\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 60, "pattern": "discount_calculation"}
+{"q": "Alex buys 30 apples at $9 each. 5 are damaged. Sells good ones at $16 each. Profit?", "expr": "total_cost = 30 * 9\ngood_items = 30 - 5\nrevenue = good_items * 16\nprofit = revenue - total_cost\n[END]", "ans": 130, "pattern": "four_step_business"}
+{"q": "Emma makes balls for $6 each, sells for $9 each. Sells 9. Total profit?", "expr": "profit_each = 9 - 6\ntotal_profit = profit_each * 9\n[END]", "ans": 27, "pattern": "profit_margin"}
+{"q": "Amy earns $99/day on weekdays, $145/day on weekends. Weekly expenses are $141. Weekly savings?", "expr": "weekday_total = 99 * 5\nweekend_total = 145 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 141\n[END]", "ans": 644, "pattern": "five_step_weekly"}
+{"q": "Dan has 62 cards. Loses 19, then loses 11. Remaining?", "expr": "after_first = 62 - 19\nremaining = after_first - 11\n[END]", "ans": 32, "pattern": "two_step_sequential"}
+{"q": "Dan buys 35 oranges at $10 each. 3 are damaged. Sells good ones at $15 each. Profit?", "expr": "total_cost = 35 * 10\ngood_items = 35 - 3\nrevenue = good_items * 15\nprofit = revenue - total_cost\n[END]", "ans": 130, "pattern": "four_step_business"}
+{"q": "Sara has 79 candys. Uses 72. How many left?", "expr": "remaining = 79 - 72\n[END]", "ans": 7, "pattern": "single_op"}
+{"q": "Tom buys 26 books at $8 each. 3 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 26 * 8\ngood_items = 26 - 3\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 114, "pattern": "four_step_business"}
+{"q": "6 shelfs with 8 shirts each. Total?", "expr": "total = 6 * 8\n[END]", "ans": 48, "pattern": "single_op"}
+{"q": "Chris makes toys for $4 each, sells for $11 each. Sells 5. Total profit?", "expr": "profit_each = 11 - 4\ntotal_profit = profit_each * 5\n[END]", "ans": 35, "pattern": "profit_margin"}
+{"q": "Nick has 25. Gets 25 more. Spends 42. Left?", "expr": "after_gain = 25 + 25\nremaining = after_gain - 42\n[END]", "ans": 8, "pattern": "two_step_sequential"}
+{"q": "Alex has 18 balls. Anna has twice as many. Combined total?", "expr": "a_count = 18\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 54, "pattern": "two_people_compare"}
+{"q": "10 jars with 8 each. Uses 33. Left?", "expr": "total = 10 * 8\nremaining = total - 33\n[END]", "ans": 47, "pattern": "two_step_sequential"}
+{"q": "Ben earns $18/hour for 7 hours. Spends $26 on supplies. Gets $10 tip. Final amount?", "expr": "earned = 18 * 7\nafter_expense = earned - 26\nfinal = after_expense + 10\n[END]", "ans": 110, "pattern": "rate_expense_bonus"}
+{"q": "Tom buys 24 flowers at $7 each. 7 are damaged. Sells good ones at $10 each. Profit?", "expr": "total_cost = 24 * 7\ngood_items = 24 - 7\nrevenue = good_items * 10\nprofit = revenue - total_cost\n[END]", "ans": 2, "pattern": "four_step_business"}
+{"q": "Evan has 52 coins. Uses 15. Sells rest at $4 each. Revenue?", "expr": "remaining = 52 - 15\nrevenue = remaining * 4\n[END]", "ans": 148, "pattern": "two_step_sequential"}
+{"q": "Chris has 44 balls. Uses 9. Sells rest at $3 each. Revenue?", "expr": "remaining = 44 - 9\nrevenue = remaining * 3\n[END]", "ans": 105, "pattern": "two_step_sequential"}
+{"q": "Sara buys 22 balls at $4 each. 2 break. Sells rest at $10 each. Profit?", "expr": "cost = 22 * 4\nremaining = 22 - 2\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": 112, "pattern": "buy_sell_profit"}
+{"q": "Alex earns $85/day on weekdays, $125/day on weekends. Weekly expenses are $176. Weekly savings?", "expr": "weekday_total = 85 * 5\nweekend_total = 125 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 176\n[END]", "ans": 499, "pattern": "five_step_weekly"}
+{"q": "Zoe has 12 flowers. Emma has 3 times as many. Combined total?", "expr": "a_count = 12\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 48, "pattern": "two_people_compare"}
+{"q": "Maria earns $67/day on weekdays, $95/day on weekends. Weekly expenses are $183. Weekly savings?", "expr": "weekday_total = 67 * 5\nweekend_total = 95 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 183\n[END]", "ans": 342, "pattern": "five_step_weekly"}
+{"q": "A shirt costs $120. It's 25% off. Final price?", "expr": "original = 120\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 90, "pattern": "discount_calculation"}
+{"q": "Sara has 33 coins. Uses 24. How many left?", "expr": "remaining = 33 - 24\n[END]", "ans": 9, "pattern": "single_op"}
+{"q": "9 packs with 5 each. Uses 36. Left?", "expr": "total = 9 * 5\nremaining = total - 36\n[END]", "ans": 9, "pattern": "two_step_sequential"}
+{"q": "Dan has 43. Gets 11 more. Spends 42. Left?", "expr": "after_gain = 43 + 11\nremaining = after_gain - 42\n[END]", "ans": 12, "pattern": "two_step_sequential"}
+{"q": "A card costs $50. It's 25% off. Final price?", "expr": "original = 50\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 38, "pattern": "discount_calculation"}
+{"q": "A pencil costs $120. It's 50% off. Final price?", "expr": "original = 120\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 60, "pattern": "discount_calculation"}
+{"q": "Alex buys 29 toys at $7 each. 8 are damaged. Sells good ones at $12 each. Profit?", "expr": "total_cost = 29 * 7\ngood_items = 29 - 8\nrevenue = good_items * 12\nprofit = revenue - total_cost\n[END]", "ans": 49, "pattern": "four_step_business"}
+{"q": "Nick has 53 books. Uses 13. Sells rest at $3 each. Revenue?", "expr": "remaining = 53 - 13\nrevenue = remaining * 3\n[END]", "ans": 120, "pattern": "two_step_sequential"}
+{"q": "Maria earns $91/day on weekdays, $113/day on weekends. Weekly expenses are $128. Weekly savings?", "expr": "weekday_total = 91 * 5\nweekend_total = 113 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 128\n[END]", "ans": 553, "pattern": "five_step_weekly"}
+{"q": "Zoe has 41 candys. Uses 9. Sells rest at $4 each. Revenue?", "expr": "remaining = 41 - 9\nrevenue = remaining * 4\n[END]", "ans": 128, "pattern": "two_step_sequential"}
+{"q": "Emma buys 11 flowers at $4 each. 5 break. Sells rest at $7 each. Profit?", "expr": "cost = 11 * 4\nremaining = 11 - 5\nrevenue = remaining * 7\nprofit = revenue - cost\n[END]", "ans": -2, "pattern": "buy_sell_profit"}
+{"q": "Chris buys 19 toys at $9 each. 2 break. Sells rest at $17 each. Profit?", "expr": "cost = 19 * 9\nremaining = 19 - 2\nrevenue = remaining * 17\nprofit = revenue - cost\n[END]", "ans": 118, "pattern": "buy_sell_profit"}
+{"q": "Jake buys 30 pencils at $11 each. 7 are damaged. Sells good ones at $21 each. Profit?", "expr": "total_cost = 30 * 11\ngood_items = 30 - 7\nrevenue = good_items * 21\nprofit = revenue - total_cost\n[END]", "ans": 153, "pattern": "four_step_business"}
+{"q": "Anna has 41 coins. Gets 15 more. Total?", "expr": "total = 41 + 15\n[END]", "ans": 56, "pattern": "single_op"}
+{"q": "Anna earns $13/hour for 9 hours. Spends $11 on supplies. Gets $10 tip. Final amount?", "expr": "earned = 13 * 9\nafter_expense = earned - 11\nfinal = after_expense + 10\n[END]", "ans": 116, "pattern": "rate_expense_bonus"}
+{"q": "Mike buys 15 coins at $5 each. 5 break. Sells rest at $13 each. Profit?", "expr": "cost = 15 * 5\nremaining = 15 - 5\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": 55, "pattern": "buy_sell_profit"}
+{"q": "Dan has 50. Gets 25 more. Spends 54. Left?", "expr": "after_gain = 50 + 25\nremaining = after_gain - 54\n[END]", "ans": 21, "pattern": "two_step_sequential"}
+{"q": "3 crates with 9 pencils each. Total?", "expr": "total = 3 * 9\n[END]", "ans": 27, "pattern": "single_op"}
+{"q": "Tom has 44 eggs. Uses 27. How many left?", "expr": "remaining = 44 - 27\n[END]", "ans": 17, "pattern": "single_op"}
+{"q": "Emma has 35 candys. Uses 6. Sells rest at $2 each. Revenue?", "expr": "remaining = 35 - 6\nrevenue = remaining * 2\n[END]", "ans": 58, "pattern": "two_step_sequential"}
+{"q": "Zoe has 43 flowers. Uses 15. Sells rest at $3 each. Revenue?", "expr": "remaining = 43 - 15\nrevenue = remaining * 3\n[END]", "ans": 84, "pattern": "two_step_sequential"}
+{"q": "5 jars with 11 each. Uses 6. Left?", "expr": "total = 5 * 11\nremaining = total - 6\n[END]", "ans": 49, "pattern": "two_step_sequential"}
+{"q": "Jake has 87 pencils. Loses 10, then loses 8. Remaining?", "expr": "after_first = 87 - 10\nremaining = after_first - 8\n[END]", "ans": 69, "pattern": "two_step_sequential"}
+{"q": "Sam has 54 candys. Uses 13. Sells rest at $2 each. Revenue?", "expr": "remaining = 54 - 13\nrevenue = remaining * 2\n[END]", "ans": 82, "pattern": "two_step_sequential"}
+{"q": "Sam has 10 eggs. Jake has twice as many. Combined total?", "expr": "a_count = 10\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 30, "pattern": "two_people_compare"}
+{"q": "Dan earns $15/hour for 7 hours. Spends $13 on supplies. Gets $27 tip. Final amount?", "expr": "earned = 15 * 7\nafter_expense = earned - 13\nfinal = after_expense + 27\n[END]", "ans": 119, "pattern": "rate_expense_bonus"}
+{"q": "Jake has 69 pencils. Loses 18, then loses 8. Remaining?", "expr": "after_first = 69 - 18\nremaining = after_first - 8\n[END]", "ans": 43, "pattern": "two_step_sequential"}
+{"q": "Ben earns $17/hour for 8 hours. Spends $32 on supplies. Gets $14 tip. Final amount?", "expr": "earned = 17 * 8\nafter_expense = earned - 32\nfinal = after_expense + 14\n[END]", "ans": 118, "pattern": "rate_expense_bonus"}
+{"q": "Emma has 68 toys. Loses 8, then loses 8. Remaining?", "expr": "after_first = 68 - 8\nremaining = after_first - 8\n[END]", "ans": 52, "pattern": "two_step_sequential"}
+{"q": "Evan buys 18 pencils at $6 each. 4 break. Sells rest at $13 each. Profit?", "expr": "cost = 18 * 6\nremaining = 18 - 4\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": 74, "pattern": "buy_sell_profit"}
+{"q": "Anna has 49. Gets 16 more. Spends 49. Left?", "expr": "after_gain = 49 + 16\nremaining = after_gain - 49\n[END]", "ans": 16, "pattern": "two_step_sequential"}
+{"q": "Maria earns $65/day on weekdays, $85/day on weekends. Weekly expenses are $101. Weekly savings?", "expr": "weekday_total = 65 * 5\nweekend_total = 85 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 101\n[END]", "ans": 394, "pattern": "five_step_weekly"}
+{"q": "Emma earns $17/hour for 9 hours. Spends $25 on supplies. Gets $14 tip. Final amount?", "expr": "earned = 17 * 9\nafter_expense = earned - 25\nfinal = after_expense + 14\n[END]", "ans": 142, "pattern": "rate_expense_bonus"}
+{"q": "Sara earns $54/day on weekdays, $97/day on weekends. Weekly expenses are $192. Weekly savings?", "expr": "weekday_total = 54 * 5\nweekend_total = 97 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 192\n[END]", "ans": 272, "pattern": "five_step_weekly"}
+{"q": "Ben has 59 eggs. Uses 23. How many left?", "expr": "remaining = 59 - 23\n[END]", "ans": 36, "pattern": "single_op"}
+{"q": "10 shelfs with 5 each. Uses 23. Left?", "expr": "total = 10 * 5\nremaining = total - 23\n[END]", "ans": 27, "pattern": "two_step_sequential"}
+{"q": "Dan makes marbles for $4 each, sells for $6 each. Sells 5. Total profit?", "expr": "profit_each = 6 - 4\ntotal_profit = profit_each * 5\n[END]", "ans": 10, "pattern": "profit_margin"}
+{"q": "Jake has 51 eggs. Uses 27. How many left?", "expr": "remaining = 51 - 27\n[END]", "ans": 24, "pattern": "single_op"}
+{"q": "Evan buys 22 stickers at $10 each. 5 are damaged. Sells good ones at $15 each. Profit?", "expr": "total_cost = 22 * 10\ngood_items = 22 - 5\nrevenue = good_items * 15\nprofit = revenue - total_cost\n[END]", "ans": 35, "pattern": "four_step_business"}
+{"q": "9 trays with 15 flowers each. Total?", "expr": "total = 9 * 15\n[END]", "ans": 135, "pattern": "single_op"}
+{"q": "114 eggs split into 3 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 114\nper_group = total / 3\neach_gets = per_group / 2\n[END]", "ans": 19, "pattern": "split_and_share"}
+{"q": "Sam has 36 balls. Uses 18. How many left?", "expr": "remaining = 36 - 18\n[END]", "ans": 18, "pattern": "single_op"}
+{"q": "Nick buys 38 coins at $12 each. 4 are damaged. Sells good ones at $21 each. Profit?", "expr": "total_cost = 38 * 12\ngood_items = 38 - 4\nrevenue = good_items * 21\nprofit = revenue - total_cost\n[END]", "ans": 258, "pattern": "four_step_business"}
+{"q": "60 cards split into 3 groups. Each group shared among 4 people. Each person gets?", "expr": "total = 60\nper_group = total / 3\neach_gets = per_group / 4\n[END]", "ans": 5, "pattern": "split_and_share"}
+{"q": "Emma buys 33 shirts at $12 each. 3 are damaged. Sells good ones at $16 each. Profit?", "expr": "total_cost = 33 * 12\ngood_items = 33 - 3\nrevenue = good_items * 16\nprofit = revenue - total_cost\n[END]", "ans": 84, "pattern": "four_step_business"}
+{"q": "9 crates with 10 each. Uses 71. Left?", "expr": "total = 9 * 10\nremaining = total - 71\n[END]", "ans": 19, "pattern": "two_step_sequential"}
+{"q": "Evan earns $9/hour for 7 hours. Spends $31 on supplies. Gets $17 tip. Final amount?", "expr": "earned = 9 * 7\nafter_expense = earned - 31\nfinal = after_expense + 17\n[END]", "ans": 49, "pattern": "rate_expense_bonus"}
+{"q": "Chris buys 11 books at $3 each. 3 break. Sells rest at $9 each. Profit?", "expr": "cost = 11 * 3\nremaining = 11 - 3\nrevenue = remaining * 9\nprofit = revenue - cost\n[END]", "ans": 39, "pattern": "buy_sell_profit"}
+{"q": "Nick makes balls for $5 each, sells for $7 each. Sells 12. Total profit?", "expr": "profit_each = 7 - 5\ntotal_profit = profit_each * 12\n[END]", "ans": 24, "pattern": "profit_margin"}
+{"q": "Maria has 82 stickers. Loses 12, then loses 17. Remaining?", "expr": "after_first = 82 - 12\nremaining = after_first - 17\n[END]", "ans": 53, "pattern": "two_step_sequential"}
+{"q": "Kate has 34. Gets 28 more. Spends 33. Left?", "expr": "after_gain = 34 + 28\nremaining = after_gain - 33\n[END]", "ans": 29, "pattern": "two_step_sequential"}
+{"q": "4 boxs with 11 flowers each. Total?", "expr": "total = 4 * 11\n[END]", "ans": 44, "pattern": "single_op"}
+{"q": "Dan has 15 apples. Gets 30 more. Total?", "expr": "total = 15 + 30\n[END]", "ans": 45, "pattern": "single_op"}
+{"q": "Evan has 26 shirts. Zoe has 4 times as many. Combined total?", "expr": "a_count = 26\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 130, "pattern": "two_people_compare"}
+{"q": "Amy has 56 marbles. Uses 5. Sells rest at $3 each. Revenue?", "expr": "remaining = 56 - 5\nrevenue = remaining * 3\n[END]", "ans": 153, "pattern": "two_step_sequential"}
+{"q": "Ryan makes marbles for $10 each, sells for $17 each. Sells 15. Total profit?", "expr": "profit_each = 17 - 10\ntotal_profit = profit_each * 15\n[END]", "ans": 105, "pattern": "profit_margin"}
+{"q": "Amy has 98 cookies. Loses 12, then loses 5. Remaining?", "expr": "after_first = 98 - 12\nremaining = after_first - 5\n[END]", "ans": 81, "pattern": "two_step_sequential"}
+{"q": "Zoe has 52 toys. Uses 6. Sells rest at $2 each. Revenue?", "expr": "remaining = 52 - 6\nrevenue = remaining * 2\n[END]", "ans": 92, "pattern": "two_step_sequential"}
+{"q": "Nick buys 33 books at $6 each. 5 are damaged. Sells good ones at $12 each. Profit?", "expr": "total_cost = 33 * 6\ngood_items = 33 - 5\nrevenue = good_items * 12\nprofit = revenue - total_cost\n[END]", "ans": 138, "pattern": "four_step_business"}
+{"q": "Split 48 pencils among 6 people. Each gets?", "expr": "each = 48 / 6\n[END]", "ans": 8, "pattern": "single_op"}
+{"q": "Dan has 38 apples. Gets 19 more. Total?", "expr": "total = 38 + 19\n[END]", "ans": 57, "pattern": "single_op"}
+{"q": "Sara earns $10/hour for 7 hours. Spends $10 on supplies. Gets $26 tip. Final amount?", "expr": "earned = 10 * 7\nafter_expense = earned - 10\nfinal = after_expense + 26\n[END]", "ans": 86, "pattern": "rate_expense_bonus"}
+{"q": "A toy costs $80. It's 50% off. Final price?", "expr": "original = 80\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 40, "pattern": "discount_calculation"}
+{"q": "Anna buys 38 oranges at $7 each. 8 are damaged. Sells good ones at $12 each. Profit?", "expr": "total_cost = 38 * 7\ngood_items = 38 - 8\nrevenue = good_items * 12\nprofit = revenue - total_cost\n[END]", "ans": 94, "pattern": "four_step_business"}
+{"q": "11 rows with 10 cards each. Total?", "expr": "total = 11 * 10\n[END]", "ans": 110, "pattern": "single_op"}
+{"q": "Kate earns $67/day on weekdays, $99/day on weekends. Weekly expenses are $143. Weekly savings?", "expr": "weekday_total = 67 * 5\nweekend_total = 99 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 143\n[END]", "ans": 390, "pattern": "five_step_weekly"}
+{"q": "Amy earns $58/day on weekdays, $82/day on weekends. Weekly expenses are $152. Weekly savings?", "expr": "weekday_total = 58 * 5\nweekend_total = 82 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 152\n[END]", "ans": 302, "pattern": "five_step_weekly"}
+{"q": "Sara has 27 balls. Zoe has 3 times as many. Combined total?", "expr": "a_count = 27\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 108, "pattern": "two_people_compare"}
+{"q": "A shirt costs $100. It's 20% off. Final price?", "expr": "original = 100\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 80, "pattern": "discount_calculation"}
+{"q": "Evan has 51 oranges. Uses 10. Sells rest at $3 each. Revenue?", "expr": "remaining = 51 - 10\nrevenue = remaining * 3\n[END]", "ans": 123, "pattern": "two_step_sequential"}
+{"q": "Anna earns $82/day on weekdays, $119/day on weekends. Weekly expenses are $188. Weekly savings?", "expr": "weekday_total = 82 * 5\nweekend_total = 119 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 188\n[END]", "ans": 460, "pattern": "five_step_weekly"}
+{"q": "Emma earns $20/hour for 6 hours. Spends $27 on supplies. Gets $25 tip. Final amount?", "expr": "earned = 20 * 6\nafter_expense = earned - 27\nfinal = after_expense + 25\n[END]", "ans": 118, "pattern": "rate_expense_bonus"}
+{"q": "Dan has 23 stickers. Mia has twice as many. Combined total?", "expr": "a_count = 23\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 69, "pattern": "two_people_compare"}
+{"q": "Tom buys 14 candys at $3 each. 2 break. Sells rest at $6 each. Profit?", "expr": "cost = 14 * 3\nremaining = 14 - 2\nrevenue = remaining * 6\nprofit = revenue - cost\n[END]", "ans": 30, "pattern": "buy_sell_profit"}
+{"q": "Anna has 34 stickers. Uses 5. Sells rest at $4 each. Revenue?", "expr": "remaining = 34 - 5\nrevenue = remaining * 4\n[END]", "ans": 116, "pattern": "two_step_sequential"}
+{"q": "Ryan has 56 apples. Uses 12. Sells rest at $2 each. Revenue?", "expr": "remaining = 56 - 12\nrevenue = remaining * 2\n[END]", "ans": 88, "pattern": "two_step_sequential"}
+{"q": "Ryan has 30 oranges. Kate has 4 times as many. Combined total?", "expr": "a_count = 30\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 150, "pattern": "two_people_compare"}
+{"q": "Sara has 52 coins. Uses 15. Sells rest at $2 each. Revenue?", "expr": "remaining = 52 - 15\nrevenue = remaining * 2\n[END]", "ans": 74, "pattern": "two_step_sequential"}
+{"q": "Chris buys 30 candys at $5 each. 3 are damaged. Sells good ones at $12 each. Profit?", "expr": "total_cost = 30 * 5\ngood_items = 30 - 3\nrevenue = good_items * 12\nprofit = revenue - total_cost\n[END]", "ans": 174, "pattern": "four_step_business"}
+{"q": "9 crates with 10 each. Uses 80. Left?", "expr": "total = 9 * 10\nremaining = total - 80\n[END]", "ans": 10, "pattern": "two_step_sequential"}
+{"q": "A pencil costs $120. It's 20% off. Final price?", "expr": "original = 120\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 96, "pattern": "discount_calculation"}
+{"q": "Anna has 61 eggs. Loses 10, then loses 8. Remaining?", "expr": "after_first = 61 - 10\nremaining = after_first - 8\n[END]", "ans": 43, "pattern": "two_step_sequential"}
+{"q": "Dan has 34 stickers. Uses 7. Sells rest at $4 each. Revenue?", "expr": "remaining = 34 - 7\nrevenue = remaining * 4\n[END]", "ans": 108, "pattern": "two_step_sequential"}
+{"q": "Amy has 32 oranges. Uses 9. How many left?", "expr": "remaining = 32 - 9\n[END]", "ans": 23, "pattern": "single_op"}
+{"q": "Evan buys 40 apples at $9 each. 6 are damaged. Sells good ones at $17 each. Profit?", "expr": "total_cost = 40 * 9\ngood_items = 40 - 6\nrevenue = good_items * 17\nprofit = revenue - total_cost\n[END]", "ans": 218, "pattern": "four_step_business"}
+{"q": "Maria has 41 toys. Uses 9. How many left?", "expr": "remaining = 41 - 9\n[END]", "ans": 32, "pattern": "single_op"}
+{"q": "84 books split into 6 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 84\nper_group = total / 6\neach_gets = per_group / 2\n[END]", "ans": 7, "pattern": "split_and_share"}
+{"q": "Kate has 72 shirts. Uses 26. How many left?", "expr": "remaining = 72 - 26\n[END]", "ans": 46, "pattern": "single_op"}
+{"q": "Zoe has 37. Gets 30 more. Spends 5. Left?", "expr": "after_gain = 37 + 30\nremaining = after_gain - 5\n[END]", "ans": 62, "pattern": "two_step_sequential"}
+{"q": "Alex has 71 flowers. Uses 44. How many left?", "expr": "remaining = 71 - 44\n[END]", "ans": 27, "pattern": "single_op"}
+{"q": "Kate buys 30 apples at $11 each. 3 are damaged. Sells good ones at $20 each. Profit?", "expr": "total_cost = 30 * 11\ngood_items = 30 - 3\nrevenue = good_items * 20\nprofit = revenue - total_cost\n[END]", "ans": 210, "pattern": "four_step_business"}
+{"q": "Zoe has 46 apples. Uses 13. Sells rest at $5 each. Revenue?", "expr": "remaining = 46 - 13\nrevenue = remaining * 5\n[END]", "ans": 165, "pattern": "two_step_sequential"}
+{"q": "Zoe buys 16 shirts at $8 each. 6 break. Sells rest at $10 each. Profit?", "expr": "cost = 16 * 8\nremaining = 16 - 6\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": -28, "pattern": "buy_sell_profit"}
+{"q": "Anna earns $99/day on weekdays, $136/day on weekends. Weekly expenses are $168. Weekly savings?", "expr": "weekday_total = 99 * 5\nweekend_total = 136 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 168\n[END]", "ans": 599, "pattern": "five_step_weekly"}
+{"q": "Lisa has 73 pencils. Uses 59. How many left?", "expr": "remaining = 73 - 59\n[END]", "ans": 14, "pattern": "single_op"}
+{"q": "Ryan makes pencils for $9 each, sells for $16 each. Sells 6. Total profit?", "expr": "profit_each = 16 - 9\ntotal_profit = profit_each * 6\n[END]", "ans": 42, "pattern": "profit_margin"}
+{"q": "A book costs $40. It's 50% off. Final price?", "expr": "original = 40\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 20, "pattern": "discount_calculation"}
+{"q": "A apple costs $40. It's 10% off. Final price?", "expr": "original = 40\ndiscount = original / 10\nfinal = original - discount\n[END]", "ans": 36, "pattern": "discount_calculation"}
+{"q": "Ben has 46 toys. Gets 12 more. Total?", "expr": "total = 46 + 12\n[END]", "ans": 58, "pattern": "single_op"}
+{"q": "Dan buys 34 candys at $11 each. 6 are damaged. Sells good ones at $19 each. Profit?", "expr": "total_cost = 34 * 11\ngood_items = 34 - 6\nrevenue = good_items * 19\nprofit = revenue - total_cost\n[END]", "ans": 158, "pattern": "four_step_business"}
+{"q": "Emma has 49 toys. Gets 7 more. Total?", "expr": "total = 49 + 7\n[END]", "ans": 56, "pattern": "single_op"}
+{"q": "Sara has 55 cookies. Uses 15. Sells rest at $4 each. Revenue?", "expr": "remaining = 55 - 15\nrevenue = remaining * 4\n[END]", "ans": 160, "pattern": "two_step_sequential"}
+{"q": "Zoe has 22 candys. Nick has twice as many. Combined total?", "expr": "a_count = 22\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 66, "pattern": "two_people_compare"}
+{"q": "Ryan buys 14 pencils at $9 each. 6 break. Sells rest at $13 each. Profit?", "expr": "cost = 14 * 9\nremaining = 14 - 6\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": -22, "pattern": "buy_sell_profit"}
+{"q": "Jake earns $69/day on weekdays, $110/day on weekends. Weekly expenses are $193. Weekly savings?", "expr": "weekday_total = 69 * 5\nweekend_total = 110 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 193\n[END]", "ans": 372, "pattern": "five_step_weekly"}
+{"q": "Tom earns $16/hour for 10 hours. Spends $27 on supplies. Gets $14 tip. Final amount?", "expr": "earned = 16 * 10\nafter_expense = earned - 27\nfinal = after_expense + 14\n[END]", "ans": 147, "pattern": "rate_expense_bonus"}
+{"q": "Split 28 cards among 4 people. Each gets?", "expr": "each = 28 / 4\n[END]", "ans": 7, "pattern": "single_op"}
+{"q": "Alex has 48. Gets 30 more. Spends 70. Left?", "expr": "after_gain = 48 + 30\nremaining = after_gain - 70\n[END]", "ans": 8, "pattern": "two_step_sequential"}
+{"q": "6 baskets with 5 pencils each. Total?", "expr": "total = 6 * 5\n[END]", "ans": 30, "pattern": "single_op"}
+{"q": "Mia earns $8/hour for 10 hours. Spends $34 on supplies. Gets $27 tip. Final amount?", "expr": "earned = 8 * 10\nafter_expense = earned - 34\nfinal = after_expense + 27\n[END]", "ans": 73, "pattern": "rate_expense_bonus"}
+{"q": "Ryan buys 19 cookies at $4 each. 4 break. Sells rest at $6 each. Profit?", "expr": "cost = 19 * 4\nremaining = 19 - 4\nrevenue = remaining * 6\nprofit = revenue - cost\n[END]", "ans": 14, "pattern": "buy_sell_profit"}
+{"q": "8 jars with 6 flowers each. Total?", "expr": "total = 8 * 6\n[END]", "ans": 48, "pattern": "single_op"}
+{"q": "Evan has 50 cookies. Uses 36. How many left?", "expr": "remaining = 50 - 36\n[END]", "ans": 14, "pattern": "single_op"}
+{"q": "Evan buys 19 eggs at $5 each. 6 break. Sells rest at $11 each. Profit?", "expr": "cost = 19 * 5\nremaining = 19 - 6\nrevenue = remaining * 11\nprofit = revenue - cost\n[END]", "ans": 48, "pattern": "buy_sell_profit"}
+{"q": "4 jars with 10 each. Uses 12. Left?", "expr": "total = 4 * 10\nremaining = total - 12\n[END]", "ans": 28, "pattern": "two_step_sequential"}
+{"q": "A egg costs $80. It's 25% off. Final price?", "expr": "original = 80\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 60, "pattern": "discount_calculation"}
+{"q": "Maria makes books for $10 each, sells for $15 each. Sells 12. Total profit?", "expr": "profit_each = 15 - 10\ntotal_profit = profit_each * 12\n[END]", "ans": 60, "pattern": "profit_margin"}
+{"q": "Zoe has 61 flowers. Loses 7, then loses 13. Remaining?", "expr": "after_first = 61 - 7\nremaining = after_first - 13\n[END]", "ans": 41, "pattern": "two_step_sequential"}
+{"q": "Jake buys 37 shirts at $8 each. 5 are damaged. Sells good ones at $12 each. Profit?", "expr": "total_cost = 37 * 8\ngood_items = 37 - 5\nrevenue = good_items * 12\nprofit = revenue - total_cost\n[END]", "ans": 88, "pattern": "four_step_business"}
+{"q": "A shirt costs $40. It's 10% off. Final price?", "expr": "original = 40\ndiscount = original / 10\nfinal = original - discount\n[END]", "ans": 36, "pattern": "discount_calculation"}
+{"q": "Chris makes cards for $6 each, sells for $8 each. Sells 13. Total profit?", "expr": "profit_each = 8 - 6\ntotal_profit = profit_each * 13\n[END]", "ans": 26, "pattern": "profit_margin"}
+{"q": "6 packs with 11 each. Uses 19. Left?", "expr": "total = 6 * 11\nremaining = total - 19\n[END]", "ans": 47, "pattern": "two_step_sequential"}
+{"q": "Sara has 35 toys. Gets 16 more. Total?", "expr": "total = 35 + 16\n[END]", "ans": 51, "pattern": "single_op"}
+{"q": "Kate buys 15 balls at $5 each. 5 break. Sells rest at $8 each. Profit?", "expr": "cost = 15 * 5\nremaining = 15 - 5\nrevenue = remaining * 8\nprofit = revenue - cost\n[END]", "ans": 5, "pattern": "buy_sell_profit"}
+{"q": "Mia has 77 eggs. Uses 66. How many left?", "expr": "remaining = 77 - 66\n[END]", "ans": 11, "pattern": "single_op"}
+{"q": "Sam earns $64/day on weekdays, $108/day on weekends. Weekly expenses are $162. Weekly savings?", "expr": "weekday_total = 64 * 5\nweekend_total = 108 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 162\n[END]", "ans": 374, "pattern": "five_step_weekly"}
+{"q": "4 shelfs with 8 each. Uses 21. Left?", "expr": "total = 4 * 8\nremaining = total - 21\n[END]", "ans": 11, "pattern": "two_step_sequential"}
+{"q": "Amy has 52 shirts. Loses 15, then loses 8. Remaining?", "expr": "after_first = 52 - 15\nremaining = after_first - 8\n[END]", "ans": 29, "pattern": "two_step_sequential"}
+{"q": "A toy costs $120. It's 25% off. Final price?", "expr": "original = 120\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 90, "pattern": "discount_calculation"}
+{"q": "Mia makes stickers for $5 each, sells for $10 each. Sells 15. Total profit?", "expr": "profit_each = 10 - 5\ntotal_profit = profit_each * 15\n[END]", "ans": 75, "pattern": "profit_margin"}
+{"q": "Mia has 83 eggs. Loses 13, then loses 17. Remaining?", "expr": "after_first = 83 - 13\nremaining = after_first - 17\n[END]", "ans": 53, "pattern": "two_step_sequential"}
+{"q": "Kate earns $83/day on weekdays, $115/day on weekends. Weekly expenses are $145. Weekly savings?", "expr": "weekday_total = 83 * 5\nweekend_total = 115 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 145\n[END]", "ans": 500, "pattern": "five_step_weekly"}
+{"q": "Nick makes marbles for $10 each, sells for $16 each. Sells 5. Total profit?", "expr": "profit_each = 16 - 10\ntotal_profit = profit_each * 5\n[END]", "ans": 30, "pattern": "profit_margin"}
+{"q": "Jake buys 15 flowers at $6 each. 2 break. Sells rest at $12 each. Profit?", "expr": "cost = 15 * 6\nremaining = 15 - 2\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 66, "pattern": "buy_sell_profit"}
+{"q": "Mike earns $10/hour for 5 hours. Spends $15 on supplies. Gets $21 tip. Final amount?", "expr": "earned = 10 * 5\nafter_expense = earned - 15\nfinal = after_expense + 21\n[END]", "ans": 56, "pattern": "rate_expense_bonus"}
+{"q": "Emma has 20 candys. Ben has twice as many. Combined total?", "expr": "a_count = 20\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 60, "pattern": "two_people_compare"}
+{"q": "Nick buys 16 flowers at $5 each. 5 break. Sells rest at $7 each. Profit?", "expr": "cost = 16 * 5\nremaining = 16 - 5\nrevenue = remaining * 7\nprofit = revenue - cost\n[END]", "ans": -3, "pattern": "buy_sell_profit"}
+{"q": "5 boxs with 5 each. Uses 9. Left?", "expr": "total = 5 * 5\nremaining = total - 9\n[END]", "ans": 16, "pattern": "two_step_sequential"}
+{"q": "Split 21 toys among 3 people. Each gets?", "expr": "each = 21 / 3\n[END]", "ans": 7, "pattern": "single_op"}
+{"q": "Mike earns $78/day on weekdays, $117/day on weekends. Weekly expenses are $160. Weekly savings?", "expr": "weekday_total = 78 * 5\nweekend_total = 117 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 160\n[END]", "ans": 464, "pattern": "five_step_weekly"}
+{"q": "Anna buys 33 pencils at $7 each. 7 are damaged. Sells good ones at $12 each. Profit?", "expr": "total_cost = 33 * 7\ngood_items = 33 - 7\nrevenue = good_items * 12\nprofit = revenue - total_cost\n[END]", "ans": 81, "pattern": "four_step_business"}
+{"q": "Sara has 20 books. Ben has 3 times as many. Combined total?", "expr": "a_count = 20\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 80, "pattern": "two_people_compare"}
+{"q": "Lisa has 22 candys. Ben has twice as many. Combined total?", "expr": "a_count = 22\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 66, "pattern": "two_people_compare"}
+{"q": "Split 60 toys among 5 people. Each gets?", "expr": "each = 60 / 5\n[END]", "ans": 12, "pattern": "single_op"}
+{"q": "Nick has 44 shirts. Gets 21 more. Total?", "expr": "total = 44 + 21\n[END]", "ans": 65, "pattern": "single_op"}
+{"q": "90 cookies split into 3 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 90\nper_group = total / 3\neach_gets = per_group / 2\n[END]", "ans": 15, "pattern": "split_and_share"}
+{"q": "Dan buys 33 toys at $10 each. 3 are damaged. Sells good ones at $19 each. Profit?", "expr": "total_cost = 33 * 10\ngood_items = 33 - 3\nrevenue = good_items * 19\nprofit = revenue - total_cost\n[END]", "ans": 240, "pattern": "four_step_business"}
+{"q": "Nick has 31. Gets 28 more. Spends 52. Left?", "expr": "after_gain = 31 + 28\nremaining = after_gain - 52\n[END]", "ans": 7, "pattern": "two_step_sequential"}
+{"q": "Mia buys 33 cookies at $7 each. 5 are damaged. Sells good ones at $17 each. Profit?", "expr": "total_cost = 33 * 7\ngood_items = 33 - 5\nrevenue = good_items * 17\nprofit = revenue - total_cost\n[END]", "ans": 245, "pattern": "four_step_business"}
+{"q": "114 shirts split into 2 groups. Each group shared among 3 people. Each person gets?", "expr": "total = 114\nper_group = total / 2\neach_gets = per_group / 3\n[END]", "ans": 19, "pattern": "split_and_share"}
+{"q": "Ryan has 16 stickers. Dan has twice as many. Combined total?", "expr": "a_count = 16\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 48, "pattern": "two_people_compare"}
+{"q": "A coin costs $40. It's 10% off. Final price?", "expr": "original = 40\ndiscount = original / 10\nfinal = original - discount\n[END]", "ans": 36, "pattern": "discount_calculation"}
+{"q": "Chris buys 16 eggs at $8 each. 5 break. Sells rest at $12 each. Profit?", "expr": "cost = 16 * 8\nremaining = 16 - 5\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 4, "pattern": "buy_sell_profit"}
+{"q": "7 rows with 12 eggs each. Total?", "expr": "total = 7 * 12\n[END]", "ans": 84, "pattern": "single_op"}
+{"q": "Evan has 22 eggs. Ben has twice as many. Combined total?", "expr": "a_count = 22\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 66, "pattern": "two_people_compare"}
+{"q": "6 packs with 12 each. Uses 21. Left?", "expr": "total = 6 * 12\nremaining = total - 21\n[END]", "ans": 51, "pattern": "two_step_sequential"}
+{"q": "Chris has 13 balls. Jake has twice as many. Combined total?", "expr": "a_count = 13\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 39, "pattern": "two_people_compare"}
+{"q": "8 crates with 11 each. Uses 48. Left?", "expr": "total = 8 * 11\nremaining = total - 48\n[END]", "ans": 40, "pattern": "two_step_sequential"}
+{"q": "Sam has 30 candys. Mike has twice as many. Combined total?", "expr": "a_count = 30\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 90, "pattern": "two_people_compare"}
+{"q": "Jake makes balls for $10 each, sells for $16 each. Sells 11. Total profit?", "expr": "profit_each = 16 - 10\ntotal_profit = profit_each * 11\n[END]", "ans": 66, "pattern": "profit_margin"}
+{"q": "4 boxs with 13 pencils each. Total?", "expr": "total = 4 * 13\n[END]", "ans": 52, "pattern": "single_op"}
+{"q": "A shirt costs $80. It's 25% off. Final price?", "expr": "original = 80\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 60, "pattern": "discount_calculation"}
+{"q": "A card costs $40. It's 20% off. Final price?", "expr": "original = 40\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 32, "pattern": "discount_calculation"}
+{"q": "Amy earns $8/hour for 5 hours. Spends $37 on supplies. Gets $26 tip. Final amount?", "expr": "earned = 8 * 5\nafter_expense = earned - 37\nfinal = after_expense + 26\n[END]", "ans": 29, "pattern": "rate_expense_bonus"}
+{"q": "8 boxs with 7 each. Uses 48. Left?", "expr": "total = 8 * 7\nremaining = total - 48\n[END]", "ans": 8, "pattern": "two_step_sequential"}
+{"q": "Tom has 67 books. Loses 17, then loses 16. Remaining?", "expr": "after_first = 67 - 17\nremaining = after_first - 16\n[END]", "ans": 34, "pattern": "two_step_sequential"}
+{"q": "Chris earns $17/hour for 5 hours. Spends $26 on supplies. Gets $10 tip. Final amount?", "expr": "earned = 17 * 5\nafter_expense = earned - 26\nfinal = after_expense + 10\n[END]", "ans": 69, "pattern": "rate_expense_bonus"}
+{"q": "A cookie costs $40. It's 25% off. Final price?", "expr": "original = 40\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 30, "pattern": "discount_calculation"}
+{"q": "A toy costs $100. It's 25% off. Final price?", "expr": "original = 100\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 75, "pattern": "discount_calculation"}
+{"q": "7 packs with 11 each. Uses 5. Left?", "expr": "total = 7 * 11\nremaining = total - 5\n[END]", "ans": 72, "pattern": "two_step_sequential"}
+{"q": "Sara has 42 cookies. Gets 14 more. Total?", "expr": "total = 42 + 14\n[END]", "ans": 56, "pattern": "single_op"}
+{"q": "Emma has 58 coins. Uses 13. Sells rest at $4 each. Revenue?", "expr": "remaining = 58 - 13\nrevenue = remaining * 4\n[END]", "ans": 180, "pattern": "two_step_sequential"}
+{"q": "A candy costs $100. It's 50% off. Final price?", "expr": "original = 100\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 50, "pattern": "discount_calculation"}
+{"q": "80 coins split into 5 groups. Each group shared among 4 people. Each person gets?", "expr": "total = 80\nper_group = total / 5\neach_gets = per_group / 4\n[END]", "ans": 4, "pattern": "split_and_share"}
+{"q": "Tom buys 23 flowers at $9 each. 3 are damaged. Sells good ones at $18 each. Profit?", "expr": "total_cost = 23 * 9\ngood_items = 23 - 3\nrevenue = good_items * 18\nprofit = revenue - total_cost\n[END]", "ans": 153, "pattern": "four_step_business"}
+{"q": "Kate earns $18/hour for 9 hours. Spends $17 on supplies. Gets $20 tip. Final amount?", "expr": "earned = 18 * 9\nafter_expense = earned - 17\nfinal = after_expense + 20\n[END]", "ans": 165, "pattern": "rate_expense_bonus"}
+{"q": "Alex has 94 toys. Loses 13, then loses 12. Remaining?", "expr": "after_first = 94 - 13\nremaining = after_first - 12\n[END]", "ans": 69, "pattern": "two_step_sequential"}
+{"q": "Chris has 32 eggs. Uses 13. Sells rest at $3 each. Revenue?", "expr": "remaining = 32 - 13\nrevenue = remaining * 3\n[END]", "ans": 57, "pattern": "two_step_sequential"}
+{"q": "Alex buys 18 pencils at $5 each. 3 break. Sells rest at $10 each. Profit?", "expr": "cost = 18 * 5\nremaining = 18 - 3\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": 60, "pattern": "buy_sell_profit"}
+{"q": "A pencil costs $120. It's 20% off. Final price?", "expr": "original = 120\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 96, "pattern": "discount_calculation"}
+{"q": "Mike buys 26 pencils at $8 each. 7 are damaged. Sells good ones at $16 each. Profit?", "expr": "total_cost = 26 * 8\ngood_items = 26 - 7\nrevenue = good_items * 16\nprofit = revenue - total_cost\n[END]", "ans": 96, "pattern": "four_step_business"}
+{"q": "Emma has 41 cookies. Gets 24 more. Total?", "expr": "total = 41 + 24\n[END]", "ans": 65, "pattern": "single_op"}
+{"q": "Split 96 apples among 8 people. Each gets?", "expr": "each = 96 / 8\n[END]", "ans": 12, "pattern": "single_op"}
+{"q": "Mia has 45 balls. Uses 7. Sells rest at $4 each. Revenue?", "expr": "remaining = 45 - 7\nrevenue = remaining * 4\n[END]", "ans": 152, "pattern": "two_step_sequential"}
+{"q": "Mia has 83 books. Loses 18, then loses 20. Remaining?", "expr": "after_first = 83 - 18\nremaining = after_first - 20\n[END]", "ans": 45, "pattern": "two_step_sequential"}
+{"q": "Sam earns $82/day on weekdays, $113/day on weekends. Weekly expenses are $150. Weekly savings?", "expr": "weekday_total = 82 * 5\nweekend_total = 113 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 150\n[END]", "ans": 486, "pattern": "five_step_weekly"}
+{"q": "Anna buys 23 flowers at $12 each. 5 are damaged. Sells good ones at $15 each. Profit?", "expr": "total_cost = 23 * 12\ngood_items = 23 - 5\nrevenue = good_items * 15\nprofit = revenue - total_cost\n[END]", "ans": -6, "pattern": "four_step_business"}
+{"q": "Mike has 30 candys. Gets 16 more. Total?", "expr": "total = 30 + 16\n[END]", "ans": 46, "pattern": "single_op"}
+{"q": "Ben has 18 toys. Anna has twice as many. Combined total?", "expr": "a_count = 18\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 54, "pattern": "two_people_compare"}
+{"q": "Evan has 35 marbles. Uses 12. Sells rest at $5 each. Revenue?", "expr": "remaining = 35 - 12\nrevenue = remaining * 5\n[END]", "ans": 115, "pattern": "two_step_sequential"}
+{"q": "Alex has 28. Gets 24 more. Spends 16. Left?", "expr": "after_gain = 28 + 24\nremaining = after_gain - 16\n[END]", "ans": 36, "pattern": "two_step_sequential"}
+{"q": "Mia has 13 balls. Kate has 3 times as many. Combined total?", "expr": "a_count = 13\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 52, "pattern": "two_people_compare"}
+{"q": "Dan makes toys for $9 each, sells for $12 each. Sells 7. Total profit?", "expr": "profit_each = 12 - 9\ntotal_profit = profit_each * 7\n[END]", "ans": 21, "pattern": "profit_margin"}
+{"q": "Jake makes oranges for $10 each, sells for $18 each. Sells 5. Total profit?", "expr": "profit_each = 18 - 10\ntotal_profit = profit_each * 5\n[END]", "ans": 40, "pattern": "profit_margin"}
+{"q": "10 packs with 8 books each. Total?", "expr": "total = 10 * 8\n[END]", "ans": 80, "pattern": "single_op"}
+{"q": "Mia has 13 candys. Sam has twice as many. Combined total?", "expr": "a_count = 13\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 39, "pattern": "two_people_compare"}
+{"q": "Ben has 38 flowers. Gets 28 more. Total?", "expr": "total = 38 + 28\n[END]", "ans": 66, "pattern": "single_op"}
+{"q": "Alex has 41 marbles. Uses 5. Sells rest at $5 each. Revenue?", "expr": "remaining = 41 - 5\nrevenue = remaining * 5\n[END]", "ans": 180, "pattern": "two_step_sequential"}
+{"q": "Evan has 79 pencils. Uses 41. How many left?", "expr": "remaining = 79 - 41\n[END]", "ans": 38, "pattern": "single_op"}
+{"q": "Sara has 48. Gets 12 more. Spends 29. Left?", "expr": "after_gain = 48 + 12\nremaining = after_gain - 29\n[END]", "ans": 31, "pattern": "two_step_sequential"}
+{"q": "Amy has 15 balls. Jake has 3 times as many. Combined total?", "expr": "a_count = 15\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 60, "pattern": "two_people_compare"}
+{"q": "Evan has 47. Gets 12 more. Spends 10. Left?", "expr": "after_gain = 47 + 12\nremaining = after_gain - 10\n[END]", "ans": 49, "pattern": "two_step_sequential"}
+{"q": "7 packs with 15 marbles each. Total?", "expr": "total = 7 * 15\n[END]", "ans": 105, "pattern": "single_op"}
+{"q": "Chris has 24 shirts. Ben has 3 times as many. Combined total?", "expr": "a_count = 24\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 96, "pattern": "two_people_compare"}
+{"q": "A toy costs $80. It's 50% off. Final price?", "expr": "original = 80\ndiscount = original / 2\nfinal = original - discount\n[END]", "ans": 40, "pattern": "discount_calculation"}
+{"q": "Tom has 72 books. Uses 21. How many left?", "expr": "remaining = 72 - 21\n[END]", "ans": 51, "pattern": "single_op"}
+{"q": "Lisa earns $63/day on weekdays, $88/day on weekends. Weekly expenses are $150. Weekly savings?", "expr": "weekday_total = 63 * 5\nweekend_total = 88 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 150\n[END]", "ans": 341, "pattern": "five_step_weekly"}
+{"q": "Split 9 shirts among 3 people. Each gets?", "expr": "each = 9 / 3\n[END]", "ans": 3, "pattern": "single_op"}
+{"q": "108 toys split into 2 groups. Each group shared among 2 people. Each person gets?", "expr": "total = 108\nper_group = total / 2\neach_gets = per_group / 2\n[END]", "ans": 27, "pattern": "split_and_share"}
+{"q": "Jake has 29. Gets 17 more. Spends 20. Left?", "expr": "after_gain = 29 + 17\nremaining = after_gain - 20\n[END]", "ans": 26, "pattern": "two_step_sequential"}
+{"q": "A flower costs $120. It's 20% off. Final price?", "expr": "original = 120\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 96, "pattern": "discount_calculation"}
+{"q": "Anna has 32 apples. Gets 15 more. Total?", "expr": "total = 32 + 15\n[END]", "ans": 47, "pattern": "single_op"}
+{"q": "Amy buys 37 balls at $9 each. 7 are damaged. Sells good ones at $19 each. Profit?", "expr": "total_cost = 37 * 9\ngood_items = 37 - 7\nrevenue = good_items * 19\nprofit = revenue - total_cost\n[END]", "ans": 237, "pattern": "four_step_business"}
+{"q": "Split 99 books among 9 people. Each gets?", "expr": "each = 99 / 9\n[END]", "ans": 11, "pattern": "single_op"}
+{"q": "Ryan earns $12/hour for 6 hours. Spends $25 on supplies. Gets $27 tip. Final amount?", "expr": "earned = 12 * 6\nafter_expense = earned - 25\nfinal = after_expense + 27\n[END]", "ans": 74, "pattern": "rate_expense_bonus"}
+{"q": "Lisa has 41 flowers. Uses 11. Sells rest at $4 each. Revenue?", "expr": "remaining = 41 - 11\nrevenue = remaining * 4\n[END]", "ans": 120, "pattern": "two_step_sequential"}
+{"q": "Tom has 52 apples. Uses 23. How many left?", "expr": "remaining = 52 - 23\n[END]", "ans": 29, "pattern": "single_op"}
+{"q": "Tom buys 25 oranges at $10 each. 4 break. Sells rest at $12 each. Profit?", "expr": "cost = 25 * 10\nremaining = 25 - 4\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": 2, "pattern": "buy_sell_profit"}
+{"q": "Tom has 36 toys. Uses 11. Sells rest at $5 each. Revenue?", "expr": "remaining = 36 - 11\nrevenue = remaining * 5\n[END]", "ans": 125, "pattern": "two_step_sequential"}
+{"q": "Anna has 46. Gets 22 more. Spends 19. Left?", "expr": "after_gain = 46 + 22\nremaining = after_gain - 19\n[END]", "ans": 49, "pattern": "two_step_sequential"}
+{"q": "8 crates with 9 each. Uses 23. Left?", "expr": "total = 8 * 9\nremaining = total - 23\n[END]", "ans": 49, "pattern": "two_step_sequential"}
+{"q": "Mike makes candys for $4 each, sells for $7 each. Sells 7. Total profit?", "expr": "profit_each = 7 - 4\ntotal_profit = profit_each * 7\n[END]", "ans": 21, "pattern": "profit_margin"}
+{"q": "Amy has 28. Gets 29 more. Spends 36. Left?", "expr": "after_gain = 28 + 29\nremaining = after_gain - 36\n[END]", "ans": 21, "pattern": "two_step_sequential"}
+{"q": "Tom has 44 books. Gets 5 more. Total?", "expr": "total = 44 + 5\n[END]", "ans": 49, "pattern": "single_op"}
+{"q": "5 trays with 15 stickers each. Total?", "expr": "total = 5 * 15\n[END]", "ans": 75, "pattern": "single_op"}
+{"q": "A pencil costs $40. It's 20% off. Final price?", "expr": "original = 40\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 32, "pattern": "discount_calculation"}
+{"q": "Split 70 marbles among 7 people. Each gets?", "expr": "each = 70 / 7\n[END]", "ans": 10, "pattern": "single_op"}
+{"q": "Amy earns $94/day on weekdays, $139/day on weekends. Weekly expenses are $104. Weekly savings?", "expr": "weekday_total = 94 * 5\nweekend_total = 139 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 104\n[END]", "ans": 644, "pattern": "five_step_weekly"}
+{"q": "Jake has 54 apples. Uses 11. Sells rest at $2 each. Revenue?", "expr": "remaining = 54 - 11\nrevenue = remaining * 2\n[END]", "ans": 86, "pattern": "two_step_sequential"}
+{"q": "Anna buys 18 pencils at $9 each. 2 break. Sells rest at $11 each. Profit?", "expr": "cost = 18 * 9\nremaining = 18 - 2\nrevenue = remaining * 11\nprofit = revenue - cost\n[END]", "ans": 14, "pattern": "buy_sell_profit"}
+{"q": "Kate earns $74/day on weekdays, $118/day on weekends. Weekly expenses are $156. Weekly savings?", "expr": "weekday_total = 74 * 5\nweekend_total = 118 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 156\n[END]", "ans": 450, "pattern": "five_step_weekly"}
+{"q": "Sam has 43. Gets 13 more. Spends 38. Left?", "expr": "after_gain = 43 + 13\nremaining = after_gain - 38\n[END]", "ans": 18, "pattern": "two_step_sequential"}
+{"q": "Mike earns $15/hour for 7 hours. Spends $31 on supplies. Gets $19 tip. Final amount?", "expr": "earned = 15 * 7\nafter_expense = earned - 31\nfinal = after_expense + 19\n[END]", "ans": 93, "pattern": "rate_expense_bonus"}
+{"q": "Anna earns $90/day on weekdays, $133/day on weekends. Weekly expenses are $105. Weekly savings?", "expr": "weekday_total = 90 * 5\nweekend_total = 133 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 105\n[END]", "ans": 611, "pattern": "five_step_weekly"}
+{"q": "A toy costs $100. It's 10% off. Final price?", "expr": "original = 100\ndiscount = original / 10\nfinal = original - discount\n[END]", "ans": 90, "pattern": "discount_calculation"}
+{"q": "Zoe has 58 pencils. Uses 5. Sells rest at $3 each. Revenue?", "expr": "remaining = 58 - 5\nrevenue = remaining * 3\n[END]", "ans": 159, "pattern": "two_step_sequential"}
+{"q": "Kate earns $90/day on weekdays, $123/day on weekends. Weekly expenses are $141. Weekly savings?", "expr": "weekday_total = 90 * 5\nweekend_total = 123 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 141\n[END]", "ans": 555, "pattern": "five_step_weekly"}
+{"q": "Ben has 35 cards. Gets 30 more. Total?", "expr": "total = 35 + 30\n[END]", "ans": 65, "pattern": "single_op"}
+{"q": "Sam has 42. Gets 29 more. Spends 14. Left?", "expr": "after_gain = 42 + 29\nremaining = after_gain - 14\n[END]", "ans": 57, "pattern": "two_step_sequential"}
+{"q": "7 boxs with 6 each. Uses 26. Left?", "expr": "total = 7 * 6\nremaining = total - 26\n[END]", "ans": 16, "pattern": "two_step_sequential"}
+{"q": "Jake has 18 oranges. Gets 20 more. Total?", "expr": "total = 18 + 20\n[END]", "ans": 38, "pattern": "single_op"}
+{"q": "Ryan has 55 coins. Uses 12. Sells rest at $3 each. Revenue?", "expr": "remaining = 55 - 12\nrevenue = remaining * 3\n[END]", "ans": 129, "pattern": "two_step_sequential"}
+{"q": "Chris has 46 marbles. Uses 7. How many left?", "expr": "remaining = 46 - 7\n[END]", "ans": 39, "pattern": "single_op"}
+{"q": "Amy buys 19 toys at $10 each. 3 break. Sells rest at $16 each. Profit?", "expr": "cost = 19 * 10\nremaining = 19 - 3\nrevenue = remaining * 16\nprofit = revenue - cost\n[END]", "ans": 66, "pattern": "buy_sell_profit"}
+{"q": "Split 84 marbles among 7 people. Each gets?", "expr": "each = 84 / 7\n[END]", "ans": 12, "pattern": "single_op"}
+{"q": "Ryan buys 22 books at $7 each. 6 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 22 * 7\ngood_items = 22 - 6\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 70, "pattern": "four_step_business"}
+{"q": "Alex makes toys for $10 each, sells for $12 each. Sells 15. Total profit?", "expr": "profit_each = 12 - 10\ntotal_profit = profit_each * 15\n[END]", "ans": 30, "pattern": "profit_margin"}
+{"q": "Anna buys 10 shirts at $8 each. 6 break. Sells rest at $11 each. Profit?", "expr": "cost = 10 * 8\nremaining = 10 - 6\nrevenue = remaining * 11\nprofit = revenue - cost\n[END]", "ans": -36, "pattern": "buy_sell_profit"}
+{"q": "Lisa has 26. Gets 26 more. Spends 36. Left?", "expr": "after_gain = 26 + 26\nremaining = after_gain - 36\n[END]", "ans": 16, "pattern": "two_step_sequential"}
+{"q": "96 books split into 4 groups. Each group shared among 4 people. Each person gets?", "expr": "total = 96\nper_group = total / 4\neach_gets = per_group / 4\n[END]", "ans": 6, "pattern": "split_and_share"}
+{"q": "Maria has 83 cookies. Loses 7, then loses 6. Remaining?", "expr": "after_first = 83 - 7\nremaining = after_first - 6\n[END]", "ans": 70, "pattern": "two_step_sequential"}
+{"q": "Anna makes books for $3 each, sells for $6 each. Sells 6. Total profit?", "expr": "profit_each = 6 - 3\ntotal_profit = profit_each * 6\n[END]", "ans": 18, "pattern": "profit_margin"}
+{"q": "Emma buys 22 apples at $10 each. 6 break. Sells rest at $16 each. Profit?", "expr": "cost = 22 * 10\nremaining = 22 - 6\nrevenue = remaining * 16\nprofit = revenue - cost\n[END]", "ans": 36, "pattern": "buy_sell_profit"}
+{"q": "A sticker costs $40. It's 25% off. Final price?", "expr": "original = 40\ndiscount = original / 4\nfinal = original - discount\n[END]", "ans": 30, "pattern": "discount_calculation"}
+{"q": "9 trays with 12 each. Uses 15. Left?", "expr": "total = 9 * 12\nremaining = total - 15\n[END]", "ans": 93, "pattern": "two_step_sequential"}
+{"q": "Alex makes apples for $9 each, sells for $17 each. Sells 10. Total profit?", "expr": "profit_each = 17 - 9\ntotal_profit = profit_each * 10\n[END]", "ans": 80, "pattern": "profit_margin"}
+{"q": "108 apples split into 6 groups. Each group shared among 3 people. Each person gets?", "expr": "total = 108\nper_group = total / 6\neach_gets = per_group / 3\n[END]", "ans": 6, "pattern": "split_and_share"}
+{"q": "Lisa buys 19 balls at $4 each. 3 break. Sells rest at $10 each. Profit?", "expr": "cost = 19 * 4\nremaining = 19 - 3\nrevenue = remaining * 10\nprofit = revenue - cost\n[END]", "ans": 84, "pattern": "buy_sell_profit"}
+{"q": "Split 36 toys among 6 people. Each gets?", "expr": "each = 36 / 6\n[END]", "ans": 6, "pattern": "single_op"}
+{"q": "Kate buys 15 cards at $9 each. 2 break. Sells rest at $17 each. Profit?", "expr": "cost = 15 * 9\nremaining = 15 - 2\nrevenue = remaining * 17\nprofit = revenue - cost\n[END]", "ans": 86, "pattern": "buy_sell_profit"}
+{"q": "Alex earns $18/hour for 7 hours. Spends $32 on supplies. Gets $23 tip. Final amount?", "expr": "earned = 18 * 7\nafter_expense = earned - 32\nfinal = after_expense + 23\n[END]", "ans": 117, "pattern": "rate_expense_bonus"}
+{"q": "Anna buys 25 coins at $11 each. 7 are damaged. Sells good ones at $19 each. Profit?", "expr": "total_cost = 25 * 11\ngood_items = 25 - 7\nrevenue = good_items * 19\nprofit = revenue - total_cost\n[END]", "ans": 67, "pattern": "four_step_business"}
+{"q": "Ryan earns $17/hour for 7 hours. Spends $39 on supplies. Gets $21 tip. Final amount?", "expr": "earned = 17 * 7\nafter_expense = earned - 39\nfinal = after_expense + 21\n[END]", "ans": 101, "pattern": "rate_expense_bonus"}
+{"q": "Ryan buys 31 marbles at $11 each. 8 are damaged. Sells good ones at $20 each. Profit?", "expr": "total_cost = 31 * 11\ngood_items = 31 - 8\nrevenue = good_items * 20\nprofit = revenue - total_cost\n[END]", "ans": 119, "pattern": "four_step_business"}
+{"q": "Evan makes marbles for $6 each, sells for $12 each. Sells 13. Total profit?", "expr": "profit_each = 12 - 6\ntotal_profit = profit_each * 13\n[END]", "ans": 78, "pattern": "profit_margin"}
+{"q": "Ryan has 41 shirts. Uses 12. Sells rest at $5 each. Revenue?", "expr": "remaining = 41 - 12\nrevenue = remaining * 5\n[END]", "ans": 145, "pattern": "two_step_sequential"}
+{"q": "Tom earns $96/day on weekdays, $117/day on weekends. Weekly expenses are $136. Weekly savings?", "expr": "weekday_total = 96 * 5\nweekend_total = 117 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 136\n[END]", "ans": 578, "pattern": "five_step_weekly"}
+{"q": "Sara has 19 shirts. Jake has twice as many. Combined total?", "expr": "a_count = 19\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 57, "pattern": "two_people_compare"}
+{"q": "Kate has 30 pencils. Uses 9. Sells rest at $3 each. Revenue?", "expr": "remaining = 30 - 9\nrevenue = remaining * 3\n[END]", "ans": 63, "pattern": "two_step_sequential"}
+{"q": "Amy has 38 marbles. Uses 13. How many left?", "expr": "remaining = 38 - 13\n[END]", "ans": 25, "pattern": "single_op"}
+{"q": "6 rows with 9 each. Uses 10. Left?", "expr": "total = 6 * 9\nremaining = total - 10\n[END]", "ans": 44, "pattern": "two_step_sequential"}
+{"q": "Mike has 20 oranges. Lisa has 3 times as many. Combined total?", "expr": "a_count = 20\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 80, "pattern": "two_people_compare"}
+{"q": "Mia has 48 balls. Gets 25 more. Total?", "expr": "total = 48 + 25\n[END]", "ans": 73, "pattern": "single_op"}
+{"q": "Mia has 99 candys. Loses 6, then loses 15. Remaining?", "expr": "after_first = 99 - 6\nremaining = after_first - 15\n[END]", "ans": 78, "pattern": "two_step_sequential"}
+{"q": "Dan has 99 candys. Loses 12, then loses 5. Remaining?", "expr": "after_first = 99 - 12\nremaining = after_first - 5\n[END]", "ans": 82, "pattern": "two_step_sequential"}
+{"q": "Chris earns $8/hour for 6 hours. Spends $26 on supplies. Gets $11 tip. Final amount?", "expr": "earned = 8 * 6\nafter_expense = earned - 26\nfinal = after_expense + 11\n[END]", "ans": 33, "pattern": "rate_expense_bonus"}
+{"q": "Mia has 46 books. Uses 8. Sells rest at $3 each. Revenue?", "expr": "remaining = 46 - 8\nrevenue = remaining * 3\n[END]", "ans": 114, "pattern": "two_step_sequential"}
+{"q": "Chris has 24 flowers. Gets 18 more. Total?", "expr": "total = 24 + 18\n[END]", "ans": 42, "pattern": "single_op"}
+{"q": "6 boxs with 6 each. Uses 20. Left?", "expr": "total = 6 * 6\nremaining = total - 20\n[END]", "ans": 16, "pattern": "two_step_sequential"}
+{"q": "Ben buys 22 cookies at $9 each. 3 break. Sells rest at $17 each. Profit?", "expr": "cost = 22 * 9\nremaining = 22 - 3\nrevenue = remaining * 17\nprofit = revenue - cost\n[END]", "ans": 125, "pattern": "buy_sell_profit"}
+{"q": "Split 108 pencils among 9 people. Each gets?", "expr": "each = 108 / 9\n[END]", "ans": 12, "pattern": "single_op"}
+{"q": "Evan has 45 oranges. Uses 9. How many left?", "expr": "remaining = 45 - 9\n[END]", "ans": 36, "pattern": "single_op"}
+{"q": "Dan has 57 marbles. Loses 18, then loses 18. Remaining?", "expr": "after_first = 57 - 18\nremaining = after_first - 18\n[END]", "ans": 21, "pattern": "two_step_sequential"}
+{"q": "Mike has 49 marbles. Uses 15. Sells rest at $2 each. Revenue?", "expr": "remaining = 49 - 15\nrevenue = remaining * 2\n[END]", "ans": 68, "pattern": "two_step_sequential"}
+{"q": "Amy makes coins for $5 each, sells for $10 each. Sells 5. Total profit?", "expr": "profit_each = 10 - 5\ntotal_profit = profit_each * 5\n[END]", "ans": 25, "pattern": "profit_margin"}
+{"q": "Kate buys 31 pencils at $7 each. 8 are damaged. Sells good ones at $11 each. Profit?", "expr": "total_cost = 31 * 7\ngood_items = 31 - 8\nrevenue = good_items * 11\nprofit = revenue - total_cost\n[END]", "ans": 36, "pattern": "four_step_business"}
+{"q": "Sam has 48 pencils. Uses 5. How many left?", "expr": "remaining = 48 - 5\n[END]", "ans": 43, "pattern": "single_op"}
+{"q": "Emma has 35. Gets 10 more. Spends 26. Left?", "expr": "after_gain = 35 + 10\nremaining = after_gain - 26\n[END]", "ans": 19, "pattern": "two_step_sequential"}
+{"q": "8 trays with 9 each. Uses 40. Left?", "expr": "total = 8 * 9\nremaining = total - 40\n[END]", "ans": 32, "pattern": "two_step_sequential"}
+{"q": "Jake has 28 candys. Tom has 4 times as many. Combined total?", "expr": "a_count = 28\nb_count = a_count * 4\ntotal = a_count + b_count\n[END]", "ans": 140, "pattern": "two_people_compare"}
+{"q": "6 packs with 15 apples each. Total?", "expr": "total = 6 * 15\n[END]", "ans": 90, "pattern": "single_op"}
+{"q": "Split 56 cookies among 7 people. Each gets?", "expr": "each = 56 / 7\n[END]", "ans": 8, "pattern": "single_op"}
+{"q": "Tom buys 40 stickers at $11 each. 4 are damaged. Sells good ones at $20 each. Profit?", "expr": "total_cost = 40 * 11\ngood_items = 40 - 4\nrevenue = good_items * 20\nprofit = revenue - total_cost\n[END]", "ans": 280, "pattern": "four_step_business"}
+{"q": "Emma buys 20 shirts at $10 each. 6 break. Sells rest at $16 each. Profit?", "expr": "cost = 20 * 10\nremaining = 20 - 6\nrevenue = remaining * 16\nprofit = revenue - cost\n[END]", "ans": 24, "pattern": "buy_sell_profit"}
+{"q": "Split 9 toys among 3 people. Each gets?", "expr": "each = 9 / 3\n[END]", "ans": 3, "pattern": "single_op"}
+{"q": "Sara has 45 stickers. Uses 11. Sells rest at $3 each. Revenue?", "expr": "remaining = 45 - 11\nrevenue = remaining * 3\n[END]", "ans": 102, "pattern": "two_step_sequential"}
+{"q": "6 packs with 12 marbles each. Total?", "expr": "total = 6 * 12\n[END]", "ans": 72, "pattern": "single_op"}
+{"q": "Ben makes eggs for $9 each, sells for $17 each. Sells 5. Total profit?", "expr": "profit_each = 17 - 9\ntotal_profit = profit_each * 5\n[END]", "ans": 40, "pattern": "profit_margin"}
+{"q": "Ben earns $64/day on weekdays, $88/day on weekends. Weekly expenses are $143. Weekly savings?", "expr": "weekday_total = 64 * 5\nweekend_total = 88 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 143\n[END]", "ans": 353, "pattern": "five_step_weekly"}
+{"q": "Jake buys 32 cookies at $8 each. 6 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 32 * 8\ngood_items = 32 - 6\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 108, "pattern": "four_step_business"}
+{"q": "Dan has 29 shirts. Zoe has 3 times as many. Combined total?", "expr": "a_count = 29\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 116, "pattern": "two_people_compare"}
+{"q": "8 packs with 8 each. Uses 13. Left?", "expr": "total = 8 * 8\nremaining = total - 13\n[END]", "ans": 51, "pattern": "two_step_sequential"}
+{"q": "Sara earns $10/hour for 7 hours. Spends $39 on supplies. Gets $14 tip. Final amount?", "expr": "earned = 10 * 7\nafter_expense = earned - 39\nfinal = after_expense + 14\n[END]", "ans": 45, "pattern": "rate_expense_bonus"}
+{"q": "Mia earns $10/hour for 6 hours. Spends $12 on supplies. Gets $27 tip. Final amount?", "expr": "earned = 10 * 6\nafter_expense = earned - 12\nfinal = after_expense + 27\n[END]", "ans": 75, "pattern": "rate_expense_bonus"}
+{"q": "Emma buys 20 books at $5 each. 2 break. Sells rest at $13 each. Profit?", "expr": "cost = 20 * 5\nremaining = 20 - 2\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": 134, "pattern": "buy_sell_profit"}
+{"q": "Dan has 44 candys. Uses 15. Sells rest at $4 each. Revenue?", "expr": "remaining = 44 - 15\nrevenue = remaining * 4\n[END]", "ans": 116, "pattern": "two_step_sequential"}
+{"q": "Mike has 41 cookies. Uses 6. How many left?", "expr": "remaining = 41 - 6\n[END]", "ans": 35, "pattern": "single_op"}
+{"q": "96 cards split into 4 groups. Each group shared among 3 people. Each person gets?", "expr": "total = 96\nper_group = total / 4\neach_gets = per_group / 3\n[END]", "ans": 8, "pattern": "split_and_share"}
+{"q": "Kate has 12 marbles. Tom has 3 times as many. Combined total?", "expr": "a_count = 12\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 48, "pattern": "two_people_compare"}
+{"q": "5 trays with 10 flowers each. Total?", "expr": "total = 5 * 10\n[END]", "ans": 50, "pattern": "single_op"}
+{"q": "Anna buys 17 pencils at $3 each. 5 break. Sells rest at $11 each. Profit?", "expr": "cost = 17 * 3\nremaining = 17 - 5\nrevenue = remaining * 11\nprofit = revenue - cost\n[END]", "ans": 81, "pattern": "buy_sell_profit"}
+{"q": "Ben earns $76/day on weekdays, $103/day on weekends. Weekly expenses are $195. Weekly savings?", "expr": "weekday_total = 76 * 5\nweekend_total = 103 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 195\n[END]", "ans": 391, "pattern": "five_step_weekly"}
+{"q": "Mike earns $20/hour for 5 hours. Spends $12 on supplies. Gets $15 tip. Final amount?", "expr": "earned = 20 * 5\nafter_expense = earned - 12\nfinal = after_expense + 15\n[END]", "ans": 103, "pattern": "rate_expense_bonus"}
+{"q": "Amy buys 39 balls at $12 each. 8 are damaged. Sells good ones at $20 each. Profit?", "expr": "total_cost = 39 * 12\ngood_items = 39 - 8\nrevenue = good_items * 20\nprofit = revenue - total_cost\n[END]", "ans": 152, "pattern": "four_step_business"}
+{"q": "Kate buys 32 candys at $5 each. 7 are damaged. Sells good ones at $14 each. Profit?", "expr": "total_cost = 32 * 5\ngood_items = 32 - 7\nrevenue = good_items * 14\nprofit = revenue - total_cost\n[END]", "ans": 190, "pattern": "four_step_business"}
+{"q": "A candy costs $100. It's 10% off. Final price?", "expr": "original = 100\ndiscount = original / 10\nfinal = original - discount\n[END]", "ans": 90, "pattern": "discount_calculation"}
+{"q": "Amy buys 11 flowers at $6 each. 6 break. Sells rest at $12 each. Profit?", "expr": "cost = 11 * 6\nremaining = 11 - 6\nrevenue = remaining * 12\nprofit = revenue - cost\n[END]", "ans": -6, "pattern": "buy_sell_profit"}
+{"q": "Sam has 36. Gets 30 more. Spends 8. Left?", "expr": "after_gain = 36 + 30\nremaining = after_gain - 8\n[END]", "ans": 58, "pattern": "two_step_sequential"}
+{"q": "7 baskets with 11 candys each. Total?", "expr": "total = 7 * 11\n[END]", "ans": 77, "pattern": "single_op"}
+{"q": "Evan has 94 shirts. Loses 9, then loses 19. Remaining?", "expr": "after_first = 94 - 9\nremaining = after_first - 19\n[END]", "ans": 66, "pattern": "two_step_sequential"}
+{"q": "Lisa makes flowers for $4 each, sells for $7 each. Sells 14. Total profit?", "expr": "profit_each = 7 - 4\ntotal_profit = profit_each * 14\n[END]", "ans": 42, "pattern": "profit_margin"}
+{"q": "Ryan earns $58/day on weekdays, $90/day on weekends. Weekly expenses are $152. Weekly savings?", "expr": "weekday_total = 58 * 5\nweekend_total = 90 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 152\n[END]", "ans": 318, "pattern": "five_step_weekly"}
+{"q": "Tom has 38. Gets 16 more. Spends 34. Left?", "expr": "after_gain = 38 + 16\nremaining = after_gain - 34\n[END]", "ans": 20, "pattern": "two_step_sequential"}
+{"q": "Maria has 75 oranges. Uses 20. How many left?", "expr": "remaining = 75 - 20\n[END]", "ans": 55, "pattern": "single_op"}
+{"q": "4 rows with 12 eggs each. Total?", "expr": "total = 4 * 12\n[END]", "ans": 48, "pattern": "single_op"}
+{"q": "A toy costs $100. It's 20% off. Final price?", "expr": "original = 100\ndiscount = original / 5\nfinal = original - discount\n[END]", "ans": 80, "pattern": "discount_calculation"}
+{"q": "6 baskets with 7 each. Uses 15. Left?", "expr": "total = 6 * 7\nremaining = total - 15\n[END]", "ans": 27, "pattern": "two_step_sequential"}
+{"q": "7 trays with 15 candys each. Total?", "expr": "total = 7 * 15\n[END]", "ans": 105, "pattern": "single_op"}
+{"q": "5 boxs with 5 each. Uses 13. Left?", "expr": "total = 5 * 5\nremaining = total - 13\n[END]", "ans": 12, "pattern": "two_step_sequential"}
+{"q": "Nick buys 10 toys at $10 each. 3 break. Sells rest at $13 each. Profit?", "expr": "cost = 10 * 10\nremaining = 10 - 3\nrevenue = remaining * 13\nprofit = revenue - cost\n[END]", "ans": -9, "pattern": "buy_sell_profit"}
+{"q": "Nick has 24 candys. Amy has twice as many. Combined total?", "expr": "a_count = 24\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 72, "pattern": "two_people_compare"}
+{"q": "Tom has 27 shirts. Ben has 3 times as many. Combined total?", "expr": "a_count = 27\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 108, "pattern": "two_people_compare"}
+{"q": "Ryan has 15 apples. Mike has twice as many. Combined total?", "expr": "a_count = 15\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 45, "pattern": "two_people_compare"}
+{"q": "Alex has 32 apples. Uses 26. How many left?", "expr": "remaining = 32 - 26\n[END]", "ans": 6, "pattern": "single_op"}
+{"q": "Evan has 12 marbles. Zoe has twice as many. Combined total?", "expr": "a_count = 12\nb_count = a_count * 2\ntotal = a_count + b_count\n[END]", "ans": 36, "pattern": "two_people_compare"}
+{"q": "12 crates with 14 books each. Total?", "expr": "total = 12 * 14\n[END]", "ans": 168, "pattern": "single_op"}
+{"q": "3 packs with 5 oranges each. Total?", "expr": "total = 3 * 5\n[END]", "ans": 15, "pattern": "single_op"}
+{"q": "Chris has 98 balls. Loses 18, then loses 7. Remaining?", "expr": "after_first = 98 - 18\nremaining = after_first - 7\n[END]", "ans": 73, "pattern": "two_step_sequential"}
+{"q": "Jake has 40 cookies. Uses 13. Sells rest at $5 each. Revenue?", "expr": "remaining = 40 - 13\nrevenue = remaining * 5\n[END]", "ans": 135, "pattern": "two_step_sequential"}
+{"q": "Mike buys 11 cards at $4 each. 6 break. Sells rest at $11 each. Profit?", "expr": "cost = 11 * 4\nremaining = 11 - 6\nrevenue = remaining * 11\nprofit = revenue - cost\n[END]", "ans": 11, "pattern": "buy_sell_profit"}
+{"q": "Sara earns $55/day on weekdays, $90/day on weekends. Weekly expenses are $192. Weekly savings?", "expr": "weekday_total = 55 * 5\nweekend_total = 90 * 2\ngross = weekday_total + weekend_total\nsavings = gross - 192\n[END]", "ans": 263, "pattern": "five_step_weekly"}
+{"q": "Zoe earns $14/hour for 8 hours. Spends $37 on supplies. Gets $20 tip. Final amount?", "expr": "earned = 14 * 8\nafter_expense = earned - 37\nfinal = after_expense + 20\n[END]", "ans": 95, "pattern": "rate_expense_bonus"}
+{"q": "Mia has 59 cards. Uses 7. Sells rest at $5 each. Revenue?", "expr": "remaining = 59 - 7\nrevenue = remaining * 5\n[END]", "ans": 260, "pattern": "two_step_sequential"}
+{"q": "Nick buys 15 flowers at $6 each. 4 break. Sells rest at $9 each. Profit?", "expr": "cost = 15 * 6\nremaining = 15 - 4\nrevenue = remaining * 9\nprofit = revenue - cost\n[END]", "ans": 9, "pattern": "buy_sell_profit"}
+{"q": "Tom has 23 flowers. Gets 30 more. Total?", "expr": "total = 23 + 30\n[END]", "ans": 53, "pattern": "single_op"}
+{"q": "Dan has 20 apples. Amy has 3 times as many. Combined total?", "expr": "a_count = 20\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 80, "pattern": "two_people_compare"}
+{"q": "Mike has 16 eggs. Tom has 3 times as many. Combined total?", "expr": "a_count = 16\nb_count = a_count * 3\ntotal = a_count + b_count\n[END]", "ans": 64, "pattern": "two_people_compare"}
+{"q": "Lisa has 46 stickers. Uses 13. Sells rest at $4 each. Revenue?", "expr": "remaining = 46 - 13\nrevenue = remaining * 4\n[END]", "ans": 132, "pattern": "two_step_sequential"}
+{"q": "100 cookies split into 4 groups. Each group shared among 5 people. Each person gets?", "expr": "total = 100\nper_group = total / 4\neach_gets = per_group / 5\n[END]", "ans": 5, "pattern": "split_and_share"}
+{"q": "Mia has 61 cards. Loses 11, then loses 15. Remaining?", "expr": "after_first = 61 - 11\nremaining = after_first - 15\n[END]", "ans": 35, "pattern": "two_step_sequential"}

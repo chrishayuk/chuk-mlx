@@ -9,7 +9,7 @@ Example: "16 - 3, then multiply by 5" → (16-3)*5 = 65
 Uses stack-based WASM execution - the result stays on stack
 and the next operation just pushes the second operand.
 
-Expected accuracy: ~75% (parenthesized expressions need improved parsing)
+Accuracy: 100% (8/8) - both sequential and parenthesized expressions supported
 """
 
 import re

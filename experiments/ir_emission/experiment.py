@@ -34,7 +34,7 @@ class IREmissionExperiment(ExperimentBase):
 
     Runs three pipelines to test different capabilities:
     - single_op: Single arithmetic operations (100% accuracy)
-    - multi_op: Multi-operation chains (75% accuracy)
+    - multi_op: Multi-operation chains (100% accuracy)
     - loop: Loop constructs for Turing completeness (100% accuracy)
     """
 

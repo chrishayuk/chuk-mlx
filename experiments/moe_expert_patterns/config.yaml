@@ -1,0 +1,121 @@
+# MoE Expert Patterns Experiment
+# Analyzes MoE expert specialization patterns
+name: moe_expert_patterns
+description: "MoE expert specialization analysis - pattern, semantic, and sequence analysis"
+
+# Default model for analysis (MoE model required)
+# Note: Mixtral-8x7B is very large (~90GB). Use a smaller model for testing.
+# Using OLMoE which is supported by the ExpertRouter framework
+model: allenai/OLMoE-1B-7B-0924
+
+# Analysis types to run
+analyses:
+  - pattern_summary     # Token type trigram patterns
+  - semantic_patterns   # Semantic relationship patterns
+  - sequence_patterns   # N-gram sequence patterns
+  - combined_analysis   # Combined pattern analysis
+
+# Analysis parameters
+parameters:
+  # Number of prompts to analyze
+  num_prompts: 100
+
+  # Token classification types
+  token_types:
+    - WS    # Whitespace
+    - NUM   # Numbers
+    - KW    # Keywords
+    - BR    # Brackets
+    - OP    # Operators
+    - PN    # Punctuation
+    - FW    # Function words
+    - CAP   # Capitalized
+    - VAR   # Single char variable
+    - CW    # Content word
+
+  # Minimum expert activity threshold
+  min_activity: 5
+
+  # Specialist concentration threshold
+  specialist_threshold: 0.15
+
+  # Pattern groups of interest
+  pattern_groups:
+    arithmetic:
+      - "NUM→OP→"
+      - "OP→NUM"
+      - "→NUM→OP"
+    code_structure:
+      - "KW→"
+      - "→BR→"
+      - "BR→"
+    sequence_position:
+      - "^→"
+      - "→$"
+    punctuation:
+      - "→PN→"
+      - "PN→"
+
+# Semantic analysis prompts (comprehensive set from original scripts)
+semantic_prompts:
+  synonyms:
+    - "Happy means the same as joyful."
+    - "Big is similar to large."
+    - "Fast equals quick."
+    - "Smart is like intelligent."
+    - "Beautiful means pretty."
+    - "Angry is the same as furious."
+    - "Cold means chilly."
+    - "Hot means warm."
+    - "Old means ancient."
+    - "New means fresh."
+  antonyms:
+    - "Hot is the opposite of cold."
+    - "Up is contrary to down."
+    - "Big versus small."
+    - "Fast against slow."
+    - "Happy is the opposite of sad."
+    - "Light versus dark."
+    - "Old is the opposite of young."
+    - "Good versus bad."
+    - "Love is the opposite of hate."
+    - "Rich versus poor."
+  hypernyms:
+    - "A dog is an animal."
+    - "A car is a vehicle."
+    - "A rose is a flower."
+    - "A hammer is a tool."
+    - "An apple is a fruit."
+    - "A sparrow is a bird."
+    - "A salmon is a fish."
+    - "Oak is a tree."
+    - "Python is a language."
+    - "Paris is a city."
+  associations:
+    - "Doctor works at hospital."
+    - "King and queen rule."
+    - "Teacher teaches students."
+    - "Chef cooks food."
+    - "Pilot flies plane."
+    - "Author writes books."
+    - "Farmer grows crops."
+    - "Artist paints pictures."
+    - "Musician plays music."
+    - "Scientist conducts experiments."
+  analogies:
+    - "King is to queen as man is to woman."
+    - "Hot is to cold as up is to down."
+    - "Dog is to puppy as cat is to kitten."
+    - "Book is to read as song is to listen."
+    - "Doctor is to patient as teacher is to student."
+    - "Bird is to fly as fish is to swim."
+    - "Pen is to write as brush is to paint."
+    - "Eye is to see as ear is to hear."
+    - "Sun is to day as moon is to night."
+    - "Hand is to glove as foot is to shoe."
+  arithmetic:
+    - "5 + 3 = 8"
+    - "10 - 4 = 6"
+    - "7 * 2 = 14"
+    - "20 / 4 = 5"
+    - "15 + 25 = 40"
