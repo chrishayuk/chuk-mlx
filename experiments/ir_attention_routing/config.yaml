@@ -1,0 +1,167 @@
+name: ir_attention_routing
+description: >
+  IR-Attention Routing: CoT as Circuit Invocation.
+  Tests whether CoT serves as a learned rewriter that normalizes
+  arbitrary input into circuit invocation formats.
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+parameters:
+  # Which sub-experiments to run
+  experiments:
+    - discover_formats
+    - cot_compiler
+    - attention_trace
+    - multi_step
+    - virtual_expert
+
+  # Layers to analyze (for attention/routing analysis)
+  layers_to_probe:
+    - 8   # Early-middle
+    - 12  # Middle (decision layer)
+    - 15  # Late-middle
+    - 18  # Late
+
+  # The "decision layer" where IR is encoded
+  decision_layer: 12
+
+  # Experiment 1: Invocation Format Discovery
+  format_vocabulary:
+    arithmetic:
+      canonical: "5 + 3 ="
+      variations:
+        - "5 + 3 ="        # canonical
+        - "5+3="           # no spaces
+        - "5 plus 3 ="     # word operator
+        - "add(5, 3) ="    # functional
+        - "5 3 + ="        # postfix (RPN)
+        - "5 + 3"          # no suffix
+        - "= 5 + 3"        # prefix suffix
+        - "5 + 3 equals"   # word suffix
+    subtraction:
+      canonical: "10 - 4 ="
+      variations:
+        - "10 - 4 ="
+        - "10-4="
+        - "10 minus 4 ="
+        - "sub(10, 4) ="
+        - "10 4 - ="
+    multiplication:
+      canonical: "6 * 7 ="
+      variations:
+        - "6 * 7 ="
+        - "6*7="
+        - "6 times 7 ="
+        - "mul(6, 7) ="
+        - "6 × 7 ="
+    division:
+      canonical: "20 / 4 ="
+      variations:
+        - "20 / 4 ="
+        - "20/4="
+        - "20 divided by 4 ="
+        - "div(20, 4) ="
+        - "20 ÷ 4 ="
+    comparison:
+      canonical: "5 > 3 is"
+      variations:
+        - "5 > 3 ="        # triggers subtraction!
+        - "5 > 3 is"       # triggers boolean
+        - "5 > 3 ?"        # unknown
+        - "is 5 > 3"       # prefix question
+        - "compare(5, 3) ="
+
+  # Experiment 2: CoT Compiler Test Cases
+  cot_compiler_tests:
+    # IR-style inputs
+    - input: "add(5, 3)"
+      expected_format: "5 + 3 ="
+      expected_result: "8"
+    - input: "sub(10, 4)"
+      expected_format: "10 - 4 ="
+      expected_result: "6"
+    - input: "mul(6, 7)"
+      expected_format: "6 * 7 ="
+      expected_result: "42"
+    - input: "div(20, 4)"
+      expected_format: "20 / 4 ="
+      expected_result: "5"
+
+    # Natural language
+    - input: "What is five plus three?"
+      expected_format: "5 + 3 ="
+      expected_result: "8"
+    - input: "What is ten minus four?"
+      expected_format: "10 - 4 ="
+      expected_result: "6"
+    - input: "Take 4 away from 10"
+      expected_format: "10 - 4 ="
+      expected_result: "6"
+    - input: "Jenny has 5 apples and gets 3 more. How many total?"
+      expected_format: "5 + 3 ="
+      expected_result: "8"
+    - input: "Each box has 6 items. How many in 7 boxes?"
+      expected_format: "6 * 7 ="
+      expected_result: "42"
+
+    # Word problems
+    - input: "A pizza has 8 slices. 3 people eat 2 each. How many left?"
+      expected_format: "8 - 6 ="
+      expected_result: "2"
+
+  # CoT rewrite prompt template
+  cot_rewrite_prompt: |
+    Convert to math expression:
+    "five plus three" → 5 + 3 =
+    "Jenny has 20 apples. She gives 7." → 20 - 7 =
+    "Each box has 6 items. 8 boxes?" → 6 * 8 =
+    "add(7, 2)" → 7 + 2 =
+    "sub(15, 8)" → 15 - 8 =
+    "mul(4, 9)" → 4 * 9 =
+    "div(24, 6)" → 24 / 6 =
+    "{input}" →
+
+  # Experiment 3: Attention Trace Prompts
+  attention_trace_prompts:
+    - "add(5, 3)"
+    - "5 + 3 ="
+    - "What is five plus three?"
+
+  # Experiment 4: Multi-Step Self-Invocation
+  multi_step_tests:
+    - problem: "x = 10. Add 5, then multiply by 2."
+      expected_steps:
+        - "10 + 5 = 15"
+        - "15 * 2 ="
+      expected_result: "30"
+    - problem: "Start with 20, subtract 8, divide by 3."
+      expected_steps:
+        - "20 - 8 = 12"
+        - "12 / 3 ="
+      expected_result: "4"
+    - problem: "Sum the numbers 1 through 4"
+      expected_steps:
+        - "1 + 2 = 3"
+        - "3 + 3 = 6"
+        - "6 + 4 ="
+      expected_result: "10"
+
+  # Experiment 5: Virtual Expert Probe Configuration
+  virtual_expert_probe:
+    # Training data for IR extraction probe
+    num_training_examples: 200
+    num_test_examples: 50
+    operations: ["add", "sub", "mul", "div"]
+    operand_range: [1, 100]
+    # Probe architecture
+    probe_hidden_dim: 256
+    probe_epochs: 50
+    probe_learning_rate: 0.001
+    # Operand extraction method: "regression" or "binned"
+    operand_method: "binned"
+    num_bins: 128
+
+  # Output configuration
+  save_attention_patterns: true
+  save_hidden_states: false  # Large, only enable if needed
+  verbose: true

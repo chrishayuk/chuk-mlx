@@ -368,7 +368,9 @@ Examples:
     infer_parser.add_argument("--prompt-file", help="File with prompts (one per line)")
     infer_parser.add_argument("--max-tokens", type=int, default=256, help="Max tokens")
     infer_parser.add_argument("--temperature", type=float, default=0.7, help="Temperature")
-    infer_parser.set_defaults(func=run_inference)
+    infer_parser.add_argument("--chat", action="store_true", help="Use chat template (for chat models)")
+    infer_parser.add_argument("--system", help="System prompt (only used with --chat)")
+    infer_parser.set_defaults(func=lambda args: asyncio.run(run_inference(args)))
 
     # Tokenizer subcommand
     tok_parser = subparsers.add_parser("tokenizer", help="Tokenizer utilities")
@@ -3049,6 +3051,12 @@ Examples:
         "--output",
         "-o",
         help="Save results to JSON file",
+    )
+    virtual_expert_parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Show detailed routing decisions (layer-by-layer trace)",
     )
     virtual_expert_parser.set_defaults(
         func=lambda args: asyncio.run(introspect_virtual_expert(args))

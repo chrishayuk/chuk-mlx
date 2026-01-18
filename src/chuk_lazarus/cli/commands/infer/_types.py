@@ -55,6 +55,14 @@ class InferenceConfig(CommandConfig):
         le=2.0,
         description="Sampling temperature",
     )
+    chat: bool = Field(
+        default=False,
+        description="Use chat template for generation",
+    )
+    system: str | None = Field(
+        default=None,
+        description="System prompt (only used with chat mode)",
+    )
 
     @classmethod
     def from_args(cls, args: Namespace) -> InferenceConfig:
@@ -66,6 +74,8 @@ class InferenceConfig(CommandConfig):
             prompt_file=getattr(args, "prompt_file", None),
             max_tokens=getattr(args, "max_tokens", InferenceDefaults.MAX_TOKENS),
             temperature=getattr(args, "temperature", InferenceDefaults.TEMPERATURE),
+            chat=getattr(args, "chat", False),
+            system=getattr(args, "system", None),
         )
 
     @property

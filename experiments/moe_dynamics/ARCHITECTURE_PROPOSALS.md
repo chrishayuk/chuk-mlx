@@ -2,6 +2,39 @@
 
 Based on the comprehensive MoE dynamics analysis of GPT-OSS-20B, this document proposes architectural improvements that make discovered structures explicit.
 
+## Implementation Status
+
+All proposals have been implemented in `src/chuk_lazarus/models_v2/components/ffn/moe_experimental.py`:
+
+| Proposal | Class | Status | Validation |
+|----------|-------|--------|------------|
+| Compact Non-Linear Router | `CompactNonlinearRouter` | Implemented | ❌ **Not viable** (GELU overhead exceeds savings) |
+| Circuit-Aware MoE | `CircuitMoE`, `CircuitRouter` | Implemented | ⚠️ Full-path only 4% consistent |
+| Layer-Pair Circuit MoE | `LayerPairCircuitMoE` | **NEW** | ⚠️ 60% slower, quality validation needed |
+| Adaptive-k Routing | `AdaptiveKMoE`, `AdaptiveKRouter` | Implemented | ❌ **Not viable** (65% slower) |
+| Tiered MoE | `TieredMoE` | Implemented | ✅ 50% param reduction, 1.4x faster |
+| Expert Teams | `ExpertTeam`, `TeamMoE` | Implemented | ✅ 75% param reduction, 2.6x faster |
+| Lightweight Teams | `LightweightTeam` | Implemented | ✅ 83% param reduction, 4x faster |
+| **Tiered Lightweight** | `TieredLightweightMoE` | **NEW** | ✅ **92% param reduction, 7.6x faster** |
+| Attention-Augmented Router | `AttentionAugmentedRouter` | Implemented | Not validated |
+| Tiered Circuit Teams (Hybrid) | `TieredCircuitTeams` | Implemented | Not validated |
+
+**Validation Scripts:**
+- `experiments/moe_dynamics/validate_architectures.py` - Compare architecture stats
+- `experiments/moe_dynamics/circuit_transfer_test.py` - Test circuit transferability
+
+**Validation Results (2026-01-17, Updated):**
+```
+| Variant            | Params | vs Standard | Time  | vs Standard |
+|--------------------|--------|-------------|-------|-------------|
+| Standard           | 6.44B  | 1.00x       | 383ms | 1.00x       |
+| Tiered             | 3.22B  | 0.50x       | 280ms | 1.4x faster |
+| Lightweight Team   | 1.07B  | 0.17x       | 95ms  | 4.0x faster |
+| Tiered Lightweight | 537M   | 0.08x       | 50ms  | 7.6x faster | ← BEST
+```
+
+**Headline Result**: `TieredLightweightMoE` achieves 92% parameter reduction and 7.6x speedup.
+
 ## Findings → Architecture Mapping
 
 | Discovered Property | Finding | Architectural Implication |
@@ -255,15 +288,23 @@ class TeamMoE(nn.Module):
 
 ## Experiment Priority
 
-Based on empirical findings, recommended priority:
+Based on empirical findings and validation results (2026-01-17, Final):
 
-| Priority | Proposal | Why |
-|----------|----------|-----|
-| 1 | Tiered MoE | Immediate 23% savings, low risk |
-| 2 | Circuit-Aware | Strongest empirical support (87.5% consistency) |
-| 3 | Expert Teams | Matches cooperation requirement |
-| 4 | Compact Router | Parameter savings, easy to test |
-| 5 | Adaptive-k | Most complex, needs careful implementation |
+| Priority | Proposal | Reduction | Speedup | Status |
+|----------|----------|-----------|---------|--------|
+| 1 | **Tiered Lightweight** | **92%** | **7.6x** | ✅ **SHIP** if quality holds |
+| 2 | Lightweight Teams | 83% | 4.0x | ✅ Fallback option |
+| 3 | Expert Teams | 75% | 2.6x | ✅ Cooperation guarantee |
+| 4 | Tiered MoE | 50% | 1.4x | ✅ Conservative option |
+| 5 | Layer-Pair Circuit | 0% | 0.6x | ⚠️ Quality validation only |
+| 6 | Compact Router | 0% | 0.7-0.9x | ❌ Not viable |
+| 7 | Adaptive-k | 0% | 0.6x | ❌ Not viable |
+
+**Key Updates**:
+- **Tiered Lightweight** is the headline result: 92% reduction, 7.6x faster
+- **Compact Router** is not viable: GELU overhead exceeds routing savings
+- **Adaptive-k** is not viable: 65% slower, complexity overhead too high
+- **Circuit-MoE** should use layer-pair routing, but 60% slower - quality validation needed
 
 ---
 

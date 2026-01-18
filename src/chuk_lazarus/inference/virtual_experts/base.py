@@ -115,6 +115,65 @@ class VirtualExpertApproach(str, Enum):
 
 
 @dataclass
+class RoutingDecision:
+    """A single routing decision at one layer."""
+
+    layer: int
+    confidence: float  # 0-1 routing score
+    selected: bool  # Was virtual expert selected in top-k?
+    task: str | None = None  # Detected task type (e.g., "multiply")
+    attention_contribution: float | None = None  # % signal from attention
+
+
+@dataclass
+class RoutingTrace:
+    """Complete routing trace across layers."""
+
+    decisions: list[RoutingDecision] = field(default_factory=list)
+    hijack_layer: int | None = None  # Layer where hijack decision was made
+    hijack_confidence: float | None = None
+
+    def add_decision(
+        self,
+        layer: int,
+        confidence: float,
+        selected: bool,
+        task: str | None = None,
+        attention_contribution: float | None = None,
+    ) -> None:
+        """Add a routing decision."""
+        decision = RoutingDecision(
+            layer=layer,
+            confidence=confidence,
+            selected=selected,
+            task=task,
+            attention_contribution=attention_contribution,
+        )
+        self.decisions.append(decision)
+        # Track hijack point (first layer where selected with high confidence)
+        if selected and confidence > 0.5 and self.hijack_layer is None:
+            self.hijack_layer = layer
+            self.hijack_confidence = confidence
+
+    def format_verbose(self) -> str:
+        """Format trace for verbose CLI output."""
+        lines = []
+        for d in self.decisions:
+            marker = "→" if d.selected else " "
+            task_str = f" Task: {d.task}" if d.task else ""
+            conf_str = f"(confidence: {d.confidence:.2f})"
+            attn_str = ""
+            if d.attention_contribution is not None:
+                attn_str = f" [Attention: {d.attention_contribution:.0%}]"
+            lines.append(f"  {marker} [L{d.layer:02d}]{task_str} {conf_str}{attn_str}")
+
+        if self.hijack_layer is not None:
+            lines.append(f"\n  [Hijack] Layer {self.hijack_layer} "
+                        f"(confidence: {self.hijack_confidence:.2f}) → virtual calculator")
+        return "\n".join(lines)
+
+
+@dataclass
 class VirtualExpertResult:
     """Result from virtual expert computation."""
 
@@ -128,6 +187,7 @@ class VirtualExpertResult:
     virtual_expert_selected_count: int = 0
     total_tokens: int = 0
     is_correct: bool = False
+    routing_trace: RoutingTrace | None = None
 
     def __post_init__(self):
         """Check if answer matches expected value."""

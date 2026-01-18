@@ -20,6 +20,8 @@ Or from inference:
 # Re-export everything from the subpackage
 from .virtual_experts import (
     MathExpertPlugin,
+    RoutingDecision,
+    RoutingTrace,
     SafeMathEvaluator,
     VirtualDenseRouter,
     VirtualDenseWrapper,
@@ -41,6 +43,9 @@ __all__ = [
     "VirtualExpertResult",
     "VirtualExpertAnalysis",
     "VirtualExpertApproach",
+    # Routing trace (verbose output)
+    "RoutingDecision",
+    "RoutingTrace",
     # MoE
     "VirtualMoEWrapper",
     "VirtualRouter",

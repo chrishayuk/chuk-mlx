@@ -190,7 +190,7 @@ class UnifiedPipeline:
 
         # Download
         log("\n1. Downloading model...")
-        result = HFLoader.download(model_id, cache_dir=pipeline_config.cache_dir)
+        result = HFLoader.download(model_id, cache_dir=pipeline_config.cache_dir, verbose=verbose)
         log(f"   Path: {result.model_path}")
 
         # Load raw config for family detection
@@ -243,6 +243,7 @@ class UnifiedPipeline:
             result.model_path,
             model_config,
             dtype=pipeline_config.dtype,
+            verbose=verbose,
         )
         log("   Weights applied!")
 
@@ -317,8 +318,8 @@ class UnifiedPipeline:
         prompt = format_chat_prompt(self._tokenizer, user_message, system)
 
         config = GenerationConfig(
-            max_new_tokens=max_new_tokens or self._pipeline_config.default_max_tokens,
-            temperature=temperature or self._pipeline_config.default_temperature,
+            max_new_tokens=max_new_tokens if max_new_tokens is not None else self._pipeline_config.default_max_tokens,
+            temperature=temperature if temperature is not None else self._pipeline_config.default_temperature,
         )
 
         return generate(self._model, self._tokenizer, prompt, config)
@@ -342,8 +343,8 @@ class UnifiedPipeline:
         prompt = format_history(self._tokenizer, history)
 
         config = GenerationConfig(
-            max_new_tokens=max_new_tokens or self._pipeline_config.default_max_tokens,
-            temperature=temperature or self._pipeline_config.default_temperature,
+            max_new_tokens=max_new_tokens if max_new_tokens is not None else self._pipeline_config.default_max_tokens,
+            temperature=temperature if temperature is not None else self._pipeline_config.default_temperature,
         )
 
         return generate(self._model, self._tokenizer, prompt, config)
@@ -368,8 +369,8 @@ class UnifiedPipeline:
         """
         if config is None:
             config = GenerationConfig(
-                max_new_tokens=max_new_tokens or self._pipeline_config.default_max_tokens,
-                temperature=temperature or self._pipeline_config.default_temperature,
+                max_new_tokens=max_new_tokens if max_new_tokens is not None else self._pipeline_config.default_max_tokens,
+                temperature=temperature if temperature is not None else self._pipeline_config.default_temperature,
             )
 
         return generate(self._model, self._tokenizer, prompt, config)
