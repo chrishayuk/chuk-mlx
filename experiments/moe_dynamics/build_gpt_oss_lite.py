@@ -8,10 +8,12 @@ This script:
 3. Saves the smaller model that fits on 8GB machines
 
 Target Configuration:
-- Early layers (0-7):   6 experts (vs 32)  -> 81% reduction
-- Middle layers (8-17): 12 experts (vs 32) -> 62% reduction
-- Late layers (18-23):  8 experts (vs 32)  -> 75% reduction
-- Total: 216 experts (vs 768) -> 72% expert reduction
+- Early layers (0-7):   16 experts (vs 32) -> 50% reduction
+- Middle layers (8-17): 20 experts (vs 32) -> 37.5% reduction
+- Late layers (18-23):  16 experts (vs 32) -> 50% reduction
+- Total: 432 experts (vs 768) -> 44% expert reduction
+
+Memory: ~5.3GB (vs ~9.6GB original)
 
 Usage:
     python experiments/moe_dynamics/build_gpt_oss_lite.py
@@ -218,7 +220,6 @@ def print_analysis_report(analysis: dict[int, LayerAnalysis]) -> None:
 
 def save_lite_model(
     model,
-    tokenizer,
     analysis: dict[int, LayerAnalysis],
     output_dir: str,
 ) -> None:
@@ -473,7 +474,7 @@ def main():
         return
 
     # Save lite model
-    save_lite_model(model, tokenizer, analysis, args.output)
+    save_lite_model(model, analysis, args.output)
 
 
 if __name__ == "__main__":
