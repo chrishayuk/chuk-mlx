@@ -44,9 +44,9 @@ class CausalNeuronAnalyzer:
 
         # Target neurons from probe analysis
         self.target_neurons = {
-            'arithmetic_negative': [19, 2309, 468, 1305],  # Suppress arithmetic
-            'arithmetic_positive': [1698],  # Enhance arithmetic
-            'all_identified': [19, 1698, 2309, 468, 1305],
+            "arithmetic_negative": [19, 2309, 468, 1305],  # Suppress arithmetic
+            "arithmetic_positive": [1698],  # Enhance arithmetic
+            "all_identified": [19, 1698, 2309, 468, 1305],
         }
 
         # Layers where these neurons were identified
@@ -94,12 +94,13 @@ class CausalNeuronAnalyzer:
         else:
             head = None
 
-        embed_scale = float(self.hidden_size ** 0.5)
+        embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
-    def collect_activations_with_ablation(self, prompt: str, ablate_neurons: list = None,
-                                          ablate_layers: list = None) -> dict:
+    def collect_activations_with_ablation(
+        self, prompt: str, ablate_neurons: list = None, ablate_layers: list = None
+    ) -> dict:
         """Collect activations, optionally ablating specific neurons."""
         layers, embed, norm, head, embed_scale = self._get_components()
 
@@ -116,7 +117,7 @@ class CausalNeuronAnalyzer:
             # Get attention output
             attn = layer.self_attn
 
-            if hasattr(layer, 'input_layernorm'):
+            if hasattr(layer, "input_layernorm"):
                 h_normed = layer.input_layernorm(h)
             else:
                 h_normed = h
@@ -127,13 +128,13 @@ class CausalNeuronAnalyzer:
             if isinstance(attn_out, tuple):
                 attn_out = attn_out[0]
 
-            if hasattr(layer, 'post_attention_layernorm'):
+            if hasattr(layer, "post_attention_layernorm"):
                 attn_out = layer.post_attention_layernorm(attn_out)
 
             h = h + attn_out
 
             # MLP with potential ablation
-            if hasattr(layer, 'pre_feedforward_layernorm'):
+            if hasattr(layer, "pre_feedforward_layernorm"):
                 mlp_input = layer.pre_feedforward_layernorm(h)
             else:
                 mlp_input = h
@@ -141,11 +142,11 @@ class CausalNeuronAnalyzer:
             mlp = layer.mlp
 
             # Get intermediate activations
-            if hasattr(mlp, 'gate_proj') and hasattr(mlp, 'up_proj'):
+            if hasattr(mlp, "gate_proj") and hasattr(mlp, "up_proj"):
                 gate = mlp.gate_proj(mlp_input)
                 up = mlp.up_proj(mlp_input)
 
-                if hasattr(mlp, 'act_fn'):
+                if hasattr(mlp, "act_fn"):
                     intermediate = mlp.act_fn(gate) * up
                 else:
                     intermediate = mx.sigmoid(gate) * gate * up  # SiLU approximation
@@ -164,7 +165,7 @@ class CausalNeuronAnalyzer:
             else:
                 mlp_out = mlp(mlp_input)
 
-            if hasattr(layer, 'post_feedforward_layernorm'):
+            if hasattr(layer, "post_feedforward_layernorm"):
                 mlp_out = layer.post_feedforward_layernorm(mlp_out)
 
             h = h + mlp_out
@@ -175,14 +176,13 @@ class CausalNeuronAnalyzer:
 
         return activations, h
 
-    def generate_with_ablation(self, prompt: str, ablate_neurons: list = None,
-                               ablate_layers: list = None) -> str:
+    def generate_with_ablation(
+        self, prompt: str, ablate_neurons: list = None, ablate_layers: list = None
+    ) -> str:
         """Generate with specific neurons ablated."""
         layers, embed, norm, head, embed_scale = self._get_components()
 
-        _, h = self.collect_activations_with_ablation(
-            prompt, ablate_neurons, ablate_layers
-        )
+        _, h = self.collect_activations_with_ablation(prompt, ablate_neurons, ablate_layers)
 
         # Continue through remaining layers
         # (activations already processed through all layers)
@@ -249,13 +249,17 @@ class CausalNeuronAnalyzer:
 
         # Test different ablation conditions
         conditions = [
-            ('baseline', None, None),
-            ('ablate_19', [19], self.target_layers),
-            ('ablate_1698', [1698], self.target_layers),
-            ('ablate_2309', [2309], self.target_layers),
-            ('ablate_all_negative', self.target_neurons['arithmetic_negative'], self.target_layers),
-            ('ablate_all_identified', self.target_neurons['all_identified'], self.target_layers),
-            ('ablate_random_5', list(np.random.randint(0, self.hidden_size, 5)), self.target_layers),
+            ("baseline", None, None),
+            ("ablate_19", [19], self.target_layers),
+            ("ablate_1698", [1698], self.target_layers),
+            ("ablate_2309", [2309], self.target_layers),
+            ("ablate_all_negative", self.target_neurons["arithmetic_negative"], self.target_layers),
+            ("ablate_all_identified", self.target_neurons["all_identified"], self.target_layers),
+            (
+                "ablate_random_5",
+                list(np.random.randint(0, self.hidden_size, 5)),
+                self.target_layers,
+            ),
         ]
 
         for condition_name, neurons, layers in conditions:
@@ -299,13 +303,13 @@ class CausalNeuronAnalyzer:
         print(header)
         print("-" * 70)
 
-        baseline = results['baseline']
+        baseline = results["baseline"]
         for condition, accs in results.items():
             row = f"{condition:<25}"
             for layer in self.target_layers:
                 acc = accs[layer]
                 diff = acc - baseline[layer]
-                if condition == 'baseline':
+                if condition == "baseline":
                     row += f"{acc:>7.1%} "
                 else:
                     row += f"{acc:>7.1%} ({diff:+.1%})"
@@ -324,17 +328,29 @@ class CausalNeuronAnalyzer:
         print("Do neurons 19, 1698, 2309 causally affect multiplication output?")
 
         test_cases = [
-            (2, 3, 6), (3, 4, 12), (5, 6, 30), (7, 8, 56), (9, 9, 81),
-            (4, 7, 28), (6, 8, 48), (3, 9, 27), (5, 5, 25), (8, 9, 72),
+            (2, 3, 6),
+            (3, 4, 12),
+            (5, 6, 30),
+            (7, 8, 56),
+            (9, 9, 81),
+            (4, 7, 28),
+            (6, 8, 48),
+            (3, 9, 27),
+            (5, 5, 25),
+            (8, 9, 72),
         ]
 
         conditions = [
-            ('baseline', None, None),
-            ('ablate_19', [19], self.target_layers),
-            ('ablate_1698', [1698], self.target_layers),
-            ('ablate_2309', [2309], self.target_layers),
-            ('ablate_all_identified', self.target_neurons['all_identified'], self.target_layers),
-            ('ablate_random_5', list(np.random.randint(0, self.hidden_size, 5)), self.target_layers),
+            ("baseline", None, None),
+            ("ablate_19", [19], self.target_layers),
+            ("ablate_1698", [1698], self.target_layers),
+            ("ablate_2309", [2309], self.target_layers),
+            ("ablate_all_identified", self.target_neurons["all_identified"], self.target_layers),
+            (
+                "ablate_random_5",
+                list(np.random.randint(0, self.hidden_size, 5)),
+                self.target_layers,
+            ),
         ]
 
         results = {}
@@ -357,10 +373,10 @@ class CausalNeuronAnalyzer:
         print(f"\n{'Condition':<30} {'Accuracy':<12} {'Change'}")
         print("-" * 55)
 
-        baseline_acc = results['baseline']
+        baseline_acc = results["baseline"]
         for condition, acc in results.items():
             diff = acc - baseline_acc
-            if condition == 'baseline':
+            if condition == "baseline":
                 print(f"{condition:<30} {acc:>10.1%}")
             else:
                 print(f"{condition:<30} {acc:>10.1%} {diff:>+10.1%}")
@@ -379,11 +395,17 @@ class CausalNeuronAnalyzer:
 
         # Sample prompts
         arithmetic_prompts = ["7 * 8 = ", "3 * 4 = ", "9 * 2 = ", "5 * 6 = ", "8 * 3 = "]
-        language_prompts = ["The cat sat on the", "I went to the", "The weather is", "She picked up", "The dog barked"]
+        language_prompts = [
+            "The cat sat on the",
+            "I went to the",
+            "The weather is",
+            "She picked up",
+            "The dog barked",
+        ]
 
         layers, embed, norm, head, embed_scale = self._get_components()
 
-        print("\nTarget neurons:", self.target_neurons['all_identified'])
+        print("\nTarget neurons:", self.target_neurons["all_identified"])
 
         for layer_idx in self.target_layers:
             print(f"\n--- Layer {layer_idx} ---")
@@ -447,7 +469,7 @@ class CausalNeuronAnalyzer:
             print(f"\n{'Neuron':<10} {'Arith Mean':<12} {'Lang Mean':<12} {'Diff':<12} {'Role'}")
             print("-" * 60)
 
-            for neuron in self.target_neurons['all_identified']:
+            for neuron in self.target_neurons["all_identified"]:
                 arith_mean = np.mean(arith_activations[:, neuron])
                 lang_mean = np.mean(lang_activations[:, neuron])
                 diff = arith_mean - lang_mean
@@ -459,7 +481,9 @@ class CausalNeuronAnalyzer:
                 else:
                     role = "Neutral"
 
-                print(f"{neuron:<10} {arith_mean:>10.3f} {lang_mean:>10.3f} {diff:>+10.3f}   {role}")
+                print(
+                    f"{neuron:<10} {arith_mean:>10.3f} {lang_mean:>10.3f} {diff:>+10.3f}   {role}"
+                )
 
         return {}
 
@@ -513,7 +537,7 @@ Hypothesis:
 """
         print(comparison)
 
-        return {'comparison': comparison}
+        return {"comparison": comparison}
 
     # =========================================================================
     # RUN ALL
@@ -522,10 +546,10 @@ Hypothesis:
         """Run all causal neuron experiments."""
         results = {}
 
-        results['classification'] = self.test_classification_with_ablation()
-        results['generation'] = self.test_generation_with_ablation()
-        results['patterns'] = self.analyze_neuron_patterns()
-        results['gpt_oss_comparison'] = self.compare_to_gpt_oss()
+        results["classification"] = self.test_classification_with_ablation()
+        results["generation"] = self.test_generation_with_ablation()
+        results["patterns"] = self.analyze_neuron_patterns()
+        results["gpt_oss_comparison"] = self.compare_to_gpt_oss()
 
         # Summary
         print("\n" + "=" * 70)

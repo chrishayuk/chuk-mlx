@@ -10,6 +10,50 @@ MoE models like GPT-OSS, Mixtral, and Llama-4 use multiple "expert" networks, bu
 - Some experts have **low utilization** and can be pruned
 - Compression can achieve **40%+ memory reduction** with minimal quality loss
 
+## Important: Check Compressibility First
+
+Not all MoE models are compressible. Before attempting compression, determine the MoE type:
+
+| MoE Type | Description | Compression Strategy |
+|----------|-------------|---------------------|
+| **Pseudo-MoE** | Dense model converted to MoE (upcycling). Experts share a common base. | ✓ SVD overlay (6-10x), expert merging |
+| **Native-MoE** | Trained natively as MoE. Experts are orthogonal. | ✗ SVD not effective. Use quantization/pruning. |
+
+### CLI: Detect MoE Type
+
+```bash
+# Analyze a single model
+lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b
+
+# Compare two models
+lazarus introspect moe-expert moe-type-compare -m openai/gpt-oss-20b -c allenai/OLMoE-1B-7B-0924
+
+# Show visual orthogonality diagram
+lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b --visualize
+```
+
+**Example output:**
+```
+======================================================================
+MOE TYPE ANALYSIS
+======================================================================
+Model:  openai/gpt-oss-20b
+Type:   PSEUDO-MOE
+
+Evidence:
+  Gate Rank:            1 / 2880 (  0.0%)  ← Low rank = shared gate
+  Cosine Similarity: 0.418                 ← High = experts are similar
+
+Compression:
+  Compressible:      Yes
+  Estimated Ratio:   7.9x
+======================================================================
+```
+
+**Decision tree:**
+- If `Type: PSEUDO-MOE` → Use SVD overlay compression (this guide)
+- If `Type: NATIVE-MOE` → Use quantization (MXFP4, INT8) instead
+
 ## Quick Start
 
 ```python
@@ -375,6 +419,130 @@ Token overlap: 100%
 5. **Test on your specific use case** - code, math, languages differ
 6. **Save compressed model** for reuse without re-compressing
 
+## CLI Commands for SVD Overlay Compression
+
+For pseudo-MoE models, use the SVD overlay commands to compute and verify compression:
+
+### moe-overlay-compute
+
+Compute the SVD overlay representation (base + low-rank deltas).
+
+```bash
+lazarus introspect moe-expert moe-overlay-compute -m MODEL [--layer N] [--gate-rank R] [--up-rank R] [--down-rank R]
+```
+
+**Options:**
+- `--layer N`: Specific layer to analyze (default: first MoE layer)
+- `--gate-rank R`: Rank for gate projection (default: auto from SVD)
+- `--up-rank R`: Rank for up projection (default: auto from SVD)
+- `--down-rank R`: Rank for down projection (default: auto from SVD)
+
+**Example output:**
+```
+======================================================================
+OVERLAY REPRESENTATION
+======================================================================
+Model:   openai/gpt-oss-20b
+Layer:   0
+Experts: 32
+
+Projection Analysis:
+  Gate:  rank=1    shape=(2880, 2880)
+         compression: 1440.0x
+  Up:    rank=337  shape=(2880, 2880)
+         compression: 4.3x
+  Down:  rank=206  shape=(2880, 2880)
+         compression: 7.0x
+
+Storage:
+  Original:      95.6 MB
+  Compressed:    12.1 MB
+  Ratio:          7.9x
+======================================================================
+```
+
+### moe-overlay-verify
+
+Verify that the SVD reconstruction maintains accuracy (<1% error).
+
+```bash
+lazarus introspect moe-expert moe-overlay-verify -m MODEL [--layer N]
+```
+
+**Example output:**
+```
+======================================================================
+RECONSTRUCTION VERIFICATION
+======================================================================
+Model:  openai/gpt-oss-20b
+Layer:  0
+Status: ✓ PASSED
+
+Weight Reconstruction Errors:
+  Gate:  0.000012 (max: 0.000089)
+  Up:    0.000234 (max: 0.001204)
+  Down:  0.000189 (max: 0.000923)
+
+Output Reconstruction Errors:
+  Mean:  0.000156
+  Max:   0.000892
+
+Quality: <1% error - suitable for production
+======================================================================
+```
+
+### moe-overlay-estimate
+
+Estimate storage savings for the full model with compression applied to all layers.
+
+```bash
+lazarus introspect moe-expert moe-overlay-estimate -m MODEL
+```
+
+**Example output:**
+```
+======================================================================
+STORAGE ESTIMATE
+======================================================================
+Model:   openai/gpt-oss-20b
+Layers:  24 MoE layers
+Experts: 32 per layer
+
+Full Model Storage:
+  Original:     2294.4 MB
+  Compressed:    290.4 MB
+  Savings:      2004.0 MB (7.9x)
+
+Breakdown:
+  Base experts (shared):    36.7 MB
+  Low-rank deltas:         253.7 MB
+======================================================================
+```
+
+### Complete Compression Workflow
+
+```bash
+# Step 1: Check if model is compressible
+lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b
+# → Should show "PSEUDO-MOE" and "Compressible: Yes"
+
+# Step 2: Visualize expert structure
+lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b --visualize
+# → Arrows should cluster together (shared base)
+
+# Step 3: Compute overlay representation
+lazarus introspect moe-expert moe-overlay-compute -m openai/gpt-oss-20b
+# → Shows per-layer compression ratios
+
+# Step 4: Verify reconstruction accuracy
+lazarus introspect moe-expert moe-overlay-verify -m openai/gpt-oss-20b
+# → Should show "PASSED" with <1% error
+
+# Step 5: Estimate full model savings
+lazarus introspect moe-expert moe-overlay-estimate -m openai/gpt-oss-20b
+# → Shows total storage reduction
+```
+
 ## Troubleshooting
 
 ### No merge candidates found
@@ -391,3 +559,8 @@ Token overlap: 100%
 - Ensure `inplace=True` when applying
 - Call `mx.eval(model.parameters())` after compression
 - Check that compression was actually applied to the layer
+
+### Model shows as NATIVE-MOE
+- Native MoE models are not compressible via SVD overlay
+- Use quantization (MXFP4, INT8) or pruning instead
+- The experts are orthogonal by design - no shared base to factor out

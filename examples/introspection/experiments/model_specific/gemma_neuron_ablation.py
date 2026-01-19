@@ -20,11 +20,9 @@ Usage:
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
 
 import mlx.core as mx
 import mlx.nn as nn
-import numpy as np
 
 from chuk_lazarus.inference.loader import DType, HFLoader
 from chuk_lazarus.models_v2.families.registry import detect_model_family, get_family_info
@@ -33,6 +31,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class AblationResult:
     """Result of ablating neurons."""
+
     neurons_ablated: list[int]
     layers_ablated: list[int]
     baseline_accuracy: float
@@ -92,7 +91,7 @@ class NeuronAblationStudy:
 
         embed_scale = getattr(self.config, "embedding_scale", None)
         if embed_scale is None:
-            embed_scale = float(self.hidden_size ** 0.5)
+            embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -139,7 +138,7 @@ class NeuronAblationStudy:
             if int(next_token) in [self.tokenizer.eos_token_id, 13, 10]:  # EOS, \r, \n
                 break
 
-        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)):].tolist()
+        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)) :].tolist()
         return self.tokenizer.decode(output_ids).strip()
 
     def generate_with_neuron_ablation(
@@ -210,7 +209,7 @@ class NeuronAblationStudy:
             if int(next_token) in [self.tokenizer.eos_token_id, 13, 10]:
                 break
 
-        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)):].tolist()
+        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)) :].tolist()
         return self.tokenizer.decode(output_ids).strip()
 
     def _forward_with_ablation(
@@ -228,7 +227,7 @@ class NeuronAblationStudy:
         We ablate neurons in the intermediate representation (after gelu*up).
         """
         # Attention with pre/post normalization (Gemma has 4 norms per block)
-        if hasattr(layer, 'input_layernorm'):
+        if hasattr(layer, "input_layernorm"):
             h_normed = layer.input_layernorm(h)
         else:
             h_normed = h
@@ -243,7 +242,7 @@ class NeuronAblationStudy:
             attn_out = attn_out[0]
 
         # Post-attention norm (Gemma-specific)
-        if hasattr(layer, 'post_attention_layernorm'):
+        if hasattr(layer, "post_attention_layernorm"):
             attn_out = layer.post_attention_layernorm(attn_out)
 
         # Residual connection
@@ -251,7 +250,7 @@ class NeuronAblationStudy:
 
         # MLP with ablation
         # Gemma uses pre-feedforward norm
-        if hasattr(layer, 'pre_feedforward_layernorm'):
+        if hasattr(layer, "pre_feedforward_layernorm"):
             mlp_input = layer.pre_feedforward_layernorm(h)
         else:
             mlp_input = h
@@ -259,7 +258,7 @@ class NeuronAblationStudy:
         mlp = layer.mlp
 
         # Get gate and up projections - use gelu_approx like Gemma
-        if hasattr(mlp, 'gate_proj'):
+        if hasattr(mlp, "gate_proj"):
             gate = mlp.gate_proj(mlp_input)
             up = mlp.up_proj(mlp_input)
 
@@ -272,8 +271,9 @@ class NeuronAblationStudy:
             # ABLATE: Zero out specific neurons
             # Create mask: 1 everywhere except 0 at ablated neurons
             neurons_set = set(neurons_to_ablate)
-            ablation_mask = mx.array([0.0 if i in neurons_set else 1.0
-                                      for i in range(mlp_intermediate.shape[-1])])
+            ablation_mask = mx.array(
+                [0.0 if i in neurons_set else 1.0 for i in range(mlp_intermediate.shape[-1])]
+            )
             ablation_mask = ablation_mask.astype(mlp_intermediate.dtype)
 
             # Verify ablation is happening (debug)
@@ -291,7 +291,7 @@ class NeuronAblationStudy:
             mlp_out = mlp(mlp_input)
 
         # Post-feedforward norm (Gemma-specific)
-        if hasattr(layer, 'post_feedforward_layernorm'):
+        if hasattr(layer, "post_feedforward_layernorm"):
             mlp_out = layer.post_feedforward_layernorm(mlp_out)
 
         # Residual connection
@@ -340,12 +340,14 @@ class NeuronAblationStudy:
             if is_correct:
                 correct += 1
 
-            results.append({
-                "prompt": prompt,
-                "expected": str(expected),
-                "output": output,
-                "correct": is_correct,
-            })
+            results.append(
+                {
+                    "prompt": prompt,
+                    "expected": str(expected),
+                    "output": output,
+                    "correct": is_correct,
+                }
+            )
 
         accuracy = correct / len(test_cases)
         return accuracy, results
@@ -435,13 +437,15 @@ class NeuronAblationStudy:
 
                 print(f"{neuron:<10} L{layer:<7} {info['role']:<15} {acc:>10.1%} {drop:>+9.1%}")
 
-                single_results.append({
-                    "neuron": neuron,
-                    "layer": layer,
-                    "role": info["role"],
-                    "accuracy": acc,
-                    "drop": drop,
-                })
+                single_results.append(
+                    {
+                        "neuron": neuron,
+                        "layer": layer,
+                        "role": info["role"],
+                        "accuracy": acc,
+                        "drop": drop,
+                    }
+                )
 
         # Test top neurons together at single layer
         print("\n3. Combined neurons at single layer...")
@@ -458,12 +462,14 @@ class NeuronAblationStudy:
 
             print(f"   Neurons {top_neurons} @ L{layer}: {acc:.1%} (drop: {drop:+.1%})")
 
-            combined_results.append({
-                "neurons": top_neurons,
-                "layer": layer,
-                "accuracy": acc,
-                "drop": drop,
-            })
+            combined_results.append(
+                {
+                    "neurons": top_neurons,
+                    "layer": layer,
+                    "accuracy": acc,
+                    "drop": drop,
+                }
+            )
 
         # NEW: Test across ALL layers simultaneously
         print("\n4. Ablating neurons across MULTIPLE layers...")
@@ -506,11 +512,14 @@ class NeuronAblationStudy:
             )
             drop = baseline_acc - acc
             pct_ablated = num_neurons / intermediate_size * 100
-            print(f"   First {num_neurons} neurons ({pct_ablated:.1f}%) @ L20,L24,L28: {acc:.1%} (drop: {drop:+.1%})")
+            print(
+                f"   First {num_neurons} neurons ({pct_ablated:.1f}%) @ L20,L24,L28: {acc:.1%} (drop: {drop:+.1%})"
+            )
 
         # NEW: Test ablating RANDOM neurons as control
         print("\n6. Control: Ablating RANDOM neurons...")
         import random
+
         random.seed(42)
 
         intermediate_size = self.config.intermediate_size  # ~10K neurons
@@ -539,10 +548,14 @@ class NeuronAblationStudy:
         print(f"   Baseline: {prompt} -> {baseline_out}")
 
         for neuron in [19, 1698, 2309]:
-            ablated_out = self.generate_with_neuron_ablation(prompt, [neuron], all_layers, max_tokens=5)
+            ablated_out = self.generate_with_neuron_ablation(
+                prompt, [neuron], all_layers, max_tokens=5
+            )
             print(f"   Ablate N{neuron} @ all layers: {prompt} -> {ablated_out}")
 
-        ablated_all = self.generate_with_neuron_ablation(prompt, all_5_neurons, all_layers, max_tokens=5)
+        ablated_all = self.generate_with_neuron_ablation(
+            prompt, all_5_neurons, all_layers, max_tokens=5
+        )
         print(f"   Ablate all 5 @ all layers: {prompt} -> {ablated_all}")
 
         # Summary
@@ -555,11 +568,15 @@ class NeuronAblationStudy:
 
         print("\nSingle neuron impact (by accuracy drop):")
         for r in sorted_results[:5]:
-            impact = "CAUSAL" if abs(r["drop"]) > 0.05 else "MINOR" if abs(r["drop"]) > 0 else "NONE"
+            impact = (
+                "CAUSAL" if abs(r["drop"]) > 0.05 else "MINOR" if abs(r["drop"]) > 0 else "NONE"
+            )
             print(f"  Neuron {r['neuron']} @ L{r['layer']}: {r['drop']:+.1%} drop -> {impact}")
 
         print("\nInterpretation:")
-        print("  - If single neurons show NONE: redundancy exists, neurons not individually critical")
+        print(
+            "  - If single neurons show NONE: redundancy exists, neurons not individually critical"
+        )
         print("  - If combined ablation shows drop: distributed representation")
         print("  - If random ablation shows similar drop: neurons not special")
 

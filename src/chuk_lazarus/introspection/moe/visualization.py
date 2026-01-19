@@ -411,7 +411,7 @@ def plot_routing_flow(
 def routing_heatmap_ascii(
     layer_weights: LayerRouterWeights,
     num_experts: int,
-    max_width: int = 80,
+    max_width: int = 120,
 ) -> str:
     """
     Generate ASCII art heatmap for terminal display.
@@ -426,26 +426,52 @@ def routing_heatmap_ascii(
     """
     matrix, tokens = routing_weights_to_matrix(layer_weights, num_experts)
 
-    # Characters for intensity
+    # Characters for intensity (space = 0, full block = 1)
     chars = " ░▒▓█"
 
+    # Fixed column widths for alignment
+    token_col_width = 12
+    expert_col_width = 3
+
+    # Calculate how many experts fit per row
+    available_width = max_width - token_col_width - 1
+    experts_per_row = min(num_experts, available_width // expert_col_width)
+
     lines = [f"Layer {layer_weights.layer_idx} Routing Heatmap"]
-    lines.append("=" * min(num_experts * 3 + 10, max_width))
 
-    # Header
-    header = "Token".ljust(8) + "".join(f"{i:3d}" for i in range(num_experts))
-    lines.append(header[:max_width])
-    lines.append("-" * len(header[:max_width]))
+    # Build header with expert numbers
+    header = " " * token_col_width + "|"
+    for i in range(experts_per_row):
+        header += f"{i:^{expert_col_width}}"
+    lines.append(header)
 
-    # Rows
+    # Separator line
+    separator = "-" * token_col_width + "+"
+    separator += "-" * (experts_per_row * expert_col_width)
+    lines.append(separator)
+
+    # Data rows
     for pos_idx, (row, token) in enumerate(zip(matrix, tokens)):
-        # Truncate token
-        token_display = token[:6].ljust(8)
-        row_chars = ""
-        for weight in row:
+        # Truncate and pad token (show repr for whitespace visibility)
+        display_token = repr(token)[1:-1]  # Remove quotes from repr
+        if len(display_token) > token_col_width - 2:
+            display_token = display_token[: token_col_width - 3] + "…"
+        token_display = display_token.ljust(token_col_width)
+
+        row_str = token_display + "|"
+        for exp_idx in range(experts_per_row):
+            weight = row[exp_idx] if exp_idx < len(row) else 0
             char_idx = int(weight * (len(chars) - 1))
-            row_chars += f" {chars[char_idx]} "
-        lines.append(f"{token_display}{row_chars}"[:max_width])
+            row_str += f" {chars[char_idx]} "
+
+        lines.append(row_str)
+
+    # Bottom border
+    lines.append(separator)
+
+    # Legend
+    lines.append("")
+    lines.append("Intensity: ' '=0%  ░=1-25%  ▒=26-50%  ▓=51-75%  █=76-100%")
 
     return "\n".join(lines)
 

@@ -70,6 +70,7 @@ async def introspect_virtual_expert(args: Namespace) -> None:
         layer=getattr(args, "layer", None),
         expert=getattr(args, "expert", None),
         prompt=getattr(args, "prompt", None),
+        verbose=getattr(args, "verbose", False),
     )
 
     # Handle special config requirements per action

@@ -16,15 +16,13 @@ For actual function calling deployment, you should:
 Run: uv run python examples/introspection/steering_demo.py
 """
 
-import json
-import numpy as np
 import mlx.core as mx
-from sklearn.linear_model import LogisticRegression
+import numpy as np
 
 from chuk_lazarus.introspection.steering import (
-    ToolCallingSteering,
     SteeringConfig,
     SteeringMode,
+    ToolCallingSteering,
     format_functiongemma_prompt,
 )
 
@@ -43,9 +41,7 @@ def demo_text_generation():
     print("NOTE: Base FunctionGemma 270M has only ~58% function call accuracy.")
     print("It often generates text responses instead of function calls.\n")
 
-    steerer = ToolCallingSteering.from_pretrained(
-        "mlx-community/functiongemma-270m-it-bf16"
-    )
+    steerer = ToolCallingSteering.from_pretrained("mlx-community/functiongemma-270m-it-bf16")
 
     queries = [
         "What is the weather in Tokyo?",
@@ -74,9 +70,7 @@ def demo_steering_effect_on_representations():
     print("toward/away from the 'tool-calling' direction, even if the model")
     print("doesn't output function calls.\n")
 
-    steerer = ToolCallingSteering.from_pretrained(
-        "mlx-community/functiongemma-270m-it-bf16"
-    )
+    steerer = ToolCallingSteering.from_pretrained("mlx-community/functiongemma-270m-it-bf16")
 
     # Training data for a simple probe
     tool_queries = [
@@ -139,9 +133,7 @@ def demo_top_token_changes():
     print_header("TOP TOKEN CHANGES")
     print("\nShowing how steering affects the top predicted tokens.\n")
 
-    steerer = ToolCallingSteering.from_pretrained(
-        "mlx-community/functiongemma-270m-it-bf16"
-    )
+    steerer = ToolCallingSteering.from_pretrained("mlx-community/functiongemma-270m-it-bf16")
 
     queries = [
         ("What is the weather in Tokyo?", "Tool query"),
@@ -158,8 +150,8 @@ def demo_top_token_changes():
             result = steerer.predict(prompt, mode=mode)
 
             print(f"\n  Mode: {mode}")
-            for token, prob in result['top_tokens'][:3]:
-                token_display = token.replace('\n', '\\n')
+            for token, prob in result["top_tokens"][:3]:
+                token_display = token.replace("\n", "\\n")
                 if len(token_display) > 25:
                     token_display = token_display[:22] + "..."
                 print(f"    {token_display:<28} {prob:>6.1%}")
@@ -170,9 +162,7 @@ def demo_generation_comparison():
     print_header("GENERATION COMPARISON")
     print("\nComparing generated responses across steering modes.\n")
 
-    steerer = ToolCallingSteering.from_pretrained(
-        "mlx-community/functiongemma-270m-it-bf16"
-    )
+    steerer = ToolCallingSteering.from_pretrained("mlx-community/functiongemma-270m-it-bf16")
 
     query = "What is the weather in Tokyo?"
     prompt = format_functiongemma_prompt(query)
@@ -181,7 +171,7 @@ def demo_generation_comparison():
 
     for mode in ["normal", "force_tool", "prevent_tool"]:
         output = steerer.generate(prompt, mode=mode, max_new_tokens=50)
-        output_display = output.replace('\n', ' ')[:80]
+        output_display = output.replace("\n", " ")[:80]
 
         print(f"  {mode:15} → {output_display}...")
 
@@ -193,9 +183,7 @@ def demo_kill_switch():
     print("However, since base model rarely outputs function calls,")
     print("the effect is subtle.\n")
 
-    steerer = ToolCallingSteering.from_pretrained(
-        "mlx-community/functiongemma-270m-it-bf16"
-    )
+    steerer = ToolCallingSteering.from_pretrained("mlx-community/functiongemma-270m-it-bf16")
 
     query = "What is the weather in Tokyo?"
     prompt = format_functiongemma_prompt(query)
@@ -210,8 +198,8 @@ def demo_kill_switch():
 
     for name, kwargs in configs:
         result = steerer.predict(prompt, mode="normal", **kwargs)
-        top_token, top_prob = result['top_tokens'][0]
-        top_token = top_token.replace('\n', '\\n')[:25]
+        top_token, top_prob = result["top_tokens"][0]
+        top_token = top_token.replace("\n", "\\n")[:25]
 
         print(f"  {name:<30} → {top_token:<25} ({top_prob:.1%})")
 
@@ -224,9 +212,7 @@ def demo_neuron_targeting():
     print("  Tool suppressors: 1237, 821, 1347 (boost these to prevent tools)")
     print("  Kill switch: L12:230 (NO-TOOL veto)\n")
 
-    steerer = ToolCallingSteering.from_pretrained(
-        "mlx-community/functiongemma-270m-it-bf16"
-    )
+    steerer = ToolCallingSteering.from_pretrained("mlx-community/functiongemma-270m-it-bf16")
 
     query = "What is the weather in Tokyo?"
     prompt = format_functiongemma_prompt(query)
@@ -234,14 +220,22 @@ def demo_neuron_targeting():
     configs = [
         ("Normal", "normal", {}),
         ("Force (default neurons)", "force_tool", {}),
-        ("Force (only 803)", "force_tool", {
-            "tool_promoters": [803],
-            "tool_suppressors": [],
-        }),
-        ("Force (all top-5)", "force_tool", {
-            "tool_promoters": [803, 2036, 831, 436, 969],
-            "tool_suppressors": [1347, 1237, 821, 217, 543],
-        }),
+        (
+            "Force (only 803)",
+            "force_tool",
+            {
+                "tool_promoters": [803],
+                "tool_suppressors": [],
+            },
+        ),
+        (
+            "Force (all top-5)",
+            "force_tool",
+            {
+                "tool_promoters": [803, 2036, 831, 436, 969],
+                "tool_suppressors": [1347, 1237, 821, 217, 543],
+            },
+        ),
     ]
 
     print(f"Query: {query}\n")
@@ -250,8 +244,8 @@ def demo_neuron_targeting():
 
     for name, mode, kwargs in configs:
         result = steerer.predict(prompt, mode=mode, **kwargs)
-        top_token, top_prob = result['top_tokens'][0]
-        top_token = top_token.replace('\n', '\\n')[:23]
+        top_token, top_prob = result["top_tokens"][0]
+        top_token = top_token.replace("\n", "\\n")[:23]
 
         print(f"  {name:<33} {top_token:<25} {top_prob:>6.1%}")
 

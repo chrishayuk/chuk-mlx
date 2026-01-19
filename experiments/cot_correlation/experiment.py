@@ -12,11 +12,9 @@ This would explain:
 2. Why GPT-OSS has vocab alignment at L13 (gates verbalization)
 """
 
-import json
 import logging
 import re
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import mlx.core as mx
 
@@ -28,6 +26,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PromptResult:
     """Results for a single prompt."""
+
     input: str
     task: str
     expected: str
@@ -67,7 +66,7 @@ class CoTCorrelationExperiment(ExperimentBase):
         self.log(f"Model layers: {num_layers}")
 
         # Get embed tokens weight for logit lens
-        embed_weight = model.model.embed_tokens.weight.parameters()['weight']
+        embed_weight = model.model.embed_tokens.weight.parameters()["weight"]
 
         # Get layers to measure
         measure_layers = self.params.get("measure_layers", [13])
@@ -100,22 +99,23 @@ class CoTCorrelationExperiment(ExperimentBase):
 
             # 4. Measure vocab alignment at each layer
             vocab_probs = self._measure_vocab_alignment(
-                model, tokenizer, embed_weight,
-                input_text, task, task_tokens, measure_layers
+                model, tokenizer, embed_weight, input_text, task, task_tokens, measure_layers
             )
             for layer, prob in vocab_probs.items():
                 self.log(f"    L{layer} vocab: {prob:.1%}")
 
-            self.results.append(PromptResult(
-                input=input_text,
-                task=task,
-                expected=expected,
-                format=fmt,
-                generated=generated,
-                is_cot=is_cot,
-                answer_correct=answer_correct,
-                vocab_probs=vocab_probs,
-            ))
+            self.results.append(
+                PromptResult(
+                    input=input_text,
+                    task=task,
+                    expected=expected,
+                    format=fmt,
+                    generated=generated,
+                    is_cot=is_cot,
+                    answer_correct=answer_correct,
+                    vocab_probs=vocab_probs,
+                )
+            )
 
         return self._build_results()
 
@@ -130,7 +130,7 @@ class CoTCorrelationExperiment(ExperimentBase):
         for _ in range(max_tokens):
             output = model(input_ids)
             # Handle ModelOutput wrapper from framework
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
 
             # Get next token
             next_token = mx.argmax(logits[:, -1, :], axis=-1)
@@ -156,7 +156,7 @@ class CoTCorrelationExperiment(ExperimentBase):
     def _check_answer(self, output: str, expected: str) -> bool:
         """Check if output contains the expected answer."""
         # Extract numbers from output
-        numbers = re.findall(r'-?\d+', output)
+        numbers = re.findall(r"-?\d+", output)
         return expected in numbers
 
     def _measure_vocab_alignment(
@@ -178,7 +178,11 @@ class CoTCorrelationExperiment(ExperimentBase):
         layer_probs = {}
         for i, layer in enumerate(model.model.layers):
             layer_out = layer(h, mask=None, cache=None)
-            h = layer_out.hidden_states if hasattr(layer_out, 'hidden_states') else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+            h = (
+                layer_out.hidden_states
+                if hasattr(layer_out, "hidden_states")
+                else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+            )
 
             if i in layers:
                 # Project to vocabulary via logit lens
@@ -237,8 +241,10 @@ class CoTCorrelationExperiment(ExperimentBase):
                 all_is_cot.append(1.0 if p.is_cot else 0.0)
 
             self.log(f"\n{fmt.upper()} format:")
-            self.log(f"  CoT rate: {cot_count}/{len(prompts)} = {cot_count/len(prompts):.1%}")
-            self.log(f"  Accuracy: {correct_count}/{len(prompts)} = {correct_count/len(prompts):.1%}")
+            self.log(f"  CoT rate: {cot_count}/{len(prompts)} = {cot_count / len(prompts):.1%}")
+            self.log(
+                f"  Accuracy: {correct_count}/{len(prompts)} = {correct_count / len(prompts):.1%}"
+            )
             self.log(f"  Avg L13 vocab: {avg_l13:.1%}")
 
         # Calculate correlation coefficient
@@ -248,8 +254,7 @@ class CoTCorrelationExperiment(ExperimentBase):
             mean_cot = sum(all_is_cot) / len(all_is_cot)
 
             numerator = sum(
-                (v - mean_vocab) * (c - mean_cot)
-                for v, c in zip(all_l13_probs, all_is_cot)
+                (v - mean_vocab) * (c - mean_cot) for v, c in zip(all_l13_probs, all_is_cot)
             )
             denom_vocab = sum((v - mean_vocab) ** 2 for v in all_l13_probs) ** 0.5
             denom_cot = sum((c - mean_cot) ** 2 for c in all_is_cot) ** 0.5
@@ -264,7 +269,7 @@ class CoTCorrelationExperiment(ExperimentBase):
                 "interpretation": self._interpret_correlation(correlation),
             }
 
-            self.log(f"\n--- CORRELATION ANALYSIS ---")
+            self.log("\n--- CORRELATION ANALYSIS ---")
             self.log(f"L13 vocab ↔ CoT generation: r = {correlation:.3f}")
             self.log(f"Interpretation: {results['correlation']['interpretation']}")
 

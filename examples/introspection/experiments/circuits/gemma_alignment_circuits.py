@@ -43,7 +43,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 
 def run_probe_analysis(model_id: str, layers: list[int] | None = None):
@@ -51,13 +50,13 @@ def run_probe_analysis(model_id: str, layers: list[int] | None = None):
     from chuk_lazarus.introspection.circuit import (
         ProbeBattery,
         create_arithmetic_probe,
-        create_suppression_probe,
         create_factual_consistency_probe,
+        create_suppression_probe,
     )
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"PROBE ANALYSIS: {model_id}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Load model
     print("\nLoading model...")
@@ -81,9 +80,9 @@ def run_probe_analysis(model_id: str, layers: list[int] | None = None):
     battery.print_results_table(results)
 
     # Find key layers
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("KEY FINDINGS")
-    print("="*60)
+    print("=" * 60)
 
     for probe_name in results.probes.keys():
         emergence = results.find_emergence_layer(probe_name)
@@ -105,9 +104,9 @@ def collect_activations(model_id: str, output_path: str = "gemma_activations"):
         create_arithmetic_dataset,
     )
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"COLLECTING ACTIVATIONS: {model_id}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Create dataset
     dataset = create_arithmetic_dataset()
@@ -135,9 +134,9 @@ def collect_activations(model_id: str, output_path: str = "gemma_activations"):
     print(f"\nSaved to: {output_path}")
 
     # Print summary
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("SUMMARY")
-    print("="*60)
+    print("=" * 60)
     summary = activations.summary()
     for key, value in summary.items():
         print(f"  {key}: {value}")
@@ -153,9 +152,9 @@ def extract_directions(activations_path: str, output_path: str = "gemma_directio
         DirectionMethod,
     )
 
-    print(f"\n{'='*60}")
-    print(f"EXTRACTING DIRECTIONS")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("EXTRACTING DIRECTIONS")
+    print(f"{'=' * 60}")
 
     # Load activations
     print(f"\nLoading activations from: {activations_path}")
@@ -186,9 +185,10 @@ def extract_directions(activations_path: str, output_path: str = "gemma_directio
 def compare_models():
     """Compare base vs instruct models on arithmetic."""
     import mlx.core as mx
-    from chuk_lazarus.introspection.hooks import ModelHooks, CaptureConfig, LayerSelection
-    from chuk_lazarus.introspection.logit_lens import LogitLens
+
     from chuk_lazarus.introspection.ablation import AblationStudy
+    from chuk_lazarus.introspection.hooks import CaptureConfig, LayerSelection, ModelHooks
+    from chuk_lazarus.introspection.logit_lens import LogitLens
 
     models = [
         ("mlx-community/gemma-3-4b-pt-bf16", "Base"),
@@ -201,9 +201,9 @@ def compare_models():
         ("The capital of France is", " Paris"),
     ]
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("MODEL COMPARISON: Base vs Instruct")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     for model_id, model_name in models:
         print(f"\n{model_name}: {model_id}")
@@ -218,10 +218,12 @@ def compare_models():
         for prompt, track_token in prompts:
             # Set up hooks
             hooks = ModelHooks(model, model_config=config)
-            hooks.configure(CaptureConfig(
-                layers=LayerSelection.ALL,
-                capture_hidden_states=True,
-            ))
+            hooks.configure(
+                CaptureConfig(
+                    layers=LayerSelection.ALL,
+                    capture_hidden_states=True,
+                )
+            )
 
             # Forward pass
             input_ids = tokenizer.encode(prompt, return_tensors="np")
@@ -249,9 +251,9 @@ def compare_models():
             # Find destruction point (if any)
             destruction = None
             for i in range(1, len(probs)):
-                if probs[i-1] > 0.5 and probs[i] < 0.2:
+                if probs[i - 1] > 0.5 and probs[i] < 0.2:
                     destruction = layers[i]
-                    destruction_from = probs[i-1]
+                    destruction_from = probs[i - 1]
                     destruction_to = probs[i]
                     break
 
@@ -260,7 +262,9 @@ def compare_models():
             print(f"  Peak:   L{peak_layer} = {peak_prob:.1%}")
             print(f"  Final:  L{layers[-1]} = {final_prob:.1%}")
             if destruction:
-                print(f"  Destroyed at L{destruction}: {destruction_from:.1%} -> {destruction_to:.1%}")
+                print(
+                    f"  Destroyed at L{destruction}: {destruction_from:.1%} -> {destruction_to:.1%}"
+                )
 
 
 def run_steering_experiment(
@@ -271,12 +275,12 @@ def run_steering_experiment(
     coefficients: list[float] | None = None,
 ):
     """Run steering experiment to restore arithmetic."""
-    from chuk_lazarus.introspection.steering import ActivationSteering, SteeringConfig
     from chuk_lazarus.introspection.circuit import DirectionBundle
+    from chuk_lazarus.introspection.steering import ActivationSteering, SteeringConfig
 
-    print(f"\n{'='*60}")
-    print(f"STEERING EXPERIMENT")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("STEERING EXPERIMENT")
+    print(f"{'=' * 60}")
 
     # Load directions
     print(f"\nLoading directions from: {directions_path}")
@@ -314,7 +318,7 @@ def run_steering_experiment(
         coefficients = [-1.0, 0.0, 1.0]
 
     for prompt in prompts:
-        print(f"\n{'─'*50}")
+        print(f"\n{'─' * 50}")
         print(f"Prompt: {prompt}")
         print("─" * 50)
 
@@ -335,12 +339,12 @@ def run_layer_dynamics(
 
     This reveals whether steering prevents the L24 destruction.
     """
-    from chuk_lazarus.introspection.steering import ActivationSteering, SteeringConfig
     from chuk_lazarus.introspection.circuit import DirectionBundle
+    from chuk_lazarus.introspection.steering import ActivationSteering, SteeringConfig
 
-    print(f"\n{'='*60}")
-    print(f"LAYER DYNAMICS WITH STEERING")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("LAYER DYNAMICS WITH STEERING")
+    print(f"{'=' * 60}")
 
     # Load directions
     print(f"\nLoading directions from: {directions_path}")

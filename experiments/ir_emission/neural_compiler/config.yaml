@@ -1,0 +1,41 @@
+# Neural Compiler Experiment Configuration
+# NL → Canonical → IR → WASM → Result
+
+name: neural_compiler
+description: "NL → WASM → Execute pipeline demonstrating transformers as semantic frontends"
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+# Experiment-specific parameters
+parameters:
+  # Classifier checkpoint (trained LoRA for logit lens classification)
+  classifier_checkpoint: ../archive/checkpoints/dual_reward/final
+  # Pipelines to run
+  pipelines:
+    - single_op      # Basic arithmetic (12 tests)
+    - multi_op       # Chained operations (8 tests)
+    - loop           # Turing completeness demo (9 tests)
+    - comparison     # Boolean comparisons (20 tests)
+
+  # Layer for logit lens classification
+  # ~55% depth in TinyLlama (22 layers)
+  decision_layer: 12
+
+  # Classifier tokens (TinyLlama vocab IDs)
+  # These are the tokens whose logits we read for classification
+  classifier_tokens:
+    add: 1476        # "add"
+    subtract: 1014   # "sub"
+    multiply: 19790  # "mult"
+    divide: 4563     # "div"
+
+  # Generation parameters for normalization
+  max_normalize_tokens: 15
+
+  # WASM runtime
+  use_native_wasm: true  # Use wasmtime if available
+
+# Output settings
+output:
+  save_details: true     # Save per-test details
+  save_ir_hex: true      # Include IR bytecode in results

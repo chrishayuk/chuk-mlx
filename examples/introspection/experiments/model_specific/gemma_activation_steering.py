@@ -35,6 +35,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class SteeringResult:
     """Result of steering intervention."""
+
     prompt: str
     baseline_output: str
     steered_output: str
@@ -93,7 +94,7 @@ class ActivationSteeringStudy:
         else:
             head = None
 
-        embed_scale = float(self.hidden_size ** 0.5)
+        embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -136,9 +137,7 @@ class ActivationSteeringStudy:
         Returns the probe direction (coefficient vector).
         """
         # Create dataset
-        arithmetic_prompts = [
-            f"{a} * {b} = " for a in range(2, 10) for b in range(2, 10)
-        ]
+        arithmetic_prompts = [f"{a} * {b} = " for a in range(2, 10) for b in range(2, 10)]
         non_arithmetic_prompts = [
             "The capital of France is ",
             "The color of the sky is ",
@@ -270,7 +269,7 @@ class ActivationSteeringStudy:
             if int(next_token) in [self.tokenizer.eos_token_id, 13, 10]:
                 break
 
-        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)):].tolist()
+        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)) :].tolist()
         return self.tokenizer.decode(output_ids).strip()
 
     def generate_with_steering(
@@ -334,7 +333,7 @@ class ActivationSteeringStudy:
             if int(next_token) in [self.tokenizer.eos_token_id, 13, 10]:
                 break
 
-        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)):].tolist()
+        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)) :].tolist()
         return self.tokenizer.decode(output_ids).strip()
 
     def run_steering_study(self):
@@ -411,7 +410,9 @@ class ActivationSteeringStudy:
         # Test digit steering
         print("\n5. Digit steering experiments...")
         print("   (Trying to change which digit appears in output)")
-        print(f"\n{'Prompt':<15} {'Correct':<10} {'Baseline':<12} {'Steered':<12} {'Target Digit':<15} {'Strength'}")
+        print(
+            f"\n{'Prompt':<15} {'Correct':<10} {'Baseline':<12} {'Steered':<12} {'Target Digit':<15} {'Strength'}"
+        )
         print("-" * 80)
 
         digit_test_cases = [
@@ -437,7 +438,9 @@ class ActivationSteeringStudy:
                         max_tokens=5,
                     )
                     if steered != baseline:
-                        print(f"{prompt:<15} {correct:<10} {baseline:<12} {steered:<12} digit-{target_digit:<10} {strength}")
+                        print(
+                            f"{prompt:<15} {correct:<10} {baseline:<12} {steered:<12} digit-{target_digit:<10} {strength}"
+                        )
                         break  # Only show first change
 
         # Sweep strength to find threshold
@@ -475,8 +478,7 @@ class ActivationSteeringStudy:
         results = {
             "model": self.model_id,
             "arithmetic_probe_accuracies": {
-                int(layer): float(self.probes[layer]["accuracy"])
-                for layer in self.probes
+                int(layer): float(self.probes[layer]["accuracy"]) for layer in self.probes
             },
             "steering_effective": True,
         }

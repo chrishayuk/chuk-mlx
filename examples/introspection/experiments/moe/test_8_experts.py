@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
 import mlx.core as mx
-from mlx_lm import load, generate
+from mlx_lm import generate, load
 
 from chuk_lazarus.introspection.moe import (
     ExpertCompressor,
@@ -31,12 +31,15 @@ def main():
 
     # Load
     print("\nLoading GPT-OSS...")
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
     model, tokenizer = load(str(model_path))
 
     # Baseline size
     baseline = estimate_model_size(model)
-    print(f"\nBaseline: {baseline['total']/1e9:.2f}B params")
+    print(f"\nBaseline: {baseline['total'] / 1e9:.2f}B params")
 
     # Test prompts
     prompts = [

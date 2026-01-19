@@ -18,17 +18,17 @@ import logging
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
-from codebook import CodebookConfig, IRCodebook, IROpcode, IRSequenceDecoder
-from wasm_runtime import WASMRuntime
+from experiments.ir_emission.shared import CodebookConfig, IROpcode, IRSequenceDecoder, WASMRuntime
 
 logging.basicConfig(
     level=logging.INFO,
@@ -77,7 +77,8 @@ def load_samples(path: str) -> list[dict]:
 def extract_numbers(text: str) -> list[int]:
     """Extract numbers from text for operand slots."""
     import re
-    numbers = re.findall(r'\d+', text)
+
+    numbers = re.findall(r"\d+", text)
     return [int(n) for n in numbers]
 
 
@@ -144,7 +145,7 @@ class IREmissionTrainer:
         input_ids = mx.array([tokens])
 
         # Access backbone (model.model for LlamaForCausalLM)
-        backbone = self.model.model if hasattr(self.model, 'model') else self.model
+        backbone = self.model.model if hasattr(self.model, "model") else self.model
 
         # Forward through embedding
         h = backbone.embed_tokens(input_ids)
@@ -158,7 +159,7 @@ class IREmissionTrainer:
                 break
             # Layer returns BlockOutput, extract hidden_states
             output = layer(h, mask=mask)
-            h = output.hidden_states if hasattr(output, 'hidden_states') else output
+            h = output.hidden_states if hasattr(output, "hidden_states") else output
 
         # Return last token's hidden state
         return h[0, -1, :]  # (hidden_dim,)

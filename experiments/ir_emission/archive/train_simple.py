@@ -9,7 +9,6 @@ Just predicts the operation type from L13 hidden state.
 import argparse
 import json
 import logging
-from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -50,7 +49,7 @@ def get_hidden_state(model, tokenizer, prompt: str, decision_layer: int) -> mx.a
     input_ids = mx.array([tokens])
 
     # Access backbone
-    backbone = model.model if hasattr(model, 'model') else model
+    backbone = model.model if hasattr(model, "model") else model
 
     # Forward through embedding
     h = backbone.embed_tokens(input_ids)
@@ -63,7 +62,7 @@ def get_hidden_state(model, tokenizer, prompt: str, decision_layer: int) -> mx.a
         if i > decision_layer:
             break
         output = layer(h, mask=mask)
-        h = output.hidden_states if hasattr(output, 'hidden_states') else output
+        h = output.hidden_states if hasattr(output, "hidden_states") else output
 
     return h[0, -1, :]
 
@@ -80,6 +79,7 @@ def main():
     # Load model
     logger.info(f"Loading model: {args.model}")
     from chuk_lazarus.models_v2.loader import load_model
+
     load_result = load_model(args.model)
     model = load_result.model
     tokenizer = load_result.tokenizer
@@ -108,6 +108,7 @@ def main():
 
     # Training loop
     import random
+
     random.shuffle(samples)
 
     for step in range(args.steps):
@@ -165,14 +166,14 @@ def main():
             correct += 1
         total += 1
 
-    logger.info(f"Accuracy: {correct}/{total} = {correct/total:.2%}")
+    logger.info(f"Accuracy: {correct}/{total} = {correct / total:.2%}")
 
     # Print confusion matrix
     ops = ["add", "sub", "mul", "div"]
     logger.info("\nConfusion matrix:")
     logger.info(f"        {' '.join(f'{op:>6}' for op in ops)}")
     for i, op in enumerate(ops):
-        row = ' '.join(f'{confusion[i][j]:>6}' for j in range(4))
+        row = " ".join(f"{confusion[i][j]:>6}" for j in range(4))
         logger.info(f"{op:>6}: {row}")
 
 

@@ -30,10 +30,10 @@ class TestGetHandlers:
         for action, handler in handlers.items():
             assert callable(handler), f"Handler for {action.value} is not callable"
 
-    def test_has_15_handlers(self):
-        """Test that we have exactly 15 handlers."""
+    def test_has_21_handlers(self):
+        """Test that we have exactly 21 handlers."""
         handlers = _get_handlers()
-        assert len(handlers) == 15
+        assert len(handlers) == 21
 
 
 class TestDispatch:

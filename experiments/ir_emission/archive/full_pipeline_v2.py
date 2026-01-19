@@ -6,7 +6,6 @@ Uses few-shot prompting for normalization instead of LoRA fine-tuning.
 This achieves ~80% on varied NL without training.
 """
 
-import json
 import logging
 import re
 import sys
@@ -16,9 +15,12 @@ import mlx.core as mx
 import mlx.nn as nn
 from safetensors import safe_open
 
-sys.path.insert(0, str(Path(__file__).parent))
-from codebook import IROpcode, encode_i32_const, OPCODE_TO_WASM
-from wasm_runtime import WASMRuntime
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from experiments.ir_emission.shared import OPCODE_TO_WASM, IROpcode, encode_i32_const, WASMRuntime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -39,8 +41,8 @@ class NeuralCompilerV2:
         model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         classifier_path: str = "experiments/ir_emission/checkpoints/dual_reward/final/adapters.safetensors",
     ):
-        from chuk_lazarus.models_v2.loader import load_model
         from chuk_lazarus.models_v2.adapters.lora import LoRAConfig, apply_lora
+        from chuk_lazarus.models_v2.loader import load_model
 
         # Load single model for both normalization and classification
         logger.info("Loading model...")
@@ -158,7 +160,7 @@ Tickets cost 20 dollars. Cost for 3?
         generated_ids = input_ids
         for _ in range(15):
             output = self.base_model(generated_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
             generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
             mx.eval(generated_ids)
@@ -169,7 +171,7 @@ Tickets cost 20 dollars. Cost for 3?
             if "=" in decoded and len(decoded.strip()) > 3:
                 # Add one more token after =
                 output = self.base_model(generated_ids)
-                logits = output.logits if hasattr(output, 'logits') else output
+                logits = output.logits if hasattr(output, "logits") else output
                 next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
                 generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
                 break
@@ -187,7 +189,7 @@ Tickets cost 20 dollars. Cost for 3?
                 canonical = f"{a} {op} {b} = "
             else:
                 eq_pos = canonical.find("=")
-                canonical = canonical[:eq_pos + 1].strip() + " "
+                canonical = canonical[: eq_pos + 1].strip() + " "
 
         return canonical
 
@@ -321,12 +323,12 @@ def main():
 
         logger.info(f"\nInput: {nl_input}")
         logger.info(f"  Canonical: {result['canonical']}")
-        if result.get('operation'):
+        if result.get("operation"):
             logger.info(f"  Operation: {result['operation']}")
         logger.info(f"  Result:    {result.get('result', 'N/A')} (expected {expected}) [{status}]")
 
     logger.info("\n" + "=" * 70)
-    logger.info(f"ACCURACY: {correct}/{total} = {100*correct/total:.1f}%")
+    logger.info(f"ACCURACY: {correct}/{total} = {100 * correct / total:.1f}%")
     logger.info("=" * 70)
 
 

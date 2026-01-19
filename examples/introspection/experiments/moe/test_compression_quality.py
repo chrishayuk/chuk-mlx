@@ -19,13 +19,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
 import mlx.core as mx
-from mlx_lm import load, generate
+from mlx_lm import generate, load
 
 from chuk_lazarus.introspection.moe import (
     ExpertCompressor,
     MoEHooks,
-    detect_moe_architecture,
-    get_moe_layer_info,
 )
 
 
@@ -41,7 +39,10 @@ def main():
 
     # Load GPT-OSS
     print("\nLoading GPT-OSS 20B...")
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
     model, tokenizer = load(str(model_path))
 
     # Test prompts
@@ -82,7 +83,7 @@ def main():
 
     # Plan conservative compression (just merge the most similar pair)
     plan = compressor.plan_compression(layer_idx, strategy="balanced")
-    print(f"\nCompression plan:")
+    print("\nCompression plan:")
     print(f"  Original: {plan.original_num_experts} experts")
     print(f"  Target: {plan.target_num_experts} experts")
     print(f"  Merges: {len(plan.merges)}")
@@ -96,7 +97,7 @@ def main():
 
         try:
             compressed_config = compressor.apply_compression(plan, layer_idx, inplace=True)
-            print(f"Compression applied!")
+            print("Compression applied!")
             print(f"  Original experts: {compressed_config.original_num_experts}")
             print(f"  Compressed to: {compressed_config.compressed_num_experts} experts")
             mx.eval(model.parameters())
@@ -132,6 +133,7 @@ def main():
         except Exception as e:
             print(f"Error applying compression: {e}")
             import traceback
+
             traceback.print_exc()
     else:
         print("\nNo compression needed for this layer")

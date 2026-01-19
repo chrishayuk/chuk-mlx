@@ -34,13 +34,13 @@ import argparse
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable
 
 import mlx.core as mx
 
 
 class OperationType(Enum):
     """Types of arithmetic operations."""
+
     ADD = "+"
     SUB = "-"
     MUL = "*"
@@ -51,6 +51,7 @@ class OperationType(Enum):
 @dataclass
 class ArithmeticProblem:
     """A parsed arithmetic problem."""
+
     a: int
     b: int
     op: OperationType
@@ -91,6 +92,7 @@ class ArithmeticProblem:
 @dataclass
 class IntrospectionResult:
     """Result of introspecting the model's computation."""
+
     layer_probs: dict[int, float]  # Layer -> probability of correct answer
     peak_layer: int
     peak_prob: float
@@ -102,6 +104,7 @@ class IntrospectionResult:
 @dataclass
 class DelegationDecision:
     """Decision about whether to delegate."""
+
     should_delegate: bool
     reason: str
     confidence_score: float
@@ -197,13 +200,15 @@ class VirtualCalculator:
 
         Returns layer-by-layer probability of the correct answer.
         """
-        from chuk_lazarus.introspection.hooks import ModelHooks, CaptureConfig
+        from chuk_lazarus.introspection.hooks import CaptureConfig, ModelHooks
 
         hooks = ModelHooks(self.model)
-        hooks.configure(CaptureConfig(
-            layers=self.KEY_LAYERS,
-            capture_hidden_states=True,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=self.KEY_LAYERS,
+                capture_hidden_states=True,
+            )
+        )
 
         input_ids = self.tokenizer.encode(prompt, return_tensors="np")
         input_ids = mx.array(input_ids)
@@ -478,12 +483,14 @@ class VirtualCalculator:
                 marker = " ← peak"
             print(f"   L{layer:2d}: {prob:5.1%} {bar}{marker}")
 
-        print(f"\n   The model is {introspection.final_prob:.0%} confident it starts with '{first_digit}'.")
-        print(f"   It's right. But it has no idea what comes next.")
+        print(
+            f"\n   The model is {introspection.final_prob:.0%} confident it starts with '{first_digit}'."
+        )
+        print("   It's right. But it has no idea what comes next.")
 
         # Decision
         decision = self.should_delegate(problem, introspection)
-        print(f"\n3. DELEGATION DECISION:")
+        print("\n3. DELEGATION DECISION:")
         print(f"   {'→ DELEGATE to calculator' if decision.should_delegate else '→ Trust model'}")
         print(f"   Reason: {decision.reason}")
 
@@ -510,7 +517,6 @@ def demo_problems():
         # Easy - model can handle
         ("6 * 7 = ", "trivial multiplication"),
         ("156 + 287 = ", "3-digit addition"),
-
         # Hard - model fails
         ("127 * 89 = ", "3-digit × 2-digit multiplication"),
         ("456 * 78 = ", "3-digit × 2-digit multiplication"),
@@ -520,16 +526,18 @@ def demo_problems():
     print("\n" + "=" * 70)
     print("ARITHMETIC DELEGATION DEMO")
     print("=" * 70)
-    print("\n{:<20} {:>10} {:>10} {:>10} {:>10}".format(
-        "Problem", "Expected", "Model", "Delegated", "Result"
-    ))
+    print(
+        "\n{:<20} {:>10} {:>10} {:>10} {:>10}".format(
+            "Problem", "Expected", "Model", "Delegated", "Result"
+        )
+    )
     print("-" * 70)
 
     calc = None
 
     for prompt, description in problems:
         if calc is None:
-            print(f"\nLoading model...")
+            print("\nLoading model...")
             calc = VirtualCalculator.from_pretrained("mlx-community/gemma-3-4b-it-bf16")
 
         problem = calc.parse_problem(prompt)
@@ -552,7 +560,9 @@ def demo_problems():
         final_status = "✓" if answer_num == problem.expected else "✗"
         delegate_str = "Yes" if delegated else "No"
 
-        print(f"{prompt:<20} {problem.expected:>10} {direct_num:>10} {model_status} {delegate_str:>10} {answer_num:>10} {final_status}")
+        print(
+            f"{prompt:<20} {problem.expected:>10} {direct_num:>10} {model_status} {delegate_str:>10} {answer_num:>10} {final_status}"
+        )
 
     print("=" * 70)
 
@@ -564,12 +574,14 @@ def main():
         epilog=__doc__,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="mlx-community/gemma-3-4b-it-bf16",
         help="Model ID",
     )
     parser.add_argument(
-        "--prompt", "-p",
+        "--prompt",
+        "-p",
         default=None,
         help="Arithmetic prompt to solve",
     )
@@ -579,7 +591,8 @@ def main():
         help="Run demo with multiple problems",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Show introspection details",
     )

@@ -14,7 +14,8 @@ Run: uv run python examples/introspection/feature_emergence_neurons.py
 """
 
 import json
-from dataclasses import dataclass, field
+import warnings
+from dataclasses import dataclass
 from pathlib import Path
 
 import mlx.core as mx
@@ -24,13 +25,13 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.model_selection import cross_val_score
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 @dataclass
 class FeatureEmergenceResult:
     """Result of probing for a feature across layers."""
+
     feature_name: str
     layer_accuracies: dict[int, float]  # layer -> accuracy
     layer_aucs: dict[int, float]  # layer -> AUC
@@ -42,6 +43,7 @@ class FeatureEmergenceResult:
 @dataclass
 class NeuronProfile:
     """Profile of a single neuron."""
+
     layer: int
     neuron_idx: int
     mean_tool: float
@@ -55,6 +57,7 @@ class NeuronProfile:
 @dataclass
 class NeuronProfilingResult:
     """Result of profiling neurons in a layer."""
+
     layer: int
     total_neurons: int
     top_neurons: list[NeuronProfile]  # Top discriminative neurons
@@ -83,7 +86,7 @@ class FeatureEmergenceExperiment:
         self.embed_layer = self.model.model.embed_tokens
         self.layers = self.model.model.layers
         self.hidden_size = self.model.model.hidden_size
-        self.embed_scale = self.hidden_size ** 0.5
+        self.embed_scale = self.hidden_size**0.5
         self.num_layers = len(self.layers)
 
         print(f"  Layers: {self.num_layers}, Hidden: {self.hidden_size}")
@@ -146,7 +149,7 @@ class FeatureEmergenceExperiment:
         target_layer = self.layers[layer]
 
         # Get attention output
-        if hasattr(target_layer, 'input_layernorm'):
+        if hasattr(target_layer, "input_layernorm"):
             normed = target_layer.input_layernorm(h)
         else:
             normed = h
@@ -159,7 +162,7 @@ class FeatureEmergenceExperiment:
         h = h + attn_out
 
         # Now get MLP activations
-        if hasattr(target_layer, 'post_attention_layernorm'):
+        if hasattr(target_layer, "post_attention_layernorm"):
             mlp_input = target_layer.post_attention_layernorm(h)
         else:
             mlp_input = h
@@ -167,12 +170,12 @@ class FeatureEmergenceExperiment:
         mlp = target_layer.mlp
 
         # Get gate and up projections
-        if hasattr(mlp, 'gate_proj'):
+        if hasattr(mlp, "gate_proj"):
             # Gemma style: gate * up
             gate = mlp.gate_proj(mlp_input)
             up = mlp.up_proj(mlp_input)
             # Apply activation to gate
-            if hasattr(nn, 'gelu'):
+            if hasattr(nn, "gelu"):
                 gate_activated = nn.gelu(gate)
             else:
                 gate_activated = mx.maximum(gate, 0)  # fallback to ReLU
@@ -351,7 +354,7 @@ class FeatureEmergenceExperiment:
         """
         Profile neurons in a layer's MLP for tool discrimination.
         """
-        print(f"\n" + "=" * 60)
+        print("\n" + "=" * 60)
         print(f"NEURON PROFILING: L{layer} MLP")
         print("=" * 60)
 
@@ -417,31 +420,35 @@ class FeatureEmergenceExperiment:
             except:
                 auc = 0.5
 
-            neuron_profiles.append(NeuronProfile(
-                layer=layer,
-                neuron_idx=neuron_idx,
-                mean_tool=mean_tool,
-                mean_no_tool=mean_no_tool,
-                std_tool=std_tool,
-                std_no_tool=std_no_tool,
-                separation_score=separation,
-                auc=auc,
-            ))
+            neuron_profiles.append(
+                NeuronProfile(
+                    layer=layer,
+                    neuron_idx=neuron_idx,
+                    mean_tool=mean_tool,
+                    mean_no_tool=mean_no_tool,
+                    std_tool=std_tool,
+                    std_no_tool=std_no_tool,
+                    separation_score=separation,
+                    auc=auc,
+                )
+            )
 
         # Sort by separation score
         neuron_profiles.sort(key=lambda x: -x.separation_score)
 
         # Show top neurons
-        print(f"\n  Top 20 discriminative neurons:")
+        print("\n  Top 20 discriminative neurons:")
         print(f"  {'Idx':>6} {'Sep':>8} {'AUC':>8} {'μ_tool':>10} {'μ_no_tool':>10}")
         print("  " + "-" * 50)
 
         for profile in neuron_profiles[:20]:
-            print(f"  {profile.neuron_idx:>6} {profile.separation_score:>8.2f} "
-                  f"{profile.auc:>8.3f} {profile.mean_tool:>10.2f} {profile.mean_no_tool:>10.2f}")
+            print(
+                f"  {profile.neuron_idx:>6} {profile.separation_score:>8.2f} "
+                f"{profile.auc:>8.3f} {profile.mean_tool:>10.2f} {profile.mean_no_tool:>10.2f}"
+            )
 
         # Cumulative accuracy: what accuracy do we get with top-k neurons?
-        print(f"\n  Cumulative accuracy (top-k neurons):")
+        print("\n  Cumulative accuracy (top-k neurons):")
 
         cumulative_accuracy = []
         top_neuron_indices = [p.neuron_idx for p in neuron_profiles]
@@ -453,10 +460,9 @@ class FeatureEmergenceExperiment:
             selected_indices = top_neuron_indices[:k]
 
             # Build dataset with only these neurons
-            X = np.concatenate([
-                tool_activations[:, selected_indices],
-                no_tool_activations[:, selected_indices]
-            ])
+            X = np.concatenate(
+                [tool_activations[:, selected_indices], no_tool_activations[:, selected_indices]]
+            )
             y = np.array([1] * len(tool_activations) + [0] * len(no_tool_activations))
 
             # Cross-validated accuracy
@@ -483,7 +489,7 @@ class FeatureEmergenceExperiment:
         """
         Analyze what patterns top neurons respond to.
         """
-        print(f"\n" + "=" * 60)
+        print("\n" + "=" * 60)
         print(f"NEURON PATTERN ANALYSIS: L{layer}")
         print("=" * 60)
 
@@ -511,12 +517,12 @@ class FeatureEmergenceExperiment:
             prompt_activations.sort(key=lambda x: -x[2])
 
             print(f"\n  Neuron {neuron_idx} (sep={profile.separation_score:.2f}):")
-            print(f"    Top activating prompts:")
+            print("    Top activating prompts:")
             for prompt, label, act in prompt_activations[:3]:
                 label_str = "TOOL" if label else "NO_TOOL"
                 print(f"      [{label_str}] {act:+.2f}: {prompt[:50]}")
 
-            print(f"    Bottom activating prompts:")
+            print("    Bottom activating prompts:")
             for prompt, label, act in prompt_activations[-3:]:
                 label_str = "TOOL" if label else "NO_TOOL"
                 print(f"      [{label_str}] {act:+.2f}: {prompt[:50]}")
@@ -557,11 +563,13 @@ class FeatureEmergenceExperiment:
         print("SUMMARY")
         print("=" * 60)
 
-        print(f"\nFeature Emergence:")
+        print("\nFeature Emergence:")
         print(f"  needs_tool emerges at: L{emergence_result.emergence_layer}")
-        print(f"  Peak accuracy at: L{emergence_result.peak_layer} ({emergence_result.peak_accuracy:.1%})")
+        print(
+            f"  Peak accuracy at: L{emergence_result.peak_layer} ({emergence_result.peak_accuracy:.1%})"
+        )
 
-        print(f"\nEmergence curve:")
+        print("\nEmergence curve:")
         for layer in range(self.num_layers):
             acc = emergence_result.layer_accuracies[layer]
             bar = "█" * int(acc * 40)
@@ -569,7 +577,7 @@ class FeatureEmergenceExperiment:
             marker = " ← PEAK" if layer == emergence_result.peak_layer else marker
             print(f"  L{layer:2d}: {bar} {acc:.1%}{marker}")
 
-        print(f"\nNeuron Analysis:")
+        print("\nNeuron Analysis:")
         for layer, result in neuron_results.items():
             if result.cumulative_accuracy:
                 # Find minimum neurons for 90% accuracy

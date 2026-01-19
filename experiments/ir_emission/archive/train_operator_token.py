@@ -8,8 +8,6 @@ and use its hidden state as the classification target.
 
 import json
 import logging
-import re
-from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -45,13 +43,13 @@ def find_operator_position(tokens: list[int], tokenizer) -> int:
     # Decode each token and find operator
     for i, tok in enumerate(tokens):
         tok_text = tokenizer.decode([tok])
-        if tok_text.strip() in ['+', '-', '*', 'x', '/', '×', '÷']:
+        if tok_text.strip() in ["+", "-", "*", "x", "/", "×", "÷"]:
             return i
 
     # Fallback: look for token containing operator
     for i, tok in enumerate(tokens):
         tok_text = tokenizer.decode([tok])
-        if any(op in tok_text for op in ['+', '-', '*', '/', 'x']):
+        if any(op in tok_text for op in ["+", "-", "*", "/", "x"]):
             return i
 
     # Last fallback: return second-to-last token
@@ -65,7 +63,7 @@ def get_hidden_state_at_position(
     tokens = tokenizer.encode(prompt)
     input_ids = mx.array([tokens])
 
-    backbone = model.model if hasattr(model, 'model') else model
+    backbone = model.model if hasattr(model, "model") else model
     h = backbone.embed_tokens(input_ids)
 
     mask = nn.MultiHeadAttention.create_additive_causal_mask(len(tokens))
@@ -75,7 +73,7 @@ def get_hidden_state_at_position(
         if i > decision_layer:
             break
         output = layer(h, mask=mask)
-        h = output.hidden_states if hasattr(output, 'hidden_states') else output
+        h = output.hidden_states if hasattr(output, "hidden_states") else output
 
     # Clamp position to valid range
     pos = min(position, h.shape[1] - 1)
@@ -85,6 +83,7 @@ def get_hidden_state_at_position(
 def main():
     logger.info("Loading model...")
     from chuk_lazarus.models_v2.loader import load_model
+
     load_result = load_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
     model = load_result.model
     tokenizer = load_result.tokenizer
@@ -115,6 +114,7 @@ def main():
     optimizer = optim.Adam(learning_rate=1e-3)
 
     import random
+
     random.shuffle(samples)
 
     batch_size = 16
@@ -162,9 +162,7 @@ def main():
     for sample in samples[:200]:
         tokens = tokenizer.encode(sample["prompt"])
         op_pos = find_operator_position(tokens, tokenizer)
-        h = get_hidden_state_at_position(
-            model, tokenizer, sample["prompt"], decision_layer, op_pos
-        )
+        h = get_hidden_state_at_position(model, tokenizer, sample["prompt"], decision_layer, op_pos)
         h = h[None, :]
         mx.eval(h)
 
@@ -177,13 +175,13 @@ def main():
             correct += 1
         total += 1
 
-    logger.info(f"Accuracy: {correct}/{total} = {correct/total:.2%}")
+    logger.info(f"Accuracy: {correct}/{total} = {correct / total:.2%}")
 
     ops = ["add", "sub", "mul", "div"]
     logger.info("\nConfusion matrix:")
     logger.info(f"        {' '.join(f'{op:>6}' for op in ops)}")
     for i, op in enumerate(ops):
-        row = ' '.join(f'{confusion[i][j]:>6}' for j in range(4))
+        row = " ".join(f"{confusion[i][j]:>6}" for j in range(4))
         logger.info(f"{op:>6}: {row}")
 
 

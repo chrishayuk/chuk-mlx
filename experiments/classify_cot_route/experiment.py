@@ -19,8 +19,6 @@ from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
-import mlx.nn as nn
-import numpy as np
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -29,6 +27,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PairResult:
     """Result for a single symbolic/semantic pair."""
+
     symbolic_input: str
     semantic_input: str
     task: str
@@ -178,7 +177,7 @@ class ClassifyCoTRouteExperiment:
 
         # Stack and convert
         X = mx.stack(hiddens)  # [N, hidden_dim]
-        y = mx.array(labels)   # [N]
+        y = mx.array(labels)  # [N]
 
         # Train simple linear probe
         hidden_dim = X.shape[1]
@@ -264,7 +263,7 @@ class ClassifyCoTRouteExperiment:
     def _generate(self, prompt: str, max_tokens: int = 100) -> str:
         """Generate response from model."""
         # For instruct models, use chat template if available
-        if hasattr(self.tokenizer, 'chat_template') and self.tokenizer.chat_template:
+        if hasattr(self.tokenizer, "chat_template") and self.tokenizer.chat_template:
             messages = [{"role": "user", "content": prompt}]
             formatted = self.tokenizer.apply_chat_template(
                 messages, tokenize=False, add_generation_prompt=True
@@ -297,7 +296,8 @@ class ClassifyCoTRouteExperiment:
         """Check if response contains expected answer."""
         # Extract numbers from response
         import re
-        numbers = re.findall(r'-?\d+', response)
+
+        numbers = re.findall(r"-?\d+", response)
         if numbers:
             # Check if expected is in the response
             return str(expected) in numbers
@@ -314,7 +314,7 @@ class ClassifyCoTRouteExperiment:
         # 1. CLASSIFY - same task?
         symbolic_class = self._classify(symbolic)
         semantic_class = self._classify(semantic)
-        same_classification = (symbolic_class == semantic_class)
+        same_classification = symbolic_class == semantic_class
 
         # 2. CONVERGENCE - hidden state similarity at each layer
         symbolic_hiddens = self._get_all_hidden_states(symbolic)
@@ -380,7 +380,9 @@ class ClassifyCoTRouteExperiment:
                 "convergence": {
                     "description": "Hidden states converge at later layers",
                     "layer_similarities": layer_sims,
-                    "trend": "increasing" if layer_sims.get(12, 0) > layer_sims.get(6, 0) else "flat/decreasing",
+                    "trend": "increasing"
+                    if layer_sims.get(12, 0) > layer_sims.get(6, 0)
+                    else "flat/decreasing",
                 },
                 "same_answer": {
                     "description": "Both inputs produce correct answer",
@@ -423,16 +425,16 @@ class ClassifyCoTRouteExperiment:
 
         claims = results["claims"]
 
-        print(f"\n1. SAME TASK (probe classification):")
+        print("\n1. SAME TASK (probe classification):")
         print(f"   Agreement: {claims['same_task']['agreement_rate']:.1%}")
         print(f"   ({claims['same_task']['agreed']}/{claims['same_task']['total']} pairs)")
 
-        print(f"\n2. CONVERGENCE (hidden state similarity):")
+        print("\n2. CONVERGENCE (hidden state similarity):")
         for layer, sim in claims["convergence"]["layer_similarities"].items():
             print(f"   Layer {layer}: {sim:.3f}")
         print(f"   Trend: {claims['convergence']['trend']}")
 
-        print(f"\n3. SAME ANSWER (generation accuracy):")
+        print("\n3. SAME ANSWER (generation accuracy):")
         print(f"   Symbolic: {claims['same_answer']['symbolic_accuracy']:.1%}")
         print(f"   Semantic: {claims['same_answer']['semantic_accuracy']:.1%}")
 

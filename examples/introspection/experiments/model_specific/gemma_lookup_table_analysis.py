@@ -23,14 +23,13 @@ Usage:
 
 import argparse
 import json
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from collections import defaultdict
 
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
-from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
 
 from chuk_lazarus.inference.loader import DType, HFLoader
@@ -40,6 +39,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class MultiplicationEntry:
     """Entry in the times table analysis."""
+
     a: int
     b: int
     product: int
@@ -93,7 +93,7 @@ class LookupTableAnalyzer:
 
         embed_scale = getattr(self.config, "embedding_scale", None)
         if embed_scale is None:
-            embed_scale = float(self.hidden_size ** 0.5)
+            embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, embed_scale
 
@@ -140,8 +140,7 @@ class LookupTableAnalyzer:
                 h = self.get_hidden_state(prompt, layer_idx)
 
                 entry = MultiplicationEntry(
-                    a=a, b=b, product=product,
-                    prompt=prompt, hidden_state=h
+                    a=a, b=b, product=product, prompt=prompt, hidden_state=h
                 )
                 self.entries.append(entry)
 
@@ -183,20 +182,20 @@ class LookupTableAnalyzer:
         min_sim = np.min(similarities)
         max_sim = np.max(similarities)
 
-        print(f"\nSummary:")
+        print("\nSummary:")
         print(f"  Average similarity: {avg_sim:.6f}")
         print(f"  Min similarity: {min_sim:.6f}")
         print(f"  Max similarity: {max_sim:.6f}")
 
         if avg_sim > 0.999:
-            print(f"\n  CONCLUSION: Commutativity is BAKED IN (avg > 0.999)")
-            print(f"  This suggests LOOKUP TABLE structure")
+            print("\n  CONCLUSION: Commutativity is BAKED IN (avg > 0.999)")
+            print("  This suggests LOOKUP TABLE structure")
         elif avg_sim > 0.99:
-            print(f"\n  CONCLUSION: Strong commutativity (avg > 0.99)")
-            print(f"  This suggests computation with shared intermediate states")
+            print("\n  CONCLUSION: Strong commutativity (avg > 0.99)")
+            print("  This suggests computation with shared intermediate states")
         else:
-            print(f"\n  CONCLUSION: Weak commutativity (avg < 0.99)")
-            print(f"  This suggests SEQUENTIAL COMPUTATION")
+            print("\n  CONCLUSION: Weak commutativity (avg < 0.99)")
+            print("  This suggests SEQUENTIAL COMPUTATION")
 
         return {
             "avg_similarity": avg_sim,
@@ -223,8 +222,11 @@ class LookupTableAnalyzer:
             by_product[e.product].append(e)
 
         # Find products with multiple distinct pairs
-        multi_pairs = {p: entries for p, entries in by_product.items()
-                       if len(set((e.a, e.b) for e in entries)) > 1}
+        multi_pairs = {
+            p: entries
+            for p, entries in by_product.items()
+            if len(set((e.a, e.b) for e in entries)) > 1
+        }
 
         print(f"\nProducts with multiple operand pairs: {sorted(multi_pairs.keys())}")
 
@@ -257,12 +259,14 @@ class LookupTableAnalyzer:
                     pair_str = f"{e1.a}*{e1.b} vs {e2.a}*{e2.b}"
                     print(f"{product:<10} {pair_str:<25} {sim:.6f}")
 
-                    results.append({
-                        "product": product,
-                        "pair1": (e1.a, e1.b),
-                        "pair2": (e2.a, e2.b),
-                        "similarity": sim,
-                    })
+                    results.append(
+                        {
+                            "product": product,
+                            "pair1": (e1.a, e1.b),
+                            "pair2": (e2.a, e2.b),
+                            "similarity": sim,
+                        }
+                    )
 
         if results:
             avg_sim = np.mean([r["similarity"] for r in results])
@@ -327,16 +331,16 @@ class LookupTableAnalyzer:
         print(f"Column advantage over random: {col_vs_random:+.6f}")
 
         if avg_row > avg_col:
-            print(f"\n  Structure: ROW-DOMINANT (first operand matters more)")
+            print("\n  Structure: ROW-DOMINANT (first operand matters more)")
         elif avg_col > avg_row:
-            print(f"\n  Structure: COLUMN-DOMINANT (second operand matters more)")
+            print("\n  Structure: COLUMN-DOMINANT (second operand matters more)")
         else:
-            print(f"\n  Structure: BALANCED (both operands matter equally)")
+            print("\n  Structure: BALANCED (both operands matter equally)")
 
         if max(row_vs_random, col_vs_random) > 0.05:
-            print(f"  CONCLUSION: Clear 2D TABLE structure detected")
+            print("  CONCLUSION: Clear 2D TABLE structure detected")
         else:
-            print(f"  CONCLUSION: Weak or no 2D structure")
+            print("  CONCLUSION: Weak or no 2D structure")
 
         return {
             "avg_row_similarity": avg_row,
@@ -368,12 +372,14 @@ class LookupTableAnalyzer:
                 sim = self.cosine_similarity(e1.hidden_state, e2.hidden_state)
                 product_diff = abs(e1.product - e2.product)
 
-                data.append({
-                    "pair": (f"{e1.a}*{e1.b}", f"{e2.a}*{e2.b}"),
-                    "products": (e1.product, e2.product),
-                    "product_diff": product_diff,
-                    "similarity": sim,
-                })
+                data.append(
+                    {
+                        "pair": (f"{e1.a}*{e1.b}", f"{e2.a}*{e2.b}"),
+                        "products": (e1.product, e2.product),
+                        "product_diff": product_diff,
+                        "similarity": sim,
+                    }
+                )
 
         # Bin by product difference
         bins = [(0, 0), (1, 5), (6, 10), (11, 20), (21, 50), (51, 100)]
@@ -491,9 +497,11 @@ class LookupTableAnalyzer:
             evidence_against_lookup.append(f"Imperfect commutativity ({comm_avg:.4f})")
 
         if max(row_adv, col_adv) > 0.05:
-            evidence_for_lookup.append(f"Clear row/column structure (adv: {max(row_adv, col_adv):.4f})")
+            evidence_for_lookup.append(
+                f"Clear row/column structure (adv: {max(row_adv, col_adv):.4f})"
+            )
         else:
-            evidence_against_lookup.append(f"Weak row/column structure")
+            evidence_against_lookup.append("Weak row/column structure")
 
         print("\nEvidence FOR lookup table:")
         for e in evidence_for_lookup:
@@ -525,7 +533,9 @@ class LookupTableAnalyzer:
                 "avg_col_similarity": float(results["row_column"]["avg_col_similarity"]),
                 "avg_random_similarity": float(results["row_column"]["avg_random_similarity"]),
             },
-            "conclusion": "LOOKUP" if len(evidence_for_lookup) > len(evidence_against_lookup) else "COMPUTE",
+            "conclusion": "LOOKUP"
+            if len(evidence_for_lookup) > len(evidence_against_lookup)
+            else "COMPUTE",
         }
 
         with open(output_path, "w") as f:
@@ -538,8 +548,13 @@ class LookupTableAnalyzer:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", "-m", default="mlx-community/gemma-3-4b-it-bf16")
-    parser.add_argument("--layer", "-l", type=int, default=24,
-                        help="Layer to analyze (default: 24, computation layer)")
+    parser.add_argument(
+        "--layer",
+        "-l",
+        type=int,
+        default=24,
+        help="Layer to analyze (default: 24, computation layer)",
+    )
     args = parser.parse_args()
 
     analyzer = LookupTableAnalyzer(model_id=args.model)

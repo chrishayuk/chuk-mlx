@@ -10,6 +10,7 @@ from chuk_lazarus.cli.commands.introspect.moe_expert.formatters import (
     format_entropy_analysis,
     format_header,
     format_model_info,
+    format_orthogonality_ascii,
     format_router_weights,
     format_subheader,
     format_taxonomy,
@@ -19,6 +20,7 @@ from chuk_lazarus.introspection.moe.enums import (
     ExpertCategory,
     ExpertRole,
     MoEArchitecture,
+    MoEType,
 )
 from chuk_lazarus.introspection.moe.models import (
     CoactivationAnalysis,
@@ -33,6 +35,10 @@ from chuk_lazarus.introspection.moe.models import (
     MoEModelInfo,
     RouterWeightCapture,
     TopKVariationResult,
+)
+from chuk_lazarus.introspection.moe.moe_type import (
+    MoETypeAnalysis,
+    ProjectionRankAnalysis,
 )
 
 
@@ -392,3 +398,212 @@ class TestFormatEntropyAnalysis:
         assert "1.500" in result
         assert "0.750" in result
         assert "#" in result  # Histogram bar
+
+
+class TestFormatOrthogonalityAscii:
+    """Tests for format_orthogonality_ascii function."""
+
+    @pytest.fixture
+    def pseudo_moe_with_matrix(self):
+        """Create a pseudo-MoE analysis with similarity matrix (clustered)."""
+        # High similarity values (clustered experts)
+        matrix = (
+            (1.0, 0.45, 0.42, 0.38),
+            (0.45, 1.0, 0.48, 0.41),
+            (0.42, 0.48, 1.0, 0.44),
+            (0.38, 0.41, 0.44, 1.0),
+        )
+        return MoETypeAnalysis(
+            model_id="openai/gpt-oss-20b",
+            layer_idx=0,
+            num_experts=4,
+            moe_type=MoEType.UPCYCLED,
+            gate=ProjectionRankAnalysis(
+                name="gate", shape=(2880, 2880), max_rank=2880, effective_rank_95=1
+            ),
+            up=ProjectionRankAnalysis(
+                name="up", shape=(2880, 2880), max_rank=2880, effective_rank_95=337
+            ),
+            down=ProjectionRankAnalysis(
+                name="down", shape=(2880, 2880), max_rank=2880, effective_rank_95=206
+            ),
+            mean_cosine_similarity=0.418,
+            std_cosine_similarity=0.04,
+            similarity_matrix=matrix,
+        )
+
+    @pytest.fixture
+    def native_moe_with_matrix(self):
+        """Create a native-MoE analysis with similarity matrix (orthogonal)."""
+        # Low similarity values (orthogonal experts)
+        matrix = (
+            (1.0, 0.02, 0.01, 0.03),
+            (0.02, 1.0, 0.02, 0.01),
+            (0.01, 0.02, 1.0, 0.02),
+            (0.03, 0.01, 0.02, 1.0),
+        )
+        return MoETypeAnalysis(
+            model_id="allenai/OLMoE-1B-7B-0924",
+            layer_idx=0,
+            num_experts=4,
+            moe_type=MoEType.PRETRAINED_MOE,
+            gate=ProjectionRankAnalysis(
+                name="gate", shape=(1024, 2048), max_rank=1024, effective_rank_95=755
+            ),
+            up=ProjectionRankAnalysis(
+                name="up", shape=(1024, 2048), max_rank=1024, effective_rank_95=772
+            ),
+            down=ProjectionRankAnalysis(
+                name="down", shape=(2048, 1024), max_rank=1024, effective_rank_95=785
+            ),
+            mean_cosine_similarity=0.018,
+            std_cosine_similarity=0.008,
+            similarity_matrix=matrix,
+        )
+
+    def test_pseudo_moe_visualization(self, pseudo_moe_with_matrix):
+        """Test visualization for pseudo-MoE (clustered experts)."""
+        result = format_orthogonality_ascii(pseudo_moe_with_matrix)
+
+        # Check header and model info
+        assert "EXPERT ORTHOGONALITY VISUALIZATION" in result
+        assert "openai/gpt-oss-20b" in result
+        assert "Layer:   0" in result
+        assert "UPCYCLED" in result
+
+        # Check heatmap is present
+        assert "Expert Similarity Heatmap" in result
+        assert "Legend:" in result
+
+        # Check interpretation for pseudo-MoE
+        assert "UPCYCLED MoE" in result or "COMPRESSIBLE" in result
+        assert "COMPRESSIBLE" in result
+        assert "BASE" in result
+
+    def test_native_moe_visualization(self, native_moe_with_matrix):
+        """Test visualization for native-MoE (orthogonal experts)."""
+        result = format_orthogonality_ascii(native_moe_with_matrix)
+
+        # Check header and model info
+        assert "EXPERT ORTHOGONALITY VISUALIZATION" in result
+        assert "allenai/OLMoE-1B-7B-0924" in result
+        assert "PRETRAINED" in result
+
+        # Check heatmap is present
+        assert "Expert Similarity Heatmap" in result
+
+        # Check interpretation for native-MoE
+        assert "PRETRAINED MoE" in result or "NOT compressible" in result
+        assert "NOT compressible" in result
+        assert "orthogonal" in result.lower()
+
+    def test_similarity_distribution(self, pseudo_moe_with_matrix):
+        """Test that similarity distribution is shown."""
+        result = format_orthogonality_ascii(pseudo_moe_with_matrix)
+
+        assert "Similarity Distribution:" in result
+        # Check distribution ranges are present
+        assert "orthogonal" in result.lower()
+        assert ">0.50" in result or "similar" in result.lower()
+
+    def test_heatmap_characters(self, pseudo_moe_with_matrix):
+        """Test that heatmap uses appropriate characters."""
+        result = format_orthogonality_ascii(pseudo_moe_with_matrix)
+
+        # Should have self-similarity markers
+        assert "■" in result  # Diagonal (self-similarity)
+
+        # Should have some intensity blocks for high similarity
+        # (the fixture has similarities around 0.4-0.5)
+        assert "▓" in result or "▒" in result
+
+    def test_no_matrix_fallback(self):
+        """Test that visualization works even without similarity matrix."""
+        analysis = MoETypeAnalysis(
+            model_id="test/model",
+            layer_idx=0,
+            num_experts=4,
+            moe_type=MoEType.UNKNOWN,
+            gate=ProjectionRankAnalysis(
+                name="gate", shape=(100, 100), max_rank=100, effective_rank_95=50
+            ),
+            up=ProjectionRankAnalysis(
+                name="up", shape=(100, 100), max_rank=100, effective_rank_95=50
+            ),
+            down=ProjectionRankAnalysis(
+                name="down", shape=(100, 100), max_rank=100, effective_rank_95=50
+            ),
+            mean_cosine_similarity=0.15,
+            std_cosine_similarity=0.05,
+            similarity_matrix=None,
+        )
+        result = format_orthogonality_ascii(analysis)
+
+        # Should still work and show summary stats
+        assert "EXPERT ORTHOGONALITY VISUALIZATION" in result
+        assert "Mean Similarity:" in result
+        assert "test/model" in result
+
+    def test_many_experts_truncation(self):
+        """Test that large matrices are truncated for display."""
+        # Create 32x32 similarity matrix
+        n = 32
+        matrix = tuple(tuple(1.0 if i == j else 0.02 for j in range(n)) for i in range(n))
+        analysis = MoETypeAnalysis(
+            model_id="test/model",
+            layer_idx=0,
+            num_experts=n,
+            moe_type=MoEType.PRETRAINED_MOE,
+            gate=ProjectionRankAnalysis(
+                name="gate", shape=(1024, 1024), max_rank=1024, effective_rank_95=800
+            ),
+            up=ProjectionRankAnalysis(
+                name="up", shape=(1024, 1024), max_rank=1024, effective_rank_95=800
+            ),
+            down=ProjectionRankAnalysis(
+                name="down", shape=(1024, 1024), max_rank=1024, effective_rank_95=800
+            ),
+            mean_cosine_similarity=0.02,
+            std_cosine_similarity=0.01,
+            similarity_matrix=matrix,
+        )
+        result = format_orthogonality_ascii(analysis, max_display=16)
+
+        # Should mention truncation
+        assert "more experts not shown" in result
+
+    def test_direction_diagram_present(self, native_moe_with_matrix):
+        """Test that direction diagram is generated from similarity data."""
+        result = format_orthogonality_ascii(native_moe_with_matrix)
+
+        # Check that diagram is present
+        assert "Expert Direction Diagram" in result
+        assert "2D MDS projection" in result
+
+        # Check diagram has borders
+        assert "┌" in result
+        assert "└" in result
+        assert "┐" in result
+        assert "┘" in result
+
+        # Check that expert labels are present (E0, E1, etc.)
+        assert "E0" in result
+        assert "E1" in result
+
+        # Check that arrows are present
+        arrow_chars = ["→", "←", "↑", "↓", "↗", "↘", "↙", "↖"]
+        assert any(arrow in result for arrow in arrow_chars)
+
+    def test_direction_diagram_orthogonal_interpretation(self, native_moe_with_matrix):
+        """Test that orthogonal experts get correct interpretation."""
+        result = format_orthogonality_ascii(native_moe_with_matrix)
+
+        # Should say arrows point in different directions
+        assert "different directions" in result or "ORTHOGONAL" in result
+
+    def test_direction_diagram_clustered_interpretation(self, pseudo_moe_with_matrix):
+        """Test that clustered experts get correct interpretation."""
+        result = format_orthogonality_ascii(pseudo_moe_with_matrix)
+
+        # Should say arrows cluster together
+        assert "cluster" in result or "SHARE" in result

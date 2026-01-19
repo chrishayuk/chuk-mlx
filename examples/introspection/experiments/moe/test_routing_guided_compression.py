@@ -18,12 +18,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
 import mlx.core as mx
-from mlx_lm import load, generate
+from mlx_lm import generate, load
 
 from chuk_lazarus.introspection.moe import (
-    MoEHooks,
-    MoECaptureConfig,
     ExpertCompressor,
+    MoECaptureConfig,
+    MoEHooks,
     estimate_model_size,
 )
 
@@ -35,11 +35,13 @@ def get_expert_usage(model, tokenizer, prompts: list[str]) -> dict[int, list[int
     Returns: dict mapping layer_idx -> sorted list of expert indices by usage frequency
     """
     hooks = MoEHooks(model)
-    hooks.configure(MoECaptureConfig(
-        capture_router_logits=False,
-        capture_expert_assignments=True,
-        capture_routing_weights=False,
-    ))
+    hooks.configure(
+        MoECaptureConfig(
+            capture_router_logits=False,
+            capture_expert_assignments=True,
+            capture_routing_weights=False,
+        )
+    )
 
     # Accumulate usage counts: layer_idx -> expert_idx -> count
     usage_counts = {layer: {} for layer in hooks.moe_layer_indices}
@@ -57,7 +59,9 @@ def get_expert_usage(model, tokenizer, prompts: list[str]) -> dict[int, list[int
                 experts = hooks.state.selected_experts[layer_idx]
                 # experts shape: [batch, seq_len, num_experts_per_tok]
                 for expert_idx in experts.flatten().tolist():
-                    usage_counts[layer_idx][expert_idx] = usage_counts[layer_idx].get(expert_idx, 0) + 1
+                    usage_counts[layer_idx][expert_idx] = (
+                        usage_counts[layer_idx].get(expert_idx, 0) + 1
+                    )
 
         hooks.state.clear()
 
@@ -99,7 +103,9 @@ def compress_with_routing_guidance(
         kept_experts = sorted(ranked[:target_experts])  # Keep top N, sorted
 
         # Create custom plan with these experts
-        plan = compressor.plan_compression(layer_idx, target_experts=target_experts, strategy="aggressive")
+        plan = compressor.plan_compression(
+            layer_idx, target_experts=target_experts, strategy="aggressive"
+        )
         # Override with routing-guided selection
         plan.kept_experts = kept_experts
 
@@ -109,7 +115,7 @@ def compress_with_routing_guidance(
 
     # Step 3: Test quality
     new_size = estimate_model_size(model)
-    reduction = (1 - new_size['total'] / baseline_size) * 100
+    reduction = (1 - new_size["total"] / baseline_size) * 100
 
     quality_scores = []
     outputs = []
@@ -122,7 +128,7 @@ def compress_with_routing_guidance(
         quality_scores.append(overlap)
 
     return {
-        "size_after": new_size['total'],
+        "size_after": new_size["total"],
         "reduction": reduction,
         "quality": sum(quality_scores) / len(quality_scores),
         "outputs": outputs,
@@ -135,14 +141,17 @@ def main():
     print("=" * 70)
     print("\nIdea: Keep the most frequently routed experts, prune rare ones")
 
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
 
     # Get baseline
     print("\nLoading GPT-OSS for baseline...")
     model, tokenizer = load(str(model_path))
     baseline = estimate_model_size(model)
-    baseline_size = baseline['total']
-    print(f"Baseline: {baseline_size/1e9:.2f}B params")
+    baseline_size = baseline["total"]
+    print(f"Baseline: {baseline_size / 1e9:.2f}B params")
 
     # Calibration prompts - diverse set to capture routing patterns
     calibration_prompts = [
@@ -182,18 +191,24 @@ def main():
 
     # Test different compression levels with routing guidance
     for target_experts in [16, 12, 8]:
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print(f"ROUTING-GUIDED: {target_experts} experts per layer")
         print("=" * 70)
 
         result = compress_with_routing_guidance(
-            model_path, calibration_prompts, target_experts,
-            test_prompts, baseline_outputs, baseline_size
+            model_path,
+            calibration_prompts,
+            target_experts,
+            test_prompts,
+            baseline_outputs,
+            baseline_size,
         )
         result["name"] = f"Routing-guided {target_experts}"
         results.append(result)
 
-        print(f"Size: {baseline_size/1e9:.2f}B -> {result['size_after']/1e9:.2f}B ({result['reduction']:.1f}% reduction)")
+        print(
+            f"Size: {baseline_size / 1e9:.2f}B -> {result['size_after'] / 1e9:.2f}B ({result['reduction']:.1f}% reduction)"
+        )
         print(f"Quality: {result['quality']:.0%}")
         for i, p in enumerate(test_prompts):
             print(f"  {p[:25]}... -> {result['outputs'][i][:35]}...")
@@ -206,7 +221,9 @@ def main():
     print("-" * 60)
 
     for r in results:
-        print(f"{r['name']:<25} {r['size_after']/1e9:.2f}B{'':>4} {r['reduction']:.1f}%{'':>6} {r['quality']:.0%}")
+        print(
+            f"{r['name']:<25} {r['size_after'] / 1e9:.2f}B{'':>4} {r['reduction']:.1f}%{'':>6} {r['quality']:.0%}"
+        )
 
     print("-" * 60)
     print("\nThis approach should retain quality better than random/similarity-based")

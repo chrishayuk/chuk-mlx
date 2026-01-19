@@ -22,15 +22,15 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import mlx.core as mx
+from _loader import load_model
 from huggingface_hub import hf_hub_download
 from jinja2 import Template
-
-from _loader import load_model
 
 
 @dataclass
 class ModelSpec:
     """Specification for a model to test."""
+
     name: str
     model_id: str
     num_layers: int
@@ -68,21 +68,26 @@ def create_tool_prompt(template: Template | None, tokenizer, model_id: str) -> s
 
     # FunctionGemma uses specific tool format
     if "functiongemma" in model_id.lower():
-        tools = [{
-            "type": "function",
-            "function": {
-                "name": "get_weather",
-                "description": "Get current weather for a location",
-                "parameters": {
-                    "type": "object",
-                    "properties": {"location": {"type": "string", "description": "City name"}},
-                    "required": ["location"],
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_weather",
+                    "description": "Get current weather for a location",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"location": {"type": "string", "description": "City name"}},
+                        "required": ["location"],
+                    },
                 },
-            },
-        }]
+            }
+        ]
 
         messages = [
-            {"role": "developer", "content": "You are a helpful assistant with access to tools. Use them when appropriate."},
+            {
+                "role": "developer",
+                "content": "You are a helpful assistant with access to tools. Use them when appropriate.",
+            },
             {"role": "user", "content": "What's the weather in Tokyo?"},
         ]
 
@@ -92,13 +97,16 @@ def create_tool_prompt(template: Template | None, tokenizer, model_id: str) -> s
                 tools=tools,
                 add_generation_prompt=True,
                 bos_token="<bos>",
-                eos_token="<eos>"
+                eos_token="<eos>",
             )
 
     # For Gemma-3 models, use a simpler approach - just ask about weather
     # and check if it tries to use function-calling syntax
     messages = [
-        {"role": "user", "content": "You have access to a get_weather(location) function. Use it to get the weather in Tokyo. Respond with a function call."},
+        {
+            "role": "user",
+            "content": "You have access to a get_weather(location) function. Use it to get the weather in Tokyo. Respond with a function call.",
+        },
     ]
 
     try:
@@ -111,8 +119,13 @@ def create_tool_prompt(template: Template | None, tokenizer, model_id: str) -> s
 def has_tool_call(text: str) -> bool:
     """Check if output contains tool-calling markers."""
     markers = [
-        "<start_function_call>", "<function_call>", "get_weather(",
-        '{"name":', '"function_call"', "```tool", "<tool_call>"
+        "<start_function_call>",
+        "<function_call>",
+        "get_weather(",
+        '{"name":',
+        '"function_call"',
+        "```tool",
+        "<tool_call>",
     ]
     return any(m.lower() in text.lower() for m in markers)
 
@@ -149,7 +162,7 @@ def generate_with_mlp_ablation(
         layer.mlp.down_proj.weight = original_weight
         mx.eval(layer.mlp.down_proj.weight)
 
-    output_ids = generated[0, input_ids.shape[1]:].tolist()
+    output_ids = generated[0, input_ids.shape[1] :].tolist()
     return tokenizer.decode(output_ids, skip_special_tokens=False)
 
 
@@ -223,8 +236,14 @@ def main():
             results = run_ablation_sweep(model, tokenizer, prompt, spec.num_layers)
 
             # Find causal layers
-            causal_layers = [l for l, data in results["layers"].items() if data["changed"] and data["coherent"]]
-            causal_broken = [l for l, data in results["layers"].items() if data["changed"] and not data["coherent"]]
+            causal_layers = [
+                l for l, data in results["layers"].items() if data["changed"] and data["coherent"]
+            ]
+            causal_broken = [
+                l
+                for l, data in results["layers"].items()
+                if data["changed"] and not data["coherent"]
+            ]
 
             print(f"\n  Causal layers (coherent): {causal_layers}")
             print(f"  Causal layers (broken): {causal_broken}")
@@ -240,7 +259,9 @@ def main():
                 "original_has_tool": results["original_has_tool"],
                 "causal_layers": causal_layers,
                 "causal_broken": causal_broken,
-                "relative_positions": [l / spec.num_layers for l in causal_layers] if causal_layers else [],
+                "relative_positions": [l / spec.num_layers for l in causal_layers]
+                if causal_layers
+                else [],
                 "layers": results["layers"],
             }
 
@@ -251,6 +272,7 @@ def main():
         except Exception as e:
             print(f"  ERROR: {e}")
             import traceback
+
             traceback.print_exc()
             all_results[spec.name] = {"error": str(e)}
 
@@ -270,7 +292,11 @@ def main():
         layers = data["num_layers"]
         has_tool = "Yes" if data["original_has_tool"] else "No"
         causal = str(data["causal_layers"]) if data["causal_layers"] else "None"
-        relative = ", ".join([f"{p:.0%}" for p in data["relative_positions"]]) if data["relative_positions"] else "-"
+        relative = (
+            ", ".join([f"{p:.0%}" for p in data["relative_positions"]])
+            if data["relative_positions"]
+            else "-"
+        )
 
         print(f"{name:<25} {layers:<8} {has_tool:<8} {causal:<20} {relative:<20}")
 

@@ -261,6 +261,170 @@ lazarus introspect moe-expert explore -m openai/gpt-oss-20b
 # Compare: c "2 + 3 = 5"
 ```
 
+## MoE Type Detection & Compression
+
+Determine whether an MoE model is compressible using SVD overlay representation.
+
+### Understanding MoE Types
+
+MoE models fall into two categories based on how they were trained:
+
+| Type | Description | Compression |
+|------|-------------|-------------|
+| **Pseudo-MoE** | Dense model converted to MoE (upcycling). Experts share a common base with low-rank deltas. | ✓ Compressible via SVD overlay (6-10x) |
+| **Native-MoE** | Trained natively as MoE from scratch. Experts are orthogonal (independent). | ✗ Not compressible via SVD (use quantization) |
+
+### Quick Start
+
+```bash
+# Analyze a single model
+lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b
+
+# Compare two models side-by-side
+lazarus introspect moe-expert moe-type-compare -m openai/gpt-oss-20b -c allenai/OLMoE-1B-7B-0924
+
+# Show orthogonality visualization with heatmap and direction diagram
+lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b --visualize
+```
+
+### moe-type-analyze
+
+Detect whether a model is pseudo-MoE (compressible) or native-MoE (not compressible).
+
+```bash
+lazarus introspect moe-expert moe-type-analyze -m MODEL [--layer N] [--visualize] [-o output.json]
+```
+
+**Options:**
+- `--layer N`: Analyze specific layer (default: first MoE layer)
+- `--visualize`: Show expert orthogonality heatmap and direction diagram
+- `-o FILE`: Save JSON results to file
+
+**Example Output:**
+
+```
+======================================================================
+MOE TYPE ANALYSIS
+======================================================================
+Model:  openai/gpt-oss-20b
+Layer:  0
+Type:   PSEUDO-MOE
+
+Evidence:
+  Gate Rank:            1 / 2880 (  0.0%)
+  Up Rank:            337 / 2880 ( 11.7%)
+  Down Rank:          206 / 2880 (  7.2%)
+  Cosine Similarity: 0.418 (+/- 0.163)
+
+Compression:
+  Compressible:      Yes
+  Estimated Ratio:   7.9x
+======================================================================
+```
+
+### moe-type-compare
+
+Compare MoE types between two models side-by-side.
+
+```bash
+lazarus introspect moe-expert moe-type-compare -m MODEL1 -c MODEL2
+```
+
+**Example Output:**
+
+```
+======================================================================
+MOE TYPE COMPARISON
+======================================================================
++-----------------------+----------------+----------------+
+| Metric                | gpt-oss-20b    | OLMoE-1B-7B-09 |
++-----------------------+----------------+----------------+
+| Type                  | PSEUDO         | NATIVE         |
+| Gate Rank             |    1/2880      |  755/1024      |
+| Gate Rank %           |          0.0%  |         73.7%  |
+| Cosine Similarity     |          0.418 |          0.018 |
+| Compressible          | Yes (7.9x)     | No             |
++-----------------------+----------------+----------------+
+```
+
+### Orthogonality Visualization (--visualize)
+
+The `--visualize` flag adds two data-driven diagrams:
+
+**1. Direction Diagram** - Shows how expert weight vectors are oriented in 2D space:
+- Orthogonal experts → arrows point in different directions
+- Clustered experts → arrows cluster together
+
+```
+Expert Direction Diagram (2D MDS projection):
+
+┌───────────────────────────────────────────────────────────┐
+│                  ↙E7        │         ↘E0                 │
+│        ↙E4        ·         │        ·          ↘E3       │
+│ ──────←E1──────────────────·┼·───────────────────→E6───── │
+│                       ↑E5   │    ↑E2                      │
+└───────────────────────────────────────────────────────────┘
+
+  Arrows point in different directions → Experts are ORTHOGONAL
+```
+
+**2. Similarity Heatmap** - Shows pairwise cosine similarity between all experts:
+
+```
+Expert Similarity Heatmap (cosine similarity):
+
+      0  1  2  3  4  5  6  7
+  0  ■  ·  ·  ·  ·  ·  ·  ·  avg:0.02
+  1  ·  ■  ·  ·  ·  ·  ·  ·  avg:0.02
+  2  ·  ·  ■  ·  ·  ·  ·  ·  avg:0.02
+  ...
+
+Legend: · (<0.05)  ░ (0.05-0.15)  ▒ (0.15-0.3)  ▓ (0.3-0.5)  █ (>0.5)  ■ (self)
+```
+
+### Key Metrics Explained
+
+| Metric | Pseudo-MoE | Native-MoE |
+|--------|------------|------------|
+| **Gate Rank Ratio** | < 5% (shared gate) | > 50% (diverse gates) |
+| **Cosine Similarity** | > 0.25 (clustered) | < 0.10 (orthogonal) |
+| **Interpretation** | Expert = Base + delta | Expert ⟂ Expert |
+
+### Compression Pipeline
+
+If a model is pseudo-MoE (compressible), use the overlay commands:
+
+```bash
+# Step 1: Confirm model is pseudo-MoE
+lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b
+
+# Step 2: Compute SVD overlay representation
+lazarus introspect moe-expert moe-overlay-compute -m openai/gpt-oss-20b
+
+# Step 3: Verify reconstruction accuracy
+lazarus introspect moe-expert moe-overlay-verify -m openai/gpt-oss-20b
+
+# Step 4: Estimate full model storage savings
+lazarus introspect moe-expert moe-overlay-estimate -m openai/gpt-oss-20b
+```
+
+### Video Demo Workflow (MoE Type Detection)
+
+```bash
+# 1. "Are these models compressible?"
+lazarus introspect moe-expert moe-type-compare -m openai/gpt-oss-20b -c allenai/OLMoE-1B-7B-0924
+
+# 2. "Show me the expert structure"
+lazarus introspect moe-expert moe-type-analyze -m openai/gpt-oss-20b --visualize
+
+# 3. "Pseudo-MoE: experts are clustered around a shared base"
+# → High similarity, low gate rank, arrows cluster together
+
+# 4. "Native-MoE: experts are orthogonal"
+lazarus introspect moe-expert moe-type-analyze -m allenai/OLMoE-1B-7B-0924 --visualize
+# → Low similarity, high gate rank, arrows spread in all directions
+```
+
 ## See Also
 
 - [introspection.md](../introspection.md) - Main introspection documentation

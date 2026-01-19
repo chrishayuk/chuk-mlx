@@ -30,9 +30,9 @@ def load_model(model_id: str):
     from chuk_lazarus.inference.loader import DType, HFLoader
     from chuk_lazarus.models_v2.families.registry import detect_model_family, get_family_info
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"Loading: {model_id}")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     result = HFLoader.download(model_id)
     model_path = result.model_path
@@ -63,7 +63,7 @@ def analyze_expert_categories(model, tokenizer, model_id: str):
 
     This reveals whether experts specialize or generalize across domains.
     """
-    from chuk_lazarus.introspection.moe import MoEHooks, MoECaptureConfig, get_moe_layer_info
+    from chuk_lazarus.introspection.moe import MoECaptureConfig, MoEHooks, get_moe_layer_info
 
     print("\n" + "=" * 70)
     print("EXPERT CATEGORY ANALYSIS")
@@ -124,10 +124,12 @@ def analyze_expert_categories(model, tokenizer, model_id: str):
     category_expert_counts = {cat: defaultdict(int) for cat in categories}
 
     hooks = MoEHooks(model)
-    hooks.configure(MoECaptureConfig(
-        capture_selected_experts=True,
-        layers=[target_layer],
-    ))
+    hooks.configure(
+        MoECaptureConfig(
+            capture_selected_experts=True,
+            layers=[target_layer],
+        )
+    )
 
     for category, prompts in categories.items():
         for prompt in prompts:
@@ -209,8 +211,12 @@ def analyze_expert_categories(model, tokenizer, model_id: str):
         most_specialized = max(specialization_scores, key=specialization_scores.get)
         most_general = min(specialization_scores, key=specialization_scores.get)
 
-        print(f"\nMost specialized: Expert {most_specialized} (score: {specialization_scores[most_specialized]:.2f})")
-        print(f"Most general:     Expert {most_general} (score: {specialization_scores[most_general]:.2f})")
+        print(
+            f"\nMost specialized: Expert {most_specialized} (score: {specialization_scores[most_specialized]:.2f})"
+        )
+        print(
+            f"Most general:     Expert {most_general} (score: {specialization_scores[most_general]:.2f})"
+        )
 
     print("\n" + "=" * 70)
     print("IMPLICATION: Experts are NOT pure specialists.")
@@ -220,11 +226,11 @@ def analyze_expert_categories(model, tokenizer, model_id: str):
 
 def analyze_single_prompt(model, tokenizer, model_id: str, prompt: str):
     """Analyze expert routing for a single prompt."""
-    from chuk_lazarus.introspection.moe import MoEHooks, MoECaptureConfig
+    from chuk_lazarus.introspection.moe import MoECaptureConfig, MoEHooks
 
-    print(f"\n{'='*70}")
-    print(f"EXPERT ROUTING ANALYSIS")
-    print(f"{'='*70}")
+    print(f"\n{'=' * 70}")
+    print("EXPERT ROUTING ANALYSIS")
+    print(f"{'=' * 70}")
     print(f"Prompt: {prompt}\n")
 
     layers = list(model.model.layers)
@@ -234,11 +240,13 @@ def analyze_single_prompt(model, tokenizer, model_id: str, prompt: str):
             moe_layers.append(i)
 
     hooks = MoEHooks(model)
-    hooks.configure(MoECaptureConfig(
-        capture_selected_experts=True,
-        capture_router_logits=True,
-        layers=moe_layers,
-    ))
+    hooks.configure(
+        MoECaptureConfig(
+            capture_selected_experts=True,
+            capture_router_logits=True,
+            layers=moe_layers,
+        )
+    )
 
     input_ids = mx.array(tokenizer.encode(prompt))[None, :]
     hooks.forward(input_ids)
@@ -269,7 +277,8 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="openai/gpt-oss-20b",
         help="Model ID to analyze",
     )
@@ -279,7 +288,8 @@ def main():
         help="Analyze expert activations by prompt category",
     )
     parser.add_argument(
-        "--prompt", "-p",
+        "--prompt",
+        "-p",
         default=None,
         help="Analyze routing for a single prompt",
     )

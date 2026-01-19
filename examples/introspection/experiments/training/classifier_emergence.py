@@ -42,7 +42,6 @@ import random
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -139,14 +138,16 @@ def generate_arithmetic_data(
         result = op_fn(a, b)
 
         # Store both formats in internal data
-        data.append({
-            "prompt": f"{a} {op_sym} {b} = ",
-            "response": str(result),
-            "text": f"{a} {op_sym} {b} = {result}",
-            "task": op_name,
-            "operands": [a, b],
-            "answer": result,
-        })
+        data.append(
+            {
+                "prompt": f"{a} {op_sym} {b} = ",
+                "response": str(result),
+                "text": f"{a} {op_sym} {b} = {result}",
+                "task": op_name,
+                "operands": [a, b],
+                "answer": result,
+            }
+        )
 
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -161,12 +162,18 @@ def generate_arithmetic_data(
             train_path = output_path.parent / "train.jsonl"
             with open(train_path, "w") as f:
                 for entry in train_data:
-                    f.write(json.dumps({"prompt": entry["prompt"], "response": entry["response"]}) + "\n")
+                    f.write(
+                        json.dumps({"prompt": entry["prompt"], "response": entry["response"]})
+                        + "\n"
+                    )
 
             valid_path = output_path.parent / "valid.jsonl"
             with open(valid_path, "w") as f:
                 for entry in valid_data:
-                    f.write(json.dumps({"prompt": entry["prompt"], "response": entry["response"]}) + "\n")
+                    f.write(
+                        json.dumps({"prompt": entry["prompt"], "response": entry["response"]})
+                        + "\n"
+                    )
         else:
             # mlx-lm format: {"text": ...}
             train_path = output_path.parent / "train.jsonl"
@@ -196,27 +203,33 @@ def generate_test_prompts() -> list[dict]:
 
     # Multiplication tests
     for a, b in [(7, 8), (12, 5), (9, 9), (45, 45)]:
-        prompts.append({
-            "task": "multiplication",
-            "prompt": f"{a} * {b} = ",
-            "expected": str(a * b),
-        })
+        prompts.append(
+            {
+                "task": "multiplication",
+                "prompt": f"{a} * {b} = ",
+                "expected": str(a * b),
+            }
+        )
 
     # Addition tests
     for a, b in [(23, 45), (17, 38), (55, 27)]:
-        prompts.append({
-            "task": "addition",
-            "prompt": f"{a} + {b} = ",
-            "expected": str(a + b),
-        })
+        prompts.append(
+            {
+                "task": "addition",
+                "prompt": f"{a} + {b} = ",
+                "expected": str(a + b),
+            }
+        )
 
     # Subtraction tests
     for a, b in [(89, 34), (65, 28), (100, 43)]:
-        prompts.append({
-            "task": "subtraction",
-            "prompt": f"{a} - {b} = ",
-            "expected": str(a - b),
-        })
+        prompts.append(
+            {
+                "task": "subtraction",
+                "prompt": f"{a} - {b} = ",
+                "expected": str(a - b),
+            }
+        )
 
     return prompts
 
@@ -233,9 +246,9 @@ async def analyze_model(
 
     snapshot = ExperimentSnapshot(checkpoint=checkpoint_name, steps=steps)
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Analyzing: {checkpoint_name} ({model_id})")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     async with ModelAnalyzer.from_pretrained(model_id) as analyzer:
         info = analyzer.model_info
@@ -306,10 +319,12 @@ async def analyze_model(
 
             # Print summary for this prompt
             if task_result.peak_task_layer is not None:
-                print(f"    FOUND classifier: '{task_result.signals_by_layer[task_result.peak_task_layer].task_token}' "
-                      f"at layer {task_result.peak_task_layer} (prob={task_result.peak_task_prob:.3f})")
+                print(
+                    f"    FOUND classifier: '{task_result.signals_by_layer[task_result.peak_task_layer].task_token}' "
+                    f"at layer {task_result.peak_task_layer} (prob={task_result.peak_task_prob:.3f})"
+                )
             else:
-                print(f"    No classifier found in task vocabulary")
+                print("    No classifier found in task vocabulary")
 
             snapshot.task_results.append(task_result)
 
@@ -328,14 +343,13 @@ async def analyze_model_with_adapter(
     Uses mlx-lm to load base model + adapter, then runs analysis.
     """
     import mlx.core as mx
-    import mlx.nn as nn
     from mlx_lm import load
 
     snapshot = ExperimentSnapshot(checkpoint=checkpoint_name, steps=steps)
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Analyzing: {checkpoint_name} ({model_id} + {adapter_path})")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Load model with adapter using mlx-lm
     print("Loading model with adapter...")
@@ -435,10 +449,12 @@ async def analyze_model_with_adapter(
 
         # Print summary for this prompt
         if task_result.peak_task_layer is not None:
-            print(f"    FOUND classifier: '{task_result.signals_by_layer[task_result.peak_task_layer].task_token}' "
-                  f"at layer {task_result.peak_task_layer} (prob={task_result.peak_task_prob:.3f})")
+            print(
+                f"    FOUND classifier: '{task_result.signals_by_layer[task_result.peak_task_layer].task_token}' "
+                f"at layer {task_result.peak_task_layer} (prob={task_result.peak_task_prob:.3f})"
+            )
         else:
-            print(f"    No classifier found in task vocabulary")
+            print("    No classifier found in task vocabulary")
 
         snapshot.task_results.append(task_result)
 
@@ -448,9 +464,9 @@ async def analyze_model_with_adapter(
 def print_comparison_table(snapshots: list[ExperimentSnapshot]):
     """Print comparison table across training checkpoints."""
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("CLASSIFIER EMERGENCE SUMMARY")
-    print("="*80)
+    print("=" * 80)
 
     # Header
     header = ["Task", "Prompt"] + [s.checkpoint for s in snapshots]
@@ -546,15 +562,25 @@ def run_training(
 
     # Use mlx-lm's training
     cmd = [
-        sys.executable, "-m", "mlx_lm", "lora",
-        "--model", model_id,
+        sys.executable,
+        "-m",
+        "mlx_lm",
+        "lora",
+        "--model",
+        model_id,
         "--train",
-        "--data", str(data_path.parent),  # mlx-lm expects directory with train.jsonl
-        "--batch-size", str(batch_size),
-        "--learning-rate", str(learning_rate),
-        "--iters", str(steps),
-        "--adapter-path", str(output_dir / "adapters"),
-        "--steps-per-report", "10",
+        "--data",
+        str(data_path.parent),  # mlx-lm expects directory with train.jsonl
+        "--batch-size",
+        str(batch_size),
+        "--learning-rate",
+        str(learning_rate),
+        "--iters",
+        str(steps),
+        "--adapter-path",
+        str(output_dir / "adapters"),
+        "--steps-per-report",
+        "10",
     ]
 
     print(f"\nRunning training: {' '.join(cmd)}")
@@ -579,9 +605,9 @@ def run_training_transformers(
     """Fallback training using transformers + peft."""
     try:
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer
-        from peft import LoraConfig, get_peft_model
         from datasets import load_dataset
+        from peft import LoraConfig, get_peft_model
+        from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
 
         print("Loading model with transformers...")
         tokenizer = AutoTokenizer.from_pretrained(model_id)
@@ -788,18 +814,18 @@ async def run_full_experiment(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. Generate training data
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("STEP 1: Generate Training Data")
-    print("="*60)
+    print("=" * 60)
 
     data_path = output_dir / "arithmetic_train.jsonl"
     # Use Lazarus format (prompt/response) when using Lazarus trainer
     generate_arithmetic_data(n_training_samples, data_path, use_lazarus_format=use_lazarus)
 
     # 2. Baseline analysis
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("STEP 2: Baseline Analysis (Before Training)")
-    print("="*60)
+    print("=" * 60)
 
     prompts = generate_test_prompts()
     snapshots = []
@@ -808,9 +834,9 @@ async def run_full_experiment(
     snapshots.append(baseline)
 
     # 3. Progressive training and analysis
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("STEP 3: Progressive Training")
-    print("="*60)
+    print("=" * 60)
 
     # Select training function based on flag
     train_fn = run_training_lazarus if use_lazarus else run_training
@@ -865,13 +891,13 @@ async def run_full_experiment(
     print(f"\nFull results saved to {results_file}")
 
     # 6. Summary
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXPERIMENT COMPLETE")
-    print("="*60)
+    print("=" * 60)
 
     if snapshots[-1].has_classifiers and not snapshots[0].has_classifiers:
         print("\n✓ SUCCESS: Task classifiers EMERGED through training!")
-        print(f"  Baseline: no classifiers")
+        print("  Baseline: no classifiers")
         print(f"  After {training_steps[-1]} steps: classifiers present")
         print(f"  Peak probability: {snapshots[-1].average_peak_prob:.3f}")
     elif snapshots[0].has_classifiers:
@@ -890,18 +916,21 @@ def main():
     )
 
     parser.add_argument(
-        "-m", "--model",
+        "-m",
+        "--model",
         default="meta-llama/Llama-3.2-1B",
         help="Base model to use (default: meta-llama/Llama-3.2-1B)",
     )
     parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         type=Path,
         default=Path("./experiments/classifier_emergence"),
         help="Output directory for results",
     )
     parser.add_argument(
-        "-n", "--samples",
+        "-n",
+        "--samples",
         type=int,
         default=5000,
         help="Number of training samples to generate",
@@ -949,13 +978,15 @@ def main():
         else:
             run_training(args.model, data_path, args.output, args.steps[-1])
     else:
-        asyncio.run(run_full_experiment(
-            model_id=args.model,
-            n_training_samples=args.samples,
-            training_steps=args.steps,
-            output_dir=args.output,
-            use_lazarus=args.use_lazarus,
-        ))
+        asyncio.run(
+            run_full_experiment(
+                model_id=args.model,
+                n_training_samples=args.samples,
+                training_steps=args.steps,
+                output_dir=args.output,
+                use_lazarus=args.use_lazarus,
+            )
+        )
 
 
 if __name__ == "__main__":

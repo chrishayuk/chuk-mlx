@@ -74,7 +74,7 @@ class LayerAblationStudy:
         else:
             head = None
 
-        embed_scale = float(self.hidden_size ** 0.5)
+        embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -120,7 +120,7 @@ class LayerAblationStudy:
             if int(next_token) in [self.tokenizer.eos_token_id, 13, 10]:
                 break
 
-        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)):].tolist()
+        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)) :].tolist()
         return self.tokenizer.decode(output_ids).strip()
 
     def generate_with_layer_skip(
@@ -174,7 +174,7 @@ class LayerAblationStudy:
             if int(next_token) in [self.tokenizer.eos_token_id, 13, 10]:
                 break
 
-        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)):].tolist()
+        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)) :].tolist()
         return self.tokenizer.decode(output_ids).strip()
 
     def test_multiplication_accuracy(
@@ -183,8 +183,16 @@ class LayerAblationStudy:
     ) -> tuple[float, list[dict]]:
         """Test multiplication accuracy with optional layer skipping."""
         test_cases = [
-            (2, 3, 6), (3, 4, 12), (5, 6, 30), (7, 8, 56), (9, 9, 81),
-            (4, 7, 28), (6, 8, 48), (3, 9, 27), (5, 5, 25), (8, 9, 72),
+            (2, 3, 6),
+            (3, 4, 12),
+            (5, 6, 30),
+            (7, 8, 56),
+            (9, 9, 81),
+            (4, 7, 28),
+            (6, 8, 48),
+            (3, 9, 27),
+            (5, 5, 25),
+            (8, 9, 72),
         ]
 
         results = []
@@ -203,12 +211,14 @@ class LayerAblationStudy:
             if is_correct:
                 correct += 1
 
-            results.append({
-                "prompt": prompt,
-                "expected": str(expected),
-                "output": output,
-                "correct": is_correct,
-            })
+            results.append(
+                {
+                    "prompt": prompt,
+                    "expected": str(expected),
+                    "output": output,
+                    "correct": is_correct,
+                }
+            )
 
         accuracy = correct / len(test_cases)
         return accuracy, results
@@ -239,11 +249,13 @@ class LayerAblationStudy:
             if drop > 0:
                 print(f"L{layer:<9} {acc:>10.1%} {drop:>+9.1%}")
 
-            single_results.append({
-                "layer": layer,
-                "accuracy": acc,
-                "drop": drop,
-            })
+            single_results.append(
+                {
+                    "layer": layer,
+                    "accuracy": acc,
+                    "drop": drop,
+                }
+            )
 
         # Impactful layers
         impactful = [r for r in single_results if r["drop"] > 0]
@@ -259,7 +271,7 @@ class LayerAblationStudy:
             skip = set(range(n))
             acc, _ = self.test_multiplication_accuracy(skip_layers=skip)
             drop = baseline_acc - acc
-            print(f"   Skip L0-L{n-1}: {acc:.1%} (drop: {drop:+.1%})")
+            print(f"   Skip L0-L{n - 1}: {acc:.1%} (drop: {drop:+.1%})")
 
         # Skip last N layers
         print("\n   Skipping LAST N layers (late processing):")
@@ -267,7 +279,9 @@ class LayerAblationStudy:
             skip = set(range(self.num_layers - n, self.num_layers))
             acc, _ = self.test_multiplication_accuracy(skip_layers=skip)
             drop = baseline_acc - acc
-            print(f"   Skip L{self.num_layers-n}-L{self.num_layers-1}: {acc:.1%} (drop: {drop:+.1%})")
+            print(
+                f"   Skip L{self.num_layers - n}-L{self.num_layers - 1}: {acc:.1%} (drop: {drop:+.1%})"
+            )
 
         # Skip middle layers
         print("\n   Skipping MIDDLE layers (computation phase):")
@@ -276,7 +290,7 @@ class LayerAblationStudy:
                 skip = set(range(start, start + n))
                 acc, _ = self.test_multiplication_accuracy(skip_layers=skip)
                 drop = baseline_acc - acc
-                print(f"   Skip L{start}-L{start+n-1}: {acc:.1%} (drop: {drop:+.1%})")
+                print(f"   Skip L{start}-L{start + n - 1}: {acc:.1%} (drop: {drop:+.1%})")
 
         # Find minimum layers needed
         print("\n4. Finding MINIMUM layers needed...")
@@ -288,7 +302,9 @@ class LayerAblationStudy:
             acc, results = self.test_multiplication_accuracy(skip_layers=skip)
             drop = baseline_acc - acc
             kept_pct = len(keep) / self.num_layers * 100
-            print(f"   Keep every {step}th layer ({len(keep)} layers, {kept_pct:.0f}%): {acc:.1%} (drop: {drop:+.1%})")
+            print(
+                f"   Keep every {step}th layer ({len(keep)} layers, {kept_pct:.0f}%): {acc:.1%} (drop: {drop:+.1%})"
+            )
 
         # Detailed test with large skip
         print("\n5. Detailed test: Skip 50% of layers...")
@@ -318,7 +334,7 @@ class LayerAblationStudy:
         print("  - Single neuron ablation: 0% drop")
         print("  - 20% MLP neurons ablated: 0% drop")
         print("  - All 8 attention heads at one layer: 0% drop")
-        print(f"  - Single layer completely skipped: Results above")
+        print("  - Single layer completely skipped: Results above")
 
         # Save
         results = {

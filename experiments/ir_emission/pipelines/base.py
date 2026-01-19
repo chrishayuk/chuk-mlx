@@ -9,16 +9,11 @@ import logging
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
 
-# Import from archive subdirectory
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "archive"))
-from codebook import IROpcode, encode_i32_const, OPCODE_TO_WASM
-from wasm_runtime import WASMRuntime
+from experiments.ir_emission.shared import OPCODE_TO_WASM, IROpcode, encode_i32_const, WASMRuntime
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +126,7 @@ Tickets cost 20 dollars. Cost for 3?
         generated_ids = input_ids
         for _ in range(15):
             output = self.base_model(generated_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
             generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
             mx.eval(generated_ids)
@@ -141,7 +136,7 @@ Tickets cost 20 dollars. Cost for 3?
                 break
             if "=" in decoded and len(decoded.strip()) > 3:
                 output = self.base_model(generated_ids)
-                logits = output.logits if hasattr(output, 'logits') else output
+                logits = output.logits if hasattr(output, "logits") else output
                 next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
                 generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
                 break
@@ -157,7 +152,7 @@ Tickets cost 20 dollars. Cost for 3?
                 canonical = f"{a} {op} {b} = "
             else:
                 eq_pos = canonical.find("=")
-                canonical = canonical[:eq_pos + 1].strip() + " "
+                canonical = canonical[: eq_pos + 1].strip() + " "
 
         return canonical
 
@@ -276,15 +271,17 @@ class BasePipeline(ABC):
             else:
                 status = "error"
 
-            details.append({
-                "input": nl_input,
-                "expected": expected,
-                "actual": result.get("result"),
-                "canonical": result.get("canonical"),
-                "operation": result.get("operation"),
-                "status": status,
-                "error": result.get("error"),
-            })
+            details.append(
+                {
+                    "input": nl_input,
+                    "expected": expected,
+                    "actual": result.get("result"),
+                    "canonical": result.get("canonical"),
+                    "operation": result.get("operation"),
+                    "status": status,
+                    "error": result.get("error"),
+                }
+            )
 
         total = len(test_cases)
         return PipelineResult(

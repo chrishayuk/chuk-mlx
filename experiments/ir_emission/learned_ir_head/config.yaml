@@ -1,0 +1,32 @@
+# Learned IR Head Experiment Configuration
+# Extract IR structure from hidden states
+
+model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+# Head architecture options: regression, binned, hybrid
+head_architecture: regression
+
+parameters:
+  # Layer for hidden state extraction
+  decision_layer: 12
+
+  # Model dimensions
+  hidden_dim: 2048
+
+  # For binned classification
+  num_bins: 256
+
+  # Training
+  training_examples: 1000
+  epochs: 10
+  batch_size: 32
+  learning_rate: 1e-3
+
+  # Pooling strategy: last_token, mean, attention
+  pooling: last_token
+
+# Loss weights
+loss_weights:
+  operation: 0.4
+  operand_a: 0.3
+  operand_b: 0.3

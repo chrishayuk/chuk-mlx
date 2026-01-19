@@ -7,7 +7,6 @@ Provides validation, compilation, and execution of generated WASM.
 
 import struct
 from dataclasses import dataclass
-from typing import Optional
 
 # Try to import wasmtime, fall back to pure Python interpreter
 try:
@@ -23,9 +22,9 @@ class ExecutionResult:
     """Result of WASM execution."""
 
     success: bool
-    result: Optional[int] = None
-    error: Optional[str] = None
-    execution_time_us: Optional[float] = None
+    result: int | None = None
+    error: str | None = None
+    execution_time_us: float | None = None
 
 
 class WASMRuntime:
@@ -149,7 +148,7 @@ class WASMRuntime:
 
         return bytes(module)
 
-    def validate(self, wasm_bytes: bytes) -> tuple[bool, Optional[str]]:
+    def validate(self, wasm_bytes: bytes) -> tuple[bool, str | None]:
         """
         Validate WASM module.
 
@@ -383,7 +382,7 @@ if __name__ == "__main__":
     runtime = WASMRuntime()
 
     # Test: 3 + 4
-    from codebook import IRCodebook, IROpcode, CodebookConfig
+    from codebook import CodebookConfig, IRCodebook, IROpcode
 
     config = CodebookConfig(hidden_dim=128)
     codebook = IRCodebook(config)

@@ -43,7 +43,6 @@ from chuk_lazarus.models_v2 import (
     Llama4ForCausalLM,
     Llama4TextConfig,
     count_parameters,
-    print_introspection,
 )
 
 # Preset model configurations
@@ -64,9 +63,7 @@ def download_model(model_id: str, cache_dir: str | None = None) -> Path:
     try:
         from huggingface_hub import list_repo_files, snapshot_download
     except ImportError:
-        raise ImportError(
-            "huggingface_hub not installed. Run: pip install huggingface_hub"
-        )
+        raise ImportError("huggingface_hub not installed. Run: pip install huggingface_hub")
 
     print(f"Downloading {model_id}...")
 
@@ -359,7 +356,7 @@ def generate_text(
     mx.eval(output_ids)
     gen_time = time.time() - start_time
 
-    new_tokens = output_ids[0, input_ids.shape[1]:]
+    new_tokens = output_ids[0, input_ids.shape[1] :]
     generated_text = tokenizer.decode(new_tokens.tolist(), skip_special_tokens=True)
 
     if verbose:
@@ -379,7 +376,7 @@ def test_tiny_model():
 
     # Create tiny config
     config = Llama4TextConfig.tiny()
-    print(f"\nConfig:")
+    print("\nConfig:")
     print(f"  Hidden size: {config.hidden_size}")
     print(f"  Layers: {config.num_hidden_layers}")
     print(f"  Experts: {config.num_local_experts}")

@@ -15,12 +15,10 @@ Usage:
 """
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
-import numpy as np
 
 from chuk_lazarus.inference.loader import DType, HFLoader
 from chuk_lazarus.models_v2.families.registry import detect_model_family, get_family_info
@@ -79,7 +77,7 @@ class AttentionAblationStudy:
         else:
             head = None
 
-        embed_scale = float(self.hidden_size ** 0.5)
+        embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -125,7 +123,7 @@ class AttentionAblationStudy:
             if int(next_token) in [self.tokenizer.eos_token_id, 13, 10]:
                 break
 
-        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)):].tolist()
+        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)) :].tolist()
         return self.tokenizer.decode(output_ids).strip()
 
     def generate_with_head_ablation(
@@ -184,7 +182,7 @@ class AttentionAblationStudy:
             if int(next_token) in [self.tokenizer.eos_token_id, 13, 10]:
                 break
 
-        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)):].tolist()
+        output_ids = input_ids[0, len(self.tokenizer.encode(prompt)) :].tolist()
         return self.tokenizer.decode(output_ids).strip()
 
     def _forward_with_head_ablation(
@@ -198,7 +196,7 @@ class AttentionAblationStudy:
         batch_size, seq_len, _ = h.shape
 
         # Input layernorm
-        if hasattr(layer, 'input_layernorm'):
+        if hasattr(layer, "input_layernorm"):
             h_normed = layer.input_layernorm(h)
         else:
             h_normed = h
@@ -266,21 +264,21 @@ class AttentionAblationStudy:
         attn_output = attn.o_proj(attn_output)
 
         # Post-attention norm (Gemma-specific)
-        if hasattr(layer, 'post_attention_layernorm'):
+        if hasattr(layer, "post_attention_layernorm"):
             attn_output = layer.post_attention_layernorm(attn_output)
 
         # Residual
         h = h + attn_output
 
         # MLP (unchanged)
-        if hasattr(layer, 'pre_feedforward_layernorm'):
+        if hasattr(layer, "pre_feedforward_layernorm"):
             mlp_input = layer.pre_feedforward_layernorm(h)
         else:
             mlp_input = h
 
         mlp_out = layer.mlp(mlp_input)
 
-        if hasattr(layer, 'post_feedforward_layernorm'):
+        if hasattr(layer, "post_feedforward_layernorm"):
             mlp_out = layer.post_feedforward_layernorm(mlp_out)
 
         h = h + mlp_out
@@ -294,8 +292,16 @@ class AttentionAblationStudy:
     ) -> tuple[float, list[dict]]:
         """Test multiplication accuracy with optional head ablation."""
         test_cases = [
-            (2, 3, 6), (3, 4, 12), (5, 6, 30), (7, 8, 56), (9, 9, 81),
-            (4, 7, 28), (6, 8, 48), (3, 9, 27), (5, 5, 25), (8, 9, 72),
+            (2, 3, 6),
+            (3, 4, 12),
+            (5, 6, 30),
+            (7, 8, 56),
+            (9, 9, 81),
+            (4, 7, 28),
+            (6, 8, 48),
+            (3, 9, 27),
+            (5, 5, 25),
+            (8, 9, 72),
         ]
 
         results = []
@@ -316,12 +322,14 @@ class AttentionAblationStudy:
             if is_correct:
                 correct += 1
 
-            results.append({
-                "prompt": prompt,
-                "expected": str(expected),
-                "output": output,
-                "correct": is_correct,
-            })
+            results.append(
+                {
+                    "prompt": prompt,
+                    "expected": str(expected),
+                    "output": output,
+                    "correct": is_correct,
+                }
+            )
 
         accuracy = correct / len(test_cases)
         return accuracy, results
@@ -362,12 +370,14 @@ class AttentionAblationStudy:
                 if drop > 0:
                     print(f"L{layer:<7} H{head:<7} {acc:>10.1%} {drop:>+9.1%}")
 
-                single_results.append({
-                    "layer": layer,
-                    "head": head,
-                    "accuracy": acc,
-                    "drop": drop,
-                })
+                single_results.append(
+                    {
+                        "layer": layer,
+                        "head": head,
+                        "accuracy": acc,
+                        "drop": drop,
+                    }
+                )
 
         # Multi-head ablation
         print("\n3. Multi-head ablation tests...")
@@ -384,7 +394,9 @@ class AttentionAblationStudy:
                 )
                 drop = baseline_acc - acc
                 pct = num_heads / self.num_heads * 100
-                print(f"   L{layer} heads 0-{num_heads-1} ({pct:.0f}%): {acc:.1%} (drop: {drop:+.1%})")
+                print(
+                    f"   L{layer} heads 0-{num_heads - 1} ({pct:.0f}%): {acc:.1%} (drop: {drop:+.1%})"
+                )
 
         # Ablate ALL heads at a layer
         print("\n4. Complete layer attention ablation...")
@@ -399,7 +411,7 @@ class AttentionAblationStudy:
             print(f"   L{layer} ALL {self.num_heads} heads: {acc:.1%} (drop: {drop:+.1%})")
 
             if drop > 0.1:
-                print(f"      Sample outputs:")
+                print("      Sample outputs:")
                 for r in results[:3]:
                     print(f"      {r['prompt']} -> {r['output']}")
 
@@ -413,7 +425,7 @@ class AttentionAblationStudy:
             for num_heads in [4, 8, self.num_heads]:
                 heads = list(range(num_heads))
                 out = self.generate_with_head_ablation(prompt, layer, heads, max_tokens=5)
-                print(f"   L{layer} heads 0-{num_heads-1}: {out}")
+                print(f"   L{layer} heads 0-{num_heads - 1}: {out}")
 
         # Summary
         print("\n" + "=" * 70)

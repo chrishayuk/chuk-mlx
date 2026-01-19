@@ -1,0 +1,42 @@
+[
+  {
+    "name": "gpt-oss-lite-minimal",
+    "num_experts": 4,
+    "num_layers": 24,
+    "total_experts": 96,
+    "reduction_pct": "87.5%",
+    "file_size_gb": 4.554180067963898,
+    "memory_gb": 4.530383892357349,
+    "original_experts": 768
+  },
+  {
+    "name": "gpt-oss-lite-6exp",
+    "num_experts": 6,
+    "num_layers": 24,
+    "total_experts": 144,
+    "reduction_pct": "81.2%",
+    "file_size_gb": 5.146154856309295,
+    "memory_gb": 5.121814645826817,
+    "original_experts": 768
+  },
+  {
+    "name": "gpt-oss-lite-8exp",
+    "num_experts": 8,
+    "num_layers": 24,
+    "total_experts": 192,
+    "reduction_pct": "75.0%",
+    "file_size_gb": 5.738129636272788,
+    "memory_gb": 5.712879188358784,
+    "original_experts": 768
+  },
+  {
+    "name": "gpt-oss-lite-16exp",
+    "num_experts": 16,
+    "num_layers": 24,
+    "total_experts": 384,
+    "reduction_pct": "50.0%",
+    "file_size_gb": 8.106029040180147,
+    "memory_gb": 8.081531889736652,
+    "original_experts": 768
+  }
+]

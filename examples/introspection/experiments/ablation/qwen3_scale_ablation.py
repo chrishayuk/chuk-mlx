@@ -23,13 +23,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import mlx.core as mx
-
 from _loader import load_model
 
 
 @dataclass
 class ModelSpec:
     """Specification for a model to test."""
+
     name: str
     model_id: str
     num_layers: int
@@ -53,38 +53,38 @@ def load_qwen3_model(model_id: str):
 def create_tool_prompt(tokenizer) -> str:
     """Create a tool-calling prompt for Qwen3."""
     # Qwen3 supports tool calling natively with its chat template
-    tools = [{
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "Get current weather for a location",
-            "parameters": {
-                "type": "object",
-                "properties": {"location": {"type": "string", "description": "City name"}},
-                "required": ["location"],
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get current weather for a location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {"location": {"type": "string", "description": "City name"}},
+                    "required": ["location"],
+                },
             },
-        },
-    }]
+        }
+    ]
 
     messages = [
-        {"role": "system", "content": "You are a helpful assistant with access to tools. Use them when appropriate."},
+        {
+            "role": "system",
+            "content": "You are a helpful assistant with access to tools. Use them when appropriate.",
+        },
         {"role": "user", "content": "What's the weather in Tokyo?"},
     ]
 
     try:
         return tokenizer.apply_chat_template(
-            messages,
-            tools=tools,
-            tokenize=False,
-            add_generation_prompt=True
+            messages, tools=tools, tokenize=False, add_generation_prompt=True
         )
     except Exception:
         # Fallback without tools
         try:
             return tokenizer.apply_chat_template(
-                messages,
-                tokenize=False,
-                add_generation_prompt=True
+                messages, tokenize=False, add_generation_prompt=True
             )
         except Exception:
             # Manual fallback
@@ -94,8 +94,14 @@ def create_tool_prompt(tokenizer) -> str:
 def has_tool_call(text: str) -> bool:
     """Check if output contains tool-calling markers."""
     markers = [
-        "get_weather", '{"name":', '"function_call"', "```tool",
-        "<tool_call>", "tool_call", '{"location"', "Tokyo"
+        "get_weather",
+        '{"name":',
+        '"function_call"',
+        "```tool",
+        "<tool_call>",
+        "tool_call",
+        '{"location"',
+        "Tokyo",
     ]
     return any(m.lower() in text.lower() for m in markers)
 
@@ -137,7 +143,7 @@ def generate_with_mlp_ablation(
         layer.mlp.down_proj.weight = original_weight
         mx.eval(layer.mlp.down_proj.weight)
 
-    output_ids = generated[0, input_ids.shape[1]:].tolist()
+    output_ids = generated[0, input_ids.shape[1] :].tolist()
     return tokenizer.decode(output_ids, skip_special_tokens=False)
 
 
@@ -209,8 +215,14 @@ def main():
             results = run_ablation_sweep(model, tokenizer, prompt, spec.num_layers)
 
             # Find causal layers
-            causal_layers = [l for l, data in results["layers"].items() if data["changed"] and data["coherent"]]
-            causal_broken = [l for l, data in results["layers"].items() if data["changed"] and not data["coherent"]]
+            causal_layers = [
+                l for l, data in results["layers"].items() if data["changed"] and data["coherent"]
+            ]
+            causal_broken = [
+                l
+                for l, data in results["layers"].items()
+                if data["changed"] and not data["coherent"]
+            ]
 
             print(f"\n  Causal layers (coherent): {causal_layers}")
             print(f"  Causal layers (broken): {causal_broken}")
@@ -225,7 +237,9 @@ def main():
                 "original_has_tool": results["original_has_tool"],
                 "causal_layers": causal_layers,
                 "causal_broken": causal_broken,
-                "relative_positions": [l / spec.num_layers for l in causal_layers] if causal_layers else [],
+                "relative_positions": [l / spec.num_layers for l in causal_layers]
+                if causal_layers
+                else [],
                 "layers": results["layers"],
             }
 
@@ -236,6 +250,7 @@ def main():
         except Exception as e:
             print(f"  ERROR: {e}")
             import traceback
+
             traceback.print_exc()
             all_results[spec.name] = {"error": str(e)}
 
@@ -255,7 +270,11 @@ def main():
         layers = data["num_layers"]
         has_tool = "Yes" if data["original_has_tool"] else "No"
         causal = str(data["causal_layers"]) if data["causal_layers"] else "None"
-        relative = ", ".join([f"{p:.0%}" for p in data["relative_positions"]]) if data["relative_positions"] else "-"
+        relative = (
+            ", ".join([f"{p:.0%}" for p in data["relative_positions"]])
+            if data["relative_positions"]
+            else "-"
+        )
 
         print(f"{name:<20} {layers:<8} {has_tool:<8} {causal:<25} {relative:<25}")
 

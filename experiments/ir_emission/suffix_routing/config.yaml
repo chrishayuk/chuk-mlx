@@ -1,0 +1,54 @@
+# Suffix Routing Experiment Configuration
+# Tests if suffix routing is architectural or learned
+
+models:
+  tinyllama:
+    name: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+    type: instruct
+    expected_routing: true
+  gpt2:
+    name: gpt2
+    type: base
+    expected_routing: false
+  gpt2_medium:
+    name: gpt2-medium
+    type: base
+    expected_routing: false
+
+# Test cases organized by category
+test_cases:
+  # Same content, different suffix
+  suffix_swap:
+    - text: "15 > 10 ="
+      expected_instruct: "5"    # Arithmetic mode
+    - text: "15 > 10 is"
+      expected_instruct: "1"    # Boolean mode
+
+  # Invalid content, valid suffix
+  garbage:
+    - text: "foo bar ="
+      expected_instruct: "numeric"
+    - text: "15 10 ="
+      expected_instruct: "numeric"
+    - text: "="
+      expected_instruct: "numeric"
+
+  # Standard arithmetic
+  arithmetic:
+    - text: "2 + 2 ="
+      expected: "4"
+    - text: "5 + 3 ="
+      expected: "8"
+    - text: "10 - 7 ="
+      expected: "3"
+    - text: "15 - 10 ="
+      expected: "5"
+
+  # Comparison tests
+  comparisons:
+    - text: "15 > 10 ="
+      routing_interpretation: "subtraction"
+    - text: "10 > 15 ="
+      routing_interpretation: "subtraction_clipped"
+    - text: "5 > 5 ="
+      routing_interpretation: "zero"

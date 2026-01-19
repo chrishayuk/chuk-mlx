@@ -12,14 +12,15 @@ Run: uv run python examples/introspection/gemma_tool_probe.py
 """
 
 import json
-import numpy as np
+import warnings
+
 import mlx.core as mx
 import mlx.nn as nn
-from sklearn.linear_model import LogisticRegression
+import numpy as np
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 def format_tool_prompt(query: str) -> str:
@@ -45,8 +46,8 @@ class GemmaToolProbe:
 
     def __init__(self):
         self.models = {
-            'base': 'mlx-community/gemma-3-270m-it-bf16',
-            'function': 'mlx-community/functiongemma-270m-it-bf16',
+            "base": "mlx-community/gemma-3-270m-it-bf16",
+            "function": "mlx-community/functiongemma-270m-it-bf16",
         }
         self.results = {}
 
@@ -57,17 +58,17 @@ class GemmaToolProbe:
 
         study = AblationStudy.from_pretrained(model_id)
         return {
-            'model': study.adapter.model,
-            'tokenizer': study.adapter.tokenizer,
-            'config': study.adapter.config,
-            'layers': study.adapter.model.model.layers,
-            'num_layers': len(study.adapter.model.model.layers),
+            "model": study.adapter.model,
+            "tokenizer": study.adapter.tokenizer,
+            "config": study.adapter.config,
+            "layers": study.adapter.model.model.layers,
+            "num_layers": len(study.adapter.model.model.layers),
         }
 
     def get_layer_activations(self, model_data: dict, prompt: str, layer_idx: int) -> np.ndarray:
         """Get activations at a specific layer."""
-        model = model_data['model']
-        tokenizer = model_data['tokenizer']
+        model = model_data["model"]
+        tokenizer = model_data["tokenizer"]
 
         tokens = tokenizer.encode(prompt)
         if isinstance(tokens, np.ndarray):
@@ -76,16 +77,16 @@ class GemmaToolProbe:
         input_ids = mx.array([tokens])
 
         h = model.model.embed_tokens(input_ids)
-        hidden_size = model_data['config'].hidden_size
-        h = h * mx.array(hidden_size ** 0.5, dtype=h.dtype)
+        hidden_size = model_data["config"].hidden_size
+        h = h * mx.array(hidden_size**0.5, dtype=h.dtype)
 
         seq_len = h.shape[1]
         mask = nn.MultiHeadAttention.create_additive_causal_mask(seq_len)
         mask = mask.astype(h.dtype)
 
-        for i, layer in enumerate(model_data['layers']):
+        for i, layer in enumerate(model_data["layers"]):
             output = layer(h, mask=mask, cache=None)
-            if hasattr(output, 'hidden_states'):
+            if hasattr(output, "hidden_states"):
                 h = output.hidden_states
             elif isinstance(output, tuple):
                 h = output[0]
@@ -99,9 +100,9 @@ class GemmaToolProbe:
 
     def run_tool_probe(self, model_data: dict, model_name: str):
         """Run probe on tool-calling task."""
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"TOOL-CALLING PROBE: {model_name}")
-        print('='*60)
+        print("=" * 60)
 
         # Prompts that SHOULD trigger tool calls
         tool_prompts = [
@@ -127,7 +128,7 @@ class GemmaToolProbe:
             "Why is the sky blue?",
         ]
 
-        num_layers = model_data['num_layers']
+        num_layers = model_data["num_layers"]
         accuracies = []
         separations = []
 
@@ -170,7 +171,7 @@ class GemmaToolProbe:
         mid_acc = np.mean(accuracies[5:10])
         late_acc = np.mean(accuracies[-5:])
 
-        print(f"\nU-shape check:")
+        print("\nU-shape check:")
         print(f"  Early (L0-2):  {early_acc:.1%}")
         print(f"  Middle (L5-9): {mid_acc:.1%}")
         print(f"  Late (L13-17): {late_acc:.1%}")
@@ -179,7 +180,7 @@ class GemmaToolProbe:
         if mid_acc < early_acc - 0.05 and late_acc > mid_acc + 0.05:
             print("  → U-SHAPE DETECTED!")
             u_shape = True
-        elif all(accuracies[i] <= accuracies[i+1] + 0.02 for i in range(len(accuracies)-1)):
+        elif all(accuracies[i] <= accuracies[i + 1] + 0.02 for i in range(len(accuracies) - 1)):
             print("  → MONOTONIC (no dip)")
             u_shape = False
         else:
@@ -187,19 +188,19 @@ class GemmaToolProbe:
             u_shape = False
 
         return {
-            'accuracies': accuracies,
-            'separations': separations,
-            'early_acc': early_acc,
-            'mid_acc': mid_acc,
-            'late_acc': late_acc,
-            'u_shape': u_shape,
+            "accuracies": accuracies,
+            "separations": separations,
+            "early_acc": early_acc,
+            "mid_acc": mid_acc,
+            "late_acc": late_acc,
+            "u_shape": u_shape,
         }
 
     def run_pca_at_key_layers(self, model_data: dict, model_name: str):
         """Check PCA at multiple layers."""
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"PCA ANALYSIS: {model_name}")
-        print('='*60)
+        print("=" * 60)
 
         tool_prompts = [
             "What is the weather in Tokyo?",
@@ -269,8 +270,8 @@ class GemmaToolProbe:
             pca_results = self.run_pca_at_key_layers(model_data, name)
 
             self.results[name] = {
-                'probe': probe_results,
-                'pca': pca_results,
+                "probe": probe_results,
+                "pca": pca_results,
             }
 
         # Final comparison
@@ -278,28 +279,40 @@ class GemmaToolProbe:
         print("COMPARISON SUMMARY")
         print("=" * 60)
 
-        base = self.results['base']
-        func = self.results['function']
+        base = self.results["base"]
+        func = self.results["function"]
 
         print("\n┌────────────────────────────────────────────────────────┐")
         print("│                    BASE GEMMA                           │")
         print("├────────────────────────────────────────────────────────┤")
-        print(f"│  U-shape: {'YES' if base['probe']['u_shape'] else 'NO':4s}                                        │")
-        print(f"│  Early acc: {base['probe']['early_acc']:.1%}                                     │")
+        print(
+            f"│  U-shape: {'YES' if base['probe']['u_shape'] else 'NO':4s}                                        │"
+        )
+        print(
+            f"│  Early acc: {base['probe']['early_acc']:.1%}                                     │"
+        )
         print(f"│  Mid acc:   {base['probe']['mid_acc']:.1%}                                     │")
-        print(f"│  Late acc:  {base['probe']['late_acc']:.1%}                                     │")
-        if 11 in base['pca']:
+        print(
+            f"│  Late acc:  {base['probe']['late_acc']:.1%}                                     │"
+        )
+        if 11 in base["pca"]:
             print(f"│  L11 PC1:   {base['pca'][11]:.1%}                                     │")
         print("└────────────────────────────────────────────────────────┘")
 
         print("\n┌────────────────────────────────────────────────────────┐")
         print("│                    FUNCTIONGEMMA                        │")
         print("├────────────────────────────────────────────────────────┤")
-        print(f"│  U-shape: {'YES' if func['probe']['u_shape'] else 'NO':4s}                                        │")
-        print(f"│  Early acc: {func['probe']['early_acc']:.1%}                                     │")
+        print(
+            f"│  U-shape: {'YES' if func['probe']['u_shape'] else 'NO':4s}                                        │"
+        )
+        print(
+            f"│  Early acc: {func['probe']['early_acc']:.1%}                                     │"
+        )
         print(f"│  Mid acc:   {func['probe']['mid_acc']:.1%}                                     │")
-        print(f"│  Late acc:  {func['probe']['late_acc']:.1%}                                     │")
-        if 11 in func['pca']:
+        print(
+            f"│  Late acc:  {func['probe']['late_acc']:.1%}                                     │"
+        )
+        if 11 in func["pca"]:
             print(f"│  L11 PC1:   {func['pca'][11]:.1%}                                     │")
         print("└────────────────────────────────────────────────────────┘")
 
@@ -308,36 +321,38 @@ class GemmaToolProbe:
         print("HYPOTHESIS VERDICT")
         print("=" * 60)
 
-        if func['probe']['u_shape'] and not base['probe']['u_shape']:
+        if func["probe"]["u_shape"] and not base["probe"]["u_shape"]:
             print("\n✓ U-SHAPE: Only FunctionGemma has it → from tool-training!")
-        elif func['probe']['u_shape'] and base['probe']['u_shape']:
+        elif func["probe"]["u_shape"] and base["probe"]["u_shape"]:
             print("\n✗ Both have U-shape → architectural, not training-specific")
-        elif not func['probe']['u_shape'] and not base['probe']['u_shape']:
+        elif not func["probe"]["u_shape"] and not base["probe"]["u_shape"]:
             print("\n? Neither has U-shape on this task")
         else:
             print("\n? Unexpected: base has U-shape but function doesn't")
 
         # Check PC1 difference
-        if 11 in base['pca'] and 11 in func['pca']:
-            base_pc1 = base['pca'][11]
-            func_pc1 = func['pca'][11]
+        if 11 in base["pca"] and 11 in func["pca"]:
+            base_pc1 = base["pca"][11]
+            func_pc1 = func["pca"][11]
 
             if func_pc1 > base_pc1 + 0.15:
-                print(f"\n✓ 1D DECISION: FunctionGemma L11 is more 1D ({func_pc1:.1%} vs {base_pc1:.1%})")
+                print(
+                    f"\n✓ 1D DECISION: FunctionGemma L11 is more 1D ({func_pc1:.1%} vs {base_pc1:.1%})"
+                )
                 print("  → Tool-training compressed decision to 1D!")
             elif abs(func_pc1 - base_pc1) < 0.1:
-                print(f"\n≈ Similar PC1: both ~{(func_pc1+base_pc1)/2:.1%}")
+                print(f"\n≈ Similar PC1: both ~{(func_pc1 + base_pc1) / 2:.1%}")
             else:
                 print(f"\n? Base has higher PC1: {base_pc1:.1%} vs {func_pc1:.1%}")
 
         # Save results
-        with open('gemma_tool_comparison.json', 'w') as f:
+        with open("gemma_tool_comparison.json", "w") as f:
             json_results = {
                 name: {
-                    'accuracies': data['probe']['accuracies'],
-                    'separations': data['probe']['separations'],
-                    'u_shape': data['probe']['u_shape'],
-                    'pca': {str(k): v for k, v in data['pca'].items()},
+                    "accuracies": data["probe"]["accuracies"],
+                    "separations": data["probe"]["separations"],
+                    "u_shape": data["probe"]["u_shape"],
+                    "pca": {str(k): v for k, v in data["pca"].items()},
                 }
                 for name, data in self.results.items()
             }

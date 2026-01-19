@@ -1,0 +1,100 @@
+{"q": "Start with 42. Remove 15. Sell rest for $2 each. How much?", "expr": "42 - 15 =\n_ * 2 =\n[END]", "ans": 54, "pattern": "subtract_multiply"}
+{"q": "Sara has 40 pencils. Uses 12. Sells rest at $2 each. Revenue?", "expr": "40 - 12 =\n_ * 2 =\n[END]", "ans": 56, "pattern": "subtract_multiply"}
+{"q": "Amy has 58 cookies. Loses 11. Later gives away 10. Left?", "expr": "58 - 11 =\n_ - 10 =\n[END]", "ans": 37, "pattern": "subtract_subtract"}
+{"q": "Has 8 groups of 10. Takes 6 away. Divides remaining among 2. How many each?", "expr": "8 * 10 =\n_ - 6 =\n_ / 2 =\n[END]", "ans": 37, "pattern": "multiply_subtract_divide"}
+{"q": "7 stacks with 7 cards each. Split among 7 people. Each gets?", "expr": "7 * 7 =\n_ / 7 =\n[END]", "ans": 7, "pattern": "multiply_divide"}
+{"q": "Has 11. Gets 25 more. Total?", "expr": "11 + 25 =\n[END]", "ans": 36, "pattern": "single_add"}
+{"q": "Has 7 groups of 12. Divides equally among 2. How many each?", "expr": "7 * 12 =\n_ / 2 =\n[END]", "ans": 42, "pattern": "multiply_divide"}
+{"q": "Has 79. Loses 6, loses 19. How many left?", "expr": "79 - 6 =\n_ - 19 =\n[END]", "ans": 54, "pattern": "subtract_subtract"}
+{"q": "Has 80. Loses 11, loses 13. How many left?", "expr": "80 - 11 =\n_ - 13 =\n[END]", "ans": 56, "pattern": "subtract_subtract"}
+{"q": "Has 37. Gains 15. Spends 16. Left?", "expr": "37 + 15 =\n_ - 16 =\n[END]", "ans": 36, "pattern": "add_subtract"}
+{"q": "Zoe has 93 points. Loses 20. Then loses 7 more. Sells rest at $2 each. Revenue?", "expr": "93 - 20 =\n_ - 7 =\n_ * 2 =\n[END]", "ans": 132, "pattern": "subtract_subtract_multiply"}
+{"q": "Has 39. Uses 7. Sells remaining at $3 each. Total earned?", "expr": "39 - 7 =\n_ * 3 =\n[END]", "ans": 96, "pattern": "subtract_multiply"}
+{"q": "Lisa splits 54 balls equally among 9 friends. Each gets?", "expr": "54 / 9 =\n[END]", "ans": 6, "pattern": "single_divide"}
+{"q": "Has 14. Gets 31 more. Total?", "expr": "14 + 31 =\n[END]", "ans": 45, "pattern": "single_add"}
+{"q": "8 groups of 5. Takes away 11. How many left?", "expr": "8 * 5 =\n_ - 11 =\n[END]", "ans": 29, "pattern": "multiply_subtract"}
+{"q": "Start with 85. Eats 13. Then spends 19 more. Remaining?", "expr": "85 - 13 =\n_ - 19 =\n[END]", "ans": 53, "pattern": "subtract_subtract"}
+{"q": "8 groups with 10 flowers each. Split among 5 people. Each gets?", "expr": "8 * 10 =\n_ / 5 =\n[END]", "ans": 16, "pattern": "multiply_divide"}
+{"q": "Start with 45. Add 13. Remove 41. Remaining?", "expr": "45 + 13 =\n_ - 41 =\n[END]", "ans": 17, "pattern": "add_subtract"}
+{"q": "Has 9 trays. Each has 15 coins. Total?", "expr": "9 * 15 =\n[END]", "ans": 135, "pattern": "single_multiply"}
+{"q": "Has 10 packs. Each has 11 apples. Total?", "expr": "10 * 11 =\n[END]", "ans": 110, "pattern": "single_multiply"}
+{"q": "Has 7 groups of 8. Divides equally among 2. How many each?", "expr": "7 * 8 =\n_ / 2 =\n[END]", "ans": 28, "pattern": "multiply_divide"}
+{"q": "9 groups of 6. Takes away 14. How many left?", "expr": "9 * 6 =\n_ - 14 =\n[END]", "ans": 40, "pattern": "multiply_subtract"}
+{"q": "Has 45. Uses 7. Sells remaining at $2 each. Total earned?", "expr": "45 - 7 =\n_ * 2 =\n[END]", "ans": 76, "pattern": "subtract_multiply"}
+{"q": "6 stacks with 14 cookies each. Total cookies?", "expr": "6 * 14 =\n[END]", "ans": 84, "pattern": "single_multiply"}
+{"q": "Share 16 items with 4 people. How many each?", "expr": "16 / 4 =\n[END]", "ans": 4, "pattern": "single_divide"}
+{"q": "Sam has 91 marbles and uses 10. Left?", "expr": "91 - 10 =\n[END]", "ans": 81, "pattern": "single_subtract"}
+{"q": "Start with 25 coins and gets 36. How many now?", "expr": "25 + 36 =\n[END]", "ans": 61, "pattern": "single_add"}
+{"q": "Start with 55. Remove 7. Sell rest for $5 each. How much?", "expr": "55 - 7 =\n_ * 5 =\n[END]", "ans": 240, "pattern": "subtract_multiply"}
+{"q": "Lisa splits 120 apples equally among 8 friends. Each gets?", "expr": "120 / 8 =\n[END]", "ans": 15, "pattern": "single_divide"}
+{"q": "Start with 73. Lose 61. Left?", "expr": "73 - 61 =\n[END]", "ans": 12, "pattern": "single_subtract"}
+{"q": "Start with 78. Uses 17. Then spends 13 more. Remaining?", "expr": "78 - 17 =\n_ - 13 =\n[END]", "ans": 48, "pattern": "subtract_subtract"}
+{"q": "Start with 38 books and picks up 10. How many now?", "expr": "38 + 10 =\n[END]", "ans": 48, "pattern": "single_add"}
+{"q": "Share 15 items with 3 people. How many each?", "expr": "15 / 3 =\n[END]", "ans": 5, "pattern": "single_divide"}
+{"q": "7 rows with 14 balls each. Total balls?", "expr": "7 * 14 =\n[END]", "ans": 98, "pattern": "single_multiply"}
+{"q": "Maria has 55 toys. Uses 13. Sells rest at $3 each. Revenue?", "expr": "55 - 13 =\n_ * 3 =\n[END]", "ans": 126, "pattern": "subtract_multiply"}
+{"q": "Has 10 jars. Each has 14 stamps. Total?", "expr": "10 * 14 =\n[END]", "ans": 140, "pattern": "single_multiply"}
+{"q": "Has 10 shelfs with 10 each. Uses 74. Left?", "expr": "10 * 10 =\n_ - 74 =\n[END]", "ans": 26, "pattern": "multiply_subtract"}
+{"q": "Has 8 groups of 8. Takes 5 away. Divides remaining among 1. How many each?", "expr": "8 * 8 =\n_ - 5 =\n_ / 1 =\n[END]", "ans": 59, "pattern": "multiply_subtract_divide"}
+{"q": "12 crates with 12 coins each. Total coins?", "expr": "12 * 12 =\n[END]", "ans": 144, "pattern": "single_multiply"}
+{"q": "Has 12. Gets 21 more. Total?", "expr": "12 + 21 =\n[END]", "ans": 33, "pattern": "single_add"}
+{"q": "10 rows of 5. Total?", "expr": "10 * 5 =\n[END]", "ans": 50, "pattern": "single_multiply"}
+{"q": "7 piles with 12 cards each. Split among 4 people. Each gets?", "expr": "7 * 12 =\n_ / 4 =\n[END]", "ans": 21, "pattern": "multiply_divide"}
+{"q": "Evan has 85 apples. Breaks 15, then breaks 9. Left?", "expr": "85 - 15 =\n_ - 9 =\n[END]", "ans": 61, "pattern": "subtract_subtract"}
+{"q": "Ben has 46 cards. Ben gets 18 more. Total?", "expr": "46 + 18 =\n[END]", "ans": 64, "pattern": "single_add"}
+{"q": "Has 5 groups of 8. Takes 10 away. Divides remaining among 2. How many each?", "expr": "5 * 8 =\n_ - 10 =\n_ / 2 =\n[END]", "ans": 15, "pattern": "multiply_subtract_divide"}
+{"q": "Start with 60. Lose 31. Left?", "expr": "60 - 31 =\n[END]", "ans": 29, "pattern": "single_subtract"}
+{"q": "Lisa has 31 coins. Lisa earns 37 more. Total?", "expr": "31 + 37 =\n[END]", "ans": 68, "pattern": "single_add"}
+{"q": "Has 31. Uses 7. Sells remaining at $5 each. Total earned?", "expr": "31 - 7 =\n_ * 5 =\n[END]", "ans": 120, "pattern": "subtract_multiply"}
+{"q": "Ryan has 68 stickers and gives away 35. Left?", "expr": "68 - 35 =\n[END]", "ans": 33, "pattern": "single_subtract"}
+{"q": "8 groups of 8. Takes away 43. How many left?", "expr": "8 * 8 =\n_ - 43 =\n[END]", "ans": 21, "pattern": "multiply_subtract"}
+{"q": "8 piles with 10 stickers each. Split among 8 people. Each gets?", "expr": "8 * 10 =\n_ / 8 =\n[END]", "ans": 10, "pattern": "multiply_divide"}
+{"q": "5 sets with 10 eggs each. Split among 2 people. Each gets?", "expr": "5 * 10 =\n_ / 2 =\n[END]", "ans": 25, "pattern": "multiply_divide"}
+{"q": "Has 5 crates with 7 each. Uses 20. Left?", "expr": "5 * 7 =\n_ - 20 =\n[END]", "ans": 15, "pattern": "multiply_subtract"}
+{"q": "Start with 42. Lose 26. Left?", "expr": "42 - 26 =\n[END]", "ans": 16, "pattern": "single_subtract"}
+{"q": "Jake has 5 rows of 8. Removes 5. Remaining?", "expr": "5 * 8 =\n_ - 5 =\n[END]", "ans": 35, "pattern": "multiply_subtract"}
+{"q": "Emma has 98 candys. Uses 13, then eats 15. Left?", "expr": "98 - 13 =\n_ - 15 =\n[END]", "ans": 70, "pattern": "subtract_subtract"}
+{"q": "Has 62. Loses 20, loses 10. How many left?", "expr": "62 - 20 =\n_ - 10 =\n[END]", "ans": 32, "pattern": "subtract_subtract"}
+{"q": "Start with 93. Lose 15. Left?", "expr": "93 - 15 =\n[END]", "ans": 78, "pattern": "single_subtract"}
+{"q": "Evan has 10 rows of 7. Removes 53. Remaining?", "expr": "10 * 7 =\n_ - 53 =\n[END]", "ans": 17, "pattern": "multiply_subtract"}
+{"q": "Ryan has 56 stickers. Uses 15. Later drops 7. Left?", "expr": "56 - 15 =\n_ - 7 =\n[END]", "ans": 34, "pattern": "subtract_subtract"}
+{"q": "Has 4 rows with 9 each. Uses 23. Left?", "expr": "4 * 9 =\n_ - 23 =\n[END]", "ans": 13, "pattern": "multiply_subtract"}
+{"q": "Has 6 groups of 10. Takes 7 away. Divides remaining among 1. How many each?", "expr": "6 * 10 =\n_ - 7 =\n_ / 1 =\n[END]", "ans": 53, "pattern": "multiply_subtract_divide"}
+{"q": "7 rows of 11 beads. Removes 13. Splits rest among 2 people. Each gets?", "expr": "7 * 11 =\n_ - 13 =\n_ / 2 =\n[END]", "ans": 32, "pattern": "multiply_subtract_divide"}
+{"q": "Ryan splits 75 beads equally among 5 friends. Each gets?", "expr": "75 / 5 =\n[END]", "ans": 15, "pattern": "single_divide"}
+{"q": "Has 76. Loses 19, loses 12. Sells remaining at $4 each. Total?", "expr": "76 - 19 =\n_ - 12 =\n_ * 4 =\n[END]", "ans": 180, "pattern": "subtract_subtract_multiply"}
+{"q": "Start with 36. Lose 13. Left?", "expr": "36 - 13 =\n[END]", "ans": 23, "pattern": "single_subtract"}
+{"q": "Has 84. Loses 12, loses 5. Sells remaining at $2 each. Total?", "expr": "84 - 12 =\n_ - 5 =\n_ * 2 =\n[END]", "ans": 134, "pattern": "subtract_subtract_multiply"}
+{"q": "Ryan has 32 oranges. Ryan picks up 6 more. Total?", "expr": "32 + 6 =\n[END]", "ans": 38, "pattern": "single_add"}
+{"q": "Has 71. Loses 13, loses 15. Sells remaining at $3 each. Total?", "expr": "71 - 13 =\n_ - 15 =\n_ * 3 =\n[END]", "ans": 129, "pattern": "subtract_subtract_multiply"}
+{"q": "Has 12 groups. Each has 8 cards. Total?", "expr": "12 * 8 =\n[END]", "ans": 96, "pattern": "single_multiply"}
+{"q": "Mia has 9 rows of 5. Removes 27. Remaining?", "expr": "9 * 5 =\n_ - 27 =\n[END]", "ans": 18, "pattern": "multiply_subtract"}
+{"q": "Has 37. Gains 21. Spends 50. Left?", "expr": "37 + 21 =\n_ - 50 =\n[END]", "ans": 8, "pattern": "add_subtract"}
+{"q": "Maria has 100 shells. Loses 13. Later breaks 16. Left?", "expr": "100 - 13 =\n_ - 16 =\n[END]", "ans": 71, "pattern": "subtract_subtract"}
+{"q": "9 piles with 8 coins each. Total coins?", "expr": "9 * 8 =\n[END]", "ans": 72, "pattern": "single_multiply"}
+{"q": "Has 6 groups of 8. Takes 11 away. Divides remaining among 1. How many each?", "expr": "6 * 8 =\n_ - 11 =\n_ / 1 =\n[END]", "ans": 37, "pattern": "multiply_subtract_divide"}
+{"q": "Share 40 items with 5 people. How many each?", "expr": "40 / 5 =\n[END]", "ans": 8, "pattern": "single_divide"}
+{"q": "Has 6 trays with 12 each. Uses 35. Left?", "expr": "6 * 12 =\n_ - 35 =\n[END]", "ans": 37, "pattern": "multiply_subtract"}
+{"q": "5 rows of 11 apples. Removes 15. Splits rest among 2 people. Each gets?", "expr": "5 * 11 =\n_ - 15 =\n_ / 2 =\n[END]", "ans": 20, "pattern": "multiply_subtract_divide"}
+{"q": "Zoe has 81 coins. Loses 15. Later uses 9. Left?", "expr": "81 - 15 =\n_ - 9 =\n[END]", "ans": 57, "pattern": "subtract_subtract"}
+{"q": "Divide 55 rocks among 5 people. Each gets?", "expr": "55 / 5 =\n[END]", "ans": 11, "pattern": "single_divide"}
+{"q": "Has 100. Loses 14, loses 9. Sells remaining at $4 each. Total?", "expr": "100 - 14 =\n_ - 9 =\n_ * 4 =\n[END]", "ans": 308, "pattern": "subtract_subtract_multiply"}
+{"q": "Has 10 trays. Each has 8 marbles. Total?", "expr": "10 * 8 =\n[END]", "ans": 80, "pattern": "single_multiply"}
+{"q": "Has 76 balls. Gives away 26. How many remain?", "expr": "76 - 26 =\n[END]", "ans": 50, "pattern": "single_subtract"}
+{"q": "Has 25 apples. Breaks 19. How many remain?", "expr": "25 - 19 =\n[END]", "ans": 6, "pattern": "single_subtract"}
+{"q": "Mike has 86 oranges. Loses 13. Then loses 14 more. Sells rest at $3 each. Revenue?", "expr": "86 - 13 =\n_ - 14 =\n_ * 3 =\n[END]", "ans": 177, "pattern": "subtract_subtract_multiply"}
+{"q": "Kate has 6 rows of 7. Removes 10. Remaining?", "expr": "6 * 7 =\n_ - 10 =\n[END]", "ans": 32, "pattern": "multiply_subtract"}
+{"q": "7 rows of 12 stamps. Removes 11. Splits rest among 1 people. Each gets?", "expr": "7 * 12 =\n_ - 11 =\n_ / 1 =\n[END]", "ans": 73, "pattern": "multiply_subtract_divide"}
+{"q": "4 rows of 7. Total?", "expr": "4 * 7 =\n[END]", "ans": 28, "pattern": "single_multiply"}
+{"q": "Divide 20 cookies among 5 people. Each gets?", "expr": "20 / 5 =\n[END]", "ans": 4, "pattern": "single_divide"}
+{"q": "Anna has 17 toys. Anna earns 10 more. Total?", "expr": "17 + 10 =\n[END]", "ans": 27, "pattern": "single_add"}
+{"q": "Has 4 groups of 6. Divides equally among 3. How many each?", "expr": "4 * 6 =\n_ / 3 =\n[END]", "ans": 8, "pattern": "multiply_divide"}
+{"q": "Has 6 groups of 10. Takes 12 away. Divides remaining among 2. How many each?", "expr": "6 * 10 =\n_ - 12 =\n_ / 2 =\n[END]", "ans": 24, "pattern": "multiply_subtract_divide"}
+{"q": "Has 8 groups of 7. Divides equally among 2. How many each?", "expr": "8 * 7 =\n_ / 2 =\n[END]", "ans": 28, "pattern": "multiply_divide"}
+{"q": "Zoe has 77 coins. Gives away 7. Later drops 9. Left?", "expr": "77 - 7 =\n_ - 9 =\n[END]", "ans": 61, "pattern": "subtract_subtract"}
+{"q": "Start with 11 coins and collects 36. How many now?", "expr": "11 + 36 =\n[END]", "ans": 47, "pattern": "single_add"}
+{"q": "5 groups of 11. Takes away 17. How many left?", "expr": "5 * 11 =\n_ - 17 =\n[END]", "ans": 38, "pattern": "multiply_subtract"}
+{"q": "Maria has 12 eggs. Maria earns 17 more. Total?", "expr": "12 + 17 =\n[END]", "ans": 29, "pattern": "single_add"}
+{"q": "Has 49. Gets 20 more. Total?", "expr": "49 + 20 =\n[END]", "ans": 69, "pattern": "single_add"}
+{"q": "5 jars with 8 apples each. Split among 8 people. Each gets?", "expr": "5 * 8 =\n_ / 8 =\n[END]", "ans": 5, "pattern": "multiply_divide"}
+{"q": "10 boxs with 8 shells each. Sells 9. Left?", "expr": "10 * 8 =\n_ - 9 =\n[END]", "ans": 71, "pattern": "multiply_subtract"}

@@ -18,7 +18,6 @@ from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
-
 from _loader import format_tool_prompt, load_chat_template, load_model
 
 # Default model pairs
@@ -33,6 +32,7 @@ DEFAULT_PAIRS = {
 @dataclass
 class HeadDivergence:
     """Divergence metrics for a specific attention head."""
+
     layer: int
     head: int
     prompt_type: str
@@ -70,9 +70,9 @@ def compute_attention_weights(model, input_ids: mx.array, layer_idx: int) -> mx.
     keys = keys.transpose(0, 2, 1, 3)
 
     # Apply Q/K norms if available
-    if hasattr(attn, 'q_norm'):
+    if hasattr(attn, "q_norm"):
         queries = attn.q_norm(queries)
-    if hasattr(attn, 'k_norm'):
+    if hasattr(attn, "k_norm"):
         keys = attn.k_norm(keys)
 
     # Apply RoPE
@@ -80,7 +80,7 @@ def compute_attention_weights(model, input_ids: mx.array, layer_idx: int) -> mx.
     keys = attn.rope(keys)
 
     # Repeat KV heads for GQA
-    if hasattr(attn, 'n_rep') and attn.n_rep > 1:
+    if hasattr(attn, "n_rep") and attn.n_rep > 1:
         keys = mx.repeat(keys, attn.n_rep, axis=1)
 
     # Compute attention scores
@@ -136,13 +136,15 @@ def compare_attention_heads(
             norm_f = float(mx.sqrt(mx.sum(ft_head * ft_head)))
             cos_sim = dot / (norm_b * norm_f + 1e-8)
 
-            divergences.append(HeadDivergence(
-                layer=layer_idx,
-                head=head_idx,
-                prompt_type=prompt_type,
-                js_divergence=js_div,
-                cosine_similarity=cos_sim,
-            ))
+            divergences.append(
+                HeadDivergence(
+                    layer=layer_idx,
+                    head=head_idx,
+                    prompt_type=prompt_type,
+                    js_divergence=js_div,
+                    cosine_similarity=cos_sim,
+                )
+            )
 
     return divergences
 
@@ -171,8 +173,14 @@ def main():
     template = load_chat_template(ft_id)
 
     num_layers = ft_config.num_hidden_layers
-    layers_to_analyze = [0, int(num_layers * 0.5), int(num_layers * 0.6),
-                         int(num_layers * 0.8), num_layers - 2, num_layers - 1]
+    layers_to_analyze = [
+        0,
+        int(num_layers * 0.5),
+        int(num_layers * 0.6),
+        int(num_layers * 0.8),
+        num_layers - 2,
+        num_layers - 1,
+    ]
     layers_to_analyze = sorted(set(layers_to_analyze))
 
     print(f"\nAnalyzing layers: {layers_to_analyze}")
@@ -184,14 +192,20 @@ def main():
     }
 
     if template:
-        tools = [{
-            "type": "function",
-            "function": {
-                "name": "get_weather",
-                "description": "Get weather",
-                "parameters": {"type": "object", "properties": {"location": {"type": "string"}}, "required": ["location"]},
-            },
-        }]
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_weather",
+                    "description": "Get weather",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                        "required": ["location"],
+                    },
+                },
+            }
+        ]
         for query in ["What is the weather in Tokyo?", "Tell me the weather in London"]:
             test_prompts["tool_explicit"].append(format_tool_prompt(template, query, tools))
 
@@ -200,7 +214,9 @@ def main():
     for prompt_type, prompts in test_prompts.items():
         print(f"\nProcessing {prompt_type} ({len(prompts)} prompts)...")
         for prompt in prompts:
-            divs = compare_attention_heads(base_model, ft_model, ft_tokenizer, prompt, prompt_type, layers_to_analyze)
+            divs = compare_attention_heads(
+                base_model, ft_model, ft_tokenizer, prompt, prompt_type, layers_to_analyze
+            )
             all_divergences.extend(divs)
 
     # Summary
@@ -222,13 +238,22 @@ def main():
             layer_divs = [d for d in pt_divs if d.layer == layer]
             for d in sorted(layer_divs, key=lambda x: x.js_divergence, reverse=True)[:3]:
                 marker = " ***" if d.js_divergence > 0.1 else ""
-                print(f"{d.layer:<8} {d.head:<8} {d.js_divergence:>12.6f} {d.cosine_similarity:>12.4f}{marker}")
+                print(
+                    f"{d.layer:<8} {d.head:<8} {d.js_divergence:>12.6f} {d.cosine_similarity:>12.4f}{marker}"
+                )
 
     # Save results
     output_path = Path("attention_divergence_results.json")
-    results = [{"layer": d.layer, "head": d.head, "prompt_type": d.prompt_type,
-                "js_divergence": d.js_divergence, "cosine_similarity": d.cosine_similarity}
-               for d in all_divergences]
+    results = [
+        {
+            "layer": d.layer,
+            "head": d.head,
+            "prompt_type": d.prompt_type,
+            "js_divergence": d.js_divergence,
+            "cosine_similarity": d.cosine_similarity,
+        }
+        for d in all_divergences
+    ]
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nResults saved to: {output_path}")

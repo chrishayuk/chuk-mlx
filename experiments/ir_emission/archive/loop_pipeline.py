@@ -10,18 +10,19 @@ Examples:
   "Count down from 10"    → loop with decrement
 """
 
-import json
 import logging
 import re
 import sys
 from pathlib import Path
 
 import mlx.core as mx
-import mlx.nn as nn
 
-sys.path.insert(0, str(Path(__file__).parent))
-from codebook import encode_i32_const
-from wasm_runtime import WASMRuntime
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from experiments.ir_emission.shared import encode_i32_const, WASMRuntime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -87,7 +88,7 @@ def build_sum_loop_wasm(start: int, end: int) -> bytes:
     body.append(0x00)  # local 0 (acc)
     body.append(0x20)  # local.get
     body.append(0x01)  # local 1 (counter)
-    body.append(0x6a)  # i32.add
+    body.append(0x6A)  # i32.add
     body.append(0x21)  # local.set
     body.append(0x00)  # local 0
 
@@ -95,20 +96,20 @@ def build_sum_loop_wasm(start: int, end: int) -> bytes:
     body.append(0x20)  # local.get
     body.append(0x01)  # local 1
     body.extend(encode_i32_const(1))
-    body.append(0x6a)  # i32.add
+    body.append(0x6A)  # i32.add
     body.append(0x22)  # local.tee
     body.append(0x01)  # local 1
 
     # counter <= end?
     body.extend(encode_i32_const(end))
-    body.append(0x4c)  # i32.le_s
+    body.append(0x4C)  # i32.le_s
 
     # br_if 0
-    body.append(0x0d)  # br_if
+    body.append(0x0D)  # br_if
     body.append(0x00)  # label 0
 
     # end loop
-    body.append(0x0b)
+    body.append(0x0B)
 
     # return acc
     body.append(0x20)  # local.get
@@ -144,7 +145,7 @@ def build_product_loop_wasm(start: int, end: int) -> bytes:
     body.append(0x00)  # local 0 (acc)
     body.append(0x20)  # local.get
     body.append(0x01)  # local 1 (counter)
-    body.append(0x6c)  # i32.mul
+    body.append(0x6C)  # i32.mul
     body.append(0x21)  # local.set
     body.append(0x00)  # local 0
 
@@ -152,20 +153,20 @@ def build_product_loop_wasm(start: int, end: int) -> bytes:
     body.append(0x20)  # local.get
     body.append(0x01)  # local 1
     body.extend(encode_i32_const(1))
-    body.append(0x6a)  # i32.add
+    body.append(0x6A)  # i32.add
     body.append(0x22)  # local.tee
     body.append(0x01)  # local 1
 
     # counter <= end?
     body.extend(encode_i32_const(end))
-    body.append(0x4c)  # i32.le_s
+    body.append(0x4C)  # i32.le_s
 
     # br_if 0
-    body.append(0x0d)  # br_if
+    body.append(0x0D)  # br_if
     body.append(0x00)  # label 0
 
     # end loop
-    body.append(0x0b)
+    body.append(0x0B)
 
     # return acc
     body.append(0x20)  # local.get
@@ -194,20 +195,20 @@ def build_countdown_wasm(start: int) -> bytes:
     body.append(0x20)  # local.get
     body.append(0x00)  # local 0
     body.extend(encode_i32_const(1))
-    body.append(0x6b)  # i32.sub
+    body.append(0x6B)  # i32.sub
     body.append(0x22)  # local.tee
     body.append(0x00)  # local 0
 
     # counter > 0?
     body.extend(encode_i32_const(0))
-    body.append(0x4a)  # i32.gt_s
+    body.append(0x4A)  # i32.gt_s
 
     # br_if 0
-    body.append(0x0d)  # br_if
+    body.append(0x0D)  # br_if
     body.append(0x00)  # label 0
 
     # end loop
-    body.append(0x0b)
+    body.append(0x0B)
 
     # return counter (should be 0)
     body.append(0x20)  # local.get
@@ -279,7 +280,7 @@ end: 0</s>
         generated_ids = input_ids
         for _ in range(40):
             output = self.model(generated_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1, keepdims=True)
             generated_ids = mx.concatenate([generated_ids, next_token], axis=1)
             mx.eval(generated_ids)
@@ -307,14 +308,14 @@ end: 0</s>
                 try:
                     # Extract number, handle "1</s>" case
                     val = line.split(":")[1].strip()
-                    val = ''.join(c for c in val if c.isdigit() or c == '-')
+                    val = "".join(c for c in val if c.isdigit() or c == "-")
                     result["start"] = int(val)
                 except:
                     pass
             elif line.startswith("end:"):
                 try:
                     val = line.split(":")[1].strip()
-                    val = ''.join(c for c in val if c.isdigit() or c == '-')
+                    val = "".join(c for c in val if c.isdigit() or c == "-")
                     result["end"] = int(val)
                 except:
                     pass
@@ -393,16 +394,14 @@ def main():
 
     test_cases = [
         # Sum loops
-        ("Sum 1 to 10", compute_expected_sum(1, 10)),        # 55
-        ("Sum 1 to 100", compute_expected_sum(1, 100)),      # 5050
+        ("Sum 1 to 10", compute_expected_sum(1, 10)),  # 55
+        ("Sum 1 to 100", compute_expected_sum(1, 100)),  # 5050
         ("Add numbers from 5 to 15", compute_expected_sum(5, 15)),  # 110
-        ("Sum from 1 to 5", compute_expected_sum(1, 5)),     # 15
-
+        ("Sum from 1 to 5", compute_expected_sum(1, 5)),  # 15
         # Product loops (factorial-like)
         ("Multiply 1 to 5", compute_expected_product(1, 5)),  # 120 (5!)
         ("Product of 1 to 6", compute_expected_product(1, 6)),  # 720 (6!)
         ("Multiply numbers from 2 to 4", compute_expected_product(2, 4)),  # 24
-
         # Countdown
         ("Count down from 10", 0),
         ("Count from 5 to 0", 0),
@@ -431,7 +430,7 @@ def main():
         logger.info(f"  Result: {result.get('result', 'N/A')} (expected {expected}) [{status}]")
 
     logger.info("\n" + "=" * 70)
-    logger.info(f"ACCURACY: {correct}/{len(test_cases)} = {100*correct/len(test_cases):.1f}%")
+    logger.info(f"ACCURACY: {correct}/{len(test_cases)} = {100 * correct / len(test_cases):.1f}%")
     logger.info("=" * 70)
 
     # Show what WASM can do that the model can't

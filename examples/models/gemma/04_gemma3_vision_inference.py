@@ -62,7 +62,6 @@ from mlx.utils import tree_unflatten
 
 from chuk_lazarus.models_v2.families.gemma import GemmaConfig, GemmaForCausalLM
 
-
 # =============================================================================
 # Configuration
 # =============================================================================
@@ -92,7 +91,7 @@ class Gemma3VisionConfig:
     vision_config: SigLIPVisionConfig
     text_config: GemmaConfig
     mm_tokens_per_image: int = 256  # After pooling: 16x16 = 256 tokens
-    mm_tokens_per_side: int = 16    # Output spatial dimension
+    mm_tokens_per_side: int = 16  # Output spatial dimension
     image_token_index: int = 262144
     boi_token_index: int = 255999  # Beginning of image
     eoi_token_index: int = 256000  # End of image
@@ -144,13 +143,9 @@ class SigLIPAttention(nn.Module):
         values = self.v_proj(x)
 
         # Reshape to (B, num_heads, L, head_dim)
-        queries = queries.reshape(B, L, self.num_heads, self.head_dim).transpose(
-            0, 2, 1, 3
-        )
+        queries = queries.reshape(B, L, self.num_heads, self.head_dim).transpose(0, 2, 1, 3)
         keys = keys.reshape(B, L, self.num_heads, self.head_dim).transpose(0, 2, 1, 3)
-        values = values.reshape(B, L, self.num_heads, self.head_dim).transpose(
-            0, 2, 1, 3
-        )
+        values = values.reshape(B, L, self.num_heads, self.head_dim).transpose(0, 2, 1, 3)
 
         # Use MLX optimized scaled dot-product attention
         output = mx.fast.scaled_dot_product_attention(
@@ -290,7 +285,7 @@ class MultiModalProjector(nn.Module):
         vision_hidden_size: int,
         text_hidden_size: int,
         patches_per_image: int = 4096,  # 64x64
-        tokens_per_side: int = 16,       # Output: 16x16 = 256 tokens
+        tokens_per_side: int = 16,  # Output: 16x16 = 256 tokens
     ):
         super().__init__()
         self.patches_per_image = patches_per_image
@@ -484,9 +479,15 @@ class Gemma3ForConditionalGeneration(nn.Module):
                 before = inputs_embeds[:, :start_pos, :]
                 after = inputs_embeds[:, end_pos:, :]
                 inputs_embeds = mx.concatenate([before, image_features, after], axis=1)
-                print(f"  Replaced {num_image_tokens} image soft token embeddings at positions {start_pos}-{end_pos-1}", flush=True)
+                print(
+                    f"  Replaced {num_image_tokens} image soft token embeddings at positions {start_pos}-{end_pos - 1}",
+                    flush=True,
+                )
             else:
-                print(f"  Warning: image_positions ({len(image_positions)}) != num_image_tokens ({num_image_tokens})", flush=True)
+                print(
+                    f"  Warning: image_positions ({len(image_positions)}) != num_image_tokens ({num_image_tokens})",
+                    flush=True,
+                )
 
             print(f"  Final embeddings shape: {inputs_embeds.shape}", flush=True)
 
@@ -567,8 +568,8 @@ class Gemma3ForConditionalGeneration(nn.Module):
 
 def download_model(model_id: str) -> Path:
     """Download model from HuggingFace Hub."""
+
     from huggingface_hub import snapshot_download
-    import sys
 
     print(f"Downloading {model_id}...", flush=True)
     path = snapshot_download(
@@ -664,7 +665,9 @@ def infer_text_config_from_weights(weights: dict, config: Gemma3VisionConfig) ->
     return config
 
 
-def load_gemma3_vision_model(model_id: str) -> tuple[Gemma3ForConditionalGeneration, any, Gemma3VisionConfig]:
+def load_gemma3_vision_model(
+    model_id: str,
+) -> tuple[Gemma3ForConditionalGeneration, any, Gemma3VisionConfig]:
     """Load Gemma 3 vision model from HuggingFace Hub."""
     from transformers import AutoTokenizer
 
@@ -680,8 +683,14 @@ def load_gemma3_vision_model(model_id: str) -> tuple[Gemma3ForConditionalGenerat
     print("Loading config...", flush=True)
     config = load_config(model_path)
     config = infer_text_config_from_weights(weights, config)
-    print(f"  Vision: {config.vision_config.num_hidden_layers} layers, {config.vision_config.hidden_size} dim", flush=True)
-    print(f"  Text: {config.text_config.num_hidden_layers} layers, {config.text_config.hidden_size} dim", flush=True)
+    print(
+        f"  Vision: {config.vision_config.num_hidden_layers} layers, {config.vision_config.hidden_size} dim",
+        flush=True,
+    )
+    print(
+        f"  Text: {config.text_config.num_hidden_layers} layers, {config.text_config.hidden_size} dim",
+        flush=True,
+    )
 
     # Load tokenizer
     print("Loading tokenizer...", flush=True)
@@ -706,8 +715,8 @@ def load_gemma3_vision_model(model_id: str) -> tuple[Gemma3ForConditionalGenerat
 
 def load_image(path_or_url: str, size: int = 896) -> mx.array:
     """Load and preprocess an image."""
-    from PIL import Image
     import numpy as np
+    from PIL import Image
 
     if path_or_url.startswith(("http://", "https://")):
         import urllib.request
@@ -800,7 +809,7 @@ def main():
     mx.eval(model.parameters())
 
     # Load and preprocess image
-    print(f"\nLoading image...")
+    print("\nLoading image...")
     pixel_values = load_image(image_source, config.vision_config.image_size)
     print(f"  Image shape: {pixel_values.shape}")
 
@@ -821,7 +830,9 @@ def main():
     image_soft_token_id = 262144
     input_ids_list = input_ids[0].tolist()
     image_positions = [i for i, tid in enumerate(input_ids_list) if tid == image_soft_token_id]
-    print(f"  Found {len(image_positions)} image soft tokens starting at position {image_positions[0] if image_positions else 'N/A'}")
+    print(
+        f"  Found {len(image_positions)} image soft tokens starting at position {image_positions[0] if image_positions else 'N/A'}"
+    )
 
     # Generate
     print("\nGenerating response...")

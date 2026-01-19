@@ -11,16 +11,14 @@ Improved causal analysis with:
 Run: uv run python examples/introspection/neuron_causal_v2.py
 """
 
-import json
-from dataclasses import dataclass
+import warnings
 
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 class NeuronCausalV2:
@@ -32,12 +30,72 @@ class NeuronCausalV2:
 
         # Top neurons from previous experiment
         self.top_neurons = {
-            10: [1709, 1436, 1390, 1586, 1106, 1023, 732, 977, 1872, 1048,
-                 1148, 1877, 257, 1270, 893, 1341, 1134, 997, 72, 1817],
-            11: [1237, 551, 1069, 821, 1710, 1873, 1653, 1292, 1712, 712,
-                 543, 1077, 1161, 217, 324, 1323, 1110, 612, 417, 537],
-            12: [230, 1361, 901, 1545, 1173, 1412, 41, 1767, 1693, 266,
-                 1111, 1643, 1533, 950, 1297, 1039, 467, 755, 166, 891],
+            10: [
+                1709,
+                1436,
+                1390,
+                1586,
+                1106,
+                1023,
+                732,
+                977,
+                1872,
+                1048,
+                1148,
+                1877,
+                257,
+                1270,
+                893,
+                1341,
+                1134,
+                997,
+                72,
+                1817,
+            ],
+            11: [
+                1237,
+                551,
+                1069,
+                821,
+                1710,
+                1873,
+                1653,
+                1292,
+                1712,
+                712,
+                543,
+                1077,
+                1161,
+                217,
+                324,
+                1323,
+                1110,
+                612,
+                417,
+                537,
+            ],
+            12: [
+                230,
+                1361,
+                901,
+                1545,
+                1173,
+                1412,
+                41,
+                1767,
+                1693,
+                266,
+                1111,
+                1643,
+                1533,
+                950,
+                1297,
+                1039,
+                467,
+                755,
+                166,
+                891,
+            ],
         }
 
     def load_model(self):
@@ -54,7 +112,7 @@ class NeuronCausalV2:
         self.final_norm = self.model.model.norm
         self.lm_head = self.model.lm_head
         self.hidden_size = self.model.model.hidden_size
-        self.embed_scale = self.hidden_size ** 0.5
+        self.embed_scale = self.hidden_size**0.5
         self.num_layers = len(self.layers)
 
         print(f"  Layers: {self.num_layers}, Hidden: {self.hidden_size}")
@@ -149,7 +207,7 @@ class NeuronCausalV2:
 
             if layer_idx == ablate_layer:
                 # Attention
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     normed = layer.input_layernorm(h)
                 else:
                     normed = h
@@ -164,13 +222,13 @@ class NeuronCausalV2:
                     pass
                 else:
                     # MLP with neuron ablation
-                    if hasattr(layer, 'post_attention_layernorm'):
+                    if hasattr(layer, "post_attention_layernorm"):
                         mlp_input = layer.post_attention_layernorm(h)
                     else:
                         mlp_input = h
 
                     mlp = layer.mlp
-                    if hasattr(mlp, 'gate_proj'):
+                    if hasattr(mlp, "gate_proj"):
                         gate = mlp.gate_proj(mlp_input)
                         up = mlp.up_proj(mlp_input)
                         mlp_hidden = nn.gelu(gate) * up
@@ -180,11 +238,13 @@ class NeuronCausalV2:
                             mask_arr = mx.ones(mlp_hidden.shape[-1])
                             for neuron_idx in ablate_neurons:
                                 if neuron_idx < mlp_hidden.shape[-1]:
-                                    mask_arr = mx.concatenate([
-                                        mask_arr[:neuron_idx],
-                                        mx.array([0.0]),
-                                        mask_arr[neuron_idx + 1:]
-                                    ])
+                                    mask_arr = mx.concatenate(
+                                        [
+                                            mask_arr[:neuron_idx],
+                                            mx.array([0.0]),
+                                            mask_arr[neuron_idx + 1 :],
+                                        ]
+                                    )
                             mlp_hidden = mlp_hidden * mask_arr
 
                         mlp_out = mlp.down_proj(mlp_hidden)
@@ -259,7 +319,7 @@ class NeuronCausalV2:
         baseline_acc = baseline_correct / len(test_data)
         print(f"\n  Baseline accuracy: {baseline_acc:.1%}")
 
-        print(f"\n  Ablating full MLP at each layer:")
+        print("\n  Ablating full MLP at each layer:")
         print(f"  {'Layer':<8} {'Accuracy':>10} {'Drop':>10}")
         print("  " + "-" * 30)
 
@@ -388,7 +448,7 @@ class NeuronCausalV2:
             layer = self.layers[layer_idx]
 
             if layer_idx == patch_layer:
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     normed = layer.input_layernorm(source_h)
                 else:
                     normed = source_h
@@ -398,13 +458,13 @@ class NeuronCausalV2:
                     attn_out = attn_out[0]
                 source_h = source_h + attn_out
 
-                if hasattr(layer, 'post_attention_layernorm'):
+                if hasattr(layer, "post_attention_layernorm"):
                     mlp_input = layer.post_attention_layernorm(source_h)
                 else:
                     mlp_input = source_h
 
                 mlp = layer.mlp
-                if hasattr(mlp, 'gate_proj'):
+                if hasattr(mlp, "gate_proj"):
                     gate = mlp.gate_proj(mlp_input)
                     up = mlp.up_proj(mlp_input)
                     source_mlp_activations = nn.gelu(gate) * up
@@ -433,7 +493,7 @@ class NeuronCausalV2:
             layer = self.layers[layer_idx]
 
             if layer_idx == patch_layer:
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     normed = layer.input_layernorm(h)
                 else:
                     normed = h
@@ -443,13 +503,13 @@ class NeuronCausalV2:
                     attn_out = attn_out[0]
                 h = h + attn_out
 
-                if hasattr(layer, 'post_attention_layernorm'):
+                if hasattr(layer, "post_attention_layernorm"):
                     mlp_input = layer.post_attention_layernorm(h)
                 else:
                     mlp_input = h
 
                 mlp = layer.mlp
-                if hasattr(mlp, 'gate_proj'):
+                if hasattr(mlp, "gate_proj"):
                     gate = mlp.gate_proj(mlp_input)
                     up = mlp.up_proj(mlp_input)
                     mlp_hidden = nn.gelu(gate) * up
@@ -463,20 +523,25 @@ class NeuronCausalV2:
                     patch_mask = mx.zeros(mlp_hidden.shape[-1])
                     for neuron_idx in patch_neurons:
                         if neuron_idx < mlp_hidden.shape[-1]:
-                            patch_mask = mx.concatenate([
-                                patch_mask[:neuron_idx],
-                                mx.array([1.0]),
-                                patch_mask[neuron_idx + 1:]
-                            ])
+                            patch_mask = mx.concatenate(
+                                [
+                                    patch_mask[:neuron_idx],
+                                    mx.array([1.0]),
+                                    patch_mask[neuron_idx + 1 :],
+                                ]
+                            )
 
                     patched_last = source_last * patch_mask + target_last * (1 - patch_mask)
 
                     # Reconstruct
                     if seq_len > 1:
-                        mlp_hidden = mx.concatenate([
-                            mlp_hidden[:, :-1, :],
-                            patched_last.reshape(1, 1, -1).astype(mlp_hidden.dtype)
-                        ], axis=1)
+                        mlp_hidden = mx.concatenate(
+                            [
+                                mlp_hidden[:, :-1, :],
+                                patched_last.reshape(1, 1, -1).astype(mlp_hidden.dtype),
+                            ],
+                            axis=1,
+                        )
                     else:
                         mlp_hidden = patched_last.reshape(1, 1, -1).astype(mlp_hidden.dtype)
 

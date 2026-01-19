@@ -10,23 +10,28 @@ Creates datasets mapping NL prompts to IR sequences:
 
 import json
 import random
+import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
-from codebook import IROpcode
+# Add project root for imports
+_project_root = Path(__file__).parent.parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from experiments.ir_emission.shared import IROpcode
 
 
 @dataclass
 class IRSample:
     """A training sample for IR emission."""
 
-    prompt: str                    # Natural language input
-    ir_sequence: list[int]         # Target IR (codebook indices)
-    operands: list[int]            # Numbers extracted from prompt
-    expected_result: int           # Ground truth result
-    phase: int                     # Training phase (1, 2, 3, 4)
-    operation: Optional[str] = None  # For phase 1: add/sub/mul/div
+    prompt: str  # Natural language input
+    ir_sequence: list[int]  # Target IR (codebook indices)
+    operands: list[int]  # Numbers extracted from prompt
+    expected_result: int  # Ground truth result
+    phase: int  # Training phase (1, 2, 3, 4)
+    operation: str | None = None  # For phase 1: add/sub/mul/div
 
     def to_dict(self) -> dict:
         return {
@@ -129,9 +134,18 @@ WORD_PROBLEM_TEMPLATES = [
 
 NAMES = ["Alice", "Bob", "Carol", "David", "Emma", "Frank", "Grace", "Henry", "Ivy", "Jack"]
 NAMES2 = ["Sam", "Pat", "Jordan", "Morgan", "Taylor", "Casey", "Riley", "Quinn"]
-PRONOUNS = {"Alice": "her", "Bob": "him", "Carol": "her", "David": "him",
-            "Emma": "her", "Frank": "him", "Grace": "her", "Henry": "him",
-            "Ivy": "her", "Jack": "him"}
+PRONOUNS = {
+    "Alice": "her",
+    "Bob": "him",
+    "Carol": "her",
+    "David": "him",
+    "Emma": "her",
+    "Frank": "him",
+    "Grace": "her",
+    "Henry": "him",
+    "Ivy": "her",
+    "Jack": "him",
+}
 
 
 def generate_phase1_samples(n: int = 1000, seed: int = 42) -> list[IRSample]:
@@ -185,14 +199,16 @@ def generate_phase1_samples(n: int = 1000, seed: int = 42) -> list[IRSample]:
 
         result = op_to_func[op](a, b)
 
-        samples.append(IRSample(
-            prompt=prompt,
-            ir_sequence=ir_sequence,
-            operands=[a, b],
-            expected_result=result,
-            phase=1,
-            operation=op,
-        ))
+        samples.append(
+            IRSample(
+                prompt=prompt,
+                ir_sequence=ir_sequence,
+                operands=[a, b],
+                expected_result=result,
+                phase=1,
+                operation=op,
+            )
+        )
 
     return samples
 
@@ -216,8 +232,11 @@ def generate_phase2_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             # a + b - c
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_ADD,
-                IROpcode.SLOT_2, IROpcode.I32_SUB,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_ADD,
+                IROpcode.SLOT_2,
+                IROpcode.I32_SUB,
                 IROpcode.END,
             ]
             result = a + b - c
@@ -225,8 +244,11 @@ def generate_phase2_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             # a - b + c
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_SUB,
-                IROpcode.SLOT_2, IROpcode.I32_ADD,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_SUB,
+                IROpcode.SLOT_2,
+                IROpcode.I32_ADD,
                 IROpcode.END,
             ]
             result = a - b + c
@@ -234,8 +256,11 @@ def generate_phase2_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             # a * b + c
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_MUL,
-                IROpcode.SLOT_2, IROpcode.I32_ADD,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_MUL,
+                IROpcode.SLOT_2,
+                IROpcode.I32_ADD,
                 IROpcode.END,
             ]
             result = a * b + c
@@ -243,8 +268,11 @@ def generate_phase2_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             # a * b - c
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_MUL,
-                IROpcode.SLOT_2, IROpcode.I32_SUB,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_MUL,
+                IROpcode.SLOT_2,
+                IROpcode.I32_SUB,
                 IROpcode.END,
             ]
             result = a * b - c
@@ -252,8 +280,11 @@ def generate_phase2_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             # (a + b) * c
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_ADD,
-                IROpcode.SLOT_2, IROpcode.I32_MUL,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_ADD,
+                IROpcode.SLOT_2,
+                IROpcode.I32_MUL,
                 IROpcode.END,
             ]
             result = (a + b) * c
@@ -264,8 +295,11 @@ def generate_phase2_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             prompt = template.format(a=a, b=b, c=c)
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_SUB,
-                IROpcode.SLOT_2, IROpcode.I32_MUL,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_SUB,
+                IROpcode.SLOT_2,
+                IROpcode.I32_MUL,
                 IROpcode.END,
             ]
             result = (a - b) * c
@@ -273,19 +307,24 @@ def generate_phase2_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             # a + b * c (left to right, not PEMDAS)
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_ADD,
-                IROpcode.SLOT_2, IROpcode.I32_MUL,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_ADD,
+                IROpcode.SLOT_2,
+                IROpcode.I32_MUL,
                 IROpcode.END,
             ]
             result = (a + b) * c
 
-        samples.append(IRSample(
-            prompt=prompt,
-            ir_sequence=ir_sequence,
-            operands=[a, b, c],
-            expected_result=result,
-            phase=2,
-        ))
+        samples.append(
+            IRSample(
+                prompt=prompt,
+                ir_sequence=ir_sequence,
+                operands=[a, b, c],
+                expected_result=result,
+                phase=2,
+            )
+        )
 
     return samples
 
@@ -307,7 +346,9 @@ def generate_phase3_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             prompt = template.format(name=name, name2=name2, pronoun=pronoun, a=a, b=b)
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_ADD,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_ADD,
                 IROpcode.END,
             ]
             result = compute(a, b)
@@ -319,7 +360,9 @@ def generate_phase3_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             prompt = template.format(name=name, name2=name2, pronoun=pronoun, a=a, b=b)
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_SUB,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_SUB,
                 IROpcode.END,
             ]
             result = compute(a, b)
@@ -331,7 +374,9 @@ def generate_phase3_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             prompt = template.format(name=name, name2=name2, pronoun=pronoun, a=a, b=b)
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_MUL,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_MUL,
                 IROpcode.END,
             ]
             result = compute(a, b)
@@ -340,9 +385,9 @@ def generate_phase3_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
         elif op_type == "multi_sub":
             # Janet's eggs style
             a = random.randint(10, 30)  # eggs laid
-            b = random.randint(1, 5)    # eaten
-            c = random.randint(1, 5)    # baked
-            d = random.randint(1, 5)    # price (not used in count)
+            b = random.randint(1, 5)  # eaten
+            c = random.randint(1, 5)  # baked
+            d = random.randint(1, 5)  # price (not used in count)
 
             if a <= b + c:
                 a = b + c + random.randint(5, 15)
@@ -350,8 +395,11 @@ def generate_phase3_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
             prompt = template.format(name=name, a=a, b=b, c=c, d=d)
             ir_sequence = [
                 IROpcode.START,
-                IROpcode.SLOT_0, IROpcode.SLOT_1, IROpcode.I32_SUB,
-                IROpcode.SLOT_2, IROpcode.I32_SUB,
+                IROpcode.SLOT_0,
+                IROpcode.SLOT_1,
+                IROpcode.I32_SUB,
+                IROpcode.SLOT_2,
+                IROpcode.I32_SUB,
                 IROpcode.END,
             ]
             result = compute(a, b, c, d)
@@ -360,14 +408,16 @@ def generate_phase3_samples(n: int = 500, seed: int = 42) -> list[IRSample]:
         else:
             continue
 
-        samples.append(IRSample(
-            prompt=prompt,
-            ir_sequence=ir_sequence,
-            operands=operands,
-            expected_result=result,
-            phase=3,
-            operation=op_type,
-        ))
+        samples.append(
+            IRSample(
+                prompt=prompt,
+                ir_sequence=ir_sequence,
+                operands=operands,
+                expected_result=result,
+                phase=3,
+                operation=op_type,
+            )
+        )
 
     return samples
 

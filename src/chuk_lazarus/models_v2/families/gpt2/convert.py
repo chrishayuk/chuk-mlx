@@ -58,6 +58,10 @@ def load_weights(model_path: str | Path) -> dict[str, mx.array]:
     for name, weight in raw_weights.items():
         new_name = _map_weight_name(name)
         if new_name is not None:
+            # GPT-2 Conv1D weights need transposition for nn.Linear
+            # HF stores as (in_features, out_features), MLX expects (out_features, in_features)
+            if ".weight" in name and weight.ndim == 2 and "wte" not in name and "wpe" not in name:
+                weight = weight.T
             converted[new_name] = weight
 
     return converted
@@ -65,17 +69,17 @@ def load_weights(model_path: str | Path) -> dict[str, mx.array]:
 
 # Mapping from HuggingFace weight names to our weight names
 # GPT-2 uses different conventions:
-# - wte (word token embeddings) -> model.embed_tokens
-# - wpe (word position embeddings) -> model.position_embeddings
-# - h.{i} (hidden layers) -> model.layers.{i}
-# - ln_f (final layer norm) -> model.norm
+# - wte (word token embeddings) -> transformer.wte
+# - wpe (word position embeddings) -> transformer.wpe
+# - h.{i} (hidden layers) -> transformer.h.{i}
+# - ln_f (final layer norm) -> transformer.ln_f
 GPT2_WEIGHT_MAP = {
-    # Embeddings
-    "wte.weight": "model.embed_tokens.weight.weight",
-    "wpe.weight": "model.position_embeddings.weight",
+    # Embeddings (TokenEmbedding wraps nn.Embedding)
+    "wte.weight": "transformer.wte.weight.weight",
+    "wpe.weight": "transformer.wpe.weight",
     # Final norm
-    "ln_f.weight": "model.norm.weight",
-    "ln_f.bias": "model.norm.bias",
+    "ln_f.weight": "transformer.ln_f.weight",
+    "ln_f.bias": "transformer.ln_f.bias",
     # LM head (tied to embeddings by default)
     "lm_head.weight": "lm_head.lm_head.weight",
 }
@@ -116,13 +120,13 @@ def _map_weight_name(hf_name: str) -> str | None:
     """
     Map HuggingFace weight name to our weight name.
 
-    GPT-2 layer structure (HF):
-    - h.{i}.ln_1.weight/bias -> model.layers.{i}.input_layernorm.*
-    - h.{i}.attn.c_attn.weight/bias -> model.layers.{i}.self_attn.qkv_proj.*
-    - h.{i}.attn.c_proj.weight/bias -> model.layers.{i}.self_attn.o_proj.*
-    - h.{i}.ln_2.weight/bias -> model.layers.{i}.post_attention_layernorm.*
-    - h.{i}.mlp.c_fc.weight/bias -> model.layers.{i}.mlp.up_proj.*
-    - h.{i}.mlp.c_proj.weight/bias -> model.layers.{i}.mlp.down_proj.*
+    GPT-2 layer structure (HF -> ours):
+    - h.{i}.ln_1.* -> transformer.h.{i}.ln_1.*
+    - h.{i}.attn.c_attn.* -> transformer.h.{i}.attn.c_attn.*
+    - h.{i}.attn.c_proj.* -> transformer.h.{i}.attn.c_proj.*
+    - h.{i}.ln_2.* -> transformer.h.{i}.ln_2.*
+    - h.{i}.mlp.c_fc.* -> transformer.h.{i}.mlp.c_fc.*
+    - h.{i}.mlp.c_proj.* -> transformer.h.{i}.mlp.c_proj.*
     """
     # Check direct mapping first
     if hf_name in GPT2_WEIGHT_MAP:
@@ -135,35 +139,35 @@ def _map_weight_name(hf_name: str) -> str | None:
         layer_idx = match.group(1)
         rest = match.group(2)
 
-        # Layer norms
+        # Layer norms (keep original names)
         if rest == "ln_1.weight":
-            return f"model.layers.{layer_idx}.input_layernorm.weight"
+            return f"transformer.h.{layer_idx}.ln_1.weight"
         if rest == "ln_1.bias":
-            return f"model.layers.{layer_idx}.input_layernorm.bias"
+            return f"transformer.h.{layer_idx}.ln_1.bias"
         if rest == "ln_2.weight":
-            return f"model.layers.{layer_idx}.post_attention_layernorm.weight"
+            return f"transformer.h.{layer_idx}.ln_2.weight"
         if rest == "ln_2.bias":
-            return f"model.layers.{layer_idx}.post_attention_layernorm.bias"
+            return f"transformer.h.{layer_idx}.ln_2.bias"
 
-        # Attention (GPT-2 uses combined QKV projection)
+        # Attention (keep original names)
         if rest == "attn.c_attn.weight":
-            return f"model.layers.{layer_idx}.self_attn.c_attn.weight"
+            return f"transformer.h.{layer_idx}.attn.c_attn.weight"
         if rest == "attn.c_attn.bias":
-            return f"model.layers.{layer_idx}.self_attn.c_attn.bias"
+            return f"transformer.h.{layer_idx}.attn.c_attn.bias"
         if rest == "attn.c_proj.weight":
-            return f"model.layers.{layer_idx}.self_attn.o_proj.weight"
+            return f"transformer.h.{layer_idx}.attn.c_proj.weight"
         if rest == "attn.c_proj.bias":
-            return f"model.layers.{layer_idx}.self_attn.o_proj.bias"
+            return f"transformer.h.{layer_idx}.attn.c_proj.bias"
 
-        # MLP
+        # MLP (keep original names)
         if rest == "mlp.c_fc.weight":
-            return f"model.layers.{layer_idx}.mlp.c_fc.weight"
+            return f"transformer.h.{layer_idx}.mlp.c_fc.weight"
         if rest == "mlp.c_fc.bias":
-            return f"model.layers.{layer_idx}.mlp.c_fc.bias"
+            return f"transformer.h.{layer_idx}.mlp.c_fc.bias"
         if rest == "mlp.c_proj.weight":
-            return f"model.layers.{layer_idx}.mlp.c_proj.weight"
+            return f"transformer.h.{layer_idx}.mlp.c_proj.weight"
         if rest == "mlp.c_proj.bias":
-            return f"model.layers.{layer_idx}.mlp.c_proj.bias"
+            return f"transformer.h.{layer_idx}.mlp.c_proj.bias"
 
     return None
 
@@ -197,30 +201,30 @@ def _reverse_map_weight_name(our_name: str) -> str | None:
             return hf_name
 
     # Pattern matching for layers
-    layer_pattern = re.compile(r"model\.layers\.(\d+)\.(.*)")
+    layer_pattern = re.compile(r"transformer\.h\.(\d+)\.(.*)")
     match = layer_pattern.match(our_name)
     if match:
         layer_idx = match.group(1)
         rest = match.group(2)
 
         # Reverse layer norms
-        if rest == "input_layernorm.weight":
+        if rest == "ln_1.weight":
             return f"h.{layer_idx}.ln_1.weight"
-        if rest == "input_layernorm.bias":
+        if rest == "ln_1.bias":
             return f"h.{layer_idx}.ln_1.bias"
-        if rest == "post_attention_layernorm.weight":
+        if rest == "ln_2.weight":
             return f"h.{layer_idx}.ln_2.weight"
-        if rest == "post_attention_layernorm.bias":
+        if rest == "ln_2.bias":
             return f"h.{layer_idx}.ln_2.bias"
 
         # Reverse attention
-        if rest == "self_attn.c_attn.weight":
+        if rest == "attn.c_attn.weight":
             return f"h.{layer_idx}.attn.c_attn.weight"
-        if rest == "self_attn.c_attn.bias":
+        if rest == "attn.c_attn.bias":
             return f"h.{layer_idx}.attn.c_attn.bias"
-        if rest == "self_attn.o_proj.weight":
+        if rest == "attn.c_proj.weight":
             return f"h.{layer_idx}.attn.c_proj.weight"
-        if rest == "self_attn.o_proj.bias":
+        if rest == "attn.c_proj.bias":
             return f"h.{layer_idx}.attn.c_proj.bias"
 
         # Reverse MLP

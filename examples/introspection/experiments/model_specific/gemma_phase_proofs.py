@@ -17,7 +17,6 @@ Usage:
 
 import json
 from collections import defaultdict
-from dataclasses import dataclass
 from pathlib import Path
 
 import mlx.core as mx
@@ -78,7 +77,7 @@ class PhaseProofAnalyzer:
         else:
             head = None
 
-        embed_scale = float(self.hidden_size ** 0.5)
+        embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -112,8 +111,9 @@ class PhaseProofAnalyzer:
 
         return activations
 
-    def generate_with_modified_activations(self, prompt: str, layer_idx: int,
-                                           modification_fn=None, patched_activation=None) -> str:
+    def generate_with_modified_activations(
+        self, prompt: str, layer_idx: int, modification_fn=None, patched_activation=None
+    ) -> str:
         """Generate output with modified activations at a specific layer."""
         layers, embed, norm, head, embed_scale = self._get_components()
 
@@ -212,7 +212,9 @@ class PhaseProofAnalyzer:
         language_prompts = list(np.random.choice(language_prompts, n_samples, replace=False))
 
         all_prompts = arithmetic_prompts + language_prompts
-        labels = [1] * len(arithmetic_prompts) + [0] * len(language_prompts)  # 1=arithmetic, 0=language
+        labels = [1] * len(arithmetic_prompts) + [0] * len(
+            language_prompts
+        )  # 1=arithmetic, 0=language
 
         # Shuffle together
         combined = list(zip(all_prompts, labels))
@@ -221,7 +223,9 @@ class PhaseProofAnalyzer:
         all_prompts = list(all_prompts)
         labels = list(labels)
 
-        print(f"\nDataset: {len(arithmetic_prompts)} arithmetic + {len(language_prompts)} language prompts")
+        print(
+            f"\nDataset: {len(arithmetic_prompts)} arithmetic + {len(language_prompts)} language prompts"
+        )
 
         # Collect activations
         print("\nCollecting activations...")
@@ -277,8 +281,8 @@ class PhaseProofAnalyzer:
                 print(f"{layer_name:<8} {accuracy:>12.1%}   {phase}")
 
             results[layer] = {
-                'accuracy': accuracy,
-                'phase': phase,
+                "accuracy": accuracy,
+                "phase": phase,
             }
 
         # Analyze emergence
@@ -288,21 +292,21 @@ class PhaseProofAnalyzer:
         # Find when accuracy first hits 100%
         first_100 = None
         for layer in sorted(results.keys()):
-            if results[layer]['accuracy'] >= 0.99:
+            if results[layer]["accuracy"] >= 0.99:
                 first_100 = layer
                 break
 
         if first_100 is not None:
             print(f"  Task type first detectable at 100%: L{first_100}")
             if first_100 <= 7:
-                print(f"  ✓ CONFIRMED: Task recognition complete by Phase 2 (L4-L7)")
+                print("  ✓ CONFIRMED: Task recognition complete by Phase 2 (L4-L7)")
             else:
-                print(f"  ? Task recognition may extend beyond Phase 2")
+                print("  ? Task recognition may extend beyond Phase 2")
         else:
-            print(f"  Task type not fully separable")
+            print("  Task type not fully separable")
 
         # Check L4-L7 specifically
-        phase2_accs = [results[l]['accuracy'] for l in range(4, 8) if l in results]
+        phase2_accs = [results[l]["accuracy"] for l in range(4, 8) if l in results]
         if phase2_accs:
             avg_phase2 = np.mean(phase2_accs)
             print(f"  Average accuracy at L4-L7: {avg_phase2:.1%}")
@@ -329,22 +333,22 @@ class PhaseProofAnalyzer:
         # Test cases
         test_cases = [
             {
-                'source': "7 * 8 = ",
-                'target': "7 + 8 = ",
-                'source_answer': '56',
-                'target_answer': '15',
+                "source": "7 * 8 = ",
+                "target": "7 + 8 = ",
+                "source_answer": "56",
+                "target_answer": "15",
             },
             {
-                'source': "6 * 9 = ",
-                'target': "6 + 9 = ",
-                'source_answer': '54',
-                'target_answer': '15',
+                "source": "6 * 9 = ",
+                "target": "6 + 9 = ",
+                "source_answer": "54",
+                "target_answer": "15",
             },
             {
-                'source': "8 * 3 = ",
-                'target': "8 - 3 = ",
-                'source_answer': '24',
-                'target_answer': '5',
+                "source": "8 * 3 = ",
+                "target": "8 - 3 = ",
+                "source_answer": "24",
+                "target_answer": "5",
             },
         ]
 
@@ -356,8 +360,8 @@ class PhaseProofAnalyzer:
             print(f"\nSource: {case['source']} (answer: {case['source_answer']})")
             print(f"Target: {case['target']} (answer: {case['target_answer']})")
 
-            source_acts = self.collect_layer_activations(case['source'])
-            target_acts = self.collect_layer_activations(case['target'])
+            source_acts = self.collect_layer_activations(case["source"])
+            target_acts = self.collect_layer_activations(case["target"])
 
             print(f"\n{'Patch Layer':<12} {'Output':<10} {'Result'}")
             print("-" * 45)
@@ -366,7 +370,7 @@ class PhaseProofAnalyzer:
 
             for patch_layer in [0, 4, 8, 12, 16, 20, 24, 28]:
                 # Run target, but inject source activation at patch_layer
-                input_ids = self.tokenizer.encode(case['target'])
+                input_ids = self.tokenizer.encode(case["target"])
                 input_ids = mx.array(input_ids)[None, :]
 
                 h = embed(input_ids) * embed_scale
@@ -404,8 +408,8 @@ class PhaseProofAnalyzer:
                 output = self.tokenizer.decode([int(next_token)])
 
                 # Interpret result
-                source_first = case['source_answer'][0]
-                target_first = case['target_answer'][0]
+                source_first = case["source_answer"][0]
+                target_first = case["target_answer"][0]
 
                 if source_first in output:
                     result = "SOURCE transferred"
@@ -416,17 +420,21 @@ class PhaseProofAnalyzer:
 
                 print(f"L{patch_layer:<11} {output:<10} {result}")
 
-                case_results.append({
-                    'layer': patch_layer,
-                    'output': output,
-                    'source_transferred': source_first in output,
-                    'target_preserved': target_first in output,
-                })
+                case_results.append(
+                    {
+                        "layer": patch_layer,
+                        "output": output,
+                        "source_transferred": source_first in output,
+                        "target_preserved": target_first in output,
+                    }
+                )
 
-            all_results.append({
-                'case': case,
-                'results': case_results,
-            })
+            all_results.append(
+                {
+                    "case": case,
+                    "results": case_results,
+                }
+            )
 
         # Analyze
         print("\n" + "-" * 45)
@@ -438,17 +446,31 @@ class PhaseProofAnalyzer:
         post_retrieval_layers = [20, 24, 28]
 
         for case_result in all_results:
-            case = case_result['case']
-            results = case_result['results']
+            case = case_result["case"]
+            results = case_result["results"]
 
-            retrieval_transfers = sum(1 for r in results if r['layer'] in retrieval_layers and r['source_transferred'])
-            pre_transfers = sum(1 for r in results if r['layer'] in pre_retrieval_layers and r['source_transferred'])
-            post_transfers = sum(1 for r in results if r['layer'] in post_retrieval_layers and r['source_transferred'])
+            retrieval_transfers = sum(
+                1 for r in results if r["layer"] in retrieval_layers and r["source_transferred"]
+            )
+            pre_transfers = sum(
+                1 for r in results if r["layer"] in pre_retrieval_layers and r["source_transferred"]
+            )
+            post_transfers = sum(
+                1
+                for r in results
+                if r["layer"] in post_retrieval_layers and r["source_transferred"]
+            )
 
             print(f"\n  {case['source'][:10]}...")
-            print(f"    Pre-retrieval transfers (L0-L4): {pre_transfers}/{len(pre_retrieval_layers)}")
-            print(f"    Retrieval transfers (L8-L16): {retrieval_transfers}/{len(retrieval_layers)}")
-            print(f"    Post-retrieval transfers (L20+): {post_transfers}/{len(post_retrieval_layers)}")
+            print(
+                f"    Pre-retrieval transfers (L0-L4): {pre_transfers}/{len(pre_retrieval_layers)}"
+            )
+            print(
+                f"    Retrieval transfers (L8-L16): {retrieval_transfers}/{len(retrieval_layers)}"
+            )
+            print(
+                f"    Post-retrieval transfers (L20+): {post_transfers}/{len(post_retrieval_layers)}"
+            )
 
         return all_results
 
@@ -489,7 +511,9 @@ class PhaseProofAnalyzer:
         numeric_prompts = list(np.random.choice(numeric_prompts, n_samples, replace=False))
         word_prompts = list(np.random.choice(word_prompts, n_samples, replace=False))
 
-        print(f"\nCollecting activations for {n_samples} numeric and {n_samples} word format prompts...")
+        print(
+            f"\nCollecting activations for {n_samples} numeric and {n_samples} word format prompts..."
+        )
 
         # Collect activations
         layer_activations_numeric = defaultdict(list)
@@ -551,8 +575,8 @@ class PhaseProofAnalyzer:
                 print(f"{layer_name:<8} {accuracy:>12.1%}   {interp}")
 
             results[layer] = {
-                'accuracy': accuracy,
-                'phase': interp,
+                "accuracy": accuracy,
+                "phase": interp,
             }
 
         # Analyze format emergence
@@ -561,10 +585,10 @@ class PhaseProofAnalyzer:
 
         # Check when format becomes detectable
         phase5_layers = [23, 24, 25, 26, 27, 28]
-        phase5_accs = [results[l]['accuracy'] for l in phase5_layers if l in results]
+        phase5_accs = [results[l]["accuracy"] for l in phase5_layers if l in results]
 
         pre_phase5_layers = [16, 20]
-        pre_phase5_accs = [results[l]['accuracy'] for l in pre_phase5_layers if l in results]
+        pre_phase5_accs = [results[l]["accuracy"] for l in pre_phase5_layers if l in results]
 
         if phase5_accs:
             print(f"  Average format detection at L23-L28: {np.mean(phase5_accs):.1%}")
@@ -595,14 +619,13 @@ class PhaseProofAnalyzer:
             print(f"\n  Prompt: '{test_prompt}'")
 
             for strength in [0, 50, 100, 200]:
+
                 def steer_fn(h):
                     steering = format_direction.astype(h.dtype) * strength
                     return h + steering.reshape(1, 1, -1)
 
                 output = self.generate_with_modified_activations(
-                    test_prompt,
-                    layer_idx=24,
-                    modification_fn=steer_fn if strength > 0 else None
+                    test_prompt, layer_idx=24, modification_fn=steer_fn if strength > 0 else None
                 )
                 print(f"  Strength {strength:>3}: {output}")
 
@@ -616,13 +639,13 @@ class PhaseProofAnalyzer:
         results = {}
 
         # Phase 2: Task Recognition
-        results['phase2_recognition'] = self.prove_phase2_task_recognition()
+        results["phase2_recognition"] = self.prove_phase2_task_recognition()
 
         # Phase 3: Retrieval
-        results['phase3_retrieval'] = self.prove_phase3_retrieval()
+        results["phase3_retrieval"] = self.prove_phase3_retrieval()
 
         # Phase 5: Output Format
-        results['phase5_format'] = self.prove_phase5_output_format()
+        results["phase5_format"] = self.prove_phase5_output_format()
 
         # Summary
         print("\n" + "=" * 70)

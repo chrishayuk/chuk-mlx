@@ -41,14 +41,16 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 
 class RouteDecision(Enum):
     """Routing decision based on activation analysis."""
-    MODEL = "model"           # Model is confident, use its output
-    CALCULATOR = "calculator" # Route to external calculator
-    UNCERTAIN = "uncertain"   # Low confidence, might need help
+
+    MODEL = "model"  # Model is confident, use its output
+    CALCULATOR = "calculator"  # Route to external calculator
+    UNCERTAIN = "uncertain"  # Low confidence, might need help
 
 
 @dataclass
 class ActivationProbe:
     """Results from probing activations."""
+
     prompt: str
 
     # Gate signal (space token)
@@ -63,7 +65,7 @@ class ActivationProbe:
 
     # Entropy at key layers
     entropy_at_computation: float  # Layer ~20
-    entropy_at_output: float       # Final layer
+    entropy_at_output: float  # Final layer
 
     # Derived metrics
     gate_open: bool
@@ -78,21 +80,21 @@ class ActivationProbe:
         """Explain the routing decision."""
         lines = [
             f"Prompt: {repr(self.prompt)}",
-            f"",
-            f"Gate Signal (space token):",
+            "",
+            "Gate Signal (space token):",
             f"  Peak: {self.space_peak_prob:.1%} at L{self.space_peak_layer} "
             f"(rank {self.space_peak_rank or '>100'})",
             f"  Gate {'OPEN' if self.gate_open else 'CLOSED'}",
-            f"",
-            f"Computation Signal (first digit):",
+            "",
+            "Computation Signal (first digit):",
             f"  Peak: {self.digit_peak_prob:.1%} at L{self.digit_peak_layer} "
             f"(rank {self.digit_peak_rank or '>100'})",
             f"  Digit {'COMPUTED' if self.digit_computed else 'NOT COMPUTED'}",
-            f"",
-            f"Entropy:",
+            "",
+            "Entropy:",
             f"  At computation layers: {self.entropy_at_computation:.2f}",
             f"  At output: {self.entropy_at_output:.2f}",
-            f"",
+            "",
             f"Confidence: {self.confidence:.1%}",
             f"Decision: {self.route.value.upper()}",
             f"Model output: {repr(self.model_output)}",
@@ -151,8 +153,13 @@ class ActivationSteering:
         tokenizer = HFLoader.load_tokenizer(model_path)
 
         return cls(
-            model, tokenizer, config, model_id,
-            gate_threshold, digit_threshold, confidence_threshold
+            model,
+            tokenizer,
+            config,
+            model_id,
+            gate_threshold,
+            digit_threshold,
+            confidence_threshold,
         )
 
     def _get_layers(self):
@@ -224,7 +231,11 @@ class ActivationSteering:
         # Auto-detect arithmetic
         is_arithmetic, detected_digits = self._detect_arithmetic(prompt)
         if possible_digits is None:
-            possible_digits = detected_digits if is_arithmetic else ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+            possible_digits = (
+                detected_digits
+                if is_arithmetic
+                else ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+            )
 
         input_ids = mx.array(self.tokenizer.encode(prompt))[None, :]
 
@@ -273,7 +284,11 @@ class ActivationSteering:
             except TypeError:
                 out = layer(h)
 
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Project to logits
             h_n = norm(h) if norm else h
@@ -306,8 +321,11 @@ class ActivationSteering:
             # Track entropy at computation layer
             if layer_idx == computation_layer:
                 probs_np = probs.tolist()
-                entropy = -sum(p * (float('inf') if p == 0 else mx.log(mx.array(p)).item())
-                              for p in probs_np if p > 0)
+                entropy = -sum(
+                    p * (float("inf") if p == 0 else mx.log(mx.array(p)).item())
+                    for p in probs_np
+                    if p > 0
+                )
                 entropy_at_computation = entropy
 
             final_logits = logits
@@ -319,15 +337,28 @@ class ActivationSteering:
 
         # Final entropy
         final_probs_list = final_probs.tolist()
-        entropy_at_output = -sum(p * (float('inf') if p == 0 else mx.log(mx.array(p)).item())
-                                 for p in final_probs_list if p > 0)
+        entropy_at_output = -sum(
+            p * (float("inf") if p == 0 else mx.log(mx.array(p)).item())
+            for p in final_probs_list
+            if p > 0
+        )
 
         # Derived metrics
-        gate_open = space_peak_rank is not None and space_peak_rank <= 5 and space_peak_prob > self.gate_threshold
-        digit_computed = digit_peak_rank is not None and digit_peak_rank <= 10 and digit_peak_prob > self.digit_threshold
+        gate_open = (
+            space_peak_rank is not None
+            and space_peak_rank <= 5
+            and space_peak_prob > self.gate_threshold
+        )
+        digit_computed = (
+            digit_peak_rank is not None
+            and digit_peak_rank <= 10
+            and digit_peak_prob > self.digit_threshold
+        )
 
         # Confidence combines gate and digit signals
-        confidence = min(space_peak_prob, digit_peak_prob) if (gate_open and digit_computed) else 0.0
+        confidence = (
+            min(space_peak_prob, digit_peak_prob) if (gate_open and digit_computed) else 0.0
+        )
 
         # Routing decision
         if is_arithmetic:
@@ -418,11 +449,9 @@ def demo_routing(steering: ActivationSteering):
         ("156 + 287 = ", "Model should handle"),
         ("347 * 892 = ", "Model should handle"),
         ("25 * 4 = ", "Model should handle"),
-
         # Should route to calculator (format issues)
         ("156 + 287 =", "Might need calculator"),
         ("347 * 892 =", "Might need calculator"),
-
         # Hard cases (should definitely route)
         ("12345678 * 87654321 = ", "Large numbers"),
         ("What is 999999 * 888888?", "Natural language"),
@@ -444,8 +473,10 @@ def demo_routing(steering: ActivationSteering):
             else:
                 status = "❌"
 
-        print(f"{status} [{route.value:10}] {prompt:<30} → {result:<10} "
-              f"(gate:{probe.space_peak_prob:.0%}, digit:{probe.digit_peak_prob:.0%})")
+        print(
+            f"{status} [{route.value:10}] {prompt:<30} → {result:<10} "
+            f"(gate:{probe.space_peak_prob:.0%}, digit:{probe.digit_peak_prob:.0%})"
+        )
 
     print("-" * 70)
 

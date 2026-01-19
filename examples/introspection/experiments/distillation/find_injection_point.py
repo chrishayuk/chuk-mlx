@@ -11,22 +11,21 @@ and still get correct outputs?
 Run: uv run python examples/introspection/find_injection_point.py
 """
 
-import time
+# Suppress warnings
+import warnings
 from dataclasses import dataclass
-from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 
-# Suppress warnings
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 @dataclass
 class InjectionResult:
     """Result of injecting at a specific layer."""
+
     layer: int
     accuracy: float
     similarity_to_normal: float
@@ -63,7 +62,7 @@ class SimpleAttention(nn.Module):
         q = self.rope(q)
         k = self.rope(k)
 
-        scale = self.head_dim ** -0.5
+        scale = self.head_dim**-0.5
         output = mx.fast.scaled_dot_product_attention(q, k, v, scale=scale, mask=mask)
 
         output = output.transpose(0, 2, 1, 3).reshape(batch_size, seq_len, -1)
@@ -151,13 +150,13 @@ class InjectionPointExperiment:
             self.layers = self.model.model.layers
             self.final_norm = self.model.model.norm
             self.hidden_size = self.model.model.hidden_size
-            self.embed_scale = self.hidden_size ** 0.5
+            self.embed_scale = self.hidden_size**0.5
         else:
             self.embed_layer = self.model.embed_tokens
             self.layers = self.model.layers
             self.final_norm = self.model.norm
             self.hidden_size = 640
-            self.embed_scale = self.hidden_size ** 0.5
+            self.embed_scale = self.hidden_size**0.5
 
         self.embeddings = self.embed_layer.weight.astype(mx.float32)
         self.num_layers = len(self.layers)
@@ -175,11 +174,13 @@ class InjectionPointExperiment:
             tokens = tokens.flatten().tolist()
 
         hooks = ModelHooks(self.model)
-        hooks.configure(CaptureConfig(
-            layers=[layer],
-            capture_hidden_states=True,
-            positions=PositionSelection.ALL,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=[layer],
+                capture_hidden_states=True,
+                positions=PositionSelection.ALL,
+            )
+        )
 
         input_ids = mx.array([tokens])
         hooks.forward(input_ids)
@@ -448,7 +449,9 @@ class InjectionPointExperiment:
             else:
                 transform = "direct"
 
-            print(f"L{layer:<7} {transform:<12} {result.accuracy:>9.1%} {result.similarity_to_normal:>11.3f}")
+            print(
+                f"L{layer:<7} {transform:<12} {result.accuracy:>9.1%} {result.similarity_to_normal:>11.3f}"
+            )
 
         # Find optimal
         best = max(results, key=lambda r: r.similarity_to_normal)

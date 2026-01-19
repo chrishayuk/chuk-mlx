@@ -40,11 +40,13 @@ class SentimentMLP(nn.Module):
     ):
         super().__init__()
         self.input_proj = nn.Linear(vocab_size, hidden_size)
-        self.mlp = MLP(FFNConfig(
-            hidden_size=hidden_size,
-            intermediate_size=intermediate_size,
-            activation=ActivationType.GELU,
-        ))
+        self.mlp = MLP(
+            FFNConfig(
+                hidden_size=hidden_size,
+                intermediate_size=intermediate_size,
+                activation=ActivationType.GELU,
+            )
+        )
         self.norm = RMSNorm(dims=hidden_size, eps=1e-5)
         self.classifier = nn.Linear(hidden_size, num_classes)
 
@@ -81,7 +83,9 @@ def main():
 
     # Evaluate
     results = evaluate_classifier(
-        model, tokenizer, test_data,
+        model,
+        tokenizer,
+        test_data,
         label_names=["negative", "positive"],
     )
     print(f"\nTest accuracy: {results['accuracy']:.2%}")

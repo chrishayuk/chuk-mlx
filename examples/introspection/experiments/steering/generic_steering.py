@@ -122,13 +122,15 @@ class GenericSteering:
 
     def get_hidden_state(self, prompt: str, layer: int) -> mx.array:
         """Get hidden state at a specific layer for a prompt."""
-        from chuk_lazarus.introspection.hooks import ModelHooks, CaptureConfig
+        from chuk_lazarus.introspection.hooks import CaptureConfig, ModelHooks
 
         hooks = ModelHooks(self.model)
-        hooks.configure(CaptureConfig(
-            layers=[layer],
-            capture_hidden_states=True,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=[layer],
+                capture_hidden_states=True,
+            )
+        )
 
         input_ids = self.tokenizer.encode(prompt, return_tensors="np")
         input_ids = mx.array(input_ids)
@@ -226,11 +228,7 @@ class GenericSteering:
             def __getattr__(self, name):
                 return getattr(self._wrapped, name)
 
-        self._layers[layer_idx] = SteeredWrapper(
-            original_layer,
-            direction.direction,
-            coefficient
-        )
+        self._layers[layer_idx] = SteeredWrapper(original_layer, direction.direction, coefficient)
 
     def _unwrap_layers(self) -> None:
         """Restore original layers."""
@@ -335,7 +333,8 @@ def main():
         epilog=__doc__,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         required=True,
         help="Model ID (HuggingFace or local path)",
     )
@@ -355,7 +354,8 @@ def main():
         help="Prompt to test steering on",
     )
     parser.add_argument(
-        "--layer", "-l",
+        "--layer",
+        "-l",
         type=int,
         required=True,
         help="Layer to apply steering at",

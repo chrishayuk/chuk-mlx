@@ -41,12 +41,12 @@ import argparse
 from dataclasses import dataclass
 
 import mlx.core as mx
-import mlx.nn as nn
 
 
 @dataclass
 class DecodeResult:
     """Result of layer decoding."""
+
     layer: int
     tokens: list[str]
     token_ids: list[int]
@@ -112,7 +112,7 @@ class LayerDecoder:
             cfg = self._backbone.config
             if hasattr(cfg, "hidden_size"):
                 # Gemma scales embeddings by sqrt(hidden_size)
-                self._embed_scale = cfg.hidden_size ** 0.5
+                self._embed_scale = cfg.hidden_size**0.5
 
     @classmethod
     def from_pretrained(cls, model_id: str) -> LayerDecoder:
@@ -132,13 +132,15 @@ class LayerDecoder:
 
         Returns: [batch, seq, hidden]
         """
-        from chuk_lazarus.introspection.hooks import ModelHooks, CaptureConfig
+        from chuk_lazarus.introspection.hooks import CaptureConfig, ModelHooks
 
         hooks = ModelHooks(self.model)
-        hooks.configure(CaptureConfig(
-            layers=[layer],
-            capture_hidden_states=True,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=[layer],
+                capture_hidden_states=True,
+            )
+        )
 
         input_ids = self.tokenizer.encode(prompt, return_tensors="np")
         input_ids = mx.array(input_ids)
@@ -253,13 +255,15 @@ class LayerDecoder:
 
         for _ in range(max_tokens):
             # Get hidden at layer
-            from chuk_lazarus.introspection.hooks import ModelHooks, CaptureConfig
+            from chuk_lazarus.introspection.hooks import CaptureConfig, ModelHooks
 
             hooks = ModelHooks(self.model)
-            hooks.configure(CaptureConfig(
-                layers=[layer],
-                capture_hidden_states=True,
-            ))
+            hooks.configure(
+                CaptureConfig(
+                    layers=[layer],
+                    capture_hidden_states=True,
+                )
+            )
             hooks.forward(current_ids)
 
             hidden = hooks.state.hidden_states[layer]
@@ -333,10 +337,7 @@ class LayerDecoder:
         print("-" * 70)
 
         for layer, result in sorted(results.items()):
-            top3 = ", ".join(
-                f"'{t}':{p:.1%}"
-                for t, p in zip(result.tokens[:3], result.probs[:3])
-            )
+            top3 = ", ".join(f"'{t}':{p:.1%}" for t, p in zip(result.tokens[:3], result.probs[:3]))
             print(f"L{layer:2d}: {top3}")
 
         print("=" * 70)
@@ -406,17 +407,20 @@ def main():
         epilog=__doc__,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="mlx-community/gemma-3-4b-it-bf16",
         help="Model ID",
     )
     parser.add_argument(
-        "--prompt", "-p",
+        "--prompt",
+        "-p",
         default="127 * 89 = ",
         help="Prompt to decode",
     )
     parser.add_argument(
-        "--layer", "-l",
+        "--layer",
+        "-l",
         type=int,
         default=28,
         help="Layer to decode from",

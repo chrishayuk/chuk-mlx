@@ -80,15 +80,19 @@ def load_functiongemma():
 
 def analyze_prompt(model, tokenizer, config, prompt: str, track_tokens: list[str] | None = None):
     """Run introspection on a prompt."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Prompt: {prompt}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Tokenize
     input_ids = tokenizer.encode(prompt, return_tensors="np")
     input_ids = mx.array(input_ids)
     tokens = [tokenizer.decode([tid]) for tid in input_ids[0].tolist()]
-    print(f"\nTokens ({len(tokens)}): {tokens[:10]}..." if len(tokens) > 10 else f"\nTokens ({len(tokens)}): {tokens}")
+    print(
+        f"\nTokens ({len(tokens)}): {tokens[:10]}..."
+        if len(tokens) > 10
+        else f"\nTokens ({len(tokens)}): {tokens}"
+    )
 
     # Setup hooks - capture every 4th layer for efficiency
     layers_to_capture = list(range(0, config.num_hidden_layers, 4))
@@ -98,11 +102,13 @@ def analyze_prompt(model, tokenizer, config, prompt: str, track_tokens: list[str
     print(f"\nCapturing layers: {layers_to_capture}")
 
     hooks = ModelHooks(model)
-    hooks.configure(CaptureConfig(
-        layers=layers_to_capture,
-        capture_hidden_states=True,
-        positions=PositionSelection.LAST,
-    ))
+    hooks.configure(
+        CaptureConfig(
+            layers=layers_to_capture,
+            capture_hidden_states=True,
+            positions=PositionSelection.LAST,
+        )
+    )
 
     # Forward pass
     print("\nRunning forward pass...")
@@ -115,13 +121,13 @@ def analyze_prompt(model, tokenizer, config, prompt: str, track_tokens: list[str
     top_5_probs = [float(probs[i]) for i in top_5_idx]
     top_5_tokens = [tokenizer.decode([i]) for i in top_5_idx]
 
-    print(f"\nFinal prediction (top 5):")
+    print("\nFinal prediction (top 5):")
     for tok, prob in zip(top_5_tokens, top_5_probs):
         bar = "#" * int(prob * 50)
         print(f"  {prob:.4f} {bar} '{tok}'")
 
     # Logit lens analysis
-    print(f"\n--- Logit Lens Analysis ---")
+    print("\n--- Logit Lens Analysis ---")
     lens = LogitLens(hooks, tokenizer)
 
     predictions = lens.get_layer_predictions(position=-1, top_k=3)
@@ -133,12 +139,14 @@ def analyze_prompt(model, tokenizer, config, prompt: str, track_tokens: list[str
 
     # Track specific tokens if provided
     if track_tokens:
-        print(f"\n--- Token Evolution ---")
+        print("\n--- Token Evolution ---")
         for token in track_tokens:
             try:
                 evolution = lens.track_token(token, position=-1)
                 print(f"\nToken '{token}':")
-                for layer, prob, rank in zip(evolution.layers, evolution.probabilities, evolution.ranks):
+                for layer, prob, rank in zip(
+                    evolution.layers, evolution.probabilities, evolution.ranks
+                ):
                     rank_str = f"rank {rank}" if rank else "not in top-100"
                     bar = "#" * int(prob * 100)
                     print(f"  Layer {layer:2d}: {prob:.4f} {bar} ({rank_str})")
@@ -155,14 +163,17 @@ def analyze_with_tools(
     model, tokenizer, config, chat_template: Template, user_message: str, tools: list[dict]
 ):
     """Run introspection on a function calling prompt with proper chat format."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"User: {user_message}")
     print(f"Tools: {[t['function']['name'] for t in tools]}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Format with chat template
     messages = [
-        {"role": "developer", "content": "You are a model that can do function calling with the following functions"},
+        {
+            "role": "developer",
+            "content": "You are a model that can do function calling with the following functions",
+        },
         {"role": "user", "content": user_message},
     ]
 
@@ -185,11 +196,13 @@ def analyze_with_tools(
     layers_to_capture = sorted(set(layers_to_capture))
 
     hooks = ModelHooks(model)
-    hooks.configure(CaptureConfig(
-        layers=layers_to_capture,
-        capture_hidden_states=True,
-        positions=PositionSelection.LAST,
-    ))
+    hooks.configure(
+        CaptureConfig(
+            layers=layers_to_capture,
+            capture_hidden_states=True,
+            positions=PositionSelection.LAST,
+        )
+    )
 
     # Forward pass
     print("Running forward pass...")
@@ -202,7 +215,7 @@ def analyze_with_tools(
     top_5_probs = [float(probs[i]) for i in top_5_idx]
     top_5_tokens = [tokenizer.decode([i]) for i in top_5_idx]
 
-    print(f"\nFinal prediction (top 5):")
+    print("\nFinal prediction (top 5):")
     for tok, prob in zip(top_5_tokens, top_5_probs):
         bar = "#" * int(prob * 50)
         # Clean up special characters for display
@@ -268,13 +281,17 @@ def main():
     print("#" * 60)
 
     analyze_prompt(
-        model, tokenizer, config,
+        model,
+        tokenizer,
+        config,
         prompt="The capital of France is",
         track_tokens=["Paris", " Paris"],
     )
 
     analyze_prompt(
-        model, tokenizer, config,
+        model,
+        tokenizer,
+        config,
         prompt="Hello",
         track_tokens=["!", "there", "world"],
     )
@@ -285,13 +302,19 @@ def main():
     print("#" * 60)
 
     analyze_with_tools(
-        model, tokenizer, config, chat_template,
+        model,
+        tokenizer,
+        config,
+        chat_template,
         user_message="What is the weather in Tokyo?",
         tools=tools,
     )
 
     analyze_with_tools(
-        model, tokenizer, config, chat_template,
+        model,
+        tokenizer,
+        config,
+        chat_template,
         user_message="Create an event called Team Meeting for tomorrow",
         tools=tools,
     )

@@ -20,7 +20,6 @@ import mlx.core as mx
 
 from chuk_lazarus.introspection import (
     CaptureConfig,
-    CapturedState,
     LayerSelection,
     LogitLens,
     ModelHooks,

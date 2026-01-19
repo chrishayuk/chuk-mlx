@@ -20,7 +20,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import mlx.core as mx
-
 from _loader import load_model
 
 # Default model pairs to compare
@@ -35,6 +34,7 @@ DEFAULT_PAIRS = {
 @dataclass
 class WeightDivergence:
     """Weight divergence between two models for a specific component."""
+
     layer: int
     component: str
     frobenius_norm_diff: float
@@ -47,19 +47,19 @@ def get_layer_weights(model, layer_idx: int) -> dict[str, mx.array]:
     weights = {}
 
     # Attention weights
-    if hasattr(layer, 'self_attn'):
+    if hasattr(layer, "self_attn"):
         attn = layer.self_attn
-        for name in ['q_proj', 'k_proj', 'v_proj', 'o_proj']:
+        for name in ["q_proj", "k_proj", "v_proj", "o_proj"]:
             if hasattr(attn, name):
-                weights[f'attn_{name[0]}'] = getattr(attn, name).weight
+                weights[f"attn_{name[0]}"] = getattr(attn, name).weight
 
     # MLP weights
-    if hasattr(layer, 'mlp'):
+    if hasattr(layer, "mlp"):
         mlp = layer.mlp
-        for name in ['gate_proj', 'up_proj', 'down_proj']:
+        for name in ["gate_proj", "up_proj", "down_proj"]:
             if hasattr(mlp, name):
-                short = name.replace('_proj', '')
-                weights[f'mlp_{short}'] = getattr(mlp, name).weight
+                short = name.replace("_proj", "")
+                weights[f"mlp_{short}"] = getattr(mlp, name).weight
 
     return weights
 
@@ -97,12 +97,14 @@ def compute_divergence(base_model, ft_model, num_layers: int) -> list[WeightDive
             norm_ft = float(mx.sqrt(mx.sum(ft_flat * ft_flat)))
             cos_sim = dot / (norm_base * norm_ft + 1e-8)
 
-            divergences.append(WeightDivergence(
-                layer=layer_idx,
-                component=component,
-                frobenius_norm_diff=normalized_diff,
-                cosine_similarity=cos_sim,
-            ))
+            divergences.append(
+                WeightDivergence(
+                    layer=layer_idx,
+                    component=component,
+                    frobenius_norm_diff=normalized_diff,
+                    cosine_similarity=cos_sim,
+                )
+            )
 
     return divergences
 
@@ -175,7 +177,7 @@ def print_summary(divergences: list[WeightDivergence], num_layers: int):
 
     # Top layers
     sorted_layers = sorted(layer_totals.items(), key=lambda x: x[1], reverse=True)
-    print(f"\nTop 5 divergent layers:")
+    print("\nTop 5 divergent layers:")
     for layer, total in sorted_layers[:5]:
         pct = (layer + 1) / num_layers * 100
         print(f"  Layer {layer} ({pct:.1f}% depth): {total:.6f}")
@@ -185,8 +187,9 @@ def main():
     parser = argparse.ArgumentParser(description="Weight Divergence Analysis")
     parser.add_argument("--base", default=None, help="Base model ID")
     parser.add_argument("--ft", default=None, help="Fine-tuned model ID")
-    parser.add_argument("--pair", choices=list(DEFAULT_PAIRS.keys()), default="gemma",
-                        help="Predefined model pair")
+    parser.add_argument(
+        "--pair", choices=list(DEFAULT_PAIRS.keys()), default="gemma", help="Predefined model pair"
+    )
     args = parser.parse_args()
 
     # Get model IDs

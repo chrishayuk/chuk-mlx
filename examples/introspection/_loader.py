@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
 
 
-def load_model(model_id: str) -> tuple[Any, "PreTrainedTokenizer", Any, Path]:
+def load_model(model_id: str) -> tuple[Any, PreTrainedTokenizer, Any, Path]:
     """Load any supported model using the unified loader.
 
     Auto-detects the model family and uses appropriate config/model classes.
@@ -89,7 +89,7 @@ def load_model(model_id: str) -> tuple[Any, "PreTrainedTokenizer", Any, Path]:
 
 def generate(
     model: Any,
-    tokenizer: "PreTrainedTokenizer",
+    tokenizer: PreTrainedTokenizer,
     prompt: str,
     max_new_tokens: int = 100,
     temperature: float = 0.0,
@@ -132,7 +132,7 @@ def generate(
 
 def generate_with_layer_ablation(
     model: Any,
-    tokenizer: "PreTrainedTokenizer",
+    tokenizer: PreTrainedTokenizer,
     prompt: str,
     ablate_layer: int | None = None,
     ablation_type: str = "mlp",
@@ -181,7 +181,7 @@ def generate_with_layer_ablation(
 
 
 def format_chat_prompt(
-    tokenizer: "PreTrainedTokenizer",
+    tokenizer: PreTrainedTokenizer,
     user_message: str,
     system_message: str | None = None,
 ) -> str:
@@ -273,6 +273,7 @@ def format_tool_prompt(
 @dataclass
 class ActivationDivergence:
     """Activation divergence between two models at a layer."""
+
     layer: int
     cosine_similarity: float
     l2_distance: float
@@ -281,7 +282,7 @@ class ActivationDivergence:
 
 def get_hidden_states(
     model: Any,
-    tokenizer: "PreTrainedTokenizer",
+    tokenizer: PreTrainedTokenizer,
     prompt: str,
 ) -> dict[int, mx.array]:
     """Get hidden states at each layer for the last token position.
@@ -300,11 +301,13 @@ def get_hidden_states(
     num_layers = model.config.num_hidden_layers
 
     hooks = ModelHooks(model)
-    hooks.configure(CaptureConfig(
-        layers=LayerSelection.ALL,
-        capture_hidden_states=True,
-        positions=PositionSelection.LAST,
-    ))
+    hooks.configure(
+        CaptureConfig(
+            layers=LayerSelection.ALL,
+            capture_hidden_states=True,
+            positions=PositionSelection.LAST,
+        )
+    )
 
     hooks.forward(input_ids)
 
@@ -321,7 +324,7 @@ def get_hidden_states(
 def compare_activations(
     model1: Any,
     model2: Any,
-    tokenizer: "PreTrainedTokenizer",
+    tokenizer: PreTrainedTokenizer,
     prompt: str,
 ) -> list[ActivationDivergence]:
     """Compare activations between two models.
@@ -362,12 +365,14 @@ def compare_activations(
         avg_norm = (norm1 + norm2) / 2
         rel_l2 = l2_dist / (avg_norm + 1e-8)
 
-        divergences.append(ActivationDivergence(
-            layer=layer_idx,
-            cosine_similarity=cos_sim,
-            l2_distance=l2_dist,
-            relative_l2=rel_l2,
-        ))
+        divergences.append(
+            ActivationDivergence(
+                layer=layer_idx,
+                cosine_similarity=cos_sim,
+                l2_distance=l2_dist,
+                relative_l2=rel_l2,
+            )
+        )
 
     return divergences
 
@@ -457,7 +462,7 @@ def create_head_mask(
 
 def generate_with_head_ablation(
     model: Any,
-    tokenizer: "PreTrainedTokenizer",
+    tokenizer: PreTrainedTokenizer,
     prompt: str,
     ablate_heads: list[tuple[int, int]],
     max_new_tokens: int = 50,

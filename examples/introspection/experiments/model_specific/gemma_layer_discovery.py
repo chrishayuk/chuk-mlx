@@ -43,9 +43,8 @@ Usage:
 import argparse
 import json
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -57,14 +56,15 @@ from sklearn.model_selection import cross_val_score
 from chuk_lazarus.inference.loader import DType, HFLoader
 from chuk_lazarus.models_v2.families.registry import detect_model_family, get_family_info
 
-
 # =============================================================================
 # Data Classes
 # =============================================================================
 
+
 @dataclass
 class LayerActivation:
     """Captured activation at a layer."""
+
     layer: int
     hidden_state: np.ndarray  # [hidden_size] - last token
     mlp_activation: np.ndarray | None = None  # [intermediate_size] - MLP internals
@@ -73,6 +73,7 @@ class LayerActivation:
 @dataclass
 class ProbeResult:
     """Result of probing a layer for a feature."""
+
     layer: int
     accuracy: float
     auc: float
@@ -83,6 +84,7 @@ class ProbeResult:
 @dataclass
 class ClassificationCircuitResult:
     """Result of classification circuit analysis."""
+
     task_name: str
     emergence_layer: int | None  # First layer with >70% accuracy
     peak_layer: int  # Layer with highest accuracy
@@ -94,6 +96,7 @@ class ClassificationCircuitResult:
 @dataclass
 class LookupTableAnalysis:
     """Analysis of multiplication table structure."""
+
     operand_a: int
     operand_b: int
     correct_answer: int
@@ -108,6 +111,7 @@ class LookupTableAnalysis:
 @dataclass
 class NeuronProfile:
     """Profile of a single neuron."""
+
     layer: int
     neuron_idx: int
     mean_positive: float
@@ -120,6 +124,7 @@ class NeuronProfile:
 # =============================================================================
 # Core Discovery Class
 # =============================================================================
+
 
 class GemmaLayerDiscovery:
     """
@@ -199,7 +204,7 @@ class GemmaLayerDiscovery:
         if hasattr(self.config, "embedding_scale"):
             return self.config.embedding_scale
         # Gemma default: sqrt(hidden_size)
-        return float(self.config.hidden_size ** 0.5)
+        return float(self.config.hidden_size**0.5)
 
     def extract_layer_activations(
         self,
@@ -348,7 +353,9 @@ class GemmaLayerDiscovery:
                     "What's 12 * 12?",
                     "Compute 999 + 1",
                     "What is 7 * 6?",
-                ] if not quick else [
+                ]
+                if not quick
+                else [
                     "What is 7 * 8?",
                     "Calculate 15 + 23",
                     "What is 9 * 9?",
@@ -364,7 +371,9 @@ class GemmaLayerDiscovery:
                     "What causes earthquakes?",
                     "Explain democracy",
                     "Who invented the telephone?",
-                ] if not quick else [
+                ]
+                if not quick
+                else [
                     "What is the capital of France?",
                     "Explain quantum physics",
                     "What is photosynthesis?",
@@ -382,7 +391,9 @@ class GemmaLayerDiscovery:
                     "try:\n    result = ",
                     "return sorted(items)",
                     "with open('file.txt') as f:",
-                ] if not quick else [
+                ]
+                if not quick
+                else [
                     "def fibonacci(n):",
                     "for i in range(10):",
                     "import numpy as np",
@@ -398,7 +409,9 @@ class GemmaLayerDiscovery:
                     "Benefits of exercise",
                     "How to learn a new language",
                     "Best vacation destinations",
-                ] if not quick else [
+                ]
+                if not quick
+                else [
                     "The weather today is",
                     "I enjoy reading books about",
                     "How to make pasta",
@@ -596,7 +609,9 @@ class GemmaLayerDiscovery:
 
                 # Check adjacent (within 10)
                 if abs(val - correct) <= 10 and sources:
-                    adjacent.append({"value": val, "prob": prob, "from": f"{sources[0][0]}*{sources[0][1]}"})
+                    adjacent.append(
+                        {"value": val, "prob": prob, "from": f"{sources[0][0]}*{sources[0][1]}"}
+                    )
 
             # Interpretation
             if len(same_row) > len(same_col):
@@ -608,19 +623,23 @@ class GemmaLayerDiscovery:
             else:
                 interpretation = "Product-based or unique"
 
-            results.append(LookupTableAnalysis(
-                operand_a=a,
-                operand_b=b,
-                correct_answer=correct,
-                correct_rank=correct_rank,
-                correct_prob=correct_prob,
-                same_row=same_row[:5],
-                same_col=same_col[:5],
-                adjacent_products=adjacent[:5],
-                interpretation=interpretation,
-            ))
+            results.append(
+                LookupTableAnalysis(
+                    operand_a=a,
+                    operand_b=b,
+                    correct_answer=correct,
+                    correct_rank=correct_rank,
+                    correct_prob=correct_prob,
+                    same_row=same_row[:5],
+                    same_col=same_col[:5],
+                    adjacent_products=adjacent[:5],
+                    interpretation=interpretation,
+                )
+            )
 
-            print(f"  Same row: {len(same_row)}, Same col: {len(same_col)}, Adjacent: {len(adjacent)}")
+            print(
+                f"  Same row: {len(same_row)}, Same col: {len(same_col)}, Adjacent: {len(adjacent)}"
+            )
             print(f"  Interpretation: {interpretation}")
 
         # Summary
@@ -659,11 +678,13 @@ class GemmaLayerDiscovery:
         problems = []
         for a in range(2, 10):
             for b in range(2, 10):
-                problems.append({
-                    "prompt": f"{a} * {b} = ",
-                    "answer": str(a * b),
-                    "first_digit": str(a * b)[0],
-                })
+                problems.append(
+                    {
+                        "prompt": f"{a} * {b} = ",
+                        "answer": str(a * b),
+                        "first_digit": str(a * b)[0],
+                    }
+                )
 
         if quick:
             problems = problems[::8]  # Sample every 8th
@@ -705,7 +726,9 @@ class GemmaLayerDiscovery:
                 layer_data[layer]["X"].append(activations[layer].hidden_state)
                 layer_data[layer]["y"].append(target_id)
 
-        print(f"\nModel accuracy: {model_correct}/{model_total} ({100*model_correct/model_total:.1f}%)")
+        print(
+            f"\nModel accuracy: {model_correct}/{model_total} ({100 * model_correct / model_total:.1f}%)"
+        )
 
         # Train probes at each layer
         print("\nTraining probes per layer...")
@@ -734,7 +757,7 @@ class GemmaLayerDiscovery:
                 expected = prob["first_digit"]
                 model_pred = self.get_model_prediction(prob["prompt"], top_k=1)[0][0].strip()
                 model_is_correct = expected in model_pred
-                probe_is_correct = (probe_preds[i] == layer_data[layer]["y"][i])
+                probe_is_correct = probe_preds[i] == layer_data[layer]["y"][i]
 
                 if probe_is_correct and not model_is_correct:
                     n_ghosts += 1
@@ -746,10 +769,10 @@ class GemmaLayerDiscovery:
         # Find best ghost layer
         best_ghost_layer = max(ghosts_found, key=ghosts_found.get)
 
-        print(f"\n{'='*50}")
+        print(f"\n{'=' * 50}")
         print("GHOST COMPUTATION SUMMARY")
-        print(f"{'='*50}")
-        print(f"Model accuracy: {100*model_correct/model_total:.1f}%")
+        print(f"{'=' * 50}")
+        print(f"Model accuracy: {100 * model_correct / model_total:.1f}%")
         print(f"Best ghost layer: L{best_ghost_layer} ({ghosts_found[best_ghost_layer]} ghosts)")
         print(f"Best probe accuracy: {max(layer_probe_accuracy.values()):.1%}")
 
@@ -786,8 +809,14 @@ class GemmaLayerDiscovery:
 
         # Prompts
         arithmetic_prompts = [
-            "7 * 8 = ", "15 + 23 = ", "100 - 37 = ", "144 / 12 = ",
-            "9 * 9 = ", "25 + 17 = ", "50 - 8 = ", "81 / 9 = ",
+            "7 * 8 = ",
+            "15 + 23 = ",
+            "100 - 37 = ",
+            "144 / 12 = ",
+            "9 * 9 = ",
+            "25 + 17 = ",
+            "50 - 8 = ",
+            "81 / 9 = ",
         ]
 
         language_prompts = [
@@ -858,14 +887,16 @@ class GemmaLayerDiscovery:
             except:
                 auc = 0.5
 
-            neuron_profiles.append({
-                "neuron_idx": neuron_idx,
-                "mean_arithmetic": mean_arith,
-                "mean_language": mean_lang,
-                "separation": separation,
-                "auc": auc,
-                "prefers": "arithmetic" if mean_arith > mean_lang else "language",
-            })
+            neuron_profiles.append(
+                {
+                    "neuron_idx": neuron_idx,
+                    "mean_arithmetic": mean_arith,
+                    "mean_language": mean_lang,
+                    "separation": separation,
+                    "auc": auc,
+                    "prefers": "arithmetic" if mean_arith > mean_lang else "language",
+                }
+            )
 
         # Sort by separation
         neuron_profiles.sort(key=lambda x: -x["separation"])
@@ -874,19 +905,23 @@ class GemmaLayerDiscovery:
         top_arith = [n for n in neuron_profiles if n["prefers"] == "arithmetic"][:10]
         top_lang = [n for n in neuron_profiles if n["prefers"] == "language"][:10]
 
-        print(f"\nTop 10 ARITHMETIC-preferring neurons:")
+        print("\nTop 10 ARITHMETIC-preferring neurons:")
         print(f"{'Neuron':<10} {'Sep':<8} {'AUC':<8} {'μ_arith':<12} {'μ_lang':<12}")
         print("-" * 50)
         for n in top_arith:
-            print(f"{n['neuron_idx']:<10} {n['separation']:<8.2f} {n['auc']:<8.3f} "
-                  f"{n['mean_arithmetic']:<12.2f} {n['mean_language']:<12.2f}")
+            print(
+                f"{n['neuron_idx']:<10} {n['separation']:<8.2f} {n['auc']:<8.3f} "
+                f"{n['mean_arithmetic']:<12.2f} {n['mean_language']:<12.2f}"
+            )
 
-        print(f"\nTop 10 LANGUAGE-preferring neurons:")
+        print("\nTop 10 LANGUAGE-preferring neurons:")
         print(f"{'Neuron':<10} {'Sep':<8} {'AUC':<8} {'μ_arith':<12} {'μ_lang':<12}")
         print("-" * 50)
         for n in top_lang:
-            print(f"{n['neuron_idx']:<10} {n['separation']:<8.2f} {n['auc']:<8.3f} "
-                  f"{n['mean_arithmetic']:<12.2f} {n['mean_language']:<12.2f}")
+            print(
+                f"{n['neuron_idx']:<10} {n['separation']:<8.2f} {n['auc']:<8.3f} "
+                f"{n['mean_arithmetic']:<12.2f} {n['mean_language']:<12.2f}"
+            )
 
         # How many neurons are highly specialized?
         high_sep = [n for n in neuron_profiles if n["separation"] > 1.0]
@@ -922,10 +957,12 @@ class GemmaLayerDiscovery:
         problems = []
         for a in range(2, 10):
             for b in range(2, 10):
-                problems.append({
-                    "prompt": f"{a} * {b} = ",
-                    "answer": a * b,
-                })
+                problems.append(
+                    {
+                        "prompt": f"{a} * {b} = ",
+                        "answer": a * b,
+                    }
+                )
 
         if quick:
             problems = problems[::8]
@@ -993,20 +1030,24 @@ class GemmaLayerDiscovery:
         for i, prob in enumerate(problems):
             diff = activation_info[i] - logit_probs[i]
             if diff > 0.2:  # Probe much more confident
-                activation_advantage.append({
-                    "problem": prob["prompt"],
-                    "answer": prob["answer"],
-                    "logit_prob": logit_probs[i],
-                    "probe_prob": activation_info[i],
-                    "advantage": diff,
-                })
+                activation_advantage.append(
+                    {
+                        "problem": prob["prompt"],
+                        "answer": prob["answer"],
+                        "logit_prob": logit_probs[i],
+                        "probe_prob": activation_info[i],
+                        "advantage": diff,
+                    }
+                )
 
         activation_advantage.sort(key=lambda x: -x["advantage"])
 
-        print(f"\nProblems where ACTIVATION >> LOGIT:")
+        print("\nProblems where ACTIVATION >> LOGIT:")
         for case in activation_advantage[:5]:
             print(f"  {case['problem']} = {case['answer']}")
-            print(f"    Logit: {case['logit_prob']:.3f}, Probe: {case['probe_prob']:.3f}, Advantage: {case['advantage']:+.3f}")
+            print(
+                f"    Logit: {case['logit_prob']:.3f}, Probe: {case['probe_prob']:.3f}, Advantage: {case['advantage']:+.3f}"
+            )
 
         return {
             "logit_mean": logit_mean,
@@ -1047,7 +1088,9 @@ class GemmaLayerDiscovery:
 
         print("\n1. CLASSIFICATION CIRCUITS:")
         for task, result in results["classification"].items():
-            print(f"   {task}: emerges L{result.emergence_layer}, peaks L{result.peak_layer} ({result.peak_accuracy:.1%})")
+            print(
+                f"   {task}: emerges L{result.emergence_layer}, peaks L{result.peak_layer} ({result.peak_accuracy:.1%})"
+            )
 
         print("\n2. LOOKUP TABLE STRUCTURE:")
         row_bias = sum(1 for r in results["lookup_tables"] if "ROW" in r.interpretation)
@@ -1057,16 +1100,22 @@ class GemmaLayerDiscovery:
         print("\n3. GHOST COMPUTATIONS:")
         ghost = results["ghost"]
         print(f"   Model accuracy: {ghost['model_accuracy']:.1%}")
-        print(f"   Best ghost layer: L{ghost['best_ghost_layer']} ({ghost['ghosts_per_layer'][ghost['best_ghost_layer']]} ghosts)")
+        print(
+            f"   Best ghost layer: L{ghost['best_ghost_layer']} ({ghost['ghosts_per_layer'][ghost['best_ghost_layer']]} ghosts)"
+        )
 
         print("\n4. NEURON SPECIALIZATION:")
         neurons = results["neurons"]
         if neurons:
-            print(f"   Layer {neurons['layer']}: {neurons['highly_specialized_count']}/{neurons['total_neurons']} highly specialized")
+            print(
+                f"   Layer {neurons['layer']}: {neurons['highly_specialized_count']}/{neurons['total_neurons']} highly specialized"
+            )
 
         print("\n5. ACTIVATION VS LOGIT:")
         avl = results["activation_vs_logit"]
-        print(f"   Logit mean: {avl['logit_mean']:.3f}, Activation mean: {avl['activation_mean']:.3f}")
+        print(
+            f"   Logit mean: {avl['logit_mean']:.3f}, Activation mean: {avl['activation_mean']:.3f}"
+        )
         print(f"   Cases with activation advantage: {len(avl['activation_advantage_cases'])}")
 
         # Save results
@@ -1112,12 +1161,17 @@ class GemmaLayerDiscovery:
 
 def main():
     parser = argparse.ArgumentParser(description="Gemma Layer Discovery")
-    parser.add_argument("--model", "-m", default="mlx-community/gemma-3-4b-it-bf16",
-                        help="Model ID")
-    parser.add_argument("--quick", "-q", action="store_true",
-                        help="Quick mode (fewer tests)")
-    parser.add_argument("--experiment", "-e", choices=["classification", "lookup_table", "ghost", "neurons", "activation_logit", "all"],
-                        default="all", help="Which experiment to run")
+    parser.add_argument(
+        "--model", "-m", default="mlx-community/gemma-3-4b-it-bf16", help="Model ID"
+    )
+    parser.add_argument("--quick", "-q", action="store_true", help="Quick mode (fewer tests)")
+    parser.add_argument(
+        "--experiment",
+        "-e",
+        choices=["classification", "lookup_table", "ghost", "neurons", "activation_logit", "all"],
+        default="all",
+        help="Which experiment to run",
+    )
     args = parser.parse_args()
 
     discovery = GemmaLayerDiscovery(model_id=args.model)

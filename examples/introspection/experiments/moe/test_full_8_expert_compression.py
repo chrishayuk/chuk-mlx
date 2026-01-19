@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
 import mlx.core as mx
-from mlx_lm import load, generate
+from mlx_lm import generate, load
 
 from chuk_lazarus.introspection.moe import (
     ExpertCompressor,
@@ -33,12 +33,15 @@ def main():
 
     # Load
     print("\nLoading GPT-OSS...")
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
     model, tokenizer = load(str(model_path))
 
     # Baseline size
     baseline = estimate_model_size(model)
-    print(f"\nBaseline: {baseline['total']/1e9:.2f}B params")
+    print(f"\nBaseline: {baseline['total'] / 1e9:.2f}B params")
 
     # Test prompts - more diverse for quality check
     prompts = [
@@ -79,7 +82,9 @@ def main():
     for i, layer_idx in enumerate(hooks.moe_layer_indices):
         plan = plans[i]
         config = compressor.apply_compression(plan, layer_idx, inplace=True)
-        print(f"  Layer {layer_idx}: {config.original_num_experts} -> {config.compressed_num_experts}")
+        print(
+            f"  Layer {layer_idx}: {config.original_num_experts} -> {config.compressed_num_experts}"
+        )
 
     # Force evaluation
     mx.eval(model.parameters())
@@ -87,10 +92,10 @@ def main():
 
     # Verify size reduction
     compressed = estimate_model_size(model)
-    print(f"\n--- SIZE VERIFICATION ---")
-    print(f"  Before: {baseline['total']/1e9:.2f}B")
-    print(f"  After:  {compressed['total']/1e9:.2f}B")
-    print(f"  Reduction: {(1 - compressed['total']/baseline['total'])*100:.1f}%")
+    print("\n--- SIZE VERIFICATION ---")
+    print(f"  Before: {baseline['total'] / 1e9:.2f}B")
+    print(f"  After:  {compressed['total'] / 1e9:.2f}B")
+    print(f"  Reduction: {(1 - compressed['total'] / baseline['total']) * 100:.1f}%")
 
     # Test outputs after FULL compression
     print("\n--- POST-COMPRESSION OUTPUTS (ALL LAYERS) ---")
@@ -112,8 +117,8 @@ def main():
     print("\n" + "=" * 60)
     print("RESULTS SUMMARY")
     print("=" * 60)
-    print(f"  Model size: {baseline['total']/1e9:.2f}B -> {compressed['total']/1e9:.2f}B")
-    print(f"  Reduction: {(1 - compressed['total']/baseline['total'])*100:.1f}%")
+    print(f"  Model size: {baseline['total'] / 1e9:.2f}B -> {compressed['total'] / 1e9:.2f}B")
+    print(f"  Reduction: {(1 - compressed['total'] / baseline['total']) * 100:.1f}%")
     print(f"  Avg quality (token overlap): {avg_quality:.0%}")
     print("=" * 60)
 

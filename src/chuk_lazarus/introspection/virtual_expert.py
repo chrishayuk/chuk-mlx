@@ -36,6 +36,8 @@ from pydantic import BaseModel, ConfigDict, Field
 # Re-export core classes from inference
 from chuk_lazarus.inference.virtual_expert import (
     MathExpertPlugin,
+    RoutingDecision,
+    RoutingTrace,
     SafeMathEvaluator,
     VirtualExpertAnalysis,
     VirtualExpertApproach,
@@ -198,6 +200,7 @@ class VirtualExpertConfig(BaseModel):
     layer: int | None = Field(default=None, description="Target layer")
     expert: int | None = Field(default=None, description="Target expert")
     prompt: str | None = Field(default=None, description="Prompt for solve/compare")
+    verbose: bool = Field(default=False, description="Show detailed routing trace")
     test_categories: dict[str, list[str]] | None = Field(
         default=None, description="Test categories for analyze"
     )
@@ -232,9 +235,20 @@ class VirtualExpertServiceResult(BaseModel):
             lines.append(f"\nAccuracy: {self.accuracy:.1%}")
 
         if self.summary:
+            # Special handling for routing trace (verbose mode)
+            routing_trace = self.summary.pop("routing_trace", None)
+
             lines.append("\nSummary:")
             for key, value in self.summary.items():
+                if key in ("hijack_layer", "hijack_confidence"):
+                    continue  # Handled in routing trace
                 lines.append(f"  {key}: {value}")
+
+            # Show routing trace prominently if present
+            if routing_trace:
+                lines.append(f"\n{'-' * 70}")
+                lines.append("ROUTING TRACE:")
+                lines.append(routing_trace)
 
         return "\n".join(lines)
 
@@ -275,14 +289,13 @@ class VirtualExpertService:
             category_results = []
             for prompt in prompts:
                 try:
-                    result = wrapper.run(prompt, max_tokens=10)
+                    result = wrapper.solve(prompt, max_tokens=10)
                     category_results.append(
                         {
                             "prompt": prompt,
-                            "output": (result.output if hasattr(result, "output") else str(result)),
-                            "expert_used": (
-                                result.expert_used if hasattr(result, "expert_used") else None
-                            ),
+                            "output": result.answer,
+                            "plugin_used": result.plugin_name,
+                            "used_virtual_expert": result.used_virtual_expert,
                         }
                     )
                 except Exception as e:
@@ -294,7 +307,7 @@ class VirtualExpertService:
                     )
 
             results.extend(category_results)
-            summary[category] = len(category_results)
+            summary[category.upper()] = len(category_results)
 
         return VirtualExpertServiceResult(
             action="analyze",
@@ -325,18 +338,19 @@ class VirtualExpertService:
         # Wrap with virtual expert system
         wrapper = VirtualMoEWrapper(model, tokenizer, config.model)
 
-        # Run generation
-        result = wrapper.run(config.prompt, max_tokens=30)
-        output = result.output if hasattr(result, "output") else str(result)
+        # Solve using virtual expert
+        result = wrapper.solve(config.prompt, max_tokens=30)
 
         return VirtualExpertServiceResult(
             action="solve",
-            answer=output,
+            answer=result.answer,
             results=[
                 {
                     "prompt": config.prompt,
-                    "output": output,
-                    "expert_used": (result.expert_used if hasattr(result, "expert_used") else None),
+                    "output": result.answer,
+                    "plugin_used": result.plugin_name,
+                    "used_virtual_expert": result.used_virtual_expert,
+                    "is_correct": result.is_correct,
                 }
             ],
         )
@@ -378,11 +392,10 @@ class VirtualExpertService:
             expected = problem.get("expected", "")
 
             try:
-                result = wrapper.run(prompt, max_tokens=10)
-                output = result.output if hasattr(result, "output") else str(result)
+                result = wrapper.solve(prompt, max_tokens=10)
 
                 # Check if answer matches
-                is_correct = expected in output.strip()
+                is_correct = expected in result.answer.strip()
                 if is_correct:
                     correct += 1
 
@@ -390,8 +403,9 @@ class VirtualExpertService:
                     {
                         "prompt": prompt,
                         "expected": expected,
-                        "output": output,
+                        "output": result.answer,
                         "correct": is_correct,
+                        "plugin_used": result.plugin_name,
                     }
                 )
             except Exception as e:
@@ -433,14 +447,11 @@ class VirtualExpertService:
         model = load_result.model
         tokenizer = load_result.tokenizer
 
-        # Generate with virtual expert
+        # Generate with virtual expert (use compare method which handles everything)
         wrapper = VirtualMoEWrapper(model, tokenizer, config.model)
-        expert_result = wrapper.run(config.prompt, max_tokens=30)
-        expert_output = (
-            expert_result.output if hasattr(expert_result, "output") else str(expert_result)
-        )
+        result = wrapper.compare(config.prompt, verbose=config.verbose)
 
-        # Generate without virtual expert (direct)
+        # Generate without virtual expert (direct) for comparison
         direct_model, direct_tokenizer = load(config.model)
         direct_output = generate(
             direct_model,
@@ -450,22 +461,32 @@ class VirtualExpertService:
             verbose=False,
         )
 
+        # Build result with routing trace if verbose
+        summary = {
+            "with_expert": result.answer[:50] if result.answer else "",
+            "without_expert": direct_output[:50],
+        }
+
+        if config.verbose and result.routing_trace:
+            summary["routing_trace"] = result.routing_trace.format_verbose()
+            if result.routing_trace.hijack_layer is not None:
+                summary["hijack_layer"] = result.routing_trace.hijack_layer
+                summary["hijack_confidence"] = result.routing_trace.hijack_confidence
+
         return VirtualExpertServiceResult(
             action="compare",
             results=[
                 {
                     "prompt": config.prompt,
-                    "with_expert": expert_output,
+                    "with_expert": result.answer,
                     "without_expert": direct_output,
-                    "expert_used": (
-                        expert_result.expert_used if hasattr(expert_result, "expert_used") else None
-                    ),
+                    "plugin_used": result.plugin_name,
+                    "used_virtual_expert": result.used_virtual_expert,
+                    "is_correct": result.is_correct,
+                    "routing_score": result.routing_score,
                 }
             ],
-            summary={
-                "with_expert": expert_output[:50],
-                "without_expert": direct_output[:50],
-            },
+            summary=summary,
         )
 
     @classmethod
@@ -504,6 +525,9 @@ __all__ = [
     "SafeMathEvaluator",
     "create_virtual_expert_wrapper",
     "get_default_registry",
+    # Routing trace (verbose output)
+    "RoutingDecision",
+    "RoutingTrace",
     # Legacy aliases
     "ExpertHijacker",
     "VirtualExpertSlot",

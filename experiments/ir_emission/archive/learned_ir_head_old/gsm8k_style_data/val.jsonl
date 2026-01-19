@@ -1,0 +1,200 @@
+{"q": "David has 30 pages. David uses 17 for gifts. How many pages does David have remaining?", "ir": "step1 = 30-17\n[END]", "ans": 13, "pattern": "subtract_uses"}
+{"q": "Randy has 20 cards. Randy gives half of them to Chris. How many cards does Chris receive?", "ir": "step1 = 20/2\n[END]", "ans": 10, "pattern": "divide_half"}
+{"q": "Janet makes 9 clips per day for 5 days. Janet sells 8 of them and gives 10 to friends. How many clips does Janet have left?", "ir": "step1 = 9*5\nstep2 = step1-8\nstep3 = step2-10\n[END]", "ans": 27, "pattern": "three_step_production"}
+{"q": "John has 49 shirts. John gives 8 shirts to Sarah. How many shirts does John have now?", "ir": "step1 = 49-8\n[END]", "ans": 41, "pattern": "subtract_gives"}
+{"q": "Emma earns $11 per hour. Emma works 5 hours a day for 6 days. After that, Emma spends $74 on a new phone. How much money does Emma have left?", "ir": "step1 = 11*5\nstep2 = step1*6\nstep3 = step2-74\n[END]", "ans": 256, "pattern": "complex_work"}
+{"q": "David has $91. David spends $79 on a toy. How much money does David have left?", "ir": "step1 = 91-79\n[END]", "ans": 12, "pattern": "subtract_spends"}
+{"q": "Mike has $122. Mike spends $22 on a book. How much money does Mike have left?", "ir": "step1 = 122-22\n[END]", "ans": 100, "pattern": "subtract_spends"}
+{"q": "James makes 6 pencils per day for 3 days. James sells 9 of them and gives 4 to friends. How many pencils does James have left?", "ir": "step1 = 6*3\nstep2 = step1-9\nstep3 = step2-4\n[END]", "ans": 5, "pattern": "three_step_production"}
+{"q": "Chris has 22 clips. Chris finds 6 additional clips. How many clips does Chris have in total?", "ir": "step1 = 22+6\n[END]", "ans": 28, "pattern": "add_finds"}
+{"q": "Mark has 26 balls. Mark finds 12 additional balls. How many balls does Mark have in total?", "ir": "step1 = 26+12\n[END]", "ans": 38, "pattern": "add_finds"}
+{"q": "Lisa has 68 pencils. Lisa gives half of them to Amy. How many pencils does Amy receive?", "ir": "step1 = 68/2\n[END]", "ans": 34, "pattern": "divide_half"}
+{"q": "Tom has 64 clips. Tom gives half of them to James. How many clips does James receive?", "ir": "step1 = 64/2\n[END]", "ans": 32, "pattern": "divide_half"}
+{"q": "Sarah has 38 shirts. Sarah gives 5 shirts to Janet. How many shirts does Sarah have now?", "ir": "step1 = 38-5\n[END]", "ans": 33, "pattern": "subtract_gives"}
+{"q": "There are 16 balls. They are split into 4 equal groups. How many balls are in each group?", "ir": "step1 = 16/4\n[END]", "ans": 4, "pattern": "divide_split"}
+{"q": "Janet earns $16 per hour. After working 4 hours, Janet spends $10 on supplies. How much money does Janet have left?", "ir": "step1 = 16*4\nstep2 = step1-10\n[END]", "ans": 54, "pattern": "two_step_earn_spend"}
+{"q": "John has 11 packs. Each pack has 11 flowers. How many flowers does John have in total?", "ir": "step1 = 11*11\n[END]", "ans": 121, "pattern": "multiply_each"}
+{"q": "Amy has 12 bottles. Mike has twice as many bottles. How many bottles does Mike have?", "ir": "step1 = 12*2\n[END]", "ans": 24, "pattern": "multiply_twice"}
+{"q": "Randy earns $19 per hour. Randy works 7 hours a day for 3 days. After that, Randy spends $93 on a new phone. How much money does Randy have left?", "ir": "step1 = 19*7\nstep2 = step1*3\nstep3 = step2-93\n[END]", "ans": 306, "pattern": "complex_work"}
+{"q": "Sarah has 31 flowers. Sarah uses 17 for decorations. How many flowers does Sarah have remaining?", "ir": "step1 = 31-17\n[END]", "ans": 14, "pattern": "subtract_uses"}
+{"q": "Weng has 27 cookies. James has twice as many cookies. How many cookies does James have?", "ir": "step1 = 27*2\n[END]", "ans": 54, "pattern": "multiply_twice"}
+{"q": "Amy has 30 marbles. Amy finds 15 additional marbles. How many marbles does Amy have in total?", "ir": "step1 = 30+15\n[END]", "ans": 45, "pattern": "add_finds"}
+{"q": "Betty buys 25 apples. Betty uses 4 of them. Betty sells the rest at $2 each. How much money does Betty make from selling?", "ir": "step1 = 25-4\nstep2 = step1*2\n[END]", "ans": 42, "pattern": "three_step_buy_sell"}
+{"q": "Amy has 29 bags. Amy uses 5 for school. How many bags does Amy have remaining?", "ir": "step1 = 29-5\n[END]", "ans": 24, "pattern": "subtract_uses"}
+{"q": "Julie has $93 saved. Julie earns $34 more from working. How much money does Julie have now?", "ir": "step1 = 93+34\n[END]", "ans": 127, "pattern": "add_earns"}
+{"q": "Natalia has 10 baskets. Each basket has 12 cards. How many cards does Natalia have in total?", "ir": "step1 = 10*12\n[END]", "ans": 120, "pattern": "multiply_each"}
+{"q": "Weng has 11 bottles. Emma has twice as many bottles. How many bottles does Emma have?", "ir": "step1 = 11*2\n[END]", "ans": 22, "pattern": "multiply_twice"}
+{"q": "Sarah buys 39 books. Sarah uses 3 of them. Sarah sells the rest at $4 each. How much money does Sarah make from selling?", "ir": "step1 = 39-3\nstep2 = step1*4\n[END]", "ans": 144, "pattern": "three_step_buy_sell"}
+{"q": "Janet's hens lay 21 eggs per day. Janet eats 2 for breakfast every morning and uses 2 for baking. Janet sells the remaining eggs at $5 each. How much money does Janet make each day?", "ir": "step1 = 21-2\nstep2 = step1-2\nstep3 = step2*5\n[END]", "ans": 85, "pattern": "janet_ducks"}
+{"q": "James's ducks lay 14 eggs per day. James eats 4 for breakfast every morning and uses 4 for baking. James sells the remaining eggs at $3 each. How much money does James make each day?", "ir": "step1 = 14-4\nstep2 = step1-4\nstep3 = step2*3\n[END]", "ans": 18, "pattern": "janet_ducks"}
+{"q": "Tom earns $19 per hour. If tom works 6 hours, how much does tom earn?", "ir": "step1 = 19*6\n[END]", "ans": 114, "pattern": "multiply_per"}
+{"q": "Tom has 41 pens. Tom gives 3 pens to Janet. How many pens does Tom have now?", "ir": "step1 = 41-3\n[END]", "ans": 38, "pattern": "subtract_gives"}
+{"q": "Julie earns $13 per hour. Julie works 7 hours a day for 6 days. After that, Julie spends $60 on a new phone. How much money does Julie have left?", "ir": "step1 = 13*7\nstep2 = step1*6\nstep3 = step2-60\n[END]", "ans": 486, "pattern": "complex_work"}
+{"q": "Lisa has 45 cookies. Lisa eats 3 for breakfast and uses 4 for baking. How many cookies does Lisa have left?", "ir": "step1 = 45-3\nstep2 = step1-4\n[END]", "ans": 38, "pattern": "two_step_consume"}
+{"q": "Betty has 13 baskets. Each basket has 11 bags. How many bags does Betty have in total?", "ir": "step1 = 13*11\n[END]", "ans": 143, "pattern": "multiply_each"}
+{"q": "James buys 25 bags. James uses 10 of them. James sells the rest at $6 each. How much money does James make from selling?", "ir": "step1 = 25-10\nstep2 = step1*6\n[END]", "ans": 90, "pattern": "three_step_buy_sell"}
+{"q": "Betty has $86 saved. Betty earns $26 more from working. How much money does Betty have now?", "ir": "step1 = 86+26\n[END]", "ans": 112, "pattern": "add_earns"}
+{"q": "Randy's hens lay 12 eggs per day. Randy eats 2 for breakfast every morning and uses 6 for baking. Randy sells the remaining eggs at $3 each. How much money does Randy make each day?", "ir": "step1 = 12-2\nstep2 = step1-6\nstep3 = step2*3\n[END]", "ans": 12, "pattern": "janet_ducks"}
+{"q": "John has 46 apples. John gives half of them to James. How many apples does James receive?", "ir": "step1 = 46/2\n[END]", "ans": 23, "pattern": "divide_half"}
+{"q": "Weng has 12 apples. Weng eats 7 for dinner. How many apples does Weng have left?", "ir": "step1 = 12-7\n[END]", "ans": 5, "pattern": "subtract_eats"}
+{"q": "There are 6 cards. They are split into 3 equal groups. How many cards are in each group?", "ir": "step1 = 6/3\n[END]", "ans": 2, "pattern": "divide_split"}
+{"q": "Josh earns $17 per hour. After working 7 hours, Josh spends $23 on supplies. How much money does Josh have left?", "ir": "step1 = 17*7\nstep2 = step1-23\n[END]", "ans": 96, "pattern": "two_step_earn_spend"}
+{"q": "Sarah has 11 eggs. Sarah finds 11 additional eggs. How many eggs does Sarah have in total?", "ir": "step1 = 11+11\n[END]", "ans": 22, "pattern": "add_finds"}
+{"q": "Albert has 32 boxes. Albert gives half of them to Mike. How many boxes does Mike receive?", "ir": "step1 = 32/2\n[END]", "ans": 16, "pattern": "divide_half"}
+{"q": "Amy makes 9 pens per day for 4 days. Amy sells 17 of them and gives 4 to friends. How many pens does Amy have left?", "ir": "step1 = 9*4\nstep2 = step1-17\nstep3 = step2-4\n[END]", "ans": 15, "pattern": "three_step_production"}
+{"q": "Lisa has 47 flowers. Lisa uses 13 for decorations. How many flowers does Lisa have remaining?", "ir": "step1 = 47-13\n[END]", "ans": 34, "pattern": "subtract_uses"}
+{"q": "Sarah earns $21 per hour. If sarah works 6 hours, how much does sarah earn?", "ir": "step1 = 21*6\n[END]", "ans": 126, "pattern": "multiply_per"}
+{"q": "John has 48 books. John sells 15 of them at $8 each. How much money does John make?", "ir": "step1 = 15*8\n[END]", "ans": 120, "pattern": "two_step_sell"}
+{"q": "Mark has 40 marbles. Mark gets 21 more. How many marbles does Mark have now?", "ir": "step1 = 40+21\n[END]", "ans": 61, "pattern": "add_gets"}
+{"q": "Josh has 39 cards. Josh sells 15 of them at $6 each. How much money does Josh make?", "ir": "step1 = 15*6\n[END]", "ans": 90, "pattern": "two_step_sell"}
+{"q": "James has 35 eggs. James gives 8 eggs to Randy. How many eggs does James have now?", "ir": "step1 = 35-8\n[END]", "ans": 27, "pattern": "subtract_gives"}
+{"q": "Julie has $105. Julie spends $57 on groceries. How much money does Julie have left?", "ir": "step1 = 105-57\n[END]", "ans": 48, "pattern": "subtract_spends"}
+{"q": "Emma buys 2 apples 2 times a week. How many apples does Emma buy in a week?", "ir": "step1 = 2*2\n[END]", "ans": 4, "pattern": "multiply_times"}
+{"q": "Randy earns $17 per hour. After working 8 hours, Randy spends $35 on supplies. How much money does Randy have left?", "ir": "step1 = 17*8\nstep2 = step1-35\n[END]", "ans": 101, "pattern": "two_step_earn_spend"}
+{"q": "Weng has 27 eggs. Weng eats 2 for dinner. How many eggs does Weng have left?", "ir": "step1 = 27-2\n[END]", "ans": 25, "pattern": "subtract_eats"}
+{"q": "Mary has 26 marbles. Mary sells 6 of them at $6 each. How much money does Mary make?", "ir": "step1 = 6*6\n[END]", "ans": 36, "pattern": "two_step_sell"}
+{"q": "Julie earns $19 per hour. After working 7 hours, Julie spends $31 on supplies. How much money does Julie have left?", "ir": "step1 = 19*7\nstep2 = step1-31\n[END]", "ans": 102, "pattern": "two_step_earn_spend"}
+{"q": "There are 5 boxes, each containing 9 pages. The pages are shared equally among 3 friends. How many pages does each friend get?", "ir": "step1 = 5*9\nstep2 = step1/3\n[END]", "ans": 15, "pattern": "two_step_share"}
+{"q": "Tom makes 5 pencils per day for 5 days. Tom sells 11 of them and gives 3 to friends. How many pencils does Tom have left?", "ir": "step1 = 5*5\nstep2 = step1-11\nstep3 = step2-3\n[END]", "ans": 11, "pattern": "three_step_production"}
+{"q": "Chris has 20 toys. Chris gets 23 more. How many toys does Chris have now?", "ir": "step1 = 20+23\n[END]", "ans": 43, "pattern": "add_gets"}
+{"q": "Janet has 8 boxes to share equally among 4 friends. How many boxes does each friend get?", "ir": "step1 = 8/4\n[END]", "ans": 2, "pattern": "divide_equally"}
+{"q": "Lisa earns $14 per hour. Lisa works 5 hours a day for 6 days. After that, Lisa spends $24 on a new phone. How much money does Lisa have left?", "ir": "step1 = 14*5\nstep2 = step1*6\nstep3 = step2-24\n[END]", "ans": 396, "pattern": "complex_work"}
+{"q": "Mary's ducks lay 17 eggs per day. Mary eats 2 for breakfast every morning and uses 2 for baking. Mary sells the remaining eggs at $5 each. How much money does Mary make each day?", "ir": "step1 = 17-2\nstep2 = step1-2\nstep3 = step2*5\n[END]", "ans": 65, "pattern": "janet_ducks"}
+{"q": "Mike earns $17 per hour. If mike works 7 hours, how much does mike earn?", "ir": "step1 = 17*7\n[END]", "ans": 119, "pattern": "multiply_per"}
+{"q": "John has 22 oranges. John eats 2 for dinner. How many oranges does John have left?", "ir": "step1 = 22-2\n[END]", "ans": 20, "pattern": "subtract_eats"}
+{"q": "Mark has 17 clips. Mark finds 12 additional clips. How many clips does Mark have in total?", "ir": "step1 = 17+12\n[END]", "ans": 29, "pattern": "add_finds"}
+{"q": "James has 16 apples. James finds 6 additional apples. How many apples does James have in total?", "ir": "step1 = 16+6\n[END]", "ans": 22, "pattern": "add_finds"}
+{"q": "Janet has 32 flowers. Janet gives half of them to Betty. How many flowers does Betty receive?", "ir": "step1 = 32/2\n[END]", "ans": 16, "pattern": "divide_half"}
+{"q": "Mike buys 22 cards. Mike uses 4 of them. Mike sells the rest at $3 each. How much money does Mike make from selling?", "ir": "step1 = 22-4\nstep2 = step1*3\n[END]", "ans": 54, "pattern": "three_step_buy_sell"}
+{"q": "David makes 5 pencils per day for 3 days. David sells 6 of them and gives 3 to friends. How many pencils does David have left?", "ir": "step1 = 5*3\nstep2 = step1-6\nstep3 = step2-3\n[END]", "ans": 6, "pattern": "three_step_production"}
+{"q": "Josh has 4 packs. Each pack has 6 bags. How many bags does Josh have in total?", "ir": "step1 = 4*6\n[END]", "ans": 24, "pattern": "multiply_each"}
+{"q": "Sarah makes 9 pencils per day for 4 days. Sarah sells 7 of them and gives 10 to friends. How many pencils does Sarah have left?", "ir": "step1 = 9*4\nstep2 = step1-7\nstep3 = step2-10\n[END]", "ans": 19, "pattern": "three_step_production"}
+{"q": "Natalia buys 8 clips 6 times a month. How many clips does Natalia buy in a month?", "ir": "step1 = 8*6\n[END]", "ans": 48, "pattern": "multiply_times"}
+{"q": "Mary earns $18 per hour. After working 5 hours, Mary spends $28 on supplies. How much money does Mary have left?", "ir": "step1 = 18*5\nstep2 = step1-28\n[END]", "ans": 62, "pattern": "two_step_earn_spend"}
+{"q": "Tom has 18 pens. Tom gets 15 more. How many pens does Tom have now?", "ir": "step1 = 18+15\n[END]", "ans": 33, "pattern": "add_gets"}
+{"q": "Albert has 30 cards. Albert gives half of them to Emma. How many cards does Emma receive?", "ir": "step1 = 30/2\n[END]", "ans": 15, "pattern": "divide_half"}
+{"q": "Weng has 41 pages. Weng sells 15 of them at $7 each. How much money does Weng make?", "ir": "step1 = 15*7\n[END]", "ans": 105, "pattern": "two_step_sell"}
+{"q": "Julie earns $17 per hour. After working 4 hours, Julie spends $16 on supplies. How much money does Julie have left?", "ir": "step1 = 17*4\nstep2 = step1-16\n[END]", "ans": 52, "pattern": "two_step_earn_spend"}
+{"q": "Randy has 10 bags. Each bag has 8 pens. How many pens does Randy have in total?", "ir": "step1 = 10*8\n[END]", "ans": 80, "pattern": "multiply_each"}
+{"q": "Randy earns $24 per hour. If randy works 8 hours, how much does randy earn?", "ir": "step1 = 24*8\n[END]", "ans": 192, "pattern": "multiply_per"}
+{"q": "There are 5 boxes, each containing 12 shirts. The shirts are shared equally among 3 friends. How many shirts does each friend get?", "ir": "step1 = 5*12\nstep2 = step1/3\n[END]", "ans": 20, "pattern": "two_step_share"}
+{"q": "Weng's chickens lay 18 eggs per day. Weng eats 5 for breakfast every morning and uses 6 for baking. Weng sells the remaining eggs at $3 each. How much money does Weng make each day?", "ir": "step1 = 18-5\nstep2 = step1-6\nstep3 = step2*3\n[END]", "ans": 21, "pattern": "janet_ducks"}
+{"q": "Randy makes 6 candies per day for 5 days. Randy sells 11 of them and gives 4 to friends. How many candies does Randy have left?", "ir": "step1 = 6*5\nstep2 = step1-11\nstep3 = step2-4\n[END]", "ans": 15, "pattern": "three_step_production"}
+{"q": "Amy earns $20 per hour. Amy works 4 hours a day for 4 days. After that, Amy spends $79 on a new phone. How much money does Amy have left?", "ir": "step1 = 20*4\nstep2 = step1*4\nstep3 = step2-79\n[END]", "ans": 241, "pattern": "complex_work"}
+{"q": "James's ducks lay 12 eggs per day. James eats 5 for breakfast every morning and uses 3 for baking. James sells the remaining eggs at $4 each. How much money does James make each day?", "ir": "step1 = 12-5\nstep2 = step1-3\nstep3 = step2*4\n[END]", "ans": 16, "pattern": "janet_ducks"}
+{"q": "Mary has 10 packs. Each pack has 7 pencils. How many pencils does Mary have in total?", "ir": "step1 = 10*7\n[END]", "ans": 70, "pattern": "multiply_each"}
+{"q": "Julie's chickens lay 18 eggs per day. Julie eats 3 for breakfast every morning and uses 3 for baking. Julie sells the remaining eggs at $5 each. How much money does Julie make each day?", "ir": "step1 = 18-3\nstep2 = step1-3\nstep3 = step2*5\n[END]", "ans": 60, "pattern": "janet_ducks"}
+{"q": "Mary has 15 clips. Mary finds 4 additional clips. How many clips does Mary have in total?", "ir": "step1 = 15+4\n[END]", "ans": 19, "pattern": "add_finds"}
+{"q": "James has 16 balls to share equally among 2 friends. How many balls does each friend get?", "ir": "step1 = 16/2\n[END]", "ans": 8, "pattern": "divide_equally"}
+{"q": "Randy has 10 bags. Mike has twice as many bags. How many bags does Mike have?", "ir": "step1 = 10*2\n[END]", "ans": 20, "pattern": "multiply_twice"}
+{"q": "There are 30 shirts. They are split into 6 equal groups. How many shirts are in each group?", "ir": "step1 = 30/6\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "Mark has 35 stickers. Mark uses 8 for baking. How many stickers does Mark have remaining?", "ir": "step1 = 35-8\n[END]", "ans": 27, "pattern": "subtract_uses"}
+{"q": "Mark has 12 bags. Each bag has 6 books. How many books does Mark have in total?", "ir": "step1 = 12*6\n[END]", "ans": 72, "pattern": "multiply_each"}
+{"q": "Albert has $48 saved. Albert earns $49 more from working. How much money does Albert have now?", "ir": "step1 = 48+49\n[END]", "ans": 97, "pattern": "add_earns"}
+{"q": "Sarah earns $16 per hour. After working 7 hours, Sarah spends $13 on supplies. How much money does Sarah have left?", "ir": "step1 = 16*7\nstep2 = step1-13\n[END]", "ans": 99, "pattern": "two_step_earn_spend"}
+{"q": "Albert has 46 eggs. Albert gives half of them to Mary. How many eggs does Mary receive?", "ir": "step1 = 46/2\n[END]", "ans": 23, "pattern": "divide_half"}
+{"q": "John makes 15 pencils per day for 5 days. John sells 14 of them and gives 3 to friends. How many pencils does John have left?", "ir": "step1 = 15*5\nstep2 = step1-14\nstep3 = step2-3\n[END]", "ans": 58, "pattern": "three_step_production"}
+{"q": "Chris has 28 candies. Tom has twice as many candies. How many candies does Tom have?", "ir": "step1 = 28*2\n[END]", "ans": 56, "pattern": "multiply_twice"}
+{"q": "Weng buys 20 eggs. Weng uses 4 of them. Weng sells the rest at $3 each. How much money does Weng make from selling?", "ir": "step1 = 20-4\nstep2 = step1*3\n[END]", "ans": 48, "pattern": "three_step_buy_sell"}
+{"q": "Lisa has 14 eggs. Lisa eats 2 for snacks. How many eggs does Lisa have left?", "ir": "step1 = 14-2\n[END]", "ans": 12, "pattern": "subtract_eats"}
+{"q": "Betty has 18 apples. Betty eats 2 for breakfast. How many apples does Betty have left?", "ir": "step1 = 18-2\n[END]", "ans": 16, "pattern": "subtract_eats"}
+{"q": "Tom has 38 stickers. Tom sells 5 of them at $5 each. How much money does Tom make?", "ir": "step1 = 5*5\n[END]", "ans": 25, "pattern": "two_step_sell"}
+{"q": "Mark has 36 boxes. Mark gets 5 more. How many boxes does Mark have now?", "ir": "step1 = 36+5\n[END]", "ans": 41, "pattern": "add_gets"}
+{"q": "Josh earns $13 per hour. After working 8 hours, Josh spends $26 on supplies. How much money does Josh have left?", "ir": "step1 = 13*8\nstep2 = step1-26\n[END]", "ans": 78, "pattern": "two_step_earn_spend"}
+{"q": "Natalia has 8 candies. James has twice as many candies. How many candies does James have?", "ir": "step1 = 8*2\n[END]", "ans": 16, "pattern": "multiply_twice"}
+{"q": "Emma makes 12 pens per day for 6 days. Emma sells 16 of them and gives 7 to friends. How many pens does Emma have left?", "ir": "step1 = 12*6\nstep2 = step1-16\nstep3 = step2-7\n[END]", "ans": 49, "pattern": "three_step_production"}
+{"q": "Lisa has 14 candies to share equally among 2 friends. How many candies does each friend get?", "ir": "step1 = 14/2\n[END]", "ans": 7, "pattern": "divide_equally"}
+{"q": "Mary earns $20 per hour. After working 8 hours, Mary spends $25 on supplies. How much money does Mary have left?", "ir": "step1 = 20*8\nstep2 = step1-25\n[END]", "ans": 135, "pattern": "two_step_earn_spend"}
+{"q": "Mary earns $8 per hour. If mary works 5 hours, how much does mary earn?", "ir": "step1 = 8*5\n[END]", "ans": 40, "pattern": "multiply_per"}
+{"q": "Weng earns $20 per hour. Weng works 5 hours a day for 5 days. After that, Weng spends $83 on a new phone. How much money does Weng have left?", "ir": "step1 = 20*5\nstep2 = step1*5\nstep3 = step2-83\n[END]", "ans": 417, "pattern": "complex_work"}
+{"q": "Amy has 14 packs. Each pack has 8 pages. How many pages does Amy have in total?", "ir": "step1 = 14*8\n[END]", "ans": 112, "pattern": "multiply_each"}
+{"q": "There are 4 baskets, each containing 10 marbles. The marbles are shared equally among 2 friends. How many marbles does each friend get?", "ir": "step1 = 4*10\nstep2 = step1/2\n[END]", "ans": 20, "pattern": "two_step_share"}
+{"q": "Lisa earns $18 per hour. After working 5 hours, Lisa spends $18 on supplies. How much money does Lisa have left?", "ir": "step1 = 18*5\nstep2 = step1-18\n[END]", "ans": 72, "pattern": "two_step_earn_spend"}
+{"q": "John's chickens lay 18 eggs per day. John eats 5 for breakfast every morning and uses 4 for baking. John sells the remaining eggs at $4 each. How much money does John make each day?", "ir": "step1 = 18-5\nstep2 = step1-4\nstep3 = step2*4\n[END]", "ans": 36, "pattern": "janet_ducks"}
+{"q": "Amy has 27 flowers. Mary has twice as many flowers. How many flowers does Mary have?", "ir": "step1 = 27*2\n[END]", "ans": 54, "pattern": "multiply_twice"}
+{"q": "James buys 28 pencils. James uses 8 of them. James sells the rest at $4 each. How much money does James make from selling?", "ir": "step1 = 28-8\nstep2 = step1*4\n[END]", "ans": 80, "pattern": "three_step_buy_sell"}
+{"q": "Tom earns $20 per hour. Tom works 5 hours a day for 6 days. After that, Tom spends $39 on a new phone. How much money does Tom have left?", "ir": "step1 = 20*5\nstep2 = step1*6\nstep3 = step2-39\n[END]", "ans": 561, "pattern": "complex_work"}
+{"q": "Josh has $99 saved. Josh earns $45 more from working. How much money does Josh have now?", "ir": "step1 = 99+45\n[END]", "ans": 144, "pattern": "add_earns"}
+{"q": "Josh earns $17 per hour. After working 6 hours, Josh spends $12 on supplies. How much money does Josh have left?", "ir": "step1 = 17*6\nstep2 = step1-12\n[END]", "ans": 90, "pattern": "two_step_earn_spend"}
+{"q": "Janet makes 12 boxes per day for 3 days. Janet sells 8 of them and gives 7 to friends. How many boxes does Janet have left?", "ir": "step1 = 12*3\nstep2 = step1-8\nstep3 = step2-7\n[END]", "ans": 21, "pattern": "three_step_production"}
+{"q": "Tom buys 2 cards 4 times a week. How many cards does Tom buy in a week?", "ir": "step1 = 2*4\n[END]", "ans": 8, "pattern": "multiply_times"}
+{"q": "Janet has 21 cookies. Janet eats 4 for breakfast and uses 4 for baking. How many cookies does Janet have left?", "ir": "step1 = 21-4\nstep2 = step1-4\n[END]", "ans": 13, "pattern": "two_step_consume"}
+{"q": "Mary's hens lay 24 eggs per day. Mary eats 3 for breakfast every morning and uses 2 for baking. Mary sells the remaining eggs at $4 each. How much money does Mary make each day?", "ir": "step1 = 24-3\nstep2 = step1-2\nstep3 = step2*4\n[END]", "ans": 76, "pattern": "janet_ducks"}
+{"q": "Randy buys 3 stickers 5 times a week. How many stickers does Randy buy in a week?", "ir": "step1 = 3*5\n[END]", "ans": 15, "pattern": "multiply_times"}
+{"q": "John has 6 baskets. Each basket has 12 toys. How many toys does John have in total?", "ir": "step1 = 6*12\n[END]", "ans": 72, "pattern": "multiply_each"}
+{"q": "James has 36 bags. James uses 14 for gifts. How many bags does James have remaining?", "ir": "step1 = 36-14\n[END]", "ans": 22, "pattern": "subtract_uses"}
+{"q": "Mike has 30 boxes. Emma has twice as many boxes. How many boxes does Emma have?", "ir": "step1 = 30*2\n[END]", "ans": 60, "pattern": "multiply_twice"}
+{"q": "Randy buys 4 bottles 4 times a week. How many bottles does Randy buy in a week?", "ir": "step1 = 4*4\n[END]", "ans": 16, "pattern": "multiply_times"}
+{"q": "Josh has 58 boxes. Josh gives half of them to Julie. How many boxes does Julie receive?", "ir": "step1 = 58/2\n[END]", "ans": 29, "pattern": "divide_half"}
+{"q": "Lisa's hens lay 14 eggs per day. Lisa eats 5 for breakfast every morning and uses 5 for baking. Lisa sells the remaining eggs at $2 each. How much money does Lisa make each day?", "ir": "step1 = 14-5\nstep2 = step1-5\nstep3 = step2*2\n[END]", "ans": 8, "pattern": "janet_ducks"}
+{"q": "Lisa buys 7 cards 7 times a month. How many cards does Lisa buy in a month?", "ir": "step1 = 7*7\n[END]", "ans": 49, "pattern": "multiply_times"}
+{"q": "Mike has 24 balls. Mike gets 18 more. How many balls does Mike have now?", "ir": "step1 = 24+18\n[END]", "ans": 42, "pattern": "add_gets"}
+{"q": "David has 10 books. David gets 18 more. How many books does David have now?", "ir": "step1 = 10+18\n[END]", "ans": 28, "pattern": "add_gets"}
+{"q": "There are 7 crates, each containing 9 boxes. The boxes are shared equally among 3 friends. How many boxes does each friend get?", "ir": "step1 = 7*9\nstep2 = step1/3\n[END]", "ans": 21, "pattern": "two_step_share"}
+{"q": "Chris has $189. Chris spends $47 on a book. How much money does Chris have left?", "ir": "step1 = 189-47\n[END]", "ans": 142, "pattern": "subtract_spends"}
+{"q": "There are 6 cartons, each containing 10 apples. The apples are shared equally among 5 friends. How many apples does each friend get?", "ir": "step1 = 6*10\nstep2 = step1/5\n[END]", "ans": 12, "pattern": "two_step_share"}
+{"q": "Mary makes 12 marbles per day for 3 days. Mary sells 6 of them and gives 3 to friends. How many marbles does Mary have left?", "ir": "step1 = 12*3\nstep2 = step1-6\nstep3 = step2-3\n[END]", "ans": 27, "pattern": "three_step_production"}
+{"q": "James buys 25 boxes. James uses 4 of them. James sells the rest at $4 each. How much money does James make from selling?", "ir": "step1 = 25-4\nstep2 = step1*4\n[END]", "ans": 84, "pattern": "three_step_buy_sell"}
+{"q": "Emma has 37 pencils. Emma gets 6 more. How many pencils does Emma have now?", "ir": "step1 = 37+6\n[END]", "ans": 43, "pattern": "add_gets"}
+{"q": "There are 8 crates, each containing 12 pages. The pages are shared equally among 2 friends. How many pages does each friend get?", "ir": "step1 = 8*12\nstep2 = step1/2\n[END]", "ans": 48, "pattern": "two_step_share"}
+{"q": "Tom buys 5 cookies 3 times a month. How many cookies does Tom buy in a month?", "ir": "step1 = 5*3\n[END]", "ans": 15, "pattern": "multiply_times"}
+{"q": "There are 28 apples. They are split into 4 equal groups. How many apples are in each group?", "ir": "step1 = 28/4\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "Chris makes 8 cookies per day for 3 days. Chris sells 6 of them and gives 3 to friends. How many cookies does Chris have left?", "ir": "step1 = 8*3\nstep2 = step1-6\nstep3 = step2-3\n[END]", "ans": 15, "pattern": "three_step_production"}
+{"q": "James has 36 pages. James sells 6 of them at $3 each. How much money does James make?", "ir": "step1 = 6*3\n[END]", "ans": 18, "pattern": "two_step_sell"}
+{"q": "Janet earns $24 per hour. If janet works 10 hours, how much does janet earn?", "ir": "step1 = 24*10\n[END]", "ans": 240, "pattern": "multiply_per"}
+{"q": "James has 40 eggs. James gives 9 eggs to Emma. How many eggs does James have now?", "ir": "step1 = 40-9\n[END]", "ans": 31, "pattern": "subtract_gives"}
+{"q": "David buys 23 pencils. David uses 10 of them. David sells the rest at $6 each. How much money does David make from selling?", "ir": "step1 = 23-10\nstep2 = step1*6\n[END]", "ans": 78, "pattern": "three_step_buy_sell"}
+{"q": "Janet has 31 stickers. Janet uses 9 for crafts. How many stickers does Janet have remaining?", "ir": "step1 = 31-9\n[END]", "ans": 22, "pattern": "subtract_uses"}
+{"q": "David has 11 pens. David finds 18 additional pens. How many pens does David have in total?", "ir": "step1 = 11+18\n[END]", "ans": 29, "pattern": "add_finds"}
+{"q": "There are 12 pens. They are split into 2 equal groups. How many pens are in each group?", "ir": "step1 = 12/2\n[END]", "ans": 6, "pattern": "divide_split"}
+{"q": "Albert has $150. Albert spends $59 on a book. How much money does Albert have left?", "ir": "step1 = 150-59\n[END]", "ans": 91, "pattern": "subtract_spends"}
+{"q": "Mike has 14 candies. Mike gets 5 more. How many candies does Mike have now?", "ir": "step1 = 14+5\n[END]", "ans": 19, "pattern": "add_gets"}
+{"q": "Amy has 22 boxes. Amy gets 5 more. How many boxes does Amy have now?", "ir": "step1 = 22+5\n[END]", "ans": 27, "pattern": "add_gets"}
+{"q": "There are 30 oranges. They are split into 6 equal groups. How many oranges are in each group?", "ir": "step1 = 30/6\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "John's ducks lay 19 eggs per day. John eats 5 for breakfast every morning and uses 4 for baking. John sells the remaining eggs at $2 each. How much money does John make each day?", "ir": "step1 = 19-5\nstep2 = step1-4\nstep3 = step2*2\n[END]", "ans": 20, "pattern": "janet_ducks"}
+{"q": "John earns $18 per hour. John works 8 hours a day for 4 days. After that, John spends $64 on a new phone. How much money does John have left?", "ir": "step1 = 18*8\nstep2 = step1*4\nstep3 = step2-64\n[END]", "ans": 512, "pattern": "complex_work"}
+{"q": "Mary's chickens lay 20 eggs per day. Mary eats 2 for breakfast every morning and uses 3 for baking. Mary sells the remaining eggs at $3 each. How much money does Mary make each day?", "ir": "step1 = 20-2\nstep2 = step1-3\nstep3 = step2*3\n[END]", "ans": 45, "pattern": "janet_ducks"}
+{"q": "Amy has $136. Amy spends $68 on lunch. How much money does Amy have left?", "ir": "step1 = 136-68\n[END]", "ans": 68, "pattern": "subtract_spends"}
+{"q": "There are 20 books. They are split into 4 equal groups. How many books are in each group?", "ir": "step1 = 20/4\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "Tom's chickens lay 19 eggs per day. Tom eats 3 for breakfast every morning and uses 6 for baking. Tom sells the remaining eggs at $4 each. How much money does Tom make each day?", "ir": "step1 = 19-3\nstep2 = step1-6\nstep3 = step2*4\n[END]", "ans": 40, "pattern": "janet_ducks"}
+{"q": "Emma buys 7 bags 6 times a month. How many bags does Emma buy in a month?", "ir": "step1 = 7*6\n[END]", "ans": 42, "pattern": "multiply_times"}
+{"q": "Julie buys 16 pencils. Julie uses 5 of them. Julie sells the rest at $3 each. How much money does Julie make from selling?", "ir": "step1 = 16-5\nstep2 = step1*3\n[END]", "ans": 33, "pattern": "three_step_buy_sell"}
+{"q": "Tom earns $20 per hour. After working 7 hours, Tom spends $20 on supplies. How much money does Tom have left?", "ir": "step1 = 20*7\nstep2 = step1-20\n[END]", "ans": 120, "pattern": "two_step_earn_spend"}
+{"q": "There are 8 baskets, each containing 7 eggs. The eggs are shared equally among 2 friends. How many eggs does each friend get?", "ir": "step1 = 8*7\nstep2 = step1/2\n[END]", "ans": 28, "pattern": "two_step_share"}
+{"q": "Mike's ducks lay 12 eggs per day. Mike eats 4 for breakfast every morning and uses 2 for baking. Mike sells the remaining eggs at $2 each. How much money does Mike make each day?", "ir": "step1 = 12-4\nstep2 = step1-2\nstep3 = step2*2\n[END]", "ans": 12, "pattern": "janet_ducks"}
+{"q": "Julie buys 29 flowers. Julie uses 3 of them. Julie sells the rest at $3 each. How much money does Julie make from selling?", "ir": "step1 = 29-3\nstep2 = step1*3\n[END]", "ans": 78, "pattern": "three_step_buy_sell"}
+{"q": "Lisa earns $20 per hour. If lisa works 5 hours, how much does lisa earn?", "ir": "step1 = 20*5\n[END]", "ans": 100, "pattern": "multiply_per"}
+{"q": "Amy earns $18 per hour. Amy works 5 hours a day for 4 days. After that, Amy spends $52 on a new phone. How much money does Amy have left?", "ir": "step1 = 18*5\nstep2 = step1*4\nstep3 = step2-52\n[END]", "ans": 308, "pattern": "complex_work"}
+{"q": "Josh has 12 eggs. Josh finds 9 additional eggs. How many eggs does Josh have in total?", "ir": "step1 = 12+9\n[END]", "ans": 21, "pattern": "add_finds"}
+{"q": "Mary has 32 boxes. Mary uses 7 for baking. How many boxes does Mary have remaining?", "ir": "step1 = 32-7\n[END]", "ans": 25, "pattern": "subtract_uses"}
+{"q": "James has 26 eggs. James eats 2 for breakfast and uses 4 for baking. How many eggs does James have left?", "ir": "step1 = 26-2\nstep2 = step1-4\n[END]", "ans": 20, "pattern": "two_step_consume"}
+{"q": "Mike has $195. Mike spends $79 on a book. How much money does Mike have left?", "ir": "step1 = 195-79\n[END]", "ans": 116, "pattern": "subtract_spends"}
+{"q": "Mary has 25 apples. Mary eats 3 for snacks. How many apples does Mary have left?", "ir": "step1 = 25-3\n[END]", "ans": 22, "pattern": "subtract_eats"}
+{"q": "John has 24 cookies. John finds 20 additional cookies. How many cookies does John have in total?", "ir": "step1 = 24+20\n[END]", "ans": 44, "pattern": "add_finds"}
+{"q": "Lisa makes 11 cookies per day for 6 days. Lisa sells 7 of them and gives 4 to friends. How many cookies does Lisa have left?", "ir": "step1 = 11*6\nstep2 = step1-7\nstep3 = step2-4\n[END]", "ans": 55, "pattern": "three_step_production"}
+{"q": "Josh makes 6 oranges per day for 3 days. Josh sells 8 of them and gives 3 to friends. How many oranges does Josh have left?", "ir": "step1 = 6*3\nstep2 = step1-8\nstep3 = step2-3\n[END]", "ans": 7, "pattern": "three_step_production"}
+{"q": "Emma has 20 candies. Emma sells 8 of them at $8 each. How much money does Emma make?", "ir": "step1 = 8*8\n[END]", "ans": 64, "pattern": "two_step_sell"}
+{"q": "Albert's chickens lay 23 eggs per day. Albert eats 4 for breakfast every morning and uses 2 for baking. Albert sells the remaining eggs at $3 each. How much money does Albert make each day?", "ir": "step1 = 23-4\nstep2 = step1-2\nstep3 = step2*3\n[END]", "ans": 51, "pattern": "janet_ducks"}
+{"q": "Julie earns $18 per hour. Julie works 8 hours a day for 4 days. After that, Julie spends $86 on a new phone. How much money does Julie have left?", "ir": "step1 = 18*8\nstep2 = step1*4\nstep3 = step2-86\n[END]", "ans": 490, "pattern": "complex_work"}
+{"q": "Mary's chickens lay 18 eggs per day. Mary eats 2 for breakfast every morning and uses 6 for baking. Mary sells the remaining eggs at $2 each. How much money does Mary make each day?", "ir": "step1 = 18-2\nstep2 = step1-6\nstep3 = step2*2\n[END]", "ans": 20, "pattern": "janet_ducks"}
+{"q": "Albert has 40 flowers. Albert sells 5 of them at $2 each. How much money does Albert make?", "ir": "step1 = 5*2\n[END]", "ans": 10, "pattern": "two_step_sell"}
+{"q": "Randy has 41 cookies. Randy uses 6 for crafts. How many cookies does Randy have remaining?", "ir": "step1 = 41-6\n[END]", "ans": 35, "pattern": "subtract_uses"}
+{"q": "Emma has 49 stickers. Emma sells 15 of them at $2 each. How much money does Emma make?", "ir": "step1 = 15*2\n[END]", "ans": 30, "pattern": "two_step_sell"}
+{"q": "Amy has 24 cards. Amy finds 4 additional cards. How many cards does Amy have in total?", "ir": "step1 = 24+4\n[END]", "ans": 28, "pattern": "add_finds"}
+{"q": "Mike earns $19 per hour. Mike works 8 hours a day for 3 days. After that, Mike spends $90 on a new phone. How much money does Mike have left?", "ir": "step1 = 19*8\nstep2 = step1*3\nstep3 = step2-90\n[END]", "ans": 366, "pattern": "complex_work"}
+{"q": "Natalia has 18 pencils. Natalia gets 6 more. How many pencils does Natalia have now?", "ir": "step1 = 18+6\n[END]", "ans": 24, "pattern": "add_gets"}
+{"q": "Mary has 6 packs. Each pack has 12 balls. How many balls does Mary have in total?", "ir": "step1 = 6*12\n[END]", "ans": 72, "pattern": "multiply_each"}
+{"q": "Weng has 10 apples. Weng gets 6 more. How many apples does Weng have now?", "ir": "step1 = 10+6\n[END]", "ans": 16, "pattern": "add_gets"}
+{"q": "Randy makes 13 bottles per day for 7 days. Randy sells 17 of them and gives 3 to friends. How many bottles does Randy have left?", "ir": "step1 = 13*7\nstep2 = step1-17\nstep3 = step2-3\n[END]", "ans": 71, "pattern": "three_step_production"}
+{"q": "Sarah has 34 cookies. Sarah gets 17 more. How many cookies does Sarah have now?", "ir": "step1 = 34+17\n[END]", "ans": 51, "pattern": "add_gets"}
+{"q": "Mike has 55 pencils. Mike uses 9 for the party. How many pencils does Mike have remaining?", "ir": "step1 = 55-9\n[END]", "ans": 46, "pattern": "subtract_uses"}
+{"q": "Chris buys 7 flowers 4 times a day. How many flowers does Chris buy in a day?", "ir": "step1 = 7*4\n[END]", "ans": 28, "pattern": "multiply_times"}
+{"q": "Mark has 35 books. Mark uses 12 for decorations. How many books does Mark have remaining?", "ir": "step1 = 35-12\n[END]", "ans": 23, "pattern": "subtract_uses"}
+{"q": "Mike has 14 crates. Each crate has 10 oranges. How many oranges does Mike have in total?", "ir": "step1 = 14*10\n[END]", "ans": 140, "pattern": "multiply_each"}
+{"q": "Janet earns $13 per hour. Janet works 4 hours a day for 3 days. After that, Janet spends $27 on a new phone. How much money does Janet have left?", "ir": "step1 = 13*4\nstep2 = step1*3\nstep3 = step2-27\n[END]", "ans": 129, "pattern": "complex_work"}
+{"q": "Betty buys 2 cards 4 times a week. How many cards does Betty buy in a week?", "ir": "step1 = 2*4\n[END]", "ans": 8, "pattern": "multiply_times"}
+{"q": "Weng has 29 toys. Weng sells 7 of them at $6 each. How much money does Weng make?", "ir": "step1 = 7*6\n[END]", "ans": 42, "pattern": "two_step_sell"}
+{"q": "James has 31 books. James gets 7 more. How many books does James have now?", "ir": "step1 = 31+7\n[END]", "ans": 38, "pattern": "add_gets"}
+{"q": "David has 27 cards to share equally among 3 friends. How many cards does each friend get?", "ir": "step1 = 27/3\n[END]", "ans": 9, "pattern": "divide_equally"}
+{"q": "Weng's chickens lay 23 eggs per day. Weng eats 4 for breakfast every morning and uses 4 for baking. Weng sells the remaining eggs at $4 each. How much money does Weng make each day?", "ir": "step1 = 23-4\nstep2 = step1-4\nstep3 = step2*4\n[END]", "ans": 60, "pattern": "janet_ducks"}
+{"q": "Weng's hens lay 16 eggs per day. Weng eats 4 for breakfast every morning and uses 6 for baking. Weng sells the remaining eggs at $2 each. How much money does Weng make each day?", "ir": "step1 = 16-4\nstep2 = step1-6\nstep3 = step2*2\n[END]", "ans": 12, "pattern": "janet_ducks"}

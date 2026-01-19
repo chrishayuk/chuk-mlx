@@ -194,7 +194,9 @@ def demo_waste_analysis():
     print(f"  Truncation rate: {truncation.truncation_rate:.1%}")
     print(f"  Tokens lost: {truncation.total_tokens_lost}")
     print(f"  Content loss rate: {truncation.content_loss_rate:.1%}")
-    print(f"  Severity - Minor: {truncation.minor_truncation}, Major: {truncation.major_truncation}, Severe: {truncation.severe_truncation}")
+    print(
+        f"  Severity - Minor: {truncation.minor_truncation}, Major: {truncation.major_truncation}, Severe: {truncation.severe_truncation}"
+    )
 
     # Combined waste report
     print("\n--- Combined Waste Report (max_length=20) ---")
@@ -237,7 +239,7 @@ def demo_vocab_comparison():
     print(f"  Chars/token (WordLevel): {report.chars_per_token1:.2f}")
     print(f"  Chars/token (CharLevel): {report.chars_per_token2:.2f}")
     print("  ")
-    print(f"  Training speedup with WordLevel: {1/report.token_count_ratio:.2f}x")
+    print(f"  Training speedup with WordLevel: {1 / report.token_count_ratio:.2f}x")
 
     if report.recommendations:
         print("\n  Recommendations:")

@@ -18,7 +18,6 @@ import json
 import logging
 import random
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -32,6 +31,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ProbeResult:
     """Results for a single layer probe."""
+
     layer_idx: int
     layer_pct: float
     train_accuracy: float
@@ -99,11 +99,13 @@ class ProbeClassifierExperiment(ExperimentBase):
                     a, b = max(a, b), min(a, b)
 
             result = op_fn(a, b)
-            data.append({
-                "prompt": f"{a} {op_sym} {b} = ",
-                "task": op_name,
-                "result": result,
-            })
+            data.append(
+                {
+                    "prompt": f"{a} {op_sym} {b} = ",
+                    "task": op_name,
+                    "result": result,
+                }
+            )
 
         split = int(len(data) * 0.8)
         train_data, test_data = data[:split], data[split:]
@@ -179,7 +181,11 @@ class ProbeClassifierExperiment(ExperimentBase):
 
             for i, layer in enumerate(model.model.layers):
                 layer_out = layer(h, mask=None, cache=None)
-                h = layer_out.hidden_states if hasattr(layer_out, 'hidden_states') else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+                h = (
+                    layer_out.hidden_states
+                    if hasattr(layer_out, "hidden_states")
+                    else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+                )
 
                 if i == layer_idx:
                     # Take last token's hidden state
@@ -206,7 +212,7 @@ class ProbeClassifierExperiment(ExperimentBase):
         test_prompts = [d["prompt"] for d in test_data]
         test_labels = mx.array([self.task_to_idx[d["task"]] for d in test_data])
 
-        self.log(f"  Extracting hidden states...")
+        self.log("  Extracting hidden states...")
         train_hidden = self._extract_hidden_states(model, tokenizer, train_prompts, layer_idx)
         test_hidden = self._extract_hidden_states(model, tokenizer, test_prompts, layer_idx)
         mx.eval(train_hidden, test_hidden)
@@ -232,8 +238,8 @@ class ProbeClassifierExperiment(ExperimentBase):
             num_batches = 0
 
             for i in range(0, len(train_data), batch_size):
-                batch_x = train_hidden_shuffled[i:i + batch_size]
-                batch_y = train_labels_shuffled[i:i + batch_size]
+                batch_x = train_hidden_shuffled[i : i + batch_size]
+                batch_y = train_labels_shuffled[i : i + batch_size]
 
                 loss, grads = loss_and_grad_fn(probe, batch_x, batch_y)
                 optimizer.update(probe, grads)
@@ -266,9 +272,7 @@ class ProbeClassifierExperiment(ExperimentBase):
         logits = probe(x)
         return mx.mean(nn.losses.cross_entropy(logits, y))
 
-    def _evaluate_probe(
-        self, probe: LinearProbe, hidden: mx.array, labels: mx.array
-    ) -> float:
+    def _evaluate_probe(self, probe: LinearProbe, hidden: mx.array, labels: mx.array) -> float:
         """Evaluate probe accuracy."""
         logits = probe(hidden)
         preds = mx.argmax(logits, axis=-1)

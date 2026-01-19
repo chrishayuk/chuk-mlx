@@ -10,23 +10,22 @@ We need to TRAIN the transform to produce matching activations.
 Run: uv run python examples/introspection/trained_injection.py
 """
 
-import time
+# Suppress warnings
+import warnings
 from dataclasses import dataclass
-from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 import numpy as np
 
-# Suppress warnings
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 @dataclass
 class TrainedInjectionResult:
     """Result of trained injection at a specific layer."""
+
     layer: int
     train_loss: float
     final_similarity: float
@@ -74,7 +73,7 @@ class LightTransformBlock(nn.Module):
         q = self.rope(q)
         k = self.rope(k)
 
-        scale = self.head_dim ** -0.5
+        scale = self.head_dim**-0.5
         attn_out = mx.fast.scaled_dot_product_attention(q, k, v, scale=scale, mask=mask)
         attn_out = attn_out.transpose(0, 2, 1, 3).reshape(batch_size, seq_len, -1)
         x = x + self.o_proj(attn_out)
@@ -150,15 +149,15 @@ class TrainedInjectionExperiment:
             self.layers = self.model.model.layers
             self.final_norm = self.model.model.norm
             self.hidden_size = self.model.model.hidden_size
-            self.embed_scale = self.hidden_size ** 0.5
+            self.embed_scale = self.hidden_size**0.5
             self.lm_head = self.model.lm_head
         else:
             self.embed_layer = self.model.embed_tokens
             self.layers = self.model.layers
             self.final_norm = self.model.norm
             self.hidden_size = 640
-            self.embed_scale = self.hidden_size ** 0.5
-            self.lm_head = self.model.lm_head if hasattr(self.model, 'lm_head') else None
+            self.embed_scale = self.hidden_size**0.5
+            self.lm_head = self.model.lm_head if hasattr(self.model, "lm_head") else None
 
         self.num_layers = len(self.layers)
         print(f"  Layers: {self.num_layers}")
@@ -381,7 +380,9 @@ class TrainedInjectionExperiment:
 
                 # Heuristic: tool-calling often starts with specific tokens
                 # For FunctionGemma, tool calls might start with [, {, etc.
-                tool_tokens = set(self.tokenizer.encode("[") if hasattr(self.tokenizer, 'encode') else [])
+                tool_tokens = set(
+                    self.tokenizer.encode("[") if hasattr(self.tokenizer, "encode") else []
+                )
 
                 if should_call_tool:
                     total_tool += 1
@@ -465,7 +466,7 @@ class TrainedInjectionExperiment:
 
         results = []
         for target_layer in target_layers:
-            print(f"\n{'='*50}")
+            print(f"\n{'=' * 50}")
             print(f"TARGET LAYER: L{target_layer}")
             print("=" * 50)
 
@@ -494,7 +495,9 @@ class TrainedInjectionExperiment:
         print("-" * 44)
 
         for result in results:
-            print(f"L{result.layer:<7} {result.final_similarity:>11.3f} {result.overall_accuracy:>9.1%} {result.speedup_factor:>9.1f}x")
+            print(
+                f"L{result.layer:<7} {result.final_similarity:>11.3f} {result.overall_accuracy:>9.1%} {result.speedup_factor:>9.1f}x"
+            )
 
         # Find best
         best = max(results, key=lambda r: r.final_similarity)

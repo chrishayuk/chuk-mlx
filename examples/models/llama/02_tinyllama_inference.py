@@ -45,9 +45,7 @@ def download_model(model_id: str, cache_dir: str | None = None) -> Path:
     try:
         from huggingface_hub import snapshot_download
     except ImportError:
-        raise ImportError(
-            "huggingface_hub not installed. Run: pip install huggingface_hub"
-        )
+        raise ImportError("huggingface_hub not installed. Run: pip install huggingface_hub")
 
     print(f"Downloading {model_id}...")
     path = snapshot_download(
@@ -200,9 +198,7 @@ def format_chat_prompt(tokenizer, user_message: str) -> str:
 
     # Use the tokenizer's chat template if available
     if hasattr(tokenizer, "apply_chat_template"):
-        return tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
-        )
+        return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
     # Fallback to manual ChatML format
     return (

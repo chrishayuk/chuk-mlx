@@ -31,9 +31,9 @@ from chuk_lazarus.introspection import (
 
 def display_result(result: AnalysisResult) -> None:
     """Display analysis result in a readable format."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Prompt: {result.prompt}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Show tokens
     if len(result.tokens) <= 10:
@@ -54,7 +54,9 @@ def display_result(result: AnalysisResult) -> None:
     print("\nTop prediction at each captured layer:")
     for layer_pred in result.layer_predictions:
         top_tok = repr(layer_pred.top_token)
-        print(f"  Layer {layer_pred.layer_idx:2d}: {top_tok:20s} ({layer_pred.top_probability:.4f})")
+        print(
+            f"  Layer {layer_pred.layer_idx:2d}: {top_tok:20s} ({layer_pred.top_probability:.4f})"
+        )
 
     # Token evolutions
     if result.token_evolutions:
@@ -139,22 +141,26 @@ Examples:
         """,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         help="HuggingFace model ID or local path",
     )
     parser.add_argument(
-        "--prompt", "-p",
+        "--prompt",
+        "-p",
         action="append",
         help="Prompt to analyze (can specify multiple)",
     )
     parser.add_argument(
-        "--track", "-t",
+        "--track",
+        "-t",
         action="append",
         help="Token to track across layers (can specify multiple)",
     )
     parser.add_argument(
-        "--layer-step", "-s",
+        "--layer-step",
+        "-s",
         type=int,
         default=4,
         help="Capture every Nth layer (default: 4)",

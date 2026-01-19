@@ -23,7 +23,10 @@ def main():
 
     # Load
     print("\nLoading GPT-OSS...")
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
     model, tokenizer = load(str(model_path))
 
     # Create identifier
@@ -52,7 +55,9 @@ def main():
     print("-" * 50)
     for category, experts in sorted(result.category_experts.items()):
         if experts:
-            print(f"  {category}: {len(experts)} experts -> {experts[:5]}{'...' if len(experts) > 5 else ''}")
+            print(
+                f"  {category}: {len(experts)} experts -> {experts[:5]}{'...' if len(experts) > 5 else ''}"
+            )
 
     # Show specialists vs generalists
     print("\n\nSPECIALISTS vs GENERALISTS:")

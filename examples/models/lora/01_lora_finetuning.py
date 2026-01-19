@@ -54,9 +54,9 @@ def main():
     # Configure LoRA
     print("\n2. Configuring LoRA (Pydantic)...")
     lora_config = LoRAConfig(
-        rank=4,           # Low-rank dimension
-        alpha=8.0,        # Scaling factor (scaling = alpha / rank)
-        dropout=0.0,      # No dropout for demo
+        rank=4,  # Low-rank dimension
+        alpha=8.0,  # Scaling factor (scaling = alpha / rank)
+        dropout=0.0,  # No dropout for demo
         target_modules=[  # Which layers to adapt
             "q_proj",
             "v_proj",

@@ -14,22 +14,23 @@ Run: uv run python examples/introspection/layer_structure_experiments.py
 """
 
 import json
-import numpy as np
-from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Any
-from collections import defaultdict
-
-import mlx.core as mx
 
 # Suppress sklearn warnings
 import warnings
-warnings.filterwarnings('ignore')
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
+import mlx.core as mx
+import numpy as np
+
+warnings.filterwarnings("ignore")
 
 
 @dataclass
 class ExperimentResults:
     """Container for experiment results"""
+
     model_id: str = ""
     num_layers: int = 0
     hidden_size: int = 0
@@ -52,6 +53,7 @@ class ExperimentResults:
 
     def save(self, path: str):
         """Save results to JSON"""
+
         # Convert numpy arrays to lists for JSON serialization
         def convert(obj):
             if isinstance(obj, np.ndarray):
@@ -61,18 +63,18 @@ class ExperimentResults:
             return obj
 
         data = {
-            'model_id': self.model_id,
-            'num_layers': self.num_layers,
-            'hidden_size': self.hidden_size,
-            'pc1_vs_mean_cosine': convert(self.pc1_vs_mean_cosine),
-            'pc1_vs_norm_correlation': convert(self.pc1_vs_norm_correlation),
-            'residual_probe_accuracy': convert(self.residual_probe_accuracy),
-            'semantic_separation': convert(self.semantic_separation),
-            'l1_delta_analysis': convert(self.l1_delta_analysis),
-            'router_comparison': convert(self.router_comparison),
+            "model_id": self.model_id,
+            "num_layers": self.num_layers,
+            "hidden_size": self.hidden_size,
+            "pc1_vs_mean_cosine": convert(self.pc1_vs_mean_cosine),
+            "pc1_vs_norm_correlation": convert(self.pc1_vs_norm_correlation),
+            "residual_probe_accuracy": convert(self.residual_probe_accuracy),
+            "semantic_separation": convert(self.semantic_separation),
+            "l1_delta_analysis": convert(self.l1_delta_analysis),
+            "router_comparison": convert(self.router_comparison),
         }
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(data, f, indent=2)
         print(f"Results saved to: {path}")
 
@@ -125,26 +127,24 @@ class LayerStructureExperiments:
             model_id=model_id,
         )
 
-    def get_layer_activations(
-        self,
-        prompt: str,
-        layers: list[int]
-    ) -> dict[int, np.ndarray]:
+    def get_layer_activations(self, prompt: str, layers: list[int]) -> dict[int, np.ndarray]:
         """Get activations for all tokens at specified layers."""
         from chuk_lazarus.introspection.hooks import CaptureConfig, ModelHooks, PositionSelection
 
         tokens = self.tokenizer.encode(prompt)
         if isinstance(tokens, np.ndarray):
             tokens = tokens.flatten().tolist()
-        elif hasattr(tokens, 'tolist'):
+        elif hasattr(tokens, "tolist"):
             tokens = tokens.tolist()
 
         hooks = ModelHooks(self.model)
-        hooks.configure(CaptureConfig(
-            layers=layers,
-            capture_hidden_states=True,
-            positions=PositionSelection.ALL,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=layers,
+                capture_hidden_states=True,
+                positions=PositionSelection.ALL,
+            )
+        )
 
         input_ids = mx.array([tokens])
         hooks.forward(input_ids)
@@ -188,18 +188,16 @@ class LayerStructureExperiments:
 
     def test_pc1_norm_hypothesis(self, prompts: list[str]):
         """Test if PC1 is just the norm/mean direction."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("HYPOTHESIS 1: PC1 = Norm Direction")
-        print("="*60)
+        print("=" * 60)
 
         from sklearn.decomposition import PCA
 
         layers_to_test = [0, 1, 2, 3, 6, 9, 12, 15, self.num_layers - 1]
         layers_to_test = [l for l in layers_to_test if l < self.num_layers]
 
-        all_acts = self.collect_activations_dataset(
-            prompts, layers_to_test, use_last_token=False
-        )
+        all_acts = self.collect_activations_dataset(prompts, layers_to_test, use_last_token=False)
 
         print("\nPC1 vs Mean Direction (cosine similarity):")
         print("-" * 40)
@@ -232,7 +230,9 @@ class LayerStructureExperiments:
             self.results.pc1_vs_norm_correlation[layer] = float(correlation)
 
             indicator = "← NORM" if cosine > 0.95 else ""
-            print(f"  L{layer:2d}: PC1·mean = {cosine:.4f}, PC1~norm r = {correlation:.4f} {indicator}")
+            print(
+                f"  L{layer:2d}: PC1·mean = {cosine:.4f}, PC1~norm r = {correlation:.4f} {indicator}"
+            )
 
         # Summary
         l0_cosine = self.results.pc1_vs_mean_cosine.get(0, 0)
@@ -248,9 +248,9 @@ class LayerStructureExperiments:
 
     def test_residual_structure(self, prompts: list[str], labels: list[int]):
         """Test if projecting out PC1 reveals hidden structure."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("HYPOTHESIS 2: Residual Structure")
-        print("="*60)
+        print("=" * 60)
 
         from sklearn.decomposition import PCA
         from sklearn.linear_model import LogisticRegression
@@ -260,9 +260,7 @@ class LayerStructureExperiments:
         layers_to_test = [0, 3, 6, 9, 12]
         layers_to_test = [l for l in layers_to_test if l < self.num_layers]
 
-        all_acts = self.collect_activations_dataset(
-            prompts, layers_to_test, use_last_token=True
-        )
+        all_acts = self.collect_activations_dataset(prompts, layers_to_test, use_last_token=True)
 
         y = np.array(labels)
 
@@ -283,7 +281,7 @@ class LayerStructureExperiments:
             clf = LogisticRegression(max_iter=1000, random_state=42)
             raw_scores = cross_val_score(clf, X_scaled, y, cv=5)
             raw_acc = raw_scores.mean()
-            self.results.residual_probe_accuracy[layer]['raw'] = float(raw_acc)
+            self.results.residual_probe_accuracy[layer]["raw"] = float(raw_acc)
 
             print(f"\n  L{layer:2d}:")
             print(f"    Raw:        {raw_acc:.1%}")
@@ -304,15 +302,15 @@ class LayerStructureExperiments:
                 X_res_scaled = scaler.fit_transform(X_residual)
                 res_scores = cross_val_score(clf, X_res_scaled, y, cv=5)
                 res_acc = res_scores.mean()
-                self.results.residual_probe_accuracy[layer][f'residual_k{k}'] = float(res_acc)
+                self.results.residual_probe_accuracy[layer][f"residual_k{k}"] = float(res_acc)
 
                 delta = res_acc - raw_acc
                 indicator = "↑" if delta > 0.01 else "↓" if delta < -0.01 else "="
                 print(f"    -PC1..{k}:    {res_acc:.1%} ({indicator} {delta:+.1%})")
 
         # Summary
-        l0_raw = self.results.residual_probe_accuracy.get(0, {}).get('raw', 0)
-        l0_res = self.results.residual_probe_accuracy.get(0, {}).get('residual_k1', 0)
+        l0_raw = self.results.residual_probe_accuracy.get(0, {}).get("raw", 0)
+        l0_res = self.results.residual_probe_accuracy.get(0, {}).get("residual_k1", 0)
 
         if l0_res > l0_raw + 0.02:
             print("\n→ CONFIRMED: Removing PC1 IMPROVES probe accuracy")
@@ -329,22 +327,47 @@ class LayerStructureExperiments:
 
     def test_semantic_separation_curve(self, prompts: list[str] | None = None):
         """Map semantic separation across all layers."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("HYPOTHESIS 3: Semantic Separation Curve")
-        print("="*60)
+        print("=" * 60)
 
         # Semantic groups
         semantic_groups = {
-            'weather': ["What is the weather?", "Is it raining?", "Temperature forecast",
-                       "Will it be sunny?", "How cold is it?"],
-            'email': ["Send an email", "Write a message", "Reply to John",
-                     "Check my inbox", "Email the report"],
-            'calendar': ["Schedule a meeting", "Create an event", "Book an appointment",
-                        "Set a reminder", "When is my next meeting?"],
-            'search': ["Search for restaurants", "Find hotels nearby", "Look up the news",
-                      "Search the web", "Find information about"],
-            'factual': ["What is the capital?", "How many continents?", "Explain physics",
-                       "What year was it?", "Who invented the telephone?"],
+            "weather": [
+                "What is the weather?",
+                "Is it raining?",
+                "Temperature forecast",
+                "Will it be sunny?",
+                "How cold is it?",
+            ],
+            "email": [
+                "Send an email",
+                "Write a message",
+                "Reply to John",
+                "Check my inbox",
+                "Email the report",
+            ],
+            "calendar": [
+                "Schedule a meeting",
+                "Create an event",
+                "Book an appointment",
+                "Set a reminder",
+                "When is my next meeting?",
+            ],
+            "search": [
+                "Search for restaurants",
+                "Find hotels nearby",
+                "Look up the news",
+                "Search the web",
+                "Find information about",
+            ],
+            "factual": [
+                "What is the capital?",
+                "How many continents?",
+                "Explain physics",
+                "What year was it?",
+                "Who invented the telephone?",
+            ],
         }
 
         all_layers = list(range(self.num_layers))
@@ -353,9 +376,7 @@ class LayerStructureExperiments:
         group_activations = {g: {} for g in semantic_groups}
 
         for group_name, group_prompts in semantic_groups.items():
-            acts = self.collect_activations_dataset(
-                group_prompts, all_layers, use_last_token=True
-            )
+            acts = self.collect_activations_dataset(group_prompts, all_layers, use_last_token=True)
             for layer, layer_acts in acts.items():
                 group_activations[group_name][layer] = layer_acts
 
@@ -401,9 +422,9 @@ class LayerStructureExperiments:
             separation = within - between
 
             self.results.semantic_separation[layer] = {
-                'within': float(within),
-                'between': float(between),
-                'separation': float(separation)
+                "within": float(within),
+                "between": float(between),
+                "separation": float(separation),
             }
 
             # Visual pattern
@@ -413,8 +434,9 @@ class LayerStructureExperiments:
             print(f"L{layer:2d}    {within:.3f}    {between:.3f}    {separation:+.3f}     {bar}")
 
         # Find disruption and reconstruction points
-        separations = [self.results.semantic_separation[l]['separation']
-                      for l in range(self.num_layers)]
+        separations = [
+            self.results.semantic_separation[l]["separation"] for l in range(self.num_layers)
+        ]
 
         # Find minimum (disruption point)
         min_layer = np.argmin(separations)
@@ -439,7 +461,7 @@ class LayerStructureExperiments:
             print("\n→ CONFIRMED: Compress → Disrupt → Reconstruct pattern")
             print(f"   Disruption zone: L1-L{min_layer}")
             if recovery_layer:
-                print(f"   Reconstruction zone: L{min_layer+1}-L{recovery_layer}")
+                print(f"   Reconstruction zone: L{min_layer + 1}-L{recovery_layer}")
 
     # ==========================================
     # Hypothesis 4: L1 Delta Analysis
@@ -447,9 +469,9 @@ class LayerStructureExperiments:
 
     def test_l1_delta_analysis(self, prompts: list[str]):
         """Analyze what L1 actually does to representations."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("HYPOTHESIS 4: L1 Transformation Analysis")
-        print("="*60)
+        print("=" * 60)
 
         from sklearn.decomposition import PCA
 
@@ -487,8 +509,8 @@ class LayerStructureExperiments:
         print(f"   Mean norm ratio L1/L0: {norm_change.mean():.3f}")
         print(f"   Std norm ratio: {norm_change.std():.3f}")
 
-        self.results.l1_delta_analysis['norm_ratio_mean'] = float(norm_change.mean())
-        self.results.l1_delta_analysis['norm_ratio_std'] = float(norm_change.std())
+        self.results.l1_delta_analysis["norm_ratio_mean"] = float(norm_change.mean())
+        self.results.l1_delta_analysis["norm_ratio_std"] = float(norm_change.std())
 
         print("\n2. Delta Magnitude Analysis:")
         print("-" * 40)
@@ -497,7 +519,7 @@ class LayerStructureExperiments:
         print(f"   Mean delta norm: {delta_norms.mean():.2f}")
         print(f"   Mean relative change: {relative_change.mean():.3f}")
 
-        self.results.l1_delta_analysis['relative_change_mean'] = float(relative_change.mean())
+        self.results.l1_delta_analysis["relative_change_mean"] = float(relative_change.mean())
 
         print("\n3. Position Dependence of Delta:")
         print("-" * 40)
@@ -508,10 +530,10 @@ class LayerStructureExperiments:
 
         # Can we predict position from delta?
         ridge = Ridge()
-        pos_scores = cross_val_score(ridge, deltas, positions, cv=5, scoring='r2')
+        pos_scores = cross_val_score(ridge, deltas, positions, cv=5, scoring="r2")
         print(f"   R² for position from delta: {pos_scores.mean():.3f} ± {pos_scores.std():.3f}")
 
-        self.results.l1_delta_analysis['position_from_delta_r2'] = float(pos_scores.mean())
+        self.results.l1_delta_analysis["position_from_delta_r2"] = float(pos_scores.mean())
 
         if pos_scores.mean() > 0.5:
             print("   → Delta is STRONGLY position-dependent (RoPE signature)")
@@ -527,9 +549,9 @@ class LayerStructureExperiments:
         pca.fit(deltas)
 
         cumvar = np.cumsum(pca.explained_variance_ratio_)
-        print(f"   PC1 explains: {pca.explained_variance_ratio_[0]*100:.1f}%")
-        print(f"   PC1-5 explain: {cumvar[4]*100:.1f}%")
-        print(f"   PC1-10 explain: {cumvar[9]*100:.1f}%")
+        print(f"   PC1 explains: {pca.explained_variance_ratio_[0] * 100:.1f}%")
+        print(f"   PC1-5 explain: {cumvar[4] * 100:.1f}%")
+        print(f"   PC1-10 explain: {cumvar[9] * 100:.1f}%")
 
         # Check PC correlations with position
         projections = pca.transform(deltas)
@@ -537,9 +559,11 @@ class LayerStructureExperiments:
         for i in range(min(5, projections.shape[1])):
             corr = np.corrcoef(projections[:, i], positions)[0, 1]
             indicator = "***" if abs(corr) > 0.3 else ""
-            print(f"     PC{i+1}: r = {corr:.3f} {indicator}")
+            print(f"     PC{i + 1}: r = {corr:.3f} {indicator}")
 
-        self.results.l1_delta_analysis['delta_pc1_variance'] = float(pca.explained_variance_ratio_[0])
+        self.results.l1_delta_analysis["delta_pc1_variance"] = float(
+            pca.explained_variance_ratio_[0]
+        )
 
     # ==========================================
     # Hypothesis 5: Router Comparison
@@ -547,9 +571,9 @@ class LayerStructureExperiments:
 
     def test_router_comparison(self, prompts: list[str], labels: list[int]):
         """Compare embedding-based vs deep-layer router accuracy."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("HYPOTHESIS 5: Router Viability Comparison")
-        print("="*60)
+        print("=" * 60)
 
         from sklearn.decomposition import PCA
         from sklearn.linear_model import LogisticRegression
@@ -560,9 +584,7 @@ class LayerStructureExperiments:
         key_layers = [0, 1, 3, 6, 9, 12, self.num_layers - 1]
         key_layers = sorted(set(l for l in key_layers if l < self.num_layers))
 
-        all_acts = self.collect_activations_dataset(
-            prompts, key_layers, use_last_token=True
-        )
+        all_acts = self.collect_activations_dataset(prompts, key_layers, use_last_token=True)
 
         y = np.array(labels)
 
@@ -617,8 +639,9 @@ class LayerStructureExperiments:
         self.results.router_comparison = {k: float(v) for k, v in approaches.items()}
 
         # Find best shallow approach
-        shallow_approaches = {k: v for k, v in approaches.items()
-                            if 'L0' in k or 'L1' in k or 'L3' in k}
+        shallow_approaches = {
+            k: v for k, v in approaches.items() if "L0" in k or "L1" in k or "L3" in k
+        }
         if shallow_approaches:
             best_shallow = max(shallow_approaches.items(), key=lambda x: x[1])
             gap = best_acc - best_shallow[1]
@@ -643,10 +666,10 @@ class LayerStructureExperiments:
         output_path = Path(output_dir)
         output_path.mkdir(exist_ok=True)
 
-        print("="*60)
+        print("=" * 60)
         print("LAYER STRUCTURE EXPERIMENTS")
         print("Testing: Compress → Disrupt → Reconstruct Hypothesis")
-        print("="*60)
+        print("=" * 60)
         print(f"\nModel: {self.model_id}")
         print(f"Layers: {self.num_layers}, Hidden: {self.hidden_size}")
 
@@ -698,35 +721,43 @@ class LayerStructureExperiments:
         self.test_router_comparison(prompts, labels)
 
         # Summary
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("EXPERIMENT SUMMARY")
-        print("="*60)
+        print("=" * 60)
 
         # PC1 = norm?
         l0_cosine = self.results.pc1_vs_mean_cosine.get(0, 0)
         print(f"\n1. PC1 = Norm: {'YES' if l0_cosine > 0.95 else 'NO'} (cosine = {l0_cosine:.3f})")
 
         # Residual structure?
-        l0_raw = self.results.residual_probe_accuracy.get(0, {}).get('raw', 0)
-        l0_res = self.results.residual_probe_accuracy.get(0, {}).get('residual_k1', 0)
-        print(f"2. Residual improves L0: {'YES' if l0_res > l0_raw + 0.02 else 'NO'} ({l0_raw:.1%} → {l0_res:.1%})")
+        l0_raw = self.results.residual_probe_accuracy.get(0, {}).get("raw", 0)
+        l0_res = self.results.residual_probe_accuracy.get(0, {}).get("residual_k1", 0)
+        print(
+            f"2. Residual improves L0: {'YES' if l0_res > l0_raw + 0.02 else 'NO'} ({l0_raw:.1%} → {l0_res:.1%})"
+        )
 
         # Disruption pattern?
-        separations = [self.results.semantic_separation.get(l, {}).get('separation', 0)
-                      for l in range(self.num_layers)]
+        separations = [
+            self.results.semantic_separation.get(l, {}).get("separation", 0)
+            for l in range(self.num_layers)
+        ]
         if separations:
             min_layer = np.argmin(separations)
             print(f"3. Disruption point: L{min_layer} (separation = {separations[min_layer]:.3f})")
 
         # L1 is RoPE?
-        pos_r2 = self.results.l1_delta_analysis.get('position_from_delta_r2', 0)
-        print(f"4. L1 delta is position-dependent: {'YES' if pos_r2 > 0.3 else 'NO'} (R² = {pos_r2:.3f})")
+        pos_r2 = self.results.l1_delta_analysis.get("position_from_delta_r2", 0)
+        print(
+            f"4. L1 delta is position-dependent: {'YES' if pos_r2 > 0.3 else 'NO'} (R² = {pos_r2:.3f})"
+        )
 
         # Router viability?
         router_results = self.results.router_comparison
         if router_results:
-            best_deep = max(v for k, v in router_results.items() if 'L12' in k or 'L17' in k)
-            best_shallow = max(v for k, v in router_results.items() if 'L0' in k or 'L1' in k or 'L3' in k)
+            best_deep = max(v for k, v in router_results.items() if "L12" in k or "L17" in k)
+            best_shallow = max(
+                v for k, v in router_results.items() if "L0" in k or "L1" in k or "L3" in k
+            )
             gap = best_deep - best_shallow
             print(f"5. Shallow router viable: {'YES' if gap < 0.05 else 'NO'} (gap = {gap:.1%})")
 
@@ -742,16 +773,16 @@ class LayerStructureExperiments:
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Test compress → disrupt → reconstruct hypothesis"
-    )
+    parser = argparse.ArgumentParser(description="Test compress → disrupt → reconstruct hypothesis")
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="mlx-community/functiongemma-270m-it-bf16",
         help="Model ID to analyze",
     )
     parser.add_argument(
-        "--quick", "-q",
+        "--quick",
+        "-q",
         action="store_true",
         help="Run only semantic separation curve (fastest)",
     )

@@ -1,0 +1,1000 @@
+{"q": "Tom has 6 packs with 6 pencils each. Tom uses 6. How many left?", "chain": "6 * 6 = 36\n_ - 6 = 30\n[END]", "ans": 30, "pattern": "multiply_subtract"}
+{"q": "Sarah has 15 apples. Sarah buys 11 more, then spends 10. How many now?", "chain": "15 + 11 = 26\n_ - 10 = 16\n[END]", "ans": 16, "pattern": "add_subtract"}
+{"q": "Ben starts with 38 pencils. Gets 23 more. Then gives away 20. Total?", "chain": "38 + 23 = 61\n_ - 20 = 41\n[END]", "ans": 41, "pattern": "add_subtract"}
+{"q": "Split 28 pencils among 7 friends. Each gets?", "chain": "28 / 7 = 4\n[END]", "ans": 4, "pattern": "divide_split"}
+{"q": "84 points shared equally by 7 people. How many each?", "chain": "84 / 7 = 12\n[END]", "ans": 12, "pattern": "divide_split"}
+{"q": "Zoe's farm produces 18 toys daily. Zoe loses 3 for breakfast and breaks 2 for baking. Sells the rest at $6 each. Revenue?", "chain": "18 - 3 = 15\n_ - 2 = 13\n_ * 6 = 78\n[END]", "ans": 78, "pattern": "subtract_subtract_multiply"}
+{"q": "Mike has 24 apples. Mike gets 29 more, then gives away 21. How many now?", "chain": "24 + 29 = 53\n_ - 21 = 32\n[END]", "ans": 32, "pattern": "add_subtract"}
+{"q": "35 eggs shared equally by 7 people. How many each?", "chain": "35 / 7 = 5\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "Divide 36 oranges into 3 equal groups. Per group?", "chain": "36 / 3 = 12\n[END]", "ans": 12, "pattern": "divide_split"}
+{"q": "Start with 74 books. 51 are gone. How many left?", "chain": "74 - 51 = 23\n[END]", "ans": 23, "pattern": "subtract_loss"}
+{"q": "There are 3 shelfs of 7 points. 3 are sold. Remaining?", "chain": "3 * 7 = 21\n_ - 3 = 18\n[END]", "ans": 18, "pattern": "multiply_subtract"}
+{"q": "Mike has 70 pencils. First uses 11. Then uses 23. Remaining?", "chain": "70 - 11 = 59\n_ - 23 = 36\n[END]", "ans": 36, "pattern": "subtract_subtract"}
+{"q": "A store has 10 baskets. Each has 11 pencils. How many pencils?", "chain": "10 * 11 = 110\n[END]", "ans": 110, "pattern": "multiply_groups"}
+{"q": "Start with 40 cards. Use 14. Sell remaining at $5 each. Revenue?", "chain": "40 - 14 = 26\n_ * 5 = 130\n[END]", "ans": 130, "pattern": "subtract_multiply"}
+{"q": "3 boxs with 5 points in each. Total?", "chain": "3 * 5 = 15\n[END]", "ans": 15, "pattern": "multiply_groups"}
+{"q": "A store has 3 rows. Each has 9 cards. How many cards?", "chain": "3 * 9 = 27\n[END]", "ans": 27, "pattern": "multiply_groups"}
+{"q": "Zoe has 26 toys. Zoe collects 22 more, then breaks 3. How many now?", "chain": "26 + 22 = 48\n_ - 3 = 45\n[END]", "ans": 45, "pattern": "add_subtract"}
+{"q": "There are 7 shelfs of 10 cookies. 13 are sold. Remaining?", "chain": "7 * 10 = 70\n_ - 13 = 57\n[END]", "ans": 57, "pattern": "multiply_subtract"}
+{"q": "Maria buys 4 toys at $10 each. Total cost?", "chain": "4 * 10 = 40\n[END]", "ans": 40, "pattern": "multiply_rate"}
+{"q": "Alex has 6 jars with 7 books each. Uses 13, then splits the rest among 1 friends. Each friend gets?", "chain": "6 * 7 = 42\n_ - 13 = 29\n_ / 1 = 29\n[END]", "ans": 29, "pattern": "multiply_subtract_divide"}
+{"q": "Lisa has 69 marbles. Lisa gives away 12 and then spends 4. How many left?", "chain": "69 - 12 = 57\n_ - 4 = 53\n[END]", "ans": 53, "pattern": "subtract_subtract"}
+{"q": "3 trays with 15 points in each. Total?", "chain": "3 * 15 = 45\n[END]", "ans": 45, "pattern": "multiply_groups"}
+{"q": "Start with 45 eggs. Use 20. Sell remaining at $4 each. Revenue?", "chain": "45 - 20 = 25\n_ * 4 = 100\n[END]", "ans": 100, "pattern": "subtract_multiply"}
+{"q": "Anna has 19 oranges. Anna buys 17 more, then earns 16 more, then eats 19. How many now?", "chain": "19 + 17 = 36\n_ + 16 = 52\n_ - 19 = 33\n[END]", "ans": 33, "pattern": "add_add_subtract"}
+{"q": "Start with 90 apples. 73 are gone. How many left?", "chain": "90 - 73 = 17\n[END]", "ans": 17, "pattern": "subtract_loss"}
+{"q": "Mike has 95 oranges. Mike gives away 10. How many left?", "chain": "95 - 10 = 85\n[END]", "ans": 85, "pattern": "subtract_loss"}
+{"q": "Jenny has 5 bags with 9 toys each. Uses 15, then splits the rest among 6 friends. Each friend gets?", "chain": "5 * 9 = 45\n_ - 15 = 30\n_ / 6 = 5\n[END]", "ans": 5, "pattern": "multiply_subtract_divide"}
+{"q": "Dan has 40 pencils. Dan finds 30 more, then eats 29. How many now?", "chain": "40 + 30 = 70\n_ - 29 = 41\n[END]", "ans": 41, "pattern": "add_subtract"}
+{"q": "Chris has 10 rows with 4 candys each. Chris uses 6. How many left?", "chain": "10 * 4 = 40\n_ - 6 = 34\n[END]", "ans": 34, "pattern": "multiply_subtract"}
+{"q": "Jenny has 43 dollars. First gives away 8. Then spends 6. Remaining?", "chain": "43 - 8 = 35\n_ - 6 = 29\n[END]", "ans": 29, "pattern": "subtract_subtract"}
+{"q": "There are 9 baskets with 6 stickers each. Total stickers?", "chain": "9 * 6 = 54\n[END]", "ans": 54, "pattern": "multiply_groups"}
+{"q": "Lisa has 99 apples. Lisa eats 31 and then gives away 3. How many left?", "chain": "99 - 31 = 68\n_ - 3 = 65\n[END]", "ans": 65, "pattern": "subtract_subtract"}
+{"q": "Dan has 81 pencils. First uses 6. Then eats 13. Remaining?", "chain": "81 - 6 = 75\n_ - 13 = 62\n[END]", "ans": 62, "pattern": "subtract_subtract"}
+{"q": "Start with 32. Add 25. Total?", "chain": "32 + 25 = 57\n[END]", "ans": 57, "pattern": "add_gain"}
+{"q": "Dan has 7 baskets with 7 pencils each. Dan uses 4. How many left?", "chain": "7 * 7 = 49\n_ - 4 = 45\n[END]", "ans": 45, "pattern": "multiply_subtract"}
+{"q": "Sarah has 45 apples. Sarah gives away 19. Sells the rest for $10 each. Total money?", "chain": "45 - 19 = 26\n_ * 10 = 260\n[END]", "ans": 260, "pattern": "subtract_multiply"}
+{"q": "Mike has 15 points. Mike earns 7 more, then gets 7 more, then spends 8. How many now?", "chain": "15 + 7 = 22\n_ + 7 = 29\n_ - 8 = 21\n[END]", "ans": 21, "pattern": "add_add_subtract"}
+{"q": "Sarah starts with 15 cards. Gets 18 more. Then spends 24. Total?", "chain": "15 + 18 = 33\n_ - 24 = 9\n[END]", "ans": 9, "pattern": "add_subtract"}
+{"q": "Anna has 6 shelfs with 11 pencils each. Uses 9, then splits the rest among 3 friends. Each friend gets?", "chain": "6 * 11 = 66\n_ - 9 = 57\n_ / 3 = 19\n[END]", "ans": 19, "pattern": "multiply_subtract_divide"}
+{"q": "Mike has 34 apples. Mike buys 22 more. Total?", "chain": "34 + 22 = 56\n[END]", "ans": 56, "pattern": "add_gain"}
+{"q": "Each toy costs $4. Anna buys 6. How much total?", "chain": "6 * 4 = 24\n[END]", "ans": 24, "pattern": "multiply_rate"}
+{"q": "Sam has 5 shelfs with 12 stickers each. Uses 14, then splits the rest among 2 friends. Each friend gets?", "chain": "5 * 12 = 60\n_ - 14 = 46\n_ / 2 = 23\n[END]", "ans": 23, "pattern": "multiply_subtract_divide"}
+{"q": "Lisa has 4 baskets with 6 stickers each. Uses 6, then splits the rest among 3 friends. Each friend gets?", "chain": "4 * 6 = 24\n_ - 6 = 18\n_ / 3 = 6\n[END]", "ans": 6, "pattern": "multiply_subtract_divide"}
+{"q": "There are 7 jars of 12 eggs. 34 are sold. Remaining?", "chain": "7 * 12 = 84\n_ - 34 = 50\n[END]", "ans": 50, "pattern": "multiply_subtract"}
+{"q": "Sarah has 7 bags with 9 eggs each. Uses 6, then splits the rest among 3 friends. Each friend gets?", "chain": "7 * 9 = 63\n_ - 6 = 57\n_ / 3 = 19\n[END]", "ans": 19, "pattern": "multiply_subtract_divide"}
+{"q": "Maria has 43 books. Maria spends 20. Sells the rest for $8 each. Total money?", "chain": "43 - 20 = 23\n_ * 8 = 184\n[END]", "ans": 184, "pattern": "subtract_multiply"}
+{"q": "2 baskets with 8 toys in each. Total?", "chain": "2 * 8 = 16\n[END]", "ans": 16, "pattern": "multiply_groups"}
+{"q": "Ben has 12 books. Ben gets 14 more, then loses 14. How many now?", "chain": "12 + 14 = 26\n_ - 14 = 12\n[END]", "ans": 12, "pattern": "add_subtract"}
+{"q": "Lisa has 9 shelfs with 6 dollars each. Lisa uses 10. How many left?", "chain": "9 * 6 = 54\n_ - 10 = 44\n[END]", "ans": 44, "pattern": "multiply_subtract"}
+{"q": "Jake has 10 candys. Jake earns 10 more, then collects 15 more, then breaks 17. How many now?", "chain": "10 + 10 = 20\n_ + 15 = 35\n_ - 17 = 18\n[END]", "ans": 18, "pattern": "add_add_subtract"}
+{"q": "Lisa has 7 candys. Lisa earns 30 more. Total?", "chain": "7 + 30 = 37\n[END]", "ans": 37, "pattern": "add_gain"}
+{"q": "Zoe has 54 marbles. Zoe gives away 17. How many left?", "chain": "54 - 17 = 37\n[END]", "ans": 37, "pattern": "subtract_loss"}
+{"q": "There are 4 shelfs of 8 stickers. 8 are sold. Remaining?", "chain": "4 * 8 = 32\n_ - 8 = 24\n[END]", "ans": 24, "pattern": "multiply_subtract"}
+{"q": "There are 7 boxs of 6 cookies. 21 are sold. Remaining?", "chain": "7 * 6 = 42\n_ - 21 = 21\n[END]", "ans": 21, "pattern": "multiply_subtract"}
+{"q": "7 marbles at $8 each. Total?", "chain": "7 * 8 = 56\n[END]", "ans": 56, "pattern": "multiply_rate"}
+{"q": "Lisa has 28 candys. Lisa collects 11 more, then earns 13 more, then eats 6. How many now?", "chain": "28 + 11 = 39\n_ + 13 = 52\n_ - 6 = 46\n[END]", "ans": 46, "pattern": "add_add_subtract"}
+{"q": "84 eggs shared equally by 7 people. How many each?", "chain": "84 / 7 = 12\n[END]", "ans": 12, "pattern": "divide_split"}
+{"q": "There are 7 packs of 10 toys. 23 are sold. Remaining?", "chain": "7 * 10 = 70\n_ - 23 = 47\n[END]", "ans": 47, "pattern": "multiply_subtract"}
+{"q": "There are 9 jars of 6 candys. 22 are sold. Remaining?", "chain": "9 * 6 = 54\n_ - 22 = 32\n[END]", "ans": 32, "pattern": "multiply_subtract"}
+{"q": "Tom has 66 stickers. First spends 11. Then spends 16. Remaining?", "chain": "66 - 11 = 55\n_ - 16 = 39\n[END]", "ans": 39, "pattern": "subtract_subtract"}
+{"q": "Zoe has 57 eggs. Zoe breaks 13 and then gives away 18. How many left?", "chain": "57 - 13 = 44\n_ - 18 = 26\n[END]", "ans": 26, "pattern": "subtract_subtract"}
+{"q": "Jenny has 20 cookies. Jenny receives 24 more. Total?", "chain": "20 + 24 = 44\n[END]", "ans": 44, "pattern": "add_gain"}
+{"q": "Emma's farm produces 16 apples daily. Emma eats 2 for breakfast and uses 3 for baking. Sells the rest at $6 each. Revenue?", "chain": "16 - 2 = 14\n_ - 3 = 11\n_ * 6 = 66\n[END]", "ans": 66, "pattern": "subtract_subtract_multiply"}
+{"q": "Anna has 7 rows with 8 flowers each. Uses 7, then splits the rest among 1 friends. Each friend gets?", "chain": "7 * 8 = 56\n_ - 7 = 49\n_ / 1 = 49\n[END]", "ans": 49, "pattern": "multiply_subtract_divide"}
+{"q": "Sam has 48 books. Sam spends 17. Sells the rest for $2 each. Total money?", "chain": "48 - 17 = 31\n_ * 2 = 62\n[END]", "ans": 62, "pattern": "subtract_multiply"}
+{"q": "Lisa has 10 trays with 12 books each. Uses 38, then splits the rest among 2 friends. Each friend gets?", "chain": "10 * 12 = 120\n_ - 38 = 82\n_ / 2 = 41\n[END]", "ans": 41, "pattern": "multiply_subtract_divide"}
+{"q": "Ben has 10 trays with 11 books each. Ben uses 19. How many left?", "chain": "10 * 11 = 110\n_ - 19 = 91\n[END]", "ans": 91, "pattern": "multiply_subtract"}
+{"q": "Maria's farm produces 39 dollars daily. Maria uses 9 for breakfast and eats 5 for baking. Sells the rest at $4 each. Revenue?", "chain": "39 - 9 = 30\n_ - 5 = 25\n_ * 4 = 100\n[END]", "ans": 100, "pattern": "subtract_subtract_multiply"}
+{"q": "Jenny has 84 marbles. Jenny gives away 13. How many left?", "chain": "84 - 13 = 71\n[END]", "ans": 71, "pattern": "subtract_loss"}
+{"q": "Emma has 42 oranges and uses 7. How many remain?", "chain": "42 - 7 = 35\n[END]", "ans": 35, "pattern": "subtract_loss"}
+{"q": "12 candys shared equally by 2 people. How many each?", "chain": "12 / 2 = 6\n[END]", "ans": 6, "pattern": "divide_split"}
+{"q": "Split 80 points among 8 friends. Each gets?", "chain": "80 / 8 = 10\n[END]", "ans": 10, "pattern": "divide_split"}
+{"q": "Alex has 22 dollars. Alex finds 18 more, then receives 12 more, then uses 20. How many now?", "chain": "22 + 18 = 40\n_ + 12 = 52\n_ - 20 = 32\n[END]", "ans": 32, "pattern": "add_add_subtract"}
+{"q": "Each egg costs $14. Jenny buys 12. How much total?", "chain": "12 * 14 = 168\n[END]", "ans": 168, "pattern": "multiply_rate"}
+{"q": "Zoe has 49 books. Zoe spends 3. Sells the rest for $8 each. Total money?", "chain": "49 - 3 = 46\n_ * 8 = 368\n[END]", "ans": 368, "pattern": "subtract_multiply"}
+{"q": "There are 9 rows with 5 books each. Total books?", "chain": "9 * 5 = 45\n[END]", "ans": 45, "pattern": "multiply_groups"}
+{"q": "Jenny has 34 pencils and receives 13 more. How many now?", "chain": "34 + 13 = 47\n[END]", "ans": 47, "pattern": "add_gain"}
+{"q": "Start with 10. Add 18. Total?", "chain": "10 + 18 = 28\n[END]", "ans": 28, "pattern": "add_gain"}
+{"q": "Chris has 14 pencils. Chris gets 29 more, then gives away 5. How many now?", "chain": "14 + 29 = 43\n_ - 5 = 38\n[END]", "ans": 38, "pattern": "add_subtract"}
+{"q": "Emma's farm produces 19 pencils daily. Emma spends 3 for breakfast and gives away 4 for baking. Sells the rest at $2 each. Revenue?", "chain": "19 - 3 = 16\n_ - 4 = 12\n_ * 2 = 24\n[END]", "ans": 24, "pattern": "subtract_subtract_multiply"}
+{"q": "Chris has 4 baskets with 6 cards each. Chris uses 7. How many left?", "chain": "4 * 6 = 24\n_ - 7 = 17\n[END]", "ans": 17, "pattern": "multiply_subtract"}
+{"q": "Alex has 34 cards. Alex gets 17 more, then spends 15. How many now?", "chain": "34 + 17 = 51\n_ - 15 = 36\n[END]", "ans": 36, "pattern": "add_subtract"}
+{"q": "3 packs with 15 points in each. Total?", "chain": "3 * 15 = 45\n[END]", "ans": 45, "pattern": "multiply_groups"}
+{"q": "Start with 42 toys. Use 14. Sell remaining at $3 each. Revenue?", "chain": "42 - 14 = 28\n_ * 3 = 84\n[END]", "ans": 84, "pattern": "subtract_multiply"}
+{"q": "Each point costs $3. Ben buys 9. How much total?", "chain": "9 * 3 = 27\n[END]", "ans": 27, "pattern": "multiply_rate"}
+{"q": "Zoe has 14 oranges. Zoe collects 18 more, then receives 10 more, then spends 21. How many now?", "chain": "14 + 18 = 32\n_ + 10 = 42\n_ - 21 = 21\n[END]", "ans": 21, "pattern": "add_add_subtract"}
+{"q": "Maria has 61 marbles. First uses 7. Then gives away 11. Remaining?", "chain": "61 - 7 = 54\n_ - 11 = 43\n[END]", "ans": 43, "pattern": "subtract_subtract"}
+{"q": "Kate has 11 marbles. Kate finds 20 more, then uses 13. How many now?", "chain": "11 + 20 = 31\n_ - 13 = 18\n[END]", "ans": 18, "pattern": "add_subtract"}
+{"q": "Divide 72 marbles into 6 equal groups. Per group?", "chain": "72 / 6 = 12\n[END]", "ans": 12, "pattern": "divide_split"}
+{"q": "Tom has 5 jars with 11 cookies each. Uses 12, then splits the rest among 1 friends. Each friend gets?", "chain": "5 * 11 = 55\n_ - 12 = 43\n_ / 1 = 43\n[END]", "ans": 43, "pattern": "multiply_subtract_divide"}
+{"q": "Dan has 3 trays with 5 dollars each. Dan uses 5. How many left?", "chain": "3 * 5 = 15\n_ - 5 = 10\n[END]", "ans": 10, "pattern": "multiply_subtract"}
+{"q": "Sam has 77 stickers. First spends 20. Then loses 20. Remaining?", "chain": "77 - 20 = 57\n_ - 20 = 37\n[END]", "ans": 37, "pattern": "subtract_subtract"}
+{"q": "Jenny has 24 marbles. Jenny finds 13 more, then gets 14 more, then breaks 13. How many now?", "chain": "24 + 13 = 37\n_ + 14 = 51\n_ - 13 = 38\n[END]", "ans": 38, "pattern": "add_add_subtract"}
+{"q": "Jake has 18 pencils and earns 26 more. How many now?", "chain": "18 + 26 = 44\n[END]", "ans": 44, "pattern": "add_gain"}
+{"q": "Alex has 27 cookies. Alex loses 7. Sells the rest for $5 each. Total money?", "chain": "27 - 7 = 20\n_ * 5 = 100\n[END]", "ans": 100, "pattern": "subtract_multiply"}
+{"q": "Emma has 7 stickers and buys 4 more. How many now?", "chain": "7 + 4 = 11\n[END]", "ans": 11, "pattern": "add_gain"}
+{"q": "There are 3 trays of 8 cookies. 10 are sold. Remaining?", "chain": "3 * 8 = 24\n_ - 10 = 14\n[END]", "ans": 14, "pattern": "multiply_subtract"}
+{"q": "Jake has 62 apples. First eats 20. Then uses 6. Remaining?", "chain": "62 - 20 = 42\n_ - 6 = 36\n[END]", "ans": 36, "pattern": "subtract_subtract"}
+{"q": "4 books at $14 each. Total?", "chain": "4 * 14 = 56\n[END]", "ans": 56, "pattern": "multiply_rate"}
+{"q": "Mike has 13 pencils. Mike earns 18 more, then earns 12 more, then uses 21. How many now?", "chain": "13 + 18 = 31\n_ + 12 = 43\n_ - 21 = 22\n[END]", "ans": 22, "pattern": "add_add_subtract"}
+{"q": "Ben has 33 stickers. Ben breaks 6 and eats 2. Sells the rest for $6 each. Total money?", "chain": "33 - 6 = 27\n_ - 2 = 25\n_ * 6 = 150\n[END]", "ans": 150, "pattern": "subtract_subtract_multiply"}
+{"q": "Maria has 6 bags with 6 books each. Maria uses 5. How many left?", "chain": "6 * 6 = 36\n_ - 5 = 31\n[END]", "ans": 31, "pattern": "multiply_subtract"}
+{"q": "Each orange costs $9. Zoe buys 11. How much total?", "chain": "11 * 9 = 99\n[END]", "ans": 99, "pattern": "multiply_rate"}
+{"q": "Each orange costs $13. Alex buys 6. How much total?", "chain": "6 * 13 = 78\n[END]", "ans": 78, "pattern": "multiply_rate"}
+{"q": "12 stickers at $11 each. Total?", "chain": "12 * 11 = 132\n[END]", "ans": 132, "pattern": "multiply_rate"}
+{"q": "Anna has 18 candys. Anna gives away 4 and loses 2. Sells the rest for $7 each. Total money?", "chain": "18 - 4 = 14\n_ - 2 = 12\n_ * 7 = 84\n[END]", "ans": 84, "pattern": "subtract_subtract_multiply"}
+{"q": "6 dollars at $11 each. Total?", "chain": "6 * 11 = 66\n[END]", "ans": 66, "pattern": "multiply_rate"}
+{"q": "Alex's farm produces 18 flowers daily. Alex breaks 3 for breakfast and uses 4 for baking. Sells the rest at $4 each. Revenue?", "chain": "18 - 3 = 15\n_ - 4 = 11\n_ * 4 = 44\n[END]", "ans": 44, "pattern": "subtract_subtract_multiply"}
+{"q": "Dan starts with 15 flowers. Gets 24 more. Then breaks 5. Total?", "chain": "15 + 24 = 39\n_ - 5 = 34\n[END]", "ans": 34, "pattern": "add_subtract"}
+{"q": "Tom has 3 bags with 8 pencils each. Tom uses 12. How many left?", "chain": "3 * 8 = 24\n_ - 12 = 12\n[END]", "ans": 12, "pattern": "multiply_subtract"}
+{"q": "Jake has 48 flowers. Jake loses 23. Sells the rest for $9 each. Total money?", "chain": "48 - 23 = 25\n_ * 9 = 225\n[END]", "ans": 225, "pattern": "subtract_multiply"}
+{"q": "Ben has 25 eggs. Ben earns 7 more, then receives 20 more, then loses 16. How many now?", "chain": "25 + 7 = 32\n_ + 20 = 52\n_ - 16 = 36\n[END]", "ans": 36, "pattern": "add_add_subtract"}
+{"q": "Jenny has 37 candys. Jenny uses 9 and spends 6. Sells the rest for $7 each. Total money?", "chain": "37 - 9 = 28\n_ - 6 = 22\n_ * 7 = 154\n[END]", "ans": 154, "pattern": "subtract_subtract_multiply"}
+{"q": "Jenny has 71 stickers. Jenny uses 8 and then spends 27. How many left?", "chain": "71 - 8 = 63\n_ - 27 = 36\n[END]", "ans": 36, "pattern": "subtract_subtract"}
+{"q": "There are 6 rows of 12 apples. 26 are sold. Remaining?", "chain": "6 * 12 = 72\n_ - 26 = 46\n[END]", "ans": 46, "pattern": "multiply_subtract"}
+{"q": "There are 5 jars of 8 stickers. 17 are sold. Remaining?", "chain": "5 * 8 = 40\n_ - 17 = 23\n[END]", "ans": 23, "pattern": "multiply_subtract"}
+{"q": "4 jars with 7 oranges in each. Total?", "chain": "4 * 7 = 28\n[END]", "ans": 28, "pattern": "multiply_groups"}
+{"q": "Ben buys 5 cookies at $15 each. Total cost?", "chain": "5 * 15 = 75\n[END]", "ans": 75, "pattern": "multiply_rate"}
+{"q": "Lisa has 49 eggs. First spends 12. Then breaks 12. Remaining?", "chain": "49 - 12 = 37\n_ - 12 = 25\n[END]", "ans": 25, "pattern": "subtract_subtract"}
+{"q": "Dan has 61 flowers. Dan gives away 19 and then uses 20. How many left?", "chain": "61 - 19 = 42\n_ - 20 = 22\n[END]", "ans": 22, "pattern": "subtract_subtract"}
+{"q": "Emma has 10 bags with 11 stickers each. Uses 26, then splits the rest among 4 friends. Each friend gets?", "chain": "10 * 11 = 110\n_ - 26 = 84\n_ / 4 = 21\n[END]", "ans": 21, "pattern": "multiply_subtract_divide"}
+{"q": "Alex has 42 points and collects 21 more. How many now?", "chain": "42 + 21 = 63\n[END]", "ans": 63, "pattern": "add_gain"}
+{"q": "Zoe's farm produces 30 toys daily. Zoe spends 4 for breakfast and uses 4 for baking. Sells the rest at $6 each. Revenue?", "chain": "30 - 4 = 26\n_ - 4 = 22\n_ * 6 = 132\n[END]", "ans": 132, "pattern": "subtract_subtract_multiply"}
+{"q": "Anna has 7 jars with 8 cards each. Uses 18, then splits the rest among 2 friends. Each friend gets?", "chain": "7 * 8 = 56\n_ - 18 = 38\n_ / 2 = 19\n[END]", "ans": 19, "pattern": "multiply_subtract_divide"}
+{"q": "Start with 29. Add 15. Total?", "chain": "29 + 15 = 44\n[END]", "ans": 44, "pattern": "add_gain"}
+{"q": "Dan has 14 apples. Dan earns 15 more, then gets 8 more, then spends 18. How many now?", "chain": "14 + 15 = 29\n_ + 8 = 37\n_ - 18 = 19\n[END]", "ans": 19, "pattern": "add_add_subtract"}
+{"q": "Emma buys 12 candys at $4 each. Total cost?", "chain": "12 * 4 = 48\n[END]", "ans": 48, "pattern": "multiply_rate"}
+{"q": "Maria has 80 marbles. First loses 25. Then breaks 5. Remaining?", "chain": "80 - 25 = 55\n_ - 5 = 50\n[END]", "ans": 50, "pattern": "subtract_subtract"}
+{"q": "Dan has 27 points. Dan collects 6 more, then collects 7 more, then loses 12. How many now?", "chain": "27 + 6 = 33\n_ + 7 = 40\n_ - 12 = 28\n[END]", "ans": 28, "pattern": "add_add_subtract"}
+{"q": "Start with 21 cookies. Use 10. Sell remaining at $4 each. Revenue?", "chain": "21 - 10 = 11\n_ * 4 = 44\n[END]", "ans": 44, "pattern": "subtract_multiply"}
+{"q": "Sarah has 4 shelfs with 9 dollars each. Uses 10, then splits the rest among 2 friends. Each friend gets?", "chain": "4 * 9 = 36\n_ - 10 = 26\n_ / 2 = 13\n[END]", "ans": 13, "pattern": "multiply_subtract_divide"}
+{"q": "There are 4 rows with 5 cards each. Total cards?", "chain": "4 * 5 = 20\n[END]", "ans": 20, "pattern": "multiply_groups"}
+{"q": "Each card costs $5. Kate buys 12. How much total?", "chain": "12 * 5 = 60\n[END]", "ans": 60, "pattern": "multiply_rate"}
+{"q": "Emma has 9 jars with 9 flowers each. Uses 19, then splits the rest among 2 friends. Each friend gets?", "chain": "9 * 9 = 81\n_ - 19 = 62\n_ / 2 = 31\n[END]", "ans": 31, "pattern": "multiply_subtract_divide"}
+{"q": "Zoe has 8 packs with 7 eggs each. Uses 6, then splits the rest among 5 friends. Each friend gets?", "chain": "8 * 7 = 56\n_ - 6 = 50\n_ / 5 = 10\n[END]", "ans": 10, "pattern": "multiply_subtract_divide"}
+{"q": "Alex has 23 eggs. Alex finds 13 more, then earns 19 more, then uses 14. How many now?", "chain": "23 + 13 = 36\n_ + 19 = 55\n_ - 14 = 41\n[END]", "ans": 41, "pattern": "add_add_subtract"}
+{"q": "Chris has 52 cards. Chris loses 47. How many left?", "chain": "52 - 47 = 5\n[END]", "ans": 5, "pattern": "subtract_loss"}
+{"q": "Kate has 10 stickers. Kate receives 6 more, then finds 20 more, then spends 18. How many now?", "chain": "10 + 6 = 16\n_ + 20 = 36\n_ - 18 = 18\n[END]", "ans": 18, "pattern": "add_add_subtract"}
+{"q": "Anna has 47 cards. Anna breaks 11. How many left?", "chain": "47 - 11 = 36\n[END]", "ans": 36, "pattern": "subtract_loss"}
+{"q": "Sarah has 7 packs with 5 dollars each. Uses 9, then splits the rest among 2 friends. Each friend gets?", "chain": "7 * 5 = 35\n_ - 9 = 26\n_ / 2 = 13\n[END]", "ans": 13, "pattern": "multiply_subtract_divide"}
+{"q": "There are 8 packs with 5 marbles each. Total marbles?", "chain": "8 * 5 = 40\n[END]", "ans": 40, "pattern": "multiply_groups"}
+{"q": "There are 10 shelfs with 7 toys each. Total toys?", "chain": "10 * 7 = 70\n[END]", "ans": 70, "pattern": "multiply_groups"}
+{"q": "Dan has 23 dollars. Dan receives 26 more. Total?", "chain": "23 + 26 = 49\n[END]", "ans": 49, "pattern": "add_gain"}
+{"q": "Mike has 58 books. Mike spends 18 and then loses 15. How many left?", "chain": "58 - 18 = 40\n_ - 15 = 25\n[END]", "ans": 25, "pattern": "subtract_subtract"}
+{"q": "Start with 49 stickers. Use 6. Sell remaining at $9 each. Revenue?", "chain": "49 - 6 = 43\n_ * 9 = 387\n[END]", "ans": 387, "pattern": "subtract_multiply"}
+{"q": "Chris starts with 24 cookies. Gets 20 more. Then spends 4. Total?", "chain": "24 + 20 = 44\n_ - 4 = 40\n[END]", "ans": 40, "pattern": "add_subtract"}
+{"q": "Sam has 10 bags with 12 eggs each. Uses 24, then splits the rest among 6 friends. Each friend gets?", "chain": "10 * 12 = 120\n_ - 24 = 96\n_ / 6 = 16\n[END]", "ans": 16, "pattern": "multiply_subtract_divide"}
+{"q": "There are 9 boxs with 4 stickers each. Total stickers?", "chain": "9 * 4 = 36\n[END]", "ans": 36, "pattern": "multiply_groups"}
+{"q": "Start with 73 candys. 50 are gone. How many left?", "chain": "73 - 50 = 23\n[END]", "ans": 23, "pattern": "subtract_loss"}
+{"q": "There are 4 baskets of 11 candys. 22 are sold. Remaining?", "chain": "4 * 11 = 44\n_ - 22 = 22\n[END]", "ans": 22, "pattern": "multiply_subtract"}
+{"q": "Maria has 6 boxs with 8 oranges each. Uses 12, then splits the rest among 6 friends. Each friend gets?", "chain": "6 * 8 = 48\n_ - 12 = 36\n_ / 6 = 6\n[END]", "ans": 6, "pattern": "multiply_subtract_divide"}
+{"q": "Lisa has 26 eggs. Lisa uses 6 and loses 4. Sells the rest for $2 each. Total money?", "chain": "26 - 6 = 20\n_ - 4 = 16\n_ * 2 = 32\n[END]", "ans": 32, "pattern": "subtract_subtract_multiply"}
+{"q": "Zoe has 16 cookies. Zoe finds 5 more, then finds 6 more, then spends 10. How many now?", "chain": "16 + 5 = 21\n_ + 6 = 27\n_ - 10 = 17\n[END]", "ans": 17, "pattern": "add_add_subtract"}
+{"q": "Anna buys 5 cards at $15 each. Total cost?", "chain": "5 * 15 = 75\n[END]", "ans": 75, "pattern": "multiply_rate"}
+{"q": "Split 14 dollars among 2 friends. Each gets?", "chain": "14 / 2 = 7\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "Maria has 15 dollars. Maria gets 8 more, then receives 5 more, then gives away 7. How many now?", "chain": "15 + 8 = 23\n_ + 5 = 28\n_ - 7 = 21\n[END]", "ans": 21, "pattern": "add_add_subtract"}
+{"q": "Each apple costs $13. Maria buys 4. How much total?", "chain": "4 * 13 = 52\n[END]", "ans": 52, "pattern": "multiply_rate"}
+{"q": "Mike has 38 flowers. Mike buys 29 more, then spends 26. How many now?", "chain": "38 + 29 = 67\n_ - 26 = 41\n[END]", "ans": 41, "pattern": "add_subtract"}
+{"q": "Sam has 35 cards. Sam loses 10 and then uses 11. How many left?", "chain": "35 - 10 = 25\n_ - 11 = 14\n[END]", "ans": 14, "pattern": "subtract_subtract"}
+{"q": "8 points at $8 each. Total?", "chain": "8 * 8 = 64\n[END]", "ans": 64, "pattern": "multiply_rate"}
+{"q": "3 trays with 8 cookies in each. Total?", "chain": "3 * 8 = 24\n[END]", "ans": 24, "pattern": "multiply_groups"}
+{"q": "A store has 10 baskets. Each has 14 stickers. How many stickers?", "chain": "10 * 14 = 140\n[END]", "ans": 140, "pattern": "multiply_groups"}
+{"q": "120 flowers shared equally by 10 people. How many each?", "chain": "120 / 10 = 12\n[END]", "ans": 12, "pattern": "divide_split"}
+{"q": "There are 10 bags with 14 points each. Total points?", "chain": "10 * 14 = 140\n[END]", "ans": 140, "pattern": "multiply_groups"}
+{"q": "Sam has 73 candys. Sam uses 19 and then breaks 15. How many left?", "chain": "73 - 19 = 54\n_ - 15 = 39\n[END]", "ans": 39, "pattern": "subtract_subtract"}
+{"q": "Start with 21. Add 14. Total?", "chain": "21 + 14 = 35\n[END]", "ans": 35, "pattern": "add_gain"}
+{"q": "Mike has 4 bags with 6 points each. Uses 8, then splits the rest among 2 friends. Each friend gets?", "chain": "4 * 6 = 24\n_ - 8 = 16\n_ / 2 = 8\n[END]", "ans": 8, "pattern": "multiply_subtract_divide"}
+{"q": "Sarah's farm produces 32 cards daily. Sarah eats 6 for breakfast and uses 4 for baking. Sells the rest at $7 each. Revenue?", "chain": "32 - 6 = 26\n_ - 4 = 22\n_ * 7 = 154\n[END]", "ans": 154, "pattern": "subtract_subtract_multiply"}
+{"q": "Ben has 8 boxs with 9 stickers each. Uses 16, then splits the rest among 2 friends. Each friend gets?", "chain": "8 * 9 = 72\n_ - 16 = 56\n_ / 2 = 28\n[END]", "ans": 28, "pattern": "multiply_subtract_divide"}
+{"q": "3 trays with 8 pencils in each. Total?", "chain": "3 * 8 = 24\n[END]", "ans": 24, "pattern": "multiply_groups"}
+{"q": "75 cards shared equally by 5 people. How many each?", "chain": "75 / 5 = 15\n[END]", "ans": 15, "pattern": "divide_split"}
+{"q": "Tom's farm produces 36 cards daily. Tom loses 6 for breakfast and breaks 2 for baking. Sells the rest at $3 each. Revenue?", "chain": "36 - 6 = 30\n_ - 2 = 28\n_ * 3 = 84\n[END]", "ans": 84, "pattern": "subtract_subtract_multiply"}
+{"q": "Chris has 10 boxs with 7 books each. Uses 23, then splits the rest among 1 friends. Each friend gets?", "chain": "10 * 7 = 70\n_ - 23 = 47\n_ / 1 = 47\n[END]", "ans": 47, "pattern": "multiply_subtract_divide"}
+{"q": "A store has 10 boxs. Each has 6 cookies. How many cookies?", "chain": "10 * 6 = 60\n[END]", "ans": 60, "pattern": "multiply_groups"}
+{"q": "Jenny has 77 books. Jenny loses 14 and then spends 26. How many left?", "chain": "77 - 14 = 63\n_ - 26 = 37\n[END]", "ans": 37, "pattern": "subtract_subtract"}
+{"q": "Emma has 8 baskets with 5 dollars each. Uses 6, then splits the rest among 2 friends. Each friend gets?", "chain": "8 * 5 = 40\n_ - 6 = 34\n_ / 2 = 17\n[END]", "ans": 17, "pattern": "multiply_subtract_divide"}
+{"q": "Dan has 7 trays with 7 candys each. Dan uses 19. How many left?", "chain": "7 * 7 = 49\n_ - 19 = 30\n[END]", "ans": 30, "pattern": "multiply_subtract"}
+{"q": "Divide 99 stickers into 9 equal groups. Per group?", "chain": "99 / 9 = 11\n[END]", "ans": 11, "pattern": "divide_split"}
+{"q": "Sam has 43 candys. Sam gets 4 more. Total?", "chain": "43 + 4 = 47\n[END]", "ans": 47, "pattern": "add_gain"}
+{"q": "Anna has 13 dollars and receives 27 more. How many now?", "chain": "13 + 27 = 40\n[END]", "ans": 40, "pattern": "add_gain"}
+{"q": "Split 40 flowers among 8 friends. Each gets?", "chain": "40 / 8 = 5\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "130 toys shared equally by 10 people. How many each?", "chain": "130 / 10 = 13\n[END]", "ans": 13, "pattern": "divide_split"}
+{"q": "Sarah buys 2 candys at $9 each. Total cost?", "chain": "2 * 9 = 18\n[END]", "ans": 18, "pattern": "multiply_rate"}
+{"q": "Ben's farm produces 27 cards daily. Ben uses 5 for breakfast and eats 4 for baking. Sells the rest at $2 each. Revenue?", "chain": "27 - 5 = 22\n_ - 4 = 18\n_ * 2 = 36\n[END]", "ans": 36, "pattern": "subtract_subtract_multiply"}
+{"q": "Zoe has 61 points. Zoe uses 8. How many left?", "chain": "61 - 8 = 53\n[END]", "ans": 53, "pattern": "subtract_loss"}
+{"q": "Start with 10. Add 15. Total?", "chain": "10 + 15 = 25\n[END]", "ans": 25, "pattern": "add_gain"}
+{"q": "Divide 16 dollars into 4 equal groups. Per group?", "chain": "16 / 4 = 4\n[END]", "ans": 4, "pattern": "divide_split"}
+{"q": "Anna has 5 shelfs with 7 marbles each. Anna uses 4. How many left?", "chain": "5 * 7 = 35\n_ - 4 = 31\n[END]", "ans": 31, "pattern": "multiply_subtract"}
+{"q": "Jake has 14 cards. Jake collects 27 more. Total?", "chain": "14 + 27 = 41\n[END]", "ans": 41, "pattern": "add_gain"}
+{"q": "Start with 87 flowers. 77 are gone. How many left?", "chain": "87 - 77 = 10\n[END]", "ans": 10, "pattern": "subtract_loss"}
+{"q": "Jenny has 7 shelfs with 6 books each. Uses 12, then splits the rest among 6 friends. Each friend gets?", "chain": "7 * 6 = 42\n_ - 12 = 30\n_ / 6 = 5\n[END]", "ans": 5, "pattern": "multiply_subtract_divide"}
+{"q": "Start with 47 marbles. Use 5. Sell remaining at $6 each. Revenue?", "chain": "47 - 5 = 42\n_ * 6 = 252\n[END]", "ans": 252, "pattern": "subtract_multiply"}
+{"q": "6 points at $3 each. Total?", "chain": "6 * 3 = 18\n[END]", "ans": 18, "pattern": "multiply_rate"}
+{"q": "Mike has 34 cards. Mike spends 6 and spends 5. Sells the rest for $5 each. Total money?", "chain": "34 - 6 = 28\n_ - 5 = 23\n_ * 5 = 115\n[END]", "ans": 115, "pattern": "subtract_subtract_multiply"}
+{"q": "Anna has 90 marbles. Anna eats 21 and then uses 12. How many left?", "chain": "90 - 21 = 69\n_ - 12 = 57\n[END]", "ans": 57, "pattern": "subtract_subtract"}
+{"q": "Jenny's farm produces 17 oranges daily. Jenny eats 4 for breakfast and gives away 4 for baking. Sells the rest at $3 each. Revenue?", "chain": "17 - 4 = 13\n_ - 4 = 9\n_ * 3 = 27\n[END]", "ans": 27, "pattern": "subtract_subtract_multiply"}
+{"q": "Jake has 21 marbles. Jake receives 14 more, then collects 17 more, then spends 18. How many now?", "chain": "21 + 14 = 35\n_ + 17 = 52\n_ - 18 = 34\n[END]", "ans": 34, "pattern": "add_add_subtract"}
+{"q": "Start with 36 cookies. Use 6. Sell remaining at $10 each. Revenue?", "chain": "36 - 6 = 30\n_ * 10 = 300\n[END]", "ans": 300, "pattern": "subtract_multiply"}
+{"q": "Emma has 10 marbles. Emma collects 21 more. Total?", "chain": "10 + 21 = 31\n[END]", "ans": 31, "pattern": "add_gain"}
+{"q": "Alex has 8 rows with 6 books each. Uses 9, then splits the rest among 3 friends. Each friend gets?", "chain": "8 * 6 = 48\n_ - 9 = 39\n_ / 3 = 13\n[END]", "ans": 13, "pattern": "multiply_subtract_divide"}
+{"q": "Mike has 36 eggs. Mike loses 8 and loses 7. Sells the rest for $2 each. Total money?", "chain": "36 - 8 = 28\n_ - 7 = 21\n_ * 2 = 42\n[END]", "ans": 42, "pattern": "subtract_subtract_multiply"}
+{"q": "Jenny has 25 dollars. Jenny finds 11 more, then gets 12 more, then loses 9. How many now?", "chain": "25 + 11 = 36\n_ + 12 = 48\n_ - 9 = 39\n[END]", "ans": 39, "pattern": "add_add_subtract"}
+{"q": "Sarah starts with 31 eggs. Gets 29 more. Then spends 42. Total?", "chain": "31 + 29 = 60\n_ - 42 = 18\n[END]", "ans": 18, "pattern": "add_subtract"}
+{"q": "A store has 4 baskets. Each has 14 points. How many points?", "chain": "4 * 14 = 56\n[END]", "ans": 56, "pattern": "multiply_groups"}
+{"q": "5 eggs at $9 each. Total?", "chain": "5 * 9 = 45\n[END]", "ans": 45, "pattern": "multiply_rate"}
+{"q": "Zoe has 39 pencils and receives 10 more. How many now?", "chain": "39 + 10 = 49\n[END]", "ans": 49, "pattern": "add_gain"}
+{"q": "Anna has 8 shelfs with 12 eggs each. Uses 19, then splits the rest among 1 friends. Each friend gets?", "chain": "8 * 12 = 96\n_ - 19 = 77\n_ / 1 = 77\n[END]", "ans": 77, "pattern": "multiply_subtract_divide"}
+{"q": "Ben has 22 books. Ben finds 30 more, then loses 41. How many now?", "chain": "22 + 30 = 52\n_ - 41 = 11\n[END]", "ans": 11, "pattern": "add_subtract"}
+{"q": "Chris has 4 bags with 8 oranges each. Chris uses 4. How many left?", "chain": "4 * 8 = 32\n_ - 4 = 28\n[END]", "ans": 28, "pattern": "multiply_subtract"}
+{"q": "Emma has 32 points and finds 5 more. How many now?", "chain": "32 + 5 = 37\n[END]", "ans": 37, "pattern": "add_gain"}
+{"q": "Tom has 7 rows with 10 apples each. Uses 12, then splits the rest among 2 friends. Each friend gets?", "chain": "7 * 10 = 70\n_ - 12 = 58\n_ / 2 = 29\n[END]", "ans": 29, "pattern": "multiply_subtract_divide"}
+{"q": "Divide 42 marbles into 3 equal groups. Per group?", "chain": "42 / 3 = 14\n[END]", "ans": 14, "pattern": "divide_split"}
+{"q": "14 books shared equally by 2 people. How many each?", "chain": "14 / 2 = 7\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "There are 3 trays of 5 flowers. 3 are sold. Remaining?", "chain": "3 * 5 = 15\n_ - 3 = 12\n[END]", "ans": 12, "pattern": "multiply_subtract"}
+{"q": "Emma has 92 toys. Emma uses 70. How many left?", "chain": "92 - 70 = 22\n[END]", "ans": 22, "pattern": "subtract_loss"}
+{"q": "Start with 22 stickers. Use 3. Sell remaining at $5 each. Revenue?", "chain": "22 - 3 = 19\n_ * 5 = 95\n[END]", "ans": 95, "pattern": "subtract_multiply"}
+{"q": "10 cards at $2 each. Total?", "chain": "10 * 2 = 20\n[END]", "ans": 20, "pattern": "multiply_rate"}
+{"q": "Sam starts with 19 oranges. Gets 14 more. Then spends 16. Total?", "chain": "19 + 14 = 33\n_ - 16 = 17\n[END]", "ans": 17, "pattern": "add_subtract"}
+{"q": "Start with 47. Add 24. Total?", "chain": "47 + 24 = 71\n[END]", "ans": 71, "pattern": "add_gain"}
+{"q": "Mike has 27 toys. Mike gets 5 more, then collects 17 more, then uses 20. How many now?", "chain": "27 + 5 = 32\n_ + 17 = 49\n_ - 20 = 29\n[END]", "ans": 29, "pattern": "add_add_subtract"}
+{"q": "Start with 9. Add 14. Total?", "chain": "9 + 14 = 23\n[END]", "ans": 23, "pattern": "add_gain"}
+{"q": "There are 3 shelfs of 9 books. 11 are sold. Remaining?", "chain": "3 * 9 = 27\n_ - 11 = 16\n[END]", "ans": 16, "pattern": "multiply_subtract"}
+{"q": "Jake has 39 points. Jake gives away 9 and gives away 9. Sells the rest for $7 each. Total money?", "chain": "39 - 9 = 30\n_ - 9 = 21\n_ * 7 = 147\n[END]", "ans": 147, "pattern": "subtract_subtract_multiply"}
+{"q": "Zoe has 33 apples. Zoe gives away 6. Sells the rest for $2 each. Total money?", "chain": "33 - 6 = 27\n_ * 2 = 54\n[END]", "ans": 54, "pattern": "subtract_multiply"}
+{"q": "Alex has 30 toys and buys 29 more. How many now?", "chain": "30 + 29 = 59\n[END]", "ans": 59, "pattern": "add_gain"}
+{"q": "Start with 27. Add 30. Total?", "chain": "27 + 30 = 57\n[END]", "ans": 57, "pattern": "add_gain"}
+{"q": "63 dollars shared equally by 7 people. How many each?", "chain": "63 / 7 = 9\n[END]", "ans": 9, "pattern": "divide_split"}
+{"q": "Start with 26 marbles. Use 10. Sell remaining at $9 each. Revenue?", "chain": "26 - 10 = 16\n_ * 9 = 144\n[END]", "ans": 144, "pattern": "subtract_multiply"}
+{"q": "Ben has 28 cookies. Ben loses 6 and loses 3. Sells the rest for $6 each. Total money?", "chain": "28 - 6 = 22\n_ - 3 = 19\n_ * 6 = 114\n[END]", "ans": 114, "pattern": "subtract_subtract_multiply"}
+{"q": "9 packs with 12 stickers in each. Total?", "chain": "9 * 12 = 108\n[END]", "ans": 108, "pattern": "multiply_groups"}
+{"q": "Zoe has 87 marbles. First spends 6. Then uses 25. Remaining?", "chain": "87 - 6 = 81\n_ - 25 = 56\n[END]", "ans": 56, "pattern": "subtract_subtract"}
+{"q": "Sarah has 9 bags with 9 eggs each. Sarah uses 35. How many left?", "chain": "9 * 9 = 81\n_ - 35 = 46\n[END]", "ans": 46, "pattern": "multiply_subtract"}
+{"q": "Emma has 29 points. Emma gets 19 more, then finds 6 more, then breaks 9. How many now?", "chain": "29 + 19 = 48\n_ + 6 = 54\n_ - 9 = 45\n[END]", "ans": 45, "pattern": "add_add_subtract"}
+{"q": "52 cards shared equally by 4 people. How many each?", "chain": "52 / 4 = 13\n[END]", "ans": 13, "pattern": "divide_split"}
+{"q": "Chris has 12 flowers. Chris receives 9 more, then collects 16 more, then loses 11. How many now?", "chain": "12 + 9 = 21\n_ + 16 = 37\n_ - 11 = 26\n[END]", "ans": 26, "pattern": "add_add_subtract"}
+{"q": "Tom has 15 oranges. Tom gets 20 more, then receives 17 more, then loses 22. How many now?", "chain": "15 + 20 = 35\n_ + 17 = 52\n_ - 22 = 30\n[END]", "ans": 30, "pattern": "add_add_subtract"}
+{"q": "Alex has 77 oranges. Alex eats 28. How many left?", "chain": "77 - 28 = 49\n[END]", "ans": 49, "pattern": "subtract_loss"}
+{"q": "Zoe's farm produces 37 books daily. Zoe breaks 9 for breakfast and loses 3 for baking. Sells the rest at $8 each. Revenue?", "chain": "37 - 9 = 28\n_ - 3 = 25\n_ * 8 = 200\n[END]", "ans": 200, "pattern": "subtract_subtract_multiply"}
+{"q": "Alex has 25 stickers. Alex spends 5. Sells the rest for $7 each. Total money?", "chain": "25 - 5 = 20\n_ * 7 = 140\n[END]", "ans": 140, "pattern": "subtract_multiply"}
+{"q": "A store has 4 jars. Each has 6 dollars. How many dollars?", "chain": "4 * 6 = 24\n[END]", "ans": 24, "pattern": "multiply_groups"}
+{"q": "10 flowers at $4 each. Total?", "chain": "10 * 4 = 40\n[END]", "ans": 40, "pattern": "multiply_rate"}
+{"q": "Mike has 9 packs with 12 candys each. Uses 31, then splits the rest among 1 friends. Each friend gets?", "chain": "9 * 12 = 108\n_ - 31 = 77\n_ / 1 = 77\n[END]", "ans": 77, "pattern": "multiply_subtract_divide"}
+{"q": "A store has 3 shelfs. Each has 10 eggs. How many eggs?", "chain": "3 * 10 = 30\n[END]", "ans": 30, "pattern": "multiply_groups"}
+{"q": "Chris has 5 baskets with 6 points each. Chris uses 9. How many left?", "chain": "5 * 6 = 30\n_ - 9 = 21\n[END]", "ans": 21, "pattern": "multiply_subtract"}
+{"q": "Emma's farm produces 20 stickers daily. Emma gives away 3 for breakfast and loses 4 for baking. Sells the rest at $7 each. Revenue?", "chain": "20 - 3 = 17\n_ - 4 = 13\n_ * 7 = 91\n[END]", "ans": 91, "pattern": "subtract_subtract_multiply"}
+{"q": "Maria has 35 pencils. Maria breaks 6 and loses 4. Sells the rest for $3 each. Total money?", "chain": "35 - 6 = 29\n_ - 4 = 25\n_ * 3 = 75\n[END]", "ans": 75, "pattern": "subtract_subtract_multiply"}
+{"q": "Jake starts with 47 cards. Gets 9 more. Then spends 13. Total?", "chain": "47 + 9 = 56\n_ - 13 = 43\n[END]", "ans": 43, "pattern": "add_subtract"}
+{"q": "Sarah has 15 points. Sarah spends 2 and loses 2. Sells the rest for $7 each. Total money?", "chain": "15 - 2 = 13\n_ - 2 = 11\n_ * 7 = 77\n[END]", "ans": 77, "pattern": "subtract_subtract_multiply"}
+{"q": "Start with 16 cards. Use 6. Sell remaining at $10 each. Revenue?", "chain": "16 - 6 = 10\n_ * 10 = 100\n[END]", "ans": 100, "pattern": "subtract_multiply"}
+{"q": "Kate has 88 stickers. First gives away 7. Then uses 6. Remaining?", "chain": "88 - 7 = 81\n_ - 6 = 75\n[END]", "ans": 75, "pattern": "subtract_subtract"}
+{"q": "Anna has 48 marbles. First breaks 10. Then loses 13. Remaining?", "chain": "48 - 10 = 38\n_ - 13 = 25\n[END]", "ans": 25, "pattern": "subtract_subtract"}
+{"q": "A store has 10 shelfs. Each has 4 toys. How many toys?", "chain": "10 * 4 = 40\n[END]", "ans": 40, "pattern": "multiply_groups"}
+{"q": "Lisa has 33 stickers. Lisa finds 10 more. Total?", "chain": "33 + 10 = 43\n[END]", "ans": 43, "pattern": "add_gain"}
+{"q": "Kate buys 11 points at $8 each. Total cost?", "chain": "11 * 8 = 88\n[END]", "ans": 88, "pattern": "multiply_rate"}
+{"q": "Jake has 20 points. Jake earns 15 more, then buys 11 more, then uses 10. How many now?", "chain": "20 + 15 = 35\n_ + 11 = 46\n_ - 10 = 36\n[END]", "ans": 36, "pattern": "add_add_subtract"}
+{"q": "Dan has 7 boxs with 12 cookies each. Uses 12, then splits the rest among 3 friends. Each friend gets?", "chain": "7 * 12 = 84\n_ - 12 = 72\n_ / 3 = 24\n[END]", "ans": 24, "pattern": "multiply_subtract_divide"}
+{"q": "11 flowers at $15 each. Total?", "chain": "11 * 15 = 165\n[END]", "ans": 165, "pattern": "multiply_rate"}
+{"q": "There are 4 boxs of 10 points. 7 are sold. Remaining?", "chain": "4 * 10 = 40\n_ - 7 = 33\n[END]", "ans": 33, "pattern": "multiply_subtract"}
+{"q": "Kate has 17 marbles. Kate spends 6. Sells the rest for $2 each. Total money?", "chain": "17 - 6 = 11\n_ * 2 = 22\n[END]", "ans": 22, "pattern": "subtract_multiply"}
+{"q": "88 cookies shared equally by 8 people. How many each?", "chain": "88 / 8 = 11\n[END]", "ans": 11, "pattern": "divide_split"}
+{"q": "Start with 22 points. Use 5. Sell remaining at $3 each. Revenue?", "chain": "22 - 5 = 17\n_ * 3 = 51\n[END]", "ans": 51, "pattern": "subtract_multiply"}
+{"q": "Start with 38 toys. Use 7. Sell remaining at $5 each. Revenue?", "chain": "38 - 7 = 31\n_ * 5 = 155\n[END]", "ans": 155, "pattern": "subtract_multiply"}
+{"q": "Sarah starts with 18 apples. Gets 27 more. Then spends 24. Total?", "chain": "18 + 27 = 45\n_ - 24 = 21\n[END]", "ans": 21, "pattern": "add_subtract"}
+{"q": "A store has 7 baskets. Each has 5 marbles. How many marbles?", "chain": "7 * 5 = 35\n[END]", "ans": 35, "pattern": "multiply_groups"}
+{"q": "Alex has 20 cards. Alex gets 20 more, then receives 14 more, then loses 20. How many now?", "chain": "20 + 20 = 40\n_ + 14 = 54\n_ - 20 = 34\n[END]", "ans": 34, "pattern": "add_add_subtract"}
+{"q": "Alex has 30 dollars. Alex collects 5 more, then buys 20 more, then spends 13. How many now?", "chain": "30 + 5 = 35\n_ + 20 = 55\n_ - 13 = 42\n[END]", "ans": 42, "pattern": "add_add_subtract"}
+{"q": "Dan has 48 books. Dan gives away 23. Sells the rest for $8 each. Total money?", "chain": "48 - 23 = 25\n_ * 8 = 200\n[END]", "ans": 200, "pattern": "subtract_multiply"}
+{"q": "Each pencil costs $9. Lisa buys 2. How much total?", "chain": "2 * 9 = 18\n[END]", "ans": 18, "pattern": "multiply_rate"}
+{"q": "Ben has 56 oranges. Ben spends 11 and then uses 19. How many left?", "chain": "56 - 11 = 45\n_ - 19 = 26\n[END]", "ans": 26, "pattern": "subtract_subtract"}
+{"q": "Start with 35 toys. Use 13. Sell remaining at $9 each. Revenue?", "chain": "35 - 13 = 22\n_ * 9 = 198\n[END]", "ans": 198, "pattern": "subtract_multiply"}
+{"q": "Jake has 39 flowers and buys 13 more. How many now?", "chain": "39 + 13 = 52\n[END]", "ans": 52, "pattern": "add_gain"}
+{"q": "There are 6 trays of 8 pencils. 20 are sold. Remaining?", "chain": "6 * 8 = 48\n_ - 20 = 28\n[END]", "ans": 28, "pattern": "multiply_subtract"}
+{"q": "Start with 51 dollars. 16 are gone. How many left?", "chain": "51 - 16 = 35\n[END]", "ans": 35, "pattern": "subtract_loss"}
+{"q": "Dan has 65 marbles. First spends 14. Then breaks 6. Remaining?", "chain": "65 - 14 = 51\n_ - 6 = 45\n[END]", "ans": 45, "pattern": "subtract_subtract"}
+{"q": "Kate has 10 shelfs with 7 dollars each. Uses 14, then splits the rest among 2 friends. Each friend gets?", "chain": "10 * 7 = 70\n_ - 14 = 56\n_ / 2 = 28\n[END]", "ans": 28, "pattern": "multiply_subtract_divide"}
+{"q": "Mike has 24 marbles. Mike finds 13 more, then buys 20 more, then loses 11. How many now?", "chain": "24 + 13 = 37\n_ + 20 = 57\n_ - 11 = 46\n[END]", "ans": 46, "pattern": "add_add_subtract"}
+{"q": "2 jars with 13 pencils in each. Total?", "chain": "2 * 13 = 26\n[END]", "ans": 26, "pattern": "multiply_groups"}
+{"q": "Start with 27 apples. 16 are gone. How many left?", "chain": "27 - 16 = 11\n[END]", "ans": 11, "pattern": "subtract_loss"}
+{"q": "Emma has 100 apples. First breaks 10. Then uses 29. Remaining?", "chain": "100 - 10 = 90\n_ - 29 = 61\n[END]", "ans": 61, "pattern": "subtract_subtract"}
+{"q": "Alex has 3 shelfs with 5 stickers each. Alex uses 7. How many left?", "chain": "3 * 5 = 15\n_ - 7 = 8\n[END]", "ans": 8, "pattern": "multiply_subtract"}
+{"q": "Sarah has 36 books. Sarah earns 10 more, then uses 5. How many now?", "chain": "36 + 10 = 46\n_ - 5 = 41\n[END]", "ans": 41, "pattern": "add_subtract"}
+{"q": "Alex has 6 boxs with 6 apples each. Uses 10, then splits the rest among 2 friends. Each friend gets?", "chain": "6 * 6 = 36\n_ - 10 = 26\n_ / 2 = 13\n[END]", "ans": 13, "pattern": "multiply_subtract_divide"}
+{"q": "Dan has 26 books. Dan gets 19 more, then receives 13 more, then gives away 11. How many now?", "chain": "26 + 19 = 45\n_ + 13 = 58\n_ - 11 = 47\n[END]", "ans": 47, "pattern": "add_add_subtract"}
+{"q": "Jake has 8 boxs with 8 oranges each. Jake uses 21. How many left?", "chain": "8 * 8 = 64\n_ - 21 = 43\n[END]", "ans": 43, "pattern": "multiply_subtract"}
+{"q": "Kate has 69 points. Kate loses 35. How many left?", "chain": "69 - 35 = 34\n[END]", "ans": 34, "pattern": "subtract_loss"}
+{"q": "Lisa has 47 books. First gives away 12. Then eats 8. Remaining?", "chain": "47 - 12 = 35\n_ - 8 = 27\n[END]", "ans": 27, "pattern": "subtract_subtract"}
+{"q": "48 dollars shared equally by 6 people. How many each?", "chain": "48 / 6 = 8\n[END]", "ans": 8, "pattern": "divide_split"}
+{"q": "Tom has 33 stickers. Tom gets 27 more, then breaks 18. How many now?", "chain": "33 + 27 = 60\n_ - 18 = 42\n[END]", "ans": 42, "pattern": "add_subtract"}
+{"q": "Jake has 94 candys. Jake loses 27 and then breaks 27. How many left?", "chain": "94 - 27 = 67\n_ - 27 = 40\n[END]", "ans": 40, "pattern": "subtract_subtract"}
+{"q": "There are 6 shelfs of 7 cards. 7 are sold. Remaining?", "chain": "6 * 7 = 42\n_ - 7 = 35\n[END]", "ans": 35, "pattern": "multiply_subtract"}
+{"q": "10 shelfs with 10 candys in each. Total?", "chain": "10 * 10 = 100\n[END]", "ans": 100, "pattern": "multiply_groups"}
+{"q": "Anna has 22 dollars. Anna breaks 2 and loses 5. Sells the rest for $6 each. Total money?", "chain": "22 - 2 = 20\n_ - 5 = 15\n_ * 6 = 90\n[END]", "ans": 90, "pattern": "subtract_subtract_multiply"}
+{"q": "Lisa has 8 boxs with 8 points each. Uses 9, then splits the rest among 5 friends. Each friend gets?", "chain": "8 * 8 = 64\n_ - 9 = 55\n_ / 5 = 11\n[END]", "ans": 11, "pattern": "multiply_subtract_divide"}
+{"q": "Zoe has 36 cookies. Zoe spends 5 and uses 9. Sells the rest for $2 each. Total money?", "chain": "36 - 5 = 31\n_ - 9 = 22\n_ * 2 = 44\n[END]", "ans": 44, "pattern": "subtract_subtract_multiply"}
+{"q": "Ben has 37 flowers. First breaks 12. Then eats 7. Remaining?", "chain": "37 - 12 = 25\n_ - 7 = 18\n[END]", "ans": 18, "pattern": "subtract_subtract"}
+{"q": "Tom has 18 oranges. Tom gets 21 more. Total?", "chain": "18 + 21 = 39\n[END]", "ans": 39, "pattern": "add_gain"}
+{"q": "Mike has 37 toys. First eats 6. Then loses 10. Remaining?", "chain": "37 - 6 = 31\n_ - 10 = 21\n[END]", "ans": 21, "pattern": "subtract_subtract"}
+{"q": "Emma has 97 dollars and uses 85. How many remain?", "chain": "97 - 85 = 12\n[END]", "ans": 12, "pattern": "subtract_loss"}
+{"q": "Kate has 22 flowers. Kate finds 17 more, then collects 7 more, then loses 22. How many now?", "chain": "22 + 17 = 39\n_ + 7 = 46\n_ - 22 = 24\n[END]", "ans": 24, "pattern": "add_add_subtract"}
+{"q": "Kate has 31 toys. Kate gives away 26. How many left?", "chain": "31 - 26 = 5\n[END]", "ans": 5, "pattern": "subtract_loss"}
+{"q": "Alex has 49 flowers. Alex uses 16. Sells the rest for $10 each. Total money?", "chain": "49 - 16 = 33\n_ * 10 = 330\n[END]", "ans": 330, "pattern": "subtract_multiply"}
+{"q": "Chris has 22 books. Chris collects 9 more. Total?", "chain": "22 + 9 = 31\n[END]", "ans": 31, "pattern": "add_gain"}
+{"q": "Ben buys 2 cards at $5 each. Total cost?", "chain": "2 * 5 = 10\n[END]", "ans": 10, "pattern": "multiply_rate"}
+{"q": "11 flowers at $12 each. Total?", "chain": "11 * 12 = 132\n[END]", "ans": 132, "pattern": "multiply_rate"}
+{"q": "Sam has 7 boxs with 8 candys each. Uses 13, then splits the rest among 1 friends. Each friend gets?", "chain": "7 * 8 = 56\n_ - 13 = 43\n_ / 1 = 43\n[END]", "ans": 43, "pattern": "multiply_subtract_divide"}
+{"q": "7 packs with 12 pencils in each. Total?", "chain": "7 * 12 = 84\n[END]", "ans": 84, "pattern": "multiply_groups"}
+{"q": "Jenny has 34 pencils. Jenny breaks 17. Sells the rest for $4 each. Total money?", "chain": "34 - 17 = 17\n_ * 4 = 68\n[END]", "ans": 68, "pattern": "subtract_multiply"}
+{"q": "Maria has 52 apples. Maria spends 15 and then uses 16. How many left?", "chain": "52 - 15 = 37\n_ - 16 = 21\n[END]", "ans": 21, "pattern": "subtract_subtract"}
+{"q": "Kate has 26 dollars. Kate finds 15 more, then receives 18 more, then uses 18. How many now?", "chain": "26 + 15 = 41\n_ + 18 = 59\n_ - 18 = 41\n[END]", "ans": 41, "pattern": "add_add_subtract"}
+{"q": "Dan has 29 pencils. Dan uses 7. Sells the rest for $4 each. Total money?", "chain": "29 - 7 = 22\n_ * 4 = 88\n[END]", "ans": 88, "pattern": "subtract_multiply"}
+{"q": "Ben has 43 toys. Ben finds 9 more, then loses 27. How many now?", "chain": "43 + 9 = 52\n_ - 27 = 25\n[END]", "ans": 25, "pattern": "add_subtract"}
+{"q": "Divide 28 flowers into 7 equal groups. Per group?", "chain": "28 / 7 = 4\n[END]", "ans": 4, "pattern": "divide_split"}
+{"q": "Anna has 32 apples. Anna eats 9. Sells the rest for $2 each. Total money?", "chain": "32 - 9 = 23\n_ * 2 = 46\n[END]", "ans": 46, "pattern": "subtract_multiply"}
+{"q": "Anna has 21 flowers. Anna gives away 4 and gives away 4. Sells the rest for $2 each. Total money?", "chain": "21 - 4 = 17\n_ - 4 = 13\n_ * 2 = 26\n[END]", "ans": 26, "pattern": "subtract_subtract_multiply"}
+{"q": "Start with 28 pencils. Use 9. Sell remaining at $5 each. Revenue?", "chain": "28 - 9 = 19\n_ * 5 = 95\n[END]", "ans": 95, "pattern": "subtract_multiply"}
+{"q": "Start with 49 flowers. Use 23. Sell remaining at $7 each. Revenue?", "chain": "49 - 23 = 26\n_ * 7 = 182\n[END]", "ans": 182, "pattern": "subtract_multiply"}
+{"q": "Divide 45 flowers into 3 equal groups. Per group?", "chain": "45 / 3 = 15\n[END]", "ans": 15, "pattern": "divide_split"}
+{"q": "Jenny has 77 pencils. Jenny eats 15 and then spends 16. How many left?", "chain": "77 - 15 = 62\n_ - 16 = 46\n[END]", "ans": 46, "pattern": "subtract_subtract"}
+{"q": "Tom has 50 stickers. Tom loses 21. Sells the rest for $8 each. Total money?", "chain": "50 - 21 = 29\n_ * 8 = 232\n[END]", "ans": 232, "pattern": "subtract_multiply"}
+{"q": "Start with 87 candys. 34 are gone. How many left?", "chain": "87 - 34 = 53\n[END]", "ans": 53, "pattern": "subtract_loss"}
+{"q": "Jenny has 10 packs with 11 dollars each. Jenny uses 32. How many left?", "chain": "10 * 11 = 110\n_ - 32 = 78\n[END]", "ans": 78, "pattern": "multiply_subtract"}
+{"q": "Chris has 23 books. Chris gives away 11. Sells the rest for $9 each. Total money?", "chain": "23 - 11 = 12\n_ * 9 = 108\n[END]", "ans": 108, "pattern": "subtract_multiply"}
+{"q": "Mike has 13 points. Mike earns 29 more, then gives away 3. How many now?", "chain": "13 + 29 = 42\n_ - 3 = 39\n[END]", "ans": 39, "pattern": "add_subtract"}
+{"q": "Each apple costs $10. Emma buys 5. How much total?", "chain": "5 * 10 = 50\n[END]", "ans": 50, "pattern": "multiply_rate"}
+{"q": "Split 27 eggs among 9 friends. Each gets?", "chain": "27 / 9 = 3\n[END]", "ans": 3, "pattern": "divide_split"}
+{"q": "Ben starts with 11 apples. Gets 21 more. Then spends 26. Total?", "chain": "11 + 21 = 32\n_ - 26 = 6\n[END]", "ans": 6, "pattern": "add_subtract"}
+{"q": "Ben buys 4 dollars at $3 each. Total cost?", "chain": "4 * 3 = 12\n[END]", "ans": 12, "pattern": "multiply_rate"}
+{"q": "Sam starts with 49 pencils. Gets 21 more. Then loses 19. Total?", "chain": "49 + 21 = 70\n_ - 19 = 51\n[END]", "ans": 51, "pattern": "add_subtract"}
+{"q": "11 flowers at $5 each. Total?", "chain": "11 * 5 = 55\n[END]", "ans": 55, "pattern": "multiply_rate"}
+{"q": "Mike has 98 eggs and eats 7. How many remain?", "chain": "98 - 7 = 91\n[END]", "ans": 91, "pattern": "subtract_loss"}
+{"q": "Split 28 apples among 2 friends. Each gets?", "chain": "28 / 2 = 14\n[END]", "ans": 14, "pattern": "divide_split"}
+{"q": "There are 7 rows with 12 eggs each. Total eggs?", "chain": "7 * 12 = 84\n[END]", "ans": 84, "pattern": "multiply_groups"}
+{"q": "Sarah has 10 jars with 12 pencils each. Uses 22, then splits the rest among 2 friends. Each friend gets?", "chain": "10 * 12 = 120\n_ - 22 = 98\n_ / 2 = 49\n[END]", "ans": 49, "pattern": "multiply_subtract_divide"}
+{"q": "Maria has 8 boxs with 4 books each. Maria uses 6. How many left?", "chain": "8 * 4 = 32\n_ - 6 = 26\n[END]", "ans": 26, "pattern": "multiply_subtract"}
+{"q": "Start with 34 cookies. Use 5. Sell remaining at $5 each. Revenue?", "chain": "34 - 5 = 29\n_ * 5 = 145\n[END]", "ans": 145, "pattern": "subtract_multiply"}
+{"q": "There are 5 rows of 5 dollars. 11 are sold. Remaining?", "chain": "5 * 5 = 25\n_ - 11 = 14\n[END]", "ans": 14, "pattern": "multiply_subtract"}
+{"q": "3 pencils at $7 each. Total?", "chain": "3 * 7 = 21\n[END]", "ans": 21, "pattern": "multiply_rate"}
+{"q": "Start with 35 dollars. Use 3. Sell remaining at $6 each. Revenue?", "chain": "35 - 3 = 32\n_ * 6 = 192\n[END]", "ans": 192, "pattern": "subtract_multiply"}
+{"q": "Start with 38 candys. 24 are gone. How many left?", "chain": "38 - 24 = 14\n[END]", "ans": 14, "pattern": "subtract_loss"}
+{"q": "Split 70 dollars among 5 friends. Each gets?", "chain": "70 / 5 = 14\n[END]", "ans": 14, "pattern": "divide_split"}
+{"q": "A store has 4 baskets. Each has 14 candys. How many candys?", "chain": "4 * 14 = 56\n[END]", "ans": 56, "pattern": "multiply_groups"}
+{"q": "Lisa has 5 cookies and earns 12 more. How many now?", "chain": "5 + 12 = 17\n[END]", "ans": 17, "pattern": "add_gain"}
+{"q": "Start with 20 books. Use 5. Sell remaining at $8 each. Revenue?", "chain": "20 - 5 = 15\n_ * 8 = 120\n[END]", "ans": 120, "pattern": "subtract_multiply"}
+{"q": "10 bags with 4 marbles in each. Total?", "chain": "10 * 4 = 40\n[END]", "ans": 40, "pattern": "multiply_groups"}
+{"q": "Jenny has 34 points. Jenny earns 5 more, then uses 21. How many now?", "chain": "34 + 5 = 39\n_ - 21 = 18\n[END]", "ans": 18, "pattern": "add_subtract"}
+{"q": "Sam has 48 cards. Sam gives away 8. Sells the rest for $8 each. Total money?", "chain": "48 - 8 = 40\n_ * 8 = 320\n[END]", "ans": 320, "pattern": "subtract_multiply"}
+{"q": "Maria has 14 flowers and finds 5 more. How many now?", "chain": "14 + 5 = 19\n[END]", "ans": 19, "pattern": "add_gain"}
+{"q": "Alex has 9 flowers. Alex receives 14 more. Total?", "chain": "9 + 14 = 23\n[END]", "ans": 23, "pattern": "add_gain"}
+{"q": "Start with 27 cards. Use 10. Sell remaining at $3 each. Revenue?", "chain": "27 - 10 = 17\n_ * 3 = 51\n[END]", "ans": 51, "pattern": "subtract_multiply"}
+{"q": "Each marble costs $8. Kate buys 11. How much total?", "chain": "11 * 8 = 88\n[END]", "ans": 88, "pattern": "multiply_rate"}
+{"q": "Ben has 47 points. Ben spends 9 and then breaks 13. How many left?", "chain": "47 - 9 = 38\n_ - 13 = 25\n[END]", "ans": 25, "pattern": "subtract_subtract"}
+{"q": "Jake has 70 candys. First breaks 14. Then breaks 26. Remaining?", "chain": "70 - 14 = 56\n_ - 26 = 30\n[END]", "ans": 30, "pattern": "subtract_subtract"}
+{"q": "Sam has 22 marbles. Sam gets 13 more, then buys 17 more, then gives away 16. How many now?", "chain": "22 + 13 = 35\n_ + 17 = 52\n_ - 16 = 36\n[END]", "ans": 36, "pattern": "add_add_subtract"}
+{"q": "There are 6 trays of 11 oranges. 28 are sold. Remaining?", "chain": "6 * 11 = 66\n_ - 28 = 38\n[END]", "ans": 38, "pattern": "multiply_subtract"}
+{"q": "Mike has 40 points. Mike breaks 8 and loses 9. Sells the rest for $3 each. Total money?", "chain": "40 - 8 = 32\n_ - 9 = 23\n_ * 3 = 69\n[END]", "ans": 69, "pattern": "subtract_subtract_multiply"}
+{"q": "Emma has 32 oranges. Emma earns 28 more. Total?", "chain": "32 + 28 = 60\n[END]", "ans": 60, "pattern": "add_gain"}
+{"q": "Dan has 81 cards. Dan breaks 22 and then uses 19. How many left?", "chain": "81 - 22 = 59\n_ - 19 = 40\n[END]", "ans": 40, "pattern": "subtract_subtract"}
+{"q": "Chris has 49 oranges. Chris eats 22. Sells the rest for $3 each. Total money?", "chain": "49 - 22 = 27\n_ * 3 = 81\n[END]", "ans": 81, "pattern": "subtract_multiply"}
+{"q": "There are 3 baskets of 10 eggs. 15 are sold. Remaining?", "chain": "3 * 10 = 30\n_ - 15 = 15\n[END]", "ans": 15, "pattern": "multiply_subtract"}
+{"q": "Ben has 10 cookies. Ben buys 8 more, then collects 13 more, then spends 8. How many now?", "chain": "10 + 8 = 18\n_ + 13 = 31\n_ - 8 = 23\n[END]", "ans": 23, "pattern": "add_add_subtract"}
+{"q": "Kate has 94 flowers. Kate eats 9 and then uses 25. How many left?", "chain": "94 - 9 = 85\n_ - 25 = 60\n[END]", "ans": 60, "pattern": "subtract_subtract"}
+{"q": "Mike has 14 cookies and receives 14 more. How many now?", "chain": "14 + 14 = 28\n[END]", "ans": 28, "pattern": "add_gain"}
+{"q": "Anna has 91 toys. First eats 16. Then uses 33. Remaining?", "chain": "91 - 16 = 75\n_ - 33 = 42\n[END]", "ans": 42, "pattern": "subtract_subtract"}
+{"q": "Alex has 50 apples and gets 6 more. How many now?", "chain": "50 + 6 = 56\n[END]", "ans": 56, "pattern": "add_gain"}
+{"q": "There are 5 jars of 12 toys. 8 are sold. Remaining?", "chain": "5 * 12 = 60\n_ - 8 = 52\n[END]", "ans": 52, "pattern": "multiply_subtract"}
+{"q": "Zoe starts with 35 pencils. Gets 25 more. Then breaks 14. Total?", "chain": "35 + 25 = 60\n_ - 14 = 46\n[END]", "ans": 46, "pattern": "add_subtract"}
+{"q": "Split 72 flowers among 8 friends. Each gets?", "chain": "72 / 8 = 9\n[END]", "ans": 9, "pattern": "divide_split"}
+{"q": "Anna has 19 stickers. Anna spends 7. Sells the rest for $3 each. Total money?", "chain": "19 - 7 = 12\n_ * 3 = 36\n[END]", "ans": 36, "pattern": "subtract_multiply"}
+{"q": "Divide 21 flowers into 3 equal groups. Per group?", "chain": "21 / 3 = 7\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "Jenny's farm produces 27 cards daily. Jenny eats 6 for breakfast and loses 5 for baking. Sells the rest at $6 each. Revenue?", "chain": "27 - 6 = 21\n_ - 5 = 16\n_ * 6 = 96\n[END]", "ans": 96, "pattern": "subtract_subtract_multiply"}
+{"q": "Jake has 36 points. Jake gives away 6 and loses 3. Sells the rest for $7 each. Total money?", "chain": "36 - 6 = 30\n_ - 3 = 27\n_ * 7 = 189\n[END]", "ans": 189, "pattern": "subtract_subtract_multiply"}
+{"q": "Start with 62 books. 47 are gone. How many left?", "chain": "62 - 47 = 15\n[END]", "ans": 15, "pattern": "subtract_loss"}
+{"q": "Split 72 cards among 8 friends. Each gets?", "chain": "72 / 8 = 9\n[END]", "ans": 9, "pattern": "divide_split"}
+{"q": "Jake has 51 toys. First gives away 12. Then gives away 12. Remaining?", "chain": "51 - 12 = 39\n_ - 12 = 27\n[END]", "ans": 27, "pattern": "subtract_subtract"}
+{"q": "Sarah's farm produces 26 points daily. Sarah gives away 2 for breakfast and uses 5 for baking. Sells the rest at $3 each. Revenue?", "chain": "26 - 2 = 24\n_ - 5 = 19\n_ * 3 = 57\n[END]", "ans": 57, "pattern": "subtract_subtract_multiply"}
+{"q": "Dan has 86 candys. Dan eats 20 and then spends 8. How many left?", "chain": "86 - 20 = 66\n_ - 8 = 58\n[END]", "ans": 58, "pattern": "subtract_subtract"}
+{"q": "Start with 17 stickers. Use 5. Sell remaining at $5 each. Revenue?", "chain": "17 - 5 = 12\n_ * 5 = 60\n[END]", "ans": 60, "pattern": "subtract_multiply"}
+{"q": "Zoe has 78 cards. Zoe spends 73. How many left?", "chain": "78 - 73 = 5\n[END]", "ans": 5, "pattern": "subtract_loss"}
+{"q": "Maria starts with 44 dollars. Gets 16 more. Then breaks 37. Total?", "chain": "44 + 16 = 60\n_ - 37 = 23\n[END]", "ans": 23, "pattern": "add_subtract"}
+{"q": "Ben starts with 25 cookies. Gets 14 more. Then loses 5. Total?", "chain": "25 + 14 = 39\n_ - 5 = 34\n[END]", "ans": 34, "pattern": "add_subtract"}
+{"q": "Mike's farm produces 18 flowers daily. Mike breaks 2 for breakfast and spends 2 for baking. Sells the rest at $8 each. Revenue?", "chain": "18 - 2 = 16\n_ - 2 = 14\n_ * 8 = 112\n[END]", "ans": 112, "pattern": "subtract_subtract_multiply"}
+{"q": "Ben's farm produces 34 books daily. Ben gives away 3 for breakfast and eats 8 for baking. Sells the rest at $3 each. Revenue?", "chain": "34 - 3 = 31\n_ - 8 = 23\n_ * 3 = 69\n[END]", "ans": 69, "pattern": "subtract_subtract_multiply"}
+{"q": "Jake has 28 marbles. Jake buys 14 more, then breaks 20. How many now?", "chain": "28 + 14 = 42\n_ - 20 = 22\n[END]", "ans": 22, "pattern": "add_subtract"}
+{"q": "There are 6 rows with 13 apples each. Total apples?", "chain": "6 * 13 = 78\n[END]", "ans": 78, "pattern": "multiply_groups"}
+{"q": "Start with 24 pencils. Use 8. Sell remaining at $5 each. Revenue?", "chain": "24 - 8 = 16\n_ * 5 = 80\n[END]", "ans": 80, "pattern": "subtract_multiply"}
+{"q": "Maria has 83 eggs. Maria eats 17 and then breaks 17. How many left?", "chain": "83 - 17 = 66\n_ - 17 = 49\n[END]", "ans": 49, "pattern": "subtract_subtract"}
+{"q": "Maria has 77 oranges. Maria loses 19 and then spends 18. How many left?", "chain": "77 - 19 = 58\n_ - 18 = 40\n[END]", "ans": 40, "pattern": "subtract_subtract"}
+{"q": "Mike's farm produces 29 oranges daily. Mike loses 7 for breakfast and eats 7 for baking. Sells the rest at $7 each. Revenue?", "chain": "29 - 7 = 22\n_ - 7 = 15\n_ * 7 = 105\n[END]", "ans": 105, "pattern": "subtract_subtract_multiply"}
+{"q": "Ben has 42 points and loses 34. How many remain?", "chain": "42 - 34 = 8\n[END]", "ans": 8, "pattern": "subtract_loss"}
+{"q": "Jenny has 33 toys. Jenny uses 3 and loses 6. Sells the rest for $8 each. Total money?", "chain": "33 - 3 = 30\n_ - 6 = 24\n_ * 8 = 192\n[END]", "ans": 192, "pattern": "subtract_subtract_multiply"}
+{"q": "Zoe buys 3 apples at $15 each. Total cost?", "chain": "3 * 15 = 45\n[END]", "ans": 45, "pattern": "multiply_rate"}
+{"q": "Tom has 55 candys. Tom breaks 16 and then loses 7. How many left?", "chain": "55 - 16 = 39\n_ - 7 = 32\n[END]", "ans": 32, "pattern": "subtract_subtract"}
+{"q": "Maria has 6 bags with 9 eggs each. Uses 6, then splits the rest among 4 friends. Each friend gets?", "chain": "6 * 9 = 54\n_ - 6 = 48\n_ / 4 = 12\n[END]", "ans": 12, "pattern": "multiply_subtract_divide"}
+{"q": "5 oranges at $8 each. Total?", "chain": "5 * 8 = 40\n[END]", "ans": 40, "pattern": "multiply_rate"}
+{"q": "There are 5 bags with 10 apples each. Total apples?", "chain": "5 * 10 = 50\n[END]", "ans": 50, "pattern": "multiply_groups"}
+{"q": "There are 9 jars with 3 toys each. Total toys?", "chain": "9 * 3 = 27\n[END]", "ans": 27, "pattern": "multiply_groups"}
+{"q": "Lisa has 5 rows with 11 oranges each. Lisa uses 5. How many left?", "chain": "5 * 11 = 55\n_ - 5 = 50\n[END]", "ans": 50, "pattern": "multiply_subtract"}
+{"q": "56 cookies shared equally by 7 people. How many each?", "chain": "56 / 7 = 8\n[END]", "ans": 8, "pattern": "divide_split"}
+{"q": "4 baskets with 4 eggs in each. Total?", "chain": "4 * 4 = 16\n[END]", "ans": 16, "pattern": "multiply_groups"}
+{"q": "Jake has 32 flowers. Jake collects 28 more, then breaks 16. How many now?", "chain": "32 + 28 = 60\n_ - 16 = 44\n[END]", "ans": 44, "pattern": "add_subtract"}
+{"q": "Zoe has 4 jars with 7 cookies each. Uses 5, then splits the rest among 1 friends. Each friend gets?", "chain": "4 * 7 = 28\n_ - 5 = 23\n_ / 1 = 23\n[END]", "ans": 23, "pattern": "multiply_subtract_divide"}
+{"q": "Jenny has 14 dollars. Jenny gets 12 more, then finds 13 more, then spends 15. How many now?", "chain": "14 + 12 = 26\n_ + 13 = 39\n_ - 15 = 24\n[END]", "ans": 24, "pattern": "add_add_subtract"}
+{"q": "Tom has 34 points. Tom spends 6. Sells the rest for $10 each. Total money?", "chain": "34 - 6 = 28\n_ * 10 = 280\n[END]", "ans": 280, "pattern": "subtract_multiply"}
+{"q": "Start with 18 eggs. Use 9. Sell remaining at $5 each. Revenue?", "chain": "18 - 9 = 9\n_ * 5 = 45\n[END]", "ans": 45, "pattern": "subtract_multiply"}
+{"q": "There are 3 trays with 11 eggs each. Total eggs?", "chain": "3 * 11 = 33\n[END]", "ans": 33, "pattern": "multiply_groups"}
+{"q": "Jenny has 22 books. Jenny collects 18 more, then finds 16 more, then uses 22. How many now?", "chain": "22 + 18 = 40\n_ + 16 = 56\n_ - 22 = 34\n[END]", "ans": 34, "pattern": "add_add_subtract"}
+{"q": "Mike buys 6 apples at $5 each. Total cost?", "chain": "6 * 5 = 30\n[END]", "ans": 30, "pattern": "multiply_rate"}
+{"q": "Kate has 9 packs with 11 eggs each. Uses 18, then splits the rest among 3 friends. Each friend gets?", "chain": "9 * 11 = 99\n_ - 18 = 81\n_ / 3 = 27\n[END]", "ans": 27, "pattern": "multiply_subtract_divide"}
+{"q": "Emma has 7 packs with 5 cookies each. Emma uses 11. How many left?", "chain": "7 * 5 = 35\n_ - 11 = 24\n[END]", "ans": 24, "pattern": "multiply_subtract"}
+{"q": "Emma has 20 toys. Emma collects 17 more, then earns 7 more, then breaks 14. How many now?", "chain": "20 + 17 = 37\n_ + 7 = 44\n_ - 14 = 30\n[END]", "ans": 30, "pattern": "add_add_subtract"}
+{"q": "3 candys at $9 each. Total?", "chain": "3 * 9 = 27\n[END]", "ans": 27, "pattern": "multiply_rate"}
+{"q": "Alex has 3 baskets with 6 cookies each. Alex uses 8. How many left?", "chain": "3 * 6 = 18\n_ - 8 = 10\n[END]", "ans": 10, "pattern": "multiply_subtract"}
+{"q": "Chris has 81 toys and gives away 36. How many remain?", "chain": "81 - 36 = 45\n[END]", "ans": 45, "pattern": "subtract_loss"}
+{"q": "There are 3 packs with 15 oranges each. Total oranges?", "chain": "3 * 15 = 45\n[END]", "ans": 45, "pattern": "multiply_groups"}
+{"q": "40 stickers shared equally by 10 people. How many each?", "chain": "40 / 10 = 4\n[END]", "ans": 4, "pattern": "divide_split"}
+{"q": "Start with 44 flowers. Use 19. Sell remaining at $7 each. Revenue?", "chain": "44 - 19 = 25\n_ * 7 = 175\n[END]", "ans": 175, "pattern": "subtract_multiply"}
+{"q": "Jake has 20 marbles. Jake breaks 4 and breaks 2. Sells the rest for $6 each. Total money?", "chain": "20 - 4 = 16\n_ - 2 = 14\n_ * 6 = 84\n[END]", "ans": 84, "pattern": "subtract_subtract_multiply"}
+{"q": "Tom has 16 apples and eats 6. How many remain?", "chain": "16 - 6 = 10\n[END]", "ans": 10, "pattern": "subtract_loss"}
+{"q": "Divide 22 books into 2 equal groups. Per group?", "chain": "22 / 2 = 11\n[END]", "ans": 11, "pattern": "divide_split"}
+{"q": "Start with 35 pencils. Use 6. Sell remaining at $8 each. Revenue?", "chain": "35 - 6 = 29\n_ * 8 = 232\n[END]", "ans": 232, "pattern": "subtract_multiply"}
+{"q": "Start with 28. Add 6. Total?", "chain": "28 + 6 = 34\n[END]", "ans": 34, "pattern": "add_gain"}
+{"q": "Jake has 8 jars with 5 dollars each. Uses 11, then splits the rest among 1 friends. Each friend gets?", "chain": "8 * 5 = 40\n_ - 11 = 29\n_ / 1 = 29\n[END]", "ans": 29, "pattern": "multiply_subtract_divide"}
+{"q": "Alex's farm produces 17 marbles daily. Alex loses 4 for breakfast and gives away 3 for baking. Sells the rest at $2 each. Revenue?", "chain": "17 - 4 = 13\n_ - 3 = 10\n_ * 2 = 20\n[END]", "ans": 20, "pattern": "subtract_subtract_multiply"}
+{"q": "Alex starts with 49 oranges. Gets 12 more. Then spends 32. Total?", "chain": "49 + 12 = 61\n_ - 32 = 29\n[END]", "ans": 29, "pattern": "add_subtract"}
+{"q": "Anna has 27 oranges. Anna earns 12 more, then gets 9 more, then gives away 5. How many now?", "chain": "27 + 12 = 39\n_ + 9 = 48\n_ - 5 = 43\n[END]", "ans": 43, "pattern": "add_add_subtract"}
+{"q": "Tom has 9 shelfs with 8 apples each. Tom uses 9. How many left?", "chain": "9 * 8 = 72\n_ - 9 = 63\n[END]", "ans": 63, "pattern": "multiply_subtract"}
+{"q": "Sam has 41 candys. Sam collects 6 more, then loses 12. How many now?", "chain": "41 + 6 = 47\n_ - 12 = 35\n[END]", "ans": 35, "pattern": "add_subtract"}
+{"q": "10 points at $8 each. Total?", "chain": "10 * 8 = 80\n[END]", "ans": 80, "pattern": "multiply_rate"}
+{"q": "Zoe has 4 bags with 7 cards each. Uses 8, then splits the rest among 2 friends. Each friend gets?", "chain": "4 * 7 = 28\n_ - 8 = 20\n_ / 2 = 10\n[END]", "ans": 10, "pattern": "multiply_subtract_divide"}
+{"q": "Emma has 67 pencils. First uses 13. Then breaks 13. Remaining?", "chain": "67 - 13 = 54\n_ - 13 = 41\n[END]", "ans": 41, "pattern": "subtract_subtract"}
+{"q": "Start with 9. Add 9. Total?", "chain": "9 + 9 = 18\n[END]", "ans": 18, "pattern": "add_gain"}
+{"q": "A store has 9 bags. Each has 10 books. How many books?", "chain": "9 * 10 = 90\n[END]", "ans": 90, "pattern": "multiply_groups"}
+{"q": "Chris has 56 dollars. Chris uses 12 and then loses 12. How many left?", "chain": "56 - 12 = 44\n_ - 12 = 32\n[END]", "ans": 32, "pattern": "subtract_subtract"}
+{"q": "A store has 2 packs. Each has 6 points. How many points?", "chain": "2 * 6 = 12\n[END]", "ans": 12, "pattern": "multiply_groups"}
+{"q": "There are 8 jars with 11 marbles each. Total marbles?", "chain": "8 * 11 = 88\n[END]", "ans": 88, "pattern": "multiply_groups"}
+{"q": "Maria has 9 baskets with 11 apples each. Maria uses 38. How many left?", "chain": "9 * 11 = 99\n_ - 38 = 61\n[END]", "ans": 61, "pattern": "multiply_subtract"}
+{"q": "There are 4 bags with 4 dollars each. Total dollars?", "chain": "4 * 4 = 16\n[END]", "ans": 16, "pattern": "multiply_groups"}
+{"q": "Each book costs $15. Sam buys 5. How much total?", "chain": "5 * 15 = 75\n[END]", "ans": 75, "pattern": "multiply_rate"}
+{"q": "Split 24 cards among 6 friends. Each gets?", "chain": "24 / 6 = 4\n[END]", "ans": 4, "pattern": "divide_split"}
+{"q": "Anna has 24 eggs. Anna gets 9 more, then gets 7 more, then uses 15. How many now?", "chain": "24 + 9 = 33\n_ + 7 = 40\n_ - 15 = 25\n[END]", "ans": 25, "pattern": "add_add_subtract"}
+{"q": "Ben has 65 points and eats 34. How many remain?", "chain": "65 - 34 = 31\n[END]", "ans": 31, "pattern": "subtract_loss"}
+{"q": "There are 5 shelfs of 8 pencils. 11 are sold. Remaining?", "chain": "5 * 8 = 40\n_ - 11 = 29\n[END]", "ans": 29, "pattern": "multiply_subtract"}
+{"q": "Sarah has 6 jars with 12 eggs each. Uses 18, then splits the rest among 6 friends. Each friend gets?", "chain": "6 * 12 = 72\n_ - 18 = 54\n_ / 6 = 9\n[END]", "ans": 9, "pattern": "multiply_subtract_divide"}
+{"q": "Maria buys 4 candys at $8 each. Total cost?", "chain": "4 * 8 = 32\n[END]", "ans": 32, "pattern": "multiply_rate"}
+{"q": "There are 8 boxs of 11 candys. 37 are sold. Remaining?", "chain": "8 * 11 = 88\n_ - 37 = 51\n[END]", "ans": 51, "pattern": "multiply_subtract"}
+{"q": "Split 30 candys among 6 friends. Each gets?", "chain": "30 / 6 = 5\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "Start with 22. Add 4. Total?", "chain": "22 + 4 = 26\n[END]", "ans": 26, "pattern": "add_gain"}
+{"q": "Divide 18 books into 3 equal groups. Per group?", "chain": "18 / 3 = 6\n[END]", "ans": 6, "pattern": "divide_split"}
+{"q": "Sarah has 19 dollars and earns 21 more. How many now?", "chain": "19 + 21 = 40\n[END]", "ans": 40, "pattern": "add_gain"}
+{"q": "Jake has 8 baskets with 10 pencils each. Uses 16, then splits the rest among 2 friends. Each friend gets?", "chain": "8 * 10 = 80\n_ - 16 = 64\n_ / 2 = 32\n[END]", "ans": 32, "pattern": "multiply_subtract_divide"}
+{"q": "Emma has 16 cards. Emma earns 20 more, then gets 14 more, then eats 10. How many now?", "chain": "16 + 20 = 36\n_ + 14 = 50\n_ - 10 = 40\n[END]", "ans": 40, "pattern": "add_add_subtract"}
+{"q": "Sam has 82 apples and eats 64. How many remain?", "chain": "82 - 64 = 18\n[END]", "ans": 18, "pattern": "subtract_loss"}
+{"q": "Anna has 9 baskets with 7 marbles each. Uses 15, then splits the rest among 2 friends. Each friend gets?", "chain": "9 * 7 = 63\n_ - 15 = 48\n_ / 2 = 24\n[END]", "ans": 24, "pattern": "multiply_subtract_divide"}
+{"q": "A store has 3 baskets. Each has 11 dollars. How many dollars?", "chain": "3 * 11 = 33\n[END]", "ans": 33, "pattern": "multiply_groups"}
+{"q": "Chris has 22 oranges. Chris receives 8 more, then finds 15 more, then gives away 14. How many now?", "chain": "22 + 8 = 30\n_ + 15 = 45\n_ - 14 = 31\n[END]", "ans": 31, "pattern": "add_add_subtract"}
+{"q": "Start with 35 eggs. Use 5. Sell remaining at $10 each. Revenue?", "chain": "35 - 5 = 30\n_ * 10 = 300\n[END]", "ans": 300, "pattern": "subtract_multiply"}
+{"q": "Jake has 54 candys and breaks 49. How many remain?", "chain": "54 - 49 = 5\n[END]", "ans": 5, "pattern": "subtract_loss"}
+{"q": "8 boxs with 15 oranges in each. Total?", "chain": "8 * 15 = 120\n[END]", "ans": 120, "pattern": "multiply_groups"}
+{"q": "11 dollars at $5 each. Total?", "chain": "11 * 5 = 55\n[END]", "ans": 55, "pattern": "multiply_rate"}
+{"q": "Dan starts with 31 books. Gets 28 more. Then loses 7. Total?", "chain": "31 + 28 = 59\n_ - 7 = 52\n[END]", "ans": 52, "pattern": "add_subtract"}
+{"q": "Mike has 100 points and breaks 84. How many remain?", "chain": "100 - 84 = 16\n[END]", "ans": 16, "pattern": "subtract_loss"}
+{"q": "Maria has 61 pencils. Maria loses 7 and then eats 14. How many left?", "chain": "61 - 7 = 54\n_ - 14 = 40\n[END]", "ans": 40, "pattern": "subtract_subtract"}
+{"q": "Each orange costs $4. Zoe buys 8. How much total?", "chain": "8 * 4 = 32\n[END]", "ans": 32, "pattern": "multiply_rate"}
+{"q": "Kate has 99 marbles. Kate uses 17 and then spends 9. How many left?", "chain": "99 - 17 = 82\n_ - 9 = 73\n[END]", "ans": 73, "pattern": "subtract_subtract"}
+{"q": "Mike has 19 dollars and eats 7. How many remain?", "chain": "19 - 7 = 12\n[END]", "ans": 12, "pattern": "subtract_loss"}
+{"q": "Lisa has 26 cookies. Lisa earns 8 more. Total?", "chain": "26 + 8 = 34\n[END]", "ans": 34, "pattern": "add_gain"}
+{"q": "Mike has 45 marbles. Mike breaks 3. Sells the rest for $8 each. Total money?", "chain": "45 - 3 = 42\n_ * 8 = 336\n[END]", "ans": 336, "pattern": "subtract_multiply"}
+{"q": "Ben has 4 baskets with 9 apples each. Ben uses 9. How many left?", "chain": "4 * 9 = 36\n_ - 9 = 27\n[END]", "ans": 27, "pattern": "multiply_subtract"}
+{"q": "Maria has 66 eggs. First eats 14. Then eats 10. Remaining?", "chain": "66 - 14 = 52\n_ - 10 = 42\n[END]", "ans": 42, "pattern": "subtract_subtract"}
+{"q": "Dan starts with 13 books. Gets 16 more. Then eats 3. Total?", "chain": "13 + 16 = 29\n_ - 3 = 26\n[END]", "ans": 26, "pattern": "add_subtract"}
+{"q": "Dan has 18 pencils. Dan breaks 2 and loses 2. Sells the rest for $3 each. Total money?", "chain": "18 - 2 = 16\n_ - 2 = 14\n_ * 3 = 42\n[END]", "ans": 42, "pattern": "subtract_subtract_multiply"}
+{"q": "Lisa has 80 stickers. Lisa breaks 20 and then loses 18. How many left?", "chain": "80 - 20 = 60\n_ - 18 = 42\n[END]", "ans": 42, "pattern": "subtract_subtract"}
+{"q": "There are 9 baskets of 9 marbles. 14 are sold. Remaining?", "chain": "9 * 9 = 81\n_ - 14 = 67\n[END]", "ans": 67, "pattern": "multiply_subtract"}
+{"q": "Each flower costs $5. Zoe buys 6. How much total?", "chain": "6 * 5 = 30\n[END]", "ans": 30, "pattern": "multiply_rate"}
+{"q": "Emma has 16 dollars. Emma buys 7 more, then uses 14. How many now?", "chain": "16 + 7 = 23\n_ - 14 = 9\n[END]", "ans": 9, "pattern": "add_subtract"}
+{"q": "Kate has 43 points. Kate collects 18 more, then uses 37. How many now?", "chain": "43 + 18 = 61\n_ - 37 = 24\n[END]", "ans": 24, "pattern": "add_subtract"}
+{"q": "Mike has 34 candys. Mike spends 9 and then spends 12. How many left?", "chain": "34 - 9 = 25\n_ - 12 = 13\n[END]", "ans": 13, "pattern": "subtract_subtract"}
+{"q": "There are 4 trays with 6 books each. Total books?", "chain": "4 * 6 = 24\n[END]", "ans": 24, "pattern": "multiply_groups"}
+{"q": "8 rows with 6 cookies in each. Total?", "chain": "8 * 6 = 48\n[END]", "ans": 48, "pattern": "multiply_groups"}
+{"q": "A store has 3 packs. Each has 4 marbles. How many marbles?", "chain": "3 * 4 = 12\n[END]", "ans": 12, "pattern": "multiply_groups"}
+{"q": "Jenny starts with 27 points. Gets 21 more. Then breaks 32. Total?", "chain": "27 + 21 = 48\n_ - 32 = 16\n[END]", "ans": 16, "pattern": "add_subtract"}
+{"q": "3 baskets with 4 books in each. Total?", "chain": "3 * 4 = 12\n[END]", "ans": 12, "pattern": "multiply_groups"}
+{"q": "Start with 49 points. Use 14. Sell remaining at $8 each. Revenue?", "chain": "49 - 14 = 35\n_ * 8 = 280\n[END]", "ans": 280, "pattern": "subtract_multiply"}
+{"q": "There are 7 boxs of 10 books. 12 are sold. Remaining?", "chain": "7 * 10 = 70\n_ - 12 = 58\n[END]", "ans": 58, "pattern": "multiply_subtract"}
+{"q": "5 oranges at $2 each. Total?", "chain": "5 * 2 = 10\n[END]", "ans": 10, "pattern": "multiply_rate"}
+{"q": "Maria has 32 marbles. First loses 7. Then loses 7. Remaining?", "chain": "32 - 7 = 25\n_ - 7 = 18\n[END]", "ans": 18, "pattern": "subtract_subtract"}
+{"q": "Lisa's farm produces 22 points daily. Lisa uses 3 for breakfast and loses 4 for baking. Sells the rest at $7 each. Revenue?", "chain": "22 - 3 = 19\n_ - 4 = 15\n_ * 7 = 105\n[END]", "ans": 105, "pattern": "subtract_subtract_multiply"}
+{"q": "Start with 43 pencils. Use 9. Sell remaining at $8 each. Revenue?", "chain": "43 - 9 = 34\n_ * 8 = 272\n[END]", "ans": 272, "pattern": "subtract_multiply"}
+{"q": "Start with 18 points. Use 7. Sell remaining at $4 each. Revenue?", "chain": "18 - 7 = 11\n_ * 4 = 44\n[END]", "ans": 44, "pattern": "subtract_multiply"}
+{"q": "Kate has 48 books. Kate gives away 21. Sells the rest for $2 each. Total money?", "chain": "48 - 21 = 27\n_ * 2 = 54\n[END]", "ans": 54, "pattern": "subtract_multiply"}
+{"q": "Anna has 4 boxs with 12 pencils each. Uses 5, then splits the rest among 1 friends. Each friend gets?", "chain": "4 * 12 = 48\n_ - 5 = 43\n_ / 1 = 43\n[END]", "ans": 43, "pattern": "multiply_subtract_divide"}
+{"q": "Start with 30. Add 23. Total?", "chain": "30 + 23 = 53\n[END]", "ans": 53, "pattern": "add_gain"}
+{"q": "Chris buys 11 flowers at $9 each. Total cost?", "chain": "11 * 9 = 99\n[END]", "ans": 99, "pattern": "multiply_rate"}
+{"q": "Dan has 27 cards. Dan receives 16 more, then collects 16 more, then breaks 10. How many now?", "chain": "27 + 16 = 43\n_ + 16 = 59\n_ - 10 = 49\n[END]", "ans": 49, "pattern": "add_add_subtract"}
+{"q": "Kate has 15 apples. Kate buys 30 more. Total?", "chain": "15 + 30 = 45\n[END]", "ans": 45, "pattern": "add_gain"}
+{"q": "Sam has 21 eggs. Sam eats 4 and breaks 5. Sells the rest for $6 each. Total money?", "chain": "21 - 4 = 17\n_ - 5 = 12\n_ * 6 = 72\n[END]", "ans": 72, "pattern": "subtract_subtract_multiply"}
+{"q": "Emma has 52 eggs. First gives away 14. Then loses 3. Remaining?", "chain": "52 - 14 = 38\n_ - 3 = 35\n[END]", "ans": 35, "pattern": "subtract_subtract"}
+{"q": "Maria has 39 candys. Maria loses 14. Sells the rest for $9 each. Total money?", "chain": "39 - 14 = 25\n_ * 9 = 225\n[END]", "ans": 225, "pattern": "subtract_multiply"}
+{"q": "Kate has 43 cards. First breaks 5. Then loses 19. Remaining?", "chain": "43 - 5 = 38\n_ - 19 = 19\n[END]", "ans": 19, "pattern": "subtract_subtract"}
+{"q": "Start with 9. Add 13. Total?", "chain": "9 + 13 = 22\n[END]", "ans": 22, "pattern": "add_gain"}
+{"q": "Split 36 stickers among 6 friends. Each gets?", "chain": "36 / 6 = 6\n[END]", "ans": 6, "pattern": "divide_split"}
+{"q": "Sam has 48 apples. Sam receives 17 more, then breaks 45. How many now?", "chain": "48 + 17 = 65\n_ - 45 = 20\n[END]", "ans": 20, "pattern": "add_subtract"}
+{"q": "Dan has 31 stickers. Dan uses 9. Sells the rest for $8 each. Total money?", "chain": "31 - 9 = 22\n_ * 8 = 176\n[END]", "ans": 176, "pattern": "subtract_multiply"}
+{"q": "Anna starts with 24 marbles. Gets 26 more. Then uses 37. Total?", "chain": "24 + 26 = 50\n_ - 37 = 13\n[END]", "ans": 13, "pattern": "add_subtract"}
+{"q": "Jake has 45 points. Jake gets 10 more, then uses 21. How many now?", "chain": "45 + 10 = 55\n_ - 21 = 34\n[END]", "ans": 34, "pattern": "add_subtract"}
+{"q": "Jake has 36 eggs. Jake loses 5. Sells the rest for $5 each. Total money?", "chain": "36 - 5 = 31\n_ * 5 = 155\n[END]", "ans": 155, "pattern": "subtract_multiply"}
+{"q": "Start with 36 candys. Use 14. Sell remaining at $6 each. Revenue?", "chain": "36 - 14 = 22\n_ * 6 = 132\n[END]", "ans": 132, "pattern": "subtract_multiply"}
+{"q": "Lisa has 36 flowers. Lisa gives away 6 and then spends 10. How many left?", "chain": "36 - 6 = 30\n_ - 10 = 20\n[END]", "ans": 20, "pattern": "subtract_subtract"}
+{"q": "Kate has 24 toys. Kate gives away 5 and gives away 2. Sells the rest for $8 each. Total money?", "chain": "24 - 5 = 19\n_ - 2 = 17\n_ * 8 = 136\n[END]", "ans": 136, "pattern": "subtract_subtract_multiply"}
+{"q": "Split 98 books among 7 friends. Each gets?", "chain": "98 / 7 = 14\n[END]", "ans": 14, "pattern": "divide_split"}
+{"q": "Start with 26 marbles. Use 8. Sell remaining at $2 each. Revenue?", "chain": "26 - 8 = 18\n_ * 2 = 36\n[END]", "ans": 36, "pattern": "subtract_multiply"}
+{"q": "Jake has 15 cards. Jake gets 18 more. Total?", "chain": "15 + 18 = 33\n[END]", "ans": 33, "pattern": "add_gain"}
+{"q": "Ben has 10 rows with 10 candys each. Ben uses 3. How many left?", "chain": "10 * 10 = 100\n_ - 3 = 97\n[END]", "ans": 97, "pattern": "multiply_subtract"}
+{"q": "Chris has 30 apples. Chris finds 29 more, then eats 36. How many now?", "chain": "30 + 29 = 59\n_ - 36 = 23\n[END]", "ans": 23, "pattern": "add_subtract"}
+{"q": "Sam has 8 jars with 8 oranges each. Sam uses 7. How many left?", "chain": "8 * 8 = 64\n_ - 7 = 57\n[END]", "ans": 57, "pattern": "multiply_subtract"}
+{"q": "9 books shared equally by 3 people. How many each?", "chain": "9 / 3 = 3\n[END]", "ans": 3, "pattern": "divide_split"}
+{"q": "Zoe has 26 oranges. Zoe finds 15 more, then receives 18 more, then uses 26. How many now?", "chain": "26 + 15 = 41\n_ + 18 = 59\n_ - 26 = 33\n[END]", "ans": 33, "pattern": "add_add_subtract"}
+{"q": "Jake has 40 dollars. Jake gives away 3. Sells the rest for $5 each. Total money?", "chain": "40 - 3 = 37\n_ * 5 = 185\n[END]", "ans": 185, "pattern": "subtract_multiply"}
+{"q": "Tom has 79 cards and eats 24. How many remain?", "chain": "79 - 24 = 55\n[END]", "ans": 55, "pattern": "subtract_loss"}
+{"q": "Sarah has 31 candys. Sarah spends 15. Sells the rest for $10 each. Total money?", "chain": "31 - 15 = 16\n_ * 10 = 160\n[END]", "ans": 160, "pattern": "subtract_multiply"}
+{"q": "Sarah has 16 eggs. Sarah gets 25 more, then breaks 4. How many now?", "chain": "16 + 25 = 41\n_ - 4 = 37\n[END]", "ans": 37, "pattern": "add_subtract"}
+{"q": "Kate has 100 cookies. Kate breaks 13 and then gives away 33. How many left?", "chain": "100 - 13 = 87\n_ - 33 = 54\n[END]", "ans": 54, "pattern": "subtract_subtract"}
+{"q": "Tom has 4 packs with 12 candys each. Tom uses 11. How many left?", "chain": "4 * 12 = 48\n_ - 11 = 37\n[END]", "ans": 37, "pattern": "multiply_subtract"}
+{"q": "Lisa has 45 toys. Lisa eats 9 and then uses 6. How many left?", "chain": "45 - 9 = 36\n_ - 6 = 30\n[END]", "ans": 30, "pattern": "subtract_subtract"}
+{"q": "Maria has 9 jars with 8 marbles each. Maria uses 13. How many left?", "chain": "9 * 8 = 72\n_ - 13 = 59\n[END]", "ans": 59, "pattern": "multiply_subtract"}
+{"q": "Anna has 40 oranges. Anna gets 15 more, then eats 18. How many now?", "chain": "40 + 15 = 55\n_ - 18 = 37\n[END]", "ans": 37, "pattern": "add_subtract"}
+{"q": "Dan has 10 baskets with 6 cookies each. Uses 8, then splits the rest among 4 friends. Each friend gets?", "chain": "10 * 6 = 60\n_ - 8 = 52\n_ / 4 = 13\n[END]", "ans": 13, "pattern": "multiply_subtract_divide"}
+{"q": "Alex has 89 stickers. First gives away 6. Then eats 9. Remaining?", "chain": "89 - 6 = 83\n_ - 9 = 74\n[END]", "ans": 74, "pattern": "subtract_subtract"}
+{"q": "Split 12 candys among 3 friends. Each gets?", "chain": "12 / 3 = 4\n[END]", "ans": 4, "pattern": "divide_split"}
+{"q": "Each egg costs $4. Emma buys 12. How much total?", "chain": "12 * 4 = 48\n[END]", "ans": 48, "pattern": "multiply_rate"}
+{"q": "Split 84 cards among 6 friends. Each gets?", "chain": "84 / 6 = 14\n[END]", "ans": 14, "pattern": "divide_split"}
+{"q": "27 books shared equally by 3 people. How many each?", "chain": "27 / 3 = 9\n[END]", "ans": 9, "pattern": "divide_split"}
+{"q": "Maria has 22 points. Maria finds 20 more, then gets 18 more, then gives away 25. How many now?", "chain": "22 + 20 = 42\n_ + 18 = 60\n_ - 25 = 35\n[END]", "ans": 35, "pattern": "add_add_subtract"}
+{"q": "Jake has 23 cookies. Jake buys 20 more, then earns 19 more, then loses 10. How many now?", "chain": "23 + 20 = 43\n_ + 19 = 62\n_ - 10 = 52\n[END]", "ans": 52, "pattern": "add_add_subtract"}
+{"q": "Emma's farm produces 30 flowers daily. Emma eats 2 for breakfast and eats 5 for baking. Sells the rest at $5 each. Revenue?", "chain": "30 - 2 = 28\n_ - 5 = 23\n_ * 5 = 115\n[END]", "ans": 115, "pattern": "subtract_subtract_multiply"}
+{"q": "Tom has 8 jars with 12 eggs each. Tom uses 36. How many left?", "chain": "8 * 12 = 96\n_ - 36 = 60\n[END]", "ans": 60, "pattern": "multiply_subtract"}
+{"q": "Sam has 74 flowers. Sam spends 17 and then spends 7. How many left?", "chain": "74 - 17 = 57\n_ - 7 = 50\n[END]", "ans": 50, "pattern": "subtract_subtract"}
+{"q": "Each toy costs $15. Jake buys 9. How much total?", "chain": "9 * 15 = 135\n[END]", "ans": 135, "pattern": "multiply_rate"}
+{"q": "Mike has 30 dollars. Mike loses 4 and eats 3. Sells the rest for $4 each. Total money?", "chain": "30 - 4 = 26\n_ - 3 = 23\n_ * 4 = 92\n[END]", "ans": 92, "pattern": "subtract_subtract_multiply"}
+{"q": "Kate starts with 25 candys. Gets 7 more. Then spends 17. Total?", "chain": "25 + 7 = 32\n_ - 17 = 15\n[END]", "ans": 15, "pattern": "add_subtract"}
+{"q": "A store has 7 trays. Each has 4 flowers. How many flowers?", "chain": "7 * 4 = 28\n[END]", "ans": 28, "pattern": "multiply_groups"}
+{"q": "Tom has 40 cookies. Tom spends 16. Sells the rest for $2 each. Total money?", "chain": "40 - 16 = 24\n_ * 2 = 48\n[END]", "ans": 48, "pattern": "subtract_multiply"}
+{"q": "Alex's farm produces 32 toys daily. Alex uses 3 for breakfast and loses 7 for baking. Sells the rest at $7 each. Revenue?", "chain": "32 - 3 = 29\n_ - 7 = 22\n_ * 7 = 154\n[END]", "ans": 154, "pattern": "subtract_subtract_multiply"}
+{"q": "Sam's farm produces 29 points daily. Sam spends 4 for breakfast and spends 6 for baking. Sells the rest at $8 each. Revenue?", "chain": "29 - 4 = 25\n_ - 6 = 19\n_ * 8 = 152\n[END]", "ans": 152, "pattern": "subtract_subtract_multiply"}
+{"q": "Chris has 43 oranges. Chris breaks 6. Sells the rest for $3 each. Total money?", "chain": "43 - 6 = 37\n_ * 3 = 111\n[END]", "ans": 111, "pattern": "subtract_multiply"}
+{"q": "Each point costs $14. Chris buys 12. How much total?", "chain": "12 * 14 = 168\n[END]", "ans": 168, "pattern": "multiply_rate"}
+{"q": "Chris has 16 oranges. Chris finds 6 more, then uses 17. How many now?", "chain": "16 + 6 = 22\n_ - 17 = 5\n[END]", "ans": 5, "pattern": "add_subtract"}
+{"q": "Ben's farm produces 23 cookies daily. Ben uses 3 for breakfast and gives away 3 for baking. Sells the rest at $2 each. Revenue?", "chain": "23 - 3 = 20\n_ - 3 = 17\n_ * 2 = 34\n[END]", "ans": 34, "pattern": "subtract_subtract_multiply"}
+{"q": "Anna has 25 oranges. Anna breaks 2 and breaks 5. Sells the rest for $2 each. Total money?", "chain": "25 - 2 = 23\n_ - 5 = 18\n_ * 2 = 36\n[END]", "ans": 36, "pattern": "subtract_subtract_multiply"}
+{"q": "Zoe has 47 flowers. Zoe eats 7. Sells the rest for $9 each. Total money?", "chain": "47 - 7 = 40\n_ * 9 = 360\n[END]", "ans": 360, "pattern": "subtract_multiply"}
+{"q": "Ben has 47 points. Ben buys 20 more, then gives away 62. How many now?", "chain": "47 + 20 = 67\n_ - 62 = 5\n[END]", "ans": 5, "pattern": "add_subtract"}
+{"q": "Start with 39 cookies. Use 13. Sell remaining at $10 each. Revenue?", "chain": "39 - 13 = 26\n_ * 10 = 260\n[END]", "ans": 260, "pattern": "subtract_multiply"}
+{"q": "Sam has 22 stickers. Sam finds 15 more, then finds 14 more, then uses 19. How many now?", "chain": "22 + 15 = 37\n_ + 14 = 51\n_ - 19 = 32\n[END]", "ans": 32, "pattern": "add_add_subtract"}
+{"q": "Jenny's farm produces 38 oranges daily. Jenny spends 5 for breakfast and breaks 5 for baking. Sells the rest at $3 each. Revenue?", "chain": "38 - 5 = 33\n_ - 5 = 28\n_ * 3 = 84\n[END]", "ans": 84, "pattern": "subtract_subtract_multiply"}
+{"q": "There are 8 baskets of 5 toys. 14 are sold. Remaining?", "chain": "8 * 5 = 40\n_ - 14 = 26\n[END]", "ans": 26, "pattern": "multiply_subtract"}
+{"q": "Ben has 44 eggs. Ben gets 14 more, then spends 30. How many now?", "chain": "44 + 14 = 58\n_ - 30 = 28\n[END]", "ans": 28, "pattern": "add_subtract"}
+{"q": "Emma buys 12 apples at $2 each. Total cost?", "chain": "12 * 2 = 24\n[END]", "ans": 24, "pattern": "multiply_rate"}
+{"q": "Jake has 48 stickers. Jake finds 11 more. Total?", "chain": "48 + 11 = 59\n[END]", "ans": 59, "pattern": "add_gain"}
+{"q": "Alex has 3 jars with 9 dollars each. Alex uses 10. How many left?", "chain": "3 * 9 = 27\n_ - 10 = 17\n[END]", "ans": 17, "pattern": "multiply_subtract"}
+{"q": "There are 7 rows of 4 pencils. 9 are sold. Remaining?", "chain": "7 * 4 = 28\n_ - 9 = 19\n[END]", "ans": 19, "pattern": "multiply_subtract"}
+{"q": "Jenny has 36 toys. First loses 5. Then gives away 14. Remaining?", "chain": "36 - 5 = 31\n_ - 14 = 17\n[END]", "ans": 17, "pattern": "subtract_subtract"}
+{"q": "Chris has 33 dollars. Chris gives away 6 and breaks 7. Sells the rest for $6 each. Total money?", "chain": "33 - 6 = 27\n_ - 7 = 20\n_ * 6 = 120\n[END]", "ans": 120, "pattern": "subtract_subtract_multiply"}
+{"q": "Start with 9. Add 8. Total?", "chain": "9 + 8 = 17\n[END]", "ans": 17, "pattern": "add_gain"}
+{"q": "Kate has 37 apples. Kate receives 13 more, then gives away 38. How many now?", "chain": "37 + 13 = 50\n_ - 38 = 12\n[END]", "ans": 12, "pattern": "add_subtract"}
+{"q": "Maria starts with 31 apples. Gets 19 more. Then gives away 12. Total?", "chain": "31 + 19 = 50\n_ - 12 = 38\n[END]", "ans": 38, "pattern": "add_subtract"}
+{"q": "Alex starts with 46 flowers. Gets 22 more. Then breaks 25. Total?", "chain": "46 + 22 = 68\n_ - 25 = 43\n[END]", "ans": 43, "pattern": "add_subtract"}
+{"q": "Jake starts with 14 toys. Gets 30 more. Then uses 35. Total?", "chain": "14 + 30 = 44\n_ - 35 = 9\n[END]", "ans": 9, "pattern": "add_subtract"}
+{"q": "A store has 7 jars. Each has 8 pencils. How many pencils?", "chain": "7 * 8 = 56\n[END]", "ans": 56, "pattern": "multiply_groups"}
+{"q": "Start with 46. Add 3. Total?", "chain": "46 + 3 = 49\n[END]", "ans": 49, "pattern": "add_gain"}
+{"q": "Divide 15 eggs into 5 equal groups. Per group?", "chain": "15 / 5 = 3\n[END]", "ans": 3, "pattern": "divide_split"}
+{"q": "Kate has 6 bags with 9 candys each. Uses 5, then splits the rest among 1 friends. Each friend gets?", "chain": "6 * 9 = 54\n_ - 5 = 49\n_ / 1 = 49\n[END]", "ans": 49, "pattern": "multiply_subtract_divide"}
+{"q": "Alex has 54 eggs. Alex eats 10 and then eats 19. How many left?", "chain": "54 - 10 = 44\n_ - 19 = 25\n[END]", "ans": 25, "pattern": "subtract_subtract"}
+{"q": "Tom has 12 eggs. Tom earns 11 more, then gets 11 more, then gives away 15. How many now?", "chain": "12 + 11 = 23\n_ + 11 = 34\n_ - 15 = 19\n[END]", "ans": 19, "pattern": "add_add_subtract"}
+{"q": "Mike has 10 baskets with 9 apples each. Mike uses 5. How many left?", "chain": "10 * 9 = 90\n_ - 5 = 85\n[END]", "ans": 85, "pattern": "multiply_subtract"}
+{"q": "Jake buys 6 dollars at $10 each. Total cost?", "chain": "6 * 10 = 60\n[END]", "ans": 60, "pattern": "multiply_rate"}
+{"q": "Sam starts with 36 stickers. Gets 17 more. Then uses 31. Total?", "chain": "36 + 17 = 53\n_ - 31 = 22\n[END]", "ans": 22, "pattern": "add_subtract"}
+{"q": "Start with 12. Add 20. Total?", "chain": "12 + 20 = 32\n[END]", "ans": 32, "pattern": "add_gain"}
+{"q": "Mike has 17 dollars. Mike loses 8. Sells the rest for $3 each. Total money?", "chain": "17 - 8 = 9\n_ * 3 = 27\n[END]", "ans": 27, "pattern": "subtract_multiply"}
+{"q": "Alex has 10 cards and earns 12 more. How many now?", "chain": "10 + 12 = 22\n[END]", "ans": 22, "pattern": "add_gain"}
+{"q": "Split 44 flowers among 4 friends. Each gets?", "chain": "44 / 4 = 11\n[END]", "ans": 11, "pattern": "divide_split"}
+{"q": "10 rows with 7 dollars in each. Total?", "chain": "10 * 7 = 70\n[END]", "ans": 70, "pattern": "multiply_groups"}
+{"q": "There are 10 shelfs with 11 apples each. Total apples?", "chain": "10 * 11 = 110\n[END]", "ans": 110, "pattern": "multiply_groups"}
+{"q": "8 boxs with 11 cards in each. Total?", "chain": "8 * 11 = 88\n[END]", "ans": 88, "pattern": "multiply_groups"}
+{"q": "Alex has 21 pencils. Alex buys 11 more, then finds 18 more, then gives away 25. How many now?", "chain": "21 + 11 = 32\n_ + 18 = 50\n_ - 25 = 25\n[END]", "ans": 25, "pattern": "add_add_subtract"}
+{"q": "Start with 29 pencils. 8 are gone. How many left?", "chain": "29 - 8 = 21\n[END]", "ans": 21, "pattern": "subtract_loss"}
+{"q": "Zoe has 32 eggs. Zoe eats 2 and loses 4. Sells the rest for $7 each. Total money?", "chain": "32 - 2 = 30\n_ - 4 = 26\n_ * 7 = 182\n[END]", "ans": 182, "pattern": "subtract_subtract_multiply"}
+{"q": "Start with 60 marbles. 11 are gone. How many left?", "chain": "60 - 11 = 49\n[END]", "ans": 49, "pattern": "subtract_loss"}
+{"q": "Alex has 23 cards and loses 9. How many remain?", "chain": "23 - 9 = 14\n[END]", "ans": 14, "pattern": "subtract_loss"}
+{"q": "Alex has 49 oranges. First loses 14. Then loses 12. Remaining?", "chain": "49 - 14 = 35\n_ - 12 = 23\n[END]", "ans": 23, "pattern": "subtract_subtract"}
+{"q": "Jenny has 43 pencils and loses 30. How many remain?", "chain": "43 - 30 = 13\n[END]", "ans": 13, "pattern": "subtract_loss"}
+{"q": "A store has 9 shelfs. Each has 10 flowers. How many flowers?", "chain": "9 * 10 = 90\n[END]", "ans": 90, "pattern": "multiply_groups"}
+{"q": "Dan has 21 toys. Dan loses 5. Sells the rest for $3 each. Total money?", "chain": "21 - 5 = 16\n_ * 3 = 48\n[END]", "ans": 48, "pattern": "subtract_multiply"}
+{"q": "Anna has 9 packs with 6 oranges each. Uses 16, then splits the rest among 2 friends. Each friend gets?", "chain": "9 * 6 = 54\n_ - 16 = 38\n_ / 2 = 19\n[END]", "ans": 19, "pattern": "multiply_subtract_divide"}
+{"q": "Tom has 33 points. Tom spends 6 and gives away 5. Sells the rest for $8 each. Total money?", "chain": "33 - 6 = 27\n_ - 5 = 22\n_ * 8 = 176\n[END]", "ans": 176, "pattern": "subtract_subtract_multiply"}
+{"q": "Dan starts with 19 eggs. Gets 16 more. Then spends 15. Total?", "chain": "19 + 16 = 35\n_ - 15 = 20\n[END]", "ans": 20, "pattern": "add_subtract"}
+{"q": "There are 7 bags with 11 candys each. Total candys?", "chain": "7 * 11 = 77\n[END]", "ans": 77, "pattern": "multiply_groups"}
+{"q": "Jake has 5 baskets with 6 flowers each. Jake uses 12. How many left?", "chain": "5 * 6 = 30\n_ - 12 = 18\n[END]", "ans": 18, "pattern": "multiply_subtract"}
+{"q": "Dan has 17 marbles. Dan gives away 4. Sells the rest for $9 each. Total money?", "chain": "17 - 4 = 13\n_ * 9 = 117\n[END]", "ans": 117, "pattern": "subtract_multiply"}
+{"q": "Sam has 47 apples and buys 9 more. How many now?", "chain": "47 + 9 = 56\n[END]", "ans": 56, "pattern": "add_gain"}
+{"q": "26 apples shared equally by 2 people. How many each?", "chain": "26 / 2 = 13\n[END]", "ans": 13, "pattern": "divide_split"}
+{"q": "6 packs with 12 points in each. Total?", "chain": "6 * 12 = 72\n[END]", "ans": 72, "pattern": "multiply_groups"}
+{"q": "Kate starts with 34 eggs. Gets 16 more. Then eats 40. Total?", "chain": "34 + 16 = 50\n_ - 40 = 10\n[END]", "ans": 10, "pattern": "add_subtract"}
+{"q": "64 toys shared equally by 8 people. How many each?", "chain": "64 / 8 = 8\n[END]", "ans": 8, "pattern": "divide_split"}
+{"q": "Dan has 30 cards. Dan uses 9 and then gives away 5. How many left?", "chain": "30 - 9 = 21\n_ - 5 = 16\n[END]", "ans": 16, "pattern": "subtract_subtract"}
+{"q": "Maria buys 4 pencils at $4 each. Total cost?", "chain": "4 * 4 = 16\n[END]", "ans": 16, "pattern": "multiply_rate"}
+{"q": "45 eggs shared equally by 5 people. How many each?", "chain": "45 / 5 = 9\n[END]", "ans": 9, "pattern": "divide_split"}
+{"q": "Dan has 45 eggs. Dan spends 18. Sells the rest for $5 each. Total money?", "chain": "45 - 18 = 27\n_ * 5 = 135\n[END]", "ans": 135, "pattern": "subtract_multiply"}
+{"q": "Ben has 3 boxs with 6 pencils each. Ben uses 7. How many left?", "chain": "3 * 6 = 18\n_ - 7 = 11\n[END]", "ans": 11, "pattern": "multiply_subtract"}
+{"q": "There are 4 boxs with 3 cards each. Total cards?", "chain": "4 * 3 = 12\n[END]", "ans": 12, "pattern": "multiply_groups"}
+{"q": "Start with 30. Add 22. Total?", "chain": "30 + 22 = 52\n[END]", "ans": 52, "pattern": "add_gain"}
+{"q": "5 cookies at $9 each. Total?", "chain": "5 * 9 = 45\n[END]", "ans": 45, "pattern": "multiply_rate"}
+{"q": "Dan has 17 books. Dan buys 18 more, then collects 9 more, then spends 10. How many now?", "chain": "17 + 18 = 35\n_ + 9 = 44\n_ - 10 = 34\n[END]", "ans": 34, "pattern": "add_add_subtract"}
+{"q": "Jenny has 91 flowers. Jenny eats 78. How many left?", "chain": "91 - 78 = 13\n[END]", "ans": 13, "pattern": "subtract_loss"}
+{"q": "Divide 12 cookies into 2 equal groups. Per group?", "chain": "12 / 2 = 6\n[END]", "ans": 6, "pattern": "divide_split"}
+{"q": "Ben has 19 points. Ben uses 4 and spends 2. Sells the rest for $3 each. Total money?", "chain": "19 - 4 = 15\n_ - 2 = 13\n_ * 3 = 39\n[END]", "ans": 39, "pattern": "subtract_subtract_multiply"}
+{"q": "Lisa has 9 bags with 7 flowers each. Uses 5, then splits the rest among 2 friends. Each friend gets?", "chain": "9 * 7 = 63\n_ - 5 = 58\n_ / 2 = 29\n[END]", "ans": 29, "pattern": "multiply_subtract_divide"}
+{"q": "Split 90 oranges among 10 friends. Each gets?", "chain": "90 / 10 = 9\n[END]", "ans": 9, "pattern": "divide_split"}
+{"q": "Dan has 8 rows with 6 marbles each. Uses 11, then splits the rest among 1 friends. Each friend gets?", "chain": "8 * 6 = 48\n_ - 11 = 37\n_ / 1 = 37\n[END]", "ans": 37, "pattern": "multiply_subtract_divide"}
+{"q": "Sam has 40 points. First spends 9. Then uses 12. Remaining?", "chain": "40 - 9 = 31\n_ - 12 = 19\n[END]", "ans": 19, "pattern": "subtract_subtract"}
+{"q": "Tom has 81 cards. Tom spends 18. How many left?", "chain": "81 - 18 = 63\n[END]", "ans": 63, "pattern": "subtract_loss"}
+{"q": "63 oranges shared equally by 7 people. How many each?", "chain": "63 / 7 = 9\n[END]", "ans": 9, "pattern": "divide_split"}
+{"q": "6 rows with 7 eggs in each. Total?", "chain": "6 * 7 = 42\n[END]", "ans": 42, "pattern": "multiply_groups"}
+{"q": "Chris has 65 cards. First uses 17. Then spends 9. Remaining?", "chain": "65 - 17 = 48\n_ - 9 = 39\n[END]", "ans": 39, "pattern": "subtract_subtract"}
+{"q": "Start with 54 stickers. 39 are gone. How many left?", "chain": "54 - 39 = 15\n[END]", "ans": 15, "pattern": "subtract_loss"}
+{"q": "Split 42 points among 3 friends. Each gets?", "chain": "42 / 3 = 14\n[END]", "ans": 14, "pattern": "divide_split"}
+{"q": "Jake has 57 cookies. Jake loses 13 and then spends 15. How many left?", "chain": "57 - 13 = 44\n_ - 15 = 29\n[END]", "ans": 29, "pattern": "subtract_subtract"}
+{"q": "Start with 26 dollars. 7 are gone. How many left?", "chain": "26 - 7 = 19\n[END]", "ans": 19, "pattern": "subtract_loss"}
+{"q": "Mike has 58 stickers. First spends 10. Then eats 5. Remaining?", "chain": "58 - 10 = 48\n_ - 5 = 43\n[END]", "ans": 43, "pattern": "subtract_subtract"}
+{"q": "Kate has 8 packs with 5 oranges each. Uses 7, then splits the rest among 3 friends. Each friend gets?", "chain": "8 * 5 = 40\n_ - 7 = 33\n_ / 3 = 11\n[END]", "ans": 11, "pattern": "multiply_subtract_divide"}
+{"q": "2 pencils at $14 each. Total?", "chain": "2 * 14 = 28\n[END]", "ans": 28, "pattern": "multiply_rate"}
+{"q": "Sam has 20 cards. Sam receives 26 more, then gives away 5. How many now?", "chain": "20 + 26 = 46\n_ - 5 = 41\n[END]", "ans": 41, "pattern": "add_subtract"}
+{"q": "Mike has 22 stickers. Mike buys 16 more, then finds 17 more, then spends 17. How many now?", "chain": "22 + 16 = 38\n_ + 17 = 55\n_ - 17 = 38\n[END]", "ans": 38, "pattern": "add_add_subtract"}
+{"q": "Start with 50 cookies. Use 12. Sell remaining at $10 each. Revenue?", "chain": "50 - 12 = 38\n_ * 10 = 380\n[END]", "ans": 380, "pattern": "subtract_multiply"}
+{"q": "50 pencils shared equally by 5 people. How many each?", "chain": "50 / 5 = 10\n[END]", "ans": 10, "pattern": "divide_split"}
+{"q": "Maria starts with 36 books. Gets 21 more. Then eats 9. Total?", "chain": "36 + 21 = 57\n_ - 9 = 48\n[END]", "ans": 48, "pattern": "add_subtract"}
+{"q": "Divide 70 dollars into 10 equal groups. Per group?", "chain": "70 / 10 = 7\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "Maria's farm produces 29 oranges daily. Maria gives away 5 for breakfast and loses 6 for baking. Sells the rest at $5 each. Revenue?", "chain": "29 - 5 = 24\n_ - 6 = 18\n_ * 5 = 90\n[END]", "ans": 90, "pattern": "subtract_subtract_multiply"}
+{"q": "Tom has 7 trays with 5 cookies each. Tom uses 9. How many left?", "chain": "7 * 5 = 35\n_ - 9 = 26\n[END]", "ans": 26, "pattern": "multiply_subtract"}
+{"q": "Sam has 8 shelfs with 12 candys each. Sam uses 37. How many left?", "chain": "8 * 12 = 96\n_ - 37 = 59\n[END]", "ans": 59, "pattern": "multiply_subtract"}
+{"q": "Start with 33 pencils. Use 4. Sell remaining at $8 each. Revenue?", "chain": "33 - 4 = 29\n_ * 8 = 232\n[END]", "ans": 232, "pattern": "subtract_multiply"}
+{"q": "Jake buys 7 flowers at $7 each. Total cost?", "chain": "7 * 7 = 49\n[END]", "ans": 49, "pattern": "multiply_rate"}
+{"q": "Maria has 9 baskets with 8 oranges each. Uses 20, then splits the rest among 2 friends. Each friend gets?", "chain": "9 * 8 = 72\n_ - 20 = 52\n_ / 2 = 26\n[END]", "ans": 26, "pattern": "multiply_subtract_divide"}
+{"q": "Start with 29 pencils. Use 6. Sell remaining at $5 each. Revenue?", "chain": "29 - 6 = 23\n_ * 5 = 115\n[END]", "ans": 115, "pattern": "subtract_multiply"}
+{"q": "3 bags with 13 cookies in each. Total?", "chain": "3 * 13 = 39\n[END]", "ans": 39, "pattern": "multiply_groups"}
+{"q": "Tom has 99 dollars. First loses 6. Then spends 33. Remaining?", "chain": "99 - 6 = 93\n_ - 33 = 60\n[END]", "ans": 60, "pattern": "subtract_subtract"}
+{"q": "Maria has 53 flowers. Maria uses 17 and then gives away 11. How many left?", "chain": "53 - 17 = 36\n_ - 11 = 25\n[END]", "ans": 25, "pattern": "subtract_subtract"}
+{"q": "10 flowers at $2 each. Total?", "chain": "10 * 2 = 20\n[END]", "ans": 20, "pattern": "multiply_rate"}
+{"q": "Divide 42 flowers into 3 equal groups. Per group?", "chain": "42 / 3 = 14\n[END]", "ans": 14, "pattern": "divide_split"}
+{"q": "Tom has 56 apples. First eats 11. Then loses 21. Remaining?", "chain": "56 - 11 = 45\n_ - 21 = 24\n[END]", "ans": 24, "pattern": "subtract_subtract"}
+{"q": "There are 7 baskets of 7 toys. 11 are sold. Remaining?", "chain": "7 * 7 = 49\n_ - 11 = 38\n[END]", "ans": 38, "pattern": "multiply_subtract"}
+{"q": "Jenny has 15 marbles. Jenny earns 20 more, then collects 18 more, then loses 11. How many now?", "chain": "15 + 20 = 35\n_ + 18 = 53\n_ - 11 = 42\n[END]", "ans": 42, "pattern": "add_add_subtract"}
+{"q": "Maria's farm produces 20 flowers daily. Maria eats 3 for breakfast and breaks 3 for baking. Sells the rest at $8 each. Revenue?", "chain": "20 - 3 = 17\n_ - 3 = 14\n_ * 8 = 112\n[END]", "ans": 112, "pattern": "subtract_subtract_multiply"}
+{"q": "Ben's farm produces 27 points daily. Ben breaks 3 for breakfast and gives away 3 for baking. Sells the rest at $8 each. Revenue?", "chain": "27 - 3 = 24\n_ - 3 = 21\n_ * 8 = 168\n[END]", "ans": 168, "pattern": "subtract_subtract_multiply"}
+{"q": "Jake's farm produces 30 candys daily. Jake spends 3 for breakfast and breaks 7 for baking. Sells the rest at $6 each. Revenue?", "chain": "30 - 3 = 27\n_ - 7 = 20\n_ * 6 = 120\n[END]", "ans": 120, "pattern": "subtract_subtract_multiply"}
+{"q": "Alex has 50 stickers. Alex uses 21. Sells the rest for $2 each. Total money?", "chain": "50 - 21 = 29\n_ * 2 = 58\n[END]", "ans": 58, "pattern": "subtract_multiply"}
+{"q": "There are 7 jars of 11 points. 9 are sold. Remaining?", "chain": "7 * 11 = 77\n_ - 9 = 68\n[END]", "ans": 68, "pattern": "multiply_subtract"}
+{"q": "Start with 38 marbles. Use 11. Sell remaining at $7 each. Revenue?", "chain": "38 - 11 = 27\n_ * 7 = 189\n[END]", "ans": 189, "pattern": "subtract_multiply"}
+{"q": "A store has 10 jars. Each has 5 cards. How many cards?", "chain": "10 * 5 = 50\n[END]", "ans": 50, "pattern": "multiply_groups"}
+{"q": "36 dollars shared equally by 9 people. How many each?", "chain": "36 / 9 = 4\n[END]", "ans": 4, "pattern": "divide_split"}
+{"q": "There are 5 baskets of 9 points. 16 are sold. Remaining?", "chain": "5 * 9 = 45\n_ - 16 = 29\n[END]", "ans": 29, "pattern": "multiply_subtract"}
+{"q": "Mike's farm produces 20 cookies daily. Mike loses 4 for breakfast and breaks 3 for baking. Sells the rest at $4 each. Revenue?", "chain": "20 - 4 = 16\n_ - 3 = 13\n_ * 4 = 52\n[END]", "ans": 52, "pattern": "subtract_subtract_multiply"}
+{"q": "Start with 43 stickers. Use 14. Sell remaining at $10 each. Revenue?", "chain": "43 - 14 = 29\n_ * 10 = 290\n[END]", "ans": 290, "pattern": "subtract_multiply"}
+{"q": "Start with 45 books. 19 are gone. How many left?", "chain": "45 - 19 = 26\n[END]", "ans": 26, "pattern": "subtract_loss"}
+{"q": "Start with 40 books. Use 6. Sell remaining at $3 each. Revenue?", "chain": "40 - 6 = 34\n_ * 3 = 102\n[END]", "ans": 102, "pattern": "subtract_multiply"}
+{"q": "Tom starts with 35 dollars. Gets 21 more. Then eats 51. Total?", "chain": "35 + 21 = 56\n_ - 51 = 5\n[END]", "ans": 5, "pattern": "add_subtract"}
+{"q": "There are 6 rows of 7 stickers. 12 are sold. Remaining?", "chain": "6 * 7 = 42\n_ - 12 = 30\n[END]", "ans": 30, "pattern": "multiply_subtract"}
+{"q": "There are 3 baskets of 9 apples. 8 are sold. Remaining?", "chain": "3 * 9 = 27\n_ - 8 = 19\n[END]", "ans": 19, "pattern": "multiply_subtract"}
+{"q": "Maria has 86 toys. First gives away 9. Then spends 37. Remaining?", "chain": "86 - 9 = 77\n_ - 37 = 40\n[END]", "ans": 40, "pattern": "subtract_subtract"}
+{"q": "Ben has 10 packs with 12 marbles each. Ben uses 17. How many left?", "chain": "10 * 12 = 120\n_ - 17 = 103\n[END]", "ans": 103, "pattern": "multiply_subtract"}
+{"q": "Chris has 63 candys. Chris eats 9 and then eats 12. How many left?", "chain": "63 - 9 = 54\n_ - 12 = 42\n[END]", "ans": 42, "pattern": "subtract_subtract"}
+{"q": "28 toys shared equally by 2 people. How many each?", "chain": "28 / 2 = 14\n[END]", "ans": 14, "pattern": "divide_split"}
+{"q": "Dan has 10 stickers. Dan gets 18 more, then buys 14 more, then loses 12. How many now?", "chain": "10 + 18 = 28\n_ + 14 = 42\n_ - 12 = 30\n[END]", "ans": 30, "pattern": "add_add_subtract"}
+{"q": "Ben has 61 candys. First breaks 10. Then breaks 25. Remaining?", "chain": "61 - 10 = 51\n_ - 25 = 26\n[END]", "ans": 26, "pattern": "subtract_subtract"}
+{"q": "Sam's farm produces 17 stickers daily. Sam spends 3 for breakfast and spends 4 for baking. Sells the rest at $3 each. Revenue?", "chain": "17 - 3 = 14\n_ - 4 = 10\n_ * 3 = 30\n[END]", "ans": 30, "pattern": "subtract_subtract_multiply"}
+{"q": "Maria has 17 candys. Maria gets 30 more. Total?", "chain": "17 + 30 = 47\n[END]", "ans": 47, "pattern": "add_gain"}
+{"q": "A store has 9 bags. Each has 12 eggs. How many eggs?", "chain": "9 * 12 = 108\n[END]", "ans": 108, "pattern": "multiply_groups"}
+{"q": "Dan has 25 pencils. Dan finds 3 more. Total?", "chain": "25 + 3 = 28\n[END]", "ans": 28, "pattern": "add_gain"}
+{"q": "Tom has 13 books. Tom collects 14 more, then earns 13 more, then breaks 9. How many now?", "chain": "13 + 14 = 27\n_ + 13 = 40\n_ - 9 = 31\n[END]", "ans": 31, "pattern": "add_add_subtract"}
+{"q": "Emma has 78 apples and loses 30. How many remain?", "chain": "78 - 30 = 48\n[END]", "ans": 48, "pattern": "subtract_loss"}
+{"q": "Dan has 34 marbles and gets 25 more. How many now?", "chain": "34 + 25 = 59\n[END]", "ans": 59, "pattern": "add_gain"}
+{"q": "A store has 6 baskets. Each has 15 apples. How many apples?", "chain": "6 * 15 = 90\n[END]", "ans": 90, "pattern": "multiply_groups"}
+{"q": "Each book costs $15. Dan buys 5. How much total?", "chain": "5 * 15 = 75\n[END]", "ans": 75, "pattern": "multiply_rate"}
+{"q": "Tom has 39 cookies. Tom uses 5 and gives away 8. Sells the rest for $8 each. Total money?", "chain": "39 - 5 = 34\n_ - 8 = 26\n_ * 8 = 208\n[END]", "ans": 208, "pattern": "subtract_subtract_multiply"}
+{"q": "Lisa has 100 toys and uses 29. How many remain?", "chain": "100 - 29 = 71\n[END]", "ans": 71, "pattern": "subtract_loss"}
+{"q": "There are 3 shelfs of 12 books. 6 are sold. Remaining?", "chain": "3 * 12 = 36\n_ - 6 = 30\n[END]", "ans": 30, "pattern": "multiply_subtract"}
+{"q": "Alex has 76 pencils. First eats 6. Then gives away 16. Remaining?", "chain": "76 - 6 = 70\n_ - 16 = 54\n[END]", "ans": 54, "pattern": "subtract_subtract"}
+{"q": "Split 72 dollars among 6 friends. Each gets?", "chain": "72 / 6 = 12\n[END]", "ans": 12, "pattern": "divide_split"}
+{"q": "Divide 24 apples into 2 equal groups. Per group?", "chain": "24 / 2 = 12\n[END]", "ans": 12, "pattern": "divide_split"}
+{"q": "Emma has 41 marbles. First uses 8. Then eats 5. Remaining?", "chain": "41 - 8 = 33\n_ - 5 = 28\n[END]", "ans": 28, "pattern": "subtract_subtract"}
+{"q": "Sarah has 9 boxs with 7 marbles each. Uses 8, then splits the rest among 5 friends. Each friend gets?", "chain": "9 * 7 = 63\n_ - 8 = 55\n_ / 5 = 11\n[END]", "ans": 11, "pattern": "multiply_subtract_divide"}
+{"q": "Start with 71 dollars. 27 are gone. How many left?", "chain": "71 - 27 = 44\n[END]", "ans": 44, "pattern": "subtract_loss"}
+{"q": "Divide 20 stickers into 2 equal groups. Per group?", "chain": "20 / 2 = 10\n[END]", "ans": 10, "pattern": "divide_split"}
+{"q": "Alex has 92 toys. First gives away 11. Then spends 39. Remaining?", "chain": "92 - 11 = 81\n_ - 39 = 42\n[END]", "ans": 42, "pattern": "subtract_subtract"}
+{"q": "Split 50 stickers among 10 friends. Each gets?", "chain": "50 / 10 = 5\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "Zoe starts with 26 stickers. Gets 22 more. Then eats 26. Total?", "chain": "26 + 22 = 48\n_ - 26 = 22\n[END]", "ans": 22, "pattern": "add_subtract"}
+{"q": "Tom has 38 cards. Tom breaks 10. Sells the rest for $7 each. Total money?", "chain": "38 - 10 = 28\n_ * 7 = 196\n[END]", "ans": 196, "pattern": "subtract_multiply"}
+{"q": "There are 10 jars of 12 toys. 12 are sold. Remaining?", "chain": "10 * 12 = 120\n_ - 12 = 108\n[END]", "ans": 108, "pattern": "multiply_subtract"}
+{"q": "Divide 33 cookies into 3 equal groups. Per group?", "chain": "33 / 3 = 11\n[END]", "ans": 11, "pattern": "divide_split"}
+{"q": "Emma buys 2 books at $5 each. Total cost?", "chain": "2 * 5 = 10\n[END]", "ans": 10, "pattern": "multiply_rate"}
+{"q": "Lisa has 79 apples. First spends 26. Then spends 18. Remaining?", "chain": "79 - 26 = 53\n_ - 18 = 35\n[END]", "ans": 35, "pattern": "subtract_subtract"}
+{"q": "Sam buys 3 cards at $2 each. Total cost?", "chain": "3 * 2 = 6\n[END]", "ans": 6, "pattern": "multiply_rate"}
+{"q": "There are 3 trays of 9 dollars. 11 are sold. Remaining?", "chain": "3 * 9 = 27\n_ - 11 = 16\n[END]", "ans": 16, "pattern": "multiply_subtract"}
+{"q": "Sarah's farm produces 34 points daily. Sarah breaks 4 for breakfast and eats 6 for baking. Sells the rest at $2 each. Revenue?", "chain": "34 - 4 = 30\n_ - 6 = 24\n_ * 2 = 48\n[END]", "ans": 48, "pattern": "subtract_subtract_multiply"}
+{"q": "3 toys at $3 each. Total?", "chain": "3 * 3 = 9\n[END]", "ans": 9, "pattern": "multiply_rate"}
+{"q": "Start with 39 pencils. 18 are gone. How many left?", "chain": "39 - 18 = 21\n[END]", "ans": 21, "pattern": "subtract_loss"}
+{"q": "Ben has 13 oranges. Ben gets 16 more, then finds 19 more, then gives away 18. How many now?", "chain": "13 + 16 = 29\n_ + 19 = 48\n_ - 18 = 30\n[END]", "ans": 30, "pattern": "add_add_subtract"}
+{"q": "Jake starts with 48 toys. Gets 19 more. Then loses 62. Total?", "chain": "48 + 19 = 67\n_ - 62 = 5\n[END]", "ans": 5, "pattern": "add_subtract"}
+{"q": "Ben has 35 dollars. Ben loses 5 and spends 8. Sells the rest for $7 each. Total money?", "chain": "35 - 5 = 30\n_ - 8 = 22\n_ * 7 = 154\n[END]", "ans": 154, "pattern": "subtract_subtract_multiply"}
+{"q": "Anna starts with 45 candys. Gets 28 more. Then uses 35. Total?", "chain": "45 + 28 = 73\n_ - 35 = 38\n[END]", "ans": 38, "pattern": "add_subtract"}
+{"q": "Tom has 11 oranges. Tom finds 14 more, then receives 5 more, then eats 13. How many now?", "chain": "11 + 14 = 25\n_ + 5 = 30\n_ - 13 = 17\n[END]", "ans": 17, "pattern": "add_add_subtract"}
+{"q": "Anna has 20 points. Anna buys 5 more, then buys 13 more, then spends 19. How many now?", "chain": "20 + 5 = 25\n_ + 13 = 38\n_ - 19 = 19\n[END]", "ans": 19, "pattern": "add_add_subtract"}
+{"q": "A store has 4 trays. Each has 5 marbles. How many marbles?", "chain": "4 * 5 = 20\n[END]", "ans": 20, "pattern": "multiply_groups"}
+{"q": "90 pencils shared equally by 6 people. How many each?", "chain": "90 / 6 = 15\n[END]", "ans": 15, "pattern": "divide_split"}
+{"q": "There are 5 rows with 14 cards each. Total cards?", "chain": "5 * 14 = 70\n[END]", "ans": 70, "pattern": "multiply_groups"}
+{"q": "Start with 46 books. Use 21. Sell remaining at $3 each. Revenue?", "chain": "46 - 21 = 25\n_ * 3 = 75\n[END]", "ans": 75, "pattern": "subtract_multiply"}
+{"q": "Each cookie costs $14. Kate buys 2. How much total?", "chain": "2 * 14 = 28\n[END]", "ans": 28, "pattern": "multiply_rate"}
+{"q": "Split 45 candys among 3 friends. Each gets?", "chain": "45 / 3 = 15\n[END]", "ans": 15, "pattern": "divide_split"}
+{"q": "Tom has 39 eggs. Tom spends 4. Sells the rest for $6 each. Total money?", "chain": "39 - 4 = 35\n_ * 6 = 210\n[END]", "ans": 210, "pattern": "subtract_multiply"}
+{"q": "Emma has 37 marbles. Emma finds 25 more. Total?", "chain": "37 + 25 = 62\n[END]", "ans": 62, "pattern": "add_gain"}
+{"q": "11 flowers at $11 each. Total?", "chain": "11 * 11 = 121\n[END]", "ans": 121, "pattern": "multiply_rate"}
+{"q": "There are 8 rows with 5 stickers each. Total stickers?", "chain": "8 * 5 = 40\n[END]", "ans": 40, "pattern": "multiply_groups"}
+{"q": "22 cards shared equally by 2 people. How many each?", "chain": "22 / 2 = 11\n[END]", "ans": 11, "pattern": "divide_split"}
+{"q": "Kate has 32 toys. Kate collects 27 more. Total?", "chain": "32 + 27 = 59\n[END]", "ans": 59, "pattern": "add_gain"}
+{"q": "Dan has 27 toys. Dan breaks 10. Sells the rest for $8 each. Total money?", "chain": "27 - 10 = 17\n_ * 8 = 136\n[END]", "ans": 136, "pattern": "subtract_multiply"}
+{"q": "Sam has 14 pencils. Sam receives 13 more, then breaks 16. How many now?", "chain": "14 + 13 = 27\n_ - 16 = 11\n[END]", "ans": 11, "pattern": "add_subtract"}
+{"q": "There are 7 rows with 8 candys each. Total candys?", "chain": "7 * 8 = 56\n[END]", "ans": 56, "pattern": "multiply_groups"}
+{"q": "30 dollars shared equally by 6 people. How many each?", "chain": "30 / 6 = 5\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "There are 3 baskets of 7 flowers. 6 are sold. Remaining?", "chain": "3 * 7 = 21\n_ - 6 = 15\n[END]", "ans": 15, "pattern": "multiply_subtract"}
+{"q": "2 bags with 6 cookies in each. Total?", "chain": "2 * 6 = 12\n[END]", "ans": 12, "pattern": "multiply_groups"}
+{"q": "Alex has 9 boxs with 6 marbles each. Uses 9, then splits the rest among 5 friends. Each friend gets?", "chain": "9 * 6 = 54\n_ - 9 = 45\n_ / 5 = 9\n[END]", "ans": 9, "pattern": "multiply_subtract_divide"}
+{"q": "Anna buys 10 oranges at $5 each. Total cost?", "chain": "10 * 5 = 50\n[END]", "ans": 50, "pattern": "multiply_rate"}
+{"q": "Maria has 40 toys. Maria finds 24 more, then breaks 49. How many now?", "chain": "40 + 24 = 64\n_ - 49 = 15\n[END]", "ans": 15, "pattern": "add_subtract"}
+{"q": "12 stickers shared equally by 4 people. How many each?", "chain": "12 / 4 = 3\n[END]", "ans": 3, "pattern": "divide_split"}
+{"q": "Maria has 74 apples and eats 4. How many remain?", "chain": "74 - 4 = 70\n[END]", "ans": 70, "pattern": "subtract_loss"}
+{"q": "There are 7 bags of 10 apples. 17 are sold. Remaining?", "chain": "7 * 10 = 70\n_ - 17 = 53\n[END]", "ans": 53, "pattern": "multiply_subtract"}
+{"q": "Lisa has 41 marbles. Lisa gets 24 more, then gives away 37. How many now?", "chain": "41 + 24 = 65\n_ - 37 = 28\n[END]", "ans": 28, "pattern": "add_subtract"}
+{"q": "Zoe starts with 11 toys. Gets 6 more. Then loses 6. Total?", "chain": "11 + 6 = 17\n_ - 6 = 11\n[END]", "ans": 11, "pattern": "add_subtract"}
+{"q": "Jake has 74 apples. Jake breaks 16 and then loses 14. How many left?", "chain": "74 - 16 = 58\n_ - 14 = 44\n[END]", "ans": 44, "pattern": "subtract_subtract"}
+{"q": "Maria has 11 dollars. Maria buys 13 more, then receives 17 more, then gives away 5. How many now?", "chain": "11 + 13 = 24\n_ + 17 = 41\n_ - 5 = 36\n[END]", "ans": 36, "pattern": "add_add_subtract"}
+{"q": "Divide 16 eggs into 4 equal groups. Per group?", "chain": "16 / 4 = 4\n[END]", "ans": 4, "pattern": "divide_split"}
+{"q": "Split 60 candys among 5 friends. Each gets?", "chain": "60 / 5 = 12\n[END]", "ans": 12, "pattern": "divide_split"}
+{"q": "Alex has 72 cards. Alex gives away 19 and then gives away 20. How many left?", "chain": "72 - 19 = 53\n_ - 20 = 33\n[END]", "ans": 33, "pattern": "subtract_subtract"}
+{"q": "Anna has 18 points. Anna collects 14 more, then spends 25. How many now?", "chain": "18 + 14 = 32\n_ - 25 = 7\n[END]", "ans": 7, "pattern": "add_subtract"}
+{"q": "Emma has 50 eggs. Emma spends 10 and then spends 5. How many left?", "chain": "50 - 10 = 40\n_ - 5 = 35\n[END]", "ans": 35, "pattern": "subtract_subtract"}
+{"q": "Emma has 18 oranges and uses 8. How many remain?", "chain": "18 - 8 = 10\n[END]", "ans": 10, "pattern": "subtract_loss"}
+{"q": "Maria has 17 books. Maria finds 6 more. Total?", "chain": "17 + 6 = 23\n[END]", "ans": 23, "pattern": "add_gain"}
+{"q": "Maria buys 11 cards at $11 each. Total cost?", "chain": "11 * 11 = 121\n[END]", "ans": 121, "pattern": "multiply_rate"}
+{"q": "Sam has 11 eggs. Sam collects 16 more, then uses 5. How many now?", "chain": "11 + 16 = 27\n_ - 5 = 22\n[END]", "ans": 22, "pattern": "add_subtract"}
+{"q": "Dan has 33 oranges. Dan earns 10 more, then uses 27. How many now?", "chain": "33 + 10 = 43\n_ - 27 = 16\n[END]", "ans": 16, "pattern": "add_subtract"}
+{"q": "Sam has 67 apples and eats 51. How many remain?", "chain": "67 - 51 = 16\n[END]", "ans": 16, "pattern": "subtract_loss"}
+{"q": "Sam has 16 oranges. Sam earns 11 more, then buys 7 more, then uses 7. How many now?", "chain": "16 + 11 = 27\n_ + 7 = 34\n_ - 7 = 27\n[END]", "ans": 27, "pattern": "add_add_subtract"}
+{"q": "Sam's farm produces 27 candys daily. Sam uses 2 for breakfast and breaks 6 for baking. Sells the rest at $7 each. Revenue?", "chain": "27 - 2 = 25\n_ - 6 = 19\n_ * 7 = 133\n[END]", "ans": 133, "pattern": "subtract_subtract_multiply"}
+{"q": "30 toys shared equally by 3 people. How many each?", "chain": "30 / 3 = 10\n[END]", "ans": 10, "pattern": "divide_split"}
+{"q": "Sarah's farm produces 31 pencils daily. Sarah eats 6 for breakfast and spends 5 for baking. Sells the rest at $7 each. Revenue?", "chain": "31 - 6 = 25\n_ - 5 = 20\n_ * 7 = 140\n[END]", "ans": 140, "pattern": "subtract_subtract_multiply"}
+{"q": "Sarah starts with 28 pencils. Gets 19 more. Then loses 28. Total?", "chain": "28 + 19 = 47\n_ - 28 = 19\n[END]", "ans": 19, "pattern": "add_subtract"}
+{"q": "Alex has 21 cards. Alex spends 14. How many left?", "chain": "21 - 14 = 7\n[END]", "ans": 7, "pattern": "subtract_loss"}
+{"q": "Zoe has 94 cookies. Zoe spends 8 and then breaks 14. How many left?", "chain": "94 - 8 = 86\n_ - 14 = 72\n[END]", "ans": 72, "pattern": "subtract_subtract"}
+{"q": "10 flowers shared equally by 2 people. How many each?", "chain": "10 / 2 = 5\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "Anna has 15 flowers. Anna collects 13 more, then breaks 13. How many now?", "chain": "15 + 13 = 28\n_ - 13 = 15\n[END]", "ans": 15, "pattern": "add_subtract"}
+{"q": "Start with 22 cookies. Use 10. Sell remaining at $7 each. Revenue?", "chain": "22 - 10 = 12\n_ * 7 = 84\n[END]", "ans": 84, "pattern": "subtract_multiply"}
+{"q": "Start with 50 candys. Use 15. Sell remaining at $2 each. Revenue?", "chain": "50 - 15 = 35\n_ * 2 = 70\n[END]", "ans": 70, "pattern": "subtract_multiply"}
+{"q": "Emma starts with 19 books. Gets 10 more. Then loses 4. Total?", "chain": "19 + 10 = 29\n_ - 4 = 25\n[END]", "ans": 25, "pattern": "add_subtract"}
+{"q": "Zoe has 26 stickers. Zoe gives away 4. Sells the rest for $4 each. Total money?", "chain": "26 - 4 = 22\n_ * 4 = 88\n[END]", "ans": 88, "pattern": "subtract_multiply"}
+{"q": "Maria has 10 boxs with 11 flowers each. Maria uses 37. How many left?", "chain": "10 * 11 = 110\n_ - 37 = 73\n[END]", "ans": 73, "pattern": "multiply_subtract"}
+{"q": "There are 10 jars of 11 pencils. 29 are sold. Remaining?", "chain": "10 * 11 = 110\n_ - 29 = 81\n[END]", "ans": 81, "pattern": "multiply_subtract"}
+{"q": "10 pencils at $6 each. Total?", "chain": "10 * 6 = 60\n[END]", "ans": 60, "pattern": "multiply_rate"}
+{"q": "Anna has 5 boxs with 4 books each. Anna uses 8. How many left?", "chain": "5 * 4 = 20\n_ - 8 = 12\n[END]", "ans": 12, "pattern": "multiply_subtract"}
+{"q": "There are 6 boxs with 8 eggs each. Total eggs?", "chain": "6 * 8 = 48\n[END]", "ans": 48, "pattern": "multiply_groups"}
+{"q": "Each book costs $12. Ben buys 4. How much total?", "chain": "4 * 12 = 48\n[END]", "ans": 48, "pattern": "multiply_rate"}
+{"q": "There are 8 trays of 4 oranges. 4 are sold. Remaining?", "chain": "8 * 4 = 32\n_ - 4 = 28\n[END]", "ans": 28, "pattern": "multiply_subtract"}
+{"q": "45 points shared equally by 3 people. How many each?", "chain": "45 / 3 = 15\n[END]", "ans": 15, "pattern": "divide_split"}
+{"q": "Mike's farm produces 30 stickers daily. Mike loses 3 for breakfast and loses 2 for baking. Sells the rest at $7 each. Revenue?", "chain": "30 - 3 = 27\n_ - 2 = 25\n_ * 7 = 175\n[END]", "ans": 175, "pattern": "subtract_subtract_multiply"}
+{"q": "Anna has 13 cards. Anna collects 8 more, then breaks 12. How many now?", "chain": "13 + 8 = 21\n_ - 12 = 9\n[END]", "ans": 9, "pattern": "add_subtract"}
+{"q": "Alex has 70 candys. First spends 13. Then spends 19. Remaining?", "chain": "70 - 13 = 57\n_ - 19 = 38\n[END]", "ans": 38, "pattern": "subtract_subtract"}
+{"q": "Dan has 10 trays with 7 flowers each. Uses 12, then splits the rest among 2 friends. Each friend gets?", "chain": "10 * 7 = 70\n_ - 12 = 58\n_ / 2 = 29\n[END]", "ans": 29, "pattern": "multiply_subtract_divide"}
+{"q": "Tom buys 12 flowers at $14 each. Total cost?", "chain": "12 * 14 = 168\n[END]", "ans": 168, "pattern": "multiply_rate"}
+{"q": "Start with 41 dollars. Use 16. Sell remaining at $2 each. Revenue?", "chain": "41 - 16 = 25\n_ * 2 = 50\n[END]", "ans": 50, "pattern": "subtract_multiply"}
+{"q": "Anna has 50 apples. Anna receives 11 more, then loses 47. How many now?", "chain": "50 + 11 = 61\n_ - 47 = 14\n[END]", "ans": 14, "pattern": "add_subtract"}
+{"q": "Jenny has 5 dollars and collects 6 more. How many now?", "chain": "5 + 6 = 11\n[END]", "ans": 11, "pattern": "add_gain"}
+{"q": "24 points shared equally by 4 people. How many each?", "chain": "24 / 4 = 6\n[END]", "ans": 6, "pattern": "divide_split"}
+{"q": "Dan's farm produces 40 flowers daily. Dan gives away 2 for breakfast and breaks 4 for baking. Sells the rest at $5 each. Revenue?", "chain": "40 - 2 = 38\n_ - 4 = 34\n_ * 5 = 170\n[END]", "ans": 170, "pattern": "subtract_subtract_multiply"}
+{"q": "Jenny has 10 trays with 11 dollars each. Uses 8, then splits the rest among 6 friends. Each friend gets?", "chain": "10 * 11 = 110\n_ - 8 = 102\n_ / 6 = 17\n[END]", "ans": 17, "pattern": "multiply_subtract_divide"}
+{"q": "Jenny starts with 44 toys. Gets 5 more. Then breaks 16. Total?", "chain": "44 + 5 = 49\n_ - 16 = 33\n[END]", "ans": 33, "pattern": "add_subtract"}
+{"q": "Start with 24 cookies. Use 7. Sell remaining at $2 each. Revenue?", "chain": "24 - 7 = 17\n_ * 2 = 34\n[END]", "ans": 34, "pattern": "subtract_multiply"}
+{"q": "There are 4 rows of 8 books. 14 are sold. Remaining?", "chain": "4 * 8 = 32\n_ - 14 = 18\n[END]", "ans": 18, "pattern": "multiply_subtract"}
+{"q": "Start with 20 candys. Use 10. Sell remaining at $5 each. Revenue?", "chain": "20 - 10 = 10\n_ * 5 = 50\n[END]", "ans": 50, "pattern": "subtract_multiply"}
+{"q": "Alex has 31 pencils. Alex loses 4 and eats 3. Sells the rest for $2 each. Total money?", "chain": "31 - 4 = 27\n_ - 3 = 24\n_ * 2 = 48\n[END]", "ans": 48, "pattern": "subtract_subtract_multiply"}
+{"q": "Zoe has 7 boxs with 7 dollars each. Uses 8, then splits the rest among 1 friends. Each friend gets?", "chain": "7 * 7 = 49\n_ - 8 = 41\n_ / 1 = 41\n[END]", "ans": 41, "pattern": "multiply_subtract_divide"}
+{"q": "Alex has 35 dollars. Alex spends 5. Sells the rest for $3 each. Total money?", "chain": "35 - 5 = 30\n_ * 3 = 90\n[END]", "ans": 90, "pattern": "subtract_multiply"}
+{"q": "Sarah has 64 flowers. Sarah spends 48. How many left?", "chain": "64 - 48 = 16\n[END]", "ans": 16, "pattern": "subtract_loss"}
+{"q": "Sarah buys 11 eggs at $15 each. Total cost?", "chain": "11 * 15 = 165\n[END]", "ans": 165, "pattern": "multiply_rate"}
+{"q": "Divide 150 cookies into 10 equal groups. Per group?", "chain": "150 / 10 = 15\n[END]", "ans": 15, "pattern": "divide_split"}
+{"q": "Tom has 34 cards. Tom loses 13. Sells the rest for $5 each. Total money?", "chain": "34 - 13 = 21\n_ * 5 = 105\n[END]", "ans": 105, "pattern": "subtract_multiply"}
+{"q": "Maria has 55 toys. Maria breaks 31. How many left?", "chain": "55 - 31 = 24\n[END]", "ans": 24, "pattern": "subtract_loss"}
+{"q": "Start with 12. Add 3. Total?", "chain": "12 + 3 = 15\n[END]", "ans": 15, "pattern": "add_gain"}
+{"q": "Anna starts with 32 toys. Gets 22 more. Then gives away 23. Total?", "chain": "32 + 22 = 54\n_ - 23 = 31\n[END]", "ans": 31, "pattern": "add_subtract"}
+{"q": "Jake has 29 cookies. Jake buys 24 more, then uses 24. How many now?", "chain": "29 + 24 = 53\n_ - 24 = 29\n[END]", "ans": 29, "pattern": "add_subtract"}
+{"q": "A store has 2 trays. Each has 4 eggs. How many eggs?", "chain": "2 * 4 = 8\n[END]", "ans": 8, "pattern": "multiply_groups"}
+{"q": "4 candys at $13 each. Total?", "chain": "4 * 13 = 52\n[END]", "ans": 52, "pattern": "multiply_rate"}
+{"q": "Zoe has 6 shelfs with 8 stickers each. Uses 16, then splits the rest among 2 friends. Each friend gets?", "chain": "6 * 8 = 48\n_ - 16 = 32\n_ / 2 = 16\n[END]", "ans": 16, "pattern": "multiply_subtract_divide"}
+{"q": "Mike starts with 39 points. Gets 8 more. Then breaks 32. Total?", "chain": "39 + 8 = 47\n_ - 32 = 15\n[END]", "ans": 15, "pattern": "add_subtract"}
+{"q": "Sam has 63 books. First gives away 16. Then breaks 15. Remaining?", "chain": "63 - 16 = 47\n_ - 15 = 32\n[END]", "ans": 32, "pattern": "subtract_subtract"}
+{"q": "Jenny has 46 flowers. Jenny uses 3. Sells the rest for $3 each. Total money?", "chain": "46 - 3 = 43\n_ * 3 = 129\n[END]", "ans": 129, "pattern": "subtract_multiply"}
+{"q": "28 points shared equally by 4 people. How many each?", "chain": "28 / 4 = 7\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "There are 4 bags of 9 candys. 5 are sold. Remaining?", "chain": "4 * 9 = 36\n_ - 5 = 31\n[END]", "ans": 31, "pattern": "multiply_subtract"}
+{"q": "Kate has 36 cards. Kate finds 12 more, then spends 42. How many now?", "chain": "36 + 12 = 48\n_ - 42 = 6\n[END]", "ans": 6, "pattern": "add_subtract"}
+{"q": "Kate has 20 cookies. Kate buys 11 more, then receives 18 more, then spends 18. How many now?", "chain": "20 + 11 = 31\n_ + 18 = 49\n_ - 18 = 31\n[END]", "ans": 31, "pattern": "add_add_subtract"}
+{"q": "Start with 88 oranges. 65 are gone. How many left?", "chain": "88 - 65 = 23\n[END]", "ans": 23, "pattern": "subtract_loss"}
+{"q": "Jenny has 16 toys. Jenny receives 19 more, then uses 8. How many now?", "chain": "16 + 19 = 35\n_ - 8 = 27\n[END]", "ans": 27, "pattern": "add_subtract"}
+{"q": "Kate has 41 marbles. Kate gets 25 more, then eats 45. How many now?", "chain": "41 + 25 = 66\n_ - 45 = 21\n[END]", "ans": 21, "pattern": "add_subtract"}
+{"q": "Tom's farm produces 19 dollars daily. Tom spends 4 for breakfast and loses 2 for baking. Sells the rest at $5 each. Revenue?", "chain": "19 - 4 = 15\n_ - 2 = 13\n_ * 5 = 65\n[END]", "ans": 65, "pattern": "subtract_subtract_multiply"}
+{"q": "There are 8 jars of 8 pencils. 21 are sold. Remaining?", "chain": "8 * 8 = 64\n_ - 21 = 43\n[END]", "ans": 43, "pattern": "multiply_subtract"}
+{"q": "Ben has 8 shelfs with 5 cookies each. Uses 13, then splits the rest among 3 friends. Each friend gets?", "chain": "8 * 5 = 40\n_ - 13 = 27\n_ / 3 = 9\n[END]", "ans": 9, "pattern": "multiply_subtract_divide"}
+{"q": "Sarah has 32 marbles. Sarah spends 2 and loses 2. Sells the rest for $7 each. Total money?", "chain": "32 - 2 = 30\n_ - 2 = 28\n_ * 7 = 196\n[END]", "ans": 196, "pattern": "subtract_subtract_multiply"}
+{"q": "Tom's farm produces 28 pencils daily. Tom breaks 7 for breakfast and loses 6 for baking. Sells the rest at $5 each. Revenue?", "chain": "28 - 7 = 21\n_ - 6 = 15\n_ * 5 = 75\n[END]", "ans": 75, "pattern": "subtract_subtract_multiply"}
+{"q": "Ben has 57 toys. Ben uses 15 and then gives away 8. How many left?", "chain": "57 - 15 = 42\n_ - 8 = 34\n[END]", "ans": 34, "pattern": "subtract_subtract"}
+{"q": "Chris has 36 points. Chris collects 9 more, then gives away 21. How many now?", "chain": "36 + 9 = 45\n_ - 21 = 24\n[END]", "ans": 24, "pattern": "add_subtract"}
+{"q": "Each book costs $12. Tom buys 9. How much total?", "chain": "9 * 12 = 108\n[END]", "ans": 108, "pattern": "multiply_rate"}
+{"q": "Emma has 14 cookies. Emma earns 18 more, then buys 19 more, then gives away 24. How many now?", "chain": "14 + 18 = 32\n_ + 19 = 51\n_ - 24 = 27\n[END]", "ans": 27, "pattern": "add_add_subtract"}
+{"q": "Zoe has 32 candys. Zoe earns 12 more, then spends 14. How many now?", "chain": "32 + 12 = 44\n_ - 14 = 30\n[END]", "ans": 30, "pattern": "add_subtract"}
+{"q": "Sam starts with 42 oranges. Gets 13 more. Then spends 29. Total?", "chain": "42 + 13 = 55\n_ - 29 = 26\n[END]", "ans": 26, "pattern": "add_subtract"}
+{"q": "Each card costs $13. Sarah buys 9. How much total?", "chain": "9 * 13 = 117\n[END]", "ans": 117, "pattern": "multiply_rate"}
+{"q": "3 trays with 5 oranges in each. Total?", "chain": "3 * 5 = 15\n[END]", "ans": 15, "pattern": "multiply_groups"}
+{"q": "Maria has 48 flowers. Maria spends 5. Sells the rest for $10 each. Total money?", "chain": "48 - 5 = 43\n_ * 10 = 430\n[END]", "ans": 430, "pattern": "subtract_multiply"}
+{"q": "Mike has 45 eggs and buys 20 more. How many now?", "chain": "45 + 20 = 65\n[END]", "ans": 65, "pattern": "add_gain"}
+{"q": "There are 10 boxs of 12 flowers. 60 are sold. Remaining?", "chain": "10 * 12 = 120\n_ - 60 = 60\n[END]", "ans": 60, "pattern": "multiply_subtract"}
+{"q": "Jenny has 32 candys. Jenny receives 30 more, then gives away 21. How many now?", "chain": "32 + 30 = 62\n_ - 21 = 41\n[END]", "ans": 41, "pattern": "add_subtract"}
+{"q": "Alex has 10 packs with 6 apples each. Alex uses 21. How many left?", "chain": "10 * 6 = 60\n_ - 21 = 39\n[END]", "ans": 39, "pattern": "multiply_subtract"}
+{"q": "Alex has 10 boxs with 5 stickers each. Alex uses 7. How many left?", "chain": "10 * 5 = 50\n_ - 7 = 43\n[END]", "ans": 43, "pattern": "multiply_subtract"}
+{"q": "Maria has 19 stickers. Maria loses 4 and eats 3. Sells the rest for $4 each. Total money?", "chain": "19 - 4 = 15\n_ - 3 = 12\n_ * 4 = 48\n[END]", "ans": 48, "pattern": "subtract_subtract_multiply"}
+{"q": "There are 5 trays of 8 marbles. 10 are sold. Remaining?", "chain": "5 * 8 = 40\n_ - 10 = 30\n[END]", "ans": 30, "pattern": "multiply_subtract"}
+{"q": "Sarah has 25 marbles. Sarah spends 7. How many left?", "chain": "25 - 7 = 18\n[END]", "ans": 18, "pattern": "subtract_loss"}
+{"q": "Ben has 27 dollars. Ben breaks 3 and gives away 5. Sells the rest for $7 each. Total money?", "chain": "27 - 3 = 24\n_ - 5 = 19\n_ * 7 = 133\n[END]", "ans": 133, "pattern": "subtract_subtract_multiply"}
+{"q": "Chris starts with 26 apples. Gets 29 more. Then gives away 10. Total?", "chain": "26 + 29 = 55\n_ - 10 = 45\n[END]", "ans": 45, "pattern": "add_subtract"}
+{"q": "60 flowers shared equally by 10 people. How many each?", "chain": "60 / 10 = 6\n[END]", "ans": 6, "pattern": "divide_split"}
+{"q": "There are 5 trays of 12 stickers. 30 are sold. Remaining?", "chain": "5 * 12 = 60\n_ - 30 = 30\n[END]", "ans": 30, "pattern": "multiply_subtract"}
+{"q": "12 candys at $7 each. Total?", "chain": "12 * 7 = 84\n[END]", "ans": 84, "pattern": "multiply_rate"}
+{"q": "There are 8 bags of 10 toys. 20 are sold. Remaining?", "chain": "8 * 10 = 80\n_ - 20 = 60\n[END]", "ans": 60, "pattern": "multiply_subtract"}
+{"q": "Lisa has 46 stickers and earns 21 more. How many now?", "chain": "46 + 21 = 67\n[END]", "ans": 67, "pattern": "add_gain"}
+{"q": "Sam has 27 oranges. Sam breaks 11. Sells the rest for $7 each. Total money?", "chain": "27 - 11 = 16\n_ * 7 = 112\n[END]", "ans": 112, "pattern": "subtract_multiply"}
+{"q": "Tom has 5 eggs. Tom gets 29 more. Total?", "chain": "5 + 29 = 34\n[END]", "ans": 34, "pattern": "add_gain"}
+{"q": "Lisa has 87 eggs. First breaks 16. Then loses 17. Remaining?", "chain": "87 - 16 = 71\n_ - 17 = 54\n[END]", "ans": 54, "pattern": "subtract_subtract"}
+{"q": "Start with 26 cards. 4 are gone. How many left?", "chain": "26 - 4 = 22\n[END]", "ans": 22, "pattern": "subtract_loss"}
+{"q": "Anna has 4 bags with 6 oranges each. Uses 6, then splits the rest among 3 friends. Each friend gets?", "chain": "4 * 6 = 24\n_ - 6 = 18\n_ / 3 = 6\n[END]", "ans": 6, "pattern": "multiply_subtract_divide"}
+{"q": "Jake has 7 packs with 6 stickers each. Uses 12, then splits the rest among 5 friends. Each friend gets?", "chain": "7 * 6 = 42\n_ - 12 = 30\n_ / 5 = 6\n[END]", "ans": 6, "pattern": "multiply_subtract_divide"}
+{"q": "Jenny has 4 packs with 8 books each. Jenny uses 15. How many left?", "chain": "4 * 8 = 32\n_ - 15 = 17\n[END]", "ans": 17, "pattern": "multiply_subtract"}
+{"q": "Split 42 apples among 6 friends. Each gets?", "chain": "42 / 6 = 7\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "Dan has 80 pencils. First eats 10. Then gives away 34. Remaining?", "chain": "80 - 10 = 70\n_ - 34 = 36\n[END]", "ans": 36, "pattern": "subtract_subtract"}
+{"q": "Lisa has 48 flowers. Lisa eats 9. How many left?", "chain": "48 - 9 = 39\n[END]", "ans": 39, "pattern": "subtract_loss"}
+{"q": "Each dollar costs $2. Maria buys 9. How much total?", "chain": "9 * 2 = 18\n[END]", "ans": 18, "pattern": "multiply_rate"}
+{"q": "There are 8 boxs with 7 apples each. Total apples?", "chain": "8 * 7 = 56\n[END]", "ans": 56, "pattern": "multiply_groups"}
+{"q": "Start with 15 cards. Use 7. Sell remaining at $9 each. Revenue?", "chain": "15 - 7 = 8\n_ * 9 = 72\n[END]", "ans": 72, "pattern": "subtract_multiply"}
+{"q": "Mike has 58 toys. Mike breaks 5 and then uses 15. How many left?", "chain": "58 - 5 = 53\n_ - 15 = 38\n[END]", "ans": 38, "pattern": "subtract_subtract"}
+{"q": "Chris has 29 marbles. Chris collects 17 more, then breaks 6. How many now?", "chain": "29 + 17 = 46\n_ - 6 = 40\n[END]", "ans": 40, "pattern": "add_subtract"}
+{"q": "135 cookies shared equally by 9 people. How many each?", "chain": "135 / 9 = 15\n[END]", "ans": 15, "pattern": "divide_split"}
+{"q": "Jake has 6 boxs with 8 candys each. Jake uses 15. How many left?", "chain": "6 * 8 = 48\n_ - 15 = 33\n[END]", "ans": 33, "pattern": "multiply_subtract"}
+{"q": "Chris has 10 trays with 7 cookies each. Chris uses 11. How many left?", "chain": "10 * 7 = 70\n_ - 11 = 59\n[END]", "ans": 59, "pattern": "multiply_subtract"}
+{"q": "Start with 64 flowers. 7 are gone. How many left?", "chain": "64 - 7 = 57\n[END]", "ans": 57, "pattern": "subtract_loss"}
+{"q": "Zoe has 7 apples and gets 13 more. How many now?", "chain": "7 + 13 = 20\n[END]", "ans": 20, "pattern": "add_gain"}
+{"q": "Sarah has 22 candys. Sarah uses 6. Sells the rest for $10 each. Total money?", "chain": "22 - 6 = 16\n_ * 10 = 160\n[END]", "ans": 160, "pattern": "subtract_multiply"}
+{"q": "Sam has 17 cookies. Sam uses 8. Sells the rest for $4 each. Total money?", "chain": "17 - 8 = 9\n_ * 4 = 36\n[END]", "ans": 36, "pattern": "subtract_multiply"}
+{"q": "Sarah has 46 pencils. First breaks 5. Then eats 8. Remaining?", "chain": "46 - 5 = 41\n_ - 8 = 33\n[END]", "ans": 33, "pattern": "subtract_subtract"}
+{"q": "Lisa has 34 flowers. Lisa eats 3 and eats 8. Sells the rest for $6 each. Total money?", "chain": "34 - 3 = 31\n_ - 8 = 23\n_ * 6 = 138\n[END]", "ans": 138, "pattern": "subtract_subtract_multiply"}
+{"q": "Sam has 55 cookies. First breaks 11. Then breaks 13. Remaining?", "chain": "55 - 11 = 44\n_ - 13 = 31\n[END]", "ans": 31, "pattern": "subtract_subtract"}
+{"q": "Split 75 marbles among 5 friends. Each gets?", "chain": "75 / 5 = 15\n[END]", "ans": 15, "pattern": "divide_split"}
+{"q": "Jenny starts with 17 cookies. Gets 13 more. Then gives away 7. Total?", "chain": "17 + 13 = 30\n_ - 7 = 23\n[END]", "ans": 23, "pattern": "add_subtract"}
+{"q": "Zoe starts with 47 pencils. Gets 6 more. Then breaks 11. Total?", "chain": "47 + 6 = 53\n_ - 11 = 42\n[END]", "ans": 42, "pattern": "add_subtract"}
+{"q": "Tom has 20 flowers. Tom gives away 3. Sells the rest for $2 each. Total money?", "chain": "20 - 3 = 17\n_ * 2 = 34\n[END]", "ans": 34, "pattern": "subtract_multiply"}
+{"q": "Start with 45 candys. Use 7. Sell remaining at $5 each. Revenue?", "chain": "45 - 7 = 38\n_ * 5 = 190\n[END]", "ans": 190, "pattern": "subtract_multiply"}
+{"q": "Ben starts with 21 pencils. Gets 24 more. Then gives away 5. Total?", "chain": "21 + 24 = 45\n_ - 5 = 40\n[END]", "ans": 40, "pattern": "add_subtract"}
+{"q": "Mike has 9 packs with 4 marbles each. Mike uses 10. How many left?", "chain": "9 * 4 = 36\n_ - 10 = 26\n[END]", "ans": 26, "pattern": "multiply_subtract"}
+{"q": "7 bags with 15 cards in each. Total?", "chain": "7 * 15 = 105\n[END]", "ans": 105, "pattern": "multiply_groups"}
+{"q": "Zoe has 50 dollars. Zoe receives 26 more, then eats 29. How many now?", "chain": "50 + 26 = 76\n_ - 29 = 47\n[END]", "ans": 47, "pattern": "add_subtract"}
+{"q": "There are 9 baskets with 10 eggs each. Total eggs?", "chain": "9 * 10 = 90\n[END]", "ans": 90, "pattern": "multiply_groups"}
+{"q": "There are 7 boxs with 7 apples each. Total apples?", "chain": "7 * 7 = 49\n[END]", "ans": 49, "pattern": "multiply_groups"}
+{"q": "Jenny has 88 cards. Jenny breaks 6 and then eats 9. How many left?", "chain": "88 - 6 = 82\n_ - 9 = 73\n[END]", "ans": 73, "pattern": "subtract_subtract"}
+{"q": "There are 10 boxs with 4 flowers each. Total flowers?", "chain": "10 * 4 = 40\n[END]", "ans": 40, "pattern": "multiply_groups"}
+{"q": "Zoe has 5 shelfs with 10 candys each. Uses 8, then splits the rest among 2 friends. Each friend gets?", "chain": "5 * 10 = 50\n_ - 8 = 42\n_ / 2 = 21\n[END]", "ans": 21, "pattern": "multiply_subtract_divide"}
+{"q": "Sam has 67 oranges and gives away 58. How many remain?", "chain": "67 - 58 = 9\n[END]", "ans": 9, "pattern": "subtract_loss"}
+{"q": "Mike has 7 trays with 5 cards each. Uses 8, then splits the rest among 3 friends. Each friend gets?", "chain": "7 * 5 = 35\n_ - 8 = 27\n_ / 3 = 9\n[END]", "ans": 9, "pattern": "multiply_subtract_divide"}
+{"q": "Zoe has 6 baskets with 7 candys each. Uses 12, then splits the rest among 3 friends. Each friend gets?", "chain": "6 * 7 = 42\n_ - 12 = 30\n_ / 3 = 10\n[END]", "ans": 10, "pattern": "multiply_subtract_divide"}
+{"q": "Anna has 14 marbles. Anna finds 6 more, then gets 6 more, then uses 9. How many now?", "chain": "14 + 6 = 20\n_ + 6 = 26\n_ - 9 = 17\n[END]", "ans": 17, "pattern": "add_add_subtract"}
+{"q": "Jenny has 67 pencils. Jenny breaks 10 and then spends 28. How many left?", "chain": "67 - 10 = 57\n_ - 28 = 29\n[END]", "ans": 29, "pattern": "subtract_subtract"}
+{"q": "Sam starts with 36 cookies. Gets 21 more. Then spends 34. Total?", "chain": "36 + 21 = 57\n_ - 34 = 23\n[END]", "ans": 23, "pattern": "add_subtract"}
+{"q": "Maria has 38 apples. Maria loses 8 and uses 5. Sells the rest for $3 each. Total money?", "chain": "38 - 8 = 30\n_ - 5 = 25\n_ * 3 = 75\n[END]", "ans": 75, "pattern": "subtract_subtract_multiply"}
+{"q": "Emma has 4 boxs with 5 candys each. Uses 6, then splits the rest among 2 friends. Each friend gets?", "chain": "4 * 5 = 20\n_ - 6 = 14\n_ / 2 = 7\n[END]", "ans": 7, "pattern": "multiply_subtract_divide"}
+{"q": "Dan has 16 dollars. Dan finds 19 more, then eats 18. How many now?", "chain": "16 + 19 = 35\n_ - 18 = 17\n[END]", "ans": 17, "pattern": "add_subtract"}
+{"q": "Ben has 8 jars with 8 books each. Ben uses 10. How many left?", "chain": "8 * 8 = 64\n_ - 10 = 54\n[END]", "ans": 54, "pattern": "multiply_subtract"}
+{"q": "9 books at $15 each. Total?", "chain": "9 * 15 = 135\n[END]", "ans": 135, "pattern": "multiply_rate"}
+{"q": "Start with 44 flowers. Use 7. Sell remaining at $8 each. Revenue?", "chain": "44 - 7 = 37\n_ * 8 = 296\n[END]", "ans": 296, "pattern": "subtract_multiply"}
+{"q": "There are 8 bags of 12 candys. 5 are sold. Remaining?", "chain": "8 * 12 = 96\n_ - 5 = 91\n[END]", "ans": 91, "pattern": "multiply_subtract"}
+{"q": "Maria has 99 oranges. First breaks 23. Then eats 16. Remaining?", "chain": "99 - 23 = 76\n_ - 16 = 60\n[END]", "ans": 60, "pattern": "subtract_subtract"}
+{"q": "Start with 38 toys. Use 4. Sell remaining at $3 each. Revenue?", "chain": "38 - 4 = 34\n_ * 3 = 102\n[END]", "ans": 102, "pattern": "subtract_multiply"}
+{"q": "Sarah has 76 marbles. Sarah spends 10 and then breaks 23. How many left?", "chain": "76 - 10 = 66\n_ - 23 = 43\n[END]", "ans": 43, "pattern": "subtract_subtract"}
+{"q": "Anna starts with 31 books. Gets 12 more. Then breaks 37. Total?", "chain": "31 + 12 = 43\n_ - 37 = 6\n[END]", "ans": 6, "pattern": "add_subtract"}
+{"q": "Start with 29 dollars. Use 8. Sell remaining at $7 each. Revenue?", "chain": "29 - 8 = 21\n_ * 7 = 147\n[END]", "ans": 147, "pattern": "subtract_multiply"}
+{"q": "Start with 27. Add 17. Total?", "chain": "27 + 17 = 44\n[END]", "ans": 44, "pattern": "add_gain"}
+{"q": "Lisa starts with 44 flowers. Gets 26 more. Then loses 55. Total?", "chain": "44 + 26 = 70\n_ - 55 = 15\n[END]", "ans": 15, "pattern": "add_subtract"}
+{"q": "Mike has 4 jars with 5 flowers each. Mike uses 9. How many left?", "chain": "4 * 5 = 20\n_ - 9 = 11\n[END]", "ans": 11, "pattern": "multiply_subtract"}
+{"q": "Start with 15. Add 11. Total?", "chain": "15 + 11 = 26\n[END]", "ans": 26, "pattern": "add_gain"}
+{"q": "5 baskets with 11 points in each. Total?", "chain": "5 * 11 = 55\n[END]", "ans": 55, "pattern": "multiply_groups"}
+{"q": "Each egg costs $4. Ben buys 10. How much total?", "chain": "10 * 4 = 40\n[END]", "ans": 40, "pattern": "multiply_rate"}
+{"q": "Split 14 oranges among 2 friends. Each gets?", "chain": "14 / 2 = 7\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "Each point costs $12. Sam buys 10. How much total?", "chain": "10 * 12 = 120\n[END]", "ans": 120, "pattern": "multiply_rate"}
+{"q": "Jenny has 71 eggs. First breaks 20. Then breaks 21. Remaining?", "chain": "71 - 20 = 51\n_ - 21 = 30\n[END]", "ans": 30, "pattern": "subtract_subtract"}
+{"q": "Emma has 69 dollars. First loses 10. Then gives away 28. Remaining?", "chain": "69 - 10 = 59\n_ - 28 = 31\n[END]", "ans": 31, "pattern": "subtract_subtract"}
+{"q": "10 dollars shared equally by 2 people. How many each?", "chain": "10 / 2 = 5\n[END]", "ans": 5, "pattern": "divide_split"}
+{"q": "Jake has 15 cards and buys 25 more. How many now?", "chain": "15 + 25 = 40\n[END]", "ans": 40, "pattern": "add_gain"}
+{"q": "Jake has 100 points. Jake gives away 22. How many left?", "chain": "100 - 22 = 78\n[END]", "ans": 78, "pattern": "subtract_loss"}
+{"q": "A store has 4 shelfs. Each has 10 cards. How many cards?", "chain": "4 * 10 = 40\n[END]", "ans": 40, "pattern": "multiply_groups"}
+{"q": "26 toys shared equally by 2 people. How many each?", "chain": "26 / 2 = 13\n[END]", "ans": 13, "pattern": "divide_split"}
+{"q": "Emma has 24 marbles. Emma gets 10 more, then earns 14 more, then uses 8. How many now?", "chain": "24 + 10 = 34\n_ + 14 = 48\n_ - 8 = 40\n[END]", "ans": 40, "pattern": "add_add_subtract"}
+{"q": "Jenny has 10 books. Jenny receives 15 more, then buys 14 more, then breaks 12. How many now?", "chain": "10 + 15 = 25\n_ + 14 = 39\n_ - 12 = 27\n[END]", "ans": 27, "pattern": "add_add_subtract"}
+{"q": "Zoe has 22 marbles. Zoe gives away 10. Sells the rest for $2 each. Total money?", "chain": "22 - 10 = 12\n_ * 2 = 24\n[END]", "ans": 24, "pattern": "subtract_multiply"}
+{"q": "Kate has 19 cards. Kate receives 17 more. Total?", "chain": "19 + 17 = 36\n[END]", "ans": 36, "pattern": "add_gain"}
+{"q": "60 cards shared equally by 10 people. How many each?", "chain": "60 / 10 = 6\n[END]", "ans": 6, "pattern": "divide_split"}
+{"q": "Mike has 72 toys and spends 14. How many remain?", "chain": "72 - 14 = 58\n[END]", "ans": 58, "pattern": "subtract_loss"}
+{"q": "Start with 92 cards. 68 are gone. How many left?", "chain": "92 - 68 = 24\n[END]", "ans": 24, "pattern": "subtract_loss"}
+{"q": "64 oranges shared equally by 8 people. How many each?", "chain": "64 / 8 = 8\n[END]", "ans": 8, "pattern": "divide_split"}
+{"q": "49 marbles shared equally by 7 people. How many each?", "chain": "49 / 7 = 7\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "Mike has 7 jars with 11 oranges each. Uses 19, then splits the rest among 2 friends. Each friend gets?", "chain": "7 * 11 = 77\n_ - 19 = 58\n_ / 2 = 29\n[END]", "ans": 29, "pattern": "multiply_subtract_divide"}
+{"q": "Ben has 28 oranges. Ben eats 3 and gives away 6. Sells the rest for $6 each. Total money?", "chain": "28 - 3 = 25\n_ - 6 = 19\n_ * 6 = 114\n[END]", "ans": 114, "pattern": "subtract_subtract_multiply"}
+{"q": "Jenny has 42 cookies. Jenny earns 27 more. Total?", "chain": "42 + 27 = 69\n[END]", "ans": 69, "pattern": "add_gain"}
+{"q": "Each candy costs $10. Maria buys 4. How much total?", "chain": "4 * 10 = 40\n[END]", "ans": 40, "pattern": "multiply_rate"}
+{"q": "Start with 26 pencils. Use 9. Sell remaining at $6 each. Revenue?", "chain": "26 - 9 = 17\n_ * 6 = 102\n[END]", "ans": 102, "pattern": "subtract_multiply"}
+{"q": "Each point costs $6. Alex buys 11. How much total?", "chain": "11 * 6 = 66\n[END]", "ans": 66, "pattern": "multiply_rate"}
+{"q": "Zoe starts with 11 pencils. Gets 30 more. Then loses 3. Total?", "chain": "11 + 30 = 41\n_ - 3 = 38\n[END]", "ans": 38, "pattern": "add_subtract"}
+{"q": "Dan has 30 cookies. Dan earns 14 more, then collects 18 more, then breaks 10. How many now?", "chain": "30 + 14 = 44\n_ + 18 = 62\n_ - 10 = 52\n[END]", "ans": 52, "pattern": "add_add_subtract"}
+{"q": "3 flowers at $11 each. Total?", "chain": "3 * 11 = 33\n[END]", "ans": 33, "pattern": "multiply_rate"}
+{"q": "Divide 56 cards into 8 equal groups. Per group?", "chain": "56 / 8 = 7\n[END]", "ans": 7, "pattern": "divide_split"}
+{"q": "Lisa has 3 shelfs with 8 toys each. Lisa uses 5. How many left?", "chain": "3 * 8 = 24\n_ - 5 = 19\n[END]", "ans": 19, "pattern": "multiply_subtract"}
+{"q": "There are 4 trays with 8 oranges each. Total oranges?", "chain": "4 * 8 = 32\n[END]", "ans": 32, "pattern": "multiply_groups"}
+{"q": "Chris buys 12 candys at $7 each. Total cost?", "chain": "12 * 7 = 84\n[END]", "ans": 84, "pattern": "multiply_rate"}
+{"q": "Mike has 17 toys. Mike collects 27 more. Total?", "chain": "17 + 27 = 44\n[END]", "ans": 44, "pattern": "add_gain"}
+{"q": "Start with 35 toys. Use 16. Sell remaining at $7 each. Revenue?", "chain": "35 - 16 = 19\n_ * 7 = 133\n[END]", "ans": 133, "pattern": "subtract_multiply"}
+{"q": "Chris has 39 cookies. Chris receives 21 more. Total?", "chain": "39 + 21 = 60\n[END]", "ans": 60, "pattern": "add_gain"}
+{"q": "Each marble costs $8. Alex buys 9. How much total?", "chain": "9 * 8 = 72\n[END]", "ans": 72, "pattern": "multiply_rate"}
+{"q": "Jake has 5 bags with 8 pencils each. Uses 8, then splits the rest among 2 friends. Each friend gets?", "chain": "5 * 8 = 40\n_ - 8 = 32\n_ / 2 = 16\n[END]", "ans": 16, "pattern": "multiply_subtract_divide"}
+{"q": "Mike has 46 cookies. First loses 5. Then loses 18. Remaining?", "chain": "46 - 5 = 41\n_ - 18 = 23\n[END]", "ans": 23, "pattern": "subtract_subtract"}
+{"q": "A store has 10 trays. Each has 15 cards. How many cards?", "chain": "10 * 15 = 150\n[END]", "ans": 150, "pattern": "multiply_groups"}
+{"q": "Start with 30 apples. 10 are gone. How many left?", "chain": "30 - 10 = 20\n[END]", "ans": 20, "pattern": "subtract_loss"}
+{"q": "There are 4 jars with 6 stickers each. Total stickers?", "chain": "4 * 6 = 24\n[END]", "ans": 24, "pattern": "multiply_groups"}
+{"q": "Ben has 13 oranges. Ben earns 7 more, then gets 5 more, then gives away 12. How many now?", "chain": "13 + 7 = 20\n_ + 5 = 25\n_ - 12 = 13\n[END]", "ans": 13, "pattern": "add_add_subtract"}
+{"q": "Sarah buys 3 flowers at $6 each. Total cost?", "chain": "3 * 6 = 18\n[END]", "ans": 18, "pattern": "multiply_rate"}
+{"q": "Tom buys 3 dollars at $14 each. Total cost?", "chain": "3 * 14 = 42\n[END]", "ans": 42, "pattern": "multiply_rate"}
+{"q": "Anna has 9 jars with 10 books each. Uses 5, then splits the rest among 5 friends. Each friend gets?", "chain": "9 * 10 = 90\n_ - 5 = 85\n_ / 5 = 17\n[END]", "ans": 17, "pattern": "multiply_subtract_divide"}
+{"q": "Maria has 26 cards. Maria spends 4 and breaks 3. Sells the rest for $8 each. Total money?", "chain": "26 - 4 = 22\n_ - 3 = 19\n_ * 8 = 152\n[END]", "ans": 152, "pattern": "subtract_subtract_multiply"}
+{"q": "Mike has 47 cookies. Mike buys 29 more, then gives away 4. How many now?", "chain": "47 + 29 = 76\n_ - 4 = 72\n[END]", "ans": 72, "pattern": "add_subtract"}
+{"q": "Jake has 27 dollars. Jake buys 5 more, then collects 8 more, then uses 11. How many now?", "chain": "27 + 5 = 32\n_ + 8 = 40\n_ - 11 = 29\n[END]", "ans": 29, "pattern": "add_add_subtract"}
+{"q": "There are 4 trays of 6 eggs. 8 are sold. Remaining?", "chain": "4 * 6 = 24\n_ - 8 = 16\n[END]", "ans": 16, "pattern": "multiply_subtract"}
+{"q": "Sam has 44 candys. Sam uses 10 and then eats 4. How many left?", "chain": "44 - 10 = 34\n_ - 4 = 30\n[END]", "ans": 30, "pattern": "subtract_subtract"}
+{"q": "Chris has 66 oranges. First eats 22. Then loses 4. Remaining?", "chain": "66 - 22 = 44\n_ - 4 = 40\n[END]", "ans": 40, "pattern": "subtract_subtract"}
+{"q": "A store has 6 packs. Each has 13 flowers. How many flowers?", "chain": "6 * 13 = 78\n[END]", "ans": 78, "pattern": "multiply_groups"}
+{"q": "Ben has 69 stickers and eats 15. How many remain?", "chain": "69 - 15 = 54\n[END]", "ans": 54, "pattern": "subtract_loss"}
+{"q": "Chris has 9 baskets with 12 apples each. Uses 11, then splits the rest among 1 friends. Each friend gets?", "chain": "9 * 12 = 108\n_ - 11 = 97\n_ / 1 = 97\n[END]", "ans": 97, "pattern": "multiply_subtract_divide"}
+{"q": "Mike has 19 cookies. Mike collects 17 more, then spends 15. How many now?", "chain": "19 + 17 = 36\n_ - 15 = 21\n[END]", "ans": 21, "pattern": "add_subtract"}
+{"q": "Start with 38 cookies. Use 9. Sell remaining at $7 each. Revenue?", "chain": "38 - 9 = 29\n_ * 7 = 203\n[END]", "ans": 203, "pattern": "subtract_multiply"}
+{"q": "9 rows with 7 oranges in each. Total?", "chain": "9 * 7 = 63\n[END]", "ans": 63, "pattern": "multiply_groups"}
+{"q": "Start with 40 dollars. Use 14. Sell remaining at $9 each. Revenue?", "chain": "40 - 14 = 26\n_ * 9 = 234\n[END]", "ans": 234, "pattern": "subtract_multiply"}
+{"q": "Maria has 24 books. Maria earns 8 more, then earns 8 more, then gives away 13. How many now?", "chain": "24 + 8 = 32\n_ + 8 = 40\n_ - 13 = 27\n[END]", "ans": 27, "pattern": "add_add_subtract"}
+{"q": "3 points at $9 each. Total?", "chain": "3 * 9 = 27\n[END]", "ans": 27, "pattern": "multiply_rate"}
+{"q": "Each candy costs $12. Jake buys 11. How much total?", "chain": "11 * 12 = 132\n[END]", "ans": 132, "pattern": "multiply_rate"}
+{"q": "3 bags with 13 dollars in each. Total?", "chain": "3 * 13 = 39\n[END]", "ans": 39, "pattern": "multiply_groups"}
+{"q": "Start with 33 pencils. Use 13. Sell remaining at $9 each. Revenue?", "chain": "33 - 13 = 20\n_ * 9 = 180\n[END]", "ans": 180, "pattern": "subtract_multiply"}
+{"q": "Tom starts with 12 dollars. Gets 18 more. Then uses 6. Total?", "chain": "12 + 18 = 30\n_ - 6 = 24\n[END]", "ans": 24, "pattern": "add_subtract"}
+{"q": "Zoe has 16 flowers. Zoe breaks 2 and loses 2. Sells the rest for $6 each. Total money?", "chain": "16 - 2 = 14\n_ - 2 = 12\n_ * 6 = 72\n[END]", "ans": 72, "pattern": "subtract_subtract_multiply"}
+{"q": "Emma has 79 stickers. First eats 20. Then spends 27. Remaining?", "chain": "79 - 20 = 59\n_ - 27 = 32\n[END]", "ans": 32, "pattern": "subtract_subtract"}
+{"q": "There are 5 trays of 12 toys. 4 are sold. Remaining?", "chain": "5 * 12 = 60\n_ - 4 = 56\n[END]", "ans": 56, "pattern": "multiply_subtract"}
+{"q": "Kate has 48 cards and receives 14 more. How many now?", "chain": "48 + 14 = 62\n[END]", "ans": 62, "pattern": "add_gain"}
+{"q": "7 books at $7 each. Total?", "chain": "7 * 7 = 49\n[END]", "ans": 49, "pattern": "multiply_rate"}
+{"q": "Jenny starts with 16 candys. Gets 18 more. Then uses 14. Total?", "chain": "16 + 18 = 34\n_ - 14 = 20\n[END]", "ans": 20, "pattern": "add_subtract"}
+{"q": "Each pencil costs $12. Sam buys 5. How much total?", "chain": "5 * 12 = 60\n[END]", "ans": 60, "pattern": "multiply_rate"}
+{"q": "Mike starts with 29 points. Gets 8 more. Then eats 13. Total?", "chain": "29 + 8 = 37\n_ - 13 = 24\n[END]", "ans": 24, "pattern": "add_subtract"}
+{"q": "Each card costs $8. Ben buys 10. How much total?", "chain": "10 * 8 = 80\n[END]", "ans": 80, "pattern": "multiply_rate"}
+{"q": "Each card costs $7. Dan buys 2. How much total?", "chain": "2 * 7 = 14\n[END]", "ans": 14, "pattern": "multiply_rate"}
+{"q": "Jenny has 16 cards. Jenny gets 30 more, then breaks 34. How many now?", "chain": "16 + 30 = 46\n_ - 34 = 12\n[END]", "ans": 12, "pattern": "add_subtract"}
+{"q": "48 books shared equally by 6 people. How many each?", "chain": "48 / 6 = 8\n[END]", "ans": 8, "pattern": "divide_split"}
+{"q": "Mike has 83 points and loses 30. How many remain?", "chain": "83 - 30 = 53\n[END]", "ans": 53, "pattern": "subtract_loss"}
+{"q": "5 dollars at $11 each. Total?", "chain": "5 * 11 = 55\n[END]", "ans": 55, "pattern": "multiply_rate"}
+{"q": "Lisa has 20 cards. Lisa earns 13 more, then finds 7 more, then loses 20. How many now?", "chain": "20 + 13 = 33\n_ + 7 = 40\n_ - 20 = 20\n[END]", "ans": 20, "pattern": "add_add_subtract"}
+{"q": "There are 8 packs of 7 candys. 16 are sold. Remaining?", "chain": "8 * 7 = 56\n_ - 16 = 40\n[END]", "ans": 40, "pattern": "multiply_subtract"}
+{"q": "Start with 40. Add 8. Total?", "chain": "40 + 8 = 48\n[END]", "ans": 48, "pattern": "add_gain"}
+{"q": "Start with 46 cards. Use 9. Sell remaining at $9 each. Revenue?", "chain": "46 - 9 = 37\n_ * 9 = 333\n[END]", "ans": 333, "pattern": "subtract_multiply"}
+{"q": "Sarah has 7 jars with 7 marbles each. Uses 8, then splits the rest among 1 friends. Each friend gets?", "chain": "7 * 7 = 49\n_ - 8 = 41\n_ / 1 = 41\n[END]", "ans": 41, "pattern": "multiply_subtract_divide"}
+{"q": "Ben's farm produces 17 marbles daily. Ben uses 4 for breakfast and loses 2 for baking. Sells the rest at $8 each. Revenue?", "chain": "17 - 4 = 13\n_ - 2 = 11\n_ * 8 = 88\n[END]", "ans": 88, "pattern": "subtract_subtract_multiply"}
+{"q": "Maria has 6 jars with 5 candys each. Maria uses 5. How many left?", "chain": "6 * 5 = 30\n_ - 5 = 25\n[END]", "ans": 25, "pattern": "multiply_subtract"}
+{"q": "Each flower costs $10. Alex buys 9. How much total?", "chain": "9 * 10 = 90\n[END]", "ans": 90, "pattern": "multiply_rate"}
+{"q": "Sarah has 50 pencils. First eats 9. Then loses 7. Remaining?", "chain": "50 - 9 = 41\n_ - 7 = 34\n[END]", "ans": 34, "pattern": "subtract_subtract"}
+{"q": "Jake has 10 boxs with 4 oranges each. Jake uses 4. How many left?", "chain": "10 * 4 = 40\n_ - 4 = 36\n[END]", "ans": 36, "pattern": "multiply_subtract"}
+{"q": "Start with 9. Add 16. Total?", "chain": "9 + 16 = 25\n[END]", "ans": 25, "pattern": "add_gain"}
+{"q": "Mike has 5 rows with 7 points each. Mike uses 4. How many left?", "chain": "5 * 7 = 35\n_ - 4 = 31\n[END]", "ans": 31, "pattern": "multiply_subtract"}
+{"q": "Maria starts with 15 flowers. Gets 12 more. Then loses 22. Total?", "chain": "15 + 12 = 27\n_ - 22 = 5\n[END]", "ans": 5, "pattern": "add_subtract"}
+{"q": "Kate has 38 dollars. Kate gives away 5 and eats 8. Sells the rest for $3 each. Total money?", "chain": "38 - 5 = 33\n_ - 8 = 25\n_ * 3 = 75\n[END]", "ans": 75, "pattern": "subtract_subtract_multiply"}
+{"q": "Maria has 67 flowers. Maria spends 19. How many left?", "chain": "67 - 19 = 48\n[END]", "ans": 48, "pattern": "subtract_loss"}
+{"q": "Chris has 44 oranges. Chris uses 10 and then uses 11. How many left?", "chain": "44 - 10 = 34\n_ - 11 = 23\n[END]", "ans": 23, "pattern": "subtract_subtract"}
+{"q": "Emma has 25 marbles. Emma collects 16 more, then buys 14 more, then eats 5. How many now?", "chain": "25 + 16 = 41\n_ + 14 = 55\n_ - 5 = 50\n[END]", "ans": 50, "pattern": "add_add_subtract"}
+{"q": "Sam has 9 packs with 8 toys each. Sam uses 26. How many left?", "chain": "9 * 8 = 72\n_ - 26 = 46\n[END]", "ans": 46, "pattern": "multiply_subtract"}
+{"q": "Sam starts with 38 points. Gets 17 more. Then loses 3. Total?", "chain": "38 + 17 = 55\n_ - 3 = 52\n[END]", "ans": 52, "pattern": "add_subtract"}
+{"q": "A store has 5 jars. Each has 5 stickers. How many stickers?", "chain": "5 * 5 = 25\n[END]", "ans": 25, "pattern": "multiply_groups"}
+{"q": "There are 4 boxs of 11 stickers. 18 are sold. Remaining?", "chain": "4 * 11 = 44\n_ - 18 = 26\n[END]", "ans": 26, "pattern": "multiply_subtract"}

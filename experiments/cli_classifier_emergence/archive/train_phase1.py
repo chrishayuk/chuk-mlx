@@ -33,8 +33,12 @@ def load_dataset(data_path: str):
 def main():
     parser = argparse.ArgumentParser(description="Phase 1: Dual-Reward V/O Training")
     parser.add_argument("--model", "-m", default="TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-    parser.add_argument("--data", "-d", default="experiments/cli_classifier_emergence/data/arithmetic_sft.jsonl")
-    parser.add_argument("--output", "-o", default="experiments/cli_classifier_emergence/checkpoints/phase1")
+    parser.add_argument(
+        "--data", "-d", default="experiments/cli_classifier_emergence/data/arithmetic_sft.jsonl"
+    )
+    parser.add_argument(
+        "--output", "-o", default="experiments/cli_classifier_emergence/checkpoints/phase1"
+    )
     parser.add_argument("--steps", type=int, default=500)
     parser.add_argument("--classifier-layer", type=int, default=-1, help="-1 means 55% depth")
     parser.add_argument("--classifier-weight", type=float, default=0.4)
@@ -119,10 +123,14 @@ def main():
 
     for r in eval_results["results"]:
         status = "OK" if r["correct"] else "XX"
-        print(f"  {r['prompt']:<13} {r['expected']:<12} {r['predicted']:<12} {r['confidence']:>7.1%} [{status}]")
+        print(
+            f"  {r['prompt']:<13} {r['expected']:<12} {r['predicted']:<12} {r['confidence']:>7.1%} [{status}]"
+        )
 
     print("-" * 60)
-    print(f"\nAccuracy: {eval_results['correct']}/{eval_results['total']} ({eval_results['accuracy']:.1%})")
+    print(
+        f"\nAccuracy: {eval_results['correct']}/{eval_results['total']} ({eval_results['accuracy']:.1%})"
+    )
 
     # Save final config with results
     final_config = {

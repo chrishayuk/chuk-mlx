@@ -19,7 +19,6 @@ import json
 import pickle
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -34,6 +33,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class ProbeResult:
     """Result from probing a hidden state."""
+
     layer_idx: int
     predicted_token: str
     probability: float
@@ -43,6 +43,7 @@ class ProbeResult:
 @dataclass
 class LayerProbe:
     """A trained probe for a specific layer."""
+
     layer_idx: int
     probe: LogisticRegression
     label_encoder: LabelEncoder
@@ -101,7 +102,7 @@ class GemmaProbeLens:
 
         embed_scale = getattr(self.config, "embedding_scale", None)
         if embed_scale is None:
-            embed_scale = float(self.hidden_size ** 0.5)
+            embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, embed_scale
 
@@ -317,7 +318,7 @@ class GemmaProbeLens:
 
         return results
 
-    def decode(self, prompt: str, layer_idx: Optional[int] = None) -> list[ProbeResult]:
+    def decode(self, prompt: str, layer_idx: int | None = None) -> list[ProbeResult]:
         """
         Decode a prompt using trained probes.
 
@@ -351,16 +352,17 @@ class GemmaProbeLens:
             # Get probabilities
             proba = probe.probe.predict_proba(h)[0]
             all_probs = {
-                probe.label_encoder.inverse_transform([i])[0]: float(p)
-                for i, p in enumerate(proba)
+                probe.label_encoder.inverse_transform([i])[0]: float(p) for i, p in enumerate(proba)
             }
 
-            results.append(ProbeResult(
-                layer_idx=idx,
-                predicted_token=pred_token,
-                probability=float(proba[pred_idx]),
-                all_probs=all_probs,
-            ))
+            results.append(
+                ProbeResult(
+                    layer_idx=idx,
+                    predicted_token=pred_token,
+                    probability=float(proba[pred_idx]),
+                    all_probs=all_probs,
+                )
+            )
 
         return results
 
@@ -416,7 +418,7 @@ class GemmaProbeLens:
                     "accuracy": probe.accuracy,
                 }
                 for idx, probe in self.probes.items()
-            }
+            },
         }
 
         with open(path, "wb") as f:
@@ -483,7 +485,9 @@ def run_multiplication_experiment(lens: GemmaProbeLens):
             if r.layer_idx in key_layers:
                 correct = "YES" if r.predicted_token == first_digit else "NO"
                 marker = " <--" if r.predicted_token == first_digit else ""
-                print(f"  L{r.layer_idx:2d}: pred={r.predicted_token} P={r.probability:.3f} correct={correct}{marker}")
+                print(
+                    f"  L{r.layer_idx:2d}: pred={r.predicted_token} P={r.probability:.3f} correct={correct}{marker}"
+                )
 
 
 def run_addition_experiment(lens: GemmaProbeLens):
@@ -523,7 +527,9 @@ def run_addition_experiment(lens: GemmaProbeLens):
         for r in results:
             if r.layer_idx % 8 == 0 or r.layer_idx == 33:
                 correct = "YES" if r.predicted_token == first_digit else "NO"
-                print(f"  L{r.layer_idx:2d}: pred={r.predicted_token} P={r.probability:.3f} correct={correct}")
+                print(
+                    f"  L{r.layer_idx:2d}: pred={r.predicted_token} P={r.probability:.3f} correct={correct}"
+                )
 
 
 def run_full_answer_experiment(lens: GemmaProbeLens):
@@ -642,7 +648,8 @@ def main():
     parser = argparse.ArgumentParser(description="Gemma Probe Lens")
     parser.add_argument("--model", "-m", default="mlx-community/gemma-3-4b-it-bf16")
     parser.add_argument(
-        "--task", "-t",
+        "--task",
+        "-t",
         choices=["multiplication", "addition", "full_answer", "all"],
         default="multiplication",
     )

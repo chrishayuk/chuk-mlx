@@ -18,22 +18,23 @@ Run: uv run python examples/introspection/collapsed_inference.py
 """
 
 import time
+
+# Suppress warnings
+import warnings
 from dataclasses import dataclass
-from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 import numpy as np
 
-# Suppress warnings
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 @dataclass
 class CollapsedConfig:
     """Configuration for collapsed inference model."""
+
     hidden_size: int = 640
     num_attention_heads: int = 4
     intermediate_size: int = 1024
@@ -91,7 +92,7 @@ class LightAttention(nn.Module):
             k = self.rope(k)
 
         # Scaled dot-product attention
-        scale = self.head_dim ** -0.5
+        scale = self.head_dim**-0.5
         output = mx.fast.scaled_dot_product_attention(q, k, v, scale=scale, mask=mask)
 
         # Reshape back
@@ -163,7 +164,7 @@ class CollapsedInferenceModel(nn.Module):
         self.embed.weight = embeddings
 
         # Embedding scale (Gemma uses sqrt(hidden_size))
-        self.embed_scale = hidden_size ** 0.5
+        self.embed_scale = hidden_size**0.5
 
         # Optional context layers
         if config.num_context_layers > 0:
@@ -276,7 +277,7 @@ class CollapsedModelTrainer:
             indices = np.random.permutation(len(train_data))
 
             for i in range(0, len(indices), batch_size):
-                batch_indices = indices[i:i + batch_size]
+                batch_indices = indices[i : i + batch_size]
 
                 # Prepare batch
                 batch_ids = []
@@ -294,7 +295,7 @@ class CollapsedModelTrainer:
                 # Pad sequences
                 padded_ids = np.zeros((len(batch_ids), max_len), dtype=np.int32)
                 for j, ids in enumerate(batch_ids):
-                    padded_ids[j, :len(ids)] = ids
+                    padded_ids[j, : len(ids)] = ids
 
                 input_ids = mx.array(padded_ids)
                 labels = mx.array(batch_labels)
@@ -554,7 +555,7 @@ class CollapsedModelExperiment:
                 for k, v in params.items():
                     if isinstance(v, dict):
                         total += count_params(v)
-                    elif hasattr(v, 'size'):
+                    elif hasattr(v, "size"):
                         total += v.size
                 return total
 
@@ -573,7 +574,9 @@ class CollapsedModelExperiment:
                 mlp_params = 2 * config.hidden_size * config.intermediate_size
                 norm_params = 2 * config.hidden_size
                 layer_params = (attn_params + mlp_params + norm_params) * config.num_context_layers
-                trainable_params = layer_params + config.hidden_size * 2 + config.hidden_size  # + final norm + classifier
+                trainable_params = (
+                    layer_params + config.hidden_size * 2 + config.hidden_size
+                )  # + final norm + classifier
 
             print(f"  Total params: {total_params:,}")
             print(f"  Trainable params: {trainable_params:,}")
@@ -590,13 +593,13 @@ class CollapsedModelExperiment:
 
             # Benchmark speed
             speed = self.benchmark_speed(model, test_data)
-            print(f"  Avg inference time: {speed*1000:.2f} ms")
+            print(f"  Avg inference time: {speed * 1000:.2f} ms")
 
             results[name] = {
-                'accuracy': accuracy,
-                'speed_ms': speed * 1000,
-                'trainable_params': trainable_params,
-                'final_loss': losses[-1],
+                "accuracy": accuracy,
+                "speed_ms": speed * 1000,
+                "trainable_params": trainable_params,
+                "final_loss": losses[-1],
             }
 
         # Summary
@@ -608,7 +611,9 @@ class CollapsedModelExperiment:
         print("-" * 66)
 
         for name, res in results.items():
-            print(f"{name:<30} {res['accuracy']:>9.1%} {res['speed_ms']:>11.2f} {res['trainable_params']:>11,}")
+            print(
+                f"{name:<30} {res['accuracy']:>9.1%} {res['speed_ms']:>11.2f} {res['trainable_params']:>11,}"
+            )
 
         # Analysis
         print("\n" + "=" * 60)
@@ -619,8 +624,8 @@ class CollapsedModelExperiment:
         single_layer = results.get("Single Layer", {})
 
         if embedding_only and single_layer:
-            emb_acc = embedding_only['accuracy']
-            layer_acc = single_layer['accuracy']
+            emb_acc = embedding_only["accuracy"]
+            layer_acc = single_layer["accuracy"]
 
             print(f"""
 Key Findings:
@@ -632,17 +637,17 @@ Key Findings:
 
 2. Single layer accuracy: {layer_acc:.1%}
    - Adding one light attention layer
-   - Improvement: {(layer_acc - emb_acc)*100:+.1f}%
+   - Improvement: {(layer_acc - emb_acc) * 100:+.1f}%
 
 3. Interpretation:
    {"- Embeddings alone are sufficient!" if emb_acc > 0.8 else "- Context layer helps significantly" if layer_acc > emb_acc + 0.1 else "- Minimal benefit from context layer"}
 
 4. Speed comparison:
-   - Embedding-only: {embedding_only.get('speed_ms', 0):.2f} ms
-   - Single layer: {single_layer.get('speed_ms', 0):.2f} ms
+   - Embedding-only: {embedding_only.get("speed_ms", 0):.2f} ms
+   - Single layer: {single_layer.get("speed_ms", 0):.2f} ms
 
 5. Parameter efficiency:
-   - Trainable params: {single_layer.get('trainable_params', 0):,}
+   - Trainable params: {single_layer.get("trainable_params", 0):,}
    - (Full model has 270M params)
 """)
 

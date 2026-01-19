@@ -14,16 +14,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
-import mlx.core as mx
 from mlx_lm import load
 
 from chuk_lazarus.introspection.moe import (
     ExpertCompressor,
     MoEHooks,
-    estimate_model_size,
     estimate_compressed_size,
+    estimate_model_size,
     print_compression_summary,
-    get_moe_layer_info,
 )
 
 
@@ -34,7 +32,10 @@ def main():
 
     # Load GPT-OSS
     print("\nLoading GPT-OSS 20B...")
-    model_path = Path.home() / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    model_path = (
+        Path.home()
+        / ".cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
+    )
     model, tokenizer = load(str(model_path))
 
     # Baseline
@@ -42,8 +43,10 @@ def main():
     print("BASELINE")
     print("-" * 70)
     baseline = estimate_model_size(model)
-    print(f"  Total: {baseline['total']/1e9:.2f}B params")
-    print(f"  Expert: {baseline['expert']/1e9:.2f}B ({baseline['expert']/baseline['total']*100:.1f}%)")
+    print(f"  Total: {baseline['total'] / 1e9:.2f}B params")
+    print(
+        f"  Expert: {baseline['expert'] / 1e9:.2f}B ({baseline['expert'] / baseline['total'] * 100:.1f}%)"
+    )
 
     # Get MoE info
     hooks = MoEHooks(model)
@@ -82,9 +85,9 @@ def main():
 
         if plans:
             stats = estimate_compressed_size(model, plans)
-            orig_b = stats['original_params'] / 1e9
-            comp_b = stats['compressed_params'] / 1e9
-            reduction = stats['reduction_ratio'] * 100
+            orig_b = stats["original_params"] / 1e9
+            comp_b = stats["compressed_params"] / 1e9
+            reduction = stats["reduction_ratio"] * 100
 
             avg_experts = sum(p.target_num_experts for p in plans) / len(plans)
             min_experts = min(p.target_num_experts for p in plans)
@@ -103,8 +106,10 @@ def main():
         plan = compressor.plan_compression(layer_idx, target_experts=16)
         plans_half.append(plan)
         removed = plan.original_num_experts - plan.target_num_experts
-        print(f"  Layer {layer_idx}: {plan.original_num_experts} → {plan.target_num_experts} "
-              f"(merge={len(plan.merges)}, prune={len(plan.pruned_experts)})")
+        print(
+            f"  Layer {layer_idx}: {plan.original_num_experts} → {plan.target_num_experts} "
+            f"(merge={len(plan.merges)}, prune={len(plan.pruned_experts)})"
+        )
 
     print("\n")
     print_compression_summary(model, plans_half, "GPT-OSS (16 experts/layer)")
@@ -126,38 +131,44 @@ def main():
     print("WHAT'S NEEDED FOR 50% REDUCTION?")
     print("-" * 70)
 
-    total = baseline['total']
-    expert = baseline['expert']
+    total = baseline["total"]
+    expert = baseline["expert"]
     non_expert = total - expert
 
-    print(f"\n  Total params: {total/1e9:.2f}B")
-    print(f"  Expert params: {expert/1e9:.2f}B ({expert/total*100:.1f}%)")
-    print(f"  Non-expert params: {non_expert/1e9:.2f}B ({non_expert/total*100:.1f}%)")
+    print(f"\n  Total params: {total / 1e9:.2f}B")
+    print(f"  Expert params: {expert / 1e9:.2f}B ({expert / total * 100:.1f}%)")
+    print(f"  Non-expert params: {non_expert / 1e9:.2f}B ({non_expert / total * 100:.1f}%)")
 
     # To get 50% total reduction:
     target_total = total * 0.5
     expert_reduction_needed = total - target_total  # All must come from experts
     target_expert = expert - expert_reduction_needed
 
-    print(f"\n  Target 50%: {target_total/1e9:.2f}B")
-    print(f"  Expert params needed: {target_expert/1e9:.2f}B")
-    print(f"  Expert reduction needed: {expert_reduction_needed/1e9:.2f}B ({expert_reduction_needed/expert*100:.1f}% of experts)")
+    print(f"\n  Target 50%: {target_total / 1e9:.2f}B")
+    print(f"  Expert params needed: {target_expert / 1e9:.2f}B")
+    print(
+        f"  Expert reduction needed: {expert_reduction_needed / 1e9:.2f}B ({expert_reduction_needed / expert * 100:.1f}% of experts)"
+    )
 
     # What does that mean for expert count?
     params_per_expert_per_layer = expert / (len(moe_layers) * 32)
     experts_to_remove = expert_reduction_needed / params_per_expert_per_layer
     avg_experts_remaining = 32 - (experts_to_remove / len(moe_layers))
 
-    print(f"\n  Params per expert: {params_per_expert_per_layer/1e6:.1f}M")
+    print(f"\n  Params per expert: {params_per_expert_per_layer / 1e6:.1f}M")
     print(f"  Experts to remove total: {experts_to_remove:.0f}")
     print(f"  Average experts per layer: {avg_experts_remaining:.1f}")
 
     print("\n" + "=" * 70)
     print("CONCLUSION")
     print("=" * 70)
-    print(f"\n  To achieve 50% model reduction ({total/1e9:.1f}B → {target_total/1e9:.1f}B):")
-    print(f"  → Need to reduce experts from 32 to ~{avg_experts_remaining:.0f} per layer on average")
-    print(f"  → This requires {expert_reduction_needed/expert*100:.0f}% reduction in expert params")
+    print(f"\n  To achieve 50% model reduction ({total / 1e9:.1f}B → {target_total / 1e9:.1f}B):")
+    print(
+        f"  → Need to reduce experts from 32 to ~{avg_experts_remaining:.0f} per layer on average"
+    )
+    print(
+        f"  → This requires {expert_reduction_needed / expert * 100:.0f}% reduction in expert params"
+    )
     print()
 
 

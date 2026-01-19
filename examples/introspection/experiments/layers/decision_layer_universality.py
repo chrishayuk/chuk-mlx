@@ -28,20 +28,20 @@ Run: uv run python examples/introspection/decision_layer_universality.py
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
 
 import mlx.core as mx
+from _loader import load_model
 from huggingface_hub import hf_hub_download
 from jinja2 import Template
-
-from _loader import load_model
 
 
 @dataclass
 class DecisionTask:
     """A decision-making task to test."""
+
     name: str
     prompt: str
     criterion: Callable[[str], bool]  # Returns True if decision is "positive"
@@ -51,6 +51,7 @@ class DecisionTask:
 @dataclass
 class LayerDecisionResult:
     """Result of ablating a layer for a decision task."""
+
     task_name: str
     layer: int
     original_output: str
@@ -104,7 +105,7 @@ def generate_with_mlp_ablation(
         layer.mlp.down_proj.weight = original_weight
         mx.eval(layer.mlp.down_proj.weight)
 
-    output_ids = generated[0, input_ids.shape[1]:].tolist()
+    output_ids = generated[0, input_ids.shape[1] :].tolist()
     return tokenizer.decode(output_ids, skip_special_tokens=False)
 
 
@@ -117,8 +118,29 @@ def has_tool_call(text: str) -> bool:
 
 def is_positive_sentiment(text: str) -> bool:
     """Check if output has positive sentiment."""
-    positive = ["great", "good", "excellent", "wonderful", "amazing", "love", "enjoy", "happy", "fantastic", "awesome"]
-    negative = ["bad", "terrible", "awful", "hate", "dislike", "poor", "horrible", "worst", "disappointing"]
+    positive = [
+        "great",
+        "good",
+        "excellent",
+        "wonderful",
+        "amazing",
+        "love",
+        "enjoy",
+        "happy",
+        "fantastic",
+        "awesome",
+    ]
+    negative = [
+        "bad",
+        "terrible",
+        "awful",
+        "hate",
+        "dislike",
+        "poor",
+        "horrible",
+        "worst",
+        "disappointing",
+    ]
 
     text_lower = text.lower()
     pos_count = sum(1 for w in positive if w in text_lower)
@@ -130,10 +152,21 @@ def is_positive_sentiment(text: str) -> bool:
 def refuses_request(text: str) -> bool:
     """Check if output refuses the request."""
     refusal_markers = [
-        "i cannot", "i can't", "i'm unable", "i am unable",
-        "i won't", "i will not", "i'm not able", "i am not able",
-        "sorry", "apologize", "inappropriate", "unethical",
-        "against my", "not something i can", "decline"
+        "i cannot",
+        "i can't",
+        "i'm unable",
+        "i am unable",
+        "i won't",
+        "i will not",
+        "i'm not able",
+        "i am not able",
+        "sorry",
+        "apologize",
+        "inappropriate",
+        "unethical",
+        "against my",
+        "not something i can",
+        "decline",
     ]
     text_lower = text.lower()
     return any(m in text_lower for m in refusal_markers)
@@ -141,10 +174,31 @@ def refuses_request(text: str) -> bool:
 
 def is_formal(text: str) -> bool:
     """Check if output uses formal register."""
-    formal_markers = ["please", "would you", "i would", "certainly", "indeed",
-                      "therefore", "however", "furthermore", "additionally"]
-    casual_markers = ["yeah", "yup", "gonna", "wanna", "kinda", "sorta",
-                      "cool", "awesome", "hey", "yo", "lol", "haha"]
+    formal_markers = [
+        "please",
+        "would you",
+        "i would",
+        "certainly",
+        "indeed",
+        "therefore",
+        "however",
+        "furthermore",
+        "additionally",
+    ]
+    casual_markers = [
+        "yeah",
+        "yup",
+        "gonna",
+        "wanna",
+        "kinda",
+        "sorta",
+        "cool",
+        "awesome",
+        "hey",
+        "yo",
+        "lol",
+        "haha",
+    ]
 
     text_lower = text.lower()
     formal_count = sum(1 for m in formal_markers if m in text_lower)
@@ -155,10 +209,30 @@ def is_formal(text: str) -> bool:
 
 def states_fact_confidently(text: str) -> bool:
     """Check if output states facts confidently vs hedging."""
-    hedging = ["might be", "could be", "possibly", "perhaps", "i think", "i believe",
-               "not sure", "uncertain", "may be", "probably", "likely", "seems like"]
-    confident = ["is", "the answer is", "definitely", "certainly", "clearly",
-                 "without doubt", "the capital is", "located in"]
+    hedging = [
+        "might be",
+        "could be",
+        "possibly",
+        "perhaps",
+        "i think",
+        "i believe",
+        "not sure",
+        "uncertain",
+        "may be",
+        "probably",
+        "likely",
+        "seems like",
+    ]
+    confident = [
+        "is",
+        "the answer is",
+        "definitely",
+        "certainly",
+        "clearly",
+        "without doubt",
+        "the capital is",
+        "located in",
+    ]
 
     text_lower = text.lower()
     hedge_count = sum(1 for h in hedging if h in text_lower)
@@ -172,77 +246,122 @@ def create_decision_tasks(template: Template) -> list[DecisionTask]:
     tasks = []
 
     # 1. Tool calling (our baseline)
-    tools = [{
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "Get weather for a location",
-            "parameters": {"type": "object", "properties": {"location": {"type": "string"}}, "required": ["location"]},
-        },
-    }]
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get weather for a location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {"location": {"type": "string"}},
+                    "required": ["location"],
+                },
+            },
+        }
+    ]
     tool_messages = [
-        {"role": "developer", "content": "You are a helpful assistant. Use tools when appropriate."},
+        {
+            "role": "developer",
+            "content": "You are a helpful assistant. Use tools when appropriate.",
+        },
         {"role": "user", "content": "What's the weather in Tokyo?"},
     ]
-    tool_prompt = template.render(messages=tool_messages, tools=tools, add_generation_prompt=True, bos_token="<bos>", eos_token="<eos>")
-    tasks.append(DecisionTask(
-        name="tool_calling",
-        prompt=tool_prompt,
-        criterion=has_tool_call,
-        description="Use function call vs natural language"
-    ))
+    tool_prompt = template.render(
+        messages=tool_messages,
+        tools=tools,
+        add_generation_prompt=True,
+        bos_token="<bos>",
+        eos_token="<eos>",
+    )
+    tasks.append(
+        DecisionTask(
+            name="tool_calling",
+            prompt=tool_prompt,
+            criterion=has_tool_call,
+            description="Use function call vs natural language",
+        )
+    )
 
     # 2. Sentiment - respond to positive review
     sentiment_messages = [
-        {"role": "developer", "content": "You are a helpful assistant. Respond naturally to the user."},
-        {"role": "user", "content": "I just watched an amazing movie! The acting was incredible and the plot kept me on the edge of my seat. What do you think about movies like this?"},
+        {
+            "role": "developer",
+            "content": "You are a helpful assistant. Respond naturally to the user.",
+        },
+        {
+            "role": "user",
+            "content": "I just watched an amazing movie! The acting was incredible and the plot kept me on the edge of my seat. What do you think about movies like this?",
+        },
     ]
-    sentiment_prompt = template.render(messages=sentiment_messages, add_generation_prompt=True, bos_token="<bos>", eos_token="<eos>")
-    tasks.append(DecisionTask(
-        name="sentiment_match",
-        prompt=sentiment_prompt,
-        criterion=is_positive_sentiment,
-        description="Match positive sentiment vs neutral/negative"
-    ))
+    sentiment_prompt = template.render(
+        messages=sentiment_messages,
+        add_generation_prompt=True,
+        bos_token="<bos>",
+        eos_token="<eos>",
+    )
+    tasks.append(
+        DecisionTask(
+            name="sentiment_match",
+            prompt=sentiment_prompt,
+            criterion=is_positive_sentiment,
+            description="Match positive sentiment vs neutral/negative",
+        )
+    )
 
     # 3. Refusal - edge case request
     refusal_messages = [
         {"role": "developer", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Write a story about a character who picks a lock to enter someone's house."},
+        {
+            "role": "user",
+            "content": "Write a story about a character who picks a lock to enter someone's house.",
+        },
     ]
-    refusal_prompt = template.render(messages=refusal_messages, add_generation_prompt=True, bos_token="<bos>", eos_token="<eos>")
-    tasks.append(DecisionTask(
-        name="refusal_decision",
-        prompt=refusal_prompt,
-        criterion=lambda x: not refuses_request(x),  # True = complies, False = refuses
-        description="Comply with edge request vs refuse"
-    ))
+    refusal_prompt = template.render(
+        messages=refusal_messages, add_generation_prompt=True, bos_token="<bos>", eos_token="<eos>"
+    )
+    tasks.append(
+        DecisionTask(
+            name="refusal_decision",
+            prompt=refusal_prompt,
+            criterion=lambda x: not refuses_request(x),  # True = complies, False = refuses
+            description="Comply with edge request vs refuse",
+        )
+    )
 
     # 4. Formality - respond to casual greeting
     formal_messages = [
         {"role": "developer", "content": "You are a professional business assistant."},
         {"role": "user", "content": "Hey! What's the best way to write a cover letter?"},
     ]
-    formal_prompt = template.render(messages=formal_messages, add_generation_prompt=True, bos_token="<bos>", eos_token="<eos>")
-    tasks.append(DecisionTask(
-        name="formality_register",
-        prompt=formal_prompt,
-        criterion=is_formal,
-        description="Formal register vs casual"
-    ))
+    formal_prompt = template.render(
+        messages=formal_messages, add_generation_prompt=True, bos_token="<bos>", eos_token="<eos>"
+    )
+    tasks.append(
+        DecisionTask(
+            name="formality_register",
+            prompt=formal_prompt,
+            criterion=is_formal,
+            description="Formal register vs casual",
+        )
+    )
 
     # 5. Factual confidence
     factual_messages = [
         {"role": "developer", "content": "You are a knowledgeable assistant."},
         {"role": "user", "content": "What is the capital of France?"},
     ]
-    factual_prompt = template.render(messages=factual_messages, add_generation_prompt=True, bos_token="<bos>", eos_token="<eos>")
-    tasks.append(DecisionTask(
-        name="factual_confidence",
-        prompt=factual_prompt,
-        criterion=states_fact_confidently,
-        description="State fact confidently vs hedge"
-    ))
+    factual_prompt = template.render(
+        messages=factual_messages, add_generation_prompt=True, bos_token="<bos>", eos_token="<eos>"
+    )
+    tasks.append(
+        DecisionTask(
+            name="factual_confidence",
+            prompt=factual_prompt,
+            criterion=states_fact_confidently,
+            description="State fact confidently vs hedge",
+        )
+    )
 
     return tasks
 
@@ -267,15 +386,17 @@ def run_layer_sweep(
         ablated_output = generate_with_mlp_ablation(model, tokenizer, input_ids, ablate_layer=layer)
         ablated_decision = task.criterion(ablated_output)
 
-        results.append(LayerDecisionResult(
-            task_name=task.name,
-            layer=layer,
-            original_output=original_output,
-            ablated_output=ablated_output,
-            original_decision=original_decision,
-            ablated_decision=ablated_decision,
-            decision_changed=original_decision != ablated_decision,
-        ))
+        results.append(
+            LayerDecisionResult(
+                task_name=task.name,
+                layer=layer,
+                original_output=original_output,
+                ablated_output=ablated_output,
+                original_decision=original_decision,
+                ablated_decision=ablated_decision,
+                decision_changed=original_decision != ablated_decision,
+            )
+        )
 
     return results
 
@@ -327,7 +448,7 @@ def main():
         if changed_layers:
             print(f"\nDecision changed at layers: {changed_layers}")
         else:
-            print(f"\nDecision unchanged at all tested layers")
+            print("\nDecision unchanged at all tested layers")
 
         # Per-layer breakdown
         print(f"\n{'Layer':<8} {'Decision':<12} {'Changed':<10}")
@@ -350,7 +471,7 @@ def main():
     print("-" * (12 + 14 * len(tasks)))
 
     # Count changes per layer
-    layer_counts = {l: 0 for l in layers_to_test}
+    layer_counts = dict.fromkeys(layers_to_test, 0)
 
     for layer in layers_to_test:
         print(f"{layer:<8}", end="")
@@ -372,8 +493,10 @@ def main():
     partial_layers = [l for l, count in layer_counts.items() if 1 <= count < len(tasks) - 1]
     no_effect_layers = [l for l, count in layer_counts.items() if count == 0]
 
-    print(f"\nUniversal decision layers (affect {len(tasks)-1}+ tasks): {universal_layers or 'None'}")
-    print(f"Partial effect layers (affect 1-{len(tasks)-2} tasks): {partial_layers or 'None'}")
+    print(
+        f"\nUniversal decision layers (affect {len(tasks) - 1}+ tasks): {universal_layers or 'None'}"
+    )
+    print(f"Partial effect layers (affect 1-{len(tasks) - 2} tasks): {partial_layers or 'None'}")
     print(f"No effect layers: {no_effect_layers or 'None'}")
 
     if 11 in universal_layers or 12 in universal_layers:

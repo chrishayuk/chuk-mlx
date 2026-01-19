@@ -17,7 +17,9 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
-import mlx.core as mx
+
+# Import test model from routing analysis
+from moe_routing_analysis import create_test_moe_model
 
 from chuk_lazarus.introspection.moe import (
     ExpertCompressor,
@@ -25,9 +27,6 @@ from chuk_lazarus.introspection.moe import (
     detect_moe_architecture,
     get_moe_layer_info,
 )
-
-# Import test model from routing analysis
-from moe_routing_analysis import create_test_moe_model
 
 
 def main():
@@ -58,6 +57,7 @@ def main():
     class SimpleTokenizer:
         def encode(self, text):
             return [ord(c) % 1000 for c in text]
+
         def decode(self, ids):
             return "".join(chr(i % 128 + 32) for i in ids)
 
@@ -78,7 +78,9 @@ def main():
     for layer_idx in moe_layers:
         info = get_moe_layer_info(model, layer_idx)
         if info:
-            print(f"  Layer {layer_idx}: {info.num_experts} experts, {info.num_experts_per_tok} active")
+            print(
+                f"  Layer {layer_idx}: {info.num_experts} experts, {info.num_experts_per_tok} active"
+            )
 
     # Create compressor
     print("\n" + "-" * 70)
@@ -94,11 +96,11 @@ def main():
     try:
         analysis = compressor.analyze_compression_potential(layer_idx)
 
-        print(f"\n  Analysis Results:")
+        print("\n  Analysis Results:")
         print(f"    Number of experts: {analysis.get('num_experts', 'N/A')}")
 
         if "merge_candidates" in analysis and analysis["merge_candidates"]:
-            print(f"\n  Merge Candidates (most similar pairs):")
+            print("\n  Merge Candidates (most similar pairs):")
             for e1, e2, sim in analysis["merge_candidates"][:5]:
                 print(f"    Experts {e1} & {e2}: {sim:.2%} similar")
         else:
@@ -116,7 +118,7 @@ def main():
         if "mergeable_groups" in analysis:
             print(f"  Mergeable Groups: {analysis['mergeable_groups']}")
 
-        print(f"\n  Compression Potential:")
+        print("\n  Compression Potential:")
         print(f"    Potential reduction: {analysis.get('potential_reduction', 0)} experts")
         print(f"    Max compression ratio: {analysis.get('max_compression_ratio', 1):.1%}")
         print(f"    Recommended target: {analysis.get('recommended_target', 'N/A')} experts")
@@ -154,6 +156,7 @@ def main():
     except Exception as e:
         print(f"  Error analyzing layer: {e}")
         import traceback
+
         traceback.print_exc()
 
     print("\n" + "=" * 70)

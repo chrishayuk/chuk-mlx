@@ -749,26 +749,33 @@ class ExpertRouter:
                 router = mlp_self.router
                 k = self._info.num_experts_per_tok
 
+                # Flatten x for router (matches how MoE block calls router)
+                if x.ndim == 3:
+                    batch_size, seq_len, hidden_size = x.shape
+                    x_flat = x.reshape(-1, hidden_size)
+                else:
+                    seq_len = 1
+                    x_flat = x
+
                 # Router may return (weights, indices) tuple or just logits
-                router_result = router(x)
+                router_result = router(x_flat)
 
                 if isinstance(router_result, tuple):
                     # Router already computed weights and indices
                     weights, indices = router_result
                     # weights: (batch * seq_len, k), indices: (batch * seq_len, k)
-                    seq_len = x.shape[1] if x.ndim == 3 else 1
                     for pos in range(seq_len):
                         pos_indices = indices[pos].tolist()
-                        pos_weights = [float(weights[pos, i]) for i in range(k)]
+                        pos_weights = [float(weights[pos, i].item()) for i in range(k)]
                         captured_weights[layer_idx].append((pos_indices, pos_weights))
                 else:
                     # Router returned logits, compute weights ourselves
                     router_logits = router_result
                     weights = mx.softmax(router_logits, axis=-1)
-                    for pos in range(x.shape[1]):
-                        pos_weights = weights[0, pos]
+                    for pos in range(seq_len):
+                        pos_weights = weights[pos]
                         top_indices = mx.argsort(pos_weights)[-k:][::-1].tolist()
-                        top_weights = [float(pos_weights[i]) for i in top_indices]
+                        top_weights = [float(pos_weights[i].item()) for i in top_indices]
                         captured_weights[layer_idx].append((top_indices, top_weights))
 
             return original_call(mlp_self, x)

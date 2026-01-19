@@ -1,0 +1,113 @@
+# Format Gate Detection Experiment
+# Tests: Where does the model decide "CoT vs direct answer"?
+
+name: format_gate
+description: "Detect the format classifier that gates CoT generation"
+
+# Test both base and instruct to compare
+model: meta-llama/Llama-3.2-1B-Instruct
+
+parameters:
+  # Layers to test for format classification
+  layers_to_test: [1, 2, 3, 4, 5, 6, 8, 10, 12, 14]
+
+  # Threshold for "format is classifiable"
+  emergence_threshold: 0.9
+
+  # Layer to use for generation correlation test
+  probe_layer_for_generation: 4
+
+  # Training data: symbolic vs semantic format
+  train_data:
+    # Symbolic (expect direct answer)
+    - prompt: "7 * 8 = "
+      format: symbolic
+    - prompt: "12 + 5 = "
+      format: symbolic
+    - prompt: "100 - 37 = "
+      format: symbolic
+    - prompt: "50 / 5 = "
+      format: symbolic
+    - prompt: "9 * 9 = "
+      format: symbolic
+    - prompt: "45 + 45 = "
+      format: symbolic
+    - prompt: "80 - 25 = "
+      format: symbolic
+    - prompt: "36 / 6 = "
+      format: symbolic
+    - prompt: "15 * 4 = "
+      format: symbolic
+    - prompt: "200 + 150 = "
+      format: symbolic
+
+    # Semantic (expect CoT)
+    - prompt: "What is 7 times 8?"
+      format: semantic
+    - prompt: "Janet has 12 apples and gets 5 more. How many total?"
+      format: semantic
+    - prompt: "Maria had 100 stickers and gave away 37. How many remain?"
+      format: semantic
+    - prompt: "Split 50 cookies among 5 kids. How many each?"
+      format: semantic
+    - prompt: "What is 9 multiplied by 9?"
+      format: semantic
+    - prompt: "A farmer has 45 chickens and buys 45 more. How many now?"
+      format: semantic
+    - prompt: "Tom had 80 dollars and spent 25. How much left?"
+      format: semantic
+    - prompt: "Divide 36 oranges into 6 equal groups. How many per group?"
+      format: semantic
+    - prompt: "There are 15 boxes with 4 items each. Total items?"
+      format: semantic
+    - prompt: "A store has 200 items and receives 150 more. New total?"
+      format: semantic
+
+  # Test data (held out)
+  test_data:
+    # Symbolic
+    - prompt: "6 * 7 = "
+      format: symbolic
+    - prompt: "23 + 18 = "
+      format: symbolic
+    - prompt: "90 - 45 = "
+      format: symbolic
+    - prompt: "72 / 8 = "
+      format: symbolic
+    - prompt: "11 * 11 = "
+      format: symbolic
+
+    # Semantic
+    - prompt: "What is 6 times 7?"
+      format: semantic
+    - prompt: "Sam has 23 books and gets 18 more. How many books?"
+      format: semantic
+    - prompt: "A jar had 90 candies and 45 were eaten. How many left?"
+      format: semantic
+    - prompt: "Share 72 stickers equally among 8 friends. Each gets?"
+      format: semantic
+    - prompt: "A hall has 11 rows of 11 chairs. Total chairs?"
+      format: semantic
+
+  # Prompts for testing generation correlation
+  generation_test:
+    # Symbolic - expect direct
+    - prompt: "5 * 5 = "
+      expected_format: direct
+    - prompt: "30 + 20 = "
+      expected_format: direct
+    - prompt: "75 - 25 = "
+      expected_format: direct
+
+    # Semantic - expect CoT
+    - prompt: "What is 5 times 5?"
+      expected_format: cot
+    - prompt: "Lisa has 30 marbles and finds 20 more. How many total?"
+      expected_format: cot
+    - prompt: "A bag had 75 candies and 25 were taken. How many remain?"
+      expected_format: cot
+
+  # Steering experiment settings
+  run_steering: true
+  steering_layer: 8  # L8 gives 100% steering success vs L4's partial
+  steering_strength: 2.0

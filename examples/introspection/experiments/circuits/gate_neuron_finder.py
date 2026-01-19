@@ -63,6 +63,7 @@ def auto_detect_answer(prompt: str) -> str | None:
 @dataclass
 class NeuronCandidate:
     """A candidate gate neuron."""
+
     layer: int
     neuron: int
     open_value: float
@@ -77,6 +78,7 @@ class NeuronCandidate:
 @dataclass
 class PatchResult:
     """Result of patching a neuron."""
+
     layer: int
     neuron: int
     original_output: str
@@ -167,7 +169,11 @@ class GateNeuronFinder:
             except TypeError:
                 out = layer(h)
 
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Store last position hidden state
             hidden_states[layer_idx] = h[0, -1, :]  # [hidden_dim]
@@ -196,7 +202,11 @@ class GateNeuronFinder:
                 out = layer(h, mask=mask)
             except TypeError:
                 out = layer(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
         h_n = norm(h) if norm else h
         logits = head(h_n)
@@ -234,7 +244,11 @@ class GateNeuronFinder:
                 out = layer(h, mask=mask)
             except TypeError:
                 out = layer(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Apply patch at specified layer
             if idx == layer_idx:
@@ -260,9 +274,9 @@ class GateNeuronFinder:
     ) -> list[NeuronCandidate]:
         """Find neurons with maximum difference between open/closed cases."""
 
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("GATE NEURON SEARCH")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
         print(f"Open prompt:   {repr(open_prompt)}")
         print(f"Closed prompt: {repr(closed_prompt)}")
 
@@ -288,7 +302,7 @@ class GateNeuronFinder:
         candidates = []
 
         print(f"\nSearching layers: {layers} (model has {num_layers} layers)")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
         for layer in layers:
             h_o = h_open[layer]
@@ -303,24 +317,28 @@ class GateNeuronFinder:
             indexed.sort(key=lambda x: x[1], reverse=True)
 
             # Top neurons that are HIGHER when gate is open
-            for neuron, d in indexed[:top_k // 2]:
-                candidates.append(NeuronCandidate(
-                    layer=layer,
-                    neuron=neuron,
-                    open_value=float(h_o[neuron]),
-                    closed_value=float(h_c[neuron]),
-                    difference=d,
-                ))
+            for neuron, d in indexed[: top_k // 2]:
+                candidates.append(
+                    NeuronCandidate(
+                        layer=layer,
+                        neuron=neuron,
+                        open_value=float(h_o[neuron]),
+                        closed_value=float(h_c[neuron]),
+                        difference=d,
+                    )
+                )
 
             # Top neurons that are LOWER when gate is open
-            for neuron, d in indexed[-(top_k // 2):]:
-                candidates.append(NeuronCandidate(
-                    layer=layer,
-                    neuron=neuron,
-                    open_value=float(h_o[neuron]),
-                    closed_value=float(h_c[neuron]),
-                    difference=d,
-                ))
+            for neuron, d in indexed[-(top_k // 2) :]:
+                candidates.append(
+                    NeuronCandidate(
+                        layer=layer,
+                        neuron=neuron,
+                        open_value=float(h_o[neuron]),
+                        closed_value=float(h_c[neuron]),
+                        difference=d,
+                    )
+                )
 
         # Sort by absolute difference
         candidates.sort(key=lambda x: abs(x.difference), reverse=True)
@@ -336,9 +354,9 @@ class GateNeuronFinder:
     ) -> list[PatchResult]:
         """Verify candidates by patching and checking if output flips."""
 
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("CAUSAL VERIFICATION")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
         print(f"Testing {min(len(candidates), max_candidates)} candidates...")
         print(f"Target: flip output to '{target_digit}'")
         print()
@@ -370,10 +388,12 @@ class GateNeuronFinder:
             results.append(result)
 
             status = "🔥 GATE!" if flipped else "  -"
-            print(f"{status} L{cand.layer:2d} N{cand.neuron:4d}: "
-                  f"{cand.closed_value:+.2f} → {cand.open_value:+.2f} "
-                  f"(Δ={cand.difference:+.2f}) "
-                  f"output: {repr(patched_output)}")
+            print(
+                f"{status} L{cand.layer:2d} N{cand.neuron:4d}: "
+                f"{cand.closed_value:+.2f} → {cand.open_value:+.2f} "
+                f"(Δ={cand.difference:+.2f}) "
+                f"output: {repr(patched_output)}"
+            )
 
             if flipped:
                 gate_neurons.append((cand, result))
@@ -413,7 +433,11 @@ class GateNeuronFinder:
                 out = layer(h, mask=mask)
             except TypeError:
                 out = layer(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Apply patches at this layer
             if idx in patches_by_layer:
@@ -439,9 +463,9 @@ class GateNeuronFinder:
     ):
         """Try patching multiple neurons together."""
 
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("MULTI-NEURON PATCHING")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
         original_output = self.get_output(closed_prompt)
         print(f"Original output: {repr(original_output)}")
@@ -453,10 +477,7 @@ class GateNeuronFinder:
             # Use top N candidates
             top_n = candidates[:n]
 
-            patches = [
-                (c.layer, c.neuron, c.open_value)
-                for c in top_n
-            ]
+            patches = [(c.layer, c.neuron, c.open_value) for c in top_n]
 
             output = self.get_output_with_multi_patch(closed_prompt, patches)
             success = target_digit in output
@@ -469,7 +490,9 @@ class GateNeuronFinder:
                 print(f"\n✅ Found minimal gate: {n} neurons needed")
                 print("   Neurons:")
                 for c in top_n:
-                    print(f"      L{c.layer} N{c.neuron}: {c.closed_value:+.1f} → {c.open_value:+.1f}")
+                    print(
+                        f"      L{c.layer} N{c.neuron}: {c.closed_value:+.1f} → {c.open_value:+.1f}"
+                    )
                 return top_n
 
         print(f"\n❌ Could not flip gate with top {max_neurons} neurons")
@@ -484,9 +507,9 @@ class GateNeuronFinder:
     ):
         """Try patching entire layers."""
 
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("FULL LAYER PATCHING")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
         h_open = self.get_hidden_states(open_prompt)
         original_output = self.get_output(closed_prompt)
@@ -530,24 +553,24 @@ class GateNeuronFinder:
         candidates = self.find_gate_neurons(open_prompt, closed_prompt, layers)
 
         # Show top candidates
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("TOP CANDIDATES (by activation difference)")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
         for i, c in enumerate(candidates[:30]):
-            print(f"{i+1:2d}. L{c.layer:2d} N{c.neuron:4d}: "
-                  f"open={c.open_value:+.3f} closed={c.closed_value:+.3f} "
-                  f"Δ={c.difference:+.3f} ({c.direction})")
+            print(
+                f"{i + 1:2d}. L{c.layer:2d} N{c.neuron:4d}: "
+                f"open={c.open_value:+.3f} closed={c.closed_value:+.3f} "
+                f"Δ={c.difference:+.3f} ({c.direction})"
+            )
 
         # Verify if we have a target
         if target_digit:
-            results, gate_neurons = self.verify_candidates(
-                candidates, closed_prompt, target_digit
-            )
+            results, gate_neurons = self.verify_candidates(candidates, closed_prompt, target_digit)
 
             # Summary
-            print(f"\n{'='*70}")
+            print(f"\n{'=' * 70}")
             print("SINGLE NEURON SUMMARY")
-            print(f"{'='*70}")
+            print(f"{'=' * 70}")
             print(f"Candidates tested: {len(results)}")
             print(f"Gate neurons found: {len(gate_neurons)}")
 
@@ -568,7 +591,9 @@ class GateNeuronFinder:
                 # Try full layer patching
                 if layers is None:
                     num_layers = len(self._get_layers())
-                    layers = list(range(max(0, num_layers // 2 - 5), min(num_layers, num_layers // 2 + 10)))
+                    layers = list(
+                        range(max(0, num_layers // 2 - 5), min(num_layers, num_layers // 2 + 10))
+                    )
                 self.try_layer_patch(open_prompt, closed_prompt, layers, target_digit)
 
         return candidates
@@ -591,22 +616,26 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="mlx-community/gemma-3-4b-it-bf16",
         help="Model ID",
     )
     parser.add_argument(
-        "--open", "-o",
+        "--open",
+        "-o",
         default="100 - 37 = ",
         help="Prompt where gate is OPEN (correct output)",
     )
     parser.add_argument(
-        "--closed", "-c",
+        "--closed",
+        "-c",
         default="100 - 37 =",
         help="Prompt where gate is CLOSED (wrong output)",
     )
     parser.add_argument(
-        "--layers", "-l",
+        "--layers",
+        "-l",
         default=None,
         help="Comma-separated layers to search (e.g., '18,19,20,21,22,23')",
     )

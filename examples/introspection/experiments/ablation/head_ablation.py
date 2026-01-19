@@ -16,21 +16,20 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-import mlx.core as mx
-
 from _loader import (
     format_tool_prompt,
+    generate,
     generate_with_head_ablation,
     has_tool_call,
     load_chat_template,
     load_model,
-    generate,
 )
 
 
 @dataclass
 class AblationResult:
     """Result of a head ablation experiment."""
+
     experiment_name: str
     heads_ablated: list[tuple[int, int]]
     original_output: str
@@ -42,8 +41,9 @@ class AblationResult:
 
 def main():
     parser = argparse.ArgumentParser(description="Head Ablation Study")
-    parser.add_argument("--model", default="mlx-community/functiongemma-270m-it-bf16",
-                        help="Model ID to test")
+    parser.add_argument(
+        "--model", default="mlx-community/functiongemma-270m-it-bf16", help="Model ID to test"
+    )
     args = parser.parse_args()
 
     print("=" * 80)
@@ -62,18 +62,20 @@ def main():
         return
 
     # Create test prompts
-    tools = [{
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "Get current weather for a location",
-            "parameters": {
-                "type": "object",
-                "properties": {"location": {"type": "string"}},
-                "required": ["location"],
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get current weather for a location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {"location": {"type": "string"}},
+                    "required": ["location"],
+                },
             },
-        },
-    }]
+        }
+    ]
 
     prompts = [
         format_tool_prompt(template, "What is the weather in Tokyo?", tools),
@@ -87,17 +89,17 @@ def main():
 
     experiments = [
         # Single heads in late layers
-        (f"L{num_layers-1}-H0", [(num_layers - 1, 0)]),
-        (f"L{num_layers-2}-H0", [(num_layers - 2, 0)]),
-
+        (f"L{num_layers - 1}-H0", [(num_layers - 1, 0)]),
+        (f"L{num_layers - 2}-H0", [(num_layers - 2, 0)]),
         # Full layer ablation
-        (f"L{num_layers-1} all heads", [(num_layers - 1, h) for h in range(num_heads)]),
-        (f"L{num_layers-2} all heads", [(num_layers - 2, h) for h in range(num_heads)]),
-
+        (f"L{num_layers - 1} all heads", [(num_layers - 1, h) for h in range(num_heads)]),
+        (f"L{num_layers - 2} all heads", [(num_layers - 2, h) for h in range(num_heads)]),
         # Two layer ablation
-        (f"L{num_layers-2}+L{num_layers-1} all", [(num_layers - 2, h) for h in range(num_heads)] +
-                                                   [(num_layers - 1, h) for h in range(num_heads)]),
-
+        (
+            f"L{num_layers - 2}+L{num_layers - 1} all",
+            [(num_layers - 2, h) for h in range(num_heads)]
+            + [(num_layers - 1, h) for h in range(num_heads)],
+        ),
         # Mid layer (control)
         (f"L{mid_layer} all heads (control)", [(mid_layer, h) for h in range(num_heads)]),
     ]
@@ -117,7 +119,9 @@ def main():
             original = generate(model, tokenizer, prompt, max_new_tokens=50, temperature=0.0)
 
             # Generate with ablation
-            ablated = generate_with_head_ablation(model, tokenizer, prompt, heads, max_new_tokens=50)
+            ablated = generate_with_head_ablation(
+                model, tokenizer, prompt, heads, max_new_tokens=50
+            )
 
             original_has = has_tool_call(original)
             ablated_has = has_tool_call(ablated)
@@ -134,7 +138,7 @@ def main():
             exp_results.append(result)
 
             status = "BROKE" if result.broken else "survives"
-            print(f"  Prompt {i+1}: {status}")
+            print(f"  Prompt {i + 1}: {status}")
 
         all_results.extend(exp_results)
 

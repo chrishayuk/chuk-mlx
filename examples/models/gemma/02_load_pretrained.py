@@ -49,7 +49,9 @@ def load_config(model_path: Path) -> GemmaConfig:
         hidden_size=config_dict["hidden_size"],
         num_hidden_layers=config_dict["num_hidden_layers"],
         num_attention_heads=config_dict["num_attention_heads"],
-        num_key_value_heads=config_dict.get("num_key_value_heads", config_dict["num_attention_heads"]),
+        num_key_value_heads=config_dict.get(
+            "num_key_value_heads", config_dict["num_attention_heads"]
+        ),
         intermediate_size=config_dict["intermediate_size"],
         head_dim=config_dict.get("head_dim", 256),
         query_pre_attn_scalar=config_dict.get("query_pre_attn_scalar", 256.0),

@@ -46,6 +46,7 @@ class ModelFamilyType(str, Enum):
     GPT_NEO = "gpt_neo"
     GPT_NEOX = "gpt_neox"
     GPT_OSS = "gpt_oss"
+    GPT_OSS_LITE = "gpt_oss_lite"
     OLMOE = "olmoe"
 
 
@@ -68,6 +69,8 @@ MODEL_TYPE_PATTERNS = {
     "gpt-neo": ModelFamilyType.GPT_NEO,
     "gpt-neox": ModelFamilyType.GPT_NEOX,
     "gpt_oss": ModelFamilyType.GPT_OSS,
+    "gpt_oss_lite": ModelFamilyType.GPT_OSS_LITE,
+    "gpt_oss_lite_minimal": ModelFamilyType.GPT_OSS_LITE,
     "olmoe": ModelFamilyType.OLMOE,
     # Gemma variants
     "gemma": ModelFamilyType.GEMMA,
@@ -105,6 +108,8 @@ ARCHITECTURE_PATTERNS = {
     "GPTNeoForCausalLM": ModelFamilyType.GPT_NEO,
     "GPTNeoXForCausalLM": ModelFamilyType.GPT_NEOX,
     "GptOssForCausalLM": ModelFamilyType.GPT_OSS,
+    "GPTOSSLiteForCausalLM": ModelFamilyType.GPT_OSS_LITE,
+    "GptOssLiteForCausalLM": ModelFamilyType.GPT_OSS_LITE,
     "OlmoeForCausalLM": ModelFamilyType.OLMOE,
 }
 
@@ -210,6 +215,7 @@ class ModelFamilyRegistry:
             gemma,
             gpt2,
             gpt_oss,
+            gpt_oss_lite,
             granite,
             jamba,
             llama,
@@ -353,6 +359,17 @@ class ModelFamilyRegistry:
                 model_class=gpt_oss.GptOssForCausalLM,
                 model_types=[HFModelType.GPT_OSS.value],
                 architectures=["GptOssForCausalLM"],
+            )
+        )
+
+        # GPT-OSS-Lite family (reduced expert models)
+        self.register(
+            FamilyInfo(
+                family_type=ModelFamilyType.GPT_OSS_LITE,
+                config_class=gpt_oss_lite.GptOssLiteConfig,
+                model_class=gpt_oss_lite.GptOssLiteForCausalLM,
+                model_types=["gpt_oss_lite", "gpt_oss_lite_minimal"],
+                architectures=["GptOssLiteForCausalLM", "GPTOSSLiteForCausalLM"],
             )
         )
 

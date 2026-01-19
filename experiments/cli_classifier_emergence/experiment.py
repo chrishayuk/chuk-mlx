@@ -18,8 +18,6 @@ import logging
 import random
 from pathlib import Path
 
-import mlx.core as mx
-
 from chuk_lazarus.experiments import ExperimentBase, ExperimentConfig
 
 logger = logging.getLogger(__name__)
@@ -62,7 +60,7 @@ class CLIClassifierEmergenceExperiment(ExperimentBase):
         # Calculate classifier layer
         layer_pct = self.classifier_config.get("layer_pct", 0.55)
         self.classifier_layer = int(self.model_config.num_hidden_layers * layer_pct)
-        self.log(f"Classifier layer: {self.classifier_layer} ({layer_pct*100:.0f}% depth)")
+        self.log(f"Classifier layer: {self.classifier_layer} ({layer_pct * 100:.0f}% depth)")
 
     def _generate_data(self, output_path: Path) -> None:
         """Generate arithmetic training data."""
@@ -73,20 +71,20 @@ class CLIClassifierEmergenceExperiment(ExperimentBase):
         random.seed(seed)
 
         ops = [
-            ('*', 'multiply', lambda a, b: a * b),
-            ('+', 'add', lambda a, b: a + b),
-            ('-', 'subtract', lambda a, b: a - b),
-            ('/', 'divide', lambda a, b: a // b if b != 0 else 0),
+            ("*", "multiply", lambda a, b: a * b),
+            ("+", "add", lambda a, b: a + b),
+            ("-", "subtract", lambda a, b: a - b),
+            ("/", "divide", lambda a, b: a // b if b != 0 else 0),
         ]
 
         samples = []
         for _ in range(num_samples):
             op_sym, op_name, op_fn = random.choice(ops)
 
-            if op_sym == '/':
+            if op_sym == "/":
                 b = random.randint(1, 12)
                 a = b * random.randint(1, 12)
-            elif op_sym == '-':
+            elif op_sym == "-":
                 a = random.randint(10, 100)
                 b = random.randint(1, a)
             else:
@@ -97,12 +95,14 @@ class CLIClassifierEmergenceExperiment(ExperimentBase):
             prompt = f"{a} {op_sym} {b} = "
             answer = str(result)
 
-            samples.append({
-                "prompt": prompt,
-                "response": answer,
-                "operation": op_name,
-                "classification_target": op_name,
-            })
+            samples.append(
+                {
+                    "prompt": prompt,
+                    "response": answer,
+                    "operation": op_name,
+                    "classification_target": op_name,
+                }
+            )
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "w") as f:
@@ -144,12 +144,15 @@ class CLIClassifierEmergenceExperiment(ExperimentBase):
         classifier_weight = self.classifier_config.get("weight", 0.4)
 
         # Get classifier targets from config
-        classifier_targets = self.classifier_config.get("targets", {
-            "multiply": "multiply",
-            "add": "add",
-            "subtract": "subtract",
-            "divide": "divide",
-        })
+        classifier_targets = self.classifier_config.get(
+            "targets",
+            {
+                "multiply": "multiply",
+                "add": "add",
+                "subtract": "subtract",
+                "divide": "divide",
+            },
+        )
         # Handle both list format (old) and dict format (new)
         if isinstance(classifier_targets, list):
             classifier_targets = {t: t for t in classifier_targets}
@@ -234,12 +237,16 @@ class CLIClassifierEmergenceExperiment(ExperimentBase):
 
         for r in eval_results["results"]:
             status = "OK" if r["correct"] else "XX"
-            self.log(f"  {r['prompt']:<13} {r['expected']:<12} {r['predicted']:<12} "
-                     f"{r['confidence']:>7.1%} [{status}]")
+            self.log(
+                f"  {r['prompt']:<13} {r['expected']:<12} {r['predicted']:<12} "
+                f"{r['confidence']:>7.1%} [{status}]"
+            )
 
         self.log("-" * 60)
-        self.log(f"Accuracy: {eval_results['correct']}/{eval_results['total']} "
-                 f"({eval_results['accuracy']:.1%})")
+        self.log(
+            f"Accuracy: {eval_results['correct']}/{eval_results['total']} "
+            f"({eval_results['accuracy']:.1%})"
+        )
 
         return {
             "accuracy": eval_results["accuracy"],
@@ -274,4 +281,4 @@ if __name__ == "__main__":
     eval_results = experiment.evaluate()
     experiment.cleanup()
 
-    print(f"\nFinal Accuracy: {eval_results.get('accuracy', 0)*100:.1f}%")
+    print(f"\nFinal Accuracy: {eval_results.get('accuracy', 0) * 100:.1f}%")

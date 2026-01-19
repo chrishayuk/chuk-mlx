@@ -16,16 +16,14 @@ Approach:
 Run: uv run python examples/introspection/layer_distillation.py
 """
 
-import time
-from dataclasses import dataclass
+import warnings
 
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 import numpy as np
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 class StudentNetwork(nn.Module):
@@ -111,7 +109,7 @@ class StudentBlock(nn.Module):
         q = self.rope(q)
         k = self.rope(k)
 
-        scale = self.head_dim ** -0.5
+        scale = self.head_dim**-0.5
         attn_out = mx.fast.scaled_dot_product_attention(q, k, v, scale=scale, mask=mask)
         attn_out = attn_out.transpose(0, 2, 1, 3).reshape(batch_size, seq_len, -1)
         x = x + self.o_proj(attn_out)
@@ -146,7 +144,7 @@ class LayerDistillation:
         self.layers = self.model.model.layers
         self.final_norm = self.model.model.norm
         self.hidden_size = self.model.model.hidden_size
-        self.embed_scale = self.hidden_size ** 0.5
+        self.embed_scale = self.hidden_size**0.5
         self.lm_head = self.model.lm_head
         self.num_layers = len(self.layers)
 
@@ -326,7 +324,9 @@ class LayerDistillation:
             mask = mask.astype(emb.dtype)
 
             student_out = student(emb, mask)
-            student_final, student_logits = self.run_remaining_layers(student_out, teacher_up_to + 1)
+            student_final, student_logits = self.run_remaining_layers(
+                student_out, teacher_up_to + 1
+            )
 
             # Full model path
             full_final, full_logits = self.full_forward(tokens)
@@ -437,7 +437,7 @@ class LayerDistillation:
         results = []
 
         for config in distill_configs:
-            print(f"\n{'='*50}")
+            print(f"\n{'=' * 50}")
             print(f"{config['desc']}")
             print("=" * 50)
 
@@ -449,8 +449,7 @@ class LayerDistillation:
 
             # Count parameters
             teacher_layers = sum(
-                self.count_params(self.layers[i])
-                for i in range(config["up_to"] + 1)
+                self.count_params(self.layers[i]) for i in range(config["up_to"] + 1)
             )
             student_params = self.count_params(student)
 
@@ -469,17 +468,19 @@ class LayerDistillation:
             # Evaluate
             metrics = self.evaluate_student(student, test_prompts, config["up_to"])
 
-            print(f"\n  Results:")
+            print("\n  Results:")
             print(f"    Cosine similarity to full: {metrics['cosine_similarity']:.3f}")
             print(f"    Top-1 accuracy: {metrics['top1_accuracy']:.1%}")
             print(f"    Top-5 accuracy: {metrics['top5_accuracy']:.1%}")
 
-            results.append({
-                "config": config,
-                "metrics": metrics,
-                "final_loss": losses[-1],
-                "compression": teacher_layers / student_params,
-            })
+            results.append(
+                {
+                    "config": config,
+                    "metrics": metrics,
+                    "final_loss": losses[-1],
+                    "compression": teacher_layers / student_params,
+                }
+            )
 
         # Summary
         print("\n" + "=" * 60)
@@ -491,7 +492,9 @@ class LayerDistillation:
 
         for r in results:
             config_str = r["config"]["desc"].split("→")[0].strip()
-            print(f"{config_str:<25} {r['metrics']['cosine_similarity']:>9.3f} {r['metrics']['top1_accuracy']:>9.1%} {r['compression']:>9.1f}x")
+            print(
+                f"{config_str:<25} {r['metrics']['cosine_similarity']:>9.3f} {r['metrics']['top1_accuracy']:>9.1%} {r['compression']:>9.1f}x"
+            )
 
         print("\n" + "=" * 60)
         print("INTERPRETATION")

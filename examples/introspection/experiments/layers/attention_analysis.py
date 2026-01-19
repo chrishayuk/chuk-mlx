@@ -37,6 +37,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class AttentionSnapshot:
     """Attention pattern at a single layer."""
+
     layer_idx: int
     query_position: int
     query_token: str
@@ -48,6 +49,7 @@ class AttentionSnapshot:
 @dataclass
 class AttentionAnalysis:
     """Complete attention analysis for a prompt."""
+
     prompt: str
     tokens: list[str]
     snapshots: list[AttentionSnapshot] = field(default_factory=list)
@@ -67,17 +69,22 @@ class AttentionAnalysis:
             top3_s2 = set(p for p, _, _ in s2.attended_positions[:3])
 
             overlap = len(top3_s1 & top3_s2)
-            shifts.append({
-                "from_layer": s1.layer_idx,
-                "to_layer": s2.layer_idx,
-                "entropy_change": s2.entropy - s1.entropy,
-                "top3_overlap": overlap,
-                "focus_shift": s1.entropy > s2.entropy,  # True if attention becomes more focused
-            })
+            shifts.append(
+                {
+                    "from_layer": s1.layer_idx,
+                    "to_layer": s2.layer_idx,
+                    "entropy_change": s2.entropy - s1.entropy,
+                    "top3_overlap": overlap,
+                    "focus_shift": s1.entropy
+                    > s2.entropy,  # True if attention becomes more focused
+                }
+            )
 
         return {
             "shifts": shifts,
-            "overall_focus_trend": "focusing" if sum(s["entropy_change"] for s in shifts) < 0 else "diffusing",
+            "overall_focus_trend": "focusing"
+            if sum(s["entropy_change"] for s in shifts) < 0
+            else "diffusing",
         }
 
 
@@ -219,31 +226,32 @@ class AttentionAnalyzer:
             else:
                 # Try to compute attention manually from the layer's self_attn
                 # This is model-specific and may not work for all architectures
-                print(f"  Layer {layer_idx}: No attention weights available (model may not expose them)")
+                print(
+                    f"  Layer {layer_idx}: No attention weights available (model may not expose them)"
+                )
                 continue
 
             # Get top-k attended positions
             indexed = list(enumerate(query_attn))
             indexed.sort(key=lambda x: x[1], reverse=True)
 
-            attended = [
-                (pos, tokens[pos], weight)
-                for pos, weight in indexed[:top_k]
-            ]
+            attended = [(pos, tokens[pos], weight) for pos, weight in indexed[:top_k]]
 
             # Compute entropy
             attn_tensor = mx.array(query_attn)
             attn_clipped = mx.clip(attn_tensor, 1e-10, 1.0)
             entropy = float(-mx.sum(attn_clipped * mx.log(attn_clipped)))
 
-            snapshots.append(AttentionSnapshot(
-                layer_idx=layer_idx,
-                query_position=query_position,
-                query_token=tokens[query_position],
-                attended_positions=attended,
-                entropy=entropy,
-                max_attention=attended[0][2] if attended else 0.0,
-            ))
+            snapshots.append(
+                AttentionSnapshot(
+                    layer_idx=layer_idx,
+                    query_position=query_position,
+                    query_token=tokens[query_position],
+                    attended_positions=attended,
+                    entropy=entropy,
+                    max_attention=attended[0][2] if attended else 0.0,
+                )
+            )
 
         return AttentionAnalysis(
             prompt=prompt,
@@ -254,9 +262,9 @@ class AttentionAnalyzer:
 
 def print_attention_analysis(analysis: AttentionAnalysis):
     """Print attention analysis."""
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("ATTENTION ANALYSIS")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"Prompt: {repr(analysis.prompt)}")
     print(f"Tokens: {analysis.tokens}")
 
@@ -273,11 +281,13 @@ def print_attention_analysis(analysis: AttentionAnalysis):
     # Print shift analysis
     shift = analysis.get_attention_shift()
     if shift:
-        print(f"\n--- Attention Shift Analysis ---")
+        print("\n--- Attention Shift Analysis ---")
         print(f"Overall trend: {shift.get('overall_focus_trend', 'unknown')}")
         for s in shift.get("shifts", []):
             focus = "focusing" if s["focus_shift"] else "diffusing"
-            print(f"  L{s['from_layer']} -> L{s['to_layer']}: {focus}, overlap={s['top3_overlap']}/3")
+            print(
+                f"  L{s['from_layer']} -> L{s['to_layer']}: {focus}, overlap={s['top3_overlap']}/3"
+            )
 
 
 async def main(model_id: str, prompt: str, layers: list[int], compare: bool = False):
@@ -288,10 +298,10 @@ async def main(model_id: str, prompt: str, layers: list[int], compare: bool = Fa
         # Analyze layers before, during, and after computation
         num_layers = analyzer.config.num_hidden_layers
         layers = [
-            num_layers // 4,      # Early
-            num_layers // 2,      # Middle
+            num_layers // 4,  # Early
+            num_layers // 2,  # Middle
             3 * num_layers // 4,  # Late (computation)
-            num_layers - 1,       # Final
+            num_layers - 1,  # Final
         ]
 
     print(f"\nAnalyzing attention at layers: {layers}")

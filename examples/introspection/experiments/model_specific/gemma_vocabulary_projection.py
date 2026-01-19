@@ -23,13 +23,9 @@ Usage:
 import argparse
 import json
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Optional
-import time
 
 import mlx.core as mx
 import mlx.nn as nn
-import mlx.optimizers as optim
 import numpy as np
 
 from chuk_lazarus.inference.loader import DType, HFLoader
@@ -39,10 +35,11 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class ProjectionResult:
     """Result of projecting a hidden state to vocabulary."""
+
     layer_idx: int
     method: str
     top_tokens: list[tuple[str, float]]  # (token, prob)
-    target_rank: Optional[int]
+    target_rank: int | None
     target_prob: float
 
 
@@ -103,7 +100,7 @@ class VocabularyProjector:
 
         embed_scale = getattr(self.config, "embedding_scale", None)
         if embed_scale is None:
-            embed_scale = float(self.hidden_size ** 0.5)
+            embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -163,10 +160,7 @@ class VocabularyProjector:
         probs = mx.softmax(logits)
         top_idx = mx.argsort(probs)[::-1][:top_k].tolist()
 
-        top_tokens = [
-            (self.tokenizer.decode([i]), float(probs[i]))
-            for i in top_idx
-        ]
+        top_tokens = [(self.tokenizer.decode([i]), float(probs[i])) for i in top_idx]
 
         return ProjectionResult(
             layer_idx=layer_idx,
@@ -198,10 +192,7 @@ class VocabularyProjector:
         probs = mx.softmax(logits)
         top_idx = mx.argsort(probs)[::-1][:top_k].tolist()
 
-        top_tokens = [
-            (self.tokenizer.decode([i]), float(probs[i]))
-            for i in top_idx
-        ]
+        top_tokens = [(self.tokenizer.decode([i]), float(probs[i])) for i in top_idx]
 
         return ProjectionResult(
             layer_idx=layer_idx,
@@ -211,7 +202,9 @@ class VocabularyProjector:
             target_prob=0.0,
         )
 
-    def centering_projection(self, prompt: str, layer_idx: int, top_k: int = 10) -> ProjectionResult:
+    def centering_projection(
+        self, prompt: str, layer_idx: int, top_k: int = 10
+    ) -> ProjectionResult:
         """
         Center hidden state before projection.
 
@@ -227,7 +220,7 @@ class VocabularyProjector:
         h_centered = h - mx.mean(h)
 
         # Normalize
-        h_normalized = h_centered / (mx.sqrt(mx.sum(h_centered ** 2)) + 1e-8)
+        h_normalized = h_centered / (mx.sqrt(mx.sum(h_centered**2)) + 1e-8)
 
         # Project
         E = embed.weight
@@ -236,10 +229,7 @@ class VocabularyProjector:
         probs = mx.softmax(logits)
         top_idx = mx.argsort(probs)[::-1][:top_k].tolist()
 
-        top_tokens = [
-            (self.tokenizer.decode([i]), float(probs[i]))
-            for i in top_idx
-        ]
+        top_tokens = [(self.tokenizer.decode([i]), float(probs[i])) for i in top_idx]
 
         return ProjectionResult(
             layer_idx=layer_idx,
@@ -275,10 +265,7 @@ class VocabularyProjector:
         probs = mx.softmax(logits)
         top_idx = mx.argsort(probs)[::-1][:top_k].tolist()
 
-        top_tokens = [
-            (self.tokenizer.decode([i]), float(probs[i]))
-            for i in top_idx
-        ]
+        top_tokens = [(self.tokenizer.decode([i]), float(probs[i])) for i in top_idx]
 
         return ProjectionResult(
             layer_idx=layer_idx,
@@ -370,11 +357,11 @@ class VocabularyProjector:
 
     def compare_methods(self, prompt: str, expected: str):
         """Compare all projection methods on a single prompt."""
-        print(f"\n{'='*70}")
-        print(f"COMPARING PROJECTION METHODS")
+        print(f"\n{'=' * 70}")
+        print("COMPARING PROJECTION METHODS")
         print(f"Prompt: {repr(prompt)}")
         print(f"Expected: {repr(expected)}")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
         # Get target token
         target_ids = self.tokenizer.encode(expected, add_special_tokens=False)
@@ -459,7 +446,7 @@ def run_digit_analysis(projector: VocabularyProjector):
         if d in digit_ids:
             emb = E[digit_ids[d]]
             digit_embeds.append((d, emb))
-            norm_val = float(mx.sqrt(mx.sum(emb ** 2)))
+            norm_val = float(mx.sqrt(mx.sum(emb**2)))
             print(f"  Digit {d}: norm={norm_val:.2f}")
 
     # Compute pairwise similarities
@@ -490,8 +477,8 @@ def run_digit_analysis(projector: VocabularyProjector):
         print(f"\n  Layer {layer_idx} similarity to digits:")
         for d, e in digit_embeds:
             # Normalize both
-            h_norm = h / mx.sqrt(mx.sum(h ** 2))
-            e_norm = e / mx.sqrt(mx.sum(e ** 2))
+            h_norm = h / mx.sqrt(mx.sum(h**2))
+            e_norm = e / mx.sqrt(mx.sum(e**2))
             sim = float(mx.sum(h_norm * e_norm))
 
             marker = " <--" if d in [5, 6] else ""
@@ -604,7 +591,7 @@ def run_learned_direction_experiment(projector: VocabularyProjector):
     dir_5_to_6 = dir_6 - dir_5
     dir_5_to_6 = dir_5_to_6 / np.linalg.norm(dir_5_to_6)
 
-    print(f"\nDirection 5->6 computed (norm=1)")
+    print("\nDirection 5->6 computed (norm=1)")
 
     # Test: start with "7 * 8 = " (answer 56, first digit 5)
     # Add the 5->6 direction, see if prediction changes
@@ -620,23 +607,23 @@ def run_learned_direction_experiment(projector: VocabularyProjector):
         print(f"  {digit}: {probs[i]:.4f}{marker}")
 
     # Add steering direction with increasing strength
-    print(f"\nAfter adding 5->6 direction:")
+    print("\nAfter adding 5->6 direction:")
     for strength in [0, 100, 500, 1000, 2000]:
         h_steered = h_np + strength * dir_5_to_6
         scores = h_steered @ W.T + b
         probs = np.exp(scores) / np.exp(scores).sum()
         pred_idx = np.argmax(probs)
         pred_digit = le.classes_[pred_idx]
-        print(f"  Strength {strength:>4}: pred={pred_digit} P(5)={probs[idx_5]:.4f} P(6)={probs[idx_6]:.4f}")
+        print(
+            f"  Strength {strength:>4}: pred={pred_digit} P(5)={probs[idx_5]:.4f} P(6)={probs[idx_6]:.4f}"
+        )
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", "-m", default="mlx-community/gemma-3-4b-it-bf16")
     parser.add_argument(
-        "--experiment", "-e",
-        choices=["compare", "digits", "directions", "all"],
-        default="all"
+        "--experiment", "-e", choices=["compare", "digits", "directions", "all"], default="all"
     )
     args = parser.parse_args()
 

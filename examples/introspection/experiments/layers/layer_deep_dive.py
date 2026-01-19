@@ -32,9 +32,6 @@ import mlx.core as mx
 import mlx.nn as nn
 
 from chuk_lazarus.introspection import (
-    AnalysisConfig,
-    LayerStrategy,
-    ModelAnalyzer,
     PositionSelection,
 )
 from chuk_lazarus.introspection.hooks import CaptureConfig, ModelHooks
@@ -64,6 +61,7 @@ def auto_detect_answer(prompt: str) -> str | None:
 @dataclass
 class AttentionFocusResult:
     """Where a position is attending in a layer."""
+
     layer_idx: int
     query_position: int
     query_token: str
@@ -73,6 +71,7 @@ class AttentionFocusResult:
 @dataclass
 class MLPKnockoutResult:
     """Result of knocking out an MLP at a layer."""
+
     layer_idx: int
     original_top_token: str
     original_probability: float
@@ -87,6 +86,7 @@ class MLPKnockoutResult:
 @dataclass
 class ActivationPatchResult:
     """Result of patching activations from one prompt to another."""
+
     source_prompt: str
     target_prompt: str
     layer_idx: int
@@ -99,6 +99,7 @@ class ActivationPatchResult:
 @dataclass
 class LinearProbeResult:
     """Result of probing layer hidden states for answer decoding."""
+
     layer_idx: int
     hidden_state_norm: float
     top_5_tokens: list[tuple[str, float]]  # (token, probability)
@@ -111,6 +112,7 @@ class LinearProbeResult:
 @dataclass
 class DeepDiveResult:
     """Complete deep dive analysis."""
+
     prompt: str
     target_answer: str
     model_id: str
@@ -148,9 +150,10 @@ class LayerDeepDive:
     @classmethod
     async def from_pretrained(cls, model_id: str) -> "LayerDeepDive":
         """Load model from HuggingFace."""
+        import json
+
         from chuk_lazarus.inference.loader import DType, HFLoader
         from chuk_lazarus.models_v2.families.registry import detect_model_family, get_family_info
-        import json
 
         # Download model
         result = HFLoader.download(model_id)
@@ -200,21 +203,21 @@ class LayerDeepDive:
         """Check if model uses MoE (Mixture of Experts)."""
         # Check config for MoE indicators
         if self._config is not None:
-            if hasattr(self._config, 'is_moe') and self._config.is_moe:
+            if hasattr(self._config, "is_moe") and self._config.is_moe:
                 return True
-            if hasattr(self._config, 'num_local_experts') and self._config.num_local_experts > 1:
+            if hasattr(self._config, "num_local_experts") and self._config.num_local_experts > 1:
                 return True
         # Check first layer for MoE structure
         layers = self._get_layers()
         if layers:
             layer = layers[0]
-            if hasattr(layer, 'mlp'):
+            if hasattr(layer, "mlp"):
                 mlp = layer.mlp
                 # GPT-OSS MoE has router and experts
-                if hasattr(mlp, 'router') and hasattr(mlp, 'experts'):
+                if hasattr(mlp, "router") and hasattr(mlp, "experts"):
                     return True
                 # Other MoE patterns
-                if hasattr(mlp, 'gate') and hasattr(mlp, 'experts'):
+                if hasattr(mlp, "gate") and hasattr(mlp, "experts"):
                     return True
         return False
 
@@ -241,12 +244,14 @@ class LayerDeepDive:
 
         # Setup hooks to capture attention
         hooks = ModelHooks(self.model, model_config=self._config)
-        hooks.configure(CaptureConfig(
-            layers=layers,
-            capture_hidden_states=True,
-            capture_attention_weights=True,
-            positions=PositionSelection.ALL,  # Need all positions for attention
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=layers,
+                capture_hidden_states=True,
+                capture_attention_weights=True,
+                positions=PositionSelection.ALL,  # Need all positions for attention
+            )
+        )
 
         # Forward pass
         hooks.forward(input_ids)
@@ -273,17 +278,16 @@ class LayerDeepDive:
             indexed = list(enumerate(query_attn))
             indexed.sort(key=lambda x: x[1], reverse=True)
 
-            top_attended = [
-                (pos, tokens[pos], weight)
-                for pos, weight in indexed[:top_k]
-            ]
+            top_attended = [(pos, tokens[pos], weight) for pos, weight in indexed[:top_k]]
 
-            results.append(AttentionFocusResult(
-                layer_idx=layer_idx,
-                query_position=query_position,
-                query_token=tokens[query_position],
-                top_attended=top_attended,
-            ))
+            results.append(
+                AttentionFocusResult(
+                    layer_idx=layer_idx,
+                    query_position=query_position,
+                    query_token=tokens[query_position],
+                    top_attended=top_attended,
+                )
+            )
 
         return results
 
@@ -307,10 +311,14 @@ class LayerDeepDive:
             print("  (MLP knockout not supported for MoE models)")
             return []
 
-        from chuk_lazarus.introspection.ablation import AblationStudy, ComponentType, AblationConfig
-
         # Create adapter manually
-        from chuk_lazarus.introspection.ablation import ModelAdapter
+        from chuk_lazarus.introspection.ablation import (
+            AblationConfig,
+            AblationStudy,
+            ComponentType,
+            ModelAdapter,
+        )
+
         adapter = ModelAdapter(self.model, self.tokenizer, self._config)
         study = AblationStudy(adapter)
 
@@ -348,17 +356,19 @@ class LayerDeepDive:
 
             # For proper comparison, we need to get logits with ablation
             # This is a simplified version - full version would re-run hooks
-            results.append(MLPKnockoutResult(
-                layer_idx=layer_idx,
-                original_top_token=original_top_token,
-                original_probability=original_top_prob,
-                ablated_top_token=ablated_top_token,
-                ablated_probability=0.0,  # Would need full re-run
-                target_token=target_token,
-                target_original_prob=original_target_prob,
-                target_ablated_prob=0.0,  # Would need full re-run
-                answer_disappeared=ablated_top_token != original_top_token,
-            ))
+            results.append(
+                MLPKnockoutResult(
+                    layer_idx=layer_idx,
+                    original_top_token=original_top_token,
+                    original_probability=original_top_prob,
+                    ablated_top_token=ablated_top_token,
+                    ablated_probability=0.0,  # Would need full re-run
+                    target_token=target_token,
+                    target_original_prob=original_target_prob,
+                    target_ablated_prob=0.0,  # Would need full re-run
+                    answer_disappeared=ablated_top_token != original_top_token,
+                )
+            )
 
         return results
 
@@ -390,11 +400,13 @@ class LayerDeepDive:
 
         # Setup hooks
         hooks = ModelHooks(self.model, model_config=self._config)
-        hooks.configure(CaptureConfig(
-            layers=layers,
-            capture_hidden_states=True,
-            positions=PositionSelection.LAST,
-        ))
+        hooks.configure(
+            CaptureConfig(
+                layers=layers,
+                capture_hidden_states=True,
+                positions=PositionSelection.LAST,
+            )
+        )
 
         # Forward pass
         hooks.forward(input_ids)
@@ -417,10 +429,7 @@ class LayerDeepDive:
             # Get top 5 predictions
             sorted_idx = mx.argsort(probs)[::-1]
             top_5_idx = sorted_idx[:5].tolist()
-            top_5 = [
-                (self.tokenizer.decode([idx]), float(probs[idx]))
-                for idx in top_5_idx
-            ]
+            top_5 = [(self.tokenizer.decode([idx]), float(probs[idx])) for idx in top_5_idx]
 
             # Get target token info
             target_prob = float(probs[target_id]) if target_id else 0.0
@@ -443,15 +452,17 @@ class LayerDeepDive:
             else:
                 hidden_norm = 0.0
 
-            results.append(LinearProbeResult(
-                layer_idx=layer_idx,
-                hidden_state_norm=hidden_norm,
-                top_5_tokens=top_5,
-                target_token=target_token,
-                target_probability=target_prob,
-                target_rank=target_rank,
-                can_decode_answer=target_rank == 1,
-            ))
+            results.append(
+                LinearProbeResult(
+                    layer_idx=layer_idx,
+                    hidden_state_norm=hidden_norm,
+                    top_5_tokens=top_5,
+                    target_token=target_token,
+                    target_probability=target_prob,
+                    target_rank=target_rank,
+                    can_decode_answer=target_rank == 1,
+                )
+            )
 
         return results
 
@@ -464,13 +475,13 @@ async def run_deep_dive(
 ) -> DeepDiveResult:
     """Run full deep dive analysis on a prompt."""
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Layer Deep Dive Analysis")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Model: {model_id}")
     print(f"Prompt: {repr(prompt)}")
     print(f"Target Answer: {repr(target_answer)}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Load model
     print("\nLoading model...")
@@ -491,10 +502,10 @@ async def run_deep_dive(
     )
 
     # 1. Linear Probe Analysis
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("1. LINEAR PROBE ANALYSIS")
     print("   Testing: Can we decode the answer from each layer?")
-    print("="*60)
+    print("=" * 60)
 
     probes = dive.probe_layers(prompt, target_answer, focus_layers)
     result.linear_probes = probes
@@ -511,16 +522,18 @@ async def run_deep_dive(
         if probe.can_decode_answer and emergence_layer is None:
             emergence_layer = probe.layer_idx
 
-        print(f"{probe.layer_idx:<8} {repr(top_token):<15} {probe.target_probability:.4f}       {rank_str:<12} {decode_str}")
+        print(
+            f"{probe.layer_idx:<8} {repr(top_token):<15} {probe.target_probability:.4f}       {rank_str:<12} {decode_str}"
+        )
 
     if emergence_layer is not None:
         print(f"\n→ Answer becomes top-1 at layer {emergence_layer}")
 
     # 2. Attention Pattern Analysis
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("2. ATTENTION PATTERN ANALYSIS")
     print("   Testing: Where does the last position look?")
-    print("="*60)
+    print("=" * 60)
 
     attn_layers = [l for l in [16, 18, 20, 22, 24] if l < num_layers]
     attention_results = dive.analyze_attention_patterns(
@@ -532,16 +545,18 @@ async def run_deep_dive(
     result.attention_focus = attention_results
 
     for attn in attention_results:
-        print(f"\nLayer {attn.layer_idx} - Position {attn.query_position} ({repr(attn.query_token)}) attends to:")
+        print(
+            f"\nLayer {attn.layer_idx} - Position {attn.query_position} ({repr(attn.query_token)}) attends to:"
+        )
         for pos, token, weight in attn.top_attended:
             bar = "#" * int(weight * 50)
             print(f"  {pos:3d} {repr(token):10} {weight:.3f} {bar}")
 
     # 3. MLP Knockout (optional, slower)
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("3. MLP KNOCKOUT ANALYSIS")
     print("   Testing: Which layer's MLP is causal for the answer?")
-    print("="*60)
+    print("=" * 60)
 
     knockout_layers = [18, 19, 20, 21, 22]
     knockout_layers = [l for l in knockout_layers if l < num_layers]
@@ -555,14 +570,16 @@ async def run_deep_dive(
 
         for ko in knockouts:
             changed = "YES ✓" if ko.answer_disappeared else "no"
-            print(f"{ko.layer_idx:<8} {repr(ko.original_top_token):<15} {repr(ko.ablated_top_token):<15} {changed}")
+            print(
+                f"{ko.layer_idx:<8} {repr(ko.original_top_token):<15} {repr(ko.ablated_top_token):<15} {changed}"
+            )
     except Exception as e:
         print(f"  (Knockout analysis failed: {e})")
 
     # Summary
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("SUMMARY")
-    print("="*60)
+    print("=" * 60)
 
     # Find the "computation layer"
     computation_layer = None
@@ -595,17 +612,20 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="mlx-community/gemma-3-4b-it-bf16",
         help="Model to analyze",
     )
     parser.add_argument(
-        "--prompt", "-p",
+        "--prompt",
+        "-p",
         default="347 * 892 = ",
         help="Arithmetic prompt to analyze",
     )
     parser.add_argument(
-        "--answer", "-a",
+        "--answer",
+        "-a",
         default=None,
         help="Expected answer token (auto-detected for arithmetic if not specified)",
     )

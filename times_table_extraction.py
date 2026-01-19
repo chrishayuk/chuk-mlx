@@ -15,8 +15,8 @@ Research questions:
 """
 
 import json
-import subprocess
 import re
+import subprocess
 from collections import defaultdict
 from pathlib import Path
 
@@ -27,12 +27,21 @@ def run_analysis(a: int, b: int, layer: int = 20, top_k: int = 30) -> dict:
     correct = a * b
 
     cmd = [
-        "uv", "run", "lazarus", "introspect", "analyze",
-        "-m", "openai/gpt-oss-20b",
-        "-p", prompt,
-        "--layers", str(layer),
-        "--top-k", str(top_k),
-        "-n", "1",  # Minimal generation, we just want layer analysis
+        "uv",
+        "run",
+        "lazarus",
+        "introspect",
+        "analyze",
+        "-m",
+        "openai/gpt-oss-20b",
+        "-p",
+        prompt,
+        "--layers",
+        str(layer),
+        "--top-k",
+        str(top_k),
+        "-n",
+        "1",  # Minimal generation, we just want layer analysis
         "--raw",  # Skip chat template for cleaner analysis
     ]
 
@@ -79,11 +88,11 @@ def analyze_neighborhood(data: dict) -> dict:
     neighborhood = {
         "correct_rank": None,
         "correct_prob": None,
-        "same_row": [],      # Same first operand (a*x for various x)
-        "same_col": [],      # Same second operand (x*b for various x)
+        "same_row": [],  # Same first operand (a*x for various x)
+        "same_col": [],  # Same second operand (x*b for various x)
         "adjacent_products": [],  # Products close to correct answer
-        "shared_factors": [],    # Products sharing a factor with correct
-        "squares": [],       # Perfect squares
+        "shared_factors": [],  # Products sharing a factor with correct
+        "squares": [],  # Perfect squares
         "other": [],
     }
 
@@ -110,9 +119,9 @@ def analyze_neighborhood(data: dict) -> dict:
         # Check same row (a*x)
         for src_a, src_b in sources:
             if src_a == a or src_b == a:
-                neighborhood["same_row"].append({
-                    "value": val, "prob": prob, "from": f"{src_a}*{src_b}"
-                })
+                neighborhood["same_row"].append(
+                    {"value": val, "prob": prob, "from": f"{src_a}*{src_b}"}
+                )
                 categorized = True
                 break
 
@@ -120,56 +129,70 @@ def analyze_neighborhood(data: dict) -> dict:
             # Check same column (x*b)
             for src_a, src_b in sources:
                 if src_a == b or src_b == b:
-                    neighborhood["same_col"].append({
-                        "value": val, "prob": prob, "from": f"{src_a}*{src_b}"
-                    })
+                    neighborhood["same_col"].append(
+                        {"value": val, "prob": prob, "from": f"{src_a}*{src_b}"}
+                    )
                     categorized = True
                     break
 
         if not categorized:
             # Check if it's a square
-            sqrt = int(val ** 0.5)
+            sqrt = int(val**0.5)
             if sqrt * sqrt == val and 2 <= sqrt <= 9:
-                neighborhood["squares"].append({
-                    "value": val, "prob": prob, "from": f"{sqrt}*{sqrt}"
-                })
+                neighborhood["squares"].append(
+                    {"value": val, "prob": prob, "from": f"{sqrt}*{sqrt}"}
+                )
                 categorized = True
 
         if not categorized:
             # Check adjacent products (within ±10 of correct)
             if abs(val - correct) <= 10 and sources:
-                neighborhood["adjacent_products"].append({
-                    "value": val, "prob": prob, "from": sources[0] if sources else "?"
-                })
+                neighborhood["adjacent_products"].append(
+                    {"value": val, "prob": prob, "from": sources[0] if sources else "?"}
+                )
                 categorized = True
 
         if not categorized and sources:
             # Check shared factors
             correct_factors = set()
-            if correct % 2 == 0: correct_factors.add(2)
-            if correct % 3 == 0: correct_factors.add(3)
-            if correct % 5 == 0: correct_factors.add(5)
-            if correct % 7 == 0: correct_factors.add(7)
+            if correct % 2 == 0:
+                correct_factors.add(2)
+            if correct % 3 == 0:
+                correct_factors.add(3)
+            if correct % 5 == 0:
+                correct_factors.add(5)
+            if correct % 7 == 0:
+                correct_factors.add(7)
 
             val_factors = set()
-            if val % 2 == 0: val_factors.add(2)
-            if val % 3 == 0: val_factors.add(3)
-            if val % 5 == 0: val_factors.add(5)
-            if val % 7 == 0: val_factors.add(7)
+            if val % 2 == 0:
+                val_factors.add(2)
+            if val % 3 == 0:
+                val_factors.add(3)
+            if val % 5 == 0:
+                val_factors.add(5)
+            if val % 7 == 0:
+                val_factors.add(7)
 
             if correct_factors & val_factors:
-                neighborhood["shared_factors"].append({
-                    "value": val, "prob": prob,
-                    "from": f"{sources[0][0]}*{sources[0][1]}",
-                    "shared": list(correct_factors & val_factors)
-                })
+                neighborhood["shared_factors"].append(
+                    {
+                        "value": val,
+                        "prob": prob,
+                        "from": f"{sources[0][0]}*{sources[0][1]}",
+                        "shared": list(correct_factors & val_factors),
+                    }
+                )
                 categorized = True
 
         if not categorized and sources:
-            neighborhood["other"].append({
-                "value": val, "prob": prob,
-                "from": f"{sources[0][0]}*{sources[0][1]}" if sources else "?"
-            })
+            neighborhood["other"].append(
+                {
+                    "value": val,
+                    "prob": prob,
+                    "from": f"{sources[0][0]}*{sources[0][1]}" if sources else "?",
+                }
+            )
 
     return neighborhood
 
@@ -183,7 +206,7 @@ def main():
     # Run for all single-digit multiplications
     for a in range(2, 10):
         for b in range(2, 10):
-            print(f"\nAnalyzing {a}*{b}={a*b}...")
+            print(f"\nAnalyzing {a}*{b}={a * b}...")
 
             try:
                 data = run_analysis(a, b, layer=20, top_k=30)
@@ -197,7 +220,11 @@ def main():
 
                 # Print summary
                 n = neighborhood
-                print(f"  Correct rank: {n['correct_rank']}, prob: {n['correct_prob']:.3f}" if n['correct_prob'] else "  Correct not in top-k!")
+                print(
+                    f"  Correct rank: {n['correct_rank']}, prob: {n['correct_prob']:.3f}"
+                    if n["correct_prob"]
+                    else "  Correct not in top-k!"
+                )
                 print(f"  Same row: {len(n['same_row'])}, Same col: {len(n['same_col'])}")
                 print(f"  Adjacent: {len(n['adjacent_products'])}, Squares: {len(n['squares'])}")
 
@@ -222,7 +249,14 @@ def main():
 
     for r in results:
         n = r["neighborhood"]
-        for cat in ["same_row", "same_col", "adjacent_products", "squares", "shared_factors", "other"]:
+        for cat in [
+            "same_row",
+            "same_col",
+            "adjacent_products",
+            "squares",
+            "shared_factors",
+            "other",
+        ]:
             category_counts[cat] += len(n[cat])
             for item in n[cat]:
                 category_probs[cat].append(item["prob"])
@@ -247,7 +281,9 @@ def main():
 
     confusion_scores.sort(key=lambda x: -x[2])
     for prompt, correct, wrong_prob, correct_prob in confusion_scores[:10]:
-        print(f"  {prompt:8} = {correct:3}  wrong_prob={wrong_prob:.3f}  correct_prob={correct_prob:.3f}")
+        print(
+            f"  {prompt:8} = {correct:3}  wrong_prob={wrong_prob:.3f}  correct_prob={correct_prob:.3f}"
+        )
 
 
 if __name__ == "__main__":

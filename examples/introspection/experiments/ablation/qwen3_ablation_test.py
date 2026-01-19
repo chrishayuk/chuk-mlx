@@ -10,13 +10,14 @@ Ablation will reveal which layers actually matter.
 Run: uv run python examples/introspection/qwen3_ablation_test.py
 """
 
-import numpy as np
+import warnings
+
 import mlx.core as mx
 import mlx.nn as nn
+import numpy as np
 from sklearn.linear_model import LogisticRegression
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 class Qwen3AblationTest:
@@ -70,7 +71,7 @@ class Qwen3AblationTest:
                 output = layer(h, mask=mask, cache=None)
                 if isinstance(output, tuple):
                     h = output[0]
-                elif hasattr(output, 'hidden_states'):
+                elif hasattr(output, "hidden_states"):
                     h = output.hidden_states
                 else:
                     h = output
@@ -88,7 +89,7 @@ class Qwen3AblationTest:
     ) -> mx.array:
         """Forward through layer with ablated MLP."""
         # Pre-attention norm
-        if hasattr(layer, 'input_layernorm'):
+        if hasattr(layer, "input_layernorm"):
             normed = layer.input_layernorm(h)
         else:
             normed = h
@@ -100,14 +101,14 @@ class Qwen3AblationTest:
         h = h + attn_out
 
         # Post-attention norm
-        if hasattr(layer, 'post_attention_layernorm'):
+        if hasattr(layer, "post_attention_layernorm"):
             mlp_input = layer.post_attention_layernorm(h)
         else:
             mlp_input = h
 
         # MLP with ablation
         mlp = layer.mlp
-        if hasattr(mlp, 'gate_proj'):
+        if hasattr(mlp, "gate_proj"):
             gate = mlp.gate_proj(mlp_input)
             up = mlp.up_proj(mlp_input)
             mlp_hidden = nn.silu(gate) * up
@@ -293,7 +294,7 @@ class Qwen3AblationTest:
 
             # This is a simplification - we'd need MLP activations, not final hidden
             # For now, just test ablating random top neurons
-            print(f"     Testing ablation of top neurons...")
+            print("     Testing ablation of top neurons...")
 
             # Test ablating neurons 0-9, 100-109, etc.
             neuron_groups = [

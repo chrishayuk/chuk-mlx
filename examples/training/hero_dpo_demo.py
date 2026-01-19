@@ -143,7 +143,7 @@ def demo_preference_pairs():
 
     for i in range(3):
         outcome = generate_puzzle_outcome()
-        print(f"\n--- Pair {i+1} ({outcome['puzzle_type']}) ---")
+        print(f"\n--- Pair {i + 1} ({outcome['puzzle_type']}) ---")
         print(f"Prompt: {outcome['prompt']}")
         print(f"\nCHOSEN (preferred):\n{outcome['chosen']}")
         print(f"\nREJECTED:\n{outcome['rejected']}")

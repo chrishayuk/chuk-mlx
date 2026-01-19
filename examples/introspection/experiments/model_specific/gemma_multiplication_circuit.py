@@ -37,6 +37,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class CircuitComponent:
     """A component of the multiplication circuit."""
+
     layer: int
     component_type: str  # 'attention', 'mlp', 'residual'
     role: str  # Description of what it does
@@ -94,7 +95,7 @@ class MultiplicationCircuitAnalyzer:
         else:
             head = None
 
-        embed_scale = float(self.hidden_size ** 0.5)
+        embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, norm, head, embed_scale
 
@@ -147,7 +148,7 @@ class MultiplicationCircuitAnalyzer:
             attn = layer.self_attn
             batch_size, seq_len, _ = h.shape
 
-            if hasattr(layer, 'input_layernorm'):
+            if hasattr(layer, "input_layernorm"):
                 h_normed = layer.input_layernorm(h)
             else:
                 h_normed = h
@@ -161,7 +162,9 @@ class MultiplicationCircuitAnalyzer:
             num_kv_heads = attn.num_kv_heads
             head_dim = attn.head_dim
 
-            queries = queries.reshape(batch_size, seq_len, num_heads, head_dim).transpose(0, 2, 1, 3)
+            queries = queries.reshape(batch_size, seq_len, num_heads, head_dim).transpose(
+                0, 2, 1, 3
+            )
             keys = keys.reshape(batch_size, seq_len, num_kv_heads, head_dim).transpose(0, 2, 1, 3)
 
             # Normalize
@@ -237,9 +240,9 @@ class MultiplicationCircuitAnalyzer:
         print("-" * 55)
 
         X_labels = {
-            'first_digit': first_digits[:50],
-            'tens_digit': [ans // 10 for ans in full_answers[:50]],
-            'ones_digit': [ans % 10 for ans in full_answers[:50]],
+            "first_digit": first_digits[:50],
+            "tens_digit": [ans // 10 for ans in full_answers[:50]],
+            "ones_digit": [ans % 10 for ans in full_answers[:50]],
         }
 
         probe_results = {}
@@ -268,7 +271,9 @@ class MultiplicationCircuitAnalyzer:
                     accuracies[label_name] = 0.0
 
             layer_name = "Embed" if layer == -1 else f"L{layer}"
-            print(f"{layer_name:<8} {accuracies['first_digit']:>12.1%}   {accuracies['tens_digit']:>12.1%}   {accuracies['ones_digit']:>12.1%}")
+            print(
+                f"{layer_name:<8} {accuracies['first_digit']:>12.1%}   {accuracies['tens_digit']:>12.1%}   {accuracies['ones_digit']:>12.1%}"
+            )
 
             probe_results[layer] = accuracies
 
@@ -294,13 +299,13 @@ class MultiplicationCircuitAnalyzer:
         star_pos = None
 
         for i, tok in enumerate(tokens):
-            if '=' in tok:
+            if "=" in tok:
                 eq_pos = i
-            elif '*' in tok:
+            elif "*" in tok:
                 star_pos = i
-            elif '7' in tok:
+            elif "7" in tok:
                 op1_pos = i
-            elif '8' in tok:
+            elif "8" in tok:
                 op2_pos = i
 
         print(f"\nToken positions: op1={op1_pos}, star={star_pos}, op2={op2_pos}, eq={eq_pos}")
@@ -326,17 +331,21 @@ class MultiplicationCircuitAnalyzer:
                 attn_to_op2 = avg_attn[op2_pos] if op2_pos is not None else 0
                 attn_to_star = avg_attn[star_pos] if star_pos is not None else 0
 
-                print(f"L{layer:<7} {attn_to_op1:>12.3f}   {attn_to_op2:>12.3f}   {attn_to_star:>12.3f}")
+                print(
+                    f"L{layer:<7} {attn_to_op1:>12.3f}   {attn_to_op2:>12.3f}   {attn_to_star:>12.3f}"
+                )
 
                 # Track layers with high operand attention
                 if attn_to_op1 > 0.1 or attn_to_op2 > 0.1:
-                    critical_layers.append({
-                        'layer': layer,
-                        'attn_to_op1': attn_to_op1,
-                        'attn_to_op2': attn_to_op2,
-                    })
+                    critical_layers.append(
+                        {
+                            "layer": layer,
+                            "attn_to_op1": attn_to_op1,
+                            "attn_to_op2": attn_to_op2,
+                        }
+                    )
 
-        return {'critical_layers': critical_layers, 'tokens': tokens}
+        return {"critical_layers": critical_layers, "tokens": tokens}
 
     def activation_patching(self) -> dict:
         """Test what information flows through the circuit using patching."""
@@ -405,22 +414,24 @@ class MultiplicationCircuitAnalyzer:
             output = self.tokenizer.decode([int(next_token)])
 
             # Interpret
-            if '5' in output or '56' in output:
+            if "5" in output or "56" in output:
                 interp = "Source answer (56) transferred!"
-            elif '1' in output or '12' in output:
+            elif "1" in output or "12" in output:
                 interp = "Target answer (12) preserved"
             else:
                 interp = f"Unexpected: {output}"
 
             print(f"L{patch_layer:<14} {output:<20} {interp}")
 
-            patching_results.append({
-                'layer': patch_layer,
-                'output': output,
-                'interpretation': interp,
-            })
+            patching_results.append(
+                {
+                    "layer": patch_layer,
+                    "output": output,
+                    "interpretation": interp,
+                }
+            )
 
-        return {'results': patching_results}
+        return {"results": patching_results}
 
     def identify_circuit_phases(self) -> dict:
         """Identify the phases of the multiplication circuit."""
@@ -430,41 +441,41 @@ class MultiplicationCircuitAnalyzer:
 
         # Based on all our findings, map the circuit
         phases = {
-            'phase_1_encoding': {
-                'layers': [0, 1, 2, 3],
-                'description': 'Operand encoding',
-                'evidence': 'L0, L1 critical for accuracy (90-100% drop when skipped)',
-                'what_happens': 'Tokenized operands transformed into semantic representations',
+            "phase_1_encoding": {
+                "layers": [0, 1, 2, 3],
+                "description": "Operand encoding",
+                "evidence": "L0, L1 critical for accuracy (90-100% drop when skipped)",
+                "what_happens": "Tokenized operands transformed into semantic representations",
             },
-            'phase_2_recognition': {
-                'layers': [4, 5, 6, 7],
-                'description': 'Arithmetic task recognition',
-                'evidence': 'L4 critical (100% drop), probes show arithmetic detection here',
-                'what_happens': 'Model recognizes this is a multiplication task',
+            "phase_2_recognition": {
+                "layers": [4, 5, 6, 7],
+                "description": "Arithmetic task recognition",
+                "evidence": "L4 critical (100% drop), probes show arithmetic detection here",
+                "what_happens": "Model recognizes this is a multiplication task",
             },
-            'phase_3_retrieval': {
-                'layers': [8, 9, 10, 11, 12, 13, 14, 15, 16],
-                'description': 'Lookup table retrieval',
-                'evidence': 'Probe accuracy reaches 100% by L16, commutativity perfect in early layers',
-                'what_happens': 'Model retrieves multiplication fact from lookup-like structure',
+            "phase_3_retrieval": {
+                "layers": [8, 9, 10, 11, 12, 13, 14, 15, 16],
+                "description": "Lookup table retrieval",
+                "evidence": "Probe accuracy reaches 100% by L16, commutativity perfect in early layers",
+                "what_happens": "Model retrieves multiplication fact from lookup-like structure",
             },
-            'phase_4_computation': {
-                'layers': [17, 18, 19, 20, 21, 22],
-                'description': 'Answer computation/refinement',
-                'evidence': 'L21 shows 70% drop when skipped, steering effective at L20/L24',
-                'what_happens': 'Final answer computed and prepared for output',
+            "phase_4_computation": {
+                "layers": [17, 18, 19, 20, 21, 22],
+                "description": "Answer computation/refinement",
+                "evidence": "L21 shows 70% drop when skipped, steering effective at L20/L24",
+                "what_happens": "Final answer computed and prepared for output",
             },
-            'phase_5_formatting': {
-                'layers': [23, 24, 25, 26, 27, 28],
-                'description': 'Output formatting',
-                'evidence': 'Skipping L24-L33 causes 60% drop',
-                'what_happens': 'Answer formatted for token generation',
+            "phase_5_formatting": {
+                "layers": [23, 24, 25, 26, 27, 28],
+                "description": "Output formatting",
+                "evidence": "Skipping L24-L33 causes 60% drop",
+                "what_happens": "Answer formatted for token generation",
             },
-            'phase_6_optional': {
-                'layers': [29, 30, 31, 32, 33],
-                'description': 'Non-essential processing',
-                'evidence': 'Skipping these layers causes 0% drop!',
-                'what_happens': 'General language modeling (not needed for simple arithmetic)',
+            "phase_6_optional": {
+                "layers": [29, 30, 31, 32, 33],
+                "description": "Non-essential processing",
+                "evidence": "Skipping these layers causes 0% drop!",
+                "what_happens": "General language modeling (not needed for simple arithmetic)",
             },
         }
 
@@ -483,16 +494,16 @@ class MultiplicationCircuitAnalyzer:
         results = {}
 
         # 1. Probe answer emergence
-        results['probe_results'] = self.probe_answer_emergence()
+        results["probe_results"] = self.probe_answer_emergence()
 
         # 2. Attention patterns
-        results['attention'] = self.analyze_attention_patterns()
+        results["attention"] = self.analyze_attention_patterns()
 
         # 3. Activation patching
-        results['patching'] = self.activation_patching()
+        results["patching"] = self.activation_patching()
 
         # 4. Circuit phases
-        results['phases'] = self.identify_circuit_phases()
+        results["phases"] = self.identify_circuit_phases()
 
         # Summary
         print("\n" + "=" * 70)

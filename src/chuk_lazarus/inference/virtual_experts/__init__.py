@@ -42,6 +42,8 @@ Example - Creating a custom expert:
 """
 
 from .base import (
+    RoutingDecision,
+    RoutingTrace,
     VirtualExpertAnalysis,
     VirtualExpertApproach,
     VirtualExpertPlugin,
@@ -63,6 +65,9 @@ __all__ = [
     "VirtualExpertResult",
     "VirtualExpertAnalysis",
     "VirtualExpertApproach",
+    # Routing trace (verbose output)
+    "RoutingDecision",
+    "RoutingTrace",
     # Registry
     "VirtualExpertRegistry",
     "get_default_registry",

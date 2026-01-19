@@ -1,0 +1,82 @@
+# MoE Dynamics Experiment Configuration
+
+model: allenai/OLMoE-1B-7B-0924
+
+analyses:
+  - cold_experts
+  - circuits
+  - generation
+  - attention_routing
+  - interference
+  - merging
+  - task_aware
+
+# Cold Expert Analysis
+cold_experts:
+  threshold: 0.01  # Activation rate threshold for "cold"
+  num_prompts: 100  # Prompts for activation frequency analysis
+  ablation_prompts: 20  # Prompts for ablation impact testing
+
+# Cross-Layer Circuit Analysis
+circuits:
+  correlation_threshold: 0.3  # Min correlation to link experts
+  min_circuit_length: 3  # Min layers in a circuit
+  num_prompts: 50
+
+# Generation Dynamics
+generation:
+  max_tokens: 50  # Tokens to generate per prompt
+  num_prompts: 20
+  track_layers: [0, 4, 8, 12, 15]  # Layers to track
+
+# Attention-Based Routing Prediction
+attention_routing:
+  prediction_layers: [4, 8, 12]  # Layers for prediction
+  train_prompts: 50
+  test_prompts: 20
+
+# Expert Interference
+interference:
+  k_values: [1, 2, 4, 8]  # Top-k values to test
+  num_prompts: 30
+
+# Expert Merging
+merging:
+  similarity_threshold: 0.8  # Cosine similarity for merge candidates
+  quality_threshold: 0.95  # Max quality loss tolerance
+
+# Task-Aware Expert Loading
+task_aware:
+  probe_layer: 4  # Layer for task probe
+  prediction_targets: [8, 12, 15]  # Layers to predict experts for
+  train_prompts: 100
+  test_prompts: 50
+
+# Prompt datasets by category
+prompts:
+  arithmetic:
+    - "127 * 89 = "
+    - "456 + 789 = "
+    - "1000 - 357 = "
+    - "144 / 12 = "
+    - "What is 45 times 37?"
+
+  code:
+    - "def fibonacci(n):"
+    - "import numpy as np"
+    - "class Database:"
+    - "for i in range(10):"
+    - "async def fetch_data():"
+
+  language:
+    - "The capital of France is"
+    - "A synonym for happy is"
+    - "The opposite of cold is"
+    - "Shakespeare wrote"
+    - "The largest planet is"
+
+  mixed:
+    - "Calculate 45 * 37 and explain"
+    - "Write a function to compute factorial"
+    - "Paris is to France as Tokyo is to"
+    - "Translate 'hello' to Spanish"

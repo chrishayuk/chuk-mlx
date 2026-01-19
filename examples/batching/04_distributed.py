@@ -177,6 +177,7 @@ async def main():
 
     # Count by bucket before interleaving
     from collections import Counter
+
     bucket_counts = Counter(mb.bucket_id for mb in original_mbs)
     print("   Bucket distribution:")
     for bucket_id, count in sorted(bucket_counts.items()):
@@ -237,9 +238,11 @@ async def main():
         microbatch_idx=15,
         global_step=47,
     )
-    print(f"   Checkpoint: epoch={checkpoint_pos.epoch}, "
-          f"mb_idx={checkpoint_pos.microbatch_idx}, "
-          f"global_step={checkpoint_pos.global_step}")
+    print(
+        f"   Checkpoint: epoch={checkpoint_pos.epoch}, "
+        f"mb_idx={checkpoint_pos.microbatch_idx}, "
+        f"global_step={checkpoint_pos.global_step}"
+    )
 
     # Save and load checkpoint position
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -249,10 +252,12 @@ async def main():
         print("   Saved/loaded checkpoint position: ✓")
 
     # Resume iteration
-    remaining = list(plan.iter_from(
-        epoch=checkpoint_pos.epoch,
-        microbatch_idx=checkpoint_pos.microbatch_idx,
-    ))
+    remaining = list(
+        plan.iter_from(
+            epoch=checkpoint_pos.epoch,
+            microbatch_idx=checkpoint_pos.microbatch_idx,
+        )
+    )
 
     total_remaining = len(remaining)
     epochs_remaining = len(set(ep for ep, _, _ in remaining))

@@ -19,7 +19,6 @@ Usage:
 """
 
 import json
-from collections import defaultdict
 from pathlib import Path
 
 import mlx.core as mx
@@ -74,7 +73,7 @@ class EmbeddingAnalyzer:
 
         layers = list(backbone.layers)
         embed = backbone.embed_tokens
-        embed_scale = float(self.hidden_size ** 0.5)
+        embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, embed_scale
 
@@ -178,7 +177,9 @@ class EmbeddingAnalyzer:
         all_prompts = list(all_prompts)
         labels = list(labels)
 
-        print(f"\nDataset: {n_samples} arithmetic + {n_samples} language = {len(all_prompts)} total")
+        print(
+            f"\nDataset: {n_samples} arithmetic + {n_samples} language = {len(all_prompts)} total"
+        )
 
         # Collect raw embeddings
         print("Collecting raw embeddings...")
@@ -213,13 +214,19 @@ class EmbeddingAnalyzer:
 
         print(f"\n{'Representation':<20} {'Accuracy':<15} {'Interpretation'}")
         print("-" * 55)
-        print(f"{'Raw Embedding':<20} {acc_raw:>12.1%}   {'BAKED IN!' if acc_raw > 0.9 else 'Partial' if acc_raw > 0.7 else 'Not encoded'}")
-        print(f"{'After L0':<20} {acc_l0:>12.1%}   {'Already there' if acc_l0 > 0.9 else 'Enhanced'}")
+        print(
+            f"{'Raw Embedding':<20} {acc_raw:>12.1%}   {'BAKED IN!' if acc_raw > 0.9 else 'Partial' if acc_raw > 0.7 else 'Not encoded'}"
+        )
+        print(
+            f"{'After L0':<20} {acc_l0:>12.1%}   {'Already there' if acc_l0 > 0.9 else 'Enhanced'}"
+        )
 
         return {
-            'raw_embedding_accuracy': acc_raw,
-            'after_l0_accuracy': acc_l0,
-            'interpretation': 'Task type baked into embeddings' if acc_raw > 0.9 else 'L0 adds task info'
+            "raw_embedding_accuracy": acc_raw,
+            "after_l0_accuracy": acc_l0,
+            "interpretation": "Task type baked into embeddings"
+            if acc_raw > 0.9
+            else "L0 adds task info",
         }
 
     # =========================================================================
@@ -296,13 +303,19 @@ class EmbeddingAnalyzer:
         print("-" * 55)
         random_baseline = 0.333
         print(f"{'Random baseline':<20} {random_baseline:>12.1%}")
-        print(f"{'Raw Embedding':<20} {acc_raw:>12.1%}   {'BAKED IN!' if acc_raw > 0.9 else 'Partial' if acc_raw > 0.6 else 'Not encoded'}")
-        print(f"{'After L0':<20} {acc_l0:>12.1%}   {'Already there' if acc_l0 > 0.9 else 'Enhanced'}")
+        print(
+            f"{'Raw Embedding':<20} {acc_raw:>12.1%}   {'BAKED IN!' if acc_raw > 0.9 else 'Partial' if acc_raw > 0.6 else 'Not encoded'}"
+        )
+        print(
+            f"{'After L0':<20} {acc_l0:>12.1%}   {'Already there' if acc_l0 > 0.9 else 'Enhanced'}"
+        )
 
         return {
-            'raw_embedding_accuracy': acc_raw,
-            'after_l0_accuracy': acc_l0,
-            'interpretation': 'Operation baked into embeddings' if acc_raw > 0.9 else 'L0 adds operation info'
+            "raw_embedding_accuracy": acc_raw,
+            "after_l0_accuracy": acc_l0,
+            "interpretation": "Operation baked into embeddings"
+            if acc_raw > 0.9
+            else "L0 adds operation info",
         }
 
     # =========================================================================
@@ -353,7 +366,7 @@ class EmbeddingAnalyzer:
 
         results = {}
 
-        for name, values in [('Operand 1 (a)', op1_values), ('Operand 2 (b)', op2_values)]:
+        for name, values in [("Operand 1 (a)", op1_values), ("Operand 2 (b)", op2_values)]:
             y = np.array(values)
 
             # Raw embeddings
@@ -376,14 +389,14 @@ class EmbeddingAnalyzer:
             except:
                 acc_l0 = 0.125
 
-            results[name] = {'raw': acc_raw, 'l0': acc_l0}
+            results[name] = {"raw": acc_raw, "l0": acc_l0}
 
         print(f"\n{'Operand':<15} {'Raw Embed':<12} {'After L0':<12} {'L0 Gain'}")
         print("-" * 50)
         random_baseline = 0.125  # 1/8 for digits 2-9
 
         for name, acc in results.items():
-            gain = acc['l0'] - acc['raw']
+            gain = acc["l0"] - acc["raw"]
             print(f"{name:<15} {acc['raw']:>10.1%} {acc['l0']:>10.1%} {gain:>+10.1%}")
 
         print(f"\nRandom baseline: {random_baseline:.1%}")
@@ -486,12 +499,12 @@ class EmbeddingAnalyzer:
             print("\n✓ Expected: Answer NOT in raw embeddings (computed later)")
 
         return {
-            'raw_classification': acc_raw,
-            'l0_classification': acc_l0,
-            'raw_r2': r2_raw,
-            'l0_r2': r2_l0,
-            'raw_mae': mae_raw,
-            'l0_mae': mae_l0,
+            "raw_classification": acc_raw,
+            "l0_classification": acc_l0,
+            "raw_r2": r2_raw,
+            "l0_r2": r2_l0,
+            "raw_mae": mae_raw,
+            "l0_mae": mae_l0,
         }
 
     # =========================================================================
@@ -527,7 +540,7 @@ class EmbeddingAnalyzer:
 
         for i, tok in enumerate(tokens):
             emb = h[0, i, :]
-            norm = float(mx.sqrt(mx.sum(emb ** 2)))
+            norm = float(mx.sqrt(mx.sum(emb**2)))
             first_5 = [f"{float(x):.2f}" for x in emb[:5].tolist()]
             print(f"{i:<10} {tok:<10} {norm:>10.2f}   {first_5}")
 
@@ -561,7 +574,7 @@ class EmbeddingAnalyzer:
             cos_sim = np.dot(e1, e2) / (np.linalg.norm(e1) * np.linalg.norm(e2))
             print(f"{p1:<15} {p2:<15} {cos_sim:>10.4f}")
 
-        return {'tokens': tokens, 'embeddings_compared': pairs}
+        return {"tokens": tokens, "embeddings_compared": pairs}
 
     # =========================================================================
     # SUMMARY
@@ -570,11 +583,11 @@ class EmbeddingAnalyzer:
         """Run all embedding analysis experiments."""
         results = {}
 
-        results['task_type'] = self.test_task_type_in_embeddings()
-        results['operation_type'] = self.test_operation_type_in_embeddings()
-        results['operands'] = self.test_operands_in_embeddings()
-        results['answer'] = self.test_answer_in_embeddings()
-        results['tokens'] = self.test_token_embeddings()
+        results["task_type"] = self.test_task_type_in_embeddings()
+        results["operation_type"] = self.test_operation_type_in_embeddings()
+        results["operands"] = self.test_operands_in_embeddings()
+        results["answer"] = self.test_answer_in_embeddings()
+        results["tokens"] = self.test_token_embeddings()
 
         # Summary
         print("\n" + "=" * 70)

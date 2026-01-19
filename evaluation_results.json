@@ -1,0 +1,17 @@
+[
+  {
+    "model_name": "openai/gpt-oss-20b",
+    "perplexity": 3.1937855197495404,
+    "avg_loss": 1.1612068965517242,
+    "num_tokens": 290,
+    "inference_time_ms": 915.2055740356445,
+    "params": 4790443584,
+    "generations": [
+      "11293. 11293 mod 1000 = 293. So answer 293.\n\nBut we must confirm that the product of all odd numbers",
+      "16.\n\nThe square root of 256 is indeed 16.\n\nIt seems like you might be looking for a different answer or perhaps a",
+      "arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in",
+      "df[df['age'] > 30]\nprint(filtered)\n```\n\n### 3. Using `awk` for Text Processing\n\nIf you are working",
+      "Tokyo.\n\nThe capital of Japan is Tokyo.\n\nThe capital of Japan is Tokyo.\n\nThe capital of Japan is Tokyo.\n\nThe capital of"
+    ]
+  }
+]

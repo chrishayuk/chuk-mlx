@@ -18,7 +18,6 @@ import json
 from pathlib import Path
 
 import mlx.core as mx
-
 from _loader import (
     ActivationDivergence,
     compare_activations,
@@ -51,7 +50,7 @@ def analyze_divergence(
 
         for i, prompt in enumerate(prompt_list):
             short = prompt[:60] + "..." if len(prompt) > 60 else prompt
-            print(f"  [{i+1}/{len(prompt_list)}] {short}")
+            print(f"  [{i + 1}/{len(prompt_list)}] {short}")
 
             divs = compare_activations(base_model, ft_model, tokenizer, prompt)
             results[prompt_type].append(divs)
@@ -147,8 +146,9 @@ def main():
     parser = argparse.ArgumentParser(description="Activation Divergence Analysis")
     parser.add_argument("--base", default=None, help="Base model ID")
     parser.add_argument("--ft", default=None, help="Fine-tuned model ID")
-    parser.add_argument("--pair", choices=list(DEFAULT_PAIRS.keys()), default="gemma",
-                        help="Predefined model pair")
+    parser.add_argument(
+        "--pair", choices=list(DEFAULT_PAIRS.keys()), default="gemma", help="Predefined model pair"
+    )
     args = parser.parse_args()
 
     # Get model IDs
@@ -193,18 +193,20 @@ def main():
 
     # Generate tool prompts with template if available
     if template:
-        tools = [{
-            "type": "function",
-            "function": {
-                "name": "get_weather",
-                "description": "Get current weather for a location",
-                "parameters": {
-                    "type": "object",
-                    "properties": {"location": {"type": "string"}},
-                    "required": ["location"],
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_weather",
+                    "description": "Get current weather for a location",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                        "required": ["location"],
+                    },
                 },
-            },
-        }]
+            }
+        ]
 
         for query in ["What is the weather in Tokyo?", "Tell me the weather in London"]:
             prompt = format_tool_prompt(template, query, tools)
@@ -226,8 +228,7 @@ def main():
     output_path = Path("activation_divergence_results.json")
     output_data = {
         prompt_type: [
-            [{"layer": d.layer, "cos_sim": d.cosine_similarity, "l2": d.l2_distance}
-             for d in divs]
+            [{"layer": d.layer, "cos_sim": d.cosine_similarity, "l2": d.l2_distance} for d in divs]
             for divs in all_divs
         ]
         for prompt_type, all_divs in results.items()

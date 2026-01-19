@@ -33,6 +33,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class RefusalTest:
     """Result of a refusal direction test."""
+
     test_name: str
     prompt: str
     original_output: str
@@ -118,7 +119,11 @@ class RefusalDirectionFinder:
                 out = lyr(h, mask=mask)
             except TypeError:
                 out = lyr(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             if idx == layer:
                 return h[0, -1, :]  # [hidden_dim]
@@ -147,7 +152,11 @@ class RefusalDirectionFinder:
                 out = layer(h, mask=mask)
             except TypeError:
                 out = layer(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
         h_n = norm(h) if norm else h
         logits = head(h_n)
@@ -184,7 +193,11 @@ class RefusalDirectionFinder:
                 out = layer(h, mask=mask)
             except TypeError:
                 out = layer(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Patch at specified layer
             if idx == patch_layer:
@@ -229,7 +242,11 @@ class RefusalDirectionFinder:
                 out = layer(h, mask=mask)
             except TypeError:
                 out = layer(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Add steering at specified layer
             if idx == steering_layer:
@@ -255,16 +272,16 @@ class RefusalDirectionFinder:
     ):
         """Run all refusal direction experiments."""
 
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("REFUSAL DIRECTION EXPERIMENTS")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
         print(f"Open prompt (works):   {repr(open_prompt)}")
         print(f"Closed prompt (fails): {repr(closed_prompt)}")
 
         # Get baseline outputs
         open_output = self.get_output(open_prompt)
         closed_output = self.get_output(closed_prompt)
-        print(f"\nBaseline outputs:")
+        print("\nBaseline outputs:")
         print(f"  Open → {repr(open_output)}")
         print(f"  Closed → {repr(closed_output)}")
 
@@ -282,10 +299,10 @@ class RefusalDirectionFinder:
         print(f"\nTesting layers: {test_layers}")
 
         # Experiment 1: Inject closed hidden state into open case
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("EXPERIMENT 1: Inject CLOSED L[n] → OPEN case")
         print("(Does injecting 'refusal direction' cause working case to fail?)")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
         for layer in test_layers:
             h_closed = self.get_hidden_state(closed_prompt, layer)
@@ -302,10 +319,10 @@ class RefusalDirectionFinder:
             print(f"  L{layer}: {repr(open_output)} → {repr(patched_output)} ({effect})")
 
         # Experiment 2: Inject open hidden state into closed case
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("EXPERIMENT 2: Inject OPEN L[n] → CLOSED case")
         print("(Does injecting 'computation direction' make broken case work?)")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
         for layer in test_layers:
             h_open = self.get_hidden_state(open_prompt, layer)
@@ -322,10 +339,10 @@ class RefusalDirectionFinder:
             print(f"  L{layer}: {repr(closed_output)} → {repr(patched_output)} ({effect})")
 
         # Experiment 3: Compute and apply steering vector
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("EXPERIMENT 3: Steering vector = CLOSED - OPEN")
         print("(Does adding refusal direction to new prompts cause refusal?)")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
         test_prompts = [
             "50 + 25 = ",
@@ -349,13 +366,15 @@ class RefusalDirectionFinder:
                     steered = self.run_with_steering(prompt, layer, refusal_vector, scale)
 
                     if steered != original:
-                        print(f"    {repr(prompt)}: {repr(original)} → {repr(steered)} (scale={scale})")
+                        print(
+                            f"    {repr(prompt)}: {repr(original)} → {repr(steered)} (scale={scale})"
+                        )
 
         # Experiment 4: Reverse steering - add computation direction to broken case
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("EXPERIMENT 4: Steering vector = OPEN - CLOSED")
         print("(Does adding computation direction fix broken prompts?)")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
         broken_prompts = [
             "50 + 25 =",  # No trailing space
@@ -378,7 +397,9 @@ class RefusalDirectionFinder:
                     steered = self.run_with_steering(prompt, layer, computation_vector, scale)
 
                     if steered != original:
-                        print(f"    {repr(prompt)}: {repr(original)} → {repr(steered)} (scale={scale})")
+                        print(
+                            f"    {repr(prompt)}: {repr(original)} → {repr(steered)} (scale={scale})"
+                        )
 
         # Experiment 5: Early layer steering - enable computation
         num_layers = len(self._get_layers())
@@ -389,10 +410,10 @@ class RefusalDirectionFinder:
         else:
             early_layers = [4, 8, 12]
 
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print(f"EXPERIMENT 5: Early steering ({', '.join(f'L{l}' for l in early_layers)})")
         print("(Can early steering enable correct computation?)")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
         for layer in early_layers:
             h_open = self.get_hidden_state(open_prompt, layer)
@@ -408,7 +429,9 @@ class RefusalDirectionFinder:
                     steered = self.run_with_steering(prompt, layer, computation_vector, scale)
 
                     if steered != original:
-                        print(f"    {repr(prompt)}: {repr(original)} → {repr(steered)} (scale={scale})")
+                        print(
+                            f"    {repr(prompt)}: {repr(original)} → {repr(steered)} (scale={scale})"
+                        )
 
 
 async def main(
@@ -429,8 +452,9 @@ if __name__ == "__main__":
     parser.add_argument("--model", "-m", default="mlx-community/gemma-3-4b-it-bf16")
     parser.add_argument("--open", "-o", default="100 - 37 = ")
     parser.add_argument("--closed", "-c", default="100 - 37 =")
-    parser.add_argument("--layers", "-l", default=None,
-                        help="Comma-separated layers (e.g., '20,21,22,23,24')")
+    parser.add_argument(
+        "--layers", "-l", default=None, help="Comma-separated layers (e.g., '20,21,22,23,24')"
+    )
 
     args = parser.parse_args()
 

@@ -114,9 +114,7 @@ def download_model(model_id: str, cache_dir: str | None = None) -> Path:
     try:
         from huggingface_hub import list_repo_files, snapshot_download
     except ImportError:
-        raise ImportError(
-            "huggingface_hub not installed. Run: pip install huggingface_hub"
-        )
+        raise ImportError("huggingface_hub not installed. Run: pip install huggingface_hub")
 
     print(f"Downloading {model_id}...")
 
@@ -346,7 +344,7 @@ def generate_text(
     gen_time = time.time() - start_time
 
     # Decode only the new tokens
-    new_tokens = output_ids[0, input_ids.shape[1]:]
+    new_tokens = output_ids[0, input_ids.shape[1] :]
     generated_text = tokenizer.decode(new_tokens.tolist(), skip_special_tokens=True)
 
     if verbose:

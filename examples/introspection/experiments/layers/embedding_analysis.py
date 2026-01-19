@@ -14,21 +14,23 @@ Run: uv run python examples/introspection/embedding_analysis.py
 """
 
 import json
-import numpy as np
-from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Any
-
-import mlx.core as mx
 
 # Suppress sklearn warnings
 import warnings
-warnings.filterwarnings('ignore')
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
+import mlx.core as mx
+import numpy as np
+
+warnings.filterwarnings("ignore")
 
 
 @dataclass
 class EmbeddingAnalysisResults:
     """Container for embedding analysis results"""
+
     model_id: str = ""
     vocab_size: int = 0
     hidden_dim: int = 0
@@ -53,20 +55,20 @@ class EmbeddingAnalysisResults:
     def save(self, path: str):
         """Save results to JSON"""
         data = {
-            'model_id': self.model_id,
-            'vocab_size': self.vocab_size,
-            'hidden_dim': self.hidden_dim,
-            'pc1_variance': self.pc1_variance,
-            'dims_for_90_variance': self.dims_for_90_variance,
-            'dims_for_95_variance': self.dims_for_95_variance,
-            'pc1_norm_correlation': self.pc1_norm_correlation,
-            'within_category_similarity': self.within_category_similarity,
-            'between_category_similarity': self.between_category_similarity,
-            'category_separation': self.category_separation,
-            'tool_category_accuracy': self.tool_category_accuracy,
-            'probe_results': self.probe_results,
+            "model_id": self.model_id,
+            "vocab_size": self.vocab_size,
+            "hidden_dim": self.hidden_dim,
+            "pc1_variance": self.pc1_variance,
+            "dims_for_90_variance": self.dims_for_90_variance,
+            "dims_for_95_variance": self.dims_for_95_variance,
+            "pc1_norm_correlation": self.pc1_norm_correlation,
+            "within_category_similarity": self.within_category_similarity,
+            "between_category_similarity": self.between_category_similarity,
+            "category_separation": self.category_separation,
+            "tool_category_accuracy": self.tool_category_accuracy,
+            "probe_results": self.probe_results,
         }
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(data, f, indent=2)
         print(f"Results saved to: {path}")
 
@@ -145,7 +147,7 @@ class EmbeddingAnalyzer:
                 tokens = self.tokenizer.encode(variant, add_special_tokens=False)
                 if isinstance(tokens, np.ndarray):
                     tokens = tokens.flatten().tolist()
-                elif hasattr(tokens, 'tolist'):
+                elif hasattr(tokens, "tolist"):
                     tokens = tokens.tolist()
                 if tokens:
                     return tokens
@@ -159,18 +161,16 @@ class EmbeddingAnalyzer:
 
     def analyze_embedding_structure(self, n_samples: int = 5000):
         """What's the structure of the embedding space?"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("EMBEDDING SPACE STRUCTURE")
-        print("="*60)
+        print("=" * 60)
 
         from sklearn.decomposition import PCA
 
         # Sample tokens (full vocab might be too large)
         np.random.seed(42)
         sample_idx = np.random.choice(
-            self.vocab_size,
-            min(n_samples, self.vocab_size),
-            replace=False
+            self.vocab_size, min(n_samples, self.vocab_size), replace=False
         )
         X = self.embeddings[sample_idx]
 
@@ -184,13 +184,13 @@ class EmbeddingAnalyzer:
         self.results.pc1_variance = float(pca.explained_variance_ratio_[0])
 
         print("\nVariance explained:")
-        print(f"  PC1:    {pca.explained_variance_ratio_[0]*100:.1f}%")
+        print(f"  PC1:    {pca.explained_variance_ratio_[0] * 100:.1f}%")
         if len(cumvar) > 4:
-            print(f"  PC1-5:  {cumvar[4]*100:.1f}%")
+            print(f"  PC1-5:  {cumvar[4] * 100:.1f}%")
         if len(cumvar) > 9:
-            print(f"  PC1-10: {cumvar[9]*100:.1f}%")
+            print(f"  PC1-10: {cumvar[9] * 100:.1f}%")
         if len(cumvar) > 19:
-            print(f"  PC1-20: {cumvar[19]*100:.1f}%")
+            print(f"  PC1-20: {cumvar[19] * 100:.1f}%")
 
         n_90 = np.searchsorted(cumvar, 0.9) + 1
         n_95 = np.searchsorted(cumvar, 0.95) + 1
@@ -231,18 +231,18 @@ class EmbeddingAnalyzer:
 
     def analyze_token_categories(self):
         """Do token categories cluster in embedding space?"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("TOKEN CATEGORY CLUSTERING IN RAW EMBEDDINGS")
-        print("="*60)
+        print("=" * 60)
 
         # Keywords for each category
         keywords = {
-            'question': ['what', 'where', 'when', 'how', 'why', 'who', 'which'],
-            'action': ['send', 'get', 'create', 'delete', 'find', 'search', 'set', 'make', 'book'],
-            'location': ['tokyo', 'london', 'paris', 'york', 'airport', 'hotel', 'restaurant'],
-            'time': ['today', 'tomorrow', 'yesterday', 'morning', 'evening', 'monday'],
-            'number': ['one', 'two', 'three', 'four', 'five', 'six', 'seven'],
-            'pronoun': ['i', 'you', 'he', 'she', 'it', 'we', 'they', 'my', 'your'],
+            "question": ["what", "where", "when", "how", "why", "who", "which"],
+            "action": ["send", "get", "create", "delete", "find", "search", "set", "make", "book"],
+            "location": ["tokyo", "london", "paris", "york", "airport", "hotel", "restaurant"],
+            "time": ["today", "tomorrow", "yesterday", "morning", "evening", "monday"],
+            "number": ["one", "two", "three", "four", "five", "six", "seven"],
+            "pronoun": ["i", "you", "he", "she", "it", "we", "they", "my", "your"],
         }
 
         # Get embeddings for each category
@@ -263,16 +263,18 @@ class EmbeddingAnalyzer:
 
             if embeddings_list:
                 category_embeddings[category] = {
-                    'embeddings': np.array(embeddings_list),
-                    'centroid': np.mean(embeddings_list, axis=0),
-                    'words': found_words,
-                    'n_tokens': len(embeddings_list)
+                    "embeddings": np.array(embeddings_list),
+                    "centroid": np.mean(embeddings_list, axis=0),
+                    "words": found_words,
+                    "n_tokens": len(embeddings_list),
                 }
 
         # Print found tokens
         print("\nTokens found per category:")
         for category, data in category_embeddings.items():
-            print(f"  {category:<12}: {data['n_tokens']:2d} tokens ({', '.join(data['words'][:5])}...)")
+            print(
+                f"  {category:<12}: {data['n_tokens']:2d} tokens ({', '.join(data['words'][:5])}...)"
+            )
 
         # Compute category similarity matrix
         cats = list(category_embeddings.keys())
@@ -285,11 +287,11 @@ class EmbeddingAnalyzer:
 
         for c1 in cats:
             print(f"{c1:<12}", end="  ")
-            v1 = category_embeddings[c1]['centroid']
+            v1 = category_embeddings[c1]["centroid"]
             n1 = np.linalg.norm(v1)
 
             for c2 in cats:
-                v2 = category_embeddings[c2]['centroid']
+                v2 = category_embeddings[c2]["centroid"]
                 n2 = np.linalg.norm(v2)
 
                 if n1 > 0 and n2 > 0:
@@ -310,7 +312,7 @@ class EmbeddingAnalyzer:
         between_sims = []
 
         for c1 in cats:
-            embs1 = category_embeddings[c1]['embeddings']
+            embs1 = category_embeddings[c1]["embeddings"]
 
             # Within-category
             for i in range(len(embs1)):
@@ -324,7 +326,7 @@ class EmbeddingAnalyzer:
             # Between-category
             for c2 in cats:
                 if c1 != c2:
-                    embs2 = category_embeddings[c2]['embeddings']
+                    embs2 = category_embeddings[c2]["embeddings"]
                     for e1 in embs1:
                         for e2 in embs2:
                             n1 = np.linalg.norm(e1)
@@ -377,9 +379,8 @@ class EmbeddingAnalyzer:
         valid_mask = norms > 0
 
         sims = np.zeros(self.vocab_size)
-        sims[valid_mask] = (
-            np.dot(self.embeddings[valid_mask], target_emb) /
-            (norms[valid_mask] * target_norm)
+        sims[valid_mask] = np.dot(self.embeddings[valid_mask], target_emb) / (
+            norms[valid_mask] * target_norm
         )
 
         # Top k (excluding self)
@@ -454,11 +455,11 @@ class EmbeddingAnalyzer:
         separation = pos_proj - neg_proj
 
         result = {
-            'accuracy': float(scores.mean()),
-            'accuracy_std': float(scores.std()),
-            'separation': float(separation),
-            'n_positive': len(pos_embeddings),
-            'n_negative': len(neg_embeddings),
+            "accuracy": float(scores.mean()),
+            "accuracy_std": float(scores.std()),
+            "separation": float(separation),
+            "n_positive": len(pos_embeddings),
+            "n_negative": len(neg_embeddings),
         }
 
         self.results.probe_results[feature_name] = result
@@ -469,11 +470,11 @@ class EmbeddingAnalyzer:
         print(f"  Separation: {separation:.3f}")
 
         if scores.mean() > 0.8:
-            print(f"  → Feature IS linearly separable in embeddings")
+            print("  → Feature IS linearly separable in embeddings")
         elif scores.mean() > 0.6:
-            print(f"  → Feature is WEAKLY separable")
+            print("  → Feature is WEAKLY separable")
         else:
-            print(f"  → Feature NOT separable in embeddings")
+            print("  → Feature NOT separable in embeddings")
 
         return result
 
@@ -483,16 +484,34 @@ class EmbeddingAnalyzer:
 
     def analyze_tool_tokens(self):
         """Are tool-relevant tokens clustered in embedding space?"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("TOOL-RELEVANT TOKEN CLUSTERING")
-        print("="*60)
+        print("=" * 60)
 
         tool_categories = {
-            'weather': ['weather', 'temperature', 'rain', 'sunny', 'forecast', 'cloudy', 'wind', 'cold', 'hot'],
-            'email': ['email', 'send', 'message', 'inbox', 'compose', 'reply', 'forward', 'mail'],
-            'calendar': ['calendar', 'schedule', 'meeting', 'event', 'appointment', 'reminder', 'book'],
-            'search': ['search', 'find', 'look', 'query', 'browse', 'discover', 'locate'],
-            'general': ['the', 'a', 'is', 'are', 'and', 'or', 'but', 'for', 'to', 'of'],
+            "weather": [
+                "weather",
+                "temperature",
+                "rain",
+                "sunny",
+                "forecast",
+                "cloudy",
+                "wind",
+                "cold",
+                "hot",
+            ],
+            "email": ["email", "send", "message", "inbox", "compose", "reply", "forward", "mail"],
+            "calendar": [
+                "calendar",
+                "schedule",
+                "meeting",
+                "event",
+                "appointment",
+                "reminder",
+                "book",
+            ],
+            "search": ["search", "find", "look", "query", "browse", "discover", "locate"],
+            "general": ["the", "a", "is", "are", "and", "or", "but", "for", "to", "of"],
         }
 
         category_embeddings = {}
@@ -508,10 +527,7 @@ class EmbeddingAnalyzer:
                     found_words.append(word)
 
             if embs:
-                category_embeddings[category] = {
-                    'embeddings': np.array(embs),
-                    'words': found_words
-                }
+                category_embeddings[category] = {"embeddings": np.array(embs), "words": found_words}
                 print(f"  {category:<12}: {len(embs)} tokens")
 
         # Classification test
@@ -523,15 +539,15 @@ class EmbeddingAnalyzer:
         all_labels = []
 
         for category, data in category_embeddings.items():
-            for emb in data['embeddings']:
+            for emb in data["embeddings"]:
                 all_embs.append(emb)
                 all_labels.append(category)
 
         X = np.vstack(all_embs)
 
         from sklearn.linear_model import LogisticRegression
-        from sklearn.preprocessing import LabelEncoder, StandardScaler
         from sklearn.model_selection import cross_val_score
+        from sklearn.preprocessing import LabelEncoder, StandardScaler
 
         le = LabelEncoder()
         y = le.fit_transform(all_labels)
@@ -546,7 +562,7 @@ class EmbeddingAnalyzer:
         self.results.tool_category_accuracy = float(scores.mean())
 
         chance = 1 / len(category_embeddings)
-        print(f"\nTool category classification:")
+        print("\nTool category classification:")
         print(f"  Accuracy: {scores.mean():.2f} ± {scores.std():.2f}")
         print(f"  Chance baseline: {chance:.2f}")
 
@@ -579,9 +595,9 @@ class EmbeddingAnalyzer:
 
     def test_analogies(self):
         """Do embeddings capture semantic relationships?"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("SEMANTIC ANALOGY TEST")
-        print("="*60)
+        print("=" * 60)
 
         analogies = [
             ("king", "queen", "man", "woman"),
@@ -622,9 +638,8 @@ class EmbeddingAnalyzer:
                 valid_mask = norms > 0
 
                 sims = np.zeros(self.vocab_size)
-                sims[valid_mask] = (
-                    np.dot(self.embeddings[valid_mask], emb_d_predicted) /
-                    (norms[valid_mask] * pred_norm)
+                sims[valid_mask] = np.dot(self.embeddings[valid_mask], emb_d_predicted) / (
+                    norms[valid_mask] * pred_norm
                 )
 
                 # Exclude a, b, c from results
@@ -654,7 +669,7 @@ class EmbeddingAnalyzer:
                 print(f"\n{a} : {b} :: {c} : ? → Error: {e}")
 
         if total > 0:
-            print(f"\nAnalogy accuracy: {correct}/{total} = {correct/total:.0%}")
+            print(f"\nAnalogy accuracy: {correct}/{total} = {correct / total:.0%}")
 
     # ==========================================
     # 7. Compare Embeddings vs L0
@@ -662,9 +677,9 @@ class EmbeddingAnalyzer:
 
     def compare_embedding_vs_l0(self, prompts: list[str]):
         """Compare raw embeddings to L0 activations."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("EMBEDDINGS vs L0 ACTIVATIONS")
-        print("="*60)
+        print("=" * 60)
 
         from chuk_lazarus.introspection.hooks import CaptureConfig, ModelHooks, PositionSelection
 
@@ -677,7 +692,7 @@ class EmbeddingAnalyzer:
             tokens = self.tokenizer.encode(prompt)
             if isinstance(tokens, np.ndarray):
                 tokens = tokens.flatten().tolist()
-            elif hasattr(tokens, 'tolist'):
+            elif hasattr(tokens, "tolist"):
                 tokens = tokens.tolist()
 
             # Raw embeddings
@@ -687,11 +702,13 @@ class EmbeddingAnalyzer:
 
             # L0 activations
             hooks = ModelHooks(self.model)
-            hooks.configure(CaptureConfig(
-                layers=[0],
-                capture_hidden_states=True,
-                positions=PositionSelection.ALL,
-            ))
+            hooks.configure(
+                CaptureConfig(
+                    layers=[0],
+                    capture_hidden_states=True,
+                    positions=PositionSelection.ALL,
+                )
+            )
 
             input_ids = mx.array([tokens])
             hooks.forward(input_ids)
@@ -720,7 +737,7 @@ class EmbeddingAnalyzer:
         emb_norms = np.linalg.norm(embedding_acts, axis=1)
         l0_norms = np.linalg.norm(l0_acts, axis=1)
 
-        print(f"\n1. Norm statistics:")
+        print("\n1. Norm statistics:")
         print(f"   Embedding norms: mean={emb_norms.mean():.2f}, std={emb_norms.std():.2f}")
         print(f"   L0 norms:        mean={l0_norms.mean():.2f}, std={l0_norms.std():.2f}")
         print(f"   Ratio L0/Emb:    {(l0_norms / emb_norms).mean():.2f}")
@@ -734,7 +751,7 @@ class EmbeddingAnalyzer:
                 cos = np.dot(embedding_acts[i], l0_acts[i]) / (n1 * n2)
                 cosines.append(cos)
 
-        print(f"\n2. Cosine similarity (Emb vs L0):")
+        print("\n2. Cosine similarity (Emb vs L0):")
         print(f"   Mean: {np.mean(cosines):.3f}")
         print(f"   Std:  {np.std(cosines):.3f}")
         print(f"   Min:  {np.min(cosines):.3f}")
@@ -752,9 +769,9 @@ class EmbeddingAnalyzer:
         delta_norms = np.linalg.norm(deltas, axis=1)
         relative_change = delta_norms / emb_norms
 
-        print(f"\n3. Relative change (Emb → L0):")
+        print("\n3. Relative change (Emb → L0):")
         print(f"   Mean: {relative_change.mean():.3f}")
-        print(f"   This represents the effect of any pre-layer normalization")
+        print("   This represents the effect of any pre-layer normalization")
 
     # ==========================================
     # Full Analysis
@@ -765,10 +782,10 @@ class EmbeddingAnalyzer:
         output_path = Path(output_dir)
         output_path.mkdir(exist_ok=True)
 
-        print("="*60)
+        print("=" * 60)
         print("RAW EMBEDDING ANALYSIS")
         print("Proving what's in embeddings BEFORE computation")
-        print("="*60)
+        print("=" * 60)
         print(f"\nModel: {self.model_id}")
         print(f"Vocabulary: {self.vocab_size} tokens")
         print(f"Dimensions: {self.hidden_dim}")
@@ -783,35 +800,35 @@ class EmbeddingAnalyzer:
         self.analyze_tool_tokens()
 
         # 4. Nearest neighbors
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("NEAREST NEIGHBOR EXAMPLES")
-        print("="*60)
+        print("=" * 60)
 
-        test_words = ['weather', 'send', 'tokyo', 'tomorrow', 'what', 'search']
+        test_words = ["weather", "send", "tokyo", "tomorrow", "what", "search"]
         for word in test_words:
             self.find_nearest_neighbors(word, k=5)
 
         # 5. Feature probes
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("FEATURE PROBES ON RAW EMBEDDINGS")
-        print("="*60)
+        print("=" * 60)
 
         probes = {
-            'question_vs_statement': (
-                ['what', 'where', 'when', 'how', 'why', 'who', 'which'],
-                ['the', 'a', 'is', 'send', 'get', 'make', 'and', 'or']
+            "question_vs_statement": (
+                ["what", "where", "when", "how", "why", "who", "which"],
+                ["the", "a", "is", "send", "get", "make", "and", "or"],
             ),
-            'action_vs_state': (
-                ['send', 'get', 'create', 'delete', 'find', 'make', 'set', 'book'],
-                ['is', 'are', 'was', 'has', 'have', 'been', 'were', 'had']
+            "action_vs_state": (
+                ["send", "get", "create", "delete", "find", "make", "set", "book"],
+                ["is", "are", "was", "has", "have", "been", "were", "had"],
             ),
-            'location_vs_common': (
-                ['tokyo', 'london', 'paris', 'airport', 'hotel', 'restaurant'],
-                ['the', 'a', 'is', 'and', 'but', 'or', 'for', 'to']
+            "location_vs_common": (
+                ["tokyo", "london", "paris", "airport", "hotel", "restaurant"],
+                ["the", "a", "is", "and", "but", "or", "for", "to"],
             ),
-            'tool_indicator': (
-                ['weather', 'email', 'calendar', 'search', 'timer', 'alarm'],
-                ['think', 'explain', 'understand', 'believe', 'know', 'feel']
+            "tool_indicator": (
+                ["weather", "email", "calendar", "search", "timer", "alarm"],
+                ["think", "explain", "understand", "believe", "know", "feel"],
             ),
         }
 
@@ -830,34 +847,34 @@ class EmbeddingAnalyzer:
         self.compare_embedding_vs_l0(test_prompts)
 
         # Summary
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("SUMMARY")
-        print("="*60)
+        print("=" * 60)
 
-        print(f"\n1. Embedding Structure:")
-        print(f"   PC1 explains {self.results.pc1_variance*100:.1f}% variance")
+        print("\n1. Embedding Structure:")
+        print(f"   PC1 explains {self.results.pc1_variance * 100:.1f}% variance")
         print(f"   PC1 correlation with norm: {self.results.pc1_norm_correlation:.3f}")
         print(f"   Dims for 90% variance: {self.results.dims_for_90_variance}")
 
-        print(f"\n2. Category Clustering:")
+        print("\n2. Category Clustering:")
         print(f"   Within-category:  {self.results.within_category_similarity:.3f}")
         print(f"   Between-category: {self.results.between_category_similarity:.3f}")
         print(f"   Separation:       {self.results.category_separation:.3f}")
 
         print(f"\n3. Tool Category Accuracy: {self.results.tool_category_accuracy:.1%}")
 
-        print(f"\n4. Feature Probe Accuracy:")
+        print("\n4. Feature Probe Accuracy:")
         for name, result in self.results.probe_results.items():
             print(f"   {name}: {result['accuracy']:.1%}")
 
         # Verdict
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("VERDICT: What's in Raw Embeddings?")
-        print("="*60)
+        print("=" * 60)
 
         has_clustering = self.results.category_separation > 0.05
         has_tool_sep = self.results.tool_category_accuracy > 0.4
-        has_features = any(r['accuracy'] > 0.7 for r in self.results.probe_results.values())
+        has_features = any(r["accuracy"] > 0.7 for r in self.results.probe_results.values())
 
         if has_clustering and has_tool_sep and has_features:
             print("""

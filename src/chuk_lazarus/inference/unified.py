@@ -190,7 +190,7 @@ class UnifiedPipeline:
 
         # Download
         log("\n1. Downloading model...")
-        result = HFLoader.download(model_id, cache_dir=pipeline_config.cache_dir)
+        result = HFLoader.download(model_id, cache_dir=pipeline_config.cache_dir, verbose=verbose)
         log(f"   Path: {result.model_path}")
 
         # Load raw config for family detection
@@ -243,6 +243,7 @@ class UnifiedPipeline:
             result.model_path,
             model_config,
             dtype=pipeline_config.dtype,
+            verbose=verbose,
         )
         log("   Weights applied!")
 
@@ -317,8 +318,8 @@ class UnifiedPipeline:
         prompt = format_chat_prompt(self._tokenizer, user_message, system)
 
         config = GenerationConfig(
-            max_new_tokens=max_new_tokens or self._pipeline_config.default_max_tokens,
-            temperature=temperature or self._pipeline_config.default_temperature,
+            max_new_tokens=max_new_tokens if max_new_tokens is not None else self._pipeline_config.default_max_tokens,
+            temperature=temperature if temperature is not None else self._pipeline_config.default_temperature,
         )
 
         return generate(self._model, self._tokenizer, prompt, config)
@@ -342,8 +343,8 @@ class UnifiedPipeline:
         prompt = format_history(self._tokenizer, history)
 
         config = GenerationConfig(
-            max_new_tokens=max_new_tokens or self._pipeline_config.default_max_tokens,
-            temperature=temperature or self._pipeline_config.default_temperature,
+            max_new_tokens=max_new_tokens if max_new_tokens is not None else self._pipeline_config.default_max_tokens,
+            temperature=temperature if temperature is not None else self._pipeline_config.default_temperature,
         )
 
         return generate(self._model, self._tokenizer, prompt, config)
@@ -368,8 +369,8 @@ class UnifiedPipeline:
         """
         if config is None:
             config = GenerationConfig(
-                max_new_tokens=max_new_tokens or self._pipeline_config.default_max_tokens,
-                temperature=temperature or self._pipeline_config.default_temperature,
+                max_new_tokens=max_new_tokens if max_new_tokens is not None else self._pipeline_config.default_max_tokens,
+                temperature=temperature if temperature is not None else self._pipeline_config.default_temperature,
             )
 
         return generate(self._model, self._tokenizer, prompt, config)
@@ -379,3 +380,172 @@ class UnifiedPipeline:
         from chuk_lazarus.models_v2.families import list_model_families
 
         return [f.value for f in list_model_families()]
+
+    @classmethod
+    def from_compressed(
+        cls,
+        compressed_path: str | Path,
+        original_model_id: str,
+        pipeline_config: UnifiedPipelineConfig | None = None,
+        verbose: bool = True,
+    ) -> UnifiedPipeline:
+        """Load a compressed MoE model from overlay format.
+
+        This loads a model that was compressed using the moe-overlay-compress command.
+        The compressed model uses low-rank approximations of expert weights.
+
+        Args:
+            compressed_path: Path to compressed overlay directory
+            original_model_id: Original model ID (for non-expert weights)
+            pipeline_config: Pipeline configuration
+            verbose: Print loading progress
+
+        Returns:
+            Configured UnifiedPipeline with compressed experts
+
+        Example:
+            pipeline = UnifiedPipeline.from_compressed(
+                "gpt-oss-20b-overlay",
+                "openai/gpt-oss-20b",
+            )
+            result = pipeline.chat("What is the capital of France?")
+        """
+        from chuk_lazarus.introspection.moe import OverlayExperts
+
+        pipeline_config = pipeline_config or UnifiedPipelineConfig()
+        compressed_path = Path(compressed_path)
+
+        def log(msg: str) -> None:
+            if verbose:
+                print(msg)
+
+        log(f"Loading compressed model from: {compressed_path}")
+        log("=" * 60)
+
+        # Load overlay
+        log("\n1. Loading compressed overlay...")
+        overlay = OverlayExperts.load(compressed_path)
+        log(f"   Layers: {overlay.num_layers}, Experts: {overlay.num_experts}")
+        log(f"   Compression: {overlay.config.compression_ratio:.1f}x")
+        log(f"   Memory: {overlay.memory_usage_mb():.1f} MB")
+
+        # Load original model using standard pipeline
+        log("\n2. Loading base model...")
+        pipeline = cls.from_pretrained(
+            original_model_id,
+            pipeline_config=pipeline_config,
+            verbose=verbose,
+        )
+
+        # Patch experts to use overlay
+        log("\n3. Patching experts with compressed weights...")
+        cls._patch_experts_with_overlay(pipeline.model, overlay)
+        log("   Experts patched!")
+
+        # Update state
+        if pipeline._state:
+            pipeline._state.model_id = f"{original_model_id} (compressed)"
+
+        log("\n" + "=" * 60)
+        log(f"Compressed model loaded! ({overlay.config.compression_ratio:.1f}x compression)")
+
+        return pipeline
+
+    @staticmethod
+    def _patch_experts_with_overlay(model, overlay) -> None:
+        """Patch model to use compressed expert weights.
+
+        Replaces expert forward passes with overlay-based reconstruction.
+        """
+        import mlx.core as mx
+        import mlx.nn as nn
+
+        # GPT-OSS custom SwiGLU activation
+        def gpt_oss_swiglu(
+            x_linear: mx.array, x_glu: mx.array, alpha: float = 1.702, limit: float = 7.0
+        ) -> mx.array:
+            """GPT-OSS custom SwiGLU: (x_glu * sigmoid(alpha * x_glu)) * (x_linear + 1)"""
+            x_glu = mx.clip(x_glu, a_min=None, a_max=limit)
+            x_linear = mx.clip(x_linear, a_min=-limit, a_max=limit)
+            out_glu = x_glu * mx.sigmoid(alpha * x_glu)
+            return out_glu * (x_linear + 1)
+
+        # Create overlay-based batched experts class for GPT-OSS style models
+        class OverlayBatchedExperts(nn.Module):
+            """Batched experts using overlay reconstruction."""
+
+            def __init__(self, layer_idx: int, overlay, hidden_size: int, num_experts: int):
+                super().__init__()
+                self.layer_idx = layer_idx
+                self.overlay = overlay
+                self.hidden_size = hidden_size
+                self.num_experts = num_experts
+
+            def __call__(
+                self, x: mx.array, expert_indices: mx.array, expert_weights: mx.array
+            ) -> mx.array:
+                """Apply experts using overlay reconstruction."""
+                num_tokens = x.shape[0]
+                output = mx.zeros((num_tokens, self.hidden_size), dtype=x.dtype)
+
+                for expert_idx in range(self.num_experts):
+                    # Find which tokens use this expert
+                    expert_mask = expert_indices == expert_idx
+                    token_weights = mx.sum(
+                        expert_weights * expert_mask.astype(expert_weights.dtype), axis=-1
+                    )
+
+                    if not mx.any(token_weights > 0):
+                        continue
+
+                    # Apply expert via overlay (efficient low-rank)
+                    # Gate projection (even indices in original gate_up)
+                    gate_out = self.overlay.apply_expert(self.layer_idx, "gate", expert_idx, x)
+                    # Up projection (odd indices in original gate_up)
+                    up_out = self.overlay.apply_expert(self.layer_idx, "up", expert_idx, x)
+                    # GPT-OSS uses custom SwiGLU: (gate * sigmoid(alpha * gate)) * (up + 1)
+                    hidden = gpt_oss_swiglu(up_out, gate_out)
+                    expert_out = self.overlay.apply_expert(
+                        self.layer_idx, "down", expert_idx, hidden
+                    )
+
+                    # Weight and accumulate
+                    output = output + expert_out * token_weights[:, None]
+
+                return output
+
+        # Find layers and replace experts
+        for layer_idx in overlay.moe_layer_indices:
+            # Find the layer
+            layer = None
+            if hasattr(model, "model") and hasattr(model.model, "layers"):
+                layer = model.model.layers[layer_idx]
+            elif hasattr(model, "transformer") and hasattr(model.transformer, "h"):
+                layer = model.transformer.h[layer_idx]
+            elif hasattr(model, "layers"):
+                layer = model.layers[layer_idx]
+
+            if layer is None:
+                continue
+
+            # Find MoE block - for GPT-OSS it's the mlp
+            moe_block = None
+            for attr in ["mlp", "block_sparse_moe", "moe", "feed_forward"]:
+                if hasattr(layer, attr):
+                    block = getattr(layer, attr)
+                    if hasattr(block, "experts"):
+                        moe_block = block
+                        moe_attr = attr
+                        break
+
+            if moe_block is None:
+                continue
+
+            # Get hidden size from down projection output dimension
+            # down_shape = (hidden_size, intermediate_size), so down_shape[0] = hidden_size
+            hidden_size = overlay.config.down_shape[0]
+            num_experts = overlay.num_experts
+
+            # Replace the experts module with overlay version
+            new_experts = OverlayBatchedExperts(layer_idx, overlay, hidden_size, num_experts)
+            getattr(layer, moe_attr).experts = new_experts

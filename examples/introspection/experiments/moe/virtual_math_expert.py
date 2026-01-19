@@ -48,8 +48,6 @@ import json
 import sys
 from pathlib import Path
 
-import mlx.core as mx
-
 # Add src to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "src"))
 
@@ -105,8 +103,8 @@ def demo_approach_comparison(
 ):
     """Compare model-only vs virtual expert on a single problem."""
     from chuk_lazarus.introspection.virtual_expert import (
-        VirtualMoEWrapper,
         MathExpertPlugin,
+        VirtualMoEWrapper,
     )
 
     math_eval = MathExpertPlugin()
@@ -133,7 +131,9 @@ def demo_approach_comparison(
     print(f"  Answer: {result.answer}")
     print(f"  Correct: {result.is_correct}")
     print(f"  Plugin: {result.plugin_name}")
-    print(f"  Virtual selected: {result.virtual_expert_selected_count}/{result.total_tokens} tokens")
+    print(
+        f"  Virtual selected: {result.virtual_expert_selected_count}/{result.total_tokens} tokens"
+    )
     print(f"  Used virtual: {result.used_virtual_expert}")
 
     print("=" * 70)
@@ -152,23 +152,19 @@ def run_benchmark(
         "2 + 2 = ",
         "5 * 5 = ",
         "10 - 3 = ",
-
         # Easy
         "6 * 7 = ",
         "25 + 17 = ",
         "100 - 37 = ",
-
         # Medium
         "23 * 17 = ",
         "156 + 287 = ",
         "500 - 123 = ",
-
         # Hard (model will likely fail)
         "127 * 89 = ",
         "456 * 78 = ",
         "999 * 888 = ",
         "1234 + 5678 = ",
-
         # Very hard
         "999 * 999 = ",
         "12345 + 67890 = ",
@@ -187,15 +183,17 @@ def run_benchmark(
         for result in analysis.results:
             status = "✓" if result.is_correct else "✗"
             virtual = "V" if result.used_virtual_expert else "M"
-            print(f"  {status} [{virtual}] {result.prompt:<20} -> {result.answer:<15} (expected: {result.correct_answer})")
+            print(
+                f"  {status} [{virtual}] {result.prompt:<20} -> {result.answer:<15} (expected: {result.correct_answer})"
+            )
 
 
 def interactive_mode(model, tokenizer, model_id: str):
     """Interactive REPL for testing virtual experts."""
     from chuk_lazarus.introspection.virtual_expert import (
         ExpertHijacker,
-        VirtualExpertSlot,
         HybridEmbeddingInjector,
+        VirtualExpertSlot,
     )
 
     print("\n" + "=" * 70)
@@ -285,17 +283,20 @@ def main():
         epilog=__doc__,
     )
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="mlx-community/gemma-3-4b-it-bf16",
         help="Model ID to use",
     )
     parser.add_argument(
-        "--prompt", "-p",
+        "--prompt",
+        "-p",
         default=None,
         help="Single prompt to test",
     )
     parser.add_argument(
-        "--approach", "-a",
+        "--approach",
+        "-a",
         choices=["hijack", "virtual_slot", "hybrid", "all"],
         default="all",
         help="Which approach to use",
@@ -306,7 +307,8 @@ def main():
         help="Run full benchmark",
     )
     parser.add_argument(
-        "--interactive", "-i",
+        "--interactive",
+        "-i",
         action="store_true",
         help="Interactive REPL mode",
     )

@@ -12,20 +12,20 @@ Then: Can we distill those layers into a smaller model?
 Run: uv run python examples/introspection/injection_upper_bound.py
 """
 
-import time
+import warnings
 from dataclasses import dataclass
 
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 @dataclass
 class InjectionBoundResult:
     """Result for upper bound testing."""
+
     inject_after_layer: int
     layers_skipped: int
     similarity_to_full: float
@@ -56,7 +56,7 @@ class InjectionUpperBound:
             self.layers = self.model.model.layers
             self.final_norm = self.model.model.norm
             self.hidden_size = self.model.model.hidden_size
-            self.embed_scale = self.hidden_size ** 0.5
+            self.embed_scale = self.hidden_size**0.5
             self.lm_head = self.model.lm_head
         else:
             raise ValueError("Model structure not recognized")
@@ -342,7 +342,9 @@ class InjectionUpperBound:
 
         for inject_after in [0, 5, 10, 15]:
             result = self.test_injection_upper_bound(test_prompts, inject_after)
-            print(f"  Inject after L{inject_after:2d}: sim={result.similarity_to_full:.4f}, top1={result.top1_match_rate:.1%}")
+            print(
+                f"  Inject after L{inject_after:2d}: sim={result.similarity_to_full:.4f}, top1={result.top1_match_rate:.1%}"
+            )
 
         # Part 2: Test layer skipping
         print("\n" + "=" * 50)
@@ -351,15 +353,15 @@ class InjectionUpperBound:
         print("\nWhat happens if we skip layers entirely?")
 
         skip_configs = [
-            [1],           # Skip just L1
-            [1, 2],        # Skip L1-2
-            [1, 2, 3],     # Skip L1-3 (early disruption zone)
-            [3, 4, 5],     # Skip middle-early
-            [6, 7, 8],     # Skip middle
-            [9, 10, 11],   # Skip reconstruction zone
+            [1],  # Skip just L1
+            [1, 2],  # Skip L1-2
+            [1, 2, 3],  # Skip L1-3 (early disruption zone)
+            [3, 4, 5],  # Skip middle-early
+            [6, 7, 8],  # Skip middle
+            [9, 10, 11],  # Skip reconstruction zone
             [14, 15, 16],  # Skip late layers
-            list(range(1, 6)),   # Skip 5 early layers
-            list(range(1, 9)),   # Skip 8 early layers
+            list(range(1, 6)),  # Skip 5 early layers
+            list(range(1, 9)),  # Skip 8 early layers
             list(range(9, 15)),  # Skip reconstruction layers
         ]
 
@@ -371,8 +373,14 @@ class InjectionUpperBound:
             result = self.test_layer_skipping(test_prompts, skip_layers)
             skip_results.append(result)
 
-            layers_str = f"L{skip_layers[0]}-{skip_layers[-1]}" if len(skip_layers) > 1 else f"L{skip_layers[0]}"
-            print(f"{layers_str:<25} {result['similarity']:>7.3f} {result['top1_match']:>7.1%} {result['speedup']:>7.1f}x")
+            layers_str = (
+                f"L{skip_layers[0]}-{skip_layers[-1]}"
+                if len(skip_layers) > 1
+                else f"L{skip_layers[0]}"
+            )
+            print(
+                f"{layers_str:<25} {result['similarity']:>7.3f} {result['top1_match']:>7.1%} {result['speedup']:>7.1f}x"
+            )
 
         # Part 3: Find optimal skip pattern
         print("\n" + "=" * 50)
@@ -380,13 +388,19 @@ class InjectionUpperBound:
         print("=" * 50)
 
         # Sort by top1 match rate
-        best_skips = sorted(skip_results, key=lambda x: -x['top1_match'])
+        best_skips = sorted(skip_results, key=lambda x: -x["top1_match"])
 
         print("\nBest layer skipping patterns (by top-1 accuracy):")
         for i, result in enumerate(best_skips[:5]):
-            skip_layers = result['skip_layers']
-            layers_str = f"L{skip_layers[0]}-{skip_layers[-1]}" if len(skip_layers) > 1 else f"L{skip_layers[0]}"
-            print(f"  {i+1}. Skip {layers_str}: {result['top1_match']:.1%} top1, {result['speedup']:.1f}x speedup")
+            skip_layers = result["skip_layers"]
+            layers_str = (
+                f"L{skip_layers[0]}-{skip_layers[-1]}"
+                if len(skip_layers) > 1
+                else f"L{skip_layers[0]}"
+            )
+            print(
+                f"  {i + 1}. Skip {layers_str}: {result['top1_match']:.1%} top1, {result['speedup']:.1f}x speedup"
+            )
 
         # Analysis
         print("\n" + "=" * 50)

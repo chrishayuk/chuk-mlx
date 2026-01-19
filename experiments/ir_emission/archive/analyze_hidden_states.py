@@ -7,7 +7,6 @@ Check if operation types are separable in hidden state space.
 
 import json
 import logging
-from pathlib import Path
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -30,7 +29,7 @@ def get_hidden_states_all_layers(model, tokenizer, prompt: str) -> list[mx.array
     tokens = tokenizer.encode(prompt)
     input_ids = mx.array([tokens])
 
-    backbone = model.model if hasattr(model, 'model') else model
+    backbone = model.model if hasattr(model, "model") else model
     h = backbone.embed_tokens(input_ids)
 
     mask = nn.MultiHeadAttention.create_additive_causal_mask(len(tokens))
@@ -40,7 +39,7 @@ def get_hidden_states_all_layers(model, tokenizer, prompt: str) -> list[mx.array
 
     for layer in backbone.layers:
         output = layer(h, mask=mask)
-        h = output.hidden_states if hasattr(output, 'hidden_states') else output
+        h = output.hidden_states if hasattr(output, "hidden_states") else output
         hidden_states.append(h[0, -1, :])
 
     return hidden_states
@@ -50,6 +49,7 @@ def main():
     # Load model
     logger.info("Loading model...")
     from chuk_lazarus.models_v2.loader import load_model
+
     load_result = load_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
     model = load_result.model
     tokenizer = load_result.tokenizer

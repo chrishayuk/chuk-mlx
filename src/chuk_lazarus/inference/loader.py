@@ -151,6 +151,7 @@ class HFLoader:
         model_id: str,
         cache_dir: Path | str | None = None,
         prefer_sharded: bool = True,
+        verbose: bool = True,
     ) -> DownloadResult:
         """Download model from HuggingFace Hub synchronously.
 
@@ -158,6 +159,7 @@ class HFLoader:
             model_id: HuggingFace model ID or local path
             cache_dir: Optional cache directory
             prefer_sharded: Prefer sharded over consolidated safetensors
+            verbose: Print progress messages
 
         Returns:
             DownloadResult with path and metadata
@@ -177,7 +179,8 @@ class HFLoader:
                 "huggingface_hub not installed. Run: pip install huggingface_hub"
             ) from err
 
-        print(f"Downloading {model_id}...")
+        if verbose:
+            print(f"Downloading {model_id}...")
 
         # Determine ignore patterns
         ignore_patterns: list[str] = []
@@ -189,7 +192,8 @@ class HFLoader:
 
                 if has_sharded and has_consolidated:
                     ignore_patterns.append("consolidated.safetensors")
-                    print("  (Skipping consolidated.safetensors - using sharded files)")
+                    if verbose:
+                        print("  (Skipping consolidated.safetensors - using sharded files)")
             except Exception:
                 pass
 
@@ -257,6 +261,7 @@ class HFLoader:
         model_path: Path,
         dtype: DType = DType.BFLOAT16,
         converter: WeightConverter | None = None,
+        verbose: bool = True,
     ) -> LoadedWeights:
         """Load weights from safetensors files.
 
@@ -264,6 +269,7 @@ class HFLoader:
             model_path: Path to model directory
             dtype: Target dtype for weights
             converter: Optional weight name converter
+            verbose: Print progress messages
 
         Returns:
             LoadedWeights container with tensors and metadata
@@ -282,7 +288,8 @@ class HFLoader:
         converted_weights: dict[str, mx.array] = {}
 
         for sf_path in safetensor_files:
-            print(f"  Loading {sf_path.name}...")
+            if verbose:
+                print(f"  Loading {sf_path.name}...")
             raw_weights = mx.load(str(sf_path))
 
             for hf_name, weight in raw_weights.items():
@@ -346,13 +353,14 @@ class HFLoader:
         return nested
 
     @staticmethod
-    def load_raw_weights(model_path: Path) -> dict[str, mx.array]:
+    def load_raw_weights(model_path: Path, verbose: bool = True) -> dict[str, mx.array]:
         """Load raw weights from safetensors without any name conversion.
 
         Use this when you want to apply model-specific sanitize methods.
 
         Args:
             model_path: Path to model directory
+            verbose: Print progress messages
 
         Returns:
             Raw weight dict as stored in safetensors files
@@ -363,7 +371,8 @@ class HFLoader:
 
         raw_weights: dict[str, mx.array] = {}
         for sf_path in safetensor_files:
-            print(f"  Loading {sf_path.name}...")
+            if verbose:
+                print(f"  Loading {sf_path.name}...")
             raw_weights.update(mx.load(str(sf_path)))
 
         return raw_weights
@@ -374,6 +383,7 @@ class HFLoader:
         model_path: Path,
         model_config: Any,
         dtype: DType = DType.BFLOAT16,
+        verbose: bool = True,
     ) -> None:
         """Load and apply weights to a model using the appropriate method.
 
@@ -386,6 +396,7 @@ class HFLoader:
             model_path: Path to model directory with safetensors
             model_config: Model config (used for tie_word_embeddings)
             dtype: Target dtype for weights
+            verbose: Print progress messages
         """
         import inspect
 
@@ -396,7 +407,7 @@ class HFLoader:
         # Check if model has a sanitize method
         if hasattr(model_class, "sanitize"):
             # Load raw weights - sanitize will handle conversion
-            raw_weights = HFLoader.load_raw_weights(model_path)
+            raw_weights = HFLoader.load_raw_weights(model_path, verbose=verbose)
 
             # Get sanitize signature to handle different interfaces
             sanitize_func = model_class.sanitize
@@ -427,7 +438,7 @@ class HFLoader:
             nested = tree_unflatten(list(sanitized.items()))
         else:
             # No sanitize - use standard HFLoader conversion
-            loaded = HFLoader.load_weights(model_path, dtype=dtype)
+            loaded = HFLoader.load_weights(model_path, dtype=dtype, verbose=verbose)
             nested = HFLoader.build_nested_weights(loaded)
 
         model.update(nested)

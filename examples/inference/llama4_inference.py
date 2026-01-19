@@ -36,7 +36,6 @@ from chuk_lazarus.inference import (
     DType,
     GenerationConfig,
     HFLoader,
-    WeightConverter,
 )
 from chuk_lazarus.models_v2 import (
     Llama4ForCausalLM,
@@ -344,7 +343,7 @@ def test_tiny():
     print("=" * 60)
 
     config = Llama4TextConfig.tiny()
-    print(f"\nConfig:")
+    print("\nConfig:")
     print(f"  Hidden: {config.hidden_size}")
     print(f"  Layers: {config.num_hidden_layers}")
     print(f"  Experts: {config.num_local_experts}")

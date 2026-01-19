@@ -1,0 +1,100 @@
+{"q": "Has 54 dollars. 11 fewer now. How many left?", "expr": "54 - 11 =\n[END]", "ans": 43, "pattern": "single_subtract"}
+{"q": "Has 53. Loses 10, loses 9. Left?", "expr": "53 - 10 =\n_ - 9 =\n[END]", "ans": 34, "pattern": "subtract_subtract"}
+{"q": "5 trays with 5 bottles each. Uses 18. How many remaining?", "expr": "5 * 5 =\n_ - 18 =\n[END]", "ans": 7, "pattern": "multiply_subtract"}
+{"q": "Chris earns $9 per hour. Works 4 hours. Spends $20 on lunch. Gets $17 bonus. Final amount?", "expr": "9 * 4 =\n_ - 20 =\n_ + 17 =\n[END]", "ans": 33, "pattern": "rate_time_chain"}
+{"q": "Start with 89. Remove 12, then 5, then 7. Sell remaining for $3 each. Total?", "expr": "89 - 12 =\n_ - 5 =\n_ - 7 =\n_ * 3 =\n[END]", "ans": 195, "pattern": "four_step_chain"}
+{"q": "Has 29. Earns twice that amount. New total?", "expr": "29 * 2 =\n[END]", "ans": 58, "pattern": "times_multiply"}
+{"q": "Has 88. Loses 15, loses 5. Left?", "expr": "88 - 15 =\n_ - 5 =\n[END]", "ans": 68, "pattern": "subtract_subtract"}
+{"q": "Earns $14/hour for 8 hours. Subtracts $30 expense. Adds $20 tip. Total?", "expr": "14 * 8 =\n_ - 30 =\n_ + 20 =\n[END]", "ans": 102, "pattern": "rate_time_chain"}
+{"q": "Start with 82. Use 6. Then use 10 more. Remaining?", "expr": "82 - 6 =\n_ - 10 =\n[END]", "ans": 66, "pattern": "subtract_subtract"}
+{"q": "Has 76. Uses 12, then 10. Sells remaining for $3 each. Total?", "expr": "76 - 12 =\n_ - 10 =\n_ * 3 =\n[END]", "ans": 162, "pattern": "three_step_standard"}
+{"q": "Linda earns $15 per hour. Works 7 hours. Spends $28 on lunch. Gets $15 bonus. Final amount?", "expr": "15 * 7 =\n_ - 28 =\n_ + 15 =\n[END]", "ans": 92, "pattern": "rate_time_chain"}
+{"q": "Lisa splits 24 tickets equally among 8 friends. Each gets?", "expr": "24 / 8 =\n[END]", "ans": 3, "pattern": "single_divide"}
+{"q": "Chris buys 18 stamps at $8 each. 2 break. Sells rest at $12 each. Profit?", "expr": "18 * 8 =\n18 - 2 =\n_ * 12 =\n_ - 144 =\n[END]", "ans": 48, "pattern": "buy_sell_chain"}
+{"q": "John has 6 boxes with 12 items each. Gets 17 more items. Uses 6. Splits rest among 1 people. Each sells their share at $3 each. Each person's revenue?", "expr": "6 * 12 =\n_ + 17 =\n_ - 6 =\n_ / 1 =\n_ * 3 =\n[END]", "ans": 249, "pattern": "five_step_chain"}
+{"q": "Amy has 15 cookies. Uses a third. How many used?", "expr": "15 / 3 =\n[END]", "ans": 5, "pattern": "third_of"}
+{"q": "Earns $16 per day for 7 days. Total earnings?", "expr": "16 * 7 =\n[END]", "ans": 112, "pattern": "daily_total"}
+{"q": "Tom has 49 pencils. Uses 6. Sells rest at $4 each. Revenue?", "expr": "49 - 6 =\n_ * 4 =\n[END]", "ans": 172, "pattern": "subtract_multiply"}
+{"q": "There are 9 boxs. Each contains 5 stamps. Together?", "expr": "9 * 5 =\n[END]", "ans": 45, "pattern": "single_multiply"}
+{"q": "Chris has 30 apples. Gets 18 more. Then loses 35. How many now?", "expr": "30 + 18 =\n_ - 35 =\n[END]", "ans": 13, "pattern": "add_subtract"}
+{"q": "Buys items for $16, sells for $18. With 5 items, profit?", "expr": "18 - 16 =\n_ * 5 =\n[END]", "ans": 10, "pattern": "price_change"}
+{"q": "6 packs with 15 oranges each. Total oranges?", "expr": "6 * 15 =\n[END]", "ans": 90, "pattern": "single_multiply"}
+{"q": "John has 93 cookies. Loses 16. Loses 13 more. Sells rest at $3 each. Revenue?", "expr": "93 - 16 =\n_ - 13 =\n_ * 3 =\n[END]", "ans": 192, "pattern": "three_step_standard"}
+{"q": "David has 104 cards. Loses 15. Then loses 7. Then loses 9 more. Sells rest at $3 each. Revenue?", "expr": "104 - 15 =\n_ - 7 =\n_ - 9 =\n_ * 3 =\n[END]", "ans": 219, "pattern": "four_step_chain"}
+{"q": "Susan has 42 beads. Uses 11. Sells rest at $2 each. Revenue?", "expr": "42 - 11 =\n_ * 2 =\n[END]", "ans": 62, "pattern": "subtract_multiply"}
+{"q": "Earns $19 per day for 10 days. Total earnings?", "expr": "19 * 10 =\n[END]", "ans": 190, "pattern": "daily_total"}
+{"q": "A machine makes 5 items per week. Runs for 3 weeks. Total items?", "expr": "5 * 3 =\n[END]", "ans": 15, "pattern": "rate_time"}
+{"q": "Start with 66. Take half. Remaining?", "expr": "66 / 2 =\n[END]", "ans": 33, "pattern": "half_of"}
+{"q": "Maria earns $9 per hour. Works 6 hours. Spends $26 on lunch. Gets $13 bonus. Final amount?", "expr": "9 * 6 =\n_ - 26 =\n_ + 13 =\n[END]", "ans": 41, "pattern": "rate_time_chain"}
+{"q": "Ben earns $14 per hour. Works 4 hours. Spends $26 on lunch. Gets $11 bonus. Final amount?", "expr": "14 * 4 =\n_ - 26 =\n_ + 11 =\n[END]", "ans": 41, "pattern": "rate_time_chain"}
+{"q": "David has 62 apples. Loses 13, then loses 12 more. How many remaining?", "expr": "62 - 13 =\n_ - 12 =\n[END]", "ans": 37, "pattern": "subtract_subtract"}
+{"q": "8 stacks with 7 books each. Uses 39. How many remaining?", "expr": "8 * 7 =\n_ - 39 =\n[END]", "ans": 17, "pattern": "multiply_subtract"}
+{"q": "Has 85. Uses 10, then 9. Sells remaining for $4 each. Total?", "expr": "85 - 10 =\n_ - 9 =\n_ * 4 =\n[END]", "ans": 264, "pattern": "three_step_standard"}
+{"q": "Kate has 36 rocks. Uses half. How many left?", "expr": "36 / 2 =\n[END]", "ans": 18, "pattern": "half_of"}
+{"q": "Susan has 118 shells. Loses 17. Then loses 10. Then loses 10 more. Sells rest at $4 each. Revenue?", "expr": "118 - 17 =\n_ - 10 =\n_ - 10 =\n_ * 4 =\n[END]", "ans": 324, "pattern": "four_step_chain"}
+{"q": "Has 31. Gains 23. Spends 25. Remaining?", "expr": "31 + 23 =\n_ - 25 =\n[END]", "ans": 29, "pattern": "add_subtract"}
+{"q": "Amy splits 30 eggs equally among 6 friends. Each gets?", "expr": "30 / 6 =\n[END]", "ans": 5, "pattern": "single_divide"}
+{"q": "Sam has 8 boxes with 11 items each. Gets 18 more items. Uses 7. Splits rest among 3 people. Each sells their share at $3 each. Each person's revenue?", "expr": "8 * 11 =\n_ + 18 =\n_ - 7 =\n_ / 3 =\n_ * 3 =\n[END]", "ans": 99, "pattern": "five_step_chain"}
+{"q": "There are 7 piles. Each contains 12 pencils. Together?", "expr": "7 * 12 =\n[END]", "ans": 84, "pattern": "single_multiply"}
+{"q": "Chris had 94 cookies and lost half of them. Left?", "expr": "94 / 2 =\n[END]", "ans": 47, "pattern": "half_of"}
+{"q": "Amy collected 20 bottles. Evan collected twice that. Evan's total?", "expr": "20 * 2 =\n[END]", "ans": 40, "pattern": "twice_compare"}
+{"q": "Amy has 23 beads. Gets twice as many more. Total now?", "expr": "23 * 2 =\n[END]", "ans": 46, "pattern": "times_multiply"}
+{"q": "Amy has 7 boxes with 10 items each. Gets 10 more items. Uses 6. Splits rest among 2 people. Each sells their share at $2 each. Each person's revenue?", "expr": "7 * 10 =\n_ + 10 =\n_ - 6 =\n_ / 2 =\n_ * 2 =\n[END]", "ans": 74, "pattern": "five_step_chain"}
+{"q": "Has 35. Gains 27. Spends 7. Remaining?", "expr": "35 + 27 =\n_ - 7 =\n[END]", "ans": 55, "pattern": "add_subtract"}
+{"q": "Jake buys 15 eggs at $4 each. 2 break. Sells rest at $9 each. Profit?", "expr": "15 * 4 =\n15 - 2 =\n_ * 9 =\n_ - 60 =\n[END]", "ans": 57, "pattern": "buy_sell_chain"}
+{"q": "Has 7 groups of 7. Divides equally among 7. How many each?", "expr": "7 * 7 =\n_ / 7 =\n[END]", "ans": 7, "pattern": "multiply_divide"}
+{"q": "Dan has 11 dollars. Alex has 3 times as many. How many does Alex have?", "expr": "11 * 3 =\n[END]", "ans": 33, "pattern": "twice_compare"}
+{"q": "Start with 52. Use 13. Then use 10 more. Remaining?", "expr": "52 - 13 =\n_ - 10 =\n[END]", "ans": 29, "pattern": "subtract_subtract"}
+{"q": "Robert has 99 candys. Loses 17. Then loses 12. Then loses 6 more. Sells rest at $3 each. Revenue?", "expr": "99 - 17 =\n_ - 12 =\n_ - 6 =\n_ * 3 =\n[END]", "ans": 192, "pattern": "four_step_chain"}
+{"q": "11 groups with 5 each. Combined?", "expr": "11 * 5 =\n[END]", "ans": 55, "pattern": "single_multiply"}
+{"q": "Susan has $80. Spends 10%. How much spent?", "expr": "80 / 10 =\n[END]", "ans": 8, "pattern": "percent_of"}
+{"q": "Has 8 groups of 10. Removes 24. Left?", "expr": "8 * 10 =\n_ - 24 =\n[END]", "ans": 56, "pattern": "multiply_subtract"}
+{"q": "Mike has 12 flowers. Mike earns 20 more. Total?", "expr": "12 + 20 =\n[END]", "ans": 32, "pattern": "single_add"}
+{"q": "Tom earns $100. Saves 50%. How much saved?", "expr": "100 / 2 =\n[END]", "ans": 50, "pattern": "percent_of"}
+{"q": "Sam has 96 flowers. Loses 18, then loses 14 more. How many remaining?", "expr": "96 - 18 =\n_ - 14 =\n[END]", "ans": 64, "pattern": "subtract_subtract"}
+{"q": "Zoe has 36 tickets. James has twice as many. How many does James have?", "expr": "36 * 2 =\n[END]", "ans": 72, "pattern": "twice_compare"}
+{"q": "Linda has 100 oranges. Loses 9, then loses 19 more. How many remaining?", "expr": "100 - 9 =\n_ - 19 =\n[END]", "ans": 72, "pattern": "subtract_subtract"}
+{"q": "Travels 18 miles per day. Goes for 5 days. Distance?", "expr": "18 * 5 =\n[END]", "ans": 90, "pattern": "rate_time"}
+{"q": "7 groups with 6 each. Combined?", "expr": "7 * 6 =\n[END]", "ans": 42, "pattern": "single_multiply"}
+{"q": "4 packs with 9 pencils each. Split among 4 people. Each gets?", "expr": "4 * 9 =\n_ / 4 =\n[END]", "ans": 9, "pattern": "multiply_divide"}
+{"q": "Travels 14 miles per day. Goes for 4 days. Distance?", "expr": "14 * 4 =\n[END]", "ans": 56, "pattern": "rate_time"}
+{"q": "Emma has 86 rocks. Loses 19. Then loses 15. Then loses 7 more. Sells rest at $4 each. Revenue?", "expr": "86 - 19 =\n_ - 15 =\n_ - 7 =\n_ * 4 =\n[END]", "ans": 180, "pattern": "four_step_chain"}
+{"q": "Mike has 71 coins. Loses 16. Loses 7 more. Sells rest at $3 each. Revenue?", "expr": "71 - 16 =\n_ - 7 =\n_ * 3 =\n[END]", "ans": 144, "pattern": "three_step_standard"}
+{"q": "6 rows of 8 apples. Removes 10. Splits rest among 2 people. Each gets?", "expr": "6 * 8 =\n_ - 10 =\n_ / 2 =\n[END]", "ans": 19, "pattern": "multiply_subtract_divide"}
+{"q": "Amy has 22 dollars. Amy gets 30 more. Total?", "expr": "22 + 30 =\n[END]", "ans": 52, "pattern": "single_add"}
+{"q": "Amy has 15 bottles and 13 more. Combined total?", "expr": "15 + 13 =\n[END]", "ans": 28, "pattern": "single_add"}
+{"q": "A machine makes 11 items per day. Runs for 8 days. Total items?", "expr": "11 * 8 =\n[END]", "ans": 88, "pattern": "rate_time"}
+{"q": "Has 69. Uses 11, then 15. Sells remaining for $2 each. Total?", "expr": "69 - 11 =\n_ - 15 =\n_ * 2 =\n[END]", "ans": 86, "pattern": "three_step_standard"}
+{"q": "Chris has 48 oranges. Uses half. How many left?", "expr": "48 / 2 =\n[END]", "ans": 24, "pattern": "half_of"}
+{"q": "Lisa has 51 pencils and loses 23. How many remaining?", "expr": "51 - 23 =\n[END]", "ans": 28, "pattern": "single_subtract"}
+{"q": "7 crates with 10 apples each. Uses 28. How many remaining?", "expr": "7 * 10 =\n_ - 28 =\n[END]", "ans": 42, "pattern": "multiply_subtract"}
+{"q": "7 rows of 10 cookies. Removes 10. Splits rest among 2 people. Each gets?", "expr": "7 * 10 =\n_ - 10 =\n_ / 2 =\n[END]", "ans": 30, "pattern": "multiply_subtract_divide"}
+{"q": "Start with 68. Use 7. Then use 17 more. Remaining?", "expr": "68 - 7 =\n_ - 17 =\n[END]", "ans": 44, "pattern": "subtract_subtract"}
+{"q": "Start with 16. Add 39. What is the total?", "expr": "16 + 39 =\n[END]", "ans": 55, "pattern": "single_add"}
+{"q": "Has 36. Uses 10. Sells remaining for $5 each. Total?", "expr": "36 - 10 =\n_ * 5 =\n[END]", "ans": 130, "pattern": "subtract_multiply"}
+{"q": "Ryan collected 22 marbles. Mia collected twice that. Mia's total?", "expr": "22 * 2 =\n[END]", "ans": 44, "pattern": "twice_compare"}
+{"q": "5 shelfs with 8 tickets each. Split among 4 people. Each gets?", "expr": "5 * 8 =\n_ / 4 =\n[END]", "ans": 10, "pattern": "multiply_divide"}
+{"q": "James has 16 shells. James finds 22 more. Total?", "expr": "16 + 22 =\n[END]", "ans": 38, "pattern": "single_add"}
+{"q": "Has 27. Sells a third. How many sold?", "expr": "27 / 3 =\n[END]", "ans": 9, "pattern": "third_of"}
+{"q": "Evan has $50. Spends 75%. How much spent?", "expr": "50 * 3 =\n_ / 4 =\n[END]", "ans": 37, "pattern": "percent_of"}
+{"q": "Has 29. Gains 30. Spends 53. Remaining?", "expr": "29 + 30 =\n_ - 53 =\n[END]", "ans": 6, "pattern": "add_subtract"}
+{"q": "Kate earns $5 per hour. Works 2 hours. Total earned?", "expr": "5 * 2 =\n[END]", "ans": 10, "pattern": "rate_time"}
+{"q": "Amy has 102 coins. Loses 20. Then loses 7. Then loses 6 more. Sells rest at $3 each. Revenue?", "expr": "102 - 20 =\n_ - 7 =\n_ - 6 =\n_ * 3 =\n[END]", "ans": 207, "pattern": "four_step_chain"}
+{"q": "A machine makes 5 items per minute. Runs for 8 minutes. Total items?", "expr": "5 * 8 =\n[END]", "ans": 40, "pattern": "rate_time"}
+{"q": "Has 94. Uses 14, then 11. Sells remaining for $2 each. Total?", "expr": "94 - 14 =\n_ - 11 =\n_ * 2 =\n[END]", "ans": 138, "pattern": "three_step_standard"}
+{"q": "Lisa has 67 apples. Loses 19. Loses 11 more. Sells rest at $3 each. Revenue?", "expr": "67 - 19 =\n_ - 11 =\n_ * 3 =\n[END]", "ans": 111, "pattern": "three_step_standard"}
+{"q": "Has 36. Uses 9. Sells remaining for $4 each. Total?", "expr": "36 - 9 =\n_ * 4 =\n[END]", "ans": 108, "pattern": "subtract_multiply"}
+{"q": "Mary buys 14 stickers at $5 each. 3 break. Sells rest at $10 each. Profit?", "expr": "14 * 5 =\n14 - 3 =\n_ * 10 =\n_ - 70 =\n[END]", "ans": 40, "pattern": "buy_sell_chain"}
+{"q": "Start with 59. Use 10. Then use 6 more. Remaining?", "expr": "59 - 10 =\n_ - 6 =\n[END]", "ans": 43, "pattern": "subtract_subtract"}
+{"q": "Divide 120 books among 10 people. Each gets?", "expr": "120 / 10 =\n[END]", "ans": 12, "pattern": "single_divide"}
+{"q": "James earns $200. Saves 50%. How much saved?", "expr": "200 / 2 =\n[END]", "ans": 100, "pattern": "percent_of"}
+{"q": "There are 10 rows. Each contains 4 books. Together?", "expr": "10 * 4 =\n[END]", "ans": 40, "pattern": "single_multiply"}
+{"q": "James has 93 apples. Loses 20. Then loses 5. Then loses 6 more. Sells rest at $4 each. Revenue?", "expr": "93 - 20 =\n_ - 5 =\n_ - 6 =\n_ * 4 =\n[END]", "ans": 248, "pattern": "four_step_chain"}
+{"q": "Sam has 8 boxes with 11 items each. Gets 19 more items. Uses 8. Splits rest among 3 people. Each sells their share at $4 each. Each person's revenue?", "expr": "8 * 11 =\n_ + 19 =\n_ - 8 =\n_ / 3 =\n_ * 4 =\n[END]", "ans": 132, "pattern": "five_step_chain"}
+{"q": "Mary has 5 boxes with 8 items each. Gets 10 more items. Uses 6. Splits rest among 2 people. Each sells their share at $3 each. Each person's revenue?", "expr": "5 * 8 =\n_ + 10 =\n_ - 6 =\n_ / 2 =\n_ * 3 =\n[END]", "ans": 66, "pattern": "five_step_chain"}
+{"q": "Has 39. Sells a third. How many sold?", "expr": "39 / 3 =\n[END]", "ans": 13, "pattern": "third_of"}
+{"q": "Anna has $120. Spends 75%. How much spent?", "expr": "120 * 3 =\n_ / 4 =\n[END]", "ans": 90, "pattern": "percent_of"}
+{"q": "Tom buys 19 beads at $8 each. 3 break. Sells rest at $10 each. Profit?", "expr": "19 * 8 =\n19 - 3 =\n_ * 10 =\n_ - 152 =\n[END]", "ans": 8, "pattern": "buy_sell_chain"}
+{"q": "Start with 115. Remove 17, then 5, then 7. Sell remaining for $3 each. Total?", "expr": "115 - 17 =\n_ - 5 =\n_ - 7 =\n_ * 3 =\n[END]", "ans": 258, "pattern": "four_step_chain"}
+{"q": "Linda has 45 cards. Uses a third. How many used?", "expr": "45 / 3 =\n[END]", "ans": 15, "pattern": "third_of"}
+{"q": "Alex has 47 cookies and 11 more. Combined total?", "expr": "47 + 11 =\n[END]", "ans": 58, "pattern": "single_add"}

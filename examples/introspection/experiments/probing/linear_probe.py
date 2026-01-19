@@ -51,6 +51,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class ProbeExample:
     """A single probe training example."""
+
     prompt: str
     target_token: str
     target_id: int
@@ -60,6 +61,7 @@ class ProbeExample:
 @dataclass
 class ProbeResult:
     """Result of probing a single example."""
+
     prompt: str
     target_token: str
     probe_prediction: str
@@ -126,11 +128,13 @@ class ArithmeticDataset:
             target_ids = self.tokenizer.encode(first_digit, add_special_tokens=False)
             target_id = target_ids[0] if target_ids else 0
 
-            examples.append(ProbeExample(
-                prompt=prompt,
-                target_token=first_digit,
-                target_id=target_id,
-            ))
+            examples.append(
+                ProbeExample(
+                    prompt=prompt,
+                    target_token=first_digit,
+                    target_id=target_id,
+                )
+            )
 
         return examples
 
@@ -311,8 +315,8 @@ class ProbeTrainer:
             n_batches = 0
 
             for i in range(0, len(X), batch_size):
-                X_batch = X_shuf[i:i+batch_size]
-                y_batch = y_shuf[i:i+batch_size]
+                X_batch = X_shuf[i : i + batch_size]
+                y_batch = y_shuf[i : i + batch_size]
 
                 loss, grads = loss_and_grad(probe, X_batch, y_batch)
                 optimizer.update(probe, grads)
@@ -361,17 +365,19 @@ class ProbeTrainer:
             # Ghost found? (probe correct when model wrong)
             ghost_found = probe_correct and not model_correct
 
-            results.append(ProbeResult(
-                prompt=ex.prompt,
-                target_token=ex.target_token,
-                probe_prediction=probe_pred,
-                probe_probability=probe_prob,
-                probe_rank=probe_rank,
-                model_prediction=model_pred,
-                model_correct=model_correct,
-                probe_correct=probe_correct,
-                probe_found_ghost=ghost_found,
-            ))
+            results.append(
+                ProbeResult(
+                    prompt=ex.prompt,
+                    target_token=ex.target_token,
+                    probe_prediction=probe_pred,
+                    probe_probability=probe_prob,
+                    probe_rank=probe_rank,
+                    model_prediction=model_pred,
+                    model_correct=model_correct,
+                    probe_correct=probe_correct,
+                    probe_found_ghost=ghost_found,
+                )
+            )
 
         return results
 
@@ -416,29 +422,33 @@ def print_evaluation(results: list[ProbeResult], layer: int):
     n_probe_correct = sum(1 for r in results if r.probe_correct)
     n_ghosts = sum(1 for r in results if r.probe_found_ghost)
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"PROBE EVALUATION (Layer {layer})")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"Total examples: {n_total}")
-    print(f"Model accuracy: {n_model_correct}/{n_total} ({100*n_model_correct/n_total:.1f}%)")
-    print(f"Probe accuracy: {n_probe_correct}/{n_total} ({100*n_probe_correct/n_total:.1f}%)")
+    print(f"Model accuracy: {n_model_correct}/{n_total} ({100 * n_model_correct / n_total:.1f}%)")
+    print(f"Probe accuracy: {n_probe_correct}/{n_total} ({100 * n_probe_correct / n_total:.1f}%)")
     print(f"Ghosts found:   {n_ghosts}/{n_total} (probe correct when model wrong)")
 
     if n_ghosts > 0:
-        print(f"\n🔥 GHOST EXAMPLES (probe found answer model missed):")
+        print("\n🔥 GHOST EXAMPLES (probe found answer model missed):")
         for r in results:
             if r.probe_found_ghost:
                 print(f"  {r.prompt}")
                 print(f"    Target: {repr(r.target_token)}")
                 print(f"    Model:  {repr(r.model_prediction)} ❌")
-                print(f"    Probe:  {repr(r.probe_prediction)} ✅ (rank {r.probe_rank}, {r.probe_probability:.1%})")
+                print(
+                    f"    Probe:  {repr(r.probe_prediction)} ✅ (rank {r.probe_rank}, {r.probe_probability:.1%})"
+                )
 
     # Sample of results
-    print(f"\n--- Sample Results ---")
+    print("\n--- Sample Results ---")
     for r in results[:10]:
         model_mark = "✅" if r.model_correct else "❌"
         probe_mark = "✅" if r.probe_correct else "❌"
-        print(f"  {r.prompt:<20} target={r.target_token} model={r.model_prediction}{model_mark} probe={r.probe_prediction}{probe_mark}")
+        print(
+            f"  {r.prompt:<20} target={r.target_token} model={r.model_prediction}{model_mark} probe={r.probe_prediction}{probe_mark}"
+        )
 
 
 async def cmd_train(args):
@@ -471,10 +481,15 @@ async def cmd_train(args):
 
     # Save
     probe_path = Path(args.probe_path or f"probes/arithmetic_L{args.layer}.npz")
-    trainer.save_probe(probe, probe_path, args.layer, {
-        "train_size": len(train_data),
-        "test_size": len(test_data),
-    })
+    trainer.save_probe(
+        probe,
+        probe_path,
+        args.layer,
+        {
+            "train_size": len(train_data),
+            "test_size": len(test_data),
+        },
+    )
 
 
 async def cmd_eval(args):
@@ -501,14 +516,14 @@ async def cmd_eval(args):
         for i, idx in enumerate(sorted_idx):
             token = trainer.tokenizer.decode([idx])
             prob = float(probe_probs[idx])
-            print(f"  {i+1}. {repr(token):10} {prob:.4f}")
+            print(f"  {i + 1}. {repr(token):10} {prob:.4f}")
 
-        print(f"\nModel top-5 (final):")
+        print("\nModel top-5 (final):")
         sorted_idx = mx.argsort(model_probs)[::-1][:5].tolist()
         for i, idx in enumerate(sorted_idx):
             token = trainer.tokenizer.decode([idx])
             prob = float(model_probs[idx])
-            print(f"  {i+1}. {repr(token):10} {prob:.4f}")
+            print(f"  {i + 1}. {repr(token):10} {prob:.4f}")
     else:
         # Evaluate on generated dataset
         dataset = ArithmeticDataset(trainer.tokenizer, num_examples=100)
@@ -543,7 +558,7 @@ async def cmd_sweep(args):
     layers_to_test = sorted(set(l for l in layers_to_test if l < num_layers))
 
     print(f"\nSweeping layers: {layers_to_test}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     results_summary = []
 
@@ -560,9 +575,9 @@ async def cmd_sweep(args):
         print(f"  Accuracy: {accuracy:.1%}, Ghosts: {n_ghosts}")
 
     # Summary
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("LAYER SWEEP SUMMARY")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"{'Layer':<8} {'Accuracy':<12} {'Ghosts'}")
     print("-" * 35)
     for layer, acc, ghosts in results_summary:

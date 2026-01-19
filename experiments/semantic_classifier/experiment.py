@@ -21,7 +21,6 @@ import random
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 import mlx.core as mx
 
@@ -31,13 +30,35 @@ logger = logging.getLogger(__name__)
 
 # Number words for data generation
 NUM_WORDS = {
-    0: "zero", 1: "one", 2: "two", 3: "three", 4: "four",
-    5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine",
-    10: "ten", 11: "eleven", 12: "twelve", 13: "thirteen",
-    14: "fourteen", 15: "fifteen", 16: "sixteen", 17: "seventeen",
-    18: "eighteen", 19: "nineteen", 20: "twenty",
-    30: "thirty", 40: "forty", 50: "fifty", 60: "sixty",
-    70: "seventy", 80: "eighty", 90: "ninety", 100: "one hundred",
+    0: "zero",
+    1: "one",
+    2: "two",
+    3: "three",
+    4: "four",
+    5: "five",
+    6: "six",
+    7: "seven",
+    8: "eight",
+    9: "nine",
+    10: "ten",
+    11: "eleven",
+    12: "twelve",
+    13: "thirteen",
+    14: "fourteen",
+    15: "fifteen",
+    16: "sixteen",
+    17: "seventeen",
+    18: "eighteen",
+    19: "nineteen",
+    20: "twenty",
+    30: "thirty",
+    40: "forty",
+    50: "fifty",
+    60: "sixty",
+    70: "seventy",
+    80: "eighty",
+    90: "ninety",
+    100: "one hundred",
 }
 
 
@@ -55,6 +76,7 @@ def number_to_words(n: int) -> str:
 @dataclass
 class TaskResult:
     """Result for a single test prompt."""
+
     task: str
     prompt: str
     expected: str
@@ -67,6 +89,7 @@ class TaskResult:
 @dataclass
 class MethodResult:
     """Results for a training method."""
+
     method_name: str
     task_results: list[TaskResult] = field(default_factory=list)
 
@@ -130,19 +153,33 @@ class SemanticClassifierExperiment(ExperimentBase):
                 {"task": "multiply", "input": "the product of nine and nine", "expected": "81"},
                 {"task": "add", "input": "twenty three plus forty five", "expected": "68"},
                 {"task": "add", "input": "seventeen and thirty eight", "expected": "55"},
-                {"task": "add", "input": "the sum of fifty five and twenty seven", "expected": "82"},
+                {
+                    "task": "add",
+                    "input": "the sum of fifty five and twenty seven",
+                    "expected": "82",
+                },
                 {"task": "subtract", "input": "eighty nine minus thirty four", "expected": "55"},
-                {"task": "subtract", "input": "sixty five take away twenty eight", "expected": "37"},
-                {"task": "subtract", "input": "the difference between one hundred and forty three", "expected": "57"},
+                {
+                    "task": "subtract",
+                    "input": "sixty five take away twenty eight",
+                    "expected": "37",
+                },
+                {
+                    "task": "subtract",
+                    "input": "the difference between one hundred and forty three",
+                    "expected": "57",
+                },
             ]
 
         for task, task_prompts in test_config.items():
             for p in task_prompts:
-                prompts.append({
-                    "task": task,
-                    "input": p["input"],
-                    "expected": p["expected"],
-                })
+                prompts.append(
+                    {
+                        "task": task,
+                        "input": p["input"],
+                        "expected": p["expected"],
+                    }
+                )
 
         return prompts
 
@@ -198,14 +235,16 @@ class SemanticClassifierExperiment(ExperimentBase):
             pattern = random.choice(patterns[op_name])
             prompt = pattern.format(a=a_words, b=b_words)
 
-            data.append({
-                "prompt": prompt,
-                "response": str(result),
-                "text": f"{prompt} = {result}",
-                "operation": op_name,
-                # Also store canonical form for analysis
-                "canonical": f"{a} {'*' if op_name == 'multiply' else '+' if op_name == 'add' else '-'} {b} = {result}",
-            })
+            data.append(
+                {
+                    "prompt": prompt,
+                    "response": str(result),
+                    "text": f"{prompt} = {result}",
+                    "operation": op_name,
+                    # Also store canonical form for analysis
+                    "canonical": f"{a} {'*' if op_name == 'multiply' else '+' if op_name == 'add' else '-'} {b} = {result}",
+                }
+            )
 
         # Split
         split_idx = int(len(data) * 0.9)
@@ -229,11 +268,16 @@ class SemanticClassifierExperiment(ExperimentBase):
         dr_train_path = self.config.data_dir / "train_dual_reward.jsonl"
         with open(dr_train_path, "w") as f:
             for entry in train_data:
-                f.write(json.dumps({
-                    "prompt": entry["prompt"],
-                    "response": entry["response"],
-                    "operation": entry["operation"],
-                }) + "\n")
+                f.write(
+                    json.dumps(
+                        {
+                            "prompt": entry["prompt"],
+                            "response": entry["response"],
+                            "operation": entry["operation"],
+                        }
+                    )
+                    + "\n"
+                )
 
         # Full data
         with open(self.data_path, "w") as f:
@@ -305,7 +349,7 @@ class SemanticClassifierExperiment(ExperimentBase):
         for _ in range(max_tokens):
             output = model(input_ids)
             # Framework model returns ModelOutput with .logits attribute
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1)
             mx.eval(next_token)
 
@@ -329,7 +373,7 @@ class SemanticClassifierExperiment(ExperimentBase):
         else:
             loaded = self.load_model()
             model, tokenizer = loaded.model, loaded.tokenizer
-            self.log(f"Loaded base model")
+            self.log("Loaded base model")
 
         for prompt_info in self.test_prompts:
             task = prompt_info["task"]
@@ -343,17 +387,21 @@ class SemanticClassifierExperiment(ExperimentBase):
             response = self._simple_generate(model, tokenizer, full_prompt, max_tokens=10)
             generated = self._extract_number(response)
             task_result.generated = generated
-            task_result.correct = (generated == expected)
+            task_result.correct = generated == expected
 
             # Check classifier at each layer
             task_vocab = self.task_vocabulary.get(task, [])
             input_ids = mx.array(tokenizer.encode(full_prompt))[None, :]
             h = model.model.embed_tokens(input_ids)
-            embed_weight = model.model.embed_tokens.weight.parameters()['weight']
+            embed_weight = model.model.embed_tokens.weight.parameters()["weight"]
 
             for layer_idx, layer in enumerate(model.model.layers):
                 layer_out = layer(h, mask=None, cache=None)
-                h = layer_out.hidden_states if hasattr(layer_out, 'hidden_states') else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+                h = (
+                    layer_out.hidden_states
+                    if hasattr(layer_out, "hidden_states")
+                    else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+                )
 
                 h_normed = model.model.norm(h)
                 logits = h_normed @ embed_weight.T
@@ -377,13 +425,14 @@ class SemanticClassifierExperiment(ExperimentBase):
 
     def _extract_number(self, text: str) -> str:
         """Extract first number from text."""
-        match = re.search(r'-?\d+', text)
+        match = re.search(r"-?\d+", text)
         return match.group() if match else text.strip()
 
     def _train_sft(self, output_dir: Path, config: dict) -> bool:
         """Train with SFT."""
         import subprocess
         import sys
+
         import yaml
 
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -423,7 +472,8 @@ class SemanticClassifierExperiment(ExperimentBase):
     def _train_dual_reward(self, output_dir: Path, config: dict) -> bool:
         """Train with dual-reward."""
         from chuk_lazarus.training.trainers.dual_reward_trainer import (
-            DualRewardTrainer, DualRewardTrainerConfig
+            DualRewardTrainer,
+            DualRewardTrainerConfig,
         )
 
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -439,11 +489,14 @@ class SemanticClassifierExperiment(ExperimentBase):
             max_steps=config.get("max_steps", 500),
             classifier_layer=-1,
             classifier_weight=config.get("classifier_weight", 0.7),
-            classifier_targets=config.get("classifier_targets", {
-                "multiply": "multiply",
-                "add": "add",
-                "subtract": "subtract",
-            }),
+            classifier_targets=config.get(
+                "classifier_targets",
+                {
+                    "multiply": "multiply",
+                    "add": "add",
+                    "subtract": "subtract",
+                },
+            ),
             lora_rank=lora_config.get("rank", 32),
             lora_targets=lora_config.get("targets", ["v_proj", "o_proj"]),
             log_interval=50,
@@ -465,6 +518,7 @@ class SemanticClassifierExperiment(ExperimentBase):
         final_path = output_dir / "final"
         if final_path.exists():
             import shutil
+
             adapter_dest = output_dir / "adapters"
             if adapter_dest.exists():
                 shutil.rmtree(adapter_dest)
@@ -479,7 +533,9 @@ class SemanticClassifierExperiment(ExperimentBase):
             "input_type": "semantic (natural language)",
             "baseline": {
                 "accuracy": self.baseline_result.accuracy if self.baseline_result else 0,
-                "avg_classifier_prob": self.baseline_result.avg_classifier_prob if self.baseline_result else 0,
+                "avg_classifier_prob": self.baseline_result.avg_classifier_prob
+                if self.baseline_result
+                else 0,
             },
             "methods": {},
             "summary": {},

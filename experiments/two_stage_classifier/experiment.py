@@ -21,7 +21,6 @@ import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 import mlx.core as mx
 
@@ -33,6 +32,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class StageResult:
     """Results for a training stage."""
+
     stage_name: str
     symbolic_accuracy: float = 0.0
     semantic_accuracy: float = 0.0
@@ -73,22 +73,44 @@ class TwoStageClassifierExperiment(ExperimentBase):
 
         for category, category_prompts in test_config.items():
             for p in category_prompts:
-                prompts.append({
-                    "category": category,
-                    "input": p["input"],
-                    "expected": p["expected"],
-                    "task": p["task"],
-                })
+                prompts.append(
+                    {
+                        "category": category,
+                        "input": p["input"],
+                        "expected": p["expected"],
+                        "task": p["task"],
+                    }
+                )
 
         if not prompts:
             # Defaults
             prompts = [
                 {"category": "symbolic", "input": "7 * 8 = ", "expected": "56", "task": "multiply"},
-                {"category": "symbolic", "input": "12 * 5 = ", "expected": "60", "task": "multiply"},
+                {
+                    "category": "symbolic",
+                    "input": "12 * 5 = ",
+                    "expected": "60",
+                    "task": "multiply",
+                },
                 {"category": "symbolic", "input": "23 + 45 = ", "expected": "68", "task": "add"},
-                {"category": "symbolic", "input": "89 - 34 = ", "expected": "55", "task": "subtract"},
-                {"category": "semantic", "input": "seven times eight", "expected": "56", "task": "multiply"},
-                {"category": "semantic", "input": "twenty three plus forty five", "expected": "68", "task": "add"},
+                {
+                    "category": "symbolic",
+                    "input": "89 - 34 = ",
+                    "expected": "55",
+                    "task": "subtract",
+                },
+                {
+                    "category": "semantic",
+                    "input": "seven times eight",
+                    "expected": "56",
+                    "task": "multiply",
+                },
+                {
+                    "category": "semantic",
+                    "input": "twenty three plus forty five",
+                    "expected": "68",
+                    "task": "add",
+                },
             ]
 
         return prompts
@@ -126,12 +148,14 @@ class TwoStageClassifierExperiment(ExperimentBase):
                     a, b = max(a, b), min(a, b)
 
             result = op_fn(a, b)
-            data.append({
-                "text": f"{a} {op_sym} {b} = {result}",
-                "prompt": f"{a} {op_sym} {b} = ",
-                "response": str(result),
-                "operation": op_name,
-            })
+            data.append(
+                {
+                    "text": f"{a} {op_sym} {b} = {result}",
+                    "prompt": f"{a} {op_sym} {b} = ",
+                    "response": str(result),
+                    "operation": op_name,
+                }
+            )
 
         split = int(len(data) * 0.9)
         train_data, valid_data = data[:split], data[split:]
@@ -148,11 +172,16 @@ class TwoStageClassifierExperiment(ExperimentBase):
         # Dual-reward format
         with open(dr_train_path, "w") as f:
             for e in train_data:
-                f.write(json.dumps({
-                    "prompt": e["prompt"],
-                    "response": e["response"],
-                    "operation": e["operation"],
-                }) + "\n")
+                f.write(
+                    json.dumps(
+                        {
+                            "prompt": e["prompt"],
+                            "response": e["response"],
+                            "operation": e["operation"],
+                        }
+                    )
+                    + "\n"
+                )
 
         self.log(f"Generated {len(train_data)} train samples")
 
@@ -229,7 +258,7 @@ class TwoStageClassifierExperiment(ExperimentBase):
 
         for _ in range(max_tokens):
             output = model(input_ids)
-            logits = output.logits if hasattr(output, 'logits') else output
+            logits = output.logits if hasattr(output, "logits") else output
             next_token = mx.argmax(logits[:, -1, :], axis=-1)
             mx.eval(next_token)
 
@@ -258,7 +287,9 @@ class TwoStageClassifierExperiment(ExperimentBase):
         model_path = base_model_path or self.config.model
 
         if adapter_path and adapter_path.exists():
-            loaded = self.load_model_with_lora(model_path=model_path, adapter_path=str(adapter_path))
+            loaded = self.load_model_with_lora(
+                model_path=model_path, adapter_path=str(adapter_path)
+            )
             model, tokenizer = loaded.model, loaded.tokenizer
             self.log(f"Loaded {model_path} with adapter: {adapter_path}")
         else:
@@ -280,7 +311,7 @@ class TwoStageClassifierExperiment(ExperimentBase):
             prompt = input_text if input_text.endswith("= ") else f"{input_text} = "
             response = self._simple_generate(model, tokenizer, prompt, max_tokens=10)
             generated = self._extract_number(response)
-            correct = (generated == expected)
+            correct = generated == expected
 
             if category == "symbolic":
                 symbolic_total += 1
@@ -297,18 +328,22 @@ class TwoStageClassifierExperiment(ExperimentBase):
             if classifier_prob > 0:
                 classifier_probs.append(classifier_prob)
 
-            result.results.append({
-                "category": category,
-                "input": input_text,
-                "expected": expected,
-                "generated": generated,
-                "correct": correct,
-                "classifier_prob": classifier_prob,
-            })
+            result.results.append(
+                {
+                    "category": category,
+                    "input": input_text,
+                    "expected": expected,
+                    "generated": generated,
+                    "correct": correct,
+                    "classifier_prob": classifier_prob,
+                }
+            )
 
         result.symbolic_accuracy = symbolic_correct / symbolic_total if symbolic_total else 0
         result.semantic_accuracy = semantic_correct / semantic_total if semantic_total else 0
-        result.avg_classifier_prob = sum(classifier_probs) / len(classifier_probs) if classifier_probs else 0
+        result.avg_classifier_prob = (
+            sum(classifier_probs) / len(classifier_probs) if classifier_probs else 0
+        )
 
         return result
 
@@ -316,12 +351,16 @@ class TwoStageClassifierExperiment(ExperimentBase):
         """Check classifier probability at each layer, return max."""
         input_ids = mx.array(tokenizer.encode(prompt))[None, :]
         h = model.model.embed_tokens(input_ids)
-        embed_weight = model.model.embed_tokens.weight.parameters()['weight']
+        embed_weight = model.model.embed_tokens.weight.parameters()["weight"]
 
         max_prob = 0.0
         for layer in model.model.layers:
             layer_out = layer(h, mask=None, cache=None)
-            h = layer_out.hidden_states if hasattr(layer_out, 'hidden_states') else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+            h = (
+                layer_out.hidden_states
+                if hasattr(layer_out, "hidden_states")
+                else (layer_out[0] if isinstance(layer_out, tuple) else layer_out)
+            )
 
             h_normed = model.model.norm(h)
             logits = h_normed @ embed_weight.T
@@ -341,13 +380,14 @@ class TwoStageClassifierExperiment(ExperimentBase):
 
     def _extract_number(self, text: str) -> str:
         """Extract first number."""
-        match = re.search(r'-?\d+', text)
+        match = re.search(r"-?\d+", text)
         return match.group() if match else text.strip()
 
     def _train_sft(self, output_dir: Path) -> bool:
         """Stage 1: SFT training."""
         import subprocess
         import sys
+
         import yaml
 
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -394,8 +434,10 @@ class TwoStageClassifierExperiment(ExperimentBase):
         """
         import subprocess
         import sys
+
         from chuk_lazarus.training.trainers.dual_reward_trainer import (
-            DualRewardTrainer, DualRewardTrainerConfig
+            DualRewardTrainer,
+            DualRewardTrainerConfig,
         )
 
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -404,12 +446,18 @@ class TwoStageClassifierExperiment(ExperimentBase):
         fused_model_path = output_dir / "fused_stage1"
         if base_adapter.exists():
             if not fused_model_path.exists():
-                self.log(f"Fusing Stage 1 adapter into base model...")
+                self.log("Fusing Stage 1 adapter into base model...")
                 cmd = [
-                    sys.executable, "-m", "mlx_lm", "fuse",
-                    "--model", self.config.model,
-                    "--adapter-path", str(base_adapter),
-                    "--save-path", str(fused_model_path),
+                    sys.executable,
+                    "-m",
+                    "mlx_lm",
+                    "fuse",
+                    "--model",
+                    self.config.model,
+                    "--adapter-path",
+                    str(base_adapter),
+                    "--save-path",
+                    str(fused_model_path),
                 ]
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 if result.returncode != 0:
@@ -422,7 +470,7 @@ class TwoStageClassifierExperiment(ExperimentBase):
             # Load fused model (stage 1 computation is now in the weights)
             loaded = self.load_model(model_path=str(fused_model_path))
             model, tokenizer = loaded.model, loaded.tokenizer
-            self.log(f"Loaded fused Stage 1 model")
+            self.log("Loaded fused Stage 1 model")
         else:
             loaded = self.load_model()
             model, tokenizer = loaded.model, loaded.tokenizer
@@ -438,11 +486,14 @@ class TwoStageClassifierExperiment(ExperimentBase):
             max_steps=config.get("max_steps", 200),
             classifier_layer=-1,
             classifier_weight=config.get("classifier_weight", 0.2),  # KEY: Low weight!
-            classifier_targets=config.get("classifier_targets", {
-                "multiply": "multiply",
-                "add": "add",
-                "subtract": "subtract",
-            }),
+            classifier_targets=config.get(
+                "classifier_targets",
+                {
+                    "multiply": "multiply",
+                    "add": "add",
+                    "subtract": "subtract",
+                },
+            ),
             lora_rank=lora.get("rank", 32),
             lora_targets=lora.get("targets", ["v_proj", "o_proj"]),
             log_interval=50,

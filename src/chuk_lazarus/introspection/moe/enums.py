@@ -67,6 +67,30 @@ class ExpertRole(str, Enum):
     """Expert rarely activates."""
 
 
+class MoEType(str, Enum):
+    """Classification of MoE training origin.
+
+    Determines whether a model was converted from dense (pseudo-MoE)
+    or trained natively as MoE. This affects compression strategies.
+    """
+
+    UPCYCLED = "upcycled"
+    """Dense→MoE conversion (upcycling). Experts share a base with low-rank deltas. Compressible via SVD."""
+
+    PRETRAINED_MOE = "pretrained_moe"
+    """Trained natively as MoE from scratch. Orthogonal experts. Not compressible via SVD overlay."""
+
+    UNKNOWN = "unknown"
+    """Inconclusive metrics. Requires manual inspection."""
+
+    # Legacy aliases for backwards compatibility
+    PSEUDO = "upcycled"
+    """Alias for UPCYCLED (deprecated)."""
+
+    NATIVE = "pretrained_moe"
+    """Alias for PRETRAINED_MOE (deprecated)."""
+
+
 class MoEAction(str, Enum):
     """Available MoE expert CLI actions."""
 
@@ -118,6 +142,54 @@ class MoEAction(str, Enum):
     # Interactive
     EXPLORE = "explore"
     """Interactive expert explorer for real-time analysis."""
+
+    # MoE Type Detection
+    MOE_TYPE_ANALYZE = "moe-type-analyze"
+    """Analyze MoE type (pseudo vs native) via SVD analysis."""
+
+    MOE_TYPE_COMPARE = "moe-type-compare"
+    """Compare MoE types between two models."""
+
+    # MoE Compression
+    MOE_OVERLAY_COMPUTE = "moe-overlay-compute"
+    """Compute overlay representation (base + low-rank deltas)."""
+
+    MOE_OVERLAY_VERIFY = "moe-overlay-verify"
+    """Verify reconstruction accuracy of overlay representation."""
+
+    MOE_OVERLAY_ESTIMATE = "moe-overlay-estimate"
+    """Estimate storage savings from overlay compression."""
+
+    MOE_OVERLAY_COMPRESS = "moe-overlay-compress"
+    """Compress model to overlay format (base + low-rank deltas)."""
+
+    # Expert Dynamics Analysis
+    COLD_EXPERTS = "cold-experts"
+    """Analyze cold (rarely-activated) experts and their triggers."""
+
+    GENERATION_DYNAMICS = "generation-dynamics"
+    """Analyze expert routing during autoregressive generation."""
+
+    EXPERT_CIRCUITS = "expert-circuits"
+    """Identify cross-layer expert circuits."""
+
+    EXPERT_INTERFERENCE = "expert-interference"
+    """Analyze multi-expert interference patterns."""
+
+    EXPERT_MERGING = "expert-merging"
+    """Analyze expert merging opportunities."""
+
+    ATTENTION_PREDICTION = "attention-prediction"
+    """Predict routing from attention patterns (routing without router)."""
+
+    TASK_PREDICTION = "task-prediction"
+    """Predict needed experts from early-layer activations (task-aware loading)."""
+
+    ROUTING_MANIPULATION = "routing-manipulation"
+    """Analyze and craft inputs for specific expert routing patterns."""
+
+    CONTEXT_ATTENTION_ROUTING = "context-attention-routing"
+    """Analyze attention-routing correlation with context awareness."""
 
     @property
     def handler_name(self) -> str:

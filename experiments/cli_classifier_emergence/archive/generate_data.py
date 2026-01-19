@@ -16,18 +16,18 @@ from pathlib import Path
 def generate_arithmetic_sample():
     """Generate a single arithmetic sample with operation label."""
     ops = [
-        ('*', 'multiply', lambda a, b: a * b),
-        ('+', 'add', lambda a, b: a + b),
-        ('-', 'subtract', lambda a, b: a - b),
-        ('/', 'divide', lambda a, b: a // b if b != 0 else 0),
+        ("*", "multiply", lambda a, b: a * b),
+        ("+", "add", lambda a, b: a + b),
+        ("-", "subtract", lambda a, b: a - b),
+        ("/", "divide", lambda a, b: a // b if b != 0 else 0),
     ]
 
     op_sym, op_name, op_fn = random.choice(ops)
 
-    if op_sym == '/':
+    if op_sym == "/":
         b = random.randint(1, 12)
         a = b * random.randint(1, 12)
-    elif op_sym == '-':
+    elif op_sym == "-":
         a = random.randint(10, 100)
         b = random.randint(1, a)
     else:
@@ -49,7 +49,9 @@ def generate_arithmetic_sample():
 
 def main():
     parser = argparse.ArgumentParser(description="Generate arithmetic training data")
-    parser.add_argument("--output", "-o", default="data/arithmetic_sft.jsonl", help="Output JSONL file")
+    parser.add_argument(
+        "--output", "-o", default="data/arithmetic_sft.jsonl", help="Output JSONL file"
+    )
     parser.add_argument("--samples", "-n", type=int, default=1000, help="Number of samples")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()

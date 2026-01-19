@@ -17,7 +17,6 @@ Usage:
 import argparse
 import json
 from pathlib import Path
-from collections import defaultdict
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -72,7 +71,7 @@ class LookupEvolutionAnalyzer:
 
         embed_scale = getattr(self.config, "embedding_scale", None)
         if embed_scale is None:
-            embed_scale = float(self.hidden_size ** 0.5)
+            embed_scale = float(self.hidden_size**0.5)
 
         return layers, embed, embed_scale
 
@@ -140,7 +139,9 @@ class LookupEvolutionAnalyzer:
         print("LAYER-BY-LAYER ANALYSIS")
         print("=" * 80)
 
-        print(f"\n{'Layer':<8} {'Commut.':<10} {'SameProd':<10} {'Row':<10} {'Col':<10} {'Interpretation'}")
+        print(
+            f"\n{'Layer':<8} {'Commut.':<10} {'SameProd':<10} {'Row':<10} {'Col':<10} {'Interpretation'}"
+        )
         print("-" * 70)
 
         for layer_idx in range(self.num_layers):
@@ -204,15 +205,19 @@ class LookupEvolutionAnalyzer:
             else:
                 interp = "MIXED"
 
-            print(f"L{layer_idx:<6} {avg_comm:.4f}    {avg_same_prod:.4f}    {avg_row:.4f}    {avg_col:.4f}    {interp}")
+            print(
+                f"L{layer_idx:<6} {avg_comm:.4f}    {avg_same_prod:.4f}    {avg_row:.4f}    {avg_col:.4f}    {interp}"
+            )
 
-            results_by_layer.append({
-                "layer": layer_idx,
-                "commutativity": float(avg_comm),
-                "same_product": float(avg_same_prod),
-                "row_similarity": float(avg_row),
-                "col_similarity": float(avg_col),
-            })
+            results_by_layer.append(
+                {
+                    "layer": layer_idx,
+                    "commutativity": float(avg_comm),
+                    "same_product": float(avg_same_prod),
+                    "row_similarity": float(avg_row),
+                    "col_similarity": float(avg_col),
+                }
+            )
 
         # Find phase transitions
         print("\n" + "=" * 80)
@@ -234,8 +239,12 @@ class LookupEvolutionAnalyzer:
                 print(f"Same-product clustering peaks at layer {i} ({max_same_prod:.4f})")
 
         # Row vs column preference
-        row_pref_layers = [r["layer"] for r in results_by_layer if r["row_similarity"] > r["col_similarity"]]
-        col_pref_layers = [r["layer"] for r in results_by_layer if r["col_similarity"] > r["row_similarity"]]
+        row_pref_layers = [
+            r["layer"] for r in results_by_layer if r["row_similarity"] > r["col_similarity"]
+        ]
+        col_pref_layers = [
+            r["layer"] for r in results_by_layer if r["col_similarity"] > r["row_similarity"]
+        ]
 
         if len(row_pref_layers) > len(col_pref_layers):
             print(f"\nRow-dominant layers: {len(row_pref_layers)}")
@@ -253,11 +262,11 @@ class LookupEvolutionAnalyzer:
         early_same_prod = np.mean([r["same_product"] for r in results_by_layer[:10]])
         late_same_prod = np.mean([r["same_product"] for r in results_by_layer[-10:]])
 
-        print(f"\nEarly layers (0-9):")
+        print("\nEarly layers (0-9):")
         print(f"  Commutativity: {early_comm:.4f}")
         print(f"  Same-product: {early_same_prod:.4f}")
 
-        print(f"\nLate layers (24-33):")
+        print("\nLate layers (24-33):")
         print(f"  Commutativity: {late_comm:.4f}")
         print(f"  Same-product: {late_same_prod:.4f}")
 
@@ -278,7 +287,8 @@ class LookupEvolutionAnalyzer:
         print("COMPARISON WITH GPT-OSS (from your earlier research)")
         print("=" * 80)
 
-        print("""
+        print(
+            """
 GPT-OSS-20B findings:
 - Same-product pairs: ~0.999 cosine similarity
 - Same-row items: ~0.985 similarity
@@ -297,11 +307,12 @@ DIFFERENCE: Gemma has weaker row/column structure
 INTERPRETATION: Gemma may use a flatter lookup (by product)
                rather than 2D table (by row/col)
 """.format(
-            np.mean([r["commutativity"] for r in results_by_layer]),
-            np.mean([r["same_product"] for r in results_by_layer]),
-            np.mean([r["row_similarity"] for r in results_by_layer]),
-            np.mean([r["col_similarity"] for r in results_by_layer]),
-        ))
+                np.mean([r["commutativity"] for r in results_by_layer]),
+                np.mean([r["same_product"] for r in results_by_layer]),
+                np.mean([r["row_similarity"] for r in results_by_layer]),
+                np.mean([r["col_similarity"] for r in results_by_layer]),
+            )
+        )
 
         # Save results
         output_path = Path("gemma_discovery_cache/lookup_evolution.json")

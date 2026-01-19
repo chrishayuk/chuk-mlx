@@ -23,7 +23,6 @@ import argparse
 import asyncio
 import json
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
@@ -36,6 +35,7 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class ArithmeticTest:
     """A single arithmetic test case."""
+
     prompt: str
     expected_first_digit: str
     operation: str  # "add", "mul", "sub", "div"
@@ -46,6 +46,7 @@ class ArithmeticTest:
 @dataclass
 class TestResult:
     """Result of running a test."""
+
     test: ArithmeticTest
     emergence_layer: int | None
     peak_layer: int | None
@@ -59,6 +60,7 @@ class TestResult:
 @dataclass
 class StudyResult:
     """Complete study results."""
+
     model_id: str
     num_layers: int
     results: list[TestResult] = field(default_factory=list)
@@ -192,7 +194,9 @@ class ArithmeticStudy:
             return self.config.embedding_scale
         return None
 
-    def _probe_all_layers(self, prompt: str, target_token: str) -> list[tuple[int, str, float, int | None]]:
+    def _probe_all_layers(
+        self, prompt: str, target_token: str
+    ) -> list[tuple[int, str, float, int | None]]:
         """
         Probe all layers and return trajectory.
 
@@ -310,7 +314,7 @@ class ArithmeticStudy:
         results = []
 
         for i, test in enumerate(tests):
-            print(f"\n[{i+1}/{len(tests)}] {test.prompt}", end=" -> ")
+            print(f"\n[{i + 1}/{len(tests)}] {test.prompt}", end=" -> ")
             result = self.run_test(test)
             print(f"{result.final_prediction} ({'✓' if result.correct else '✗'})", end="")
             if result.emergence_layer is not None:
@@ -361,7 +365,7 @@ def generate_test_suite(quick: bool = False) -> list[ArithmeticTest]:
     # Medium multiplication
     med_mul = [
         ("12 * 12 = ", "1", 2),  # 144
-        ("25 * 4 = ", "1", 2),   # 100
+        ("25 * 4 = ", "1", 2),  # 100
     ]
 
     # Hard multiplication
@@ -397,9 +401,13 @@ def generate_test_suite(quick: bool = False) -> list[ArithmeticTest]:
         tests.append(ArithmeticTest(prompt, first_digit, "mul", "hard", mag))
 
     for prompt, first_digit, mag in sub_tests:
-        tests.append(ArithmeticTest(prompt, first_digit, "sub", "easy" if mag == 1 else "medium", mag))
+        tests.append(
+            ArithmeticTest(prompt, first_digit, "sub", "easy" if mag == 1 else "medium", mag)
+        )
     for prompt, first_digit, mag in div_tests:
-        tests.append(ArithmeticTest(prompt, first_digit, "div", "easy" if mag == 1 else "medium", mag))
+        tests.append(
+            ArithmeticTest(prompt, first_digit, "div", "easy" if mag == 1 else "medium", mag)
+        )
 
     if quick:
         # Just take a sample
@@ -412,9 +420,9 @@ def print_study_summary(study: StudyResult):
     """Print study summary."""
     summary = study.summary()
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("STUDY SUMMARY")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"Model: {study.model_id} ({study.num_layers} layers)")
     print(f"Total tests: {len(study.results)}")
 
@@ -423,8 +431,8 @@ def print_study_summary(study: StudyResult):
     print(f"{'Operation':<12} {'Accuracy':<12} {'Avg Emergence Layer'}")
     print("-" * 45)
     for op, stats in summary["by_operation"].items():
-        acc = f"{stats['accuracy']*100:.1f}%"
-        emerg = f"L{stats['avg_emergence_layer']:.1f}" if stats['avg_emergence_layer'] else "N/A"
+        acc = f"{stats['accuracy'] * 100:.1f}%"
+        emerg = f"L{stats['avg_emergence_layer']:.1f}" if stats["avg_emergence_layer"] else "N/A"
         print(f"{op:<12} {acc:<12} {emerg}")
 
     # By difficulty
@@ -432,8 +440,8 @@ def print_study_summary(study: StudyResult):
     print(f"{'Difficulty':<12} {'Accuracy':<12} {'Avg Emergence Layer'}")
     print("-" * 45)
     for diff, stats in summary["by_difficulty"].items():
-        acc = f"{stats['accuracy']*100:.1f}%"
-        emerg = f"L{stats['avg_emergence_layer']:.1f}" if stats['avg_emergence_layer'] else "N/A"
+        acc = f"{stats['accuracy'] * 100:.1f}%"
+        emerg = f"L{stats['avg_emergence_layer']:.1f}" if stats["avg_emergence_layer"] else "N/A"
         print(f"{diff:<12} {acc:<12} {emerg}")
 
     # By magnitude
@@ -441,8 +449,8 @@ def print_study_summary(study: StudyResult):
     print(f"{'Digits':<12} {'Accuracy':<12} {'Avg Emergence Layer'}")
     print("-" * 45)
     for mag, stats in sorted(summary["by_magnitude"].items()):
-        acc = f"{stats['accuracy']*100:.1f}%"
-        emerg = f"L{stats['avg_emergence_layer']:.1f}" if stats['avg_emergence_layer'] else "N/A"
+        acc = f"{stats['accuracy'] * 100:.1f}%"
+        emerg = f"L{stats['avg_emergence_layer']:.1f}" if stats["avg_emergence_layer"] else "N/A"
         print(f"{mag}-digit     {acc:<12} {emerg}")
 
 

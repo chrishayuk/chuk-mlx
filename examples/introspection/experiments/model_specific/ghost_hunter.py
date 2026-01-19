@@ -40,9 +40,10 @@ from chuk_lazarus.models_v2.families.registry import detect_model_family, get_fa
 @dataclass
 class GhostCase:
     """A potential ghost case."""
+
     prompt: str
     expected_answer: str  # Human-readable answer (e.g., "443")
-    first_digit: str      # First digit to track
+    first_digit: str  # First digit to track
     model_output: str
     model_correct: bool
 
@@ -61,8 +62,8 @@ class GhostCase:
     digit_rank_final: int | None
 
     # Ghost detection
-    is_ghost: bool           # Computed but wrong output
-    ghost_evidence: str      # Explanation of why it's a ghost
+    is_ghost: bool  # Computed but wrong output
+    ghost_evidence: str  # Explanation of why it's a ghost
 
 
 class GhostHunter:
@@ -172,7 +173,11 @@ class GhostHunter:
             except TypeError:
                 out = layer(h)
 
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Project to logits at each layer
             h_n = norm(h) if norm else h
@@ -214,7 +219,9 @@ class GhostHunter:
         # First digit at final layer
         digit_prob_final = float(final_probs[digit_id]) if digit_id else 0.0
         sorted_final = mx.argsort(final_probs)[::-1][:100].tolist()
-        digit_rank_final = sorted_final.index(digit_id) + 1 if digit_id and digit_id in sorted_final else None
+        digit_rank_final = (
+            sorted_final.index(digit_id) + 1 if digit_id and digit_id in sorted_final else None
+        )
 
         # GHOST DETECTION:
         # Ghost exists when:
@@ -224,8 +231,12 @@ class GhostHunter:
         #
         # This proves the model "knew" the answer but couldn't serialize it
 
-        space_was_ready = space_peak_rank is not None and space_peak_rank <= 5 and space_peak_prob > 0.05
-        digit_was_computed = digit_peak_rank is not None and digit_peak_rank <= 10 and digit_peak_prob > 0.01
+        space_was_ready = (
+            space_peak_rank is not None and space_peak_rank <= 5 and space_peak_prob > 0.05
+        )
+        digit_was_computed = (
+            digit_peak_rank is not None and digit_peak_rank <= 10 and digit_peak_prob > 0.01
+        )
 
         is_ghost = space_was_ready and digit_was_computed and not model_correct
 
@@ -236,9 +247,9 @@ class GhostHunter:
                 f"Digit '{first_digit}' peaked at L{digit_peak_layer} ({digit_peak_prob:.1%}, rank {digit_peak_rank})"
             )
         elif not model_correct and digit_was_computed:
-            ghost_evidence = f"Digit computed but no space formatting"
+            ghost_evidence = "Digit computed but no space formatting"
         elif not model_correct and space_was_ready:
-            ghost_evidence = f"Space ready but digit never computed"
+            ghost_evidence = "Space ready but digit never computed"
         elif not model_correct:
             ghost_evidence = "Never computed (no ghost)"
         else:
@@ -274,13 +285,11 @@ class GhostHunter:
             ("347 * 892 =", "309524", "3"),
             ("100 - 37 =", "63", "6"),
             ("25 * 4 =", "100", "1"),
-
             # With trailing space (control - should work)
             ("156 + 287 = ", "443", "4"),
             ("347 * 892 = ", "309524", "3"),
             ("100 - 37 = ", "63", "6"),
             ("25 * 4 = ", "100", "1"),
-
             # Different equals formatting
             ("156+287=", "443", "4"),
             ("156 +287= ", "443", "4"),
@@ -306,7 +315,7 @@ class GhostHunter:
         all_tests = format_tests + large_tests + edge_tests
 
         print(f"\nHunting ghosts across {len(all_tests)} test cases...")
-        print(f"Tracking SPACE token and FIRST DIGIT separately")
+        print("Tracking SPACE token and FIRST DIGIT separately")
         print("=" * 80)
 
         for prompt, expected_answer, first_digit in all_tests:
@@ -319,8 +328,10 @@ class GhostHunter:
             space_str = f"sp@L{case.space_peak_layer}({case.space_prob_at_peak:.0%})"
             digit_str = f"d@L{case.digit_peak_layer}({case.digit_prob_at_peak:.0%})"
 
-            print(f"{status} {prompt:<20} expect={first_digit} got={case.model_output:<4} "
-                  f"{space_str} {digit_str}")
+            print(
+                f"{status} {prompt:<20} expect={first_digit} got={case.model_output:<4} "
+                f"{space_str} {digit_str}"
+            )
 
         return cases
 
@@ -331,18 +342,20 @@ def print_ghost_summary(cases: list[GhostCase]):
     correct = [c for c in cases if c.model_correct]
     wrong_no_ghost = [c for c in cases if not c.model_correct and not c.is_ghost]
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("👻 GHOST HUNTING SUMMARY")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print(f"Total cases:      {len(cases)}")
-    print(f"Model correct:    {len(correct)} ({100*len(correct)/len(cases):.1f}%)")
-    print(f"Wrong (no ghost): {len(wrong_no_ghost)} ({100*len(wrong_no_ghost)/len(cases):.1f}%)")
-    print(f"GHOSTS FOUND:     {len(ghosts)} ({100*len(ghosts)/len(cases):.1f}%)")
+    print(f"Model correct:    {len(correct)} ({100 * len(correct) / len(cases):.1f}%)")
+    print(
+        f"Wrong (no ghost): {len(wrong_no_ghost)} ({100 * len(wrong_no_ghost) / len(cases):.1f}%)"
+    )
+    print(f"GHOSTS FOUND:     {len(ghosts)} ({100 * len(ghosts) / len(cases):.1f}%)")
 
     if ghosts:
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print("🔥 GHOST CASES (model computed answer but couldn't output it)")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         for g in ghosts:
             print(f"\n  Prompt: {repr(g.prompt)}")
             print(f"  Expected: {g.expected_answer} (first digit: '{g.first_digit}')")
@@ -352,9 +365,9 @@ def print_ghost_summary(cases: list[GhostCase]):
 
     # Show wrong cases without ghosts
     if wrong_no_ghost:
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print("❌ WRONG CASES (no ghost - model never computed answer)")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         for c in wrong_no_ghost[:5]:  # Show first 5
             print(f"  {repr(c.prompt)}: {c.ghost_evidence}")
         if len(wrong_no_ghost) > 5:
@@ -370,18 +383,26 @@ def print_ghost_summary(cases: list[GhostCase]):
         wos_correct = sum(1 for c in without_space if c.model_correct)
         wos_ghosts = sum(1 for c in without_space if c.is_ghost)
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print("FORMAT SENSITIVITY ANALYSIS")
-        print(f"{'='*80}")
-        print(f"With trailing space:    {ws_correct}/{len(with_space)} correct ({100*ws_correct/len(with_space):.0f}%)")
-        print(f"Without trailing space: {wos_correct}/{len(without_space)} correct ({100*wos_correct/len(without_space):.0f}%)")
+        print(f"{'=' * 80}")
+        print(
+            f"With trailing space:    {ws_correct}/{len(with_space)} correct ({100 * ws_correct / len(with_space):.0f}%)"
+        )
+        print(
+            f"Without trailing space: {wos_correct}/{len(without_space)} correct ({100 * wos_correct / len(without_space):.0f}%)"
+        )
         print(f"Ghosts in no-space:     {wos_ghosts}/{len(without_space)}")
 
         if wos_ghosts > 0:
-            print(f"\n⚠️  {wos_ghosts} cases where model COMPUTED the answer but FORMAT blocked output!")
+            print(
+                f"\n⚠️  {wos_ghosts} cases where model COMPUTED the answer but FORMAT blocked output!"
+            )
             print("   This is the 'ghost in Layer 20' phenomenon.")
         elif wos_correct < len(without_space):
-            print(f"\n⚠️  {len(without_space) - wos_correct} failures WITHOUT ghosts = model never computed answer")
+            print(
+                f"\n⚠️  {len(without_space) - wos_correct} failures WITHOUT ghosts = model never computed answer"
+            )
             print("   The format issue blocks computation entirely, not just serialization.")
 
 

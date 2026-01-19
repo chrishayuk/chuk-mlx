@@ -16,7 +16,6 @@ This reveals:
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -40,7 +39,6 @@ def build_interference_matrix(
 ) -> InterferenceMatrix:
     """Build interference matrix for multiplication facts."""
     import json
-    from pathlib import Path
 
     from chuk_lazarus.inference.loader import DType, HFLoader
     from chuk_lazarus.models_v2.families.registry import detect_model_family, get_family_info
@@ -131,7 +129,11 @@ def build_interference_matrix(
                 out = lyr(h, mask=mask)
             except TypeError:
                 out = lyr(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
             if idx == layer:
                 break
 
@@ -250,10 +252,7 @@ def analyze_interference(im: InterferenceMatrix):
                 prob_j_in_i = im.matrix[i, idx_j]
 
                 if prob_i_in_j > 0.01 and prob_j_in_i > 0.01:
-                    mutual_pairs.append((
-                        fact_i, ans_i, fact_j, ans_j,
-                        prob_i_in_j, prob_j_in_i
-                    ))
+                    mutual_pairs.append((fact_i, ans_i, fact_j, ans_j, prob_i_in_j, prob_j_in_i))
 
     mutual_pairs.sort(key=lambda x: -(x[4] + x[5]))
     print(f"  Found {len(mutual_pairs)} mutual suppression pairs")
@@ -299,7 +298,11 @@ def analyze_interference(im: InterferenceMatrix):
         correct_prob = im.matrix[i, correct_idx] if correct_idx < im.matrix.shape[1] else 0
 
         # Total wrong probability
-        total_wrong = sum(im.matrix[i, j] for j in range(len(im.answers)) if im.answers[j] != im.answers[np.argmax(im.matrix[i])])
+        total_wrong = sum(
+            im.matrix[i, j]
+            for j in range(len(im.answers))
+            if im.answers[j] != im.answers[np.argmax(im.matrix[i])]
+        )
         fact_interference.append((fact, correct_prob, total_wrong))
 
     fact_interference.sort(key=lambda x: -x[2])

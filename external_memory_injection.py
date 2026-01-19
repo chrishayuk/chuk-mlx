@@ -20,17 +20,16 @@ stored VALUES being corrupt.
 
 import json
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 import mlx.core as mx
 import mlx.nn as nn
-import numpy as np
 
 
 @dataclass
 class MemoryEntry:
     """A single entry in the external memory store."""
+
     query: str  # e.g., "7*8="
     answer: str  # e.g., "56"
     query_vector: mx.array  # representation at query layer
@@ -40,6 +39,7 @@ class MemoryEntry:
 @dataclass
 class ExternalMemoryStore:
     """External key-value store for fact retrieval."""
+
     entries: list[MemoryEntry]
     query_layer: int
     value_layer: int
@@ -145,7 +145,11 @@ class ExternalMemoryModel:
                 out = lyr(h, mask=mask)
             except TypeError:
                 out = lyr(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
             if idx == layer:
                 break
 
@@ -191,7 +195,11 @@ class ExternalMemoryModel:
                 out = lyr(h, mask=mask)
             except TypeError:
                 out = lyr(h)
-            h = out.hidden_states if hasattr(out, "hidden_states") else (out[0] if isinstance(out, tuple) else out)
+            h = (
+                out.hidden_states
+                if hasattr(out, "hidden_states")
+                else (out[0] if isinstance(out, tuple) else out)
+            )
 
             # Inject at specified layer
             if idx == inject_layer:
@@ -264,12 +272,14 @@ class ExternalMemoryModel:
             query_vec = self.extract_representation(query, query_layer)
             value_vec = self.extract_representation(query, value_layer)
 
-            entries.append(MemoryEntry(
-                query=query,
-                answer=answer,
-                query_vector=query_vec,
-                value_vector=value_vec,
-            ))
+            entries.append(
+                MemoryEntry(
+                    query=query,
+                    answer=answer,
+                    query_vector=query_vec,
+                    value_vector=value_vec,
+                )
+            )
 
         store = ExternalMemoryStore(
             entries=entries,
@@ -342,10 +352,7 @@ class ExternalMemoryModel:
                 "answer": best_match.answer,
                 "similarity": match_sim,
             },
-            "top_matches": [
-                {"query": m.query, "answer": m.answer, "sim": s}
-                for m, s in matches
-            ],
+            "top_matches": [{"query": m.query, "answer": m.answer, "sim": s} for m, s in matches],
         }
 
 
@@ -437,10 +444,16 @@ def main():
         injected_correct = injected["token"].strip() == expected if injected else False
 
         print(f"\n{query} (expected: {expected})")
-        print(f"  Baseline: '{baseline['token']}' ({baseline['prob']:.3f}) {'✓' if baseline_correct else '✗'}")
+        print(
+            f"  Baseline: '{baseline['token']}' ({baseline['prob']:.3f}) {'✓' if baseline_correct else '✗'}"
+        )
         if injected:
-            print(f"  Injected: '{injected['token']}' ({injected['prob']:.3f}) {'✓' if injected_correct else '✗'}")
-            print(f"  Matched:  '{match['query']}' → {match['answer']} (sim={match['similarity']:.4f})")
+            print(
+                f"  Injected: '{injected['token']}' ({injected['prob']:.3f}) {'✓' if injected_correct else '✗'}"
+            )
+            print(
+                f"  Matched:  '{match['query']}' → {match['answer']} (sim={match['similarity']:.4f})"
+            )
 
     # Test with varying blend factors
     print("\n" + "=" * 70)
@@ -490,10 +503,10 @@ def main():
 
     # Test with unusual formats that might confuse the model
     unusual_queries = [
-        "7×8=",   # multiplication sign
+        "7×8=",  # multiplication sign
         "7 * 8 =",  # spaces
         "seven times eight equals",
-        "7*8",   # no equals
+        "7*8",  # no equals
     ]
 
     for query in unusual_queries:

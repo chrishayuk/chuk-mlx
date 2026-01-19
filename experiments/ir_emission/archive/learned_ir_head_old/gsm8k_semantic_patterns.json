@@ -1,0 +1,1519 @@
+{
+  "semantic_markers": {
+    "ADD": {
+      "more": 1306,
+      "gets": 142,
+      "additional": 91,
+      "plus": 59,
+      "adds": 56,
+      "earns": 49,
+      "receives": 34,
+      "increases": 32,
+      "collects": 23,
+      "finds": 20,
+      "gains": 4,
+      "gathers": 1
+    },
+    "SUBTRACT": {
+      "sells": 115,
+      "gives": 93,
+      "remaining": 80,
+      "takes": 75,
+      "spends": 74,
+      "eats": 56,
+      "uses": 49,
+      "leaves": 18,
+      "loses": 18,
+      "removes": 14,
+      "drops": 8,
+      "breaks": 3,
+      "consumes": 1
+    },
+    "MULTIPLY": {
+      "each": 5521,
+      "per": 2488,
+      "every": 964,
+      "times": 883,
+      "twice": 546,
+      "boxes": 352,
+      "bags": 244,
+      "packs": 218,
+      "rows": 184,
+      "double": 127,
+      "sets": 92,
+      "weekly": 42,
+      "daily": 27,
+      "triple": 24,
+      "groups": 23,
+      "hourly": 19
+    },
+    "DIVIDE": {
+      "half": 362,
+      "average": 88,
+      "third": 79,
+      "divide": 38,
+      "split": 35,
+      "quarter": 35,
+      "equally": 34,
+      "share": 25,
+      "among": 24,
+      "between": 22,
+      "distribute": 9
+    }
+  },
+  "cross_contamination": {
+    "ADD_has_DIVIDE_marker": {
+      "half": 311,
+      "third": 217,
+      "average": 117,
+      "split": 51,
+      "quarter": 42,
+      "between": 39,
+      "share": 33,
+      "divide": 23,
+      "equally": 8,
+      "among": 3
+    },
+    "DIVIDE_has_ADD_marker": {
+      "more": 149,
+      "gets": 103,
+      "finds": 51,
+      "earns": 27,
+      "additional": 20,
+      "plus": 11,
+      "receives": 10,
+      "collects": 10,
+      "increases": 6,
+      "adds": 5
+    },
+    "SUBTRACT_has_DIVIDE_marker": {
+      "half": 175,
+      "third": 76,
+      "average": 48,
+      "share": 37,
+      "quarter": 34,
+      "split": 20,
+      "divide": 17,
+      "equally": 17,
+      "among": 16,
+      "between": 16
+    },
+    "SUBTRACT_has_MULTIPLY_marker": {
+      "each": 686,
+      "per": 457,
+      "times": 158,
+      "every": 157,
+      "twice": 155,
+      "boxes": 52,
+      "bags": 40,
+      "rows": 38,
+      "packs": 27,
+      "double": 13
+    },
+    "ADD_has_MULTIPLY_marker": {
+      "each": 1334,
+      "per": 770,
+      "twice": 379,
+      "times": 360,
+      "every": 289,
+      "rows": 64,
+      "bags": 59,
+      "boxes": 58,
+      "double": 52,
+      "packs": 46
+    },
+    "MUL_DIV_has_ADD_marker": {
+      "more": 228,
+      "additional": 37,
+      "gets": 33,
+      "earns": 29,
+      "receives": 21,
+      "finds": 10,
+      "increases": 7,
+      "adds": 3,
+      "gains": 3,
+      "plus": 2
+    },
+    "MULTIPLY_has_SUBTRACT_marker": {
+      "sells": 559,
+      "takes": 399,
+      "uses": 261,
+      "eats": 238,
+      "remaining": 149,
+      "spends": 149,
+      "gives": 115,
+      "leaves": 44,
+      "drops": 27,
+      "breaks": 21
+    },
+    "ADD_has_SUBTRACT_marker": {
+      "takes": 215,
+      "spends": 132,
+      "sells": 123,
+      "gives": 108,
+      "eats": 107,
+      "remaining": 71,
+      "uses": 67,
+      "leaves": 23,
+      "breaks": 10,
+      "consumes": 10
+    },
+    "MULTIPLY_has_ADD_marker": {
+      "more": 618,
+      "gets": 392,
+      "earns": 153,
+      "additional": 90,
+      "finds": 66,
+      "plus": 58,
+      "collects": 36,
+      "adds": 36,
+      "receives": 29,
+      "increases": 17
+    },
+    "SUBTRACT_has_ADD_marker": {
+      "more": 436,
+      "gets": 114,
+      "additional": 47,
+      "earns": 30,
+      "collects": 22,
+      "receives": 14,
+      "finds": 12,
+      "plus": 12,
+      "adds": 5,
+      "increases": 5
+    },
+    "MULTIPLY_has_DIVIDE_marker": {
+      "half": 396,
+      "average": 248,
+      "third": 161,
+      "quarter": 128,
+      "between": 62,
+      "share": 51,
+      "split": 51,
+      "divide": 22,
+      "equally": 21,
+      "among": 12
+    },
+    "MUL_DIV_has_MULTIPLY_marker": {
+      "each": 368,
+      "per": 291,
+      "times": 160,
+      "every": 62,
+      "twice": 46,
+      "rows": 20,
+      "bags": 16,
+      "boxes": 13,
+      "daily": 12,
+      "packs": 10
+    },
+    "MUL_DIV_has_DIVIDE_marker": {
+      "half": 115,
+      "third": 59,
+      "share": 36,
+      "average": 25,
+      "between": 25,
+      "divide": 19,
+      "quarter": 8,
+      "distribute": 5,
+      "equally": 4,
+      "among": 2
+    },
+    "DIVIDE_has_MULTIPLY_marker": {
+      "each": 859,
+      "per": 576,
+      "every": 301,
+      "times": 161,
+      "twice": 77,
+      "bags": 76,
+      "boxes": 59,
+      "packs": 39,
+      "rows": 30,
+      "daily": 13
+    },
+    "DIVIDE_has_SUBTRACT_marker": {
+      "takes": 128,
+      "sells": 90,
+      "spends": 74,
+      "uses": 71,
+      "remaining": 66,
+      "gives": 54,
+      "eats": 53,
+      "leaves": 18,
+      "drops": 12,
+      "breaks": 7
+    },
+    "MUL_DIV_has_SUBTRACT_marker": {
+      "remaining": 154,
+      "eats": 53,
+      "takes": 53,
+      "gives": 44,
+      "spends": 42,
+      "sells": 36,
+      "uses": 25,
+      "leaves": 7,
+      "removes": 2
+    },
+    "ADD_SUB_has_DIVIDE_marker": {
+      "third": 10,
+      "half": 5,
+      "quarter": 2,
+      "average": 2
+    },
+    "ADD_SUB_has_MULTIPLY_marker": {
+      "per": 16,
+      "each": 10,
+      "every": 4,
+      "times": 2,
+      "twice": 2,
+      "rows": 1,
+      "daily": 1
+    },
+    "ADD_SUB_has_SUBTRACT_marker": {
+      "eats": 3,
+      "uses": 3,
+      "loses": 1,
+      "gives": 1
+    },
+    "UNKNOWN_has_MULTIPLY_marker": {
+      "each": 11,
+      "twice": 10,
+      "times": 9,
+      "per": 8,
+      "double": 2,
+      "boxes": 1,
+      "every": 1
+    },
+    "UNKNOWN_has_ADD_marker": {
+      "more": 10,
+      "gets": 4,
+      "earns": 2,
+      "adds": 2
+    },
+    "UNKNOWN_has_SUBTRACT_marker": {
+      "sells": 2,
+      "takes": 2,
+      "uses": 1
+    },
+    "UNKNOWN_has_DIVIDE_marker": {
+      "half": 5,
+      "average": 2,
+      "quarter": 1,
+      "between": 1,
+      "divide": 1,
+      "equally": 1
+    },
+    "ADD_SUB_has_ADD_marker": {
+      "more": 7
+    }
+  },
+  "sample_patterns": {
+    "ADD": [
+      {
+        "operation": "ADD",
+        "operand": "48",
+        "context": "natalia sold clips to 48 of her friends in april, and then she sold half a",
+        "expr": "48+24"
+      },
+      {
+        "operation": "ADD",
+        "operand": "12",
+        "context": " a 120-page book. yesterday, she was able to read 12 pages and today, she read twice as many pages as ",
+        "expr": "12+24"
+      },
+      {
+        "operation": "ADD",
+        "operand": "16",
+        "context": "arge pizzas and 2 small pizzas. a large pizza has 16 slices and a small pizza has 8 slices. if he eats",
+        "expr": "32+16"
+      },
+      {
+        "operation": "ADD",
+        "operand": "2",
+        "context": "the box enough jelly beans to bring the weight to 2 pounds.  then, he added enough brownies to cause ",
+        "expr": "6+2"
+      },
+      {
+        "operation": "ADD",
+        "operand": "2",
+        "context": "use the weight to triple.  next, he added another 2 pounds of jelly beans.  and finally, he added eno",
+        "expr": "6+2"
+      },
+      {
+        "operation": "ADD",
+        "operand": "30",
+        "context": "department store with a budget of $200 and spent $30 on a button-up shirt, $46 on suit pants, $38 on a",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "30",
+        "context": " department store with a budget of $200 and spent $30 on a button-up shirt, $46 on suit pants, $38 on a",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "46",
+        "context": "dget of $200 and spent $30 on a button-up shirt, $46 on suit pants, $38 on a suit coat, $11 on socks, ",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "46",
+        "context": "udget of $200 and spent $30 on a button-up shirt, $46 on suit pants, $38 on a suit coat, $11 on socks, ",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "38",
+        "context": "ent $30 on a button-up shirt, $46 on suit pants, $38 on a suit coat, $11 on socks, and $18 on a belt. ",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "38",
+        "context": "pent $30 on a button-up shirt, $46 on suit pants, $38 on a suit coat, $11 on socks, and $18 on a belt. ",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "11",
+        "context": "up shirt, $46 on suit pants, $38 on a suit coat, $11 on socks, and $18 on a belt. she also purchased a",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "11",
+        "context": "-up shirt, $46 on suit pants, $38 on a suit coat, $11 on socks, and $18 on a belt. she also purchased a",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "18",
+        "context": "uit pants, $38 on a suit coat, $11 on socks, and $18 on a belt. she also purchased a pair of shoes, bu",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "18",
+        "context": "suit pants, $38 on a suit coat, $11 on socks, and $18 on a belt. she also purchased a pair of shoes, bu",
+        "expr": "+30+46+38+11+18"
+      },
+      {
+        "operation": "ADD",
+        "operand": "18",
+        "context": "tina makes $18.00 an hour.  if she works more than 8 hours per s",
+        "expr": "18+9"
+      },
+      {
+        "operation": "ADD",
+        "operand": "18",
+        "context": "tina makes $18.00 an hour.  if she works more than 8 hours per s",
+        "expr": "18+9"
+      },
+      {
+        "operation": "ADD",
+        "operand": "95",
+        "context": "tobias is buying a new pair of shoes that costs $95. he has been saving up his money each month for t",
+        "expr": "95+15"
+      },
+      {
+        "operation": "ADD",
+        "operand": "95",
+        "context": "tobias is buying a new pair of shoes that costs $95. he has been saving up his money each month for t",
+        "expr": "95+15"
+      },
+      {
+        "operation": "ADD",
+        "operand": "15",
+        "context": "lso mows lawns and shovels driveways. he charges $15 to mow a lawn and $7 to shovel. after buying the ",
+        "expr": "95+15"
+      },
+      {
+        "operation": "ADD",
+        "operand": "15",
+        "context": "and $7 to shovel. after buying the shoes, he has $15 in change. if he mows 4 lawns, how many driveways",
+        "expr": "95+15"
+      },
+      {
+        "operation": "ADD",
+        "operand": "15",
+        "context": "also mows lawns and shovels driveways. he charges $15 to mow a lawn and $7 to shovel. after buying the ",
+        "expr": "95+15"
+      },
+      {
+        "operation": "ADD",
+        "operand": "15",
+        "context": " and $7 to shovel. after buying the shoes, he has $15 in change. if he mows 4 lawns, how many driveways",
+        "expr": "95+15"
+      },
+      {
+        "operation": "ADD",
+        "operand": "60",
+        "context": "randy has 60 mango trees on his farm. he also has 5 less than ",
+        "expr": "60+25"
+      },
+      {
+        "operation": "ADD",
+        "operand": "10",
+        "context": "er party. he buys 2 pounds of cheddar cheese for $10, a pound of cream cheese that cost half the price",
+        "expr": "10+5+20"
+      },
+      {
+        "operation": "ADD",
+        "operand": "10",
+        "context": "ner party. he buys 2 pounds of cheddar cheese for $10, a pound of cream cheese that cost half the price",
+        "expr": "10+5+20"
+      },
+      {
+        "operation": "ADD",
+        "operand": "24",
+        "context": "re are 26 pink hard hats, 15 green hard hats, and 24 yellow hard hats.  if carl takes away 4 pink hard",
+        "expr": "19+24"
+      },
+      {
+        "operation": "ADD",
+        "operand": "200",
+        "context": "es away.  he also goes for a weekend bike ride of 200 miles.    if he can bike at 25 mph how much time ",
+        "expr": "200+200"
+      },
+      {
+        "operation": "ADD",
+        "operand": "200",
+        "context": "es away.  he also goes for a weekend bike ride of 200 miles.    if he can bike at 25 mph how much time ",
+        "expr": "200+200"
+      },
+      {
+        "operation": "ADD",
+        "operand": "11",
+        "context": " design, and some had a rose design. bella bought 11 snowflake stamps. she bought 9 more truck stamps ",
+        "expr": "11+9"
+      },
+      {
+        "operation": "ADD",
+        "operand": "9",
+        "context": "ign. bella bought 11 snowflake stamps. she bought 9 more truck stamps than snowflake stamps, and 13 f",
+        "expr": "11+9"
+      },
+      {
+        "operation": "ADD",
+        "operand": "11",
+        "context": " design, and some had a rose design. bella bought 11 snowflake stamps. she bought 9 more truck stamps ",
+        "expr": "11+20+7"
+      },
+      {
+        "operation": "ADD",
+        "operand": "15",
+        "context": "at week she spent the full credit limit and paid $15 of it on tuesday and $23 of it on thursday. how m",
+        "expr": "15+23"
+      },
+      {
+        "operation": "ADD",
+        "operand": "15",
+        "context": "hat week she spent the full credit limit and paid $15 of it on tuesday and $23 of it on thursday. how m",
+        "expr": "15+23"
+      },
+      {
+        "operation": "ADD",
+        "operand": "23",
+        "context": "l credit limit and paid $15 of it on tuesday and $23 of it on thursday. how much credit will mary need",
+        "expr": "15+23"
+      },
+      {
+        "operation": "ADD",
+        "operand": "23",
+        "context": "ll credit limit and paid $15 of it on tuesday and $23 of it on thursday. how much credit will mary need",
+        "expr": "15+23"
+      },
+      {
+        "operation": "ADD",
+        "operand": "4",
+        "context": "e, and dale each buy personal pan pizzas cut into 4 pieces. if bill and dale eat 50% of their pizzas ",
+        "expr": "4+6"
+      },
+      {
+        "operation": "ADD",
+        "operand": "5",
+        "context": " right-hand turns. after the 1st turn, it travels 5 meters. after the 2nd turn, it travels 8 meters. ",
+        "expr": "5+8+0"
+      },
+      {
+        "operation": "ADD",
+        "operand": "8",
+        "context": " travels 5 meters. after the 2nd turn, it travels 8 meters. after the 3rd turn, it travels a little f",
+        "expr": "5+8+0"
+      },
+      {
+        "operation": "ADD",
+        "operand": "16",
+        "context": "other ingredients, kimber needs 10 cups of water, 16 cups of flour, and 1/2 times as many teaspoons of",
+        "expr": "8+16"
+      },
+      {
+        "operation": "ADD",
+        "operand": "10",
+        "context": "za, together with other ingredients, kimber needs 10 cups of water, 16 cups of flour, and 1/2 times as",
+        "expr": "24+10"
+      },
+      {
+        "operation": "ADD",
+        "operand": "1750",
+        "context": "y between his two sons, ken and tony. if ken got $1750, and tony got twice as much as ken, how much was ",
+        "expr": "1750+3500"
+      },
+      {
+        "operation": "ADD",
+        "operand": "1750",
+        "context": "ey between his two sons, ken and tony. if ken got $1750, and tony got twice as much as ken, how much was ",
+        "expr": "1750+3500"
+      },
+      {
+        "operation": "ADD",
+        "operand": "2.7",
+        "context": " $0.5 each; and 1 platter of spaghetti that cost $2.7. how much will each of them pay if they will spli",
+        "expr": "15+4.8+2.5+2.7"
+      },
+      {
+        "operation": "ADD",
+        "operand": "2.7",
+        "context": "t $0.5 each; and 1 platter of spaghetti that cost $2.7. how much will each of them pay if they will spli",
+        "expr": "15+4.8+2.5+2.7"
+      },
+      {
+        "operation": "ADD",
+        "operand": "13",
+        "context": "y party. her parents bought a unicorn pi\u00f1ata for $13 and filled it with all of her favorite treats. th",
+        "expr": "13+36+15+35"
+      },
+      {
+        "operation": "ADD",
+        "operand": "13",
+        "context": "ay party. her parents bought a unicorn pi\u00f1ata for $13 and filled it with all of her favorite treats. th",
+        "expr": "13+36+15+35"
+      },
+      {
+        "operation": "ADD",
+        "operand": "20",
+        "context": "carolyn practices the piano for 20 minutes a day and the violin for three times as l",
+        "expr": "60+20"
+      },
+      {
+        "operation": "ADD",
+        "operand": "25",
+        "context": "there are 25 roses in a garden. there are 40 tulips. there are",
+        "expr": "25+40+35"
+      },
+      {
+        "operation": "ADD",
+        "operand": "40",
+        "context": "there are 25 roses in a garden. there are 40 tulips. there are 35 daisies. what percentage of ",
+        "expr": "25+40+35"
+      }
+    ],
+    "SUBTRACT": [
+      {
+        "operation": "SUBTRACT",
+        "operand": "100",
+        "context": "tty is saving money for a new wallet which costs $100. betty has only half of the money she needs. her ",
+        "expr": "100-50-30-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "100",
+        "context": "etty is saving money for a new wallet which costs $100. betty has only half of the money she needs. her ",
+        "expr": "100-50-30-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "15",
+        "context": "money she needs. her parents decided to give her $15 for that purpose, and her grandparents twice as m",
+        "expr": "100-50-30-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "15",
+        "context": " money she needs. her parents decided to give her $15 for that purpose, and her grandparents twice as m",
+        "expr": "100-50-30-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "120",
+        "context": "julie is reading a 120-page book. yesterday, she was able to read 12 pag",
+        "expr": "120-36"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "10",
+        "context": "hourly wage + 1/2 your hourly wage.  if she works 10 hours every day for 5 days, how much money does s",
+        "expr": "10-8"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "8",
+        "context": "ina makes $18.00 an hour.  if she works more than 8 hours per shift, she is eligible for overtime, wh",
+        "expr": "10-8"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "15",
+        "context": "lso mows lawns and shovels driveways. he charges $15 to mow a lawn and $7 to shovel. after buying the ",
+        "expr": "110-60-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "15",
+        "context": "and $7 to shovel. after buying the shoes, he has $15 in change. if he mows 4 lawns, how many driveways",
+        "expr": "110-60-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "15",
+        "context": "also mows lawns and shovels driveways. he charges $15 to mow a lawn and $7 to shovel. after buying the ",
+        "expr": "110-60-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "15",
+        "context": " and $7 to shovel. after buying the shoes, he has $15 in change. if he mows 4 lawns, how many driveways",
+        "expr": "110-60-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "5",
+        "context": "randy has 60 mango trees on his farm. he also has 5 less than half as many coconut trees as mango tre",
+        "expr": "30-5"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "6",
+        "context": "e.  he creates a movie for $2000.  each dvd cost $6 to make.  he sells it for 2.5 times that much.  h",
+        "expr": "15-6"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "6",
+        "context": "re.  he creates a movie for $2000.  each dvd cost $6 to make.  he sells it for 2.5 times that much.  h",
+        "expr": "15-6"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "2000",
+        "context": " creates a media empire.  he creates a movie for $2000.  each dvd cost $6 to make.  he sells it for 2.5 ",
+        "expr": "450000-2000"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "2000",
+        "context": "s creates a media empire.  he creates a movie for $2000.  each dvd cost $6 to make.  he sells it for 2.5 ",
+        "expr": "450000-2000"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "200",
+        "context": "spending some of his share on a shirt that costs $200?",
+        "expr": "1000-200"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "200",
+        "context": " spending some of his share on a shirt that costs $200?",
+        "expr": "1000-200"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "26",
+        "context": "in a truck, there are 26 pink hard hats, 15 green hard hats, and 24 yellow",
+        "expr": "26-4"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "4",
+        "context": "ats, and 24 yellow hard hats.  if carl takes away 4 pink hard hats, and john takes away 6 pink hard h",
+        "expr": "26-4"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "6",
+        "context": " takes away 4 pink hard hats, and john takes away 6 pink hard hats and twice as many green hard hats ",
+        "expr": "22-6"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "15",
+        "context": "in a truck, there are 26 pink hard hats, 15 green hard hats, and 24 yellow hard hats.  if car",
+        "expr": "15-12"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "13",
+        "context": "ht 9 more truck stamps than snowflake stamps, and 13 fewer rose stamps than truck stamps. how many sta",
+        "expr": "20-13"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "75",
+        "context": "avorite store was having a summer clearance. for $75 she bought 5 pairs of shorts for $7 each and 2 pa",
+        "expr": "75-55"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "75",
+        "context": "favorite store was having a summer clearance. for $75 she bought 5 pairs of shorts for $7 each and 2 pa",
+        "expr": "75-55"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "100",
+        "context": " specific store where she is allowed a credit of $100, which must be paid in full before her next shopp",
+        "expr": "100-38"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "100",
+        "context": "a specific store where she is allowed a credit of $100, which must be paid in full before her next shopp",
+        "expr": "100-38"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "800",
+        "context": " computer to use for reference. after downloading 800 files, he deleted 70% of them because they were n",
+        "expr": "800-560"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "400",
+        "context": "them because they were not helpful. he downloaded 400 more files but again realized that 3/5 of them we",
+        "expr": "400-240"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "20",
+        "context": "s 3 gnomes in the garden. if there are a total of 20 gnomes on the street, how many gnomes does the fi",
+        "expr": "20-12"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "12",
+        "context": "a concert ticket costs $40. mr. benson bought 12 tickets and received a 5% discount for every tick",
+        "expr": "12-10"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "10",
+        "context": " 5% discount for every ticket bought that exceeds 10. how much did mr. benson pay in all?",
+        "expr": "12-10"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "40",
+        "context": "a concert ticket costs $40. mr. benson bought 12 tickets and received a 5% d",
+        "expr": "40-2"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "40",
+        "context": "a concert ticket costs $40. mr. benson bought 12 tickets and received a 5% d",
+        "expr": "40-2"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "10",
+        "context": "a family of 12 monkeys collected 10 piles of bananas. 6 piles had 9 hands, with each ",
+        "expr": "10-6"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "6",
+        "context": "mily of 12 monkeys collected 10 piles of bananas. 6 piles had 9 hands, with each hand having 14 banan",
+        "expr": "10-6"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "90",
+        "context": "the file, 90 megabytes in size, downloads at the rate of 5 meg",
+        "expr": "90-60"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "60",
+        "context": " the rate of 5 megabytes per second for its first 60 megabytes, and then 10 megabytes per second there",
+        "expr": "90-60"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "4",
+        "context": " $100 a month on baseball supplies. his season is 4 months long. he wants to use the months he's not ",
+        "expr": "12-4"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "28",
+        "context": "leah earned $28 working odd jobs around the neighborhood. she spe",
+        "expr": "28-4"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "28",
+        "context": "leah earned $28 working odd jobs around the neighborhood. she spe",
+        "expr": "28-4"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "1",
+        "context": "her wallet and shredded all the money inside but $1. how many dollars did leah lose?",
+        "expr": "12-1"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "1",
+        "context": " her wallet and shredded all the money inside but $1. how many dollars did leah lose?",
+        "expr": "12-1"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "10",
+        "context": "liza bought 10 kilograms of butter to make cookies. she used one",
+        "expr": "10-7"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "60",
+        "context": " rest gets an average of $4 a day. if he surveyed 60 students, what is the total amount of money those",
+        "expr": "60-40"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "60",
+        "context": "students, what is the total amount of money those 60 students get in a day?",
+        "expr": "60-40"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "15",
+        "context": "de the mall. during the first hour, she collected 15 coins. for the next two hours, she collected 35 c",
+        "expr": "135-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "15",
+        "context": "collected 50 coins from the fountain but she gave 15 of them to her coworker so she could buy a soda. ",
+        "expr": "135-15"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "1000",
+        "context": "ing to hibernate for the winter and needs to gain 1000 pounds. at the end of summer, the bear feasts on ",
+        "expr": "1000-200-400"
+      },
+      {
+        "operation": "SUBTRACT",
+        "operand": "290",
+        "context": "there are 290 liters of oil in 24 cans. if 10 of the cans are h",
+        "expr": "290-80"
+      }
+    ],
+    "MULTIPLY": [
+      {
+        "operation": "MULTIPLY",
+        "operand": "50",
+        "context": " an hour for babysitting. yesterday, she just did 50 minutes of babysitting. how much did she earn?",
+        "expr": "0.2*50"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "15",
+        "context": "money she needs. her parents decided to give her $15 for that purpose, and her grandparents twice as m",
+        "expr": "15*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "15",
+        "context": " money she needs. her parents decided to give her $15 for that purpose, and her grandparents twice as m",
+        "expr": "15*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "12",
+        "context": " a 120-page book. yesterday, she was able to read 12 pages and today, she read twice as many pages as ",
+        "expr": "12*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "3",
+        "context": "james writes a 3-page letter to 2 different friends twice a week. ",
+        "expr": "3*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "james writes a 3-page letter to 2 different friends twice a week.  how many pages d",
+        "expr": "3*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "james writes a 3-page letter to 2 different friends twice a week.  how many pages d",
+        "expr": "6*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "ing how much pizza he can eat in one day. he buys 2 large pizzas and 2 small pizzas. a large pizza ha",
+        "expr": "2*16"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "he can eat in one day. he buys 2 large pizzas and 2 small pizzas. a large pizza has 16 slices and a s",
+        "expr": "2*16"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "16",
+        "context": "arge pizzas and 2 small pizzas. a large pizza has 16 slices and a small pizza has 8 slices. if he eats",
+        "expr": "2*16"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "ing how much pizza he can eat in one day. he buys 2 large pizzas and 2 small pizzas. a large pizza ha",
+        "expr": "2*8"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "he can eat in one day. he buys 2 large pizzas and 2 small pizzas. a large pizza has 16 slices and a s",
+        "expr": "2*8"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "8",
+        "context": "a large pizza has 16 slices and a small pizza has 8 slices. if he eats it all, how many pieces does h",
+        "expr": "2*8"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "the box enough jelly beans to bring the weight to 2 pounds.  then, he added enough brownies to cause ",
+        "expr": "2*3"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "use the weight to triple.  next, he added another 2 pounds of jelly beans.  and finally, he added eno",
+        "expr": "2*3"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "the box enough jelly beans to bring the weight to 2 pounds.  then, he added enough brownies to cause ",
+        "expr": "8*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "use the weight to triple.  next, he added another 2 pounds of jelly beans.  and finally, he added eno",
+        "expr": "8*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "8",
+        "context": "ina makes $18.00 an hour.  if she works more than 8 hours per shift, she is eligible for overtime, wh",
+        "expr": "8*18"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "18",
+        "context": "tina makes $18.00 an hour.  if she works more than 8 hours per s",
+        "expr": "8*18"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "18",
+        "context": "tina makes $18.00 an hour.  if she works more than 8 hours per s",
+        "expr": "8*18"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "18",
+        "context": "tina makes $18.00 an hour.  if she works more than 8 hours per s",
+        "expr": "18*.5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "18",
+        "context": "tina makes $18.00 an hour.  if she works more than 8 hours per s",
+        "expr": "18*.5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "5",
+        "context": "hourly wage.  if she works 10 hours every day for 5 days, how much money does she make?",
+        "expr": "18*.5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "5",
+        "context": "hourly wage.  if she works 10 hours every day for 5 days, how much money does she make?",
+        "expr": "144*5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "r overtime, which is paid by your hourly wage + 1/2 your hourly wage.  if she works 10 hours every da",
+        "expr": "27*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "5",
+        "context": " each month for the past three months. he gets a $5 allowance a month. he also mows lawns and shovels",
+        "expr": "3*5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "5",
+        "context": "y each month for the past three months. he gets a $5 allowance a month. he also mows lawns and shovels",
+        "expr": "3*5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "4",
+        "context": "uying the shoes, he has $15 in change. if he mows 4 lawns, how many driveways did he shovel?",
+        "expr": "4*15"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "15",
+        "context": "lso mows lawns and shovels driveways. he charges $15 to mow a lawn and $7 to shovel. after buying the ",
+        "expr": "4*15"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "15",
+        "context": "and $7 to shovel. after buying the shoes, he has $15 in change. if he mows 4 lawns, how many driveways",
+        "expr": "4*15"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "15",
+        "context": "also mows lawns and shovels driveways. he charges $15 to mow a lawn and $7 to shovel. after buying the ",
+        "expr": "4*15"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "15",
+        "context": " and $7 to shovel. after buying the shoes, he has $15 in change. if he mows 4 lawns, how many driveways",
+        "expr": "4*15"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "10",
+        "context": "er party. he buys 2 pounds of cheddar cheese for $10, a pound of cream cheese that cost half the price",
+        "expr": "10*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "10",
+        "context": "ner party. he buys 2 pounds of cheddar cheese for $10, a pound of cream cheese that cost half the price",
+        "expr": "10*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "ll serve charcuterie at his dinner party. he buys 2 pounds of cheddar cheese for $10, a pound of crea",
+        "expr": "10*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "8",
+        "context": "joy can read 8 pages of a book in 20 minutes. how many hours wil",
+        "expr": "8*3"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "6",
+        "context": "e.  he creates a movie for $2000.  each dvd cost $6 to make.  he sells it for 2.5 times that much.  h",
+        "expr": "6*2.5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "6",
+        "context": "re.  he creates a movie for $2000.  each dvd cost $6 to make.  he sells it for 2.5 times that much.  h",
+        "expr": "6*2.5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2.5",
+        "context": "2000.  each dvd cost $6 to make.  he sells it for 2.5 times that much.  he sells 500 movies a day for 5",
+        "expr": "6*2.5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "500",
+        "context": ".  he sells it for 2.5 times that much.  he sells 500 movies a day for 5 days a week.  how much profit ",
+        "expr": "9*500"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "5",
+        "context": "00.  each dvd cost $6 to make.  he sells it for 2.5 times that much.  he sells 500 movies a day for 5",
+        "expr": "4500*5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "5",
+        "context": "5 times that much.  he sells 500 movies a day for 5 days a week.  how much profit does he make in 20 ",
+        "expr": "4500*5"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "20",
+        "context": "r 5 days a week.  how much profit does he make in 20 weeks?",
+        "expr": "22500*20"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "20",
+        "context": "s creates a media empire.  he creates a movie for $2000.  each dvd cost $6 to make.  he sells it for 2.",
+        "expr": "22500*20"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "rofit from a business transaction is shared among 2 business partners, mike and johnson in the ratio ",
+        "expr": "2*500"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": " business partners, mike and johnson in the ratio 2:5 respectively. if johnson got $2500, how much wi",
+        "expr": "2*500"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": "son in the ratio 2:5 respectively. if johnson got $2500, how much will mike have after spending some o",
+        "expr": "2*500"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "2",
+        "context": " spending some of his share on a shirt that costs $200?",
+        "expr": "2*500"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "6",
+        "context": " takes away 4 pink hard hats, and john takes away 6 pink hard hats and twice as many green hard hats ",
+        "expr": "6*2"
+      },
+      {
+        "operation": "MULTIPLY",
+        "operand": "20",
+        "context": " to work for each of his 5 workdays.  his work is 20 miles away.  he also goes for a weekend bike ride",
+        "expr": "20*2"
+      }
+    ],
+    "DIVIDE": [
+      {
+        "operation": "DIVIDE",
+        "operand": "48",
+        "context": "natalia sold clips to 48 of her friends in april, and then she sold half a",
+        "expr": "48/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "12",
+        "context": "weng earns $12 an hour for babysitting. yesterday, she just did ",
+        "expr": "12/60"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "12",
+        "context": "weng earns $12 an hour for babysitting. yesterday, she just did ",
+        "expr": "12/60"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "100",
+        "context": "tty is saving money for a new wallet which costs $100. betty has only half of the money she needs. her ",
+        "expr": "100/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "100",
+        "context": "etty is saving money for a new wallet which costs $100. betty has only half of the money she needs. her ",
+        "expr": "100/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "847",
+        "context": "hunger. over three hundred years, it has consumed 847 people. ships have been built larger over time, s",
+        "expr": "847/7"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "7",
+        "context": "vels driveways. he charges $15 to mow a lawn and $7 to shovel. after buying the shoes, he has $15 in ",
+        "expr": "35/7"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "7",
+        "context": "ovels driveways. he charges $15 to mow a lawn and $7 to shovel. after buying the shoes, he has $15 in ",
+        "expr": "35/7"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "60",
+        "context": "randy has 60 mango trees on his farm. he also has 5 less than ",
+        "expr": "60/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "10",
+        "context": "er party. he buys 2 pounds of cheddar cheese for $10, a pound of cream cheese that cost half the price",
+        "expr": "10/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "10",
+        "context": "ner party. he buys 2 pounds of cheddar cheese for $10, a pound of cream cheese that cost half the price",
+        "expr": "10/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "2",
+        "context": "ll serve charcuterie at his dinner party. he buys 2 pounds of cheddar cheese for $10, a pound of crea",
+        "expr": "10/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "120",
+        "context": " minutes. how many hours will it take her to read 120 pages?",
+        "expr": "120/24"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "2500",
+        "context": "on in the ratio 2:5 respectively. if johnson got $2500, how much will mike have after spending some of h",
+        "expr": "2500/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "2500",
+        "context": "son in the ratio 2:5 respectively. if johnson got $2500, how much will mike have after spending some of h",
+        "expr": "2500/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "5",
+        "context": "usiness partners, mike and johnson in the ratio 2:5 respectively. if johnson got $2500, how much will",
+        "expr": "2500/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "25",
+        "context": "kend bike ride of 200 miles.    if he can bike at 25 mph how much time does he spend biking a week?",
+        "expr": "400/25"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "5",
+        "context": "eat at a fast-food chain and order the following: 5 pieces of hamburger that cost $3 each; 4 sets of ",
+        "expr": "25/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "5",
+        "context": " $3 each; 4 sets of french fries that cost $1.20; 5 cups of soda that cost $0.5 each; and 1 platter o",
+        "expr": "25/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "5",
+        "context": "ries that cost $1.20; 5 cups of soda that cost $0.5 each; and 1 platter of spaghetti that cost $2.7. ",
+        "expr": "25/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "8",
+        "context": "king tea for a party. she knows her mom drinks an 8-ounce cup of tea and uses one ounce of tea. she w",
+        "expr": "72/8"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "12",
+        "context": "a family of 12 monkeys collected 10 piles of bananas. 6 piles ha",
+        "expr": "1188/12"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "12",
+        "context": " having 14 bananas, while the remaining piles had 12 hands, with each hand having 9 bananas. how many ",
+        "expr": "1188/12"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "60",
+        "context": " the rate of 5 megabytes per second for its first 60 megabytes, and then 10 megabytes per second there",
+        "expr": "60/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "5",
+        "context": "e, 90 megabytes in size, downloads at the rate of 5 megabytes per second for its first 60 megabytes, ",
+        "expr": "60/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "10",
+        "context": "s per second for its first 60 megabytes, and then 10 megabytes per second thereafter. how long, in sec",
+        "expr": "30/10"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "24",
+        "context": "gits of pi as carlos memorized. if mina memorized 24 digits of pi, how many digits did sam memorize?",
+        "expr": "24/6"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "36",
+        "context": "d a third of what laurie did. if laurie collected 36 shells how many did alan collect?",
+        "expr": "36/3"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "10",
+        "context": " raking, shoveling, and mowing lawns. he charges $10 for each. how many chores does he need to average",
+        "expr": "50/10"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "10",
+        "context": "gerald spends $100 a month on baseball supplies. his season is 4 mo",
+        "expr": "50/10"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "10",
+        "context": "y raking, shoveling, and mowing lawns. he charges $10 for each. how many chores does he need to average",
+        "expr": "50/10"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "28",
+        "context": "leah earned $28 working odd jobs around the neighborhood. she spe",
+        "expr": "28/7"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "28",
+        "context": "leah earned $28 working odd jobs around the neighborhood. she spe",
+        "expr": "28/7"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "2",
+        "context": "leah earned $28 working odd jobs around the neighborhood. she sp",
+        "expr": "24/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "10",
+        "context": "liza bought 10 kilograms of butter to make cookies. she used one",
+        "expr": "10/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "10",
+        "context": "liza bought 10 kilograms of butter to make cookies. she used one",
+        "expr": "10/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "30",
+        "context": " 20% less while working his second job.  he works 30 hours at his main job and half that much at his s",
+        "expr": "30/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "2",
+        "context": "james earns $20 an hour while working at his main job.  he earns",
+        "expr": "30/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "3",
+        "context": " miles. on the first three days jesse averages (2/3) of a mile. on day four she runs 10 miles. mia av",
+        "expr": "18/3"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "3",
+        "context": "mile. on day four she runs 10 miles. mia averages 3 miles a day over the first 4 days. what is the av",
+        "expr": "18/3"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "3",
+        "context": " miles. on the first three days jesse averages (2/3) of a mile. on day four she runs 10 miles. mia av",
+        "expr": "18/3"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "3",
+        "context": "mile. on day four she runs 10 miles. mia averages 3 miles a day over the first 4 days. what is the av",
+        "expr": "18/3"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "2",
+        "context": "30 miles. on the first three days jesse averages (2/3) of a mile. on day four she runs 10 miles. mia ",
+        "expr": "12/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "6",
+        "context": " bring trail mix. the trail mix comes in packs of 6 individual pouches. roger has 13 members on his b",
+        "expr": "18/6"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "50",
+        "context": "s for every 5 cans mark bought. if mark purchased 50 cans, how many cans of milk did jennifer bring ho",
+        "expr": "50/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "5",
+        "context": "milk. jennifer bought 6 additional cans for every 5 cans mark bought. if mark purchased 50 cans, how ",
+        "expr": "50/5"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "16",
+        "context": "of skips as sam in the last round. if sam skipped 16 times in each round, what is the average number o",
+        "expr": "16/2"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "4",
+        "context": " times than sam in the second round. jeff skipped 4 more times than sam in the third round. jeff got ",
+        "expr": "56/4"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "20",
+        "context": "john writes 20 pages a day.  how long will it take him to write ",
+        "expr": "1200/20"
+      },
+      {
+        "operation": "DIVIDE",
+        "operand": "48",
+        "context": "k is twice the size of the second tank. there are 48 gallons of water in the first tank. she follows t",
+        "expr": "48/2"
+      }
+    ]
+  }
+}

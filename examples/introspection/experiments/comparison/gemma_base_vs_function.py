@@ -11,14 +11,15 @@ Run: uv run python examples/introspection/gemma_base_vs_function.py
 """
 
 import json
-import numpy as np
+import warnings
+
 import mlx.core as mx
 import mlx.nn as nn
-from sklearn.linear_model import LogisticRegression
+import numpy as np
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
 
-import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 
 class GemmaComparison:
@@ -26,8 +27,8 @@ class GemmaComparison:
 
     def __init__(self):
         self.models = {
-            'base': 'mlx-community/gemma-3-270m-it-bf16',
-            'function': 'mlx-community/functiongemma-270m-it-bf16',
+            "base": "mlx-community/gemma-3-270m-it-bf16",
+            "function": "mlx-community/functiongemma-270m-it-bf16",
         }
         self.results = {}
 
@@ -38,17 +39,17 @@ class GemmaComparison:
 
         study = AblationStudy.from_pretrained(model_id)
         return {
-            'model': study.adapter.model,
-            'tokenizer': study.adapter.tokenizer,
-            'config': study.adapter.config,
-            'layers': study.adapter.model.model.layers,
-            'num_layers': len(study.adapter.model.model.layers),
+            "model": study.adapter.model,
+            "tokenizer": study.adapter.tokenizer,
+            "config": study.adapter.config,
+            "layers": study.adapter.model.model.layers,
+            "num_layers": len(study.adapter.model.model.layers),
         }
 
     def get_layer_activations(self, model_data: dict, prompt: str, layer_idx: int) -> np.ndarray:
         """Get activations at a specific layer."""
-        model = model_data['model']
-        tokenizer = model_data['tokenizer']
+        model = model_data["model"]
+        tokenizer = model_data["tokenizer"]
 
         tokens = tokenizer.encode(prompt)
         if isinstance(tokens, np.ndarray):
@@ -60,8 +61,8 @@ class GemmaComparison:
         h = model.model.embed_tokens(input_ids)
 
         # Scale embeddings (Gemma-specific)
-        hidden_size = model_data['config'].hidden_size
-        h = h * mx.array(hidden_size ** 0.5, dtype=h.dtype)
+        hidden_size = model_data["config"].hidden_size
+        h = h * mx.array(hidden_size**0.5, dtype=h.dtype)
 
         # Create attention mask
         seq_len = h.shape[1]
@@ -69,9 +70,9 @@ class GemmaComparison:
         mask = mask.astype(h.dtype)
 
         # Forward through layers
-        for i, layer in enumerate(model_data['layers']):
+        for i, layer in enumerate(model_data["layers"]):
             output = layer(h, mask=mask, cache=None)
-            if hasattr(output, 'hidden_states'):
+            if hasattr(output, "hidden_states"):
                 h = output.hidden_states
             elif isinstance(output, tuple):
                 h = output[0]
@@ -90,8 +91,8 @@ class GemmaComparison:
         ablate_layer: int = -1,
     ) -> np.ndarray:
         """Get final hidden state with optional MLP ablation."""
-        model = model_data['model']
-        tokenizer = model_data['tokenizer']
+        model = model_data["model"]
+        tokenizer = model_data["tokenizer"]
 
         tokens = tokenizer.encode(prompt)
         if isinstance(tokens, np.ndarray):
@@ -103,8 +104,8 @@ class GemmaComparison:
         h = model.model.embed_tokens(input_ids)
 
         # Scale embeddings (Gemma-specific)
-        hidden_size = model_data['config'].hidden_size
-        h = h * mx.array(hidden_size ** 0.5, dtype=h.dtype)
+        hidden_size = model_data["config"].hidden_size
+        h = h * mx.array(hidden_size**0.5, dtype=h.dtype)
 
         # Create attention mask
         seq_len = h.shape[1]
@@ -112,10 +113,10 @@ class GemmaComparison:
         mask = mask.astype(h.dtype)
 
         # Forward through layers
-        for layer_idx, layer in enumerate(model_data['layers']):
+        for layer_idx, layer in enumerate(model_data["layers"]):
             if layer_idx == ablate_layer:
                 # Ablate MLP
-                if hasattr(layer, 'input_layernorm'):
+                if hasattr(layer, "input_layernorm"):
                     normed = layer.input_layernorm(h)
                 else:
                     normed = h
@@ -126,7 +127,7 @@ class GemmaComparison:
                 h = h + attn_out
 
                 # Skip MLP (zero output)
-                if hasattr(layer, 'post_attention_layernorm'):
+                if hasattr(layer, "post_attention_layernorm"):
                     mlp_input = layer.post_attention_layernorm(h)
                 else:
                     mlp_input = h
@@ -135,7 +136,7 @@ class GemmaComparison:
                 # h = h + 0  (no change needed)
             else:
                 output = layer(h, mask=mask, cache=None)
-                if hasattr(output, 'hidden_states'):
+                if hasattr(output, "hidden_states"):
                     h = output.hidden_states
                 elif isinstance(output, tuple):
                     h = output[0]
@@ -148,9 +149,9 @@ class GemmaComparison:
 
     def run_probe_analysis(self, model_data: dict, model_name: str):
         """Run probe analysis to find accuracy curve."""
-        print(f"\n{'='*50}")
+        print(f"\n{'=' * 50}")
         print(f"PROBE ANALYSIS: {model_name}")
-        print('='*50)
+        print("=" * 50)
 
         # Action vs Question prompts (works for both base and function models)
         action_prompts = [
@@ -171,7 +172,7 @@ class GemmaComparison:
             "Who invented the telephone?",
         ]
 
-        num_layers = model_data['num_layers']
+        num_layers = model_data["num_layers"]
         accuracies = []
         separations = []
 
@@ -215,7 +216,7 @@ class GemmaComparison:
         mid_acc = np.mean(accuracies[5:10])
         late_acc = np.mean(accuracies[-5:])
 
-        print(f"\nU-shape check:")
+        print("\nU-shape check:")
         print(f"  Early (L0-2):  {early_acc:.1%}")
         print(f"  Middle (L5-9): {mid_acc:.1%}")
         print(f"  Late (L13-17): {late_acc:.1%}")
@@ -226,18 +227,18 @@ class GemmaComparison:
             print("  → NO U-shape (monotonic or flat)")
 
         return {
-            'accuracies': accuracies,
-            'separations': separations,
-            'early_acc': early_acc,
-            'mid_acc': mid_acc,
-            'late_acc': late_acc,
+            "accuracies": accuracies,
+            "separations": separations,
+            "early_acc": early_acc,
+            "mid_acc": mid_acc,
+            "late_acc": late_acc,
         }
 
     def run_ablation_analysis(self, model_data: dict, model_name: str):
         """Run ablation to find critical layers."""
-        print(f"\n{'='*50}")
+        print(f"\n{'=' * 50}")
         print(f"ABLATION ANALYSIS: {model_name}")
-        print('='*50)
+        print("=" * 50)
 
         # Test prompts
         action_prompts = [
@@ -279,11 +280,13 @@ class GemmaComparison:
         drops = []
         critical_layers = []
 
-        for layer_idx in range(model_data['num_layers']):
+        for layer_idx in range(model_data["num_layers"]):
             X_ablated = []
 
             for prompt in action_prompts + question_prompts:
-                act = self.get_final_hidden_with_ablation(model_data, prompt, ablate_layer=layer_idx)
+                act = self.get_final_hidden_with_ablation(
+                    model_data, prompt, ablate_layer=layer_idx
+                )
                 X_ablated.append(act)
 
             X_ablated = np.array(X_ablated)
@@ -304,16 +307,16 @@ class GemmaComparison:
         print(f"\nCritical layers (>30% drop): {critical_layers}")
 
         return {
-            'drops': drops,
-            'critical_layers': critical_layers,
-            'baseline_acc': baseline_acc,
+            "drops": drops,
+            "critical_layers": critical_layers,
+            "baseline_acc": baseline_acc,
         }
 
     def run_pca_analysis(self, model_data: dict, model_name: str, target_layer: int = 11):
         """Check if decision space is 1D at target layer."""
-        print(f"\n{'='*50}")
+        print(f"\n{'=' * 50}")
         print(f"PCA ANALYSIS: {model_name} (L{target_layer})")
-        print('='*50)
+        print("=" * 50)
 
         action_prompts = [
             "Calculate 25 * 4",
@@ -353,7 +356,7 @@ class GemmaComparison:
         print("\nVariance explained by top PCs:")
         for i, var in enumerate(pca.explained_variance_ratio_[:5]):
             bar = "█" * int(var * 50)
-            print(f"  PC{i+1}: {var:.1%} {bar}")
+            print(f"  PC{i + 1}: {var:.1%} {bar}")
 
         pc1_var = pca.explained_variance_ratio_[0]
 
@@ -365,8 +368,8 @@ class GemmaComparison:
             print(f"\n→ MULTI-DIMENSIONAL: only {pc1_var:.1%} on PC1")
 
         return {
-            'pc_variances': pca.explained_variance_ratio_.tolist(),
-            'pc1_variance': pc1_var,
+            "pc_variances": pca.explained_variance_ratio_.tolist(),
+            "pc1_variance": pc1_var,
         }
 
     def run_comparison(self):
@@ -384,9 +387,9 @@ class GemmaComparison:
             pca_results = self.run_pca_analysis(model_data, name, target_layer=11)
 
             self.results[name] = {
-                'probe': probe_results,
-                'ablation': ablation_results,
-                'pca': pca_results,
+                "probe": probe_results,
+                "ablation": ablation_results,
+                "pca": pca_results,
             }
 
         # Final comparison
@@ -398,24 +401,36 @@ class GemmaComparison:
         print("│                    BASE GEMMA 3 270M                     │")
         print("├─────────────────────────────────────────────────────────┤")
 
-        base = self.results['base']
-        print(f"│  Early accuracy:  {base['probe']['early_acc']:.1%}                              │")
+        base = self.results["base"]
+        print(
+            f"│  Early accuracy:  {base['probe']['early_acc']:.1%}                              │"
+        )
         print(f"│  Middle accuracy: {base['probe']['mid_acc']:.1%}                              │")
         print(f"│  Late accuracy:   {base['probe']['late_acc']:.1%}                              │")
-        print(f"│  PC1 variance:    {base['pca']['pc1_variance']:.1%}                              │")
-        print(f"│  Critical layers: {base['ablation']['critical_layers']}                         │")
+        print(
+            f"│  PC1 variance:    {base['pca']['pc1_variance']:.1%}                              │"
+        )
+        print(
+            f"│  Critical layers: {base['ablation']['critical_layers']}                         │"
+        )
         print("└─────────────────────────────────────────────────────────┘")
 
         print("\n┌─────────────────────────────────────────────────────────┐")
         print("│                    FUNCTIONGEMMA 270M                    │")
         print("├─────────────────────────────────────────────────────────┤")
 
-        func = self.results['function']
-        print(f"│  Early accuracy:  {func['probe']['early_acc']:.1%}                              │")
+        func = self.results["function"]
+        print(
+            f"│  Early accuracy:  {func['probe']['early_acc']:.1%}                              │"
+        )
         print(f"│  Middle accuracy: {func['probe']['mid_acc']:.1%}                              │")
         print(f"│  Late accuracy:   {func['probe']['late_acc']:.1%}                              │")
-        print(f"│  PC1 variance:    {func['pca']['pc1_variance']:.1%}                              │")
-        print(f"│  Critical layers: {func['ablation']['critical_layers']}                         │")
+        print(
+            f"│  PC1 variance:    {func['pca']['pc1_variance']:.1%}                              │"
+        )
+        print(
+            f"│  Critical layers: {func['ablation']['critical_layers']}                         │"
+        )
         print("└─────────────────────────────────────────────────────────┘")
 
         # Hypothesis test
@@ -423,8 +438,8 @@ class GemmaComparison:
         print("HYPOTHESIS TEST")
         print("=" * 60)
 
-        base_has_ushape = base['probe']['mid_acc'] < base['probe']['early_acc'] - 0.1
-        func_has_ushape = func['probe']['mid_acc'] < func['probe']['early_acc'] - 0.1
+        base_has_ushape = base["probe"]["mid_acc"] < base["probe"]["early_acc"] - 0.1
+        func_has_ushape = func["probe"]["mid_acc"] < func["probe"]["early_acc"] - 0.1
 
         print(f"\nU-shape in base Gemma:     {'YES' if base_has_ushape else 'NO'}")
         print(f"U-shape in FunctionGemma:  {'YES' if func_has_ushape else 'NO'}")
@@ -436,33 +451,37 @@ class GemmaComparison:
         else:
             print("\n→ Need more investigation")
 
-        base_1d = base['pca']['pc1_variance'] > 0.7
-        func_1d = func['pca']['pc1_variance'] > 0.7
+        base_1d = base["pca"]["pc1_variance"] > 0.7
+        func_1d = func["pca"]["pc1_variance"] > 0.7
 
-        print(f"\n1D decision in base Gemma:     {'YES' if base_1d else 'NO'} ({base['pca']['pc1_variance']:.1%})")
-        print(f"1D decision in FunctionGemma:  {'YES' if func_1d else 'NO'} ({func['pca']['pc1_variance']:.1%})")
+        print(
+            f"\n1D decision in base Gemma:     {'YES' if base_1d else 'NO'} ({base['pca']['pc1_variance']:.1%})"
+        )
+        print(
+            f"1D decision in FunctionGemma:  {'YES' if func_1d else 'NO'} ({func['pca']['pc1_variance']:.1%})"
+        )
 
         if func_1d and not base_1d:
             print("\n→ HYPOTHESIS CONFIRMED: 1D structure from tool-training!")
 
         # Save results
-        with open('gemma_comparison_results.json', 'w') as f:
+        with open("gemma_comparison_results.json", "w") as f:
             # Convert numpy to lists for JSON
             json_results = {}
             for name, data in self.results.items():
                 json_results[name] = {
-                    'probe': {
-                        'accuracies': data['probe']['accuracies'],
-                        'separations': data['probe']['separations'],
-                        'early_acc': data['probe']['early_acc'],
-                        'mid_acc': data['probe']['mid_acc'],
-                        'late_acc': data['probe']['late_acc'],
+                    "probe": {
+                        "accuracies": data["probe"]["accuracies"],
+                        "separations": data["probe"]["separations"],
+                        "early_acc": data["probe"]["early_acc"],
+                        "mid_acc": data["probe"]["mid_acc"],
+                        "late_acc": data["probe"]["late_acc"],
                     },
-                    'ablation': {
-                        'drops': data['ablation']['drops'],
-                        'critical_layers': data['ablation']['critical_layers'],
+                    "ablation": {
+                        "drops": data["ablation"]["drops"],
+                        "critical_layers": data["ablation"]["critical_layers"],
                     },
-                    'pca': data['pca'],
+                    "pca": data["pca"],
                 }
             json.dump(json_results, f, indent=2)
 
