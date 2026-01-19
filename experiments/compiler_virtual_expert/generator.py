@@ -77,16 +77,32 @@ def get_hidden_at_position(
 
 def get_hidden_dim(model) -> int:
     """Get hidden dimension from model."""
+    # Try various ways to get hidden dim
+    if hasattr(model, "config") and hasattr(model.config, "hidden_size"):
+        return model.config.hidden_size
+
     embed = model.model.embed_tokens
+
+    # Check for hidden_size attribute (lazarus models)
+    if hasattr(embed, "hidden_size"):
+        return embed.hidden_size
+
+    # Check for weight shape
     if hasattr(embed, "weight"):
         weight = embed.weight
         if hasattr(weight, "shape"):
             return weight.shape[1]
+        # Nested embedding
+        if hasattr(weight, "weight") and hasattr(weight.weight, "shape"):
+            return weight.weight.shape[1]
+
+    # Check parameters
     params = embed.parameters()
     if isinstance(params, dict):
         for val in params.values():
             if hasattr(val, "shape") and len(val.shape) == 2:
                 return val.shape[1]
+
     raise ValueError("Cannot determine hidden dim")
 
 

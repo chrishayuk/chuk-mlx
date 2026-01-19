@@ -259,22 +259,12 @@ class CompilerExpertPlugin(VirtualExpertPlugin):
         old_stdout = sys.stdout
         sys.stdout = captured_output = StringIO()
 
-        # Restricted globals
-        safe_builtins = {
-            name: getattr(__builtins__, name)
-            if isinstance(__builtins__, dict)
-            else getattr(__builtins__, name, None)
-            for name in self.SAFE_BUILTINS
-            if hasattr(__builtins__, name)
-            or (isinstance(__builtins__, dict) and name in __builtins__)
-        }
-
-        # Handle both dict and module __builtins__
-        if isinstance(__builtins__, dict):
-            safe_builtins = {k: __builtins__[k] for k in self.SAFE_BUILTINS if k in __builtins__}
-        else:
-            safe_builtins = {k: getattr(__builtins__, k, None) for k in self.SAFE_BUILTINS}
-            safe_builtins = {k: v for k, v in safe_builtins.items() if v is not None}
+        # Build safe builtins dict - handle both dict and module forms
+        import builtins
+        safe_builtins = {}
+        for name in self.SAFE_BUILTINS:
+            if hasattr(builtins, name):
+                safe_builtins[name] = getattr(builtins, name)
 
         restricted_globals = {"__builtins__": safe_builtins}
 
@@ -330,9 +320,12 @@ class CompilerExpertPlugin(VirtualExpertPlugin):
             return ExecutionResult(success=False, error="Dangerous code detected")
 
         # Execute to define functions
+        import builtins
         namespace: dict[str, Any] = {}
-        safe_builtins = {k: getattr(__builtins__, k, None) for k in self.SAFE_BUILTINS}
-        safe_builtins = {k: v for k, v in safe_builtins.items() if v is not None}
+        safe_builtins = {}
+        for name in self.SAFE_BUILTINS:
+            if hasattr(builtins, name):
+                safe_builtins[name] = getattr(builtins, name)
         namespace["__builtins__"] = safe_builtins
 
         try:
