@@ -9,6 +9,11 @@ get a "virtual" routing layer that:
 1. Analyzes hidden states at specified layers
 2. Computes routing scores to virtual experts
 3. Decides whether to use a plugin or continue with model generation
+
+With CoT rewriting enabled:
+1. User query is rewritten to normalized VirtualExpertAction JSON
+2. Routing is based on the action JSON hidden state (not raw query)
+3. Expert receives the structured action (not raw query)
 """
 
 from __future__ import annotations
@@ -25,6 +30,7 @@ from .base import (
     VirtualExpertPlugin,
     VirtualExpertResult,
 )
+from .cot_rewriter import CoTRewriter, VirtualExpertAction
 from .plugins.math import MathExpertPlugin
 from .registry import VirtualExpertRegistry, get_default_registry
 
@@ -144,6 +150,7 @@ class VirtualDenseWrapper:
         registry: VirtualExpertRegistry | None = None,
         target_layer: int | None = None,
         routing_threshold: float = 0.5,
+        cot_rewriter: CoTRewriter | None = None,
     ):
         """
         Initialize the wrapper.
@@ -155,12 +162,14 @@ class VirtualDenseWrapper:
             registry: Plugin registry (uses default if None)
             target_layer: Which layer to extract hidden states from (default: middle)
             routing_threshold: Score threshold for routing to virtual expert
+            cot_rewriter: Optional CoT rewriter for query normalization
         """
         self.model = model
         self.tokenizer = tokenizer
         self.model_id = model_id
         self.registry = registry or get_default_registry()
         self.routing_threshold = routing_threshold
+        self.cot_rewriter = cot_rewriter
 
         # Detect model structure
         self._detect_structure()
@@ -175,6 +184,7 @@ class VirtualDenseWrapper:
         self.router = VirtualDenseRouter(self.hidden_size, num_plugins)
 
         self._calibrated = False
+        self._use_cot_calibration = False  # Set True when calibrated with action JSONs
 
     def _detect_structure(self):
         """Detect model backbone structure and hidden size."""
@@ -214,6 +224,16 @@ class VirtualDenseWrapper:
         self.router = VirtualDenseRouter(self.hidden_size, num_plugins)
         self._calibrated = False
 
+    def set_cot_rewriter(self, rewriter: CoTRewriter) -> None:
+        """
+        Set the CoT rewriter for query normalization.
+
+        When set, queries are rewritten to VirtualExpertAction JSON
+        before routing, and calibration uses action JSONs.
+        """
+        self.cot_rewriter = rewriter
+        self._calibrated = False  # Need to recalibrate with CoT
+
     def _get_hidden_state(self, prompt: str) -> mx.array:
         """Get hidden state at target layer for last position."""
         input_ids = mx.array(self.tokenizer.encode(prompt))[None, :]
@@ -244,15 +264,35 @@ class VirtualDenseWrapper:
         mx.eval(h)
         return h[0, -1, :]
 
-    def calibrate(self) -> None:
-        """Calibrate all registered plugins."""
+    def calibrate(self, use_cot: bool | None = None) -> None:
+        """
+        Calibrate all registered plugins.
+
+        Args:
+            use_cot: If True, calibrate on action JSONs (requires cot_rewriter or
+                     plugin with get_calibration_actions). If None, auto-detect.
+        """
         plugins = self.registry.get_all()
 
-        for plugin_idx, plugin in enumerate(plugins):
-            pos_prompts, neg_prompts = plugin.get_calibration_prompts()
+        # Auto-detect CoT calibration
+        if use_cot is None:
+            use_cot = self.cot_rewriter is not None or any(
+                hasattr(p, "get_calibration_actions") for p in plugins
+            )
 
-            pos_activations = [self._get_hidden_state(p) for p in pos_prompts]
-            neg_activations = [self._get_hidden_state(p) for p in neg_prompts]
+        self._use_cot_calibration = use_cot
+
+        for plugin_idx, plugin in enumerate(plugins):
+            if use_cot and hasattr(plugin, "get_calibration_actions"):
+                # New CoT-based calibration using action JSONs
+                pos_actions, neg_actions = plugin.get_calibration_actions()
+                pos_activations = [self._get_hidden_state(a) for a in pos_actions]
+                neg_activations = [self._get_hidden_state(a) for a in neg_actions]
+            else:
+                # Legacy calibration using raw prompts
+                pos_prompts, neg_prompts = plugin.get_calibration_prompts()
+                pos_activations = [self._get_hidden_state(p) for p in pos_prompts]
+                neg_activations = [self._get_hidden_state(p) for p in neg_prompts]
 
             self.router.calibrate_expert(plugin_idx, pos_activations, neg_activations)
 
@@ -291,6 +331,15 @@ class VirtualDenseWrapper:
         """
         Solve a problem, using virtual experts when appropriate.
 
+        With CoT rewriter:
+        1. Query is rewritten to VirtualExpertAction JSON
+        2. Routing is based on action JSON hidden state
+        3. Expert receives the action (not raw query)
+
+        Without CoT rewriter (legacy):
+        1. Routing is based on raw query hidden state
+        2. Expert receives raw query
+
         Args:
             prompt: The input prompt
             max_tokens: Maximum tokens to generate
@@ -301,8 +350,17 @@ class VirtualDenseWrapper:
         if not self._calibrated:
             self.calibrate()
 
+        # CoT rewrite if rewriter is available
+        action: VirtualExpertAction | None = None
+        routing_input = prompt
+
+        if self.cot_rewriter:
+            expert_names = [p.name for p in self.registry.get_all()]
+            action = self.cot_rewriter.rewrite(prompt, expert_names)
+            routing_input = action.to_json()  # Route on action JSON
+
         # Get hidden state for routing decision
-        hidden = self._get_hidden_state(prompt)
+        hidden = self._get_hidden_state(routing_input)
 
         # Find best matching plugin
         plugins = self.registry.get_all()
@@ -313,7 +371,14 @@ class VirtualDenseWrapper:
         for plugin_idx, plugin in enumerate(plugins):
             score = self.router.get_routing_score(hidden[None, None, :], plugin_idx)
             if score > self.routing_threshold and score > best_score:
-                if plugin.can_handle(prompt):
+                # With CoT: check if action targets this expert
+                # Without CoT: use legacy can_handle
+                if action:
+                    if action.expert == plugin.name:
+                        best_plugin = plugin
+                        best_score = score
+                        best_idx = plugin_idx
+                elif plugin.can_handle(prompt):
                     best_plugin = plugin
                     best_score = score
                     best_idx = plugin_idx
@@ -324,11 +389,18 @@ class VirtualDenseWrapper:
             _, correct_answer = best_plugin.extract_and_evaluate(prompt)
 
         if best_plugin and best_score > self.routing_threshold:
-            result = best_plugin.execute(prompt)
+            # Execute with action or prompt
+            if action and hasattr(best_plugin, "execute_action"):
+                # New interface: pass structured action
+                result = best_plugin.execute_action(action)
+            else:
+                # Legacy interface: pass raw prompt
+                result = best_plugin.execute(prompt)
+
             if result:
                 return VirtualExpertResult(
                     prompt=prompt,
-                    answer=result,
+                    answer=result if isinstance(result, str) else str(result),
                     correct_answer=correct_answer,
                     approach=VirtualExpertApproach.VIRTUAL_EXPERT,
                     used_virtual_expert=True,

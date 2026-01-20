@@ -1,0 +1,151 @@
+{
+  "problem_types": {
+    "arithmetic_chain": {
+      "description": "Sequential arithmetic operations on entities",
+      "examples": [
+        "Jenny has 5 apples. She buys 3 more. Then gives 2 away. How many does she have?",
+        "Tom had 20 marbles. He lost 5, found 3, and gave 4 to his friend. How many now?"
+      ],
+      "patterns": [
+        "has \\d+.*(?:buys?|gets?|receives?|finds?|gives?|loses?|sells?)",
+        "starts? with \\d+.*(?:adds?|removes?|takes?)",
+        "(?:first|then|after|next).*\\d+",
+        "\\b(?:has|had|have)\\s+\\d+.*how many",
+        "(?:buys?|gets?|gives?|loses?|spends?|finds?)\\s+\\d+"
+      ],
+      "solver": "calculator_chain",
+      "extraction_keys": ["entities", "initial_values", "operations"],
+      "expected_frequency": 0.35
+    },
+
+    "rate_ratio": {
+      "description": "Work rates, speed, proportions, inverse relationships",
+      "examples": [
+        "If 3 workers paint a house in 6 hours, how long for 2 workers?",
+        "A car travels at 60 mph. How far in 2.5 hours?"
+      ],
+      "patterns": [
+        "\\d+\\s*workers?.*\\d+\\s*hours?",
+        "\\d+\\s*(?:mph|km/h|miles per hour)",
+        "(?:rate|speed|pace).*\\d+",
+        "if.*takes?.*how (?:long|many|much)"
+      ],
+      "solver": "rate_ratio",
+      "extraction_keys": ["rate_type", "known_values", "target"],
+      "expected_frequency": 0.15
+    },
+
+    "allocation": {
+      "description": "Distribute items/money with constraints",
+      "examples": [
+        "Split $100 among Alice, Bob, Carol where Alice gets twice what Bob gets",
+        "Divide 24 cookies so that Tom gets 3 more than Jerry"
+      ],
+      "patterns": [
+        "(?:split|divide|share|distribute).*(?:among|between)",
+        "(?:twice|half|three times).*(?:as much|as many)",
+        "\\$?\\d+.*(?:each|per person|equally)"
+      ],
+      "solver": "csp_allocation",
+      "extraction_keys": ["total", "entities", "constraints"],
+      "expected_frequency": 0.10
+    },
+
+    "comparison": {
+      "description": "Compare quantities, find differences",
+      "examples": [
+        "Tom has 3x as many marbles as Jane. Jane has 5. How many more does Tom have?",
+        "Alice is 5 years older than Bob. Bob is 12. What is the difference in their ages?"
+      ],
+      "patterns": [
+        "how many (?:more|fewer|less)",
+        "(?:difference|compare)",
+        "(?:older|younger|taller|shorter|more|less) than",
+        "\\d+\\s*(?:times|x)\\s*(?:as (?:many|much)|more)"
+      ],
+      "solver": "calculator_comparison",
+      "extraction_keys": ["entities", "relationships", "comparison_target"],
+      "expected_frequency": 0.15
+    },
+
+    "scheduling_time": {
+      "description": "Time calculations, durations, schedules",
+      "examples": [
+        "Train leaves at 9am, travels 3 hours, stops for 30min. What time does it arrive?",
+        "Movie starts at 7:15pm and is 2 hours 20 minutes long. When does it end?"
+      ],
+      "patterns": [
+        "\\d+:\\d+\\s*(?:am|pm|AM|PM)",
+        "\\d+\\s*(?:hours?|minutes?|mins?).*(?:later|earlier|before|after)",
+        "(?:starts?|ends?|arrives?|leaves?|departs?).*(?:at|by)"
+      ],
+      "solver": "time_calculator",
+      "extraction_keys": ["start_time", "operations", "target"],
+      "expected_frequency": 0.08
+    },
+
+    "geometry": {
+      "description": "Area, perimeter, volume, geometric formulas",
+      "examples": [
+        "A rectangle is 5m by 3m. What is its area?",
+        "Find the perimeter of a square with side 7 inches"
+      ],
+      "patterns": [
+        "(?:rectangle|square|circle|triangle|cube)",
+        "(?:area|perimeter|volume|circumference)",
+        "\\d+\\s*(?:m|cm|ft|inches?|meters?)\\s*(?:by|x|×)"
+      ],
+      "solver": "geometry_calculator",
+      "extraction_keys": ["shape", "dimensions", "target_property"],
+      "expected_frequency": 0.07
+    },
+
+    "multi_constraint": {
+      "description": "Multiple interacting constraints requiring equation solving",
+      "examples": [
+        "Find a number where: doubled is 10 more than tripled minus 15",
+        "The sum of two numbers is 20. Their difference is 4. Find both."
+      ],
+      "patterns": [
+        "(?:sum|difference|product).*(?:is|equals?)\\s*\\d+",
+        "(?:find|what).*(?:number|value)",
+        "(?:if|when).*(?:then|and).*(?:is|equals?)"
+      ],
+      "solver": "equation_solver",
+      "extraction_keys": ["variables", "equations", "target"],
+      "expected_frequency": 0.05
+    },
+
+    "percentage": {
+      "description": "Percentage calculations: discounts, taxes, tips, changes",
+      "examples": [
+        "A shirt costs $40. It's 25% off. What's the final price?",
+        "Population grew from 1000 to 1200. What percent increase?"
+      ],
+      "patterns": [
+        "\\d+\\s*%",
+        "(?:percent|percentage)",
+        "(?:discount|off|tax|tip|increase|decrease)",
+        "(?:original|final).*(?:price|cost|value)"
+      ],
+      "solver": "percentage_calculator",
+      "extraction_keys": ["base_value", "percentage_operations", "target"],
+      "expected_frequency": 0.05
+    }
+  },
+
+  "operation_verbs": {
+    "add": ["buys", "gets", "receives", "finds", "earns", "wins", "collects", "picks up", "adds"],
+    "subtract": ["gives", "loses", "spends", "sells", "uses", "eats", "removes", "takes away"],
+    "multiply": ["doubles", "triples", "times"],
+    "divide": ["splits", "divides", "shares", "halves"]
+  },
+
+  "quantity_patterns": [
+    "\\$(\\d+(?:\\.\\d+)?)",
+    "(\\d+(?:\\.\\d+)?)\\s*(?:dollars?|cents?)",
+    "(\\d+(?:\\.\\d+)?)\\s*(?:apples?|oranges?|balls?|marbles?|cookies?|candies?|books?|toys?)",
+    "(\\d+(?:\\.\\d+)?)\\s*(?:hours?|minutes?|seconds?|days?|weeks?|months?|years?)",
+    "(\\d+(?:\\.\\d+)?)\\s*(?:miles?|km|kilometers?|meters?|feet|inches?|cm)"
+  ]
+}

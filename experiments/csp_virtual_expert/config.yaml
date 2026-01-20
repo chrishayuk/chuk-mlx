@@ -1,0 +1,90 @@
+# CSP Virtual Expert Experiment Configuration
+# ============================================
+
+experiment:
+  name: "csp_virtual_expert"
+  version: "0.1.0"
+  description: "Test if CoT normalizes CSP problems into detectable gate patterns"
+
+# Model configuration
+model:
+  # Primary model for experiments
+  primary: "openai/gpt-oss-20b"
+  # Smaller model for quick iteration
+  dev: "openai/gpt-oss-7b"
+  # Layer to probe for CSP gate
+  probe_layer: 13
+  # Alternative layers to try if L13 doesn't work
+  fallback_layers: [2, 4, 8, 12, 15, 18, 21]
+
+# Probe training configuration
+probe:
+  # Train/test split
+  test_size: 0.2
+  random_seed: 42
+  # Regularization
+  max_iter: 1000
+  C: 1.0
+  # Minimum accuracy to consider successful
+  success_threshold: 0.80
+  # Subtype classification
+  subtype_threshold: 0.70
+
+# Solver configuration
+solver:
+  # OR-Tools settings
+  timeout_seconds: 10.0
+  # Number of workers for parallel solving
+  num_workers: 4
+  # Confidence threshold for triggering
+  confidence_threshold: 0.8
+
+# Extraction configuration
+extraction:
+  # Formats to try in order
+  format_priority:
+    - "format_a"  # Declarative blocks (TASKS, CONSTRAINTS, SOLVE)
+    - "format_d"  # JSON
+    - "format_b"  # Function call
+    - "format_c"  # Natural structured
+  # Fall back to loose extraction if all fail
+  use_loose_fallback: true
+
+# Trigger patterns
+triggers:
+  explicit:
+    - "SOLVE:"
+    - "Solution:"
+    - "solve_csp("
+  implicit:
+    - "Finding optimal schedule"
+    - "Applying constraint solver"
+    - "Let me solve this systematically"
+
+# Evaluation configuration
+evaluation:
+  # Number of test cases per CSP type
+  cases_per_type: 10
+  # Metrics to compute
+  metrics:
+    - accuracy
+    - constraint_satisfaction
+    - optimality_gap
+    - latency_ms
+  # Baselines to compare against
+  baselines:
+    - neural_only
+    - cot_only
+    - tool_use
+
+# Dataset paths (relative to experiment root)
+data:
+  csp_prompts: "data/prompts.py"
+  test_cases: "data/test_cases.json"
+  results_dir: "results/"
+
+# Logging
+logging:
+  level: "INFO"
+  save_hidden_states: true
+  save_routing_trace: true

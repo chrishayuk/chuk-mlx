@@ -1,0 +1,57 @@
+# GSM-8K Virtual Expert Experiment Configuration
+
+experiment:
+  name: "GSM-8K Virtual Expert"
+  version: "1.0"
+  description: "Task classification + expert routing for GSM-8K"
+
+# Model settings (for probe training)
+model:
+  path: "./gpt-oss-lite-v2/gpt-oss-lite-16exp"
+  n_layers: 24
+
+# Probe settings
+probe:
+  layer: 4  # Layer to extract hidden states from
+  classifier: "logistic_regression"
+  test_size: 0.2
+  random_seed: 42
+
+# Problem types for classification
+problem_types:
+  - arithmetic_chain
+  - rate_ratio
+  - allocation
+  - comparison
+  - scheduling_time
+  - geometry
+  - percentage
+  - multi_constraint
+
+# Expert routing
+experts:
+  arithmetic_chain: "CalculatorChainExpert"
+  rate_ratio: "RateRatioExpert"
+  allocation: "AllocationExpert"
+  comparison: "ComparisonExpert"
+  scheduling_time: "TimeCalculatorExpert"
+  geometry: "GeometryExpert"
+  percentage: "PercentageExpert"
+  multi_constraint: "EquationSolverExpert"
+
+# Evaluation
+evaluation:
+  approaches:
+    - "Virtual Expert"
+    - "Neural"
+    - "CoT"
+  metrics:
+    - accuracy
+    - accuracy_by_type
+    - latency
+
+# Expected results (hypothesis)
+expected:
+  neural_accuracy: 0.55
+  cot_accuracy: 0.70
+  virtual_expert_accuracy: 0.95

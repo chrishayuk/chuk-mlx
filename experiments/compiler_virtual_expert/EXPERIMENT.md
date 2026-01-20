@@ -450,6 +450,69 @@ experiments/compiler_virtual_expert/
 
 ---
 
+## Self-Correction Loop Results
+
+### Implementation
+
+The self-correction loop (`self_correction.py`) implements:
+
+```
+generate → compile → error? → feedback → fix → verify → success
+```
+
+### Results with TinyLlama (Instruction-Tuned)
+
+**Test: sum_list bug (assignment instead of accumulation)**
+
+| Step | Code | Result |
+|------|------|--------|
+| 1. Buggy | `total = item` | ✗ returns 3, expected 6 |
+| 2. Fixed | `total += item` | ✓ all tests pass |
+
+```
+Buggy:  sum_list([1,2,3]) = 3   # Overwrites, doesn't accumulate
+Fixed:  sum_list([1,2,3]) = 6   # Correctly sums
+```
+
+**The model saw the error message and fixed `total = item` → `total += item`**
+
+### Results with GPT-OSS 20B (Base Model)
+
+| Task | Result | Why |
+|------|--------|-----|
+| Bug fixing | ❌ Failed | Base model can't follow instructions |
+| Code completion | ✅ Works | `factorial(5) # Should print` → ` 120` |
+| Fill-in-blank | ✅ Works | `return` → ` 1` then `else:` |
+
+**Key Insight**: Base models complete patterns, instruction-tuned models follow instructions.
+
+For base models, self-correction would need:
+- Few-shot examples of bug→fix patterns
+- Or: direct code completion with verification loop
+
+### Bug Detection Rate
+
+| Bug Type | Detected? | Error Message |
+|----------|-----------|---------------|
+| Off-by-one | ✓ | `first_n([1,2,3,4,5], 3) = [1,2], expected [1,2,3]` |
+| Wrong operator | ✓ | `multiply(3, 4) = 7, expected 12` |
+| Missing return | ✓ | `double(5,) = None, expected 10` |
+| Missing base case | ✓ | `RecursionError: maximum recursion depth` |
+| Assignment vs accumulation | ✓ | `sum_list([1,2,3]) = 3, expected 6` |
+
+**100% bug detection rate** - the compiler catches all bugs.
+
+### Self-Correction Success Criteria
+
+For instruction-tuned models:
+1. Model generates code
+2. Compiler executes with test cases
+3. If error: inject error message into prompt
+4. Model generates fix
+5. Repeat until success or max iterations
+
+---
+
 ## Future Work
 
 1. **Proper Sandboxing**: Replace `exec()` with subprocess isolation (firejail/bubblewrap)

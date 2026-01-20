@@ -49,6 +49,12 @@ from .base import (
     VirtualExpertPlugin,
     VirtualExpertResult,
 )
+from .cot_rewriter import (
+    CoTRewriter,
+    DirectCoTRewriter,
+    FewShotCoTRewriter,
+    VirtualExpertAction,
+)
 from .dense_wrapper import (
     VirtualDenseRouter,
     VirtualDenseWrapper,
@@ -65,6 +71,11 @@ __all__ = [
     "VirtualExpertResult",
     "VirtualExpertAnalysis",
     "VirtualExpertApproach",
+    # CoT rewriting
+    "VirtualExpertAction",
+    "CoTRewriter",
+    "FewShotCoTRewriter",
+    "DirectCoTRewriter",
     # Routing trace (verbose output)
     "RoutingDecision",
     "RoutingTrace",

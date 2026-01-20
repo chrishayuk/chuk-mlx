@@ -1,0 +1,182 @@
+[
+  {
+    "problem": "Jenny has 5 apples. She buys 3 more. Then gives 2 to her friend. How many apples does Jenny have?",
+    "answer": 6,
+    "primary_type": "arithmetic_chain",
+    "secondary_type": null,
+    "operations": ["add", "subtract"],
+    "entity_count": 2,
+    "constraint_count": 0
+  },
+  {
+    "problem": "Tom started with 20 marbles. He lost 5 in a game, found 3 on the playground, and gave 4 to his sister. How many marbles does Tom have now?",
+    "answer": 14,
+    "primary_type": "arithmetic_chain",
+    "secondary_type": null,
+    "operations": ["subtract", "add", "subtract"],
+    "entity_count": 2,
+    "constraint_count": 0
+  },
+  {
+    "problem": "If 3 workers can paint a house in 6 hours, how long would it take 2 workers to paint the same house?",
+    "answer": 9,
+    "primary_type": "rate_ratio",
+    "secondary_type": null,
+    "operations": ["inverse_proportion"],
+    "entity_count": 1,
+    "constraint_count": 1
+  },
+  {
+    "problem": "A car travels at 60 miles per hour. How far will it travel in 2.5 hours?",
+    "answer": 150,
+    "primary_type": "rate_ratio",
+    "secondary_type": null,
+    "operations": ["multiply"],
+    "entity_count": 1,
+    "constraint_count": 0
+  },
+  {
+    "problem": "Split $100 between Alice and Bob, where Alice gets twice as much as Bob. How much does Alice get?",
+    "answer": 66.67,
+    "primary_type": "allocation",
+    "secondary_type": null,
+    "operations": ["constraint_solve"],
+    "entity_count": 2,
+    "constraint_count": 2
+  },
+  {
+    "problem": "Divide 24 cookies among Tom, Jane, and Mike so that Tom gets 4 more than Jane, and Jane gets the same as Mike. How many does Tom get?",
+    "answer": 12,
+    "primary_type": "allocation",
+    "secondary_type": "multi_constraint",
+    "operations": ["constraint_solve"],
+    "entity_count": 3,
+    "constraint_count": 3
+  },
+  {
+    "problem": "Tom has 3 times as many marbles as Jane. Jane has 8 marbles. How many more marbles does Tom have than Jane?",
+    "answer": 16,
+    "primary_type": "comparison",
+    "secondary_type": null,
+    "operations": ["multiply", "subtract"],
+    "entity_count": 2,
+    "constraint_count": 1
+  },
+  {
+    "problem": "Alice is 5 years older than Bob. Bob is 12 years old. How old is Alice?",
+    "answer": 17,
+    "primary_type": "comparison",
+    "secondary_type": null,
+    "operations": ["add"],
+    "entity_count": 2,
+    "constraint_count": 1
+  },
+  {
+    "problem": "A train leaves at 9:00 AM and travels for 3 hours 30 minutes. What time does it arrive?",
+    "answer": "12:30 PM",
+    "primary_type": "scheduling_time",
+    "secondary_type": null,
+    "operations": ["add_time"],
+    "entity_count": 1,
+    "constraint_count": 0
+  },
+  {
+    "problem": "A movie starts at 7:15 PM and is 2 hours 20 minutes long. What time does it end?",
+    "answer": "9:35 PM",
+    "primary_type": "scheduling_time",
+    "secondary_type": null,
+    "operations": ["add_time"],
+    "entity_count": 1,
+    "constraint_count": 0
+  },
+  {
+    "problem": "A rectangle is 8 meters long and 5 meters wide. What is its area?",
+    "answer": 40,
+    "primary_type": "geometry",
+    "secondary_type": null,
+    "operations": ["multiply"],
+    "entity_count": 1,
+    "constraint_count": 0
+  },
+  {
+    "problem": "Find the perimeter of a square with side length 7 cm.",
+    "answer": 28,
+    "primary_type": "geometry",
+    "secondary_type": null,
+    "operations": ["multiply"],
+    "entity_count": 1,
+    "constraint_count": 0
+  },
+  {
+    "problem": "A shirt costs $40. It is 25% off. What is the sale price?",
+    "answer": 30,
+    "primary_type": "percentage",
+    "secondary_type": null,
+    "operations": ["percentage_subtract"],
+    "entity_count": 1,
+    "constraint_count": 0
+  },
+  {
+    "problem": "A meal costs $50. You want to leave a 20% tip. How much is the total including tip?",
+    "answer": 60,
+    "primary_type": "percentage",
+    "secondary_type": null,
+    "operations": ["percentage_add"],
+    "entity_count": 1,
+    "constraint_count": 0
+  },
+  {
+    "problem": "The sum of two numbers is 20. Their difference is 4. What is the larger number?",
+    "answer": 12,
+    "primary_type": "multi_constraint",
+    "secondary_type": null,
+    "operations": ["solve_system"],
+    "entity_count": 2,
+    "constraint_count": 2
+  },
+  {
+    "problem": "Find a number such that when doubled and then increased by 5, the result is 25.",
+    "answer": 10,
+    "primary_type": "multi_constraint",
+    "secondary_type": null,
+    "operations": ["solve_equation"],
+    "entity_count": 1,
+    "constraint_count": 1
+  },
+  {
+    "problem": "Sarah has 12 pencils. She gives 4 to Mike and 3 to Lisa. How many pencils does Sarah have left?",
+    "answer": 5,
+    "primary_type": "arithmetic_chain",
+    "secondary_type": null,
+    "operations": ["subtract", "subtract"],
+    "entity_count": 3,
+    "constraint_count": 0
+  },
+  {
+    "problem": "A store had 50 shirts. They sold 18 on Monday and 12 on Tuesday. How many shirts are left?",
+    "answer": 20,
+    "primary_type": "arithmetic_chain",
+    "secondary_type": null,
+    "operations": ["subtract", "subtract"],
+    "entity_count": 1,
+    "constraint_count": 0
+  },
+  {
+    "problem": "If a pipe fills a tank in 4 hours, and another pipe fills it in 6 hours, how long to fill together?",
+    "answer": 2.4,
+    "primary_type": "rate_ratio",
+    "secondary_type": null,
+    "operations": ["rate_combine"],
+    "entity_count": 2,
+    "constraint_count": 1
+  },
+  {
+    "problem": "John can mow a lawn in 2 hours. His son can mow it in 3 hours. Working together, how long will it take?",
+    "answer": 1.2,
+    "primary_type": "rate_ratio",
+    "secondary_type": null,
+    "operations": ["rate_combine"],
+    "entity_count": 2,
+    "constraint_count": 1
+  }
+]

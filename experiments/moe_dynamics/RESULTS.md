@@ -1020,3 +1020,135 @@ python experiments/moe_dynamics/build_gpt_oss_120b_lite.py --mode aggressive
 # Full analysis suite
 python experiments/moe_dynamics/analyze_120b.py --full
 ```
+
+---
+
+## Virtual Expert Strategy (Capability-Aware Pruning)
+
+**Date**: 2026-01-19
+
+### The Insight
+
+Frequency-based pruning (remove cold experts) achieved 71% compression but:
+- Perplexity +109% (30.66 vs 14.63)
+- Kept computation experts (which do math via lookup tables)
+- Lost fluency experts (core LLM strength)
+
+**The flip**: Prune by externalizability, not frequency.
+- **Remove**: Experts handling tasks better done by tools (math, datetime, code execution)
+- **Keep**: Experts handling core LLM tasks (fluency, style, reasoning)
+- **Route**: External queries to "virtual experts" (actual tools)
+
+### Expert Capability Probing
+
+Probed 4,608 experts across task categories:
+
+| Category | Type | Tool Replacement | Experts |
+|----------|------|------------------|---------|
+| Arithmetic | Externalizable | Calculator | ~500 |
+| Symbolic Math | Externalizable | SymPy | ~300 |
+| DateTime | Externalizable | System clock | ~300 |
+| Current Data | Externalizable | Web APIs | ~300 |
+| Code Execution | Externalizable | Interpreter | ~400 |
+| Unit Conversion | Externalizable | Pint | ~250 |
+| Language Fluency | Core LLM | - | ~800 |
+| Style/Tone | Core LLM | - | ~400 |
+| Reasoning | Core LLM | - | ~300 |
+| World Knowledge | Core LLM | - | ~400 |
+
+**Result**: 1,323 externalizable experts, 1,657 fluency experts
+
+### Virtual Experts Implemented
+
+```python
+# Calculator
+Input:  "127 * 89 = "
+Output: "11303"  # 100% accurate, not lookup
+
+# DateTime
+Input:  "What day is today?"
+Output: "Monday, January 19, 2026"  # Always correct
+
+# Interpreter
+Input:  "Run this: sorted([3,1,4,1,5,9])"
+Output: "[1, 1, 3, 4, 5, 9]"  # Actual execution
+
+# Unit Converter
+Input:  "Convert 100 meters to feet"
+Output: "100.0 meter = 328.08 feet"  # Exact
+```
+
+### GPT-OSS-120B-VE (Virtual Expert) Build
+
+```
+Filtering Criteria:
+  Remove if: externalizable_score > 0.6 AND fluency_score < 0.4
+  Keep if:   fluency_score >= 0.4 OR externalizable_score <= 0.6
+
+Results:
+  Total experts:     4,608
+  Experts removed:   2,414 (52.4%)
+  Experts kept:      2,194 (47.6%)
+  Parameters:        20B → 10.7B (46.9% reduction)
+
+Layer Distribution:
+  L0:  82 kept (64.1%)  - Early, fluency-critical
+  L12: 57 kept (44.5%)  - Mixed
+  L16: 8 kept (6.2%)    - Heavy computation layer
+  L35: 4 kept (3.1%)    - Output layer, mostly externalizable
+```
+
+### Quality Evaluation
+
+| Metric | Original | Frequency Pruning | Capability Pruning |
+|--------|----------|-------------------|---------------------|
+| **Perplexity** | 14.63 | 30.66 (+109%) | **26.47 (+81%)** |
+| Experts | 4,608 | 1,344 (29%) | 2,194 (48%) |
+| Compression | 0% | 71% | 52.4% |
+| Speed | 5.1 tok/s | 77.8 tok/s | 47.1 tok/s |
+
+**Finding**: Capability-aware pruning shows **14% better perplexity** than frequency pruning (26.47 vs 30.66), but still degrades from original.
+
+### Observed Issues
+
+1. **Coherence degradation**: Math queries produce repetitive outputs ("0.0.0...")
+2. **Not enough fluency preservation**: Still ~80% perplexity increase
+3. **Expert polysemanticity**: Experts aren't cleanly specialized - an "arithmetic" expert may also be critical for general fluency
+
+### Root Cause Analysis
+
+The core assumption that experts specialize cleanly into "externalizable" vs "fluency" is **not fully valid**:
+
+- MoE experts are **polysemantic** - they activate for multiple unrelated tasks
+- An expert that fires for "127 * 89" may ALSO be essential for "The capital of..."
+- Removing based on one task category damages others
+
+### Refinement Needed
+
+| Approach | Issue | Fix |
+|----------|-------|-----|
+| Single-task probing | Misses polysemantic activation | Multi-task activation profiling |
+| Binary remove/keep | Too coarse | Weighted importance scores |
+| Task-based detection | Over-triggers | More conservative routing |
+
+### Conclusion
+
+The **concept is sound** (externalize what LLMs do poorly, keep what they do well), but the **implementation needs refinement**:
+
+1. **Better expert profiling**: Measure activation across ALL task types, not just externalizable
+2. **Preserve if multi-purpose**: Don't remove experts that activate for BOTH math AND fluency
+3. **Virtual expert routing**: Use virtual experts even with FULL model to get accurate math/time
+4. **Hybrid approach**: Light frequency pruning + aggressive virtual routing (not capability pruning)
+
+**Recommended Path Forward**:
+```
+Original Model (4,608 experts)
+      ↓
+Conservative Frequency Pruning (3,000 experts, ~35% reduction)
+      ↓
+Virtual Expert Router (intercepts math/time/API queries)
+      ↓
+Expected: PPL ~17-20, Math 100%, Speed ~3x
+```
+
+This preserves fluency while still getting exact answers for externalizable tasks.
