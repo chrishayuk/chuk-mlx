@@ -18,6 +18,7 @@ dependencies = [
     "aiofiles>=23.0.0",
     "matplotlib>=3.10.8",
     "wasmtime>=19.0.0",
+    "chuk-virtual-expert>=2.0.0",
 ]
 
 [project.optional-dependencies]

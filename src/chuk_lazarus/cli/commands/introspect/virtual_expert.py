@@ -71,6 +71,7 @@ async def introspect_virtual_expert(args: Namespace) -> None:
         expert=getattr(args, "expert", None),
         prompt=getattr(args, "prompt", None),
         verbose=getattr(args, "verbose", False),
+        use_few_shot_rewriter=getattr(args, "use_few_shot_rewriter", False),
     )
 
     # Handle special config requirements per action

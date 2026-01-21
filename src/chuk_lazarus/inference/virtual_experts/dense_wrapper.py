@@ -186,6 +186,10 @@ class VirtualDenseWrapper:
         self._calibrated = False
         self._use_cot_calibration = False  # Set True when calibrated with action JSONs
 
+        # Populate rewriter with expert examples if provided
+        if self.cot_rewriter:
+            self._populate_rewriter_examples()
+
     def _detect_structure(self):
         """Detect model backbone structure and hidden size."""
         if hasattr(self.model, "model") and hasattr(self.model.model, "layers"):
@@ -230,9 +234,37 @@ class VirtualDenseWrapper:
 
         When set, queries are rewritten to VirtualExpertAction JSON
         before routing, and calibration uses action JSONs.
+
+        Automatically populates the rewriter with examples from registered experts.
         """
         self.cot_rewriter = rewriter
         self._calibrated = False  # Need to recalibrate with CoT
+
+        # Populate rewriter with expert examples
+        self._populate_rewriter_examples()
+
+    def _populate_rewriter_examples(self) -> None:
+        """Populate the CoT rewriter with examples from registered experts."""
+        if not self.cot_rewriter:
+            return
+
+        # Check if rewriter supports set_expert_info (FewShotCoTRewriter does)
+        if not hasattr(self.cot_rewriter, 'set_expert_info'):
+            return
+
+        for plugin in self.registry.get_all():
+            # Get CoT examples from the expert
+            if hasattr(plugin, 'get_cot_examples'):
+                cot_examples = plugin.get_cot_examples()
+                examples = [
+                    {"query": ex.query, "action": ex.action.model_dump()}
+                    for ex in cot_examples.examples
+                ]
+                self.cot_rewriter.set_expert_info(
+                    expert_name=plugin.name,
+                    description=plugin.description,
+                    examples=examples,
+                )
 
     def _get_hidden_state(self, prompt: str) -> mx.array:
         """Get hidden state at target layer for last position."""
@@ -353,35 +385,46 @@ class VirtualDenseWrapper:
         # CoT rewrite if rewriter is available
         action: VirtualExpertAction | None = None
         routing_input = prompt
+        skip_expert_routing = False
 
         if self.cot_rewriter:
             expert_names = [p.name for p in self.registry.get_all()]
             action = self.cot_rewriter.rewrite(prompt, expert_names)
-            routing_input = action.to_json()  # Route on action JSON
 
-        # Get hidden state for routing decision
-        hidden = self._get_hidden_state(routing_input)
+            # If CoT rewriter says "none", skip expert routing entirely
+            if action.expert == "none":
+                skip_expert_routing = True
+            else:
+                # Handle both Pydantic (model_dump_json) and dataclass (to_json)
+                if hasattr(action, 'model_dump_json'):
+                    routing_input = action.model_dump_json()
+                else:
+                    routing_input = action.to_json()
 
-        # Find best matching plugin
+        # Find best matching plugin (skip if CoT said "none")
         plugins = self.registry.get_all()
         best_plugin: VirtualExpertPlugin | None = None
         best_score = 0.0
         best_idx = -1
 
-        for plugin_idx, plugin in enumerate(plugins):
-            score = self.router.get_routing_score(hidden[None, None, :], plugin_idx)
-            if score > self.routing_threshold and score > best_score:
-                # With CoT: check if action targets this expert
-                # Without CoT: use legacy can_handle
-                if action:
-                    if action.expert == plugin.name:
+        if not skip_expert_routing:
+            # Get hidden state for routing decision
+            hidden = self._get_hidden_state(routing_input)
+
+            for plugin_idx, plugin in enumerate(plugins):
+                score = self.router.get_routing_score(hidden[None, None, :], plugin_idx)
+                if score > self.routing_threshold and score > best_score:
+                    # With CoT: check if action targets this expert
+                    # Without CoT: use legacy can_handle
+                    if action:
+                        if action.expert == plugin.name:
+                            best_plugin = plugin
+                            best_score = score
+                            best_idx = plugin_idx
+                    elif plugin.can_handle(prompt):
                         best_plugin = plugin
                         best_score = score
                         best_idx = plugin_idx
-                elif plugin.can_handle(prompt):
-                    best_plugin = plugin
-                    best_score = score
-                    best_idx = plugin_idx
 
         # Check if we should use plugin
         correct_answer = None
@@ -390,17 +433,44 @@ class VirtualDenseWrapper:
 
         if best_plugin and best_score > self.routing_threshold:
             # Execute with action or prompt
-            if action and hasattr(best_plugin, "execute_action"):
-                # New interface: pass structured action
-                result = best_plugin.execute_action(action)
+            if action:
+                # New interface: pass structured action to execute()
+                # MathExpert.execute() handles VirtualExpertAction objects
+                from chuk_virtual_expert import VirtualExpertAction as VEAction
+                ve_action = VEAction(
+                    expert=action.expert,
+                    operation=action.operation,
+                    parameters=action.parameters,
+                    confidence=action.confidence,
+                    reasoning=action.reasoning,
+                )
+                result = best_plugin.execute(ve_action)
             else:
                 # Legacy interface: pass raw prompt
                 result = best_plugin.execute(prompt)
 
-            if result:
+            # Check if result is successful
+            result_success = True
+            if hasattr(result, 'success'):
+                result_success = result.success
+
+            if result and result_success:
+                # Extract answer from result
+                if isinstance(result, str):
+                    answer = result
+                elif hasattr(result, 'data') and result.data:
+                    # VirtualExpertResult from chuk_virtual_expert
+                    data = result.data
+                    if isinstance(data, dict):
+                        answer = str(data.get('formatted', data.get('result', data)))
+                    else:
+                        answer = str(data)
+                else:
+                    answer = str(result)
+
                 return VirtualExpertResult(
                     prompt=prompt,
-                    answer=result if isinstance(result, str) else str(result),
+                    answer=answer,
                     correct_answer=correct_answer,
                     approach=VirtualExpertApproach.VIRTUAL_EXPERT,
                     used_virtual_expert=True,

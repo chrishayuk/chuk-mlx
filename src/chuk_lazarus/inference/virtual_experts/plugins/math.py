@@ -11,11 +11,12 @@ import ast
 import math
 import operator
 import re
+from typing import Any, ClassVar
 
-from ..base import VirtualExpertPlugin
+from chuk_virtual_expert import VirtualExpert
 
 
-class MathExpertPlugin(VirtualExpertPlugin):
+class MathExpert(VirtualExpert):
     """
     Virtual expert for mathematical computation.
 
@@ -28,18 +29,23 @@ class MathExpertPlugin(VirtualExpertPlugin):
     - Constants: pi, e, inf
 
     Example:
-        >>> plugin = MathExpertPlugin()
-        >>> plugin.execute("127 * 89 = ")
-        '11303'
-        >>> plugin.execute("sqrt(144)")
-        '12.0'
+        >>> expert = MathExpert()
+        >>> action = VirtualExpertAction(expert="math", operation="evaluate", parameters={"expression": "127 * 89"})
+        >>> result = expert.execute(action)
+        >>> print(result.data)  # {"result": 11303, "expression": "127 * 89"}
     """
 
-    name = "math"
-    description = "Computes arithmetic expressions using Python"
-    priority = 10
+    name: ClassVar[str] = "math"
+    description: ClassVar[str] = "Computes arithmetic expressions using Python"
+    version: ClassVar[str] = "2.0.0"
+    priority: ClassVar[int] = 10
 
-    OPERATORS = {
+    # Config file paths (relative to this module)
+    cot_examples_file: ClassVar[str] = "math_cot_examples.json"
+    schema_file: ClassVar[str] = "math_schema.json"
+    calibration_file: ClassVar[str] = "math_calibration.json"
+
+    OPERATORS: ClassVar[dict] = {
         ast.Add: operator.add,
         ast.Sub: operator.sub,
         ast.Mult: operator.mul,
@@ -51,7 +57,7 @@ class MathExpertPlugin(VirtualExpertPlugin):
         ast.UAdd: operator.pos,
     }
 
-    FUNCTIONS = {
+    FUNCTIONS: ClassVar[dict] = {
         "abs": abs,
         "round": round,
         "min": min,
@@ -69,11 +75,51 @@ class MathExpertPlugin(VirtualExpertPlugin):
         "ceil": math.ceil,
     }
 
-    CONSTANTS = {
+    CONSTANTS: ClassVar[dict] = {
         "pi": math.pi,
         "e": math.e,
         "inf": float("inf"),
     }
+
+    def get_operations(self) -> list[str]:
+        """Return available operation names."""
+        return ["evaluate", "extract_and_evaluate"]
+
+    def execute_operation(
+        self,
+        operation: str,
+        parameters: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Execute a math operation."""
+        if operation == "evaluate":
+            expression = parameters.get("expression", "")
+            result = self._evaluate(expression)
+            if result is not None:
+                # Format as integer if whole number
+                if isinstance(result, float) and result == int(result):
+                    result = int(result)
+                return {
+                    "result": result,
+                    "expression": expression,
+                    "formatted": str(result),
+                }
+            raise ValueError(f"Could not evaluate expression: {expression}")
+
+        elif operation == "extract_and_evaluate":
+            text = parameters.get("text", "")
+            expr, result = self.extract_and_evaluate(text)
+            if result is not None:
+                if isinstance(result, float) and result == int(result):
+                    result = int(result)
+                return {
+                    "result": result,
+                    "expression": expr,
+                    "formatted": str(result),
+                }
+            raise ValueError(f"Could not extract/evaluate from: {text}")
+
+        else:
+            raise ValueError(f"Unknown operation: {operation}")
 
     def can_handle(self, prompt: str) -> bool:
         """Check if prompt contains a computable math expression."""
@@ -81,8 +127,16 @@ class MathExpertPlugin(VirtualExpertPlugin):
         pattern = r"\d+\s*[+\-*/]\s*\d+\s*=?\s*$"
         return bool(re.search(pattern, prompt.strip()))
 
-    def execute(self, prompt: str) -> str | None:
-        """Evaluate the math expression."""
+    def execute(self, prompt_or_action) -> Any:
+        """Execute - supports both old string API and new action API."""
+        from chuk_virtual_expert import VirtualExpertAction, VirtualExpertResult
+
+        # Handle new VirtualExpertAction interface
+        if isinstance(prompt_or_action, VirtualExpertAction):
+            return super().execute(prompt_or_action)
+
+        # Handle legacy string interface (for backwards compat)
+        prompt = str(prompt_or_action)
         result = self._evaluate(prompt)
         if result is not None:
             # Format as integer if whole number
@@ -90,30 +144,6 @@ class MathExpertPlugin(VirtualExpertPlugin):
                 return str(int(result))
             return str(result)
         return None
-
-    def get_calibration_prompts(self) -> tuple[list[str], list[str]]:
-        """Return math vs non-math prompts for calibration."""
-        positive = [
-            "127 * 89 = ",
-            "456 + 789 = ",
-            "1000 - 250 = ",
-            "What is 99 * 99?",
-            "Calculate 144 / 12",
-            "25 * 25 = ",
-            "100 + 200 = ",
-            "50 - 17 = ",
-        ]
-        negative = [
-            "The capital of France is",
-            "Hello, how are you today?",
-            "Once upon a time in a land",
-            "The quick brown fox jumps",
-            "In the beginning, there was",
-            "My favorite color is",
-            "The weather today is",
-            "I think that we should",
-        ]
-        return positive, negative
 
     def _evaluate(self, expr: str) -> float | int | None:
         """Safely evaluate a mathematical expression."""
@@ -209,5 +239,6 @@ class MathExpertPlugin(VirtualExpertPlugin):
         return text if result is not None else None, result
 
 
-# Backwards compatibility alias
-SafeMathEvaluator = MathExpertPlugin
+# Backwards compatibility aliases
+MathExpertPlugin = MathExpert
+SafeMathEvaluator = MathExpert

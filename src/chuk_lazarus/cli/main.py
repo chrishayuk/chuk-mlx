@@ -3000,6 +3000,11 @@ Examples:
 For MoE models (like GPT-OSS), intercepts actual router decisions.
 For dense models (like LLaMA), creates virtual routing in activation space.
 
+CoT Rewriting:
+  By default, assumes the model is CoT-trained and can generate VirtualExpertAction
+  format directly. For non-CoT-trained models, use --use-few-shot-rewriter to enable
+  FewShotCoTRewriter which uses in-context learning to normalize queries to action format.
+
 Actions:
   analyze   - Analyze which experts activate for different prompt categories (MoE only)
   solve     - Solve a single problem with virtual expert
@@ -3008,14 +3013,15 @@ Actions:
   interactive - Interactive REPL mode
 
 Examples:
-    # Analyze expert routing (MoE models)
-    lazarus introspect virtual-expert analyze -m openai/gpt-oss-20b
+    # Solve with CoT-trained model (no rewriter needed)
+    lazarus introspect virtual-expert solve -m my-cot-model -p "127 * 89 = "
 
-    # Solve with virtual expert
-    lazarus introspect virtual-expert solve -m model -p "127 * 89 = "
+    # Solve with non-CoT-trained model (use few-shot rewriter)
+    lazarus introspect virtual-expert solve -m mlx-community/SmolLM-135M-fp16 \\
+        -p "What is 256 times 4?" --use-few-shot-rewriter
 
-    # Run benchmark
-    lazarus introspect virtual-expert benchmark -m model
+    # Run benchmark with few-shot rewriter
+    lazarus introspect virtual-expert benchmark -m model --use-few-shot-rewriter
 
     # Compare approaches
     lazarus introspect virtual-expert compare -m model -p "127 * 89 = "
@@ -3057,6 +3063,12 @@ Examples:
         "-v",
         action="store_true",
         help="Show detailed routing decisions (layer-by-layer trace)",
+    )
+    virtual_expert_parser.add_argument(
+        "--use-few-shot-rewriter",
+        action="store_true",
+        dest="use_few_shot_rewriter",
+        help="Use FewShotCoTRewriter to normalize queries (for non-CoT-trained models)",
     )
     virtual_expert_parser.set_defaults(
         func=lambda args: asyncio.run(introspect_virtual_expert(args))

@@ -1,0 +1,358 @@
+{
+  "expert_name": "math_word_problem",
+  "description": "CoT training examples mapping GSM-8K style word problems to VirtualExpertActions with verifiable traces",
+  "schema_notes": {
+    "operations": {
+      "add": {"type": "add", "target": "<entity>", "amount": "<NUMBER>"},
+      "subtract": {"type": "subtract", "target": "<entity>", "amount": "<NUMBER>"},
+      "multiply": {"type": "multiply", "target": "<entity>", "factor": "<NUMBER>"},
+      "divide": {"type": "divide", "target": "<entity>", "factor": "<NUMBER>"},
+      "transfer": {"type": "transfer", "source": "<entity>", "target": "<entity>", "amount": "<NUMBER>"}
+    },
+    "key_rules": [
+      "amount and factor must be NUMBERS, not entity names",
+      "Use amount for add/subtract, factor for multiply/divide",
+      "Chain operations on a SINGLE entity",
+      "Query target should match the entity you want the final value of"
+    ]
+  },
+  "examples": [
+    {
+      "query": "Janet's ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "eggs", "initial_value": 16}],
+          "operations": [
+            {"type": "subtract", "target": "eggs", "amount": 3},
+            {"type": "subtract", "target": "eggs", "amount": 4},
+            {"type": "multiply", "target": "eggs", "factor": 2}
+          ],
+          "query": {"target": "eggs"}
+        },
+        "confidence": 0.95,
+        "reasoning": "16 eggs - 3 eaten - 4 baked = 9 remaining. 9 * $2 = $18"
+      }
+    },
+    {
+      "query": "A robe takes 2 bolts of blue fiber and half that much white fiber. How many bolts in total does it take?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "total", "initial_value": 2}],
+          "operations": [
+            {"type": "add", "target": "total", "amount": 1}
+          ],
+          "query": {"target": "total"}
+        },
+        "confidence": 0.95,
+        "reasoning": "2 blue + 1 white (half of 2) = 3 total bolts"
+      }
+    },
+    {
+      "query": "Josh decides to try flipping a house. He buys a house for $80,000 and then puts in $50,000 in repairs. This increased the value of the house by 150%. How much profit did he make?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "profit", "initial_value": 200000}],
+          "operations": [
+            {"type": "subtract", "target": "profit", "amount": 130000}
+          ],
+          "query": {"target": "profit"}
+        },
+        "confidence": 0.95,
+        "reasoning": "Cost: $80k + $50k = $130k. Value increased 150% from $80k: $80k * 2.5 = $200k. Profit: $200k - $130k = $70k"
+      }
+    },
+    {
+      "query": "James decides to run 3 sprints 3 times a week. He runs 60 meters each sprint. How many total meters does he run a week?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "meters", "initial_value": 3}],
+          "operations": [
+            {"type": "multiply", "target": "meters", "factor": 3},
+            {"type": "multiply", "target": "meters", "factor": 60}
+          ],
+          "query": {"target": "meters"}
+        },
+        "confidence": 0.95,
+        "reasoning": "3 sprints * 3 times/week = 9 sprints. 9 * 60 meters = 540 meters"
+      }
+    },
+    {
+      "query": "Every day, Wendi feeds each of her chickens three cups of mixed chicken feed, containing seeds, mealworms and vegetables to help keep them healthy. She gives the chickens their feed in three separate meals. In the morning, she gives her flock of chickens 15 cups of feed. In the afternoon, she gives her chickens another 25 cups of feed. How many cups of feed does she need to give her chickens in the final meal of the day if the size of Wendi's flock is 20 chickens?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "remaining", "initial_value": 60}],
+          "operations": [
+            {"type": "subtract", "target": "remaining", "amount": 15},
+            {"type": "subtract", "target": "remaining", "amount": 25}
+          ],
+          "query": {"target": "remaining"}
+        },
+        "confidence": 0.95,
+        "reasoning": "Total needed: 20 chickens * 3 cups = 60 cups. 60 - 15 morning - 25 afternoon = 20 cups for final meal"
+      }
+    },
+    {
+      "query": "Jenny has 5 apples. She gives 2 to Bob. How many does Jenny have?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "entity_tracking",
+          "entities": [
+            {"name": "jenny", "initial_value": 5},
+            {"name": "bob", "initial_value": 0}
+          ],
+          "operations": [
+            {"type": "transfer", "source": "jenny", "target": "bob", "amount": 2}
+          ],
+          "query": {"target": "jenny"}
+        },
+        "confidence": 0.95,
+        "reasoning": "Jenny starts with 5, transfers 2 to Bob, has 3 left"
+      }
+    },
+    {
+      "query": "Sam had 10 marbles. He lost 3, then found 5. How many does he have now?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "marbles", "initial_value": 10}],
+          "operations": [
+            {"type": "subtract", "target": "marbles", "amount": 3},
+            {"type": "add", "target": "marbles", "amount": 5}
+          ],
+          "query": {"target": "marbles"}
+        },
+        "confidence": 0.95,
+        "reasoning": "10 - 3 = 7, then 7 + 5 = 12 marbles"
+      }
+    },
+    {
+      "query": "There are 6 bags with 4 oranges in each bag. How many oranges are there in total?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "oranges", "initial_value": 6}],
+          "operations": [
+            {"type": "multiply", "target": "oranges", "factor": 4}
+          ],
+          "query": {"target": "oranges"}
+        },
+        "confidence": 0.95,
+        "reasoning": "6 bags * 4 oranges = 24 oranges total"
+      }
+    },
+    {
+      "query": "Tom has 15 marbles. Jane has 5 marbles. How many more marbles does Tom have than Jane?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "comparison",
+          "entities": [
+            {"name": "tom", "initial_value": 15},
+            {"name": "jane", "initial_value": 5}
+          ],
+          "operations": [],
+          "query": {"target": "difference", "question": "compare", "compare_a": "tom", "compare_b": "jane"}
+        },
+        "confidence": 0.95,
+        "reasoning": "Comparison: Tom (15) - Jane (5) = 10 more marbles"
+      }
+    },
+    {
+      "query": "Split $100 between Alice and Bob. Alice gets twice what Bob gets. How much does Alice get?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "allocation",
+          "entities": [
+            {"name": "alice"},
+            {"name": "bob"}
+          ],
+          "constraints": [
+            {"type": "sum", "entities": ["alice", "bob"], "value": 100},
+            {"type": "ratio", "entities": ["alice", "bob"], "factor": 2}
+          ],
+          "query": {"target": "alice"}
+        },
+        "confidence": 0.95,
+        "reasoning": "If Bob = x, Alice = 2x. x + 2x = 100, so x = 33.33. Alice = 66.67"
+      }
+    },
+    {
+      "query": "A shirt costs $40. It's 25% off. What's the sale price?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "price", "initial_value": 40}],
+          "operations": [
+            {"type": "multiply", "target": "price", "factor": 0.75}
+          ],
+          "query": {"target": "price"}
+        },
+        "confidence": 0.95,
+        "reasoning": "25% off means 75% of original: $40 * 0.75 = $30"
+      }
+    },
+    {
+      "query": "12 cookies are shared equally among 4 kids. How many does each kid get?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "cookies_per_kid", "initial_value": 12}],
+          "operations": [
+            {"type": "divide", "target": "cookies_per_kid", "factor": 4}
+          ],
+          "query": {"target": "cookies_per_kid"}
+        },
+        "confidence": 0.95,
+        "reasoning": "12 cookies ÷ 4 kids = 3 cookies each"
+      }
+    },
+    {
+      "query": "Kylar went to the store to buy glasses for his new apartment. One glass costs $5, but every second glass costs only 60% of the price. Kylar wants to buy 16 glasses. How much does he need to pay for them?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "cost", "initial_value": 8}],
+          "operations": [
+            {"type": "multiply", "target": "cost", "factor": 8}
+          ],
+          "query": {"target": "cost"}
+        },
+        "confidence": 0.95,
+        "reasoning": "8 full price ($5) + 8 discounted ($3 = 60% of $5). 8*5 + 8*3 = 40 + 24 = 64. Simplified: each pair costs $8, 8 pairs = $64"
+      }
+    },
+    {
+      "query": "Toulouse has twice as many sheep as Charleston. Charleston has 4 times as many sheep as Seattle. If Seattle has 20 sheep, how many sheep do Toulouse, Charleston, and Seattle have together?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "total", "initial_value": 20}],
+          "operations": [
+            {"type": "add", "target": "total", "amount": 80},
+            {"type": "add", "target": "total", "amount": 160}
+          ],
+          "query": {"target": "total"}
+        },
+        "confidence": 0.95,
+        "reasoning": "Seattle=20, Charleston=4*20=80, Toulouse=2*80=160. Total=20+80+160=260"
+      }
+    },
+    {
+      "query": "Carla is downloading a 200 GB file. Normally she can download 2 GB/minute, but 40% of the way through the download, Windows forces a restart to install updates, which takes 20 minutes. Then Carla has to restart the download from the beginning. How load does it take to download the file?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "minutes", "initial_value": 40}],
+          "operations": [
+            {"type": "add", "target": "minutes", "amount": 20},
+            {"type": "add", "target": "minutes", "amount": 100}
+          ],
+          "query": {"target": "minutes"}
+        },
+        "confidence": 0.95,
+        "reasoning": "First 40% = 80GB = 40min. Restart = 20min. Full download = 100min. Total = 40+20+100 = 160 minutes"
+      }
+    },
+    {
+      "query": "John runs 60 miles a week. He runs 3 days a week. He runs 3 hours the first day and half as much the other two days he runs. How fast does he run?",
+      "action": {
+        "expert": "math_word_problem",
+        "operation": "solve",
+        "parameters": {
+          "problem_type": "arithmetic_chain",
+          "entities": [{"name": "speed", "initial_value": 60}],
+          "operations": [
+            {"type": "divide", "target": "speed", "factor": 6}
+          ],
+          "query": {"target": "speed"}
+        },
+        "confidence": 0.95,
+        "reasoning": "Total hours: 3 + 1.5 + 1.5 = 6 hours. Speed = 60 miles / 6 hours = 10 mph"
+      }
+    },
+    {
+      "query": "What is the capital of France?",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Not a math word problem - geography question"
+      }
+    },
+    {
+      "query": "Tell me a joke about math",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Request for humor, not a math problem to solve"
+      }
+    },
+    {
+      "query": "Explain how compound interest works",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Explanation request, not a specific calculation"
+      }
+    },
+    {
+      "query": "What is 2 + 2?",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Simple arithmetic expression, not a word problem"
+      }
+    },
+    {
+      "query": "Write a story about a mathematician",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Creative writing request, not a math problem"
+      }
+    }
+  ]
+}

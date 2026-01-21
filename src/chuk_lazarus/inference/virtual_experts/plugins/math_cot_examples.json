@@ -1,0 +1,166 @@
+{
+  "expert_name": "math",
+  "description": "CoT training examples mapping queries to VirtualExpertActions for math computation",
+  "examples": [
+    {
+      "query": "What is 15 times 8?",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "15 * 8"},
+        "confidence": 1.0,
+        "reasoning": "Multiplication in natural language, convert 'times' to '*'"
+      }
+    },
+    {
+      "query": "What is 256 times 4?",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "256 * 4"},
+        "confidence": 1.0,
+        "reasoning": "Natural language multiplication, convert to expression"
+      }
+    },
+    {
+      "query": "Compute 72 divided by 9",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "72 / 9"},
+        "confidence": 1.0,
+        "reasoning": "Division in natural language, convert 'divided by' to '/'"
+      }
+    },
+    {
+      "query": "Calculate 144 / 12",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "144 / 12"},
+        "confidence": 1.0,
+        "reasoning": "Division calculation requested"
+      }
+    },
+    {
+      "query": "What is 99 * 99?",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "99 * 99"},
+        "confidence": 1.0,
+        "reasoning": "User asking for multiplication result"
+      }
+    },
+    {
+      "query": "127 * 89 = ",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "127 * 89"},
+        "confidence": 1.0,
+        "reasoning": "Multiplication problem, compute 127 times 89"
+      }
+    },
+    {
+      "query": "456 + 789 = ",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "456 + 789"},
+        "confidence": 1.0,
+        "reasoning": "Addition problem"
+      }
+    },
+    {
+      "query": "1000 - 250 = ",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "1000 - 250"},
+        "confidence": 1.0,
+        "reasoning": "Subtraction problem"
+      }
+    },
+    {
+      "query": "25 * 25 = ",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "25 * 25"},
+        "confidence": 1.0,
+        "reasoning": "Square of 25"
+      }
+    },
+    {
+      "query": "100 + 200 = ",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "100 + 200"},
+        "confidence": 1.0,
+        "reasoning": "Simple addition"
+      }
+    },
+    {
+      "query": "50 - 17 = ",
+      "action": {
+        "expert": "math",
+        "operation": "evaluate",
+        "parameters": {"expression": "50 - 17"},
+        "confidence": 1.0,
+        "reasoning": "Subtraction problem"
+      }
+    },
+    {
+      "query": "The capital of France is",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Geography question, not math"
+      }
+    },
+    {
+      "query": "Hello, how are you today?",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Greeting, not math"
+      }
+    },
+    {
+      "query": "Once upon a time in a land",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Story beginning, not math"
+      }
+    },
+    {
+      "query": "What time is it?",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Time query, not math (different expert)"
+      }
+    },
+    {
+      "query": "Tell me a joke",
+      "action": {
+        "expert": "none",
+        "operation": "passthrough",
+        "parameters": {},
+        "confidence": 1.0,
+        "reasoning": "Entertainment request, not math"
+      }
+    }
+  ]
+}

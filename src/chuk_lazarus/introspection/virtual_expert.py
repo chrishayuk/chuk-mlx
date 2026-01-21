@@ -39,6 +39,7 @@ from chuk_lazarus.inference.virtual_expert import (
     RoutingDecision,
     RoutingTrace,
     SafeMathEvaluator,
+    VirtualDenseWrapper,
     VirtualExpertAnalysis,
     VirtualExpertApproach,
     VirtualExpertPlugin,
@@ -49,6 +50,7 @@ from chuk_lazarus.inference.virtual_expert import (
     create_virtual_expert_wrapper,
     get_default_registry,
 )
+from chuk_lazarus.inference.virtual_experts.cot_rewriter import FewShotCoTRewriter
 
 
 class VirtualExpertAction(str, Enum):
@@ -201,6 +203,10 @@ class VirtualExpertConfig(BaseModel):
     expert: int | None = Field(default=None, description="Target expert")
     prompt: str | None = Field(default=None, description="Prompt for solve/compare")
     verbose: bool = Field(default=False, description="Show detailed routing trace")
+    use_few_shot_rewriter: bool = Field(
+        default=False,
+        description="Use FewShotCoTRewriter for query normalization (for non-CoT-trained models)"
+    )
     test_categories: dict[str, list[str]] | None = Field(
         default=None, description="Test categories for analyze"
     )
@@ -257,6 +263,51 @@ class VirtualExpertService:
     """Service for virtual expert operations."""
 
     @classmethod
+    def _create_wrapper(cls, model, tokenizer, model_id: str, use_few_shot_rewriter: bool = False):
+        """Create the appropriate wrapper based on model type.
+
+        Auto-detects MoE vs Dense models and creates the right wrapper.
+
+        Args:
+            model: The loaded model
+            tokenizer: The tokenizer
+            model_id: Model identifier
+            use_few_shot_rewriter: If True, use FewShotCoTRewriter for query normalization.
+                                   Use this for models that are NOT CoT-trained.
+                                   Default is False (assumes CoT-trained model).
+        """
+        # Check if model has MoE layers
+        has_moe = False
+        if hasattr(model, "model") and hasattr(model.model, "layers"):
+            layers = model.model.layers
+        elif hasattr(model, "layers"):
+            layers = model.layers
+        else:
+            layers = []
+
+        for layer in layers:
+            if hasattr(layer, "mlp") and hasattr(layer.mlp, "router"):
+                has_moe = True
+                break
+
+        if has_moe:
+            # Use MoE wrapper for MoE models
+            return VirtualMoEWrapper(model, tokenizer, model_id)
+        else:
+            # Use Dense wrapper for dense models
+            rewriter = None
+            if use_few_shot_rewriter:
+                # Use FewShotCoTRewriter to normalize queries to VirtualExpertAction format
+                # This is needed for models that are NOT trained on CoT action format
+                rewriter = FewShotCoTRewriter(model, tokenizer, max_examples_per_expert=5)
+
+            wrapper = VirtualDenseWrapper(
+                model, tokenizer, model_id,
+                cot_rewriter=rewriter,
+            )
+            return wrapper
+
+    @classmethod
     async def analyze(cls, config: VirtualExpertConfig) -> VirtualExpertServiceResult:
         """Analyze virtual expert behavior across test categories.
 
@@ -273,8 +324,8 @@ class VirtualExpertService:
         model = load_result.model
         tokenizer = load_result.tokenizer
 
-        # Wrap with virtual expert system
-        wrapper = VirtualMoEWrapper(model, tokenizer, config.model)
+        # Auto-detect MoE vs Dense and use appropriate wrapper
+        wrapper = cls._create_wrapper(model, tokenizer, config.model, config.use_few_shot_rewriter)
 
         # Default test categories if not provided
         test_categories = config.test_categories or {
@@ -335,8 +386,8 @@ class VirtualExpertService:
         model = load_result.model
         tokenizer = load_result.tokenizer
 
-        # Wrap with virtual expert system
-        wrapper = VirtualMoEWrapper(model, tokenizer, config.model)
+        # Auto-detect MoE vs Dense model and use appropriate wrapper
+        wrapper = cls._create_wrapper(model, tokenizer, config.model, config.use_few_shot_rewriter)
 
         # Solve using virtual expert
         result = wrapper.solve(config.prompt, max_tokens=30)
@@ -372,8 +423,8 @@ class VirtualExpertService:
         model = load_result.model
         tokenizer = load_result.tokenizer
 
-        # Wrap with virtual expert system
-        wrapper = VirtualMoEWrapper(model, tokenizer, config.model)
+        # Auto-detect MoE vs Dense and use appropriate wrapper
+        wrapper = cls._create_wrapper(model, tokenizer, config.model, config.use_few_shot_rewriter)
 
         # Default benchmark problems if not provided
         problems = config.benchmark_problems or [

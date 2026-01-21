@@ -1,0 +1,36 @@
+{
+  "positive": [
+    "127 * 89 = ",
+    "456 + 789 = ",
+    "1000 - 250 = ",
+    "What is 99 * 99?",
+    "Calculate 144 / 12",
+    "25 * 25 = ",
+    "100 + 200 = ",
+    "50 - 17 = ",
+    "What is 15 times 8?",
+    "Compute 72 divided by 9",
+    "37 + 48 = ",
+    "256 / 16 = ",
+    "What's 12 * 12?",
+    "Add 500 and 300",
+    "Multiply 7 by 9"
+  ],
+  "negative": [
+    "The capital of France is",
+    "Hello, how are you today?",
+    "Once upon a time in a land",
+    "The quick brown fox jumps",
+    "In the beginning, there was",
+    "My favorite color is",
+    "The weather today is",
+    "I think that we should",
+    "What time is it?",
+    "Tell me a joke",
+    "Write a poem about nature",
+    "How do I cook pasta?",
+    "Explain quantum physics",
+    "What's the weather like?",
+    "Who was Albert Einstein?"
+  ]
+}

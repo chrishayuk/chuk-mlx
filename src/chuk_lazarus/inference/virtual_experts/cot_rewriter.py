@@ -13,79 +13,20 @@ Flow:
         ↓
     Calibration Router (trained on action JSONs)
         ↓
-    Expert.execute_action(action)
+    Expert.execute(action)
 """
 
 from __future__ import annotations
 
 import json
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
 from typing import Any, TYPE_CHECKING
+
+# Import VirtualExpertAction from chuk-virtual-expert
+from chuk_virtual_expert import VirtualExpertAction
 
 if TYPE_CHECKING:
     import mlx.core as mx
-
-
-@dataclass
-class VirtualExpertAction:
-    """
-    Normalized action format for virtual expert invocation.
-
-    CoT rewriting produces this format from any query phrasing.
-    The calibration router is trained on the JSON representation.
-    """
-
-    expert: str
-    """Name of the virtual expert to invoke, or 'none' for passthrough."""
-
-    operation: str
-    """Specific operation to perform."""
-
-    parameters: dict[str, Any] = field(default_factory=dict)
-    """Parameters for the operation."""
-
-    confidence: float = 1.0
-    """Model's confidence in this action (0-1)."""
-
-    reasoning: str = ""
-    """CoT reasoning that led to this action."""
-
-    def to_json(self) -> str:
-        """Convert to JSON string for routing."""
-        return json.dumps({
-            "expert": self.expert,
-            "operation": self.operation,
-            "parameters": self.parameters,
-            "confidence": self.confidence,
-            "reasoning": self.reasoning,
-        })
-
-    @classmethod
-    def from_json(cls, json_str: str) -> "VirtualExpertAction":
-        """Parse from JSON string."""
-        data = json.loads(json_str)
-        return cls(
-            expert=data.get("expert", "none"),
-            operation=data.get("operation", "passthrough"),
-            parameters=data.get("parameters", {}),
-            confidence=data.get("confidence", 1.0),
-            reasoning=data.get("reasoning", ""),
-        )
-
-    @classmethod
-    def none_action(cls, reasoning: str = "") -> "VirtualExpertAction":
-        """Create a passthrough action."""
-        return cls(
-            expert="none",
-            operation="passthrough",
-            confidence=1.0,
-            reasoning=reasoning,
-        )
-
-    def is_passthrough(self) -> bool:
-        """Check if this action should pass to base model."""
-        return self.expert == "none" or self.operation == "passthrough"
 
 
 class CoTRewriter(ABC):
@@ -182,16 +123,20 @@ Action:"""
             desc = self._expert_descriptions.get(name, f"Expert: {name}")
             descriptions.append(f"- **{name}**: {desc}")
 
-        # Few-shot examples
+        # Few-shot examples (positive - route to expert)
         examples = []
         for name in available_experts:
             expert_examples = self.expert_examples.get(name, [])
             for ex in expert_examples[:self.max_examples_per_expert]:
-                action_json = json.dumps(ex["action"])
-                examples.append(f'Query: "{ex["query"]}"\nAction: {action_json}')
+                # Only include positive examples (where expert matches)
+                if ex["action"].get("expert") == name:
+                    action_json = json.dumps(ex["action"])
+                    examples.append(f'Query: "{ex["query"]}"\nAction: {action_json}')
 
-        # Add negative examples (passthrough)
-        examples.append('Query: "Tell me a joke"\nAction: {"expert": "none", "operation": "passthrough", "parameters": {}, "confidence": 1.0, "reasoning": "Not related to any expert"}')
+        # Add negative examples (passthrough) - important but keep limited to avoid bias
+        # Include 2 hardcoded negative examples for robustness
+        examples.append('Query: "Tell me a joke"\nAction: {"expert": "none", "operation": "passthrough", "parameters": {}, "confidence": 1.0, "reasoning": "Entertainment request, not math or time"}')
+        examples.append('Query: "What is the capital of France?"\nAction: {"expert": "none", "operation": "passthrough", "parameters": {}, "confidence": 1.0, "reasoning": "Geography question, not math or time"}')
 
         return self.SYSTEM_PROMPT.format(
             expert_descriptions="\n".join(descriptions),
@@ -268,7 +213,14 @@ Action:"""
                         break
 
             json_str = response[start:end]
-            return VirtualExpertAction.from_json(json_str)
+            data = json.loads(json_str)
+            return VirtualExpertAction(
+                expert=data.get("expert", "none"),
+                operation=data.get("operation", "passthrough"),
+                parameters=data.get("parameters", {}),
+                confidence=data.get("confidence", 1.0),
+                reasoning=data.get("reasoning", ""),
+            )
         except (json.JSONDecodeError, KeyError) as e:
             return VirtualExpertAction.none_action(f"Parse error: {e}")
 
