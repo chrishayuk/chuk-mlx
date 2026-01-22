@@ -1,0 +1,43 @@
+# Extended CoT Training Configuration
+
+experiment:
+  name: cot_standardization_extended
+  description: Train YAML trace format for verifiable reasoning
+
+model:
+  name: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+training:
+  sft:
+    epochs: 3
+    learning_rate: 2e-5
+    batch_size: 4
+
+  rl:
+    iterations: 20
+    learning_rate: 5e-7
+    batch_size: 8
+    temperature: 0.7
+
+fine_tuning:
+  unfreeze_layers: 6
+  max_seq_len: 512
+
+data:
+  entity_track: 100
+  arithmetic: 40
+  rate_equation: 40
+  comparison: 40
+  percentage: 15
+  # Total: ~235 examples
+
+evaluation:
+  metrics:
+    - parse_rate
+    - expert_accuracy
+    - trace_validity
+    - answer_accuracy
+
+output:
+  results_dir: results
+  save_model: false
