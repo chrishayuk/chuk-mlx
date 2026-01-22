@@ -1,46 +1,89 @@
-# CoT Standardization Extended: YAML Trace Format
+# CoT Standardization Extended: Symbolic YAML Traces
 
-## Research Question
+## TL;DR
 
-**Can we extend the standardized CoT format to full YAML traces with verifiable reasoning steps?**
+**Model as router + structure extractor, not calculator.**
 
-Building on `cot_standardization` (100% accuracy with simple `expert: spec -> result`), this experiment tests a richer trace format that enables step-by-step verification.
+- Phase 1 (model computes results): plateaued at **8/55** (14.5%)
+- Phase 2 (symbolic traces, verifier computes): **55/55** (100%) in 1 epoch SFT + 5 RL iterations
+
+This validates the core thesis: LLMs should route and structure, external solvers should compute.
 
 ---
 
-## Format Comparison
+## Research Question
 
-### Simple Format (cot_standardization)
-```
-word_problem: eggs:16 | -3 -4 *2 -> 18
+**Can a 1B model learn to output verifiable symbolic traces that a solver can execute?**
+
+Building on `cot_standardization` (100% accuracy with simple `expert: spec -> result`), this experiment tests whether:
+1. A richer YAML trace format is learnable
+2. Splitting computation from structure enables reliable reasoning
+3. The approach scales across problem types
+
+---
+
+## Key Insight
+
+> "Transformers don't compute, they lookup."
+
+When asked to output computed results (e.g., `mul([65, 0.18]) = 11.7`), the model must perform neural arithmetic - an unreliable capability. When asked to output *structure* (e.g., `{op: mul, args: [price, rate], var: total}`), the model only needs pattern recognition and variable wiring.
+
+---
+
+## Format Evolution
+
+### Phase 1: Model Computes (Failed)
+
+```yaml
+expert: entity_track
+trace:
+  - {init: eggs, value: 16}
+  - {consume: {entity: eggs, amount: 3}}
+  - {state: {eggs: 13}}
+  - {compute: {op: mul, args: [13, 2], result: 26}}
+answer: 26
 ```
 
-### Extended Format (this experiment)
+Problem: Model must compute `13 * 2 = 26` and output literal numbers. Neural arithmetic fails.
+
+### Phase 2: Symbolic Traces (Success)
+
 ```yaml
 expert: entity_track
 trace:
   - {init: eggs, value: 16}
   - {consume: {entity: eggs, amount: 3}}
   - {consume: {entity: eggs, amount: 4}}
-  - {state: {eggs: 9}}
-  - {compute: {op: mul, args: [9, 2], result: 18}}
-answer: 18
+  - {compute: {op: mul, args: [eggs, 2], var: revenue}}
+  - {query: revenue}
 ```
+
+Model outputs variable references. Verifier executes trace: `eggs=16 -> 13 -> 9`, then `9*2=18`.
 
 ---
 
-## Why Extended Format?
+## Architecture
 
-| Feature | Simple | Extended |
-|---------|--------|----------|
-| Expert routing | ✓ | ✓ |
-| Final answer | ✓ | ✓ |
-| Step-by-step trace | ✗ | ✓ |
-| Verifiable reasoning | ✗ | ✓ |
-| Error localization | ✗ | ✓ |
-| Intermediate states | ✗ | ✓ |
+```
+Question -> Model -> Symbolic Trace -> Verifier/Solver -> Answer
+              |                              |
+         Structure only              Executes computation
+         (expert, vars,              (state tracking,
+          operations,                 arithmetic)
+          query)
+```
 
-**Key benefit:** If trace is valid, answer is correct. 100% error detection.
+The model's job:
+1. Classify expert type
+2. Extract quantities and name variables
+3. Wire operations with correct variable references
+4. Specify query target
+
+The verifier's job:
+1. Execute trace step-by-step
+2. Maintain state dictionary
+3. Compute arithmetic operations
+4. Return final answer from query variable
 
 ---
 
@@ -50,179 +93,166 @@ answer: 18
 |--------|---------|---------|
 | `entity_track` | Quantities moving between entities | "Bob gives 8 marbles to Carol" |
 | `arithmetic` | Chain of operations | "Price + tax + shipping" |
-| `rate_equation` | Rate × time = quantity | "20 pages/min for 7 minutes" |
+| `rate_equation` | Rate x time = quantity | "20 pages/min for 7 minutes" |
 | `comparison` | Compute then compare | "4 times as many, how many more?" |
-| `allocation` | Distribute with constraints | "Split $60, X gets twice Y" |
 | `percentage` | Percent increase/decrease | "20% off $50" |
 
 ---
 
-## Trace Schemas
+## Trace Operations (Symbolic)
 
-### Entity Tracking
-
-```yaml
-expert: entity_track
-trace:
-  - {init: <entity>, value: <n>}
-  - {transfer: {from: <e1>, to: <e2>, amount: <n>}}
-  - {consume: {entity: <e>, amount: <n>}}
-  - {state: {<entity>: <value>, ...}}
-  - {compute: {op: <op>, args: [...], result: <n>}}
-  - {query: <entity>}
-answer: <n>
-```
-
-### Arithmetic
+All operations reference variables, not computed values:
 
 ```yaml
-expert: arithmetic
-trace:
-  - {init: <var>, value: <n>}
-  - {compute: {op: <add|sub|mul|div>, args: [...], var: <name>, result: <n>}}
-  - {query: <var>}
-answer: <n>
-```
+# Initialize variable from question
+- {init: <var>, value: <n>}
 
-### Rate/Equation
+# Entity state changes
+- {transfer: {from: <var>, to: <var>, amount: <n|var>}}
+- {consume: {entity: <var>, amount: <n|var>}}
+- {add: {entity: <var>, amount: <n|var>}}
 
-```yaml
-expert: rate_equation
-trace:
-  - {given: {rate: <n>, unit: "<unit>", time: <n>}}
-  - {formula: "<equation>"}
-  - {compute: {op: mul, args: [...], var: <name>, result: <n>}}
-  - {query: <var>}
-answer: <n>
-```
+# Arithmetic (references variables in state)
+- {compute: {op: <add|sub|mul|div>, args: [<var|n>, ...], var: <result_var>}}
 
-### Comparison
+# Percentage operations
+- {percent_off: {base: <var>, rate: <var>, var: <result_var>}}
+- {percent_increase: {base: <var>, rate: <var>, var: <result_var>}}
 
-```yaml
-expert: comparison
-trace:
-  - {init: <entity>, value: <n>}
-  - {compute: {op: mul, args: [...], var: <name>, result: <n>}}
-  - {compare: {op: sub, args: [...], var: difference, result: <n>}}
-  - {query: difference}
-answer: <n>
-```
+# Informational
+- {formula: "<equation>"}
+- {given: {<var>: <value>, ...}}
 
-### Percentage
-
-```yaml
-expert: percentage
-trace:
-  - {init: <var>, value: <n>}
-  - {percent_off: {base: <var>, rate: <n>, result: <n>}}
-  - {query: <var>}
-answer: <n>
+# Output specification
+- {query: <var>}
 ```
 
 ---
 
 ## Training Protocol
 
-### Phase 1: Generate Synthetic Data
+### Data Generation
 
 ```python
-# Distribution
 data = {
-    "entity_track": 100,  # 40%
-    "arithmetic": 40,     # 15%
-    "rate_equation": 40,  # 15%
-    "comparison": 40,     # 15%
-    "allocation": 20,     # 10%
-    "percentage": 15,     # 5%
+    "entity_track": 100,   # 43%
+    "arithmetic": 40,      # 17%
+    "rate_equation": 40,   # 17%
+    "comparison": 40,      # 17%
+    "percentage": 15,      # 6%
 }
-# Total: ~255 examples
+# Total: 235 training, 55 eval
 ```
 
-### Phase 2: Minimal SFT (1 epoch)
+### Phase 1: SFT (1 epoch)
+- Native TinyLlama chat template (`<|system|>/<|user|>/<|assistant|>`)
+- 6 unfrozen layers + lm_head
+- Adam, lr=2e-5
+- Batch size 4, max 512 tokens
 
-Same as `cot_standardization`:
-- Native chat template
-- 6 unfrozen layers
-- System prompt with format + examples
-
-### Phase 3: RL with Verified Rewards
+### Phase 2: RL (REINFORCE)
+- Adam, lr=5e-7
+- Batch size 4, temp=0.7
+- Max 150 generated tokens
+- Reward function:
 
 ```python
-def compute_reward(output: str, gold: dict) -> float:
-    try:
-        parsed = yaml.safe_load(output)
-    except:
-        return 0.0  # Parse failure
+def compute_reward(output, example):
+    result = verify_yaml_output(yaml_str, expected_answer=example["answer"])
 
-    if parsed.get("expert") != gold["expert"]:
-        return 0.3  # Wrong expert
-
-    if not verify_trace(parsed.get("trace", [])):
-        return 0.5  # Invalid trace
-
-    if parsed.get("answer") != gold["answer"]:
-        return 0.7  # Valid trace, wrong answer
-
-    return 1.0  # Correct
+    if not result["parsed"]:        return 0.0  # Can't parse YAML
+    if wrong_expert:                return 0.3  # Wrong routing
+    if not result["trace_valid"]:   return 0.5  # Invalid trace structure
+    if not result["answer_correct"]:return 0.7  # Trace doesn't compute to answer
+    return 1.0                                  # Correct
 ```
 
 ---
 
-## Trace Verifier
+## Results
 
-The key differentiator: traces can be replayed to verify correctness.
+### Phase 1: Model Computes Results (Previous Run)
 
-```python
-def verify_trace(trace: list) -> bool:
-    """Replay trace and verify each step."""
-    state = {}
-
-    for step in trace:
-        if "init" in step:
-            state[step["init"]] = step["value"]
-
-        elif "transfer" in step:
-            t = step["transfer"]
-            if state.get(t["from"], 0) < t["amount"]:
-                return False  # Invalid transfer
-            state[t["from"]] -= t["amount"]
-            state[t["to"]] = state.get(t["to"], 0) + t["amount"]
-
-        elif "consume" in step:
-            c = step["consume"]
-            if state.get(c["entity"], 0) < c["amount"]:
-                return False  # Invalid consume
-            state[c["entity"]] -= c["amount"]
-
-        elif "compute" in step:
-            c = step["compute"]
-            args = [state.get(a, a) for a in c["args"]]
-            expected = compute(c["op"], args)
-            if abs(expected - c["result"]) > 0.01:
-                return False  # Computation error
-            if "var" in c:
-                state[c["var"]] = c["result"]
-
-        elif "state" in step:
-            # Verify state matches
-            for k, v in step["state"].items():
-                if abs(state.get(k, 0) - v) > 0.01:
-                    return False
-
-    return True
 ```
+SFT Epoch 1: parse=100%, acc=14%
+RL Iter 5:   reward=0.72, eval=8/55
+RL Iter 10:  reward=0.74, eval=8/55  (plateau)
+RL Iter 15:  reward=0.75, eval=8/55  (plateau)
+RL Iter 20:  reward=0.75, eval=8/55  (plateau)
+```
+
+**Failure mode:** Model learned format (100% parse) but could not learn arithmetic. Plateaued at 14.5% accuracy because computing `mul([65, 0.18]) = 11.7` requires neural arithmetic.
+
+### Phase 2: Symbolic Traces (This Run)
+
+```
+Baseline:    0/10 correct
+SFT Epoch 1: loss=0.13, parse=100%, acc=100%
+RL Iter 5:   reward=0.75, eval=55/55 (100%)
+```
+
+**100% accuracy** after 1 epoch SFT + 5 RL iterations.
+
+### Comparison
+
+| Metric | Phase 1 (computes) | Phase 2 (symbolic) |
+|--------|--------------------|--------------------|
+| Parse rate | 100% | 100% |
+| Expert accuracy | ~90% | 100% |
+| Final accuracy | 14.5% (plateau) | **100%** |
+| RL iters needed | 20 (insufficient) | 5 |
+| Model's job | Structure + compute | Structure only |
 
 ---
 
-## Success Criteria
+## Analysis
 
-| Metric | Target |
-|--------|--------|
-| YAML parse rate | >95% |
-| Expert accuracy | >90% |
-| Trace validity | >90% |
-| Answer accuracy | >85% |
-| Error detection | 100% (invalid trace = wrong answer) |
+### Why Symbolic Traces Work
+
+1. **Pattern matching, not arithmetic**: The model maps question patterns to trace structures. "X gives Y to Z" maps to `{transfer: {from: x, to: z, amount: y}}`. No computation needed.
+
+2. **Variable wiring is learnable**: Connecting `args: [price, tax]` to the right variables is a language task, not a math task. LLMs excel at this.
+
+3. **Bounded complexity**: Each trace step is a fixed template. The model just fills in variable names and literal values from the question.
+
+4. **RL can optimize structure**: When the verifier reports wrong_answer, it means the variable wiring is wrong. The model can learn to fix wiring through reward signal. It could never learn `17 * 3 = 51` through RL.
+
+### What The Model Learned
+
+- Expert classification: question patterns -> expert type
+- Variable extraction: numbers and entities from questions -> named variables
+- Operation selection: "gives" -> transfer, "times" -> mul, "% off" -> percent_off
+- Variable wiring: which variables feed into which operations
+- Query specification: what the question is asking for
+
+### What The Model Did NOT Need To Learn
+
+- Arithmetic (add, subtract, multiply, divide)
+- State tracking (what's the current value of X?)
+- Percentage calculations
+- Multi-step accumulation
+
+---
+
+## Implications
+
+### For Rogue-1 / Virtual Expert Architecture
+
+This experiment confirms the design:
+1. Small model (1B) acts as **router + structure extractor**
+2. Domain-specific **solvers** execute the structured traces
+3. Verification is trivial: execute trace, check answer
+
+### For Scaling
+
+- **More expert types**: Add new trace schemas, model learns routing
+- **Harder problems**: Complexity is in the solver, not the model
+- **Composability**: Traces can chain across experts
+- **Reliability**: If trace parses and executes, answer is correct
+
+### Key Principle
+
+> The right division of labor: LLMs handle language (parsing, routing, structuring). Deterministic systems handle computation (arithmetic, logic, state).
 
 ---
 
@@ -230,42 +260,55 @@ def verify_trace(trace: list) -> bool:
 
 ```
 experiments/cot_standardization_extended/
-├── EXPERIMENT.md           # This file
-├── config.yaml             # Training config
+├── EXPERIMENT.md              # This file
 ├── data/
 │   ├── generators/
-│   │   ├── entity_track.py
-│   │   ├── arithmetic.py
-│   │   ├── rate_equation.py
-│   │   ├── comparison.py
-│   │   └── percentage.py
-│   └── generate.py         # Main generator
+│   │   ├── entity_track.py    # Entity state tracking problems
+│   │   ├── arithmetic.py      # Chain arithmetic problems
+│   │   ├── rate_equation.py   # Rate/distance/work problems
+│   │   ├── comparison.py      # Comparative quantity problems
+│   │   └── percentage.py      # Percent off/increase/tip problems
+│   └── generate.py            # Main data generator
 ├── trace/
-│   ├── schema.py           # Trace dataclasses
-│   └── verifier.py         # Replay verification
-├── training/
-│   └── train.py            # SFT + RL training
-├── evaluation/
-│   └── eval.py             # Evaluation script
-└── results/
+│   └── verifier.py            # Trace executor + verifier
+└── training/
+    └── train.py               # SFT + RL training script
 ```
 
 ---
 
-## Comparison to cot_standardization
+## Run Commands
 
-| Aspect | cot_standardization | extended |
-|--------|---------------------|----------|
-| Format | `expert: spec -> result` | YAML with trace |
-| Verifiable | No | Yes |
-| Complexity | Low | Higher |
-| Token count | ~20 | ~100-200 |
-| Error detection | Parse only | Full replay |
+```bash
+# Symbolic trace training (recommended)
+python experiments/cot_standardization_extended/training/train.py --minimal-sft --fast
+
+# Full training (slower, same result)
+python experiments/cot_standardization_extended/training/train.py --minimal-sft
+```
 
 ---
 
-## Hypothesis
+## Run Log
 
-If `cot_standardization` achieved 100% with simple format, extended format should achieve >85% with the added benefit of verifiable reasoning.
+```
+$ python training/train.py --minimal-sft --fast
 
-The trade-off: more tokens, more structure, but guaranteed correctness when trace is valid.
+======================================================================
+  EXTENDED COT TRAINING: YAML TRACE FORMAT
+======================================================================
+Generating synthetic training data...
+  entity_track: 100, arithmetic: 40, rate_equation: 40
+  comparison: 40, percentage: 15
+  Total: 235 examples (55 eval)
+
+Loading TinyLlama/TinyLlama-1.1B-Chat-v1.0...
+
+BASELINE (before training): 0/10 correct
+
+SFT (1 epoch):
+  Epoch 1: loss=0.1303 acc=100% parse=100%
+
+RL (20 iterations, batch=4, max_tokens=150):
+  Iter 5: reward=0.75 batch=3/8 eval=55/55
+```
