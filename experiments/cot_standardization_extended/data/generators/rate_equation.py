@@ -1,4 +1,4 @@
-"""Rate/equation problem generator."""
+"""Rate/equation problem generator - symbolic traces (no results)."""
 
 import random
 
@@ -19,9 +19,10 @@ def generate_rate_time_quantity():
     question, unit = random.choice(scenarios)
 
     trace = [
-        {"given": {"rate": rate, "unit": f"{unit}/time", "time": time}},
+        {"init": "rate", "value": rate},
+        {"init": "time", "value": time},
         {"formula": "quantity = rate × time"},
-        {"compute": {"op": "mul", "args": [rate, time], "var": "quantity", "result": result}},
+        {"compute": {"op": "mul", "args": ["rate", "time"], "var": "quantity"}},
         {"query": "quantity"},
     ]
 
@@ -42,9 +43,10 @@ def generate_distance_speed_time():
     question = f"A car travels at {speed} km/h. How far does it go in {time} hours?"
 
     trace = [
-        {"given": {"rate": speed, "unit": "km/h", "time": time}},
+        {"init": "speed", "value": speed},
+        {"init": "time", "value": time},
         {"formula": "distance = speed × time"},
-        {"compute": {"op": "mul", "args": [speed, time], "var": "distance", "result": distance}},
+        {"compute": {"op": "mul", "args": ["speed", "time"], "var": "distance"}},
         {"query": "distance"},
     ]
 
@@ -68,9 +70,11 @@ def generate_work_rate():
     question = f"A team does {rate} tasks per hour. After {time} hours, they split the work among {workers} people. How many tasks per person?"
 
     trace = [
-        {"given": {"rate": rate, "time": time}},
-        {"compute": {"op": "mul", "args": [rate, time], "var": "total", "result": total_work}},
-        {"compute": {"op": "div", "args": ["total", workers], "var": "per_worker", "result": per_worker}},
+        {"init": "rate", "value": rate},
+        {"init": "time", "value": time},
+        {"init": "workers", "value": workers},
+        {"compute": {"op": "mul", "args": ["rate", "time"], "var": "total"}},
+        {"compute": {"op": "div", "args": ["total", "workers"], "var": "per_worker"}},
         {"query": "per_worker"},
     ]
 
@@ -88,15 +92,16 @@ def generate_combined_rate():
     rate2 = random.randint(5, 20)
     time = random.randint(2, 6)
 
-    combined = rate1 + rate2
-    total = combined * time
+    total = (rate1 + rate2) * time
 
     question = f"Machine A produces {rate1} items/hour. Machine B produces {rate2} items/hour. How many total in {time} hours?"
 
     trace = [
-        {"given": {"rate_a": rate1, "rate_b": rate2, "time": time}},
-        {"compute": {"op": "add", "args": [rate1, rate2], "var": "combined_rate", "result": combined}},
-        {"compute": {"op": "mul", "args": ["combined_rate", time], "var": "total", "result": total}},
+        {"init": "rate_a", "value": rate1},
+        {"init": "rate_b", "value": rate2},
+        {"init": "time", "value": time},
+        {"compute": {"op": "add", "args": ["rate_a", "rate_b"], "var": "combined_rate"}},
+        {"compute": {"op": "mul", "args": ["combined_rate", "time"], "var": "total"}},
         {"query": "total"},
     ]
 

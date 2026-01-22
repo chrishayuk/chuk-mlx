@@ -1,4 +1,4 @@
-"""Arithmetic chain problem generator."""
+"""Arithmetic chain problem generator - symbolic traces (no results)."""
 
 import random
 
@@ -9,17 +9,18 @@ def generate_price_chain():
     tax = round(random.uniform(1, 10), 2)
     shipping = random.randint(2, 10)
 
-    with_tax = round(base + tax, 2)
-    total = round(with_tax + shipping, 2)
-
+    total = round(base + tax + shipping, 2)
     item = random.choice(["toy", "book", "shirt", "gadget", "tool"])
 
     question = f"A {item} costs ${base}. Tax adds ${tax}. Shipping is ${shipping}. What's the total?"
 
+    # Symbolic: no results, solver computes
     trace = [
         {"init": "price", "value": base},
-        {"compute": {"op": "add", "args": ["price", tax], "var": "with_tax", "result": with_tax}},
-        {"compute": {"op": "add", "args": ["with_tax", shipping], "var": "total", "result": total}},
+        {"init": "tax", "value": tax},
+        {"init": "shipping", "value": shipping},
+        {"compute": {"op": "add", "args": ["price", "tax"], "var": "with_tax"}},
+        {"compute": {"op": "add", "args": ["with_tax", "shipping"], "var": "total"}},
         {"query": "total"},
     ]
 
@@ -38,17 +39,18 @@ def generate_subtract_chain():
     sub2 = random.randint(5, 30)
     sub3 = random.randint(5, 20)
 
-    step1 = start - sub1
-    step2 = step1 - sub2
-    final = step2 - sub3
+    final = start - sub1 - sub2 - sub3
 
     question = f"You have ${start}. You spend ${sub1} on lunch, ${sub2} on a ticket, and ${sub3} on snacks. How much do you have left?"
 
     trace = [
         {"init": "money", "value": start},
-        {"compute": {"op": "sub", "args": ["money", sub1], "var": "after_lunch", "result": step1}},
-        {"compute": {"op": "sub", "args": ["after_lunch", sub2], "var": "after_ticket", "result": step2}},
-        {"compute": {"op": "sub", "args": ["after_ticket", sub3], "var": "remaining", "result": final}},
+        {"init": "lunch", "value": sub1},
+        {"init": "ticket", "value": sub2},
+        {"init": "snacks", "value": sub3},
+        {"compute": {"op": "sub", "args": ["money", "lunch"], "var": "after_lunch"}},
+        {"compute": {"op": "sub", "args": ["after_lunch", "ticket"], "var": "after_ticket"}},
+        {"compute": {"op": "sub", "args": ["after_ticket", "snacks"], "var": "remaining"}},
         {"query": "remaining"},
     ]
 
@@ -66,9 +68,7 @@ def generate_multiply_add():
     price = random.randint(5, 20)
     extra = random.randint(5, 20)
 
-    subtotal = count * price
-    total = subtotal + extra
-
+    total = count * price + extra
     item = random.choice(["pens", "notebooks", "bottles", "bags"])
 
     question = f"You buy {count} {item} at ${price} each and pay ${extra} for gift wrapping. What's the total?"
@@ -76,8 +76,9 @@ def generate_multiply_add():
     trace = [
         {"init": "count", "value": count},
         {"init": "price", "value": price},
-        {"compute": {"op": "mul", "args": ["count", "price"], "var": "subtotal", "result": subtotal}},
-        {"compute": {"op": "add", "args": ["subtotal", extra], "var": "total", "result": total}},
+        {"init": "wrapping", "value": extra},
+        {"compute": {"op": "mul", "args": ["count", "price"], "var": "subtotal"}},
+        {"compute": {"op": "add", "args": ["subtotal", "wrapping"], "var": "total"}},
         {"query": "total"},
     ]
 
@@ -98,8 +99,6 @@ def generate_divide_multiply():
     per_item = total // divisor
     final = per_item * multiplier
 
-    question = f"You split ${total} equally among {divisor} people. Each person then triples their share. How much does each have?"
-
     if multiplier == 3:
         mult_text = "triples"
     elif multiplier == 2:
@@ -111,8 +110,10 @@ def generate_divide_multiply():
 
     trace = [
         {"init": "total", "value": total},
-        {"compute": {"op": "div", "args": ["total", divisor], "var": "per_person", "result": per_item}},
-        {"compute": {"op": "mul", "args": ["per_person", multiplier], "var": "final", "result": final}},
+        {"init": "people", "value": divisor},
+        {"init": "multiplier", "value": multiplier},
+        {"compute": {"op": "div", "args": ["total", "people"], "var": "per_person"}},
+        {"compute": {"op": "mul", "args": ["per_person", "multiplier"], "var": "final"}},
         {"query": "final"},
     ]
 

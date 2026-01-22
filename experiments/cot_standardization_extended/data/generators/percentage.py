@@ -1,4 +1,4 @@
-"""Percentage problem generator."""
+"""Percentage problem generator - symbolic traces (no results)."""
 
 import random
 
@@ -7,16 +7,17 @@ def generate_percent_off():
     """X% off a price."""
     price = random.randint(20, 200)
     percent = random.choice([10, 15, 20, 25, 30, 40, 50])
-    discount = price * percent / 100
-    final = price - discount
+    final = price * (100 - percent) / 100
 
     item = random.choice(["shirt", "book", "toy", "jacket", "bag"])
 
     question = f"A {item} costs ${price}. It's {percent}% off. What's the sale price?"
 
+    # Symbolic: model outputs structure, solver computes
     trace = [
         {"init": "price", "value": price},
-        {"percent_off": {"base": "price", "rate": percent, "var": "sale_price", "result": final}},
+        {"init": "discount_rate", "value": percent},
+        {"percent_off": {"base": "price", "rate": "discount_rate", "var": "sale_price"}},
         {"query": "sale_price"},
     ]
 
@@ -32,8 +33,7 @@ def generate_percent_increase():
     """X% increase."""
     base = random.randint(50, 200)
     percent = random.choice([10, 15, 20, 25, 50])
-    increase = base * percent / 100
-    final = base + increase
+    final = base * (100 + percent) / 100
 
     scenarios = [
         f"A stock worth ${base} increases by {percent}%. What's the new value?",
@@ -45,8 +45,8 @@ def generate_percent_increase():
 
     trace = [
         {"init": "base", "value": base},
-        {"compute": {"op": "mul", "args": ["base", percent / 100], "var": "increase", "result": increase}},
-        {"compute": {"op": "add", "args": ["base", "increase"], "var": "final", "result": final}},
+        {"init": "increase_rate", "value": percent},
+        {"percent_increase": {"base": "base", "rate": "increase_rate", "var": "final"}},
         {"query": "final"},
     ]
 
@@ -55,30 +55,6 @@ def generate_percent_increase():
         "expert": "percentage",
         "trace": trace,
         "answer": final,
-    }
-
-
-def generate_find_percent():
-    """What percent is X of Y?"""
-    whole = random.randint(50, 200)
-    percent = random.choice([10, 20, 25, 40, 50, 75])
-    part = whole * percent / 100
-
-    question = f"What percent of {whole} is {int(part)}?"
-
-    trace = [
-        {"init": "part", "value": part},
-        {"init": "whole", "value": whole},
-        {"compute": {"op": "div", "args": ["part", "whole"], "var": "fraction", "result": part / whole}},
-        {"compute": {"op": "mul", "args": ["fraction", 100], "var": "percent", "result": percent}},
-        {"query": "percent"},
-    ]
-
-    return {
-        "question": question,
-        "expert": "percentage",
-        "trace": trace,
-        "answer": percent,
     }
 
 
@@ -93,8 +69,10 @@ def generate_tip_calculation():
 
     trace = [
         {"init": "bill", "value": bill},
-        {"compute": {"op": "mul", "args": ["bill", tip_percent / 100], "var": "tip", "result": tip}},
-        {"compute": {"op": "add", "args": ["bill", "tip"], "var": "total", "result": total}},
+        {"init": "tip_rate", "value": tip_percent},
+        {"compute": {"op": "mul", "args": ["bill", "tip_rate"], "var": "tip_times_100"}},
+        {"compute": {"op": "div", "args": ["tip_times_100", 100], "var": "tip"}},
+        {"compute": {"op": "add", "args": ["bill", "tip"], "var": "total"}},
         {"query": "total"},
     ]
 
@@ -106,11 +84,35 @@ def generate_tip_calculation():
     }
 
 
+def generate_simple_percent():
+    """What is X% of Y?"""
+    whole = random.randint(50, 200)
+    percent = random.choice([10, 20, 25, 50, 75])
+    part = whole * percent / 100
+
+    question = f"What is {percent}% of {whole}?"
+
+    trace = [
+        {"init": "whole", "value": whole},
+        {"init": "percent", "value": percent},
+        {"compute": {"op": "mul", "args": ["whole", "percent"], "var": "times_100"}},
+        {"compute": {"op": "div", "args": ["times_100", 100], "var": "result"}},
+        {"query": "result"},
+    ]
+
+    return {
+        "question": question,
+        "expert": "percentage",
+        "trace": trace,
+        "answer": part,
+    }
+
+
 GENERATORS = [
     generate_percent_off,
     generate_percent_increase,
-    generate_find_percent,
     generate_tip_calculation,
+    generate_simple_percent,
 ]
 
 

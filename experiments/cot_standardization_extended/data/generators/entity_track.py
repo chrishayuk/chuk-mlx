@@ -1,4 +1,4 @@
-"""Entity tracking problem generator."""
+"""Entity tracking problem generator - symbolic traces (no results)."""
 
 import random
 
@@ -20,11 +20,10 @@ def generate_simple_transfer():
 
     question = f"{name1} has {initial} {item}. {name1} {verb} {transfer} to {name2}. How many {item} does {name1} have?"
 
+    # Symbolic: no result values, solver computes
     trace = [
         {"init": f"{name1.lower()}.{item}", "value": initial},
-        {"init": f"{name2.lower()}.{item}", "value": 0},
         {"transfer": {"from": f"{name1.lower()}.{item}", "to": f"{name2.lower()}.{item}", "amount": transfer}},
-        {"state": {f"{name1.lower()}.{item}": initial - transfer}},
         {"query": f"{name1.lower()}.{item}"},
     ]
 
@@ -53,9 +52,7 @@ def generate_consume_sequence():
     trace = [
         {"init": item, "value": initial},
         {"consume": {"entity": item, "amount": consume1}},
-        {"state": {item: initial - consume1}},
         {"consume": {"entity": item, "amount": consume2}},
-        {"state": {item: remaining}},
         {"query": item},
     ]
 
@@ -84,12 +81,12 @@ def generate_consume_then_multiply():
 
     question = f"{name} has {initial} {item}. {name} {verb1} {consume1} and {verb2} {consume2}. {name} sells the rest for ${multiplier} each. How much money does {name} make?"
 
+    # Symbolic: compute references variable, no result
     trace = [
         {"init": item, "value": initial},
         {"consume": {"entity": item, "amount": consume1}},
         {"consume": {"entity": item, "amount": consume2}},
-        {"state": {item: remaining}},
-        {"compute": {"op": "mul", "args": [remaining, multiplier], "var": "revenue", "result": final}},
+        {"compute": {"op": "mul", "args": [item, multiplier], "var": "revenue"}},
         {"query": "revenue"},
     ]
 
@@ -119,7 +116,6 @@ def generate_bidirectional_transfer():
         {"init": f"{name2.lower()}.{item}", "value": initial2},
         {"transfer": {"from": f"{name1.lower()}.{item}", "to": f"{name2.lower()}.{item}", "amount": transfer1}},
         {"transfer": {"from": f"{name2.lower()}.{item}", "to": f"{name1.lower()}.{item}", "amount": transfer2}},
-        {"state": {f"{name1.lower()}.{item}": final1}},
         {"query": f"{name1.lower()}.{item}"},
     ]
 
@@ -145,9 +141,8 @@ def generate_find_and_lose():
 
     trace = [
         {"init": item, "value": initial},
-        {"compute": {"op": "add", "args": [initial, found], "var": item, "result": initial + found}},
+        {"add": {"entity": item, "amount": found}},
         {"consume": {"entity": item, "amount": lost}},
-        {"state": {item: final}},
         {"query": item},
     ]
 

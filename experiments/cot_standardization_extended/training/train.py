@@ -46,7 +46,7 @@ from data.generate import generate_all, format_yaml
 # SYSTEM PROMPT
 # =============================================================================
 
-SYSTEM_PROMPT = """You convert math problems to verifiable YAML traces.
+SYSTEM_PROMPT = """You convert math problems to symbolic YAML traces.
 
 Format:
 ```yaml
@@ -54,7 +54,7 @@ expert: <type>
 trace:
   - {step}
   - {step}
-answer: <number>
+  - {query: variable}
 ```
 
 Expert types: entity_track, arithmetic, rate_equation, comparison, percentage
@@ -66,8 +66,7 @@ expert: entity_track
 trace:
   - {init: bob.apples, value: 20}
   - {consume: {entity: bob.apples, amount: 5}}
-  - {state: {bob.apples: 15}}
-answer: 15
+  - {query: bob.apples}
 ```"""
 
 
@@ -81,11 +80,10 @@ def format_chat_prompt(question: str) -> str:
 
 
 def format_target(example: dict) -> str:
-    """Format target as YAML."""
+    """Format target as YAML - symbolic trace only, no answer (verifier computes it)."""
     yaml_str = yaml.dump({
         "expert": example["expert"],
         "trace": example["trace"],
-        "answer": example["answer"],
     }, default_flow_style=None, sort_keys=False)
     return yaml_str + "```"
 
@@ -123,7 +121,7 @@ def compute_reward(output: str, example: dict) -> tuple[float, str]:
         return 0.5, f"invalid_trace:{result['trace_error']}"
 
     if not result["answer_correct"]:
-        return 0.7, f"wrong_answer:{result['answer']}"
+        return 0.7, f"wrong_answer:{result['computed_answer']}"
 
     return 1.0, "correct"
 
