@@ -1,5 +1,7 @@
 """Tests for virtual_experts/registry.py to improve coverage."""
 
+from typing import Any
+
 import mlx.core as mx
 import pytest
 
@@ -20,8 +22,11 @@ class TestPluginForTests(VirtualExpertPlugin):
     def can_handle(self, prompt: str) -> bool:
         return "test" in prompt.lower()
 
-    def execute(self, prompt: str) -> str:
-        return "test_result"
+    def get_operations(self) -> list[str]:
+        return ["evaluate"]
+
+    def execute_operation(self, operation: str, parameters: dict[str, Any]) -> dict[str, Any]:
+        return {"result": "test_result", "formatted": "test_result"}
 
     def get_calibration_prompts(self):
         return ["test 1", "test 2"], ["hello", "world"]
@@ -109,8 +114,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt):
                 return False
 
-            def execute(self, prompt):
-                return ""
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": ""}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -123,8 +131,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt):
                 return False
 
-            def execute(self, prompt):
-                return ""
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": ""}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -147,8 +158,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt):
                 return "+" in prompt
 
-            def execute(self, prompt):
-                return "result"
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": "result"}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -170,8 +184,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt):
                 return "+" in prompt
 
-            def execute(self, prompt):
-                return "result"
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": "result"}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -212,8 +229,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt):
                 return False
 
-            def execute(self, prompt):
-                return ""
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": ""}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -225,8 +245,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt):
                 return False
 
-            def execute(self, prompt):
-                return ""
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": ""}
 
             def get_calibration_prompts(self):
                 return [], []

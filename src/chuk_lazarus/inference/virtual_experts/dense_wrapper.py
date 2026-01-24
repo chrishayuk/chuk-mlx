@@ -25,10 +25,10 @@ import mlx.nn as nn
 import numpy as np
 
 from .base import (
+    InferenceResult,
     VirtualExpertAnalysis,
     VirtualExpertApproach,
     VirtualExpertPlugin,
-    VirtualExpertResult,
 )
 from .cot_rewriter import CoTRewriter, VirtualExpertAction
 from .plugins.math import MathExpertPlugin
@@ -359,47 +359,48 @@ class VirtualDenseWrapper:
 
         return self.tokenizer.decode(generated).strip()
 
-    def solve(self, prompt: str, max_tokens: int = 20) -> VirtualExpertResult:
+    def solve(
+        self,
+        prompt: str,
+        max_tokens: int = 20,
+        action: VirtualExpertAction | None = None,
+    ) -> InferenceResult:
         """
         Solve a problem, using virtual experts when appropriate.
 
-        With CoT rewriter:
-        1. Query is rewritten to VirtualExpertAction JSON
-        2. Routing is based on action JSON hidden state
-        3. Expert receives the action (not raw query)
+        With action (Rogue-1 / CoT):
+        1. Model output is parsed into VirtualExpertAction with trace steps
+        2. Router matches action.expert to registered plugin
+        3. Plugin executes the trace
 
-        Without CoT rewriter (legacy):
-        1. Routing is based on raw query hidden state
-        2. Expert receives raw query
+        Without action (legacy):
+        1. Routing is based on hidden state + can_handle
+        2. Only plugins with extract_and_evaluate work (MathExpert)
 
         Args:
             prompt: The input prompt
             max_tokens: Maximum tokens to generate
+            action: Pre-parsed VirtualExpertAction (from model YAML output or CoT rewriter)
 
         Returns:
-            VirtualExpertResult with the answer and metadata
+            InferenceResult with the answer and metadata
         """
         if not self._calibrated:
             self.calibrate()
 
-        # CoT rewrite if rewriter is available
-        action: VirtualExpertAction | None = None
+        # Use provided action, or try CoT rewriter, or fall back to legacy
         routing_input = prompt
         skip_expert_routing = False
 
-        if self.cot_rewriter:
+        if action is None and self.cot_rewriter:
             expert_names = [p.name for p in self.registry.get_all()]
             action = self.cot_rewriter.rewrite(prompt, expert_names)
 
-            # If CoT rewriter says "none", skip expert routing entirely
+        if action:
             if action.expert == "none":
                 skip_expert_routing = True
             else:
-                # Handle both Pydantic (model_dump_json) and dataclass (to_json)
-                if hasattr(action, 'model_dump_json'):
-                    routing_input = action.model_dump_json()
-                else:
-                    routing_input = action.to_json()
+                routing_input = action.model_dump_json()
 
         # Find best matching plugin (skip if CoT said "none")
         plugins = self.registry.get_all()
@@ -414,14 +415,16 @@ class VirtualDenseWrapper:
             for plugin_idx, plugin in enumerate(plugins):
                 score = self.router.get_routing_score(hidden[None, None, :], plugin_idx)
                 if score > self.routing_threshold and score > best_score:
-                    # With CoT: check if action targets this expert
-                    # Without CoT: use legacy can_handle
+                    # With CoT action: match by expert name
+                    # Without CoT: only plugins supporting extract_and_evaluate
+                    # (trace-only experts need CoT-generated YAML traces)
                     if action:
                         if action.expert == plugin.name:
                             best_plugin = plugin
                             best_score = score
                             best_idx = plugin_idx
-                    elif plugin.can_handle(prompt):
+                    elif (plugin.can_handle(prompt)
+                          and "extract_and_evaluate" in plugin.get_operations()):
                         best_plugin = plugin
                         best_score = score
                         best_idx = plugin_idx
@@ -432,43 +435,27 @@ class VirtualDenseWrapper:
             _, correct_answer = best_plugin.extract_and_evaluate(prompt)
 
         if best_plugin and best_score > self.routing_threshold:
-            # Execute with action or prompt
+            # Dispatch via the CoT-provided action
             if action:
-                # New interface: pass structured action to execute()
-                # MathExpert.execute() handles VirtualExpertAction objects
-                from chuk_virtual_expert import VirtualExpertAction as VEAction
-                ve_action = VEAction(
-                    expert=action.expert,
-                    operation=action.operation,
-                    parameters=action.parameters,
-                    confidence=action.confidence,
-                    reasoning=action.reasoning,
-                )
-                result = best_plugin.execute(ve_action)
+                ve_action = action
             else:
-                # Legacy interface: pass raw prompt
-                result = best_plugin.execute(prompt)
+                # Legacy path (no CoT): only MathExpert supports this
+                ve_action = VirtualExpertAction(
+                    expert=best_plugin.name,
+                    operation="extract_and_evaluate",
+                    parameters={"text": prompt},
+                )
 
-            # Check if result is successful
-            result_success = True
-            if hasattr(result, 'success'):
-                result_success = result.success
+            result = best_plugin.execute(ve_action)
 
-            if result and result_success:
-                # Extract answer from result
-                if isinstance(result, str):
-                    answer = result
-                elif hasattr(result, 'data') and result.data:
-                    # VirtualExpertResult from chuk_virtual_expert
-                    data = result.data
-                    if isinstance(data, dict):
-                        answer = str(data.get('formatted', data.get('result', data)))
-                    else:
-                        answer = str(data)
+            if result.success and result.data:
+                data = result.data
+                if isinstance(data, dict):
+                    answer = str(data.get('formatted', data.get('answer', data.get('result', data))))
                 else:
-                    answer = str(result)
+                    answer = str(data)
 
-                return VirtualExpertResult(
+                return InferenceResult(
                     prompt=prompt,
                     answer=answer,
                     correct_answer=correct_answer,
@@ -483,7 +470,7 @@ class VirtualDenseWrapper:
         # Fall back to model generation
         answer = self._generate_direct(prompt, max_tokens)
 
-        return VirtualExpertResult(
+        return InferenceResult(
             prompt=prompt,
             answer=answer,
             correct_answer=correct_answer,

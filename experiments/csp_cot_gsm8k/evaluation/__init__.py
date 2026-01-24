@@ -1,15 +1,9 @@
-"""
-CSP-CoT Evaluation.
+"""GSM-8K evaluation data loading."""
 
-GSM-8K benchmark evaluation comparing CSP-CoT vs English CoT.
-"""
-
-from .gsm8k_loader import load_gsm8k, GSM8KProblem
-from .evaluator import CSPCoTEvaluator, EvaluationResult
+from .gsm8k_loader import load_gsm8k, get_sample_problems, GSM8KProblem
 
 __all__ = [
     "load_gsm8k",
+    "get_sample_problems",
     "GSM8KProblem",
-    "CSPCoTEvaluator",
-    "EvaluationResult",
 ]

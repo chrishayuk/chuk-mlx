@@ -35,6 +35,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 # Re-export core classes from inference
 from chuk_lazarus.inference.virtual_expert import (
+    InferenceResult,
     MathExpertPlugin,
     RoutingDecision,
     RoutingTrace,
@@ -570,6 +571,7 @@ __all__ = [
     "VirtualExpertResult",
     "VirtualExpertAnalysis",
     "VirtualExpertApproach",
+    "InferenceResult",
     "VirtualMoEWrapper",
     "VirtualRouter",
     "MathExpertPlugin",

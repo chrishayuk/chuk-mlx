@@ -222,26 +222,42 @@ class TestMathExpertExtractAndEvaluate:
 
 
 class TestMathExpertExecute:
-    """Tests for execute method edge cases."""
+    """Tests for execute method via VirtualExpertAction."""
 
     def test_execute_float_result(self):
         """Test execute with float result that is whole number."""
+        from chuk_virtual_expert import VirtualExpertAction
+
         plugin = MathExpertPlugin()
-        result = plugin.execute("10 / 2 = ")
-        assert result == "5"  # Should be integer string
+        action = VirtualExpertAction(
+            expert="math", operation="evaluate", parameters={"expression": "10 / 2"}
+        )
+        result = plugin.execute(action)
+        assert result.success
+        assert result.data["formatted"] == "5"  # Should be integer string
 
     def test_execute_non_integer_result(self):
         """Test execute with non-integer float result."""
+        from chuk_virtual_expert import VirtualExpertAction
+
         plugin = MathExpertPlugin()
-        result = plugin.execute("10 / 3 = ")
-        assert result is not None
-        assert "." in result  # Should be float string
+        action = VirtualExpertAction(
+            expert="math", operation="evaluate", parameters={"expression": "10 / 3"}
+        )
+        result = plugin.execute(action)
+        assert result.success
+        assert "." in result.data["formatted"]  # Should be float string
 
     def test_execute_none_result(self):
-        """Test execute returns None for invalid expressions."""
+        """Test execute returns error for invalid expressions."""
+        from chuk_virtual_expert import VirtualExpertAction
+
         plugin = MathExpertPlugin()
-        result = plugin.execute("not a math expression")
-        assert result is None
+        action = VirtualExpertAction(
+            expert="math", operation="evaluate", parameters={"expression": "not a math expression"}
+        )
+        result = plugin.execute(action)
+        assert not result.success  # Should fail for invalid expression
 
 
 class TestMathExpertCanHandle:

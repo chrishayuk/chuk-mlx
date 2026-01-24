@@ -1,19 +1,21 @@
 """Tests for virtual_experts/base.py to improve coverage."""
 
+from typing import Any
+
 from chuk_lazarus.inference.virtual_experts.base import (
+    InferenceResult,
     VirtualExpertAnalysis,
     VirtualExpertApproach,
     VirtualExpertPlugin,
-    VirtualExpertResult,
 )
 
 
-class TestVirtualExpertResultPostInit:
-    """Tests for VirtualExpertResult __post_init__ edge cases."""
+class TestInferenceResultPostInit:
+    """Tests for InferenceResult __post_init__ edge cases."""
 
     def test_is_correct_with_matching_float(self):
         """Test is_correct with float answer matching correct."""
-        result = VirtualExpertResult(
+        result = InferenceResult(
             prompt="test",
             answer="3.14159",
             correct_answer=3.14159,
@@ -24,7 +26,7 @@ class TestVirtualExpertResultPostInit:
 
     def test_is_correct_with_non_matching_float(self):
         """Test is_correct with float answer not matching."""
-        result = VirtualExpertResult(
+        result = InferenceResult(
             prompt="test",
             answer="3.14",
             correct_answer=2.71,
@@ -34,8 +36,8 @@ class TestVirtualExpertResultPostInit:
         assert result.is_correct is False
 
     def test_is_correct_with_no_number_in_answer(self):
-        """Test is_correct when answer has no number (line 140-141)."""
-        result = VirtualExpertResult(
+        """Test is_correct when answer has no number."""
+        result = InferenceResult(
             prompt="test",
             answer="no numbers here",
             correct_answer=42,
@@ -46,8 +48,8 @@ class TestVirtualExpertResultPostInit:
         assert result.is_correct is False
 
     def test_is_correct_with_invalid_answer_type(self):
-        """Test is_correct when answer causes ValueError/TypeError (line 140-141)."""
-        result = VirtualExpertResult(
+        """Test is_correct when answer causes ValueError/TypeError."""
+        result = InferenceResult(
             prompt="test",
             answer="",
             correct_answer=42,
@@ -58,7 +60,7 @@ class TestVirtualExpertResultPostInit:
 
     def test_is_correct_with_negative_number(self):
         """Test is_correct with negative numbers."""
-        result = VirtualExpertResult(
+        result = InferenceResult(
             prompt="test",
             answer="-5",
             correct_answer=-5,
@@ -69,7 +71,7 @@ class TestVirtualExpertResultPostInit:
 
     def test_is_correct_none_correct_answer(self):
         """Test is_correct when correct_answer is None."""
-        result = VirtualExpertResult(
+        result = InferenceResult(
             prompt="test",
             answer="42",
             correct_answer=None,
@@ -81,10 +83,10 @@ class TestVirtualExpertResultPostInit:
 
 
 class TestVirtualExpertAnalysisSummary:
-    """Tests for VirtualExpertAnalysis summary method (lines 187-189)."""
+    """Tests for VirtualExpertAnalysis summary method."""
 
     def test_summary_with_plugins_used(self):
-        """Test summary includes plugins_used section (lines 187-189)."""
+        """Test summary includes plugins_used section."""
         analysis = VirtualExpertAnalysis(
             model_name="test_model",
             total_problems=10,
@@ -153,28 +155,31 @@ class TestVirtualExpertAnalysisSummary:
         assert beta_idx < alpha_idx < gamma_idx
 
 
-class TestVirtualExpertPluginDefaults:
-    """Tests for VirtualExpertPlugin default values."""
+class TestVirtualExpertPluginInterface:
+    """Tests for VirtualExpertPlugin (VirtualExpert) interface."""
 
-    def test_plugin_default_validate_result(self):
-        """Test default validate_result returns True for non-None."""
+    def test_plugin_can_handle(self):
+        """Test can_handle abstract method."""
 
         class TestPlugin(VirtualExpertPlugin):
             name = "test"
             description = "Test plugin"
 
             def can_handle(self, prompt: str) -> bool:
-                return True
+                return "test" in prompt
 
-            def execute(self, prompt: str) -> str:
-                return "result"
+            def get_operations(self) -> list[str]:
+                return ["evaluate"]
+
+            def execute_operation(self, operation: str, parameters: dict[str, Any]) -> dict[str, Any]:
+                return {"result": "test_result"}
 
             def get_calibration_prompts(self):
-                return [], []
+                return ["test 1"], ["hello"]
 
         plugin = TestPlugin()
-        assert plugin.validate_result("prompt", "result") is True
-        assert plugin.validate_result("prompt", None) is False
+        assert plugin.can_handle("test prompt") is True
+        assert plugin.can_handle("other") is False
 
     def test_plugin_repr(self):
         """Test plugin __repr__."""
@@ -187,8 +192,11 @@ class TestVirtualExpertPluginDefaults:
             def can_handle(self, prompt: str) -> bool:
                 return False
 
-            def execute(self, prompt: str) -> str | None:
-                return None
+            def get_operations(self) -> list[str]:
+                return ["evaluate"]
+
+            def execute_operation(self, operation: str, parameters: dict[str, Any]) -> dict[str, Any]:
+                return {"result": None}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -197,7 +205,36 @@ class TestVirtualExpertPluginDefaults:
         repr_str = repr(plugin)
         assert "TestPlugin" in repr_str
         assert "mytest" in repr_str
-        assert "15" in repr_str
+
+    def test_plugin_execute_via_action(self):
+        """Test execute with VirtualExpertAction."""
+        from chuk_virtual_expert import VirtualExpertAction
+
+        class TestPlugin(VirtualExpertPlugin):
+            name = "test"
+            description = "Test plugin"
+
+            def can_handle(self, prompt: str) -> bool:
+                return True
+
+            def get_operations(self) -> list[str]:
+                return ["evaluate"]
+
+            def execute_operation(self, operation: str, parameters: dict[str, Any]) -> dict[str, Any]:
+                return {"result": parameters.get("value", 42), "formatted": "42"}
+
+            def get_calibration_prompts(self):
+                return ["test"], ["other"]
+
+        plugin = TestPlugin()
+        action = VirtualExpertAction(
+            expert="test",
+            operation="evaluate",
+            parameters={"value": 42},
+        )
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 42
 
 
 class TestVirtualExpertApproachEnum:

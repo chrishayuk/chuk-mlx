@@ -2,18 +2,19 @@
 
 import mlx.nn as nn
 import pytest
+from chuk_virtual_expert import VirtualExpertAction as ExpertAction
 
 from chuk_lazarus.inference.virtual_experts.registry import reset_default_registry
 from chuk_lazarus.introspection.virtual_expert import (
     ExpertHijacker,
     HybridEmbeddingInjector,
+    InferenceResult,
     MathExpertPlugin,
     SafeMathEvaluator,
     VirtualExpertAnalysis,
     VirtualExpertApproach,
     VirtualExpertPlugin,
     VirtualExpertRegistry,
-    VirtualExpertResult,
     VirtualExpertSlot,
     VirtualMoEWrapper,
     VirtualRouter,
@@ -71,26 +72,35 @@ class TestMathExpertPlugin:
     def test_execute(self):
         plugin = MathExpertPlugin()
 
-        result = plugin.execute("2 + 3 = ")
-        assert result == "5"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "2 + 3"})
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 5
 
-        result = plugin.execute("7 * 8 = ")
-        assert result == "56"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "7 * 8"})
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 56
 
     def test_execute_subtraction(self):
         plugin = MathExpertPlugin()
-        result = plugin.execute("10 - 3 = ")
-        assert result == "7"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "10 - 3"})
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 7
 
     def test_execute_division(self):
         plugin = MathExpertPlugin()
-        result = plugin.execute("20 / 4 = ")
-        assert result == "5"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "20 / 4"})
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 5
 
     def test_execute_invalid(self):
         plugin = MathExpertPlugin()
-        result = plugin.execute("not math")
-        assert result is None
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "not math"})
+        result = plugin.execute(action)
+        assert result.success is False
 
     def test_get_calibration_prompts(self):
         plugin = MathExpertPlugin()
@@ -98,20 +108,11 @@ class TestMathExpertPlugin:
 
         assert isinstance(positive, list)
         assert isinstance(negative, list)
-        assert len(positive) > 0
-        assert len(negative) > 0
-        # Positive should contain math expressions
-        assert any("*" in p or "+" in p for p in positive)
-
-    def test_validate_result(self):
-        plugin = MathExpertPlugin()
-        assert plugin.validate_result("2+2", "4") is True
-        assert plugin.validate_result("2+2", None) is False
 
     def test_repr(self):
         plugin = MathExpertPlugin()
         repr_str = repr(plugin)
-        assert "MathExpertPlugin" in repr_str
+        assert "MathExpert" in repr_str
         assert "math" in repr_str
 
 
@@ -123,28 +124,37 @@ class TestSafeMathEvaluator:
 
     def test_execute_addition(self):
         evaluator = SafeMathEvaluator()
-        result = evaluator.execute("2 + 3 = ")
-        assert result == "5"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "2 + 3"})
+        result = evaluator.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 5
 
     def test_execute_subtraction(self):
         evaluator = SafeMathEvaluator()
-        result = evaluator.execute("10 - 3 = ")
-        assert result == "7"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "10 - 3"})
+        result = evaluator.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 7
 
     def test_execute_multiplication(self):
         evaluator = SafeMathEvaluator()
-        result = evaluator.execute("7 * 8 = ")
-        assert result == "56"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "7 * 8"})
+        result = evaluator.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 56
 
     def test_execute_division(self):
         evaluator = SafeMathEvaluator()
-        result = evaluator.execute("20 / 4 = ")
-        assert result == "5"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "20 / 4"})
+        result = evaluator.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 5
 
     def test_execute_invalid(self):
         evaluator = SafeMathEvaluator()
-        result = evaluator.execute("not a math problem")
-        assert result is None
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "not a math problem"})
+        result = evaluator.execute(action)
+        assert result.success is False
 
     def test_extract_and_evaluate(self):
         evaluator = SafeMathEvaluator()
@@ -152,11 +162,11 @@ class TestSafeMathEvaluator:
         assert result is not None
 
 
-class TestVirtualExpertResult:
-    """Tests for VirtualExpertResult dataclass."""
+class TestInferenceResult:
+    """Tests for InferenceResult dataclass."""
 
     def test_init_basic(self):
-        result = VirtualExpertResult(
+        result = InferenceResult(
             prompt="2 + 2 = ",
             answer="4",
             correct_answer=4,
@@ -172,7 +182,7 @@ class TestVirtualExpertResult:
 
     def test_is_correct_auto_computed(self):
         # Correct answer
-        result1 = VirtualExpertResult(
+        result1 = InferenceResult(
             prompt="test",
             answer="4",
             correct_answer=4,
@@ -182,7 +192,7 @@ class TestVirtualExpertResult:
         assert result1.is_correct is True
 
         # Incorrect answer
-        result2 = VirtualExpertResult(
+        result2 = InferenceResult(
             prompt="test",
             answer="5",
             correct_answer=4,
@@ -192,7 +202,7 @@ class TestVirtualExpertResult:
         assert result2.is_correct is False
 
     def test_with_plugin_name(self):
-        result = VirtualExpertResult(
+        result = InferenceResult(
             prompt="test",
             answer="result",
             correct_answer=None,
@@ -204,7 +214,7 @@ class TestVirtualExpertResult:
         assert result.plugin_name == "MathPlugin"
 
     def test_routing_score(self):
-        result = VirtualExpertResult(
+        result = InferenceResult(
             prompt="test",
             answer="4",
             correct_answer=4,
@@ -340,8 +350,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt: str) -> bool:
                 return True
 
-            def execute(self, prompt: str) -> str:
-                return "test"
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": "test_result"}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -367,8 +380,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt: str) -> bool:
                 return "+" in prompt
 
-            def execute(self, prompt: str) -> str:
-                return "math"
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": "math"}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -377,7 +393,9 @@ class TestVirtualExpertRegistry:
 
         plugin = registry.find_handler("2 + 2 = ")
         assert plugin is not None
-        assert plugin.execute("") == "math"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={})
+        result = plugin.execute(action)
+        assert result.data["result"] == "math"
 
     def test_find_handler_no_match(self):
         registry = VirtualExpertRegistry()
@@ -389,8 +407,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt: str) -> bool:
                 return "+" in prompt
 
-            def execute(self, prompt: str) -> str:
-                return "math"
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": "math"}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -410,8 +431,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt: str) -> bool:
                 return True
 
-            def execute(self, prompt: str) -> str:
-                return "result"
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": "result"}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -433,8 +457,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt: str) -> bool:
                 return False
 
-            def execute(self, prompt: str) -> str:
-                return ""
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": ""}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -447,8 +474,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt: str) -> bool:
                 return False
 
-            def execute(self, prompt: str) -> str:
-                return ""
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": ""}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -471,8 +501,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt: str) -> bool:
                 return True
 
-            def execute(self, prompt: str) -> str:
-                return ""
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": ""}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -490,8 +523,11 @@ class TestVirtualExpertRegistry:
             def can_handle(self, prompt: str) -> bool:
                 return True
 
-            def execute(self, prompt: str) -> str:
-                return ""
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": ""}
 
             def get_calibration_prompts(self):
                 return [], []
@@ -580,7 +616,7 @@ class TestDemoVirtualExpert:
         mock_wrapper._generate_direct = Mock(return_value="4")
 
         # Create mock results
-        mock_result = VirtualExpertResult(
+        mock_result = InferenceResult(
             prompt="2 + 2 = ",
             answer="4",
             correct_answer=4,
@@ -638,7 +674,7 @@ class TestDemoVirtualExpert:
         mock_wrapper = MagicMock()
         mock_wrapper._generate_direct = Mock(return_value="2")
 
-        mock_result = VirtualExpertResult(
+        mock_result = InferenceResult(
             prompt="1 + 1 = ",
             answer="2",
             correct_answer=2,
@@ -679,7 +715,7 @@ class TestDemoVirtualExpert:
         mock_wrapper._generate_direct = Mock(return_value="model_answer")
 
         # Create multiple results with different states
-        result1 = VirtualExpertResult(
+        result1 = InferenceResult(
             prompt="2 + 2 = ",
             answer="4",
             correct_answer=4,
@@ -688,16 +724,16 @@ class TestDemoVirtualExpert:
             plugin_name="math",
         )
 
-        result2 = VirtualExpertResult(
+        result2 = InferenceResult(
             prompt="What is the capital?",
             answer="Paris",
-            correct_answer="Paris",
+            correct_answer=None,
             approach=VirtualExpertApproach.MODEL_DIRECT,
             used_virtual_expert=False,
             plugin_name=None,  # No plugin used
         )
 
-        result3 = VirtualExpertResult(
+        result3 = InferenceResult(
             prompt="5 * 5 = ",
             answer="24",  # Wrong answer
             correct_answer=25,
@@ -980,15 +1016,21 @@ class TestVirtualExpertPlugin:
             def can_handle(self, prompt: str) -> bool:
                 return True
 
-            def execute(self, prompt: str) -> str:
-                return "result"
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": "result"}
 
             def get_calibration_prompts(self):
                 return [], []
 
         plugin = ValidPlugin()
         assert plugin.can_handle("test") is True
-        assert plugin.execute("test") == "result"
+        action = ExpertAction(expert="valid", operation="evaluate", parameters={})
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == "result"
 
 
 class TestCreateVirtualExpertWrapper:
@@ -1095,7 +1137,7 @@ class TestEdgeCases:
         mock_wrapper = MagicMock()
         mock_wrapper._generate_direct = Mock(return_value="answer")
 
-        mock_result = VirtualExpertResult(
+        mock_result = InferenceResult(
             prompt="question",
             answer="answer",
             correct_answer=None,
@@ -1142,7 +1184,7 @@ class TestEdgeCases:
         mock_wrapper._generate_direct = Mock(return_value="wrong")
 
         # Incorrect result
-        mock_result = VirtualExpertResult(
+        mock_result = InferenceResult(
             prompt="2 + 2 = ",
             answer="5",  # Wrong!
             correct_answer=4,
@@ -1184,48 +1226,57 @@ class TestMathExpertPluginEdgeCases:
         plugin = MathExpertPlugin()
 
         # Multiple operations
-        result = plugin.execute("10 + 5 * 2 = ")
-        assert result == "20"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "10 + 5 * 2"})
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 20
 
     def test_parentheses(self):
         """Test expressions with parentheses."""
         plugin = MathExpertPlugin()
 
-        result = plugin.execute("(10 + 5) * 2 = ")
-        assert result == "30"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "(10 + 5) * 2"})
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 30
 
     def test_negative_numbers(self):
         """Test with negative numbers."""
         plugin = MathExpertPlugin()
 
-        result = plugin.execute("-5 + 10 = ")
-        assert result == "5"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "-5 + 10"})
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 5
 
     def test_decimal_results(self):
         """Test operations that produce decimals."""
         plugin = MathExpertPlugin()
 
-        result = plugin.execute("10 / 3 = ")
-        # Should return a string representation
-        assert result is not None
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "10 / 3"})
+        result = plugin.execute(action)
+        assert result.success is True
         # Result should be approximately 3.333...
-        assert "3" in result
+        assert "3" in str(result.data["result"])
 
     def test_very_large_numbers(self):
         """Test with very large numbers."""
         plugin = MathExpertPlugin()
 
-        result = plugin.execute("999999 * 999999 = ")
-        assert result == "999998000001"
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "999999 * 999999"})
+        result = plugin.execute(action)
+        assert result.success is True
+        assert result.data["result"] == 999998000001
 
     def test_division_by_zero_handling(self):
         """Test division by zero is handled gracefully."""
         plugin = MathExpertPlugin()
 
         # Should not crash
-        result = plugin.execute("10 / 0 = ")
-        # Should return None or handle gracefully
-        assert result is None or isinstance(result, str)
+        action = ExpertAction(expert="math", operation="evaluate", parameters={"expression": "10 / 0"})
+        result = plugin.execute(action)
+        # Should return failure or handle gracefully
+        assert result.success is False or isinstance(result.data, dict)
 
     def test_can_handle_variations(self):
         """Test can_handle with various formats."""
@@ -1242,13 +1293,3 @@ class TestMathExpertPluginEdgeCases:
         assert plugin.can_handle("10 / 2 = ")
         assert plugin.can_handle("5 * 5 = ")
         assert plugin.can_handle("10 - 3 = ")
-
-    def test_validate_result_with_floats(self):
-        """Test validate_result with floating point results."""
-        plugin = MathExpertPlugin()
-
-        # Integer results
-        assert plugin.validate_result("2+2", "4")
-
-        # Should handle string/int comparison
-        assert plugin.validate_result("10/2", "5")

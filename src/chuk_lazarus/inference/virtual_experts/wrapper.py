@@ -12,13 +12,14 @@ from typing import Any
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
+from chuk_virtual_expert import VirtualExpertAction
 
 from .base import (
+    InferenceResult,
     RoutingTrace,
     VirtualExpertAnalysis,
     VirtualExpertApproach,
     VirtualExpertPlugin,
-    VirtualExpertResult,
 )
 from .plugins.math import MathExpertPlugin
 from .registry import VirtualExpertRegistry, get_default_registry
@@ -191,11 +192,16 @@ class VirtualMoEWrapper:
 
         For each plugin, collects activations for positive/negative prompts
         and learns a routing direction in activation space.
+        Plugins with empty calibration data are skipped.
         """
         plugins = self.registry.get_all()
 
         for plugin_idx, plugin in enumerate(plugins):
             pos_prompts, neg_prompts = plugin.get_calibration_prompts()
+
+            # Skip plugins with no calibration data
+            if not pos_prompts or not neg_prompts:
+                continue
 
             # Calibrate each virtual router at each layer
             for layer_idx, virtual_router in self.virtual_routers.items():
@@ -407,24 +413,68 @@ class VirtualMoEWrapper:
         return self.tokenizer.decode(generated).strip()
 
     def solve(
-        self, prompt: str, max_tokens: int = 20, verbose: bool = False
-    ) -> VirtualExpertResult:
+        self,
+        prompt: str,
+        max_tokens: int = 20,
+        verbose: bool = False,
+        action: VirtualExpertAction | None = None,
+    ) -> InferenceResult:
         """
         Solve a problem, using virtual experts when appropriate.
+
+        With action (Rogue-1 / CoT):
+        1. Model output is parsed into VirtualExpertAction with trace steps
+        2. Action.expert names the plugin to dispatch to
+        3. Plugin executes the trace
+
+        Without action (legacy):
+        1. MoE routing decides if virtual expert should be used
+        2. Only plugins with extract_and_evaluate work (MathExpert)
 
         Args:
             prompt: The input prompt
             max_tokens: Maximum tokens to generate
             verbose: Collect detailed routing trace
+            action: Pre-parsed VirtualExpertAction (from model YAML output or CoT rewriter)
 
         Returns:
-            VirtualExpertResult with the answer and metadata
+            InferenceResult with the answer and metadata
         """
         if not self._calibrated:
             self.calibrate()
 
-        # Find plugin that can handle this
+        # With CoT action: dispatch directly to the named expert
+        if action and action.expert != "none":
+            plugin = self.registry.get(action.expert)
+            if plugin:
+                ve_result = plugin.execute(action)
+                if ve_result.success and ve_result.data:
+                    data = ve_result.data
+                    if isinstance(data, dict):
+                        answer = str(data.get('formatted', data.get('answer', data.get('result', data))))
+                    else:
+                        answer = str(data)
+
+                    correct_answer = None
+                    if isinstance(plugin, MathExpertPlugin):
+                        _, correct_answer = plugin.extract_and_evaluate(prompt)
+
+                    return InferenceResult(
+                        prompt=prompt,
+                        answer=answer,
+                        correct_answer=correct_answer,
+                        approach=VirtualExpertApproach.VIRTUAL_EXPERT,
+                        used_virtual_expert=True,
+                        plugin_name=plugin.name,
+                        routing_score=1.0,
+                        virtual_expert_selected_count=1,
+                        total_tokens=1,
+                    )
+
+        # Legacy path: find plugin supporting extract_and_evaluate
         plugin = self.registry.find_handler(prompt)
+        if plugin and "extract_and_evaluate" not in plugin.get_operations():
+            plugin = None
         correct_answer = None
 
         if plugin and isinstance(plugin, MathExpertPlugin):
@@ -435,11 +485,21 @@ class VirtualMoEWrapper:
             self._generate_with_virtual_expert(prompt, max_tokens, collect_trace=verbose)
         )
 
-        # If virtual expert selected and we can compute, use plugin
-        if used_virtual and plugin and correct_answer is not None:
-            result = plugin.execute(prompt)
-            if result:
-                answer = result
+        # If virtual expert selected and we have a compatible plugin, dispatch
+        if used_virtual and plugin:
+            ve_action = VirtualExpertAction(
+                expert=plugin.name,
+                operation="extract_and_evaluate",
+                parameters={"text": prompt},
+            )
+
+            ve_result = plugin.execute(ve_action)
+            if ve_result.success and ve_result.data:
+                data = ve_result.data
+                if isinstance(data, dict):
+                    answer = str(data.get('formatted', data.get('answer', data.get('result', data))))
+                else:
+                    answer = str(data)
                 approach = VirtualExpertApproach.VIRTUAL_EXPERT
             else:
                 answer = gen_text
@@ -448,7 +508,7 @@ class VirtualMoEWrapper:
             answer = gen_text
             approach = VirtualExpertApproach.MODEL_DIRECT
 
-        return VirtualExpertResult(
+        return InferenceResult(
             prompt=prompt,
             answer=answer,
             correct_answer=correct_answer,
@@ -461,7 +521,7 @@ class VirtualMoEWrapper:
             routing_trace=trace,
         )
 
-    def compare(self, prompt: str, verbose: bool = False) -> VirtualExpertResult:
+    def compare(self, prompt: str, verbose: bool = False) -> InferenceResult:
         """Compare model-only vs virtual expert on a single prompt.
 
         Args:

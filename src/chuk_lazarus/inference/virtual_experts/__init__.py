@@ -37,6 +37,7 @@ Example - Using TimeExpert from chuk-virtual-expert-time:
 from chuk_virtual_expert import VirtualExpert
 
 from .base import (
+    InferenceResult,
     RoutingDecision,
     RoutingTrace,
     VirtualExpertAnalysis,
@@ -67,6 +68,7 @@ __all__ = [
     "VirtualExpertResult",
     "VirtualExpertAnalysis",
     "VirtualExpertApproach",
+    "InferenceResult",
     # CoT rewriting
     "VirtualExpertAction",
     "CoTRewriter",

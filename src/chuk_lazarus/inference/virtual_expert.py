@@ -19,6 +19,7 @@ Or from inference:
 
 # Re-export everything from the subpackage
 from .virtual_experts import (
+    InferenceResult,
     MathExpertPlugin,
     RoutingDecision,
     RoutingTrace,
@@ -43,6 +44,7 @@ __all__ = [
     "VirtualExpertResult",
     "VirtualExpertAnalysis",
     "VirtualExpertApproach",
+    "InferenceResult",
     # Routing trace (verbose output)
     "RoutingDecision",
     "RoutingTrace",

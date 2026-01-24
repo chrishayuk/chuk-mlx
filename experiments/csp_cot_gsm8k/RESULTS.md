@@ -1,322 +1,160 @@
-# CSP-CoT GSM-8K Experiment Results
+# GSM-8K YAML Trace Training Results
 
-**Date**: 2026-01-20
-**Status**: Infrastructure complete, awaiting full evaluation
-
----
-
-## Executive Summary
-
-**Hypothesis**: Chain-of-Thought should be solver traces, not English. Verifiable traces enable 100% error detection and provide dense supervision for training.
-
-**Result**: **INFRASTRUCTURE VALIDATED**
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Trace Schema | COMPLETE | Verifiable state transitions |
-| Trace Verifier | COMPLETE | 100% replay validation |
-| Trace Generators | COMPLETE | 4 problem types covered |
-| LLM Parser | COMPLETE | Few-shot JSON extraction |
-| Evaluation Pipeline | COMPLETE | GSM-8K integration |
-| Full Benchmark | PENDING | Need capable model |
+**Date**: 2026-01-24
+**Model**: TinyLlama 1.1B (6 unfrozen layers + lm_head)
+**Training**: 250 synthetic examples, 1 epoch SFT + 20 RL iterations
 
 ---
 
-## Architecture
+## Summary
 
-```
-GSM-8K Problem (natural language)
-         │
-         ▼
-┌─────────────────────────────────────────┐
-│  LLM Parser (Few-shot)                  │
-│  - NO REGEX                             │
-│  - Semantic understanding               │
-│  - Outputs structured ProblemSpec       │
-└─────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────┐
-│  Problem Type Router                    │
-│  - entity_tracking                      │
-│  - arithmetic_chain                     │
-│  - comparison                           │
-│  - allocation                           │
-└─────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────┐
-│  Trace Generator                        │
-│  - Executes operations                  │
-│  - Logs every state transition          │
-│  - Produces verifiable trace            │
-└─────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────┐
-│  Trace Verifier                         │
-│  - Replays each step                    │
-│  - Validates state continuity           │
-│  - 100% error detection                 │
-└─────────────────────────────────────────┘
-         │
-         ▼
-Answer + Verification Status
-```
+| Metric | Value |
+|--------|-------|
+| Overall accuracy | **93%** (230/248) |
+| Parse rate | 100% |
+| Valid traces | 100% |
+| Correct expert | 100% |
+
+A 1B model can learn to emit structured YAML traces that an external solver executes deterministically. The model routes and structures; it does not compute.
 
 ---
 
-## Key Innovation: No Regex
+## Results by Expert Type
 
-### Old Approach (Brittle)
-```python
-# From gsm8k_extractor.py - fragile pattern matching
-r'(\b[A-Z][a-z]+\b)\s+(?:has|had)\s+(\d+)'
-r'(?:(\b[A-Z][a-z]+\b)|(?:She|He|They))\s*(buys?|gets?|gives?|loses?)'
-```
+| Expert | Accuracy | Count | Notes |
+|--------|----------|-------|-------|
+| arithmetic | 100% | 42/42 | Simplest format (init, compute, query) |
+| entity_track | 97% | 102/105 | Transfer/consume patterns |
+| rate_equation | 93% | 39/42 | Formula-based |
+| percentage | 88% | 15/17 | percent_off / percent_increase |
+| comparison | 76% | 32/42 | Complex simultaneous equations |
 
-**Problems**:
-- Breaks on paraphrasing
-- Misses edge cases
-- Maintenance nightmare
-- Matches syntax, not meaning
+### Why Comparison is Weakest
 
-### New Approach (Semantic)
-```python
-# LLM extracts structured JSON
-{
-    "problem_type": "entity_tracking",
-    "entities": [
-        {"name": "jenny", "initial_value": 5},
-        {"name": "bob", "initial_value": 0}
-    ],
-    "operations": [
-        {"type": "transfer", "source": "jenny", "target": "bob", "amount": 2}
-    ],
-    "query": {"target": "jenny"}
-}
-```
-
-**Advantages**:
-- Semantic understanding
-- Handles paraphrasing
-- Zero regex maintenance
-- Model does what it's good at (language understanding)
-
----
-
-## Trace Format
-
-### Example: "Jenny has 5 apples. She gives 2 to Bob. How many does Jenny have?"
+Comparison traces are the most complex (8+ steps, simultaneous equations):
 
 ```yaml
-step_0: {action: init, entity: jenny, value: 5}
-step_1: {action: init, entity: bob, value: 0}
-step_2: {action: transfer, from: jenny, to: bob, amount: 2}
-step_3: {action: query, entity: jenny, result: 3.0}
-answer: 3.0
+expert: comparison
+trace:
+- {init: base, value: 120}
+- formula: {var: person_a, expression: "base * 3"}
+- formula: {var: person_b, expression: "base + 50"}
+- compute: {op: sub, args: [person_a, person_b], var: difference}
+- {query: difference}
 ```
 
-### Verification Process
-
-Each step stores `state_before` and `state_after`. Verification replays:
-
-```python
-for step in trace.steps:
-    computed = apply_action(step.action, step.params, step.state_before)
-    if computed != step.state_after:
-        return INVALID  # Caught!
-```
-
-**Properties**:
-- **Deterministic**: Same input always produces same trace
-- **Verifiable**: Replay proves correctness
-- **Debuggable**: Know exactly where reasoning failed
+The model must wire multiple variable references across formula and compute steps. Errors typically involve incorrect variable names in `args` lists.
 
 ---
 
-## Unit Test Results
+## Training Progression
 
-All unit tests pass:
+### Phase 1: SFT (1 epoch)
 
 ```
-============================================================
-CSP-CoT GSM-8K Experiment - Test Suite
-============================================================
+Epoch 1, batch 1/62: loss=4.521
+Epoch 1, batch 10/62: loss=1.983
+Epoch 1, batch 30/62: loss=0.892
+Epoch 1, batch 62/62: loss=0.451
 
-TEST: Trace Schema                    PASSED
-TEST: Trace Generators                PASSED (4/4)
-TEST: Trace Verifier                  PASSED
-TEST: CSP-CoT Executor                PASSED
-TEST: Edge Cases                      PASSED
-
-ALL TESTS PASSED
+Post-SFT evaluation:
+  Correct: 90%  Parsed: 100%  Valid: 100%
 ```
 
-### Test Coverage
+### Phase 2: RL (REINFORCE, 20 iterations)
 
-| Test | Description | Result |
-|------|-------------|--------|
-| Valid trace | Build and verify correct trace | PASS |
-| Tampered trace | Detect modified state_after | PASS |
-| Broken chain | Detect state discontinuity | PASS |
-| Wrong answer | Detect answer mismatch | PASS |
-| Division | Handle decimal results | PASS |
-| Zero handling | 0 + 5 = 5 | PASS |
-| Negative result | 5 - 10 = -5 | PASS |
-| Large numbers | 1M * 1K = 1B | PASS |
+```
+RL iter 1:  reward=0.93  correct=93%
+RL iter 5:  reward=0.93  correct=93%
+RL iter 10: reward=0.93  correct=93%
+RL iter 15: reward=0.93  correct=93%
+RL iter 20: reward=0.93  correct=93%
+```
+
+RL provides marginal improvement (+3%) and stabilizes quickly. SFT does the heavy lifting.
 
 ---
 
-## Preliminary Evaluation
-
-### With Pre-built Specs (No LLM Parsing)
+## GSM-8K Generalization (10-sample probe)
 
 ```
-GSM-8K Evaluation Results (n=10)
-==================================================
-
-CSP-CoT:
-  Accuracy:    10/10 (100.0%)
-  Verified:    10/10 (100.0%)
-  Parse rate:  10/10
-  Avg time:    0.0ms
+Correct: 2/10 (20%)
+Valid traces: 9/10 (90%)
+Parse rate: 10/10 (100%)
 ```
 
-**Key Finding**: When specs are correct, the system achieves 100% accuracy with 100% verification.
+### Failure Analysis
 
-### With SmolLM2-135M (Too Small)
+The model produces valid, well-structured traces for unseen GSM-8K problems, but often chooses wrong operations or variable wiring. Key issues:
 
-```
-GSM-8K Evaluation Results (n=3)
-==================================================
+1. **Number format**: GSM-8K uses commas in numbers (`80,000`) which breaks YAML parsing
+2. **Multi-step reasoning**: Real problems often require 4-6 chained operations; training examples max at 3-4
+3. **Operation selection**: Model picks plausible but incorrect ops (e.g., `add` instead of `mul`)
 
-CSP-CoT:
-  Accuracy:    0/3 (0.0%)
-  Verified:    3/3 (100.0%)  ← Traces valid, just wrong
-  Parse rate:  3/3
-  Avg time:    8511.1ms
-```
-
-**Key Finding**:
-- 135M model too weak to correctly parse problems
-- But trace verification still works (100%)
-- Wrong parses produce valid but incorrect traces
+The 90% valid trace rate shows the model has learned the format; accuracy will improve with more diverse training data.
 
 ---
 
-## Comparison: English CoT vs CSP-CoT
+## Key Findings
 
-| Aspect | English CoT | CSP-CoT |
-|--------|-------------|---------|
-| Format | Natural language | Structured trace |
-| Example | "5 - 2 = 3" | `{action: subtract, amount: 2, result: 3}` |
-| Verifiable | No | Yes (100%) |
-| Error detection | 0% | 100% |
-| Training signal | Final answer only | Every step |
-| Computation | Neural (can fail) | Symbolic (exact) |
+### 1. System Prompt Length Matters
 
-### Why CSP-CoT is Better for Training
+| System Prompt | Post-SFT Accuracy |
+|--------------|-------------------|
+| Verbose (450 tokens) | 70% |
+| Minimal (1 line) | 90% |
 
-**English CoT Loss**:
-```python
-loss = cross_entropy(predicted_answer, gold_answer)
-# Only supervises final token - reasoning could be wrong
+The verbose prompt consumed context budget. For a fine-tuned model, a minimal expert list is sufficient:
+
+```
+You are a helpful assistant with access to the following experts: entity_track, arithmetic, rate_equation, comparison, percentage
 ```
 
-**CSP-CoT Loss**:
-```python
-if not trace.is_valid():
-    loss = 1.0  # Invalid trace
-elif trace.answer != expected:
-    loss = 0.5  # Valid trace, wrong answer
-else:
-    loss = 0.0  # Correct and verified
-# Supervises EVERY step
-```
+### 2. max_len Truncation is Silent and Fatal
+
+With `max_len=512`, the system prompt (~50 tokens) + question (~60 tokens) + target YAML (~200 tokens) fit, but only after reducing the system prompt. The original 450-token prompt left zero room for targets, causing 100% of training examples to be truncated. Result: 0% correct, 15% parsed.
+
+Fix: `max_len=1024` accommodates all examples comfortably.
+
+### 3. Synthetic Data is Sufficient
+
+250 synthetic examples (no static/hand-crafted data) achieve 93% accuracy on the synthetic distribution. The `TraceGenerator` produces enough variety within each expert type.
+
+### 4. Format Subset Confusion
+
+Arithmetic traces (`init, compute, query`) are a strict subset of entity_track format. The model never confuses them because expert classification is learned from the question semantics, not trace structure.
 
 ---
 
-## Files Created
+## Graduated Reward Structure
 
 ```
-experiments/csp_cot_gsm8k/
-├── EXPERIMENT.md           # Hypothesis and methodology
-├── RESULTS.md              # This file
-├── __init__.py
-├── run_tests.py            # Unit tests (all passing)
-├── run_gsm8k_eval.py       # Full evaluation script
-│
-├── schema/
-│   ├── __init__.py
-│   ├── trace.py            # Step, Trace, State, TraceBuilder
-│   ├── problem.py          # ProblemSpec, Entity, Operation, Query
-│   └── verifier.py         # TraceVerifier with replay
-│
-├── generators/
-│   ├── __init__.py
-│   ├── base.py             # Abstract TraceGenerator
-│   ├── entity.py           # Entity tracking
-│   ├── arithmetic.py       # Arithmetic chains
-│   ├── comparison.py       # Comparisons
-│   ├── allocation.py       # Constraint solving
-│   └── router.py           # Routes spec → generator
-│
-├── pipeline/
-│   ├── __init__.py
-│   ├── parser.py           # Few-shot LLM extraction
-│   └── executor.py         # End-to-end pipeline
-│
-└── evaluation/
-    ├── __init__.py
-    ├── gsm8k_loader.py     # Load from HuggingFace
-    └── evaluator.py        # Metrics and comparison
+1.0: Correct answer (trace executes to expected value)
+0.7: Valid trace, wrong answer
+0.5: Correct expert, trace execution error
+0.3: Parsed YAML, wrong expert
+0.0: Parse failure
 ```
+
+After SFT, all examples score >= 0.7 (valid traces). RL optimizes from 0.7/1.0 mix toward 1.0.
+
+---
+
+## Comparison: Before and After Fixes
+
+| Configuration | Parsed | Valid | Correct |
+|---------------|--------|-------|---------|
+| max_len=512, verbose prompt | 15% | 0% | 0% |
+| max_len=1024, verbose prompt | 100% | 100% | 70% |
+| max_len=1024, minimal prompt | 100% | 100% | 90% |
+| + RL (20 iters) | 100% | 100% | 93% |
 
 ---
 
 ## Next Steps
 
-### Immediate
-1. **Test with capable model** - Need 7B+ for good parsing
-2. **Run full GSM-8K benchmark** - 1319 test problems
-3. **Compare against English CoT baseline**
-
-### Future
-4. **Fine-tune on traces** - Use trace validity as supervision
-5. **Integrate with virtual expert framework** - Wire into existing router
-6. **Extend problem types** - Geometry, time, percentages
-
----
-
-## Usage
-
-```bash
-# Quick test (no model needed)
-python experiments/csp_cot_gsm8k/run_tests.py
-
-# Evaluation with sample specs
-python experiments/csp_cot_gsm8k/run_gsm8k_eval.py --use-samples --n 10
-
-# Full evaluation with model
-python experiments/csp_cot_gsm8k/run_gsm8k_eval.py \
-    --model YOUR_MODEL \
-    --n 100 \
-    --output results.json \
-    --show-errors
-```
-
----
-
-## Conclusion
-
-The CSP-CoT infrastructure is complete and validated. Key achievements:
-
-1. **Zero regex** - LLM does semantic parsing
-2. **100% verifiable** - Every trace can be replayed
-3. **100% error detection** - Invalid traces are caught
-4. **Modular design** - Easy to extend with new problem types
-
-The system demonstrates that Chain-of-Thought can be formalized as verifiable solver traces, enabling both better evaluation and denser training supervision.
-
-**Pending**: Full benchmark with capable model to establish accuracy numbers.
+1. **Scale training data** - 1000+ examples with more operation variety
+2. **Handle number formats** - Preprocess commas in numbers for GSM-8K
+3. **Improve comparison** - More diverse simultaneous equation patterns
+4. **Longer chains** - Train on 5-6 step traces to match GSM-8K complexity
+5. **New expert types** - Time, weather (minimal prompt makes this easy: just add to expert list)

@@ -83,7 +83,7 @@ class MathExpert(VirtualExpert):
 
     def get_operations(self) -> list[str]:
         """Return available operation names."""
-        return ["evaluate", "extract_and_evaluate"]
+        return ["evaluate", "extract_and_evaluate", "execute_trace"]
 
     def execute_operation(
         self,
@@ -118,32 +118,36 @@ class MathExpert(VirtualExpert):
                 }
             raise ValueError(f"Could not extract/evaluate from: {text}")
 
+        elif operation == "execute_trace":
+            return self._execute_trace(parameters)
+
         else:
             raise ValueError(f"Unknown operation: {operation}")
+
+    def _execute_trace(self, parameters: dict[str, Any]) -> dict[str, Any]:
+        """Execute a symbolic trace using TraceSolverExpert if available."""
+        try:
+            from chuk_virtual_expert_arithmetic import ArithmeticExpert
+
+            expert = ArithmeticExpert()
+            trace_steps = parameters.get("trace", [])
+            result = expert.execute_trace(trace_steps)
+            return {
+                "success": result.success,
+                "answer": result.answer,
+                "result": result.answer,
+                "state": result.state,
+                "error": result.error,
+                "formatted": str(result.answer) if result.answer is not None else "",
+            }
+        except ImportError:
+            raise ValueError("chuk-virtual-expert-arithmetic not installed for trace execution")
 
     def can_handle(self, prompt: str) -> bool:
         """Check if prompt contains a computable math expression."""
         # Look for patterns like "X op Y =" or "X op Y"
         pattern = r"\d+\s*[+\-*/]\s*\d+\s*=?\s*$"
         return bool(re.search(pattern, prompt.strip()))
-
-    def execute(self, prompt_or_action) -> Any:
-        """Execute - supports both old string API and new action API."""
-        from chuk_virtual_expert import VirtualExpertAction, VirtualExpertResult
-
-        # Handle new VirtualExpertAction interface
-        if isinstance(prompt_or_action, VirtualExpertAction):
-            return super().execute(prompt_or_action)
-
-        # Handle legacy string interface (for backwards compat)
-        prompt = str(prompt_or_action)
-        result = self._evaluate(prompt)
-        if result is not None:
-            # Format as integer if whole number
-            if isinstance(result, float) and result == int(result):
-                return str(int(result))
-            return str(result)
-        return None
 
     def _evaluate(self, expr: str) -> float | int | None:
         """Safely evaluate a mathematical expression."""

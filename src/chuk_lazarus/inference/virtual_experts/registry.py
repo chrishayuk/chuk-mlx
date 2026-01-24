@@ -158,6 +158,23 @@ def get_default_registry() -> VirtualExpertRegistry:
         except ImportError:
             pass  # chuk-virtual-expert-time not installed
 
+        # Register arithmetic trace experts if available
+        try:
+            from chuk_virtual_expert_arithmetic import (
+                ArithmeticExpert,
+                ComparisonExpert,
+                EntityTrackExpert,
+                PercentageExpert,
+                RateEquationExpert,
+            )
+            _default_registry.register(EntityTrackExpert())
+            _default_registry.register(ArithmeticExpert())
+            _default_registry.register(PercentageExpert())
+            _default_registry.register(RateEquationExpert())
+            _default_registry.register(ComparisonExpert())
+        except ImportError:
+            pass  # chuk-virtual-expert-arithmetic not installed
+
     return _default_registry
 
 

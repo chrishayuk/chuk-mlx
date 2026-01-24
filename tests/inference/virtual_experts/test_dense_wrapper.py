@@ -293,8 +293,11 @@ class TestVirtualDenseWrapper:
             def can_handle(self, prompt: str) -> bool:
                 return "test" in prompt
 
-            def execute(self, prompt: str) -> str:
-                return "test_result"
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": "test_result", "formatted": "test_result"}
 
             def get_calibration_prompts(self):
                 return ["test 1", "test 2"], ["hello", "world"]
@@ -411,8 +414,11 @@ class TestCreateVirtualDenseWrapper:
             def can_handle(self, prompt: str) -> bool:
                 return True
 
-            def execute(self, prompt: str) -> str:
-                return "extra"
+            def get_operations(self):
+                return ["evaluate"]
+
+            def execute_operation(self, operation, parameters):
+                return {"result": "extra", "formatted": "extra"}
 
             def get_calibration_prompts(self):
                 return [], []

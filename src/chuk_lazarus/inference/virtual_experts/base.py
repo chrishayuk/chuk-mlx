@@ -1,8 +1,8 @@
 """
 Base classes for virtual expert plugins.
 
-This module re-exports the VirtualExpert base class from chuk-virtual-expert
-and provides Lazarus-specific inference tracking types.
+Re-exports from chuk-virtual-expert and provides Lazarus-specific
+inference tracking types for benchmarking and analysis.
 """
 
 from __future__ import annotations
@@ -15,11 +15,25 @@ from enum import Enum
 from chuk_virtual_expert import (
     VirtualExpert,
     VirtualExpertAction,
-    VirtualExpertResult as BaseVirtualExpertResult,
+    VirtualExpertResult,
 )
 
-# Re-export for backwards compatibility
-VirtualExpertPlugin = VirtualExpert  # Alias for migration
+# Re-export for use across Lazarus
+__all__ = [
+    "VirtualExpert",
+    "VirtualExpertAction",
+    "VirtualExpertResult",
+    "VirtualExpertApproach",
+    "InferenceResult",
+    "RoutingDecision",
+    "RoutingTrace",
+    "VirtualExpertAnalysis",
+    # Backwards compatibility
+    "VirtualExpertPlugin",
+]
+
+# Backwards compatibility alias
+VirtualExpertPlugin = VirtualExpert
 
 
 class VirtualExpertApproach(str, Enum):
@@ -90,7 +104,7 @@ class RoutingTrace:
 
 @dataclass
 class InferenceResult:
-    """Result from virtual expert inference (Lazarus-specific tracking)."""
+    """Result from Lazarus inference with virtual expert routing."""
 
     prompt: str
     answer: str
@@ -114,10 +128,6 @@ class InferenceResult:
                     self.is_correct = abs(answer_num - self.correct_answer) < 0.01
             except (ValueError, TypeError):
                 pass
-
-
-# Backwards compatibility alias
-VirtualExpertResult = InferenceResult
 
 
 @dataclass

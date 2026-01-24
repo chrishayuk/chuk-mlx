@@ -1,134 +1,168 @@
-# CSP-CoT for GSM-8K
+# GSM-8K YAML Trace Training
 
-## The Claim
+## Thesis
 
-Chain-of-Thought should be solver traces, not English. This gets 98% on GSM-8K with 100% verifiability.
-
-## The Problem with English CoT
-
-```
-Let me think step by step.
-Alice has 5 apples.
-She gives 2 to Bob.
-5 - 2 = 3.
-The answer is 3.
-```
-
-**Issues:**
-- "5 - 2 = 4" would look just as plausible
-- No way to verify reasoning is correct
-- Can get right answer with wrong reasoning
-- Training only supervises final answer
-
-## CSP-CoT Approach
-
-```yaml
-step_0: {action: init, entity: alice, attr: apples, value: 5}
-step_1: {action: init, entity: bob, attr: apples, value: 0}
-step_2: {action: transfer, from: alice, to: bob, amount: 2}
-step_3: {action: query, entity: alice, attr: apples, result: 3}
-answer: 3
-```
-
-**Advantages:**
-- Every step is verifiable by replay
-- Invalid traces are detected immediately
-- Training supervises every step
-- Can't get right answer with wrong reasoning
+LLMs should route and structure, not compute. A 1B model can learn to emit symbolic YAML traces that an external solver executes deterministically.
 
 ## Architecture
 
 ```
-GSM-8K Problem (natural language)
-    │
-    ▼
-┌────────────────────────────────────────┐
-│  Virtual Expert Parser                  │
-│  (LLM extracts structured ProblemSpec)  │
-│  - No regex, model does semantic parse  │
-└────────────────────────────────────────┘
-    │
-    ▼
-┌────────────────────────────────────────┐
-│  Problem Type Classifier                │
-│  (L4 probe or model classification)     │
-│  → entity_tracking | arithmetic_chain   │
-│  → rate_equation | allocation | compare │
-└────────────────────────────────────────┘
-    │
-    ▼
-┌────────────────────────────────────────┐
-│  Trace Generator                        │
-│  (Executes + logs every state change)   │
-│  - State machine with full history      │
-│  - Deterministic computation            │
-└────────────────────────────────────────┘
-    │
-    ▼
-┌────────────────────────────────────────┐
-│  Trace Verifier                         │
-│  (Replays trace, validates each step)   │
-│  - If replay fails → reasoning is wrong │
-│  - 100% error detection                 │
-└────────────────────────────────────────┘
-    │
-    ▼
-Answer + Verified Trace
+Math Problem (natural language)
+       |
+       v
++---------------------------+
+|  Model (TinyLlama 1.1B)   |
+|  - Classifies expert type  |
+|  - Extracts quantities     |
+|  - Wires variable refs     |
+|  - Specifies query target  |
++---------------------------+
+       |
+       v  (YAML trace)
++---------------------------+
+|  TraceSolverExpert         |
+|  - Executes trace steps    |
+|  - Maintains state dict    |
+|  - Computes arithmetic     |
+|  - Returns answer          |
++---------------------------+
+       |
+       v
+Answer + Verification Status
 ```
 
-## Why No Regex
+## Trace Format
 
-The original GSM-8K extractor used regex patterns like:
+```yaml
+expert: entity_track
+trace:
+- {init: eggs, value: 16}
+- consume: {entity: eggs, amount: 3}
+- consume: {entity: eggs, amount: 4}
+- compute:
+    op: mul
+    args: [eggs, 2]
+    var: revenue
+- {query: revenue}
+```
+
+The model outputs structure. The solver computes: `eggs=16 -> 13 -> 9`, then `9*2=18`.
+
+## Expert Types
+
+| Expert | Pattern | Operations |
+|--------|---------|------------|
+| `entity_track` | Quantities moving between entities | init, consume, add, transfer, compute, query |
+| `arithmetic` | Chain of operations | init, compute, query |
+| `rate_equation` | Rate x time = quantity | init, formula, compute, query |
+| `comparison` | Compute then compare | init, formula, compute, query |
+| `percentage` | Percent increase/decrease | init, percent_off, percent_increase, compute, query |
+
+## Training Pipeline
+
+### Data Generation
+
+All training data is generated synthetically by `chuk_virtual_expert_arithmetic.generators`:
+
 ```python
-r'(\b[A-Z][a-z]+\b)\s+(?:has|had)\s+(\d+)'
+from chuk_virtual_expert_arithmetic.generators import TraceGenerator
+gen = TraceGenerator()
+examples = gen.generate_balanced(250)
 ```
 
-Problems:
-1. Brittle - breaks on paraphrasing
-2. Incomplete - misses edge cases
-3. Maintenance nightmare - endless pattern additions
-4. Not semantic - matches syntax, not meaning
+Distribution (matches GSM-8K proportions):
+- entity_track: 42% (105 examples)
+- arithmetic: 17% (42)
+- rate_equation: 17% (42)
+- comparison: 17% (42)
+- percentage: 7% (17)
 
-The virtual expert approach:
-1. LLM does semantic parsing (what it's good at)
-2. Solver does computation (what it's good at)
-3. Trace provides verifiability (what neither does alone)
+### Prompt Format
 
-## Expected Results
+```
+<|system|>
+You are a helpful assistant with access to the following experts: entity_track, arithmetic, rate_equation, comparison, percentage</s>
+<|user|>
+{question}</s>
+<|assistant|>
+```yaml
+{model generates YAML trace here}
+```</s>
+```
 
-| Method | Accuracy | Verifiable | Error Detection |
-|--------|----------|------------|-----------------|
-| Neural only | ~55% | 0% | 0% |
-| English CoT | ~75% | 0% | 0% |
-| Tool-use | ~85% | ~50% | ~50% |
-| **CSP-CoT** | **~95%** | **~95%** | **100%** |
+The system prompt is minimal - just lists available experts. The model learns trace format entirely from SFT examples.
 
-## Experiment Phases
+### Phase 1: SFT (1 epoch)
 
-### Phase 1: Schema + Taxonomy
-- Define trace schema (Step, Trace, State)
-- Classify 200 GSM-8K problems into types
-- Build type → generator mapping
+- TinyLlama chat template
+- 6 unfrozen layers + lm_head
+- Adam, lr=2e-5, batch size 4
+- max_len=1024 (accommodates prompt + full target)
 
-### Phase 2: Trace Generators
-- EntityTraceGenerator (tracking problems)
-- ArithmeticTraceGenerator (computation chains)
-- EquationTraceGenerator (rate/ratio/allocation)
-- ComparisonTraceGenerator (how many more/less)
+### Phase 2: RL (REINFORCE, 20 iterations)
 
-### Phase 3: Virtual Expert Parser
-- Few-shot prompt for structured extraction
-- LLM outputs ProblemSpec (entities, operations, query)
-- No regex - pure semantic parsing
+- Adam, lr=5e-7
+- Batch size 8, temp=0.7
+- Max 250 generated tokens
+- Graduated reward from TraceVerifier:
 
-### Phase 4: Pipeline + Evaluation
-- Wire up: Parser → Classifier → Generator → Verifier
-- Run on GSM-8K test set
-- Compare against baselines
+```
+1.0: Correct answer (trace executes to expected value)
+0.7: Valid trace, wrong answer
+0.5: Correct expert, trace execution error
+0.3: Parsed YAML, wrong expert
+0.0: Parse failure
+```
 
-## Success Criteria
+## Verification
 
-1. **>95% accuracy** on GSM-8K
-2. **100% verifiability** (every correct answer has valid trace)
-3. **100% error detection** (every wrong answer has invalid trace)
-4. **Zero regex** in extraction pipeline
+The `TraceVerifier` (from `chuk_virtual_expert`) dispatches traces to the appropriate `TraceSolverExpert`:
+
+1. Parse YAML into `Trace` object
+2. Look up expert in registry
+3. Execute trace steps maintaining state dict
+4. Return computed answer
+
+Each expert handles domain-specific operations (transfer, consume, percent_off) while the base `TraceSolverExpert` handles common ones (init, compute, formula, query).
+
+## Key Design Decisions
+
+1. **Minimal system prompt** - Model learns format from examples, not instructions. Enables adding new experts by just listing them.
+2. **Synthetic data only** - No static JSON files. All training data generated by `TraceGenerator`.
+3. **Variable references, not literals** - `args: [eggs, 2]` not `args: [9, 2]`. Model doesn't compute.
+4. **Mixed YAML style** - `yaml.dump(default_flow_style=None)` produces natural mix of flow/block styles.
+
+## Files
+
+```
+experiments/csp_cot_gsm8k/
+├── train_gsm8k_yaml.py       # Training script (SFT + RL)
+├── evaluation/
+│   └── gsm8k_loader.py       # GSM-8K sample/HuggingFace loader
+├── EXPERIMENT.md              # This file
+└── RESULTS.md                 # Results and analysis
+```
+
+Dependencies:
+- `chuk_virtual_expert` - TraceSolverExpert, TraceVerifier, ExpertRegistry
+- `chuk_virtual_expert_arithmetic` - Expert implementations + generators
+- `chuk_lazarus` - Model loading
+
+## Usage
+
+```bash
+# Standard training
+python experiments/csp_cot_gsm8k/train_gsm8k_yaml.py
+
+# Quick run (1 epoch SFT + 20 RL)
+python experiments/csp_cot_gsm8k/train_gsm8k_yaml.py --sft-epochs 1 --rl-iters 20
+
+# Save checkpoint
+python experiments/csp_cot_gsm8k/train_gsm8k_yaml.py --save-checkpoint checkpoints/gsm8k
+
+# Custom training size
+python experiments/csp_cot_gsm8k/train_gsm8k_yaml.py --n-train 500
+
+# Evaluate checkpoint on HuggingFace GSM-8K
+python experiments/csp_cot_gsm8k/train_gsm8k_yaml.py --load-checkpoint checkpoints/gsm8k --eval-only --use-hf
+```
