@@ -191,7 +191,13 @@ def extract_yaml(text: str) -> str | None:
     # Validate it looks like YAML
     try:
         parsed = yaml.safe_load(text)
+        # Single-expert: dict with "expert" key
         if isinstance(parsed, dict) and "expert" in parsed:
+            return text
+        # Composed: list of sub-traces, each with "expert" key
+        if isinstance(parsed, list) and all(
+            isinstance(sub, dict) and "expert" in sub for sub in parsed
+        ):
             return text
     except yaml.YAMLError:
         pass
@@ -203,29 +209,34 @@ def extract_yaml(text: str) -> str | None:
 # DATA
 # =============================================================================
 
-def load_training_data(n: int = 250) -> list[dict]:
+def load_training_data(n: int = 250, include_composition: bool = True) -> list[dict]:
     """Generate YAML trace training examples.
 
     Args:
         n: Number of training examples to generate.
+        include_composition: Whether to include multi-expert composition examples.
     """
     from chuk_virtual_expert_arithmetic.generators import TraceGenerator
     gen = TraceGenerator()
-    examples = gen.generate_balanced(n)
+    examples = gen.generate_balanced(n, include_composition=include_composition)
 
     result = []
     for ex in examples:
-        # Serialize steps individually (discriminated unions lose fields via parent dump)
-        trace = [
-            {k: v for k, v in step.model_dump(mode="json").items() if v is not None}
-            for step in ex.trace
-        ]
-        result.append({
-            "expert": ex.expert,
-            "query": ex.query,
-            "trace": trace,
-            "answer": ex.answer,
-        })
+        if isinstance(ex, dict) and ex.get("composed"):
+            # Composition example — already in dict format
+            result.append(ex)
+        else:
+            # Single-expert TraceExample — serialize steps
+            trace = [
+                {k: v for k, v in step.model_dump(mode="json").items() if v is not None}
+                for step in ex.trace
+            ]
+            result.append({
+                "expert": ex.expert,
+                "query": ex.query,
+                "trace": trace,
+                "answer": ex.answer,
+            })
 
     random.shuffle(result)
     return result
@@ -251,13 +262,45 @@ def format_chat_prompt(question: str) -> str:
     return f"<|system|>\n{SYSTEM_PROMPT}</s>\n<|user|>\n{question}</s>\n<|assistant|>\n```yaml\n"
 
 
+def _format_trace_step(step: dict) -> str:
+    """Format a single trace step in consistent flow style."""
+    # Always use flow style for trace steps to avoid mixed formatting
+    parts = []
+    for k, v in step.items():
+        if isinstance(v, list):
+            # Format arrays inline: [a, b, c]
+            parts.append(f"{k}: [{', '.join(str(x) for x in v)}]")
+        elif isinstance(v, str):
+            parts.append(f"{k}: {v}")
+        else:
+            parts.append(f"{k}: {v}")
+    return "{" + ", ".join(parts) + "}"
+
+
+def _format_trace(expert: str, trace: list[dict]) -> str:
+    """Format a single expert trace with consistent styling."""
+    lines = [f"expert: {expert}", "trace:"]
+    for step in trace:
+        lines.append(f"- {_format_trace_step(step)}")
+    return "\n".join(lines)
+
+
 def format_target(example: dict) -> str:
-    """Format target as YAML trace."""
-    yaml_str = yaml.dump(
-        {"expert": example["expert"], "trace": example["trace"]},
-        default_flow_style=None,
-        sort_keys=False,
-    )
+    """Format target as YAML trace (single-expert dict or composed list)."""
+    if example.get("composed"):
+        # Composed: list of sub-traces
+        parts = []
+        for sub in example["steps"]:
+            sub_yaml = _format_trace(sub["expert"], sub["trace"])
+            # Indent all lines and prefix first with "- "
+            sub_lines = sub_yaml.split("\n")
+            parts.append("- " + sub_lines[0])
+            for line in sub_lines[1:]:
+                parts.append("  " + line)
+        yaml_str = "\n".join(parts) + "\n"
+    else:
+        # Single expert
+        yaml_str = _format_trace(example["expert"], example["trace"]) + "\n"
     return yaml_str + "```"
 
 
@@ -388,7 +431,7 @@ def evaluate(model, tokenizer, data: list[dict], show: int = 0, quiet: bool = Fa
             stats["wrong_expert"] += 1
 
         # Track by expert
-        expert = ex.get("expert", "unknown")
+        expert = "composition" if ex.get("composed") else ex.get("expert", "unknown")
         if expert not in stats["by_expert"]:
             stats["by_expert"][expert] = {"total": 0, "correct": 0}
         stats["by_expert"][expert]["total"] += 1
@@ -534,7 +577,10 @@ def main():
     # Show expert distribution
     expert_counts = {}
     for ex in train_data:
-        expert_counts[ex["expert"]] = expert_counts.get(ex["expert"], 0) + 1
+        if ex.get("composed"):
+            expert_counts["composition"] = expert_counts.get("composition", 0) + 1
+        else:
+            expert_counts[ex["expert"]] = expert_counts.get(ex["expert"], 0) + 1
     for expert, count in sorted(expert_counts.items()):
         print(f"  {expert}: {count}")
 
@@ -559,10 +605,13 @@ def main():
     print("\nVerifying training examples...")
     verified = 0
     for ex in train_data:
-        yaml_str = yaml.dump(
-            {"expert": ex["expert"], "trace": ex["trace"]},
-            default_flow_style=None, sort_keys=False,
-        )
+        if ex.get("composed"):
+            yaml_str = yaml.dump(ex["steps"], default_flow_style=None, sort_keys=False)
+        else:
+            yaml_str = yaml.dump(
+                {"expert": ex["expert"], "trace": ex["trace"]},
+                default_flow_style=None, sort_keys=False,
+            )
         result = verify_yaml_output(yaml_str, expected_answer=ex["answer"])
         if result["answer_correct"]:
             verified += 1
