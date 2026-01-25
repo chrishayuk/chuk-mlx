@@ -71,23 +71,25 @@ The `op` field enables direct Pydantic validation — the verifier parses model 
 
 ## Expert Types
 
-| Expert | Role | Shape | Operations |
-|--------|------|-------|------------|
-| `rate_equation` | Single-step: rate x time | 4-step (fixed) | init, compute(mul), query |
-| `arithmetic` | Multi-step chains | variable-length | init+, compute+, query |
-| `comparison` | Two-quantity relationships | 5-step (fixed) | init(x), init(y), compute(z), compute(result), query(result) |
-| `percentage` | Percent operations | 4-step (fixed) | init, domain_op, query |
-| `entity_track` | Quantities moving between entities | variable | init, consume, transfer, compute, query |
+| Expert | Role | Shape | Patterns | Operations |
+|--------|------|-------|----------|------------|
+| `rate_equation` | Single-step: rate x time | 4-step (fixed) | 4 | init, compute(mul), query |
+| `arithmetic` | Multi-step chains | variable-length | 9 (6 seq + 3 interleaved) | (init\|compute)+, query |
+| `comparison` | Two-quantity relationships | 5-step (fixed) | 4 | init(x), init(y), compute(z), compute(result), query(result) |
+| `percentage` | Percent operations | 4-step (fixed) | 4 | init, domain_op, query |
+| `entity_track` | Quantities moving between entities | variable | 5 | init, consume, transfer, compute, query |
 
 ### Expert Separation Principle
 
 | Expert | Responsibility |
 |--------|----------------|
 | `rate_equation` | Single-step: rate x time, distance/speed/time |
-| `arithmetic` | Multi-step chains: sequential operations, compound rates |
+| `arithmetic` | Multi-step chains: sequential + interleaved operations |
 
 `rate_equation` is a clean 4-step pattern: init, init, compute(mul), query. Always. No variance.
-`arithmetic` handles variable-length operation chains, including compound rate problems (rate x time / workers, combined rates x time).
+`arithmetic` handles variable-length operation chains, including:
+- Sequential: `init+ → compute+ → query` (price chains, divide-multiply)
+- Interleaved: `(init|compute)+ → query` (parallel merge, chained multiply-sum)
 
 ## Structural Consistency Principle
 
@@ -126,16 +128,20 @@ All training data is generated synthetically by `chuk_virtual_expert_arithmetic.
 ```python
 from chuk_virtual_expert_arithmetic.generators import TraceGenerator
 gen = TraceGenerator()
-examples = gen.generate_balanced(500, include_composition=True)  # 75 composed, 425 single
+examples = gen.generate_balanced(
+    500,
+    include_composition=True,
+    interleaved_ratio=0.5,  # 50% of arithmetic uses interleaved patterns
+)
 ```
 
-Distribution (weighted by discrimination difficulty, with composition):
-- entity_track: 25% (~125 examples @ n=500, 5 patterns, ~25/pattern)
-- arithmetic: 20% (~100 examples, 6 patterns, ~16/pattern)
-- comparison: 20% (~100 examples, 4 patterns, ~25/pattern)
+Distribution (Run 8, with interleaved):
+- arithmetic: 30% (~150 examples @ n=500, 9 patterns, ~17/pattern)
+- entity_track: 20% (~100 examples, 5 patterns, ~20/pattern)
+- comparison: 15% (~75 examples, 4 patterns, ~19/pattern)
+- composition: 15% (~75 examples, 4 patterns, ~19/pattern)
+- percentage: 10% (~50 examples, 4 patterns, ~12/pattern)
 - rate_equation: 10% (~50 examples, 4 identical patterns)
-- percentage: 10% (~50 examples, 4 patterns)
-- composition: 15% (~75 examples, 4 patterns, ~18/pattern)
 
 ### Question Template Discipline
 
@@ -348,7 +354,7 @@ class InitStep(BaseTraceStep):
 
 ### Results
 
-**Run 7**: 100% SFT accuracy, 100% parse rate with 500 examples (75 composed, 425 single). No RL needed.
+**Run 7**: 97% SFT accuracy, 100% parse rate with 249 examples (37 composed, 212 single). 0% GSM-8K (all valid traces, wrong answers).
 
 ### Design Principles
 
@@ -364,7 +370,64 @@ class InitStep(BaseTraceStep):
 1. Format → 2. Routing → 3. Structure → 4. Wiring → 5. Discrimination → 6. Decomposition
 ```
 
-Levels 1-6 now validated (100% on synthetic with composition).
+Levels 1-6 validated (97% on synthetic with composition).
+
+## Interleaved Init Patterns (Implemented — Run 8)
+
+### The Grammar Gap
+
+Run 7 GSM-8K evaluation revealed that 40% of problems introduce new quantities between compute steps:
+
+```
+Training grammar:  init+ → compute+ → query
+GSM-8K requires:   (init | compute)+ → query
+```
+
+### New Patterns
+
+| Generator | Structure | Example Problem |
+|-----------|-----------|-----------------|
+| `generate_interleaved_mul_mul` | init,init,compute,init,compute | "3 laps × 5 miles/day × 10 days" |
+| `generate_parallel_merge` | init,init,compute,init,init,compute,compute | "(hens×per_hen)-(gift1+gift2)" |
+| `generate_chained_mul_sum` | init,init,compute,init,compute,compute,compute | "city1×f1=city2, city2×f2=city3, sum" |
+
+### Trace Example (parallel_merge)
+
+```yaml
+expert: arithmetic
+trace:
+- {op: init, var: hens, value: 4}
+- {op: init, var: per_hen, value: 18}
+- {op: compute, compute_op: mul, args: [hens, per_hen], var: produced}
+- {op: init, var: gift1, value: 13}           # ← Interleaved init
+- {op: init, var: gift2, value: 10}           # ← Interleaved init
+- {op: compute, compute_op: add, args: [gift1, gift2], var: gifted}
+- {op: compute, compute_op: sub, args: [produced, gifted], var: remaining}
+- {op: query, var: remaining}
+```
+
+### Distribution
+
+Updated `TraceGenerator.generate_balanced()`:
+- Arithmetic: 20% → 30% (to accommodate 9 patterns)
+- Added `interleaved_ratio` parameter (default 0.5) for sequential vs interleaved mix
+
+### Pattern Count
+
+| Category | Run 7 | Run 8 |
+|----------|-------|-------|
+| Sequential arithmetic | 6 | 6 |
+| Interleaved arithmetic | 0 | 3 |
+| Total patterns | 27 | **30** |
+| GSM-8K coverage (est.) | ~20% | **~50%** |
+
+### Learning Hierarchy Extension
+
+```
+1. Format → 2. Routing → 3. Structure → 4. Wiring → 5. Discrimination → 6. Decomposition → 7. Interleaving
+```
+
+Level 7 is the new challenge: deciding at each position whether to extract a new value or compute with existing ones.
 
 ## Files
 

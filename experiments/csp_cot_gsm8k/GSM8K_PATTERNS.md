@@ -42,55 +42,54 @@ trace:
 
 ---
 
-#### ❌ Interleaved Chain ((init | compute)+ → query)
+#### ✅ Interleaved Chain ((init | compute)+ → query)
 
 **Structure**: New values introduced between computations.
 
 ```yaml
 expert: arithmetic
 trace:
-- {op: init, var: a, value: 3}
-- {op: init, var: b, value: 3}
-- {op: compute, compute_op: mul, args: [a, b], var: step1}
-- {op: init, var: c, value: 60}           # ← Value introduced mid-chain
-- {op: compute, compute_op: mul, args: [step1, c], var: result}
-- {op: query, var: result}
+- {op: init, var: sessions, value: 3}
+- {op: init, var: per_session, value: 5}
+- {op: compute, compute_op: mul, args: [sessions, per_session], var: daily}
+- {op: init, var: days, value: 10}           # ← Value introduced mid-chain
+- {op: compute, compute_op: mul, args: [daily, days], var: total}
+- {op: query, var: total}
 ```
 
-**GSM-8K Examples**:
-- James sprints: 3×3=9, introduce 60, 9×60=540
-- John's dogs: 10×0.5=5, introduce 7, 5×7=35
-- Toulouse's sheep: 4×20=80, introduce 2, 2×80=160, sum all
+**Example**: "Alex runs 3 laps of 5 miles each day. How many total miles in 10 days?"
 
-**Status**: ❌ Not implemented
-**Blocked by**: Grammar limitation (init+ compute+ vs interleaved)
-**Fix**: Add interleaved patterns to arithmetic generator
+**GSM-8K Analogs**:
+- James sprints: sessions × per_session = daily, daily × days = total
+- Toulouse's sheep: city1 × factor1 = city2, city2 × factor2 = city3, sum all
+
+**Status**: ✅ Implemented (`generate_interleaved_mul_mul`, `generate_chained_mul_sum`)
 
 ---
 
-#### ❌ Parallel Computation + Merge
+#### ✅ Parallel Computation + Merge
 
 **Structure**: Two independent sub-computations merged at the end.
 
 ```yaml
 expert: arithmetic
 trace:
-- {op: init, var: a, value: 3}
-- {op: init, var: b, value: 20}
-- {op: compute, compute_op: mul, args: [a, b], var: total}      # Branch 1
-- {op: init, var: c, value: 15}
-- {op: init, var: d, value: 25}
-- {op: compute, compute_op: add, args: [c, d], var: given}      # Branch 2
-- {op: compute, compute_op: sub, args: [total, given], var: result}  # Merge
-- {op: query, var: result}
+- {op: init, var: hens, value: 3}
+- {op: init, var: per_hen, value: 20}
+- {op: compute, compute_op: mul, args: [hens, per_hen], var: produced}   # Branch 1
+- {op: init, var: gift1, value: 15}
+- {op: init, var: gift2, value: 25}
+- {op: compute, compute_op: add, args: [gift1, gift2], var: gifted}      # Branch 2
+- {op: compute, compute_op: sub, args: [produced, gifted], var: remaining}  # Merge
+- {op: query, var: remaining}
 ```
 
-**GSM-8K Examples**:
-- Wendi's chickens: (3×20) - (15+25) = 60 - 40 = 20
+**Example**: "A farm has 3 hens each producing 20 eggs. They give away 15 to neighbors and 25 to friends. How many eggs remain?"
 
-**Status**: ❌ Not implemented
-**Blocked by**: Interleaved init + conceptual complexity
-**Fix**: Covered by interleaved init support
+**GSM-8K Analogs**:
+- Wendi's chickens: (hens × per_hen) - (gift1 + gift2) = remaining
+
+**Status**: ✅ Implemented (`generate_parallel_merge`)
 
 ---
 
@@ -201,29 +200,29 @@ trace:
 
 ---
 
-#### ❌ Chained Comparisons
+#### ✅ Chained Comparisons
 
 **Structure**: Multiple comparison relationships in sequence.
 
 ```yaml
 expert: arithmetic  # Too complex for comparison expert
 trace:
-- {op: init, var: seattle, value: 20}
+- {op: init, var: city1, value: 20}
 - {op: init, var: factor1, value: 4}
-- {op: compute, compute_op: mul, args: [seattle, factor1], var: charleston}
+- {op: compute, compute_op: mul, args: [city1, factor1], var: city2}
 - {op: init, var: factor2, value: 2}                    # ← Interleaved
-- {op: compute, compute_op: mul, args: [charleston, factor2], var: toulouse}
-- {op: compute, compute_op: add, args: [seattle, charleston], var: step1}
-- {op: compute, compute_op: add, args: [step1, toulouse], var: result}
-- {op: query, var: result}
+- {op: compute, compute_op: mul, args: [city2, factor2], var: city3}
+- {op: compute, compute_op: add, args: [city1, city2], var: partial}
+- {op: compute, compute_op: add, args: [partial, city3], var: total}
+- {op: query, var: total}
 ```
 
-**GSM-8K Examples**:
-- Toulouse's sheep: Seattle→Charleston (4×), Charleston→Toulouse (2×), sum all
+**Example**: "Seattle has 20 sheep. Austin has 4 times as many as Seattle. Memphis has 2 times as many as Austin. How many sheep in total?"
 
-**Status**: ❌ Not implemented
-**Blocked by**: Interleaved init + 3-way sum
-**Fix**: Interleaved arithmetic patterns
+**GSM-8K Analogs**:
+- Toulouse's sheep: city1 × factor1 = city2, city2 × factor2 = city3, sum all
+
+**Status**: ✅ Implemented (`generate_chained_mul_sum`)
 
 ---
 
@@ -372,7 +371,7 @@ trace:
 
 ---
 
-### ❌ Percentage → Complex Arithmetic
+### 🔶 Percentage → Complex Arithmetic
 
 **Structure**: Percentage feeds into interleaved arithmetic.
 
@@ -398,9 +397,8 @@ trace:
 **GSM-8K Examples**:
 - Kylar's glasses: 60% of $5, then complex pricing calculation
 
-**Status**: ❌ Not implemented
-**Blocked by**: Interleaved inits in composition sub-traces
-**Fix**: Enable interleaved patterns in arithmetic expert
+**Status**: 🔶 Partially unblocked (interleaved patterns now available)
+**Remaining**: Add composition generator with interleaved second sub-trace
 
 ---
 
@@ -411,43 +409,44 @@ trace:
 | Category | Total | ✅ Done | 🔶 Partial | ❌ Missing |
 |----------|-------|---------|------------|------------|
 | Sequential arithmetic | 6 | 6 | 0 | 0 |
-| Interleaved arithmetic | 3 | 0 | 0 | 3 |
+| Interleaved arithmetic | 3 | 3 | 0 | 0 |
 | Rate equation | 4 | 4 | 0 | 0 |
 | Comparison | 4 | 4 | 0 | 0 |
 | Percentage | 4 | 4 | 0 | 0 |
 | Entity track | 5 | 5 | 0 | 0 |
 | 2-expert composition | 4 | 4 | 0 | 0 |
 | 3-expert composition | 2 | 0 | 0 | 2 |
-| Complex composition | 2 | 0 | 0 | 2 |
-| **Total** | **34** | **27** | **0** | **7** |
+| Complex composition | 2 | 0 | 1 | 1 |
+| **Total** | **34** | **30** | **1** | **3** |
 
 ### By Implementation Status
 
 | Status | Count | Percentage |
 |--------|-------|------------|
-| ✅ Fully implemented | 27 | 79% |
-| 🔶 Needs more data | 0 | 0% |
-| ❌ Not implemented | 7 | 21% |
+| ✅ Fully implemented | 30 | 88% |
+| 🔶 Needs more data | 1 | 3% |
+| ❌ Not implemented | 3 | 9% |
 
 ---
 
 ## Priority Implementation Roadmap
 
-### Phase 1: Interleaved Inits (Unlocks 3 patterns)
+### ✅ Phase 1: Interleaved Inits (COMPLETE)
+
+Implemented 3 new arithmetic generators:
 
 ```python
-# New arithmetic generator patterns
 def generate_interleaved_mul_mul():
     """a × b = step1, introduce c, step1 × c = result"""
 
 def generate_parallel_merge():
     """(a × b) - (c + d) with interleaved inits"""
 
-def generate_chained_comparison():
+def generate_chained_mul_sum():
     """a × factor1 = b, b × factor2 = c, sum(a,b,c)"""
 ```
 
-**Effort**: 2-3 hours
+**Status**: ✅ Complete
 **Impact**: +3 patterns, ~50% GSM-8K coverage
 
 ### Phase 2: Longer Chains (Unlocks 1 pattern)
@@ -489,8 +488,8 @@ source: sub2.result  # Reference second sub-trace
 
 | Phase | Patterns | GSM-8K Coverage |
 |-------|----------|-----------------|
-| Current (Run 7) | 27 | ~20% |
-| + Interleaved | 30 | ~50% |
+| Run 7 (composition) | 27 | ~20% |
+| ✅ Run 8 (+ interleaved) | 30 | ~50% |
 | + Longer chains | 31 | ~70% |
 | + 3-expert | 33 | ~80% |
 | + Multi-value | 34 | ~90% |

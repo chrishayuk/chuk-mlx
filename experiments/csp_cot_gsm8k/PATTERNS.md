@@ -133,13 +133,16 @@ You are a helpful assistant with access to the following experts: entity_track, 
 
 **Pattern**: Allocate training data proportional to discrimination difficulty.
 
-| Expert | Patterns | Discrimination | Allocation |
+| Expert | Patterns | Discrimination | Allocation (Run 8) |
 |--------|----------|---------------|------------|
-| rate_equation | 4 (identical shape) | None (all same) | 12% |
-| percentage | 4 (domain ops vary) | Low | 12% |
-| arithmetic | 6 (length varies) | Medium | 22% |
-| entity_track | 5 (ops vary) | Medium | 30% |
-| comparison | 4 (ops vary, same shape) | High | 24% |
+| arithmetic | 9 (6 seq + 3 interleaved) | High | 30% |
+| entity_track | 5 (ops vary) | Medium | 20% |
+| comparison | 4 (ops vary, same shape) | High | 15% |
+| composition | 4 (multi-expert) | High | 15% |
+| percentage | 4 (domain ops vary) | Low | 10% |
+| rate_equation | 4 (identical shape) | None (all same) | 10% |
+
+**Note**: Run 8 increased arithmetic allocation from 20% to 30% to accommodate 3 new interleaved patterns. Interleaved patterns require more examples because the model must learn position-dependent decisions (init vs compute at each step).
 
 **Principle**: Invest training budget where the model needs to discriminate, not where it's trivial.
 
@@ -296,29 +299,41 @@ Pure per-instance names (`alice.books`, `bob.coins`, `multiplier`, `difference`)
 
 **Evidence**: 4/10 GSM-8K sample problems have interleaved inits (James sprints, Wendi's feed, Toulouse's sheep, John's dogs). All are currently PARTIAL coverage.
 
-**Required traces** (examples):
+**Implemented patterns** (3 generators):
 
 ```yaml
-# James sprints: 3×3=9, 9×60=540
-- {op: init, var: sprints, value: 3}
-- {op: init, var: times, value: 3}
-- {op: compute, compute_op: mul, args: [sprints, times], var: step1}
-- {op: init, var: meters, value: 60}        # ← init after compute
-- {op: compute, compute_op: mul, args: [step1, meters], var: result}
-- {op: query, var: result}
+# generate_interleaved_mul_mul: "Alex runs 3 laps of 5 miles each day. How many total miles in 10 days?"
+- {op: init, var: sessions, value: 3}
+- {op: init, var: per_session, value: 5}
+- {op: compute, compute_op: mul, args: [sessions, per_session], var: daily}
+- {op: init, var: days, value: 10}          # ← init after compute
+- {op: compute, compute_op: mul, args: [daily, days], var: total}
+- {op: query, var: total}
 
-# Wendi's feed: 3×20=60, 15+25=40, 60-40=20
-- {op: init, var: cups_per, value: 3}
-- {op: init, var: chickens, value: 20}
-- {op: compute, compute_op: mul, args: [cups_per, chickens], var: total}
-- {op: init, var: morning, value: 15}       # ← init after compute
-- {op: init, var: afternoon, value: 25}     # ← another init
-- {op: compute, compute_op: add, args: [morning, afternoon], var: given}
-- {op: compute, compute_op: sub, args: [total, given], var: result}
-- {op: query, var: result}
+# generate_parallel_merge: "A farm has 3 hens each producing 20 eggs. They give away 15 to neighbors and 25 to friends. How many remain?"
+- {op: init, var: hens, value: 3}
+- {op: init, var: per_hen, value: 20}
+- {op: compute, compute_op: mul, args: [hens, per_hen], var: produced}
+- {op: init, var: gift1, value: 15}         # ← init after compute
+- {op: init, var: gift2, value: 25}         # ← another init
+- {op: compute, compute_op: add, args: [gift1, gift2], var: gifted}
+- {op: compute, compute_op: sub, args: [produced, gifted], var: remaining}
+- {op: query, var: remaining}
+
+# generate_chained_mul_sum: "Seattle has 20 sheep. Austin has 4× as many. Memphis has 2× as many as Austin. Total?"
+- {op: init, var: city1, value: 20}
+- {op: init, var: factor1, value: 4}
+- {op: compute, compute_op: mul, args: [city1, factor1], var: city2}
+- {op: init, var: factor2, value: 2}        # ← init after compute
+- {op: compute, compute_op: mul, args: [city2, factor2], var: city3}
+- {op: compute, compute_op: add, args: [city1, city2], var: partial}
+- {op: compute, compute_op: add, args: [partial, city3], var: total}
+- {op: query, var: total}
 ```
 
 **Implications for training**: This is a harder learning task than template filling. The model must learn sequential decision-making about trace structure. May require more training data or a larger model for reliable interleaving.
+
+**Critical implementation detail**: Interleaved patterns must use **semantic var names** (`sessions`, `hens`, `city1`) not abstract names (`a`, `b`, `c`). Abstract names caused confusion because all 3 interleaved patterns shared the same var names, preventing discrimination. Semantic names ground each pattern in its question template.
 
 **Principle**: Real problems introduce information as needed, not all upfront. The trace grammar must match the problem's natural information flow.
 
@@ -334,13 +349,18 @@ For a 1B model learning trace emission, complexity increases in this order:
 4. **Wiring** — Connecting the right variables to the right ops (requires hybrid naming — semantic anchors for extraction + fixed scaffolding for computation)
 5. **Discrimination** — Choosing between similar patterns (requires per-pattern template + sufficient data)
 6. **Decomposition** — Breaking multi-expert problems into sub-traces and wiring outputs forward (requires expert composition training)
+7. **Interleaving** — Deciding at each position whether to init a new value or compute with existing ones (requires interleaved patterns with semantic var names)
 
 Each level requires the previous levels to be solid. Fixing level 4 (wiring) without fixing level 3 (structure) has no effect. And even with structure fixed, abstract var names (`x`, `y`) break wiring because the model can't ground args in the problem text.
 
-**Current status** (Run 6):
-- Levels 1-5: Solved for synthetic distribution (95% accuracy, 100% parse rate)
-- Level 6: Not yet attempted — required for GSM-8K generalization
+**Current status** (Run 8):
+- Levels 1-6: Solved for synthetic distribution (97% accuracy, 100% parse rate)
+- Level 7 (Interleaving): Implemented — 3 interleaved generators with semantic var names
+- GSM-8K: 0% correct but 100% valid traces — model structures correctly but wires wrong for OOD problems
 
-**The GSM-8K gap**: The synthetic distribution validates levels 1-5. Real problems additionally require interleaved inits (Pattern 14) and expert composition (Pattern 13). These are the next learning tasks.
+**The GSM-8K gap**: The synthetic distribution validates levels 1-7. Real problems additionally require:
+- Longer chains (8+ steps) — GSM-8K median is 6-8 steps
+- 3-expert composition — arithmetic→percentage→arithmetic chains
+- Number preprocessing — commas in numbers (80,000 → 80000)
 
 **Principle**: Solve the learning task top-down. Don't optimize wiring until structure is stable. Don't optimize structure until format is reliable. And at every level, give the model semantic bridges between the input text and the output trace.
