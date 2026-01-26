@@ -135,7 +135,7 @@ You are a helpful assistant with access to the following experts: entity_track, 
 
 | Expert | Patterns | Discrimination | Allocation (Run 8) |
 |--------|----------|---------------|------------|
-| arithmetic | 9 (6 seq + 3 interleaved) | High | 30% |
+| arithmetic | 10 (6 seq + 3 interleaved + 1 long) | High | 30% |
 | entity_track | 5 (ops vary) | Medium | 20% |
 | comparison | 4 (ops vary, same shape) | High | 15% |
 | composition | 4 (multi-expert) | High | 15% |
@@ -192,14 +192,16 @@ Pure per-instance names (`alice.books`, `bob.coins`, `multiplier`, `difference`)
 # Entity-anchored first init (varies per example, connects to question text)
 - {op: init, var: bob.cards, value: 28}
 # Fixed scaffolding (same every time)
-- {op: init, var: factor, value: 2}
-- {op: compute, args: [bob.cards, factor], var: step1}
+- {op: init, var: b, value: 2}
+- {op: compute, args: [bob.cards, b], var: step1}
 - {op: compute, args: [bob.cards, step1], var: result}
 - {op: query, var: result}
 ```
 
 **What varies**: The entity var name (`bob.cards`, `alice.stickers`) — derived from question text.
-**What's fixed**: `factor`, `step1`, `result` — always the same positions, always the same names.
+**What's fixed**: `b`, `step1`, `result` — always the same positions, always the same names.
+
+**Note**: Pattern 16 (Variable Naming Standardization) takes this further for arithmetic: even init vars are standardized to `a`, `b`, `c`. Hybrid naming (entity-anchored first init) only applies to experts that need semantic grounding (comparison, entity_track).
 
 **Evidence**:
 
@@ -260,17 +262,34 @@ Pure per-instance names (`alice.books`, `bob.coins`, `multiplier`, `difference`)
 
 2. **Fixed scaffolding vars in sub-traces** — Arithmetic sub-traces must use `prev`, `factor`, `result`, not semantic names like `sale`, `total`, `good`. This matches Pattern 11 (Hybrid Naming).
 
-3. **Identical structure across patterns** — All 4 composition patterns must have same shape (4-step first sub-trace + 4-step arithmetic sub-trace). Violating this (e.g., 6-step arithmetic in one pattern) breaks learning.
+3. **Identical structure across patterns** — All 2-expert composition patterns must have same shape (4-step first sub-trace + 4-step arithmetic sub-trace). Violating this (e.g., 6-step arithmetic in one pattern) breaks learning.
 
 4. **Extraction must accept lists** — The `extract_yaml` function must validate both `dict` (single-expert) and `list` (composed) formats. Original code only accepted dicts, causing 100% parse failure on composed traces.
 
+5. **All generators must be true multi-expert** (Run 14 cleanup) — Two mislabeled patterns were removed from composition.py because they returned single-expert traces (arithmetic only). Single-expert patterns belong in the schema system, not composition.
+
 **Format detection**: `yaml.safe_load()` returns list → composed. Returns dict → single-expert. Backward compatible.
 
-**Wiring**: `source: prev.result` in InitStep tells the CompositionSolver to substitute the previous sub-trace's query result as this init's value.
+**Wiring**: `source: prev.result` in InitStep tells the CompositionSolver to substitute the previous sub-trace's query result as this init's value. For 3-expert chains, `source: sub0.result` references a specific sub-trace by index.
 
 **Why composition, not a general expert**: A single "math" expert that handles all operations defeats the routing thesis and makes expert boundaries meaningless. Composition preserves clean per-expert vocabularies while enabling multi-domain problems.
 
 **Learning task extension**: The model reuses levels 2-5 (routing, structure, wiring, discrimination) per sub-trace. The new capability is **decomposition** — splitting a problem into sub-problems and deciding where to break.
+
+**Composition patterns (10 total)**:
+
+| Pattern | Experts | Example |
+|---------|---------|---------|
+| percent_off_plus_extra | percentage → arithmetic | Discount + shipping |
+| percent_increase_minus_cost | percentage → arithmetic | Stock gain |
+| percent_of_then_multiply | percentage → arithmetic | Per-unit discount × quantity |
+| rate_then_subtract | rate_equation → arithmetic | Production - defects |
+| value_increase_profit | percentage → arithmetic | House flipping |
+| paired_discount | percentage → arithmetic | Kylar's glasses |
+| interrupted_rate | percentage → arithmetic | Download with restart |
+| consume_then_sell | entity_track → arithmetic | Janet's ducks |
+| cost_increase_profit | arithmetic → percentage → arithmetic | 3-expert profit calc |
+| discount_tax_total | percentage → percentage → arithmetic | 3-expert discount+tax |
 
 **Result**: 100% SFT accuracy with 500 examples (75 composed, 425 single-expert). The model learns composition in 1 epoch with no RL needed.
 
@@ -299,43 +318,192 @@ Pure per-instance names (`alice.books`, `bob.coins`, `multiplier`, `difference`)
 
 **Evidence**: 4/10 GSM-8K sample problems have interleaved inits (James sprints, Wendi's feed, Toulouse's sheep, John's dogs). All are currently PARTIAL coverage.
 
-**Implemented patterns** (3 generators):
+**Implemented patterns** (3 generators) — Hybrid Naming (Run 13):
 
 ```yaml
 # generate_interleaved_mul_mul: "Alex runs 3 laps of 5 miles each day. How many total miles in 10 days?"
-- {op: init, var: sessions, value: 3}
-- {op: init, var: per_session, value: 5}
-- {op: compute, compute_op: mul, args: [sessions, per_session], var: daily}
+- {op: init, var: laps, value: 3}
+- {op: init, var: miles, value: 5}
+- {op: compute, compute_op: mul, args: [laps, miles], var: step1}
 - {op: init, var: days, value: 10}          # ← init after compute
-- {op: compute, compute_op: mul, args: [daily, days], var: total}
-- {op: query, var: total}
+- {op: compute, compute_op: mul, args: [step1, days], var: result}
+- {op: query, var: result}
 
 # generate_parallel_merge: "A farm has 3 hens each producing 20 eggs. They give away 15 to neighbors and 25 to friends. How many remain?"
 - {op: init, var: hens, value: 3}
-- {op: init, var: per_hen, value: 20}
-- {op: compute, compute_op: mul, args: [hens, per_hen], var: produced}
+- {op: init, var: eggs_per, value: 20}
+- {op: compute, compute_op: mul, args: [hens, eggs_per], var: step1}
 - {op: init, var: gift1, value: 15}         # ← init after compute
 - {op: init, var: gift2, value: 25}         # ← another init
-- {op: compute, compute_op: add, args: [gift1, gift2], var: gifted}
-- {op: compute, compute_op: sub, args: [produced, gifted], var: remaining}
-- {op: query, var: remaining}
+- {op: compute, compute_op: add, args: [gift1, gift2], var: step2}
+- {op: compute, compute_op: sub, args: [step1, step2], var: result}
+- {op: query, var: result}
 
 # generate_chained_mul_sum: "Seattle has 20 sheep. Austin has 4× as many. Memphis has 2× as many as Austin. Total?"
-- {op: init, var: city1, value: 20}
+- {op: init, var: seattle, value: 20}
 - {op: init, var: factor1, value: 4}
-- {op: compute, compute_op: mul, args: [city1, factor1], var: city2}
+- {op: compute, compute_op: mul, args: [seattle, factor1], var: step1}
 - {op: init, var: factor2, value: 2}        # ← init after compute
-- {op: compute, compute_op: mul, args: [city2, factor2], var: city3}
-- {op: compute, compute_op: add, args: [city1, city2], var: partial}
-- {op: compute, compute_op: add, args: [partial, city3], var: total}
-- {op: query, var: total}
+- {op: compute, compute_op: mul, args: [step1, factor2], var: step2}
+- {op: compute, compute_op: add, args: [seattle, step1], var: step3}
+- {op: compute, compute_op: add, args: [step3, step2], var: result}
+- {op: query, var: result}
 ```
 
 **Implications for training**: This is a harder learning task than template filling. The model must learn sequential decision-making about trace structure. May require more training data or a larger model for reliable interleaving.
 
-**Critical implementation detail**: Interleaved patterns must use **semantic var names** (`sessions`, `hens`, `city1`) not abstract names (`a`, `b`, `c`). Abstract names caused confusion because all 3 interleaved patterns shared the same var names, preventing discrimination. Semantic names ground each pattern in its question template.
+**Variable naming (Run 13)**: Hybrid naming — semantic init vars (`laps`, `miles`, `days`, `hens`) provide grounding, fixed intermediates (`step1`, `step2`) and unified query (`result`) provide structural consistency. Run 12's abstract naming (`a`, `b`, `c`) broke composition accuracy.
 
 **Principle**: Real problems introduce information as needed, not all upfront. The trace grammar must match the problem's natural information flow.
+
+---
+
+## Pattern 15: Schema-Based Generation
+
+**Problem**: Hardcoded Python generators are:
+- Hard to modify (requires code changes)
+- Hard to audit (logic spread across functions)
+- Inconsistent (each generator has different structure)
+- Limited (text variations require code duplication)
+
+**Pattern**: Define all problem patterns as JSON schemas. A single `SchemaGenerator` interprets them.
+
+**Schema structure** (Run 13 hybrid naming):
+```json
+{
+  "name": "material_half",
+  "expert": "arithmetic",
+  "pattern": "material_patterns",
+  "variant": "half_that_much",
+  "variables": {
+    "amount": {"type": "int", "min": 2, "max": 20, "multiple_of": 2}
+  },
+  "vocab": {
+    "material1": {"path": "materials.fabrics"},
+    "item": {"path": "items.countable_singular"}
+  },
+  "trace": [
+    {"op": "init", "var": "amount", "value": "amount"},
+    {"op": "init", "var": "divisor", "value": 2},
+    {"op": "compute", "compute_op": "div", "args": ["amount", "divisor"], "var": "step1"},
+    {"op": "compute", "compute_op": "add", "args": ["amount", "step1"], "var": "result"},
+    {"op": "query", "var": "result"}
+  ],
+  "answer": "amount + amount // 2"
+}
+```
+
+**Note**: All arithmetic schemas use semantic init vars (matching schema variables), `step1`, `step2`, `step3` for intermediates, and `result` for query target (see Pattern 16). Run 12's abstract naming (`a`, `b`, `c`) was a failure.
+
+**Benefits**:
+1. **Declarative** — Problem logic visible in JSON
+2. **Vocabulary-driven** — Text variety without code changes
+3. **Constraint handling** — Auto-regenerate if constraints fail
+4. **Auditable** — All patterns in one directory
+5. **Extensible** — Add GSM-8K patterns by adding JSON files
+
+**Implementation**:
+```python
+from chuk_virtual_expert_arithmetic.generators import SchemaGenerator
+
+gen = SchemaGenerator()
+print(gen.schema_names)  # ['material_half', 'price_chain', ...]
+example = gen.generate("material_half")
+```
+
+**Organization**:
+```
+schemas/
+├── arithmetic/           # 19 schemas
+│   ├── price_chain.json
+│   ├── material_half.json
+│   └── ...
+├── entity_track/         # 5 schemas
+├── rate_equation/        # 4 schemas
+├── comparison/           # 4 schemas
+└── percentage/           # 4 schemas
+```
+
+**Adding new patterns**:
+1. Create `schemas/{expert}/my_pattern.json`
+2. Create `vocab/patterns/{expert}/my_pattern.json` (if new template needed)
+3. Pattern is automatically available via `SchemaGenerator`
+
+**Result**: 44 schemas covering all expert types + composition. New GSM-8K patterns added in minutes instead of hours.
+
+**Principle**: Data-driven is better than code-driven. Patterns as data enable rapid iteration and clear auditing.
+
+---
+
+## Pattern 16: Hybrid Variable Naming (Run 13)
+
+**Problem**: 21 arithmetic schemas had 7+ different query targets (`total`, `remaining`, `revenue`, `per_worker`, `final`, `weekly`, `output`). Each pattern used different init var names (`start`, `base`, `count`, `rate`) and intermediate names (`after1`, `subtotal`, `daily`, `with_tax`). Result: 81% arithmetic accuracy vs 100% for other experts.
+
+**Failed attempt (Run 12)**: Abstract naming (`a`, `b`, `c` for inits) — broke composition (67% → 57%) and GSM-8K (50% → 30%). Same mistake as Run 5 (`x`, `y`, `z`) — lost semantic grounding.
+
+**Correct pattern (Run 13)**: Hybrid naming — semantic init vars for grounding, fixed scaffolding for structure.
+
+| Component | Example | Purpose |
+|-----------|---------|---------|
+| **Init vars** | `produced`, `use1`, `price`, `rate` | Semantic grounding to problem text |
+| **Intermediate vars** | `step1`, `step2`, `step3` | Structural scaffolding (fixed) |
+| **Query target** | `result` | Unified output (fixed) |
+
+**Example (Run 11 — chaos)**:
+```yaml
+- {op: init, var: base, value: 100}
+- {op: init, var: tax, value: 10}
+- {op: init, var: shipping, value: 5}
+- {op: compute, compute_op: add, args: [base, tax], var: with_tax}
+- {op: compute, compute_op: add, args: [with_tax, shipping], var: total}
+- {op: query, var: total}
+```
+
+**Example (Run 12 — abstract, WRONG)**:
+```yaml
+- {op: init, var: a, value: 100}
+- {op: init, var: b, value: 10}
+- {op: init, var: c, value: 5}
+- {op: compute, compute_op: add, args: [a, b], var: step1}
+- {op: compute, compute_op: add, args: [step1, c], var: result}
+- {op: query, var: result}
+```
+
+**Example (Run 13 — hybrid, CORRECT)**:
+```yaml
+- {op: init, var: base, value: 100}
+- {op: init, var: tax, value: 10}
+- {op: init, var: shipping, value: 5}
+- {op: compute, compute_op: add, args: [base, tax], var: step1}
+- {op: compute, compute_op: add, args: [step1, shipping], var: result}
+- {op: query, var: result}
+```
+
+**What changed from chaos → hybrid**:
+- Init vars: KEPT semantic names (`base`, `tax`, `shipping`)
+- Intermediate vars: CHANGED to fixed (`with_tax` → `step1`)
+- Query target: UNIFIED to `result` (`total` → `result`)
+
+**Scope of changes**:
+- 21 arithmetic schemas
+- 4 rate_equation schemas
+- 12 composition pattern functions
+
+**Verification**:
+```
+Arithmetic query targets: {'result'}      # Previously: 7+ different names
+Rate equation query targets: {'result'}
+Composition final query targets: {'result'}
+Entity-track query targets: {'eggs'}      # Semantic entity names preserved
+```
+
+**Exception**: Entity-track and comparison retain entity-anchored names (`bob.cards`, `eggs`) for semantic grounding.
+
+**Key insight**: Semantic grounding is non-negotiable. Abstract init vars (`a`, `b`, `c`) break the connection between question text and trace structure. The model can't ground `a` to "eggs produced" or `b` to "eggs eaten".
+
+**Relationship to Pattern 11 (Hybrid Variable Naming)**: Pattern 11 established the principle. This pattern documents the Run 12 failure (abstract names) and Run 13 fix (hybrid names) that validated it.
+
+**Principle**: Semantic init vars + structural intermediates + unified query. The model needs grounding (semantic) AND consistency (structural).
 
 ---
 
@@ -353,14 +521,92 @@ For a 1B model learning trace emission, complexity increases in this order:
 
 Each level requires the previous levels to be solid. Fixing level 4 (wiring) without fixing level 3 (structure) has no effect. And even with structure fixed, abstract var names (`x`, `y`) break wiring because the model can't ground args in the problem text.
 
-**Current status** (Run 8):
-- Levels 1-6: Solved for synthetic distribution (97% accuracy, 100% parse rate)
-- Level 7 (Interleaving): Implemented — 3 interleaved generators with semantic var names
-- GSM-8K: 0% correct but 100% valid traces — model structures correctly but wires wrong for OOD problems
+**Current status** (Run 13 — Hybrid Variable Naming):
+- Levels 1-6: Solved for synthetic distribution
+- Level 7 (Interleaving): Implemented — 4 interleaved generators
+- Level 8 (Long chains): Implemented — 10-step expense chain pattern
+- Level 9 (GSM-8K patterns): Implemented — div_then_add, consume_then_sell, material_half, decimal_rate_week
+- Level 10 (Composition): Implemented — 10 composition patterns (all verified multi-expert) including 3-expert chains
+- **Level 11 (Variable Naming)**:
+  - Run 12 tried abstract naming (`a,b,c`) — broke composition (57%)
+  - Run 13 uses hybrid naming: semantic inits + `step1,step2,step3` + unified `result`
+- **GSM-8K: 5/10 correct (50%)** in Run 11, dropped to 3/10 (30%) in Run 12
 
-**The GSM-8K gap**: The synthetic distribution validates levels 1-7. Real problems additionally require:
-- Longer chains (8+ steps) — GSM-8K median is 6-8 steps
-- 3-expert composition — arithmetic→percentage→arithmetic chains
-- Number preprocessing — commas in numbers (80,000 → 80000)
+**Run 11 exposed the problem**: 81% arithmetic (vs 100% others) due to variable naming chaos.
+**Run 12 wrong fix**: Abstract naming (`a`, `b`, `c`) fixed arithmetic but broke composition.
+**Run 13 correct fix**: Hybrid naming (semantic inits + structural scaffolding).
+
+**What's working on GSM-8K**:
+- ✓ Janet's ducks (interleaved sub-sub-mul)
+- ✓ Toulouse sheep (chained mul-sum)
+- ✓ Fish tanks (div-then-add)
+- ✓ House flipping (composition)
+- ✓ Kylar's glasses (composition)
+
+**The remaining GSM-8K gaps**:
+- ~~Longer chains (8+ steps)~~ ✓ Implemented
+- ~~Number preprocessing~~ ✓ Implemented
+- ~~Janet's ducks pattern~~ ✓ Working!
+- ~~Fish tanks / robe pattern~~ ✓ Fish tanks working
+- ~~"Half that much" pattern~~ ✓ `material_half` schema added
+- ~~Decimal rate values~~ ✓ `decimal_rate_week` schema added
+- ~~Expert routing for % ops~~ ✓ Composition patterns added
+- ~~Variable naming chaos~~ ✓ Hybrid naming fixed (Run 13)
+- Complex multi-step (5, 8) — Future work
+- Reading comprehension errors (4) — Needs more template variations
 
 **Principle**: Solve the learning task top-down. Don't optimize wiring until structure is stable. Don't optimize structure until format is reliable. And at every level, give the model semantic bridges between the input text and the output trace.
+
+---
+
+## Pattern 17: Template Phrasing Coverage (Run 14)
+
+**Problem**: Run 13 achieved 10/10 valid traces but only 3/10 correct on GSM-8K. Analysis revealed specific phrasing gaps — mathematically equivalent patterns phrased differently:
+
+| GSM-8K Problem | Our Template | GSM-8K Phrasing | Why It Fails |
+|----------------|--------------|-----------------|--------------|
+| Fish tanks | "second has half" | "first has **twice as much**" | Inverse extraction |
+| James sprints | "3 sprints, 5 times" | "**3** sprints **3** times" | Same number twice |
+| Wendi chickens | sequential values | numbers **scattered** in prose | Value extraction order |
+
+**Pattern**: Template phrasing must match target distribution's exact wording, not just mathematical equivalence.
+
+**New schemas for Run 14**:
+
+| Schema | Pattern | Template Example |
+|--------|---------|------------------|
+| `twice_as_much` | first/2 + first | "The first tank has twice as many fish as the second..." |
+| `weekly_sprints_same` | x × x × y | "runs 3 sprints 3 times a week...60 meters each" |
+| `feed_remainder_scattered` | (a×b) - (c+d) | "20 chickens...3 cups per day...15 in morning...25 in afternoon" |
+
+**Implementation details**:
+
+1. **Inverse framing** (`twice_as_much`):
+   ```
+   Our: "second has half as many" → extract second, multiply by 2
+   GSM-8K: "first has twice as much" → extract first, divide by 2
+   Same math, different extraction pattern
+   ```
+
+2. **Repeated values** (`weekly_sprints_same`):
+   ```
+   Our: "3 sprints, 5 times" → clear which is which
+   GSM-8K: "3 sprints 3 times" → model must understand same value appears twice
+   ```
+
+3. **Scattered numbers** (`feed_remainder_scattered`):
+   ```
+   Our: values appear in computation order
+   GSM-8K: "20 chickens...3 cups...15 cups...25 cups" scattered across prose
+   ```
+
+**Generator audit**: After creating schemas, discovered 2 broken patterns:
+
+| Schema | Bug | Fix |
+|--------|-----|-----|
+| `long_expense_chain` | `mult_word` not resolving | Removed variable, used `${multiplier}` directly |
+| `rate_production` | `producer.name` returning None | Fixed vocab paths, added `subject: "it"` to producer vocab |
+
+**Final status**: 41/41 schemas passing (5 samples each, 205 total verified).
+
+**Principle**: The model learns surface form, not abstract semantics. If GSM-8K says "twice as much" and we train on "half as many", the model won't generalize — even though they're mathematically equivalent.

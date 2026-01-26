@@ -37,15 +37,15 @@ The solver enforces that `query` targets must be computed/modified variables, ne
 
 ```yaml
 # REJECTED (reward 0.5): query targets init variable
-- {op: init, var: rate, value: 49}
-- {op: init, var: time, value: 5}
-- {op: query, var: rate}  # ERROR: 'rate' is init, not computed
+- {op: init, var: a, value: 49}
+- {op: init, var: b, value: 5}
+- {op: query, var: a}  # ERROR: 'a' is init, not computed
 
 # VALID (reward 1.0): query targets compute output
-- {op: init, var: rate, value: 49}
-- {op: init, var: time, value: 5}
-- {op: compute, compute_op: mul, args: [rate, time], var: quantity}
-- {op: query, var: quantity}  # OK: 'quantity' was computed
+- {op: init, var: a, value: 49}
+- {op: init, var: b, value: 5}
+- {op: compute, compute_op: mul, args: [a, b], var: result}
+- {op: query, var: result}  # OK: 'result' was computed
 ```
 
 This makes it structurally impossible for the model to regurgitate extracted values. To produce a valid trace, it *must* emit compute steps and query their output.
@@ -63,9 +63,23 @@ trace:
 - op: compute
   compute_op: mul
   args: [eggs, 2]
-  var: revenue
-- {op: query, var: revenue}
+  var: result
+- {op: query, var: result}
 ```
+
+### Hybrid Variable Naming (Run 13)
+
+Run 12 tried abstract variable naming (`a`, `b`, `c`) but this broke composition (57% accuracy) — the same mistake as Run 5 where `x`, `y`, `z` lost semantic grounding.
+
+**Run 13** uses **hybrid naming** — semantic init vars for grounding, fixed scaffolding for structure:
+
+| Component | Example | Purpose |
+|-----------|---------|---------|
+| **Init vars** | `produced`, `use1`, `price`, `rate` | Semantic grounding to problem text |
+| **Intermediate vars** | `step1`, `step2`, `step3` | Structural scaffolding (fixed) |
+| **Query target** | `result` | Unified output (fixed) |
+
+**Exception**: Entity-track and comparison use entity-anchored first init (`bob.cards`, `eggs`) for semantic grounding.
 
 The `op` field enables direct Pydantic validation — the verifier parses model output without any format conversion.
 
@@ -74,7 +88,7 @@ The `op` field enables direct Pydantic validation — the verifier parses model 
 | Expert | Role | Shape | Patterns | Operations |
 |--------|------|-------|----------|------------|
 | `rate_equation` | Single-step: rate x time | 4-step (fixed) | 4 | init, compute(mul), query |
-| `arithmetic` | Multi-step chains | variable-length | 9 (6 seq + 3 interleaved) | (init\|compute)+, query |
+| `arithmetic` | Multi-step chains | variable-length | 10 (6 seq + 3 interleaved + 1 long) | (init\|compute)+, query |
 | `comparison` | Two-quantity relationships | 5-step (fixed) | 4 | init(x), init(y), compute(z), compute(result), query(result) |
 | `percentage` | Percent operations | 4-step (fixed) | 4 | init, domain_op, query |
 | `entity_track` | Quantities moving between entities | variable | 5 | init, consume, transfer, compute, query |
@@ -97,27 +111,29 @@ The `op` field enables direct Pydantic validation — the verifier parses model 
 
 ### Comparison: Hybrid Variable Naming
 
-All comparison patterns use entity-anchored first init + fixed scaffolding (factor, step1, result):
+All comparison patterns use entity-anchored first init + fixed scaffolding (`b`, `step1`, `result`):
 
 ```
-times_more:          init(bob.cards), init(factor), mul(bob.cards,factor→step1), sub(step1,bob.cards→result), query(result)
-sum_and_difference:  init(total),     init(factor), add(total,factor→step1),     div(step1,2→result),         query(result)
-more_less:           init(bob.cards), init(factor), add(bob.cards,factor→step1), add(step1,bob.cards→result), query(result)
-half_as_many:        init(bob.cards), init(factor), div(bob.cards,factor→step1), sub(bob.cards,step1→result), query(result)
+times_more:          init(bob.cards), init(b), mul(bob.cards,b→step1), sub(step1,bob.cards→result), query(result)
+sum_and_difference:  init(total),     init(b), add(total,b→step1),     div(step1,2→result),         query(result)
+more_less:           init(bob.cards), init(b), add(bob.cards,b→step1), add(step1,bob.cards→result), query(result)
+half_as_many:        init(bob.cards), init(b), div(bob.cards,b→step1), sub(bob.cards,step1→result), query(result)
 ```
 
-The entity-anchored init (`bob.cards`, `alice.stickers`) connects to question text. Fixed scaffolding (`factor`, `step1`, `result`) gives the model a reliable template. The discrimination task: given question text, pick which 2 ops to apply.
+The entity-anchored init (`bob.cards`, `alice.stickers`) connects to question text. Fixed scaffolding (`b`, `step1`, `result`) gives the model a reliable template. The discrimination task: given question text, pick which 2 ops to apply.
 
 ### Rate Equation: Uniform Shape
 
-All 4 patterns are structurally identical:
+All 4 patterns are structurally identical with semantic variable naming:
 
 ```
-rate_time_quantity:  init(rate), init(time), compute(mul→quantity), query(quantity)
-distance_speed_time: init(speed), init(time), compute(mul→distance), query(distance)
-consumption_rate:    init(rate), init(time), compute(mul→total),    query(total)
-earning_rate:        init(rate), init(time), compute(mul→total),    query(total)
+rate_time_quantity:  init(rate), init(time), compute(mul→result), query(result)
+distance_speed_time: init(speed), init(time), compute(mul→result), query(result)
+consumption_rate:    init(rate), init(time), compute(mul→result), query(result)
+earning_rate:        init(rate), init(time), compute(mul→result), query(result)
 ```
+
+**Variable naming convention**: Semantic init vars (`rate`, `time`, `speed`), unified `result` for query target.
 
 ## Training Pipeline
 
@@ -131,12 +147,13 @@ gen = TraceGenerator()
 examples = gen.generate_balanced(
     500,
     include_composition=True,
-    interleaved_ratio=0.5,  # 50% of arithmetic uses interleaved patterns
+    interleaved_ratio=0.4,  # 40% of arithmetic uses interleaved patterns
+    long_chain_ratio=0.1,   # 10% of arithmetic uses long chain patterns
 )
 ```
 
-Distribution (Run 8, with interleaved):
-- arithmetic: 30% (~150 examples @ n=500, 9 patterns, ~17/pattern)
+Distribution (Run 8 v5, with interleaved + long chain + GSM-8K patterns):
+- arithmetic: 30% (~150 examples @ n=500, 12 patterns, ~12/pattern)
 - entity_track: 20% (~100 examples, 5 patterns, ~20/pattern)
 - comparison: 15% (~75 examples, 4 patterns, ~19/pattern)
 - composition: 15% (~75 examples, 4 patterns, ~19/pattern)
@@ -224,6 +241,7 @@ Each expert handles domain-specific operations (transfer, consume, percent_of) w
 8. **Domain ops over manual compute** — Percentage uses `percent_of`/`percent_off`/`percent_increase` instead of mul/div chains.
 9. **Minimal system prompt** — Model learns format from examples, not instructions.
 10. **Synthetic data only** — No static JSON files. All training data generated by `TraceGenerator`.
+11. **Hybrid variable naming** (Run 13) — Semantic init vars for grounding + fixed `step1,step2,step3` for intermediates + unified `result` for query. Run 12's abstract naming (`a,b,c`) broke composition — same mistake as Run 5.
 
 ## GSM-8K Coverage Analysis
 
@@ -287,19 +305,19 @@ Single-expert (dict — backward compatible):
 ```yaml
 expert: percentage
 trace:
-- {op: init, var: price, value: 80}
+- {op: init, var: base, value: 80}
 - {op: init, var: rate, value: 20}
-- {op: percent_off, base: price, rate: rate, var: result}
+- {op: percent_off, base: base, rate: rate, var: result}
 - {op: query, var: result}
 ```
 
-Composed (list of sub-traces):
+Composed (list of sub-traces with standardized vars):
 ```yaml
 - expert: percentage
   trace:
-  - {op: init, var: price, value: 80}
+  - {op: init, var: base, value: 80}
   - {op: init, var: rate, value: 20}
-  - {op: percent_off, base: price, rate: rate, var: result}
+  - {op: percent_off, base: base, rate: rate, var: result}
   - {op: query, var: result}
 - expert: arithmetic
   trace:
@@ -309,7 +327,11 @@ Composed (list of sub-traces):
   - {op: query, var: result}
 ```
 
-### Composition Patterns (4 total)
+**Composition variable convention**: First sub-trace uses domain vars (`base`, `rate`). Arithmetic sub-traces use `prev` (from previous result), `factor`, and `result`.
+
+### Composition Patterns (10 total)
+
+All 10 composition patterns are **verified multi-expert chains** (single-expert patterns removed in Run 14 cleanup).
 
 | Pattern | First Expert | Second Expert | Example |
 |---------|--------------|---------------|---------|
@@ -317,8 +339,15 @@ Composed (list of sub-traces):
 | percent_increase_minus_cost | percentage (percent_increase) | arithmetic (sub) | "$100 stock +25%, how much gain?" |
 | percent_of_then_multiply | percentage (percent_of) | arithmetic (mul) | "25% of $80 per unit, buy 3" |
 | rate_then_subtract | rate_equation (mul) | arithmetic (sub) | "10/hour × 5 hours, 3 defective" |
+| value_increase_profit | percentage (percent_increase) | arithmetic (sub) | House flipping profit |
+| paired_discount | percentage (percent_of) | arithmetic (mul) | Kylar's glasses pairs |
+| interrupted_rate | percentage (percent_of) | arithmetic (add) | Carla download with restart |
+| consume_then_sell | entity_track (consume) | arithmetic (mul) | Janet's ducks revenue |
+| cost_increase_profit | arithmetic → percentage → arithmetic | 3-expert | Cost + increase - profit |
+| discount_tax_total | percentage → percentage → arithmetic | 3-expert | Discount + tax + final |
 
-All patterns have identical structure: 4-step first sub-trace + 4-step arithmetic sub-trace.
+All 2-expert patterns have identical structure: 4-step first sub-trace + 4-step arithmetic sub-trace.
+3-expert patterns use `source: sub0.result` and `source: prev.result` for multi-value wiring.
 
 ### Implementation Details
 
@@ -391,35 +420,149 @@ GSM-8K requires:   (init | compute)+ → query
 | `generate_parallel_merge` | init,init,compute,init,init,compute,compute | "(hens×per_hen)-(gift1+gift2)" |
 | `generate_chained_mul_sum` | init,init,compute,init,compute,compute,compute | "city1×f1=city2, city2×f2=city3, sum" |
 
-### Trace Example (parallel_merge)
+### Trace Example (parallel_merge) — Hybrid Naming (Run 13)
 
 ```yaml
 expert: arithmetic
 trace:
 - {op: init, var: hens, value: 4}
-- {op: init, var: per_hen, value: 18}
-- {op: compute, compute_op: mul, args: [hens, per_hen], var: produced}
+- {op: init, var: eggs_per, value: 18}
+- {op: compute, compute_op: mul, args: [hens, eggs_per], var: step1}
 - {op: init, var: gift1, value: 13}           # ← Interleaved init
 - {op: init, var: gift2, value: 10}           # ← Interleaved init
-- {op: compute, compute_op: add, args: [gift1, gift2], var: gifted}
-- {op: compute, compute_op: sub, args: [produced, gifted], var: remaining}
-- {op: query, var: remaining}
+- {op: compute, compute_op: add, args: [gift1, gift2], var: step2}
+- {op: compute, compute_op: sub, args: [step1, step2], var: result}
+- {op: query, var: result}
 ```
+
+## Long Chain Patterns (Run 8 v4)
+
+Extended traces (10 steps) for GSM-8K problems requiring 8+ operations.
+
+| Generator | Structure | Example Problem |
+|-----------|-----------|-----------------|
+| `generate_long_expense_chain` | 5 init, 4 compute (3 sub + 1 mul), query | "$200 - $30 - $25 - $15, then ×3" |
+
+### Trace Example (long_expense_chain) — Hybrid Naming (Run 13)
+
+```yaml
+expert: arithmetic
+trace:
+- {op: init, var: start, value: 200}
+- {op: init, var: expense1, value: 30}
+- {op: init, var: expense2, value: 25}
+- {op: init, var: expense3, value: 15}
+- {op: init, var: multiplier, value: 3}
+- {op: compute, compute_op: sub, args: [start, expense1], var: step1}
+- {op: compute, compute_op: sub, args: [step1, expense2], var: step2}
+- {op: compute, compute_op: sub, args: [step2, expense3], var: step3}
+- {op: compute, compute_op: mul, args: [step3, multiplier], var: result}
+- {op: query, var: result}
+```
+
+**Example question**: "Sam starts with $200. He spends $30 on food, $25 on transport, and $15 on supplies. He then triples what's left by investing. How much does he have?"
+
+**Answer**: (200 - 30 - 25 - 15) × 3 = 130 × 3 = 390
+
+## GSM-8K Specific Patterns (Run 8 v5)
+
+Patterns directly targeting common GSM-8K problem structures.
+
+| Generator | Structure | GSM-8K Example |
+|-----------|-----------|----------------|
+| `generate_div_then_add` | init,init,div,add | "Tank A has 48 fish. Tank B has half. Total?" |
+| `generate_consume_then_sell` | init,init,init,sub,sub,init,mul | "16 eggs - 3 - 4 = 9, sell at $2 = $18" |
+
+## GSM-8K Template Variations (Run 8 v6)
+
+Added template variations matching exact GSM-8K phrasing patterns.
+
+### div_then_add variations
+
+| Style | Template | GSM-8K Match |
+|-------|----------|--------------|
+| standard | "Tank A has X. Tank B has half as many." | — |
+| half_that_much | "X bolts of blue and half that much white" | Robe fiber |
+| twice_as_much | "First has twice as many as second. First has X." | Gail's fish tanks |
+| robe_style | "A craft takes X and half that much Y" | Robe fiber |
+
+### consume_then_sell variations
+
+| Style | Template | GSM-8K Match |
+|-------|----------|--------------|
+| janet_ducks | "ducks lay X eggs... eats Y for breakfast... bakes with Z" | Janet's ducks |
+| farm_produce | "farm harvests X... keeps Y... gives Z to neighbors" | — |
+| factory_output | "factory produces X... Y for testing... Z as spares" | — |
+| garden_harvest | "garden yields X... uses Y for cooking... Z for decoration" | — |
+
+### interleaved_mul_mul variations
+
+| Style | Template | GSM-8K Match |
+|-------|----------|--------------|
+| daily_laps | "X laps of Y miles each day... in Z days" | — |
+| weekly_sprints | "X sprints Y times a week... Z meters each" | James sprints |
+| dogs_weekly | "X dogs... Y hours each per day... per week" | John's dogs |
+| weekly_practice | "practices X times... Y minutes each... Z days" | — |
+
+### Trace Example (consume_then_sell — Janet's ducks pattern) — Hybrid Naming (Run 13)
+
+```yaml
+expert: arithmetic
+trace:
+- {op: init, var: produced, value: 16}
+- {op: init, var: use1, value: 3}
+- {op: init, var: use2, value: 4}
+- {op: compute, compute_op: sub, args: [produced, use1], var: step1}
+- {op: compute, compute_op: sub, args: [step1, use2], var: step2}
+- {op: init, var: price, value: 2}           # ← Interleaved init
+- {op: compute, compute_op: mul, args: [step2, price], var: result}
+- {op: query, var: result}
+```
+
+**GSM-8K match**: "Janet's ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins with four. She sells the remainder at $2 each."
+
+### Trace Example (div_then_add — Gail's fish tanks pattern) — Hybrid Naming (Run 13)
+
+```yaml
+expert: arithmetic
+trace:
+- {op: init, var: total, value: 48}
+- {op: init, var: divisor, value: 2}
+- {op: compute, compute_op: div, args: [total, divisor], var: step1}
+- {op: compute, compute_op: add, args: [total, step1], var: result}
+- {op: query, var: result}
+```
+
+**GSM-8K match**: "Gail has two fish tanks. The first tank has twice as many fish as the second. If the first tank has 48 fish, how many fish are in both tanks?"
+
+## Number Preprocessing (Run 8 v5)
+
+GSM-8K problems contain comma-formatted numbers (e.g., `$80,000`) that break YAML parsing. Added preprocessing:
+
+```python
+def preprocess_numbers(text: str) -> str:
+    """'80,000' → '80000'"""
+    return re.sub(r'(\d),(\d)', r'\1\2', text)
+```
+
+Applied automatically when loading GSM-8K problems from HuggingFace or sample data.
 
 ### Distribution
 
 Updated `TraceGenerator.generate_balanced()`:
-- Arithmetic: 20% → 30% (to accommodate 9 patterns)
-- Added `interleaved_ratio` parameter (default 0.5) for sequential vs interleaved mix
+- Arithmetic: 20% → 30% (to accommodate 12 patterns)
+- Added `interleaved_ratio` parameter (default 0.4) for sequential vs interleaved mix
+- Added `long_chain_ratio` parameter (default 0.1) for long chain patterns
 
 ### Pattern Count
 
-| Category | Run 7 | Run 8 |
-|----------|-------|-------|
-| Sequential arithmetic | 6 | 6 |
-| Interleaved arithmetic | 0 | 3 |
-| Total patterns | 27 | **30** |
-| GSM-8K coverage (est.) | ~20% | **~50%** |
+| Category | Run 7 | Run 8 v3 | Run 8 v4 | Run 8 v5 |
+|----------|-------|----------|----------|----------|
+| Sequential arithmetic | 6 | 6 | 6 | **7** |
+| Interleaved arithmetic | 0 | 3 | 3 | **4** |
+| Long chain arithmetic | 0 | 0 | 1 | 1 |
+| Total patterns | 27 | 30 | 31 | **33** |
+| GSM-8K coverage (est.) | ~20% | ~50% | ~60% | **~70%** |
 
 ### Learning Hierarchy Extension
 
@@ -428,6 +571,110 @@ Updated `TraceGenerator.generate_balanced()`:
 ```
 
 Level 7 is the new challenge: deciding at each position whether to extract a new value or compute with existing ones.
+
+## Schema-Based Generation (Run 9+)
+
+### Architecture Change
+
+All data generation now uses **JSON schemas** instead of hardcoded Python generators:
+
+```
+chuk_virtual_expert_arithmetic/
+├── schemas/                   # Problem definitions (JSON)
+│   ├── arithmetic/            # 19 schemas
+│   ├── entity_track/          # 5 schemas
+│   ├── rate_equation/         # 4 schemas
+│   ├── comparison/            # 4 schemas
+│   └── percentage/            # 4 schemas
+├── vocab/                     # Vocabulary (JSON)
+│   ├── patterns/              # Question templates by expert
+│   │   ├── arithmetic/
+│   │   ├── entity_track/
+│   │   └── ...
+│   ├── names.json             # Person names + pronouns
+│   ├── items.json             # Countable items
+│   ├── materials.json         # Fabrics, materials
+│   └── phrases.json           # Verbs, expressions
+└── generators/
+    ├── schema_generator.py    # Loads schemas, generates examples
+    └── composition.py         # Multi-expert composition patterns
+```
+
+### Schema Structure
+
+Each schema defines a complete problem type with **hybrid variable naming**:
+
+```json
+{
+  "name": "material_half",
+  "expert": "arithmetic",
+  "description": "X units of material A and half that much of material B",
+  "pattern": "material_patterns",
+  "variant": "half_that_much",
+  "variables": {
+    "amount": {"type": "int", "min": 2, "max": 20, "multiple_of": 2}
+  },
+  "vocab": {
+    "material1": {"path": "materials.fabrics"},
+    "item": {"path": "items.countable_singular"}
+  },
+  "trace": [
+    {"op": "init", "var": "amount", "value": "amount"},
+    {"op": "init", "var": "divisor", "value": 2},
+    {"op": "compute", "compute_op": "div", "args": ["amount", "divisor"], "var": "step1"},
+    {"op": "compute", "compute_op": "add", "args": ["amount", "step1"], "var": "result"},
+    {"op": "query", "var": "result"}
+  ],
+  "answer": "amount + amount // 2"
+}
+```
+
+**Note**: All schemas use semantic init vars (matching schema variables), fixed intermediate vars (`step1`, `step2`), and unified query target (`result`).
+
+### Benefits
+
+1. **Declarative** — New patterns via JSON, not code
+2. **Vocabulary-driven** — Rich text variety from vocab files
+3. **Constraint handling** — Auto-regenerate if constraints fail
+4. **Derived variables** — Compute intermediate values
+5. **Template substitution** — `${name}`, `${amount}` placeholders
+
+### Current Schema Count
+
+| Expert | Count | Schemas |
+|--------|-------|---------|
+| arithmetic | 19 | price_chain, subtract_chain, multiply_add, divide_multiply, work_rate, combined_rate, interleaved_mul_mul, parallel_merge, chained_mul_sum, long_expense_chain, div_then_add, consume_then_sell, half_twice, conditional_rate, fraction_simple, shopping_spree, **material_half**, **material_twice**, **decimal_rate_week** |
+| entity_track | 5 | entity_simple_transfer, entity_consume_sequence, entity_add_sequence, entity_consume_multiply, entity_production |
+| rate_equation | 4 | rate_production, rate_distance, rate_consumption, rate_earning |
+| comparison | 4 | comparison_times_more, comparison_sum_diff, comparison_more_less, comparison_half_as_many |
+| percentage | 4 | percent_off, percent_increase, percent_of, tip_calculation |
+| **composition** | 10 | percent_off_plus_extra, percent_increase_minus_cost, percent_of_then_multiply, rate_then_subtract, value_increase_profit, paired_discount, interrupted_rate, consume_then_sell, cost_increase_profit, discount_tax_total |
+| **Total** | **46** | |
+
+### GSM-8K Targeted Patterns (Run 9)
+
+| Schema | GSM-8K Problem | Trace Pattern |
+|--------|----------------|---------------|
+| `material_half` | Robe fiber | `X + X/2` |
+| `decimal_rate_week` | John's dogs | `count × 0.5 × 7` |
+| `percent_increase_then_profit` | House flipping | % increase → subtract costs |
+| `percent_discount_pairs` | Kylar's glasses | % of → pair × count |
+| `partial_rate_with_restart` | Carla download | % of → time calculations |
+| `consume_then_sell` | Janet's ducks | entity consume → multiply |
+
+### Run 14 Template Variants (Phrasing Gaps)
+
+Based on Run 13 GSM-8K failure analysis — correct structure but wrong value extraction due to phrasing differences:
+
+| Schema | GSM-8K Problem | Phrasing Gap |
+|--------|----------------|--------------|
+| `twice_as_much` | Fish tanks | "first has **twice** as much" vs our "second has half" |
+| `weekly_sprints_same` | James sprints | "**3** sprints **3** times" — same number appears twice |
+| `feed_remainder_scattered` | Wendi chickens | Numbers scattered throughout sentence |
+
+**Total schemas**: 41 (all verified passing)
+
+---
 
 ## Files
 
@@ -438,7 +685,7 @@ experiments/csp_cot_gsm8k/
 │   └── gsm8k_loader.py       # GSM-8K sample/HuggingFace loader
 ├── COT_FORMAT_SPEC.md         # Rogue-1 trace format specification
 ├── EXPERIMENT.md              # This file
-├── RESULTS.md                 # Results and analysis (Runs 1-7)
+├── RESULTS.md                 # Results and analysis (Runs 1-9)
 ├── PATTERNS.md                # Training patterns (14 patterns + meta-pattern)
 ├── GSM8K_GAPS.md              # Gap analysis for GSM-8K generalization
 └── GSM8K_PATTERNS.md          # GSM-8K computation patterns catalog
@@ -446,7 +693,7 @@ experiments/csp_cot_gsm8k/
 
 Dependencies:
 - `chuk_virtual_expert` - TraceSolverExpert, TraceVerifier, ExpertRegistry, trace_models
-- `chuk_virtual_expert_arithmetic` - Expert implementations + generators
+- `chuk_virtual_expert_arithmetic` - Expert implementations + **schema-based generators**
 - `chuk_lazarus` - Model loading
 
 ## Usage

@@ -222,8 +222,8 @@ def load_training_data(n: int = 250, include_composition: bool = True) -> list[d
 
     result = []
     for ex in examples:
-        if isinstance(ex, dict) and ex.get("composed"):
-            # Composition example — already in dict format
+        if isinstance(ex, dict):
+            # Dict format (composition or simplified patterns from composition.py)
             result.append(ex)
         else:
             # Single-expert TraceExample — serialize steps
@@ -398,8 +398,17 @@ def sft_step(model, tokenizer, batch: list[dict], optimizer, max_len: int = 1024
     return loss.item()
 
 
-def evaluate(model, tokenizer, data: list[dict], show: int = 0, quiet: bool = False) -> dict:
-    """Evaluate model on examples."""
+def evaluate(
+    model, tokenizer, data: list[dict],
+    show: int = 0, quiet: bool = False, show_wrong_traces: bool = False,
+) -> dict:
+    """Evaluate model on examples.
+
+    Args:
+        show: Number of examples to print (truncated output)
+        quiet: Suppress progress output
+        show_wrong_traces: Print full trace for wrong answers (for debugging)
+    """
     stats = {
         "total": 0, "correct": 0, "parsed": 0, "valid_trace": 0,
         "wrong_answer": 0, "wrong_expert": 0, "by_expert": {},
@@ -444,6 +453,16 @@ def evaluate(model, tokenizer, data: list[dict], show: int = 0, quiet: bool = Fa
             print(f"  {mark} [{expert or '?':15}] {q}")
             print(f"      Output: {output[:80]}...")
             print(f"      Reward: {reward:.1f} ({reason})")
+
+        # Show full trace for wrong answers (debugging)
+        if show_wrong_traces and reward < 1.0 and reward >= 0.5:
+            print(f"\n  === WRONG ANSWER DEBUG ===")
+            print(f"  Question: {question}")
+            print(f"  Expected: {ex.get('answer')}")
+            print(f"  Got: {reason}")
+            print(f"  Full trace:")
+            print(f"  {output}")
+            print(f"  ===========================\n")
 
     if not quiet and len(data) > 10:
         print("                                    ", end="\r")  # clear progress line
@@ -555,6 +574,8 @@ def main():
     parser.add_argument("--save-checkpoint", type=str, default=None, help="Save trained weights to directory")
     parser.add_argument("--load-checkpoint", type=str, default=None, help="Load weights from checkpoint directory")
     parser.add_argument("--eval-only", action="store_true", help="Skip training, only evaluate")
+    parser.add_argument("--eval-sample", type=int, default=0, help="Limit final eval to N training examples (0=all)")
+    parser.add_argument("--show-wrong-traces", action="store_true", help="Print full trace for wrong answers (debugging)")
     args = parser.parse_args()
 
     # Config
@@ -715,7 +736,11 @@ def main():
     print("=" * 70)
 
     print("\nTraining data:")
-    final = evaluate(model, tokenizer, train_data, show=5)
+    eval_data = train_data
+    if args.eval_sample > 0:
+        eval_data = random.sample(train_data, min(args.eval_sample, len(train_data)))
+        print(f"  (sampled {len(eval_data)} of {len(train_data)})")
+    final = evaluate(model, tokenizer, eval_data, show=5)
     print(f"\n  Overall: {final['correct']}/{final['total']} ({final['correct']/max(final['total'],1):.0%})")
     print(f"  Parsed: {final['parsed']}/{final['total']}")
     print(f"  Valid traces: {final['valid_trace']}/{final['total']}")
@@ -731,14 +756,20 @@ def main():
 
     # Eval on sample GSM-8K problems
     print("\nGSM-8K sample problems:")
-    gsm_stats = evaluate(model, tokenizer, eval_examples, show=3)
+    gsm_stats = evaluate(
+        model, tokenizer, eval_examples, show=3,
+        show_wrong_traces=args.show_wrong_traces,
+    )
     print(f"  Correct: {gsm_stats['correct']}/{gsm_stats['total']}")
     print(f"  Valid traces: {gsm_stats['valid_trace']}/{gsm_stats['total']}")
 
     # Eval on HuggingFace GSM-8K
     if hf_eval:
         print("\nHuggingFace GSM-8K (unseen problems):")
-        hf_stats = evaluate(model, tokenizer, hf_eval, show=5)
+        hf_stats = evaluate(
+            model, tokenizer, hf_eval, show=5,
+            show_wrong_traces=args.show_wrong_traces,
+        )
         print(f"  Correct: {hf_stats['correct']}/{hf_stats['total']}")
         print(f"  Parsed: {hf_stats['parsed']}/{hf_stats['total']}")
         print(f"  Valid traces: {hf_stats['valid_trace']}/{hf_stats['total']}")

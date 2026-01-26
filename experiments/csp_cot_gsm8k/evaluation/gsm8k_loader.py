@@ -11,6 +11,24 @@ from dataclasses import dataclass
 from typing import Iterator
 
 
+def preprocess_numbers(text: str) -> str:
+    """
+    Preprocess numbers in text for YAML compatibility.
+
+    - Removes commas from numbers: "80,000" → "80000"
+    - Handles multiple occurrences
+
+    Args:
+        text: Input text with potential comma-formatted numbers
+
+    Returns:
+        Text with numbers normalized
+    """
+    # Match digits separated by commas (e.g., 80,000 or 1,234,567)
+    # Replace by removing the commas
+    return re.sub(r'(\d),(\d)', r'\1\2', text)
+
+
 @dataclass
 class GSM8KProblem:
     """A single GSM-8K problem."""
@@ -64,7 +82,7 @@ def load_gsm8k(
         if match:
             problems.append(
                 GSM8KProblem(
-                    question=item["question"],
+                    question=preprocess_numbers(item["question"]),
                     answer=int(match.group(1)),
                     solution=item["answer"],
                 )
@@ -100,7 +118,7 @@ def iterate_gsm8k(
         if match:
             batch.append(
                 GSM8KProblem(
-                    question=item["question"],
+                    question=preprocess_numbers(item["question"]),
                     answer=int(match.group(1)),
                     solution=item["answer"],
                 )
@@ -130,9 +148,9 @@ SAMPLE_PROBLEMS = [
         solution="It takes 2/2=1 bolt of white fiber. So the total is 2+1=3 bolts. #### 3",
     ),
     GSM8KProblem(
-        question="Josh decides to try flipping a house. He buys a house for $80,000 and then puts in $50,000 in repairs. This increased the value of the house by 150%. How much profit did he make?",
+        question="Josh decides to try flipping a house. He buys a house for $80000 and then puts in $50000 in repairs. This increased the value of the house by 150%. How much profit did he make?",
         answer=70000,
-        solution="The cost of the house and repairs came out to 80,000+50,000=$130,000. He increased the value by 80,000*1.5=120,000. So the new value is 120,000+80,000=$200,000. So he made a profit of 200,000-130,000=$70,000. #### 70000",
+        solution="The cost of the house and repairs came out to 80000+50000=$130000. He increased the value by 80000*1.5=120000. So the new value is 120000+80000=$200000. So he made a profit of 200000-130000=$70000. #### 70000",
     ),
     GSM8KProblem(
         question="James decides to run 3 sprints 3 times a week. He runs 60 meters each sprint. How many total meters does he run a week?",

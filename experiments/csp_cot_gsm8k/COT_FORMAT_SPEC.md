@@ -1,9 +1,9 @@
 # Rogue-1 Chain-of-Thought Trace Format Specification
 
-> **Version:** 1.2
+> **Version:** 1.4
 > **Status:** Draft
 > **Author:** Chris Hay
-> **Updated:** 2025-01-25
+> **Updated:** 2026-01-25
 
 ---
 
@@ -247,15 +247,17 @@ The solver returns the value of this variable from its final state.
 
 **Structure:** `init+, compute+, query` (variable length)
 
+**Variable naming (Run 13):** Hybrid naming — semantic init vars for grounding, fixed intermediates (`step1`, `step2`, `step3`), and unified `result` for query. Run 12's abstract naming (`a`, `b`, `c`) broke composition accuracy.
+
 ```yaml
 expert: arithmetic
 trace:
-- {op: init, var: price, value: 100}
+- {op: init, var: base, value: 100}
 - {op: init, var: tax, value: 8}
 - {op: init, var: shipping, value: 5}
-- {op: compute, compute_op: add, args: [price, tax], var: with_tax}
-- {op: compute, compute_op: add, args: [with_tax, shipping], var: total}
-- {op: query, var: total}
+- {op: compute, compute_op: add, args: [base, tax], var: step1}
+- {op: compute, compute_op: add, args: [step1, shipping], var: result}
+- {op: query, var: result}
 ```
 
 **Patterns (6):**
@@ -304,13 +306,15 @@ trace:
 
 **Structure:** Fixed 4-step (all patterns identical)
 
+**Variable naming (Run 13):** Semantic init vars (`rate`, `time`) for grounding, unified `result` for query.
+
 ```yaml
 expert: rate_equation
 trace:
 - {op: init, var: rate, value: 60}
 - {op: init, var: time, value: 5}
-- {op: compute, compute_op: mul, args: [rate, time], var: quantity}
-- {op: query, var: quantity}
+- {op: compute, compute_op: mul, args: [rate, time], var: result}
+- {op: query, var: result}
 ```
 
 **Patterns (4, all identical structure):**
@@ -408,14 +412,27 @@ The `source: prev.result` field in InitStep pipes the previous sub-trace's query
 - {op: init, var: prev, source: prev.result}
 ```
 
-### 5.3 Implemented Composition Patterns (4)
+### 5.3 Implemented Composition Patterns (10 verified multi-expert)
 
+**2-Expert Patterns (8)**:
 | Pattern | First Expert | Second Expert | Example |
 |---------|--------------|---------------|---------|
 | percent_off_plus_extra | percentage (percent_off) | arithmetic (add) | "$80 shirt, 20% off, +$10 shipping" |
 | percent_increase_minus_cost | percentage (percent_increase) | arithmetic (sub) | "$100 stock +25%, how much gain?" |
 | percent_of_then_multiply | percentage (percent_of) | arithmetic (mul) | "25% of $80 per unit, buy 3" |
 | rate_then_subtract | rate_equation (mul) | arithmetic (sub) | "10/hour × 5 hours, 3 defective" |
+| value_increase_profit | percentage (percent_increase) | arithmetic (sub) | House flipping profit calc |
+| paired_discount | percentage (percent_of) | arithmetic (mul) | Kylar's glasses pairs |
+| interrupted_rate | percentage (percent_of) | arithmetic (add) | Download with restart |
+| consume_then_sell | entity_track (consume) | arithmetic (mul) | Janet's ducks revenue |
+
+**3-Expert Patterns (2)**:
+| Pattern | Experts | Wiring |
+|---------|---------|--------|
+| cost_increase_profit | arithmetic → percentage → arithmetic | `sub0.result` + `prev.result` |
+| discount_tax_total | percentage → percentage → arithmetic | `prev.result` chaining |
+
+**Run 14 cleanup**: Removed 2 mislabeled single-expert patterns from composition.py.
 
 ### 5.4 Structural Consistency
 
@@ -526,15 +543,15 @@ The solver enforces that `query` targets must be computed/modified variables:
 
 ```yaml
 # REJECTED (reward 0.5): query targets init variable
-- {op: init, var: rate, value: 49}
-- {op: init, var: time, value: 5}
-- {op: query, var: rate}  # ERROR: 'rate' is init-only
+- {op: init, var: a, value: 49}
+- {op: init, var: b, value: 5}
+- {op: query, var: a}  # ERROR: 'a' is init-only
 
 # VALID (reward 1.0): query targets compute output
-- {op: init, var: rate, value: 49}
-- {op: init, var: time, value: 5}
-- {op: compute, compute_op: mul, args: [rate, time], var: quantity}
-- {op: query, var: quantity}  # OK: 'quantity' was computed
+- {op: init, var: a, value: 49}
+- {op: init, var: b, value: 5}
+- {op: compute, compute_op: mul, args: [a, b], var: result}
+- {op: query, var: result}  # OK: 'result' was computed
 ```
 
 ---
@@ -576,9 +593,10 @@ You are a helpful assistant with access to the following experts: entity_track, 
 |---------|-------------|
 | Structural consistency | All patterns in an expert have same step count |
 | One template per pattern | Maximum repetition signal |
-| Hybrid var naming | Entity-anchored inits + fixed scaffolding |
+| Hybrid var naming | Semantic inits + fixed scaffolding |
 | Minimal system prompt | Model learns from examples, not instructions |
 | Consistent YAML formatting | All steps use flow style `{...}` |
+| Hybrid variable naming | Semantic inits + `step1,step2,step3` intermediates + unified `result` query |
 
 ### 8.4 SFT Phase
 
@@ -761,3 +779,5 @@ experiments/csp_cot_gsm8k/
 | 1.0 | 2025-01-22 | Initial specification |
 | 1.1 | 2025-01-24 | Added anti-short-circuit, hybrid naming |
 | 1.2 | 2025-01-25 | Added expert composition, GSM-8K analysis, updated to `op` discriminator format |
+| 1.3 | 2026-01-25 | Variable naming: Run 12 tried abstract naming (failed), Run 13 uses hybrid naming (semantic inits + `step1,step2,step3` + `result`) |
+| 1.4 | 2026-01-25 | Composition cleanup: Removed 2 mislabeled single-expert patterns from composition.py, added `rate_comparison_total` schema to INTERLEAVED_SCHEMAS. All 10 composition generators now verified multi-expert. |
