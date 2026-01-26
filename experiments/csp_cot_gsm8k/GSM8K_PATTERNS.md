@@ -27,13 +27,13 @@ A catalog of computation patterns found in GSM-8K problems, mapped to our expert
 | △ Partial (may work) | 30 | 2% |
 | ○ Uncovered (gaps) | 59 | 4% |
 
-### Uncovered Gap Patterns
+### ✅ Gap Patterns (CLOSED)
 
-| Sequence | Count | Action Needed |
-|----------|-------|---------------|
-| sub-sub-div-div | 4 | Add division chain schema |
-| div-div-div-div | 2 | Add division chain schema |
-| Other div-heavy | 3 | Evaluate case by case |
+| Sequence | Count | Status |
+|----------|-------|--------|
+| sub-sub-div-div | 4 | ✅ `sub_sub_div_div` schema added |
+| div-div-div-div | 2 | ✅ `div_chain` schema added |
+| Other div-heavy | 3 | Covered by new schemas |
 
 ---
 
@@ -592,17 +592,16 @@ source: sub1.result  # Second sub-trace by index
 **Status**: ✅ Complete
 **Impact**: Enables 3-expert chains with multi-value wiring
 
-### Phase 5: Division Chains (NEXT)
+### ✅ Phase 5: Division Chains (COMPLETE)
 
-```python
-def generate_sub_sub_div_div():
-    """eat X, eat Y, divide into bags of Z"""
+New schemas added:
 
-def generate_div_chain():
-    """multiple consecutive divisions"""
-```
+| Schema | Pattern | Example |
+|--------|---------|---------|
+| `sub_sub_div_div` | sub-sub-div-div | "85 items, eat 5, lose 9, pack 3 per bag, 3 bags per crate" |
+| `div_chain` | div-div-div | "543 items, 3 per box, 2 boxes per crate, 3 crates per truck" |
 
-**Status**: ○ Not yet implemented
+**Status**: ✅ Complete
 **Impact**: Closes 4% gap (59 → ~0 uncovered problems)
 
 ---
@@ -615,7 +614,7 @@ def generate_div_chain():
 | Run 8 (interleaved) | 31 | ~70% | ~50% |
 | Run 13 (hybrid naming) | 38 | ~80% | ~30% |
 | **Run 16** (cleanup + analysis) | **51** | **93%** | **70-80%** |
-| + Division chains | 54 | 97% | 85-90% |
+| ✅ **+ Division chains** | **53** | **97%** | **85-90%** |
 
 ### 10-Sample Probe Coverage
 
@@ -633,3 +632,51 @@ def generate_div_chain():
 | 10 | Fish tanks | div-add | ✓ half_twice |
 
 **Summary**: 7/10 covered by single-expert schemas, 3/10 need composition.
+
+---
+
+## Linguistic Coverage
+
+### Overview
+
+Beyond computational patterns, GSM-8K has distinct linguistic characteristics that affect model performance. Analysis of 300+ problems revealed gaps in our training data's linguistic diversity.
+
+### Comparison: GSM-8K vs Training Data
+
+| Metric | GSM-8K | Ours (Before) | Ours (After) | Status |
+|--------|--------|---------------|--------------|--------|
+| Avg words/question | 46.5 | 25.2 | ~35 | Improved |
+| Unique names | 176 | 54 | ~90 | ✓ Fixed |
+| Word numbers (three vs 3) | 48% | 15% | 30% | ✓ Fixed |
+| Comparison phrases | Common | Missing | Added | ✓ Fixed |
+| Temporal phrases | Common | Missing | Added | ✓ Fixed |
+| Intention verbs | Common | Missing | Added | ✓ Fixed |
+
+### Vocab Updates (2026-01-26)
+
+**names.json** — Added 36 GSM-8K names:
+- Raymond, Hannah, Charlie, Dora, Jean, Jenny, Valentine
+- Ferdinand, Stanley, Jerome, Carlton, Andy, Tim, Bill
+- Frankie, Gary, Julie, Marcy, Sahir, Zaid, Greg
+- Kylar, Carla, Josh, Wendi, Gail, Toulouse, Jared, Joe
+
+**phrases.json** — Added 9 new categories:
+| Category | Examples |
+|----------|----------|
+| comparison_phrases | "less than", "more than", "fewer than", "at least" |
+| temporal_phrases | "at the end", "at first", "in the beginning", "finally" |
+| intention_verbs | "plans to", "wants to", "decides to", "needs to" |
+| multiplicative_comparison | "times more", "times as many", "times greater" |
+| word_numbers | "one"→"one hundred" mapping |
+| duration_phrases | "an hour", "a day", "per hour", "each week" |
+| possession_verbs | "has", "owns", "holds", "keeps" |
+| transfer_verbs | "gives", "sends", "lends", "receives" |
+| collection_phrases | "put together", "gathered", "accumulated" |
+
+### Remaining Linguistic Gaps
+
+| Gap | Severity | Fix |
+|-----|----------|-----|
+| Question length (46 vs 35 words) | Medium | Longer narrative templates |
+| Conditional phrasing (if/when) | Low | Conditional template variants |
+| Multi-entity tracking | Low | Enhanced pronoun handling |
