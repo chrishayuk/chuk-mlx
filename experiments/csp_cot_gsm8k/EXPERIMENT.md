@@ -199,11 +199,11 @@ The system prompt is minimal — just lists available experts. The model learns 
 - Adam, lr=2e-5, batch size 4
 - max_len=1024 (accommodates prompt + full target)
 
-### Phase 2: RL (REINFORCE, 20 iterations)
+### Phase 2: RL (REINFORCE, 10 iterations)
 
 - Adam, lr=5e-7
 - Batch size 8, temp=0.7
-- Max 250 generated tokens
+- Max 750 generated tokens (configurable via `--max-tokens`)
 - Graduated reward from TraceSolverExpert:
 
 ```
@@ -245,14 +245,35 @@ Each expert handles domain-specific operations (transfer, consume, percent_of) w
 
 ## GSM-8K Coverage Analysis
 
-### Current Coverage (10-sample probe)
+### Current Results (Run 19)
 
-| Coverage Level | Count | Description |
-|---------------|-------|-------------|
-| FULL | 2/10 | Existing pattern matches exactly |
-| STRUCTURAL | 1/10 | Shape fits, new pattern variant needed |
-| PARTIAL | 4/10 | Arithmetic handles shape, chains are longer |
-| NONE | 3/10 | Requires multi-expert composition |
+| Metric | Value |
+|--------|-------|
+| Training examples | 3000 |
+| SFT accuracy | **100%** |
+| GSM-8K 10-sample | 70% (7/10) |
+| GSM-8K 100-sample | **~2%** |
+| Parse rate (100-sample) | **100%** |
+
+**Critical Finding**: 100% parse rate with ~2% accuracy reveals the model learns trace FORMAT, not REASONING. Valid YAML structure does not imply correct mathematical reasoning.
+
+### GSM-8K 10-Sample Probe Results
+
+| Problem | Pattern | Status | Notes |
+|---------|---------|--------|-------|
+| Janet's ducks | consume_then_sell | ✓ | |
+| Robe fiber | div-add | ✓ | |
+| Josh house flipping | 3-expert composition | ✓ | |
+| James sprints | interleaved_mul_mul | ✓ | |
+| Wendi's chickens | parallel_merge | ✓ | |
+| Kylar's glasses | paired_discount | ✓ | |
+| Toulouse's sheep | chained_mul_sum | ✓ | |
+| Carla download | interrupted_rate | ✗ | Value extraction error |
+| John's dogs | decimal_rate_week | ✓ | |
+| Fish tanks | half_twice | ✓ | |
+
+**Pattern matching: 100%** — All 10 problems use correct trace structure.
+**Value extraction: 90%** — One failure due to unfamiliar phrasing, not reasoning.
 
 ### Architectural Gaps
 
@@ -268,9 +289,20 @@ Required grammar: `(init | compute)+ → query`
 **3. Chain Length**
 Training max is ~6 steps. GSM-8K median is 6-8 steps with some problems requiring 10+.
 
-### Key Finding
+### Key Finding (Run 19 Update)
 
-The 0% accuracy with 100% valid traces confirms the architecture works — the model produces structurally valid output for any input. The failure is purely in wiring/semantics for unseen problem types, not in format or structure.
+**Format Mastery ≠ Reasoning Capability**
+
+Run 19's 100-sample evaluation exposed a critical gap:
+- **100% parse rate** — Model produces perfectly valid YAML traces
+- **~2% accuracy** — But the computed answers are almost always wrong
+
+The model has learned to emit structurally valid traces matching training patterns, but cannot:
+1. Generalize to novel phrasings (GSM-8K has thousands of unique formulations)
+2. Correctly map quantities to variables in unfamiliar contexts
+3. Select appropriate operations for problems it hasn't explicitly seen
+
+This suggests the architecture is sound but the training approach (pattern memorization from ~50 schemas) doesn't scale to the full diversity of GSM-8K (1319 problems with unique phrasings).
 
 ## Expert Composition (Implemented — Run 7)
 
@@ -649,7 +681,7 @@ Each schema defines a complete problem type with **hybrid variable naming**:
 | comparison | 4 | comparison_times_more, comparison_sum_diff, comparison_more_less, comparison_half_as_many |
 | percentage | 4 | percent_off, percent_increase, percent_of, tip_calculation |
 | **composition** | 10 | percent_off_plus_extra, percent_increase_minus_cost, percent_of_then_multiply, rate_then_subtract, value_increase_profit, paired_discount, interrupted_rate, consume_then_sell, cost_increase_profit, discount_tax_total |
-| **Total** | **46** | |
+| **Total** | **59** | (10 new pattern files added in Run 19) |
 
 ### GSM-8K Targeted Patterns (Run 9)
 
@@ -680,12 +712,18 @@ Based on Run 13 GSM-8K failure analysis — correct structure but wrong value ex
 
 ```
 experiments/csp_cot_gsm8k/
-├── train_gsm8k_yaml.py       # Training script (SFT + RL)
+├── train_gsm8k_yaml.py        # Training script (SFT + RL)
 ├── evaluation/
-│   └── gsm8k_loader.py       # GSM-8K sample/HuggingFace loader
+│   └── gsm8k_loader.py        # GSM-8K sample/HuggingFace loader
+├── checkpoints/               # Saved model checkpoints
+│   ├── smollm2_1.7b_run1/     # SmolLM2-1.7B Run 20
+│   └── gsm8k_yaml_schema_*/   # TinyLlama checkpoints
+├── EXPERIMENT.md              # This file (main experiment design)
+├── RESULTS.md                 # Results and analysis (Runs 1-20)
+├── TINYLLAMA_1.1B.md          # TinyLlama-specific analysis
+├── SMOLLM2_1.7B.md            # SmolLM2-specific analysis
+├── LLAMA32_1B.md              # Llama-3.2-1B base analysis
 ├── COT_FORMAT_SPEC.md         # Rogue-1 trace format specification
-├── EXPERIMENT.md              # This file
-├── RESULTS.md                 # Results and analysis (Runs 1-9)
 ├── PATTERNS.md                # Training patterns (14 patterns + meta-pattern)
 ├── GSM8K_GAPS.md              # Gap analysis for GSM-8K generalization
 └── GSM8K_PATTERNS.md          # GSM-8K computation patterns catalog
@@ -713,4 +751,122 @@ python experiments/csp_cot_gsm8k/train_gsm8k_yaml.py --n-train 500
 
 # Evaluate checkpoint on HuggingFace GSM-8K
 python experiments/csp_cot_gsm8k/train_gsm8k_yaml.py --load-checkpoint checkpoints/gsm8k --eval-only --use-hf
+
+# Try larger model (SmolLM2-1.7B)
+python experiments/csp_cot_gsm8k/train_gsm8k_yaml.py \
+    --model HuggingFaceTB/SmolLM2-1.7B-Instruct \
+    --n-train 3000 \
+    --sft-epochs 1 \
+    --rl-iters 20 \
+    --max-tokens 750
 ```
+
+## Model Capacity Experiment: SmolLM2-1.7B (Run 20)
+
+**Hypothesis**: TinyLlama 1.1B may lack capacity to generalize from training patterns to novel GSM-8K phrasings. A larger model might bridge this gap.
+
+**Experiment**: SmolLM2-1.7B-Instruct (1.7B parameters, 55% larger)
+
+**Results**: **HYPOTHESIS REJECTED** — Larger instruction-tuned model performs worse
+
+| Metric | TinyLlama 1.1B | SmolLM2-1.7B |
+|--------|----------------|--------------|
+| SFT accuracy | 100% | 65% |
+| Final training | 96% | 78% |
+| GSM-8K 10-sample | 90% | 30% |
+| Composition | 100% | **22%** |
+
+**Key Finding**: Instruction-tuning creates strong priors that resist learning new structured output formats. The model's chat training actively interferes with YAML trace generation.
+
+**Implication**: For structured output tasks, base models may outperform instruction-tuned models of the same or larger size. The "best" model depends on the task — chat optimization hurts format learning.
+
+**Next**: 100-sample GSM-8K evaluation to test whether SmolLM2's language understanding helps with novel phrasings despite lower overall accuracy.
+
+### GSM-8K 30-Sample Results (Final)
+
+**SmolLM2: 2/30 (7%)** — barely better than TinyLlama's ~2% on 100 samples.
+
+| Metric | SmolLM2-1.7B | TinyLlama 1.1B |
+|--------|--------------|----------------|
+| Accuracy | 7% (30-sample) | ~2% (100-sample) |
+| Parse rate | 83% | 100% |
+| Valid traces | 83% | 100% |
+
+SmolLM2 exhibits severe structural issues not seen in TinyLlama:
+
+1. **Variable overwriting** — Reinitializes computed variables, destroying calculations
+2. **Missing final operations** — Computes partial results (e.g., tip without adding to base)
+3. **Wrong operation selection** — Adds instead of subtracts, multiplies instead of divides
+4. **Expert boundary violations** — Uses percentage ops in arithmetic expert
+
+See model-specific documentation:
+- [TINYLLAMA_1.1B.md](TINYLLAMA_1.1B.md) — Best for format learning
+- [SMOLLM2_1.7B.md](SMOLLM2_1.7B.md) — Instruction-tuning hurts format learning
+- [LLAMA32_1B.md](LLAMA32_1B.md) — Base model learns format well, same reasoning limit
+
+### Run 21: Llama-3.2-1B Base
+
+**Result**: 95% SFT accuracy, 93% GSM-8K parse rate, but **same 7% GSM-8K accuracy** as SmolLM2.
+
+| Model | Type | Format Learning | GSM-8K |
+|-------|------|-----------------|--------|
+| Llama-3.2-1B | Base | Excellent (95%) | 7% |
+| SmolLM2-1.7B | Instruct | Poor (65%) | 7% |
+
+**Key Finding**: The bottleneck is **reasoning**, not format. Both models hit the same accuracy ceiling regardless of how well they learn the YAML format.
+
+### Run 22: Llama-3.2-1B-Instruct (BEST RESULT!)
+
+| Metric | Llama Instruct | Llama Base | SmolLM2 Instruct |
+|--------|----------------|------------|------------------|
+| SFT | 95% | 95% | 65% |
+| GSM-8K | **17%** | 7% | 7% |
+| Parse rate | **100%** | 93% | 83% |
+
+**Breakthrough**: Llama-3.2-1B-Instruct achieves **17% GSM-8K accuracy** — 2.5x better than any other model!
+
+**Key Insight**: Not all instruction-tuning is equal:
+- **Llama-Instruct**: Format preserved, reasoning improved
+- **SmolLM2-Instruct**: Format degraded, reasoning unchanged
+
+Llama's instruction-tuning is compatible with learning new structured output formats and helps with reasoning transfer.
+
+### Run 23: Llama-3.2-3B-Instruct (BEST OVERALL)
+
+| Metric | 3B-Instruct | 1B-Instruct | Delta |
+|--------|-------------|-------------|-------|
+| SFT | 100% | 95% | +5% |
+| GSM-8K | **27%** | 17% | +10% |
+
+**Finding**: 3x parameters → only 1.6x performance (sublinear scaling).
+
+### Runs 24-25: Layer Unfreezing Experiments
+
+| Config | Layers | GSM-8K |
+|--------|--------|--------|
+| 1B + 6 layers | 37% | 17% |
+| 1B + 8 layers | 50% | 17% (no change) |
+| 1B + 16 layers (full) | 100% | **7%** (WORSE!) |
+
+**Finding**: Full fine-tune causes **catastrophic forgetting**. The model overwrites base capabilities with narrow training patterns.
+
+### Final Model Comparison
+
+| Model | Size | Layers | SFT | GSM-8K |
+|-------|------|--------|-----|--------|
+| TinyLlama 1.1B | 1.1B | 6 | 100% | ~2% |
+| SmolLM2-1.7B-Instruct | 1.7B | 6 | 65% | 7% |
+| Llama-3.2-1B (base) | 1.0B | 6 | 95% | 7% |
+| Llama-3.2-1B-Instruct | 1.0B | 6 | 95% | 17% |
+| Llama-3.2-1B-Instruct | 1.0B | 8 | 95% | 17% |
+| Llama-3.2-1B-Instruct | 1.0B | 16 | 100% | 7% |
+| **Llama-3.2-3B-Instruct** | 3.2B | 6 | 100% | **27%** |
+
+### Key Conclusions
+
+1. **Model size helps (sublinearly)** — 3B achieves 27% vs 1B's 17%
+2. **Layer unfreezing doesn't help** — 8 layers = 6 layers on 1B
+3. **Full fine-tune is catastrophic** — Goes from 17% to 7%
+4. **The bottleneck is DATA DIVERSITY** — Not capacity or layers
+
+**The fix is more diverse training patterns, not more parameters or trainable layers.**

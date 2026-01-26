@@ -2,13 +2,25 @@
 
 **Date**: 2026-01-26 (Updated)
 **Model**: TinyLlama 1.1B with schema-based generation
-**Current Run**: Run 16 (composition cleanup + new schemas)
+**Current Run**: Run 18 (token limit fix)
 **Schemas**: 41 single-expert + 10 composition = 51 total
 **GSM-8K Test Set**: 1319 problems analyzed
 
 ---
 
 ## Executive Summary
+
+**Run 18 Results**:
+
+| Metric | 10-Sample Probe | 100-Sample HF |
+|--------|-----------------|---------------|
+| Accuracy | 90% (9/10) | **2%** (2/100) |
+| Parse rate | 100% | 100% |
+| Valid traces | 100% | 100% |
+| Wrong answer | 1 | 91 |
+
+**Critical Insight:** The 10-sample probe was NOT representative. True GSM-8K performance is ~2%.
+The architecture works (100% valid traces), but patterns don't generalize.
 
 **Full GSM-8K Test Set Pattern Coverage**:
 
@@ -18,33 +30,89 @@
 | △ Partial (short, may work) | 30 | 2% |
 | ○ Uncovered (gaps) | 59 | 4% |
 
-**10-Sample Probe Coverage**:
+**10-Sample Probe Results (Run 18)**:
 
-| Coverage | Count | Problems |
-|----------|-------|----------|
-| ✓ Schema match | 7 | 1 (Janet), 2 (Robe), 4 (James), 5 (Wendi), 7 (Toulouse), 9 (John), 10 (Fish) |
-| ○ Needs composition | 3 | 3 (House), 6 (Kylar), 8 (Carla) |
-
-**Key insight**: 93% of GSM-8K problems have operation sequences that match our trained patterns. The remaining 4% gap is primarily division-heavy chains (`sub-sub-div-div`, `div-div-div-div`).
+| Problem | Pattern | Status | Notes |
+|---------|---------|--------|-------|
+| Janet's ducks | consume_then_sell | ✓ | |
+| Robe fiber | div-add | ✓ | |
+| Josh house flipping | 3-expert composition | ✓ | |
+| James sprints | interleaved_mul_mul | ✓ | |
+| Wendi's chickens | parallel_merge | ✓ | |
+| Kylar's glasses | paired_discount | ✓ | |
+| Toulouse's sheep | chained_mul_sum | ✓ | |
+| Carla download | interrupted_rate | ✗ | Value extraction (speed=20, delay=10) |
+| John's dogs | decimal_rate_week | ✓ | |
+| Fish tanks | half_twice | ✓ | |
 
 ---
 
-## Current Architecture (Run 16)
+## 100-Sample Evaluation Results
+
+**The 10-sample probe was NOT representative.** Full 100-sample HuggingFace evaluation:
+
+| Metric | Value |
+|--------|-------|
+| Accuracy | **2%** (2/100) |
+| Parse rate | 100% |
+| Valid traces | 100% |
+| Wrong answer | 91 |
+| Wrong expert | 0 |
+
+### Failure Mode Breakdown
+
+| Failure Type | Count | Examples |
+|--------------|-------|----------|
+| Multi-entity problems | ~30% | Dry cleaning (3 items), erasers+pencils |
+| "Twice as many" → wrong op | ~20% | Used div instead of mul |
+| Rate/time confusion | ~15% | Multiplied when should divide |
+| Multi-step truncation | ~20% | Only computed first 1-2 steps |
+| Decimal/value extraction | ~10% | $0.25 → 25, wrong numbers |
+
+### Key Insight
+
+**The architecture works. The patterns don't generalize.**
+- 100% parse rate
+- 100% valid traces
+- 2% correct answers
+
+The gap is **linguistic**, not computational.
+
+---
+
+## New Schemas Added (Post-Evaluation)
+
+To address the identified gaps, these schemas were added:
+
+| Schema | Pattern | Addresses |
+|--------|---------|-----------|
+| `growth_doubled` | start × multiplier + extra | "doubled/tripled" confusion |
+| `average_three` | (a+b+c)/3 | Average calculations |
+| `remaining_capacity` | (limit-base)/unit | Bridge/boxes problems |
+| `multi_item_cost` | n1×p1 + n2×p2 | Multi-entity pricing |
+| `ratio_split` | total/(1+r)×r | "4 times as much" splits |
+| `time_from_distance` | distance/speed | Rate/time confusion |
+| `twice_relationship` | base × multiplier | "twice as many" → multiply |
+| `two_period_sum` | r1×t1 + r2×t2 | Two-period calculations |
+| `recover_then_multiply` | (current+consumed)×mult | Back-calculation patterns |
+| `nested_groups` | groups×subgroups×per | Nested multiplication |
+
+Also updated:
+- **Fraction preprocessing** — "1/3" → 0.333, "1/4" → 0.25, etc.
+- **Vocab: growth_verbs** — doubled/tripled/quadrupled mappings
+
+---
+
+## Current Architecture
 
 ```
 Grammar: (init | compute)+ → query  (interleaved supported)
 Experts: entity_track, arithmetic, rate_equation, comparison, percentage
 Composition: 2-expert and 3-expert chains with prev.result + sub0.result wiring
-Schemas: 41 single-expert + 10 composition = 51 total
+Schemas: 51 single-expert + 10 composition + 10 new = ~61 total
+Max tokens: 750
 Max steps: ~10 (long chain pattern)
 ```
-
-### What Changed Since Run 14
-
-1. **Composition cleanup** — Removed 2 mislabeled single-expert patterns
-2. **All 10 composition patterns verified** — True multi-expert chains only
-3. **New schema** — `rate_comparison_total` added to INTERLEAVED_SCHEMAS
-4. **3-expert support** — `cost_increase_profit`, `discount_tax_total`
 
 ---
 

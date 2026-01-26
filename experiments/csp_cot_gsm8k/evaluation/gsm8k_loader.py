@@ -16,6 +16,8 @@ def preprocess_numbers(text: str) -> str:
     Preprocess numbers in text for YAML compatibility.
 
     - Removes commas from numbers: "80,000" → "80000"
+    - Converts fractions to decimals: "1/3" → "0.333"
+    - Converts implicit values: "a dozen" → "12", "a pair" → "2"
     - Handles multiple occurrences
 
     Args:
@@ -24,9 +26,65 @@ def preprocess_numbers(text: str) -> str:
     Returns:
         Text with numbers normalized
     """
-    # Match digits separated by commas (e.g., 80,000 or 1,234,567)
-    # Replace by removing the commas
-    return re.sub(r'(\d),(\d)', r'\1\2', text)
+    # Convert implicit quantity words to numbers
+    implicit_values = {
+        r'\ba dozen\b': '12',
+        r'\bdozen\b': '12',
+        r'\ba pair of\b': '2',
+        r'\ba pair\b': '2',
+        r'\ba couple of\b': '2',
+        r'\ba couple\b': '2',
+        r'\bhalf a\b': '0.5',
+        r'\ba quarter of\b': '0.25',
+        r'\ba third of\b': '0.333',
+    }
+    for pattern, value in implicit_values.items():
+        text = re.sub(pattern, value, text, flags=re.IGNORECASE)
+
+    # Remove commas from numbers (e.g., 80,000 → 80000)
+    text = re.sub(r'(\d),(\d)', r'\1\2', text)
+
+    # Convert common fractions to decimals
+    # Match patterns like "1/3", "2/3", "1/4", etc. (not dates like 1/15/2024)
+    fraction_map = {
+        '1/2': '0.5',
+        '1/3': '0.333',
+        '2/3': '0.667',
+        '1/4': '0.25',
+        '3/4': '0.75',
+        '1/5': '0.2',
+        '2/5': '0.4',
+        '3/5': '0.6',
+        '4/5': '0.8',
+        '1/6': '0.167',
+        '5/6': '0.833',
+        '1/7': '0.143',
+        '1/8': '0.125',
+        '3/8': '0.375',
+        '5/8': '0.625',
+        '7/8': '0.875',
+        '1/9': '0.111',
+        '1/10': '0.1',
+        '1/12': '0.083',
+        '1/15': '0.067',
+        '1/20': '0.05',
+    }
+
+    for frac, decimal in fraction_map.items():
+        # Only replace if it's a standalone fraction (not part of a larger number)
+        # Use word boundary or space/punctuation
+        text = re.sub(rf'\b{re.escape(frac)}\b', decimal, text)
+
+    # Handle any remaining simple fractions (n/m where n < m and both small)
+    def replace_fraction(match):
+        num, denom = int(match.group(1)), int(match.group(2))
+        if denom != 0 and num <= 10 and denom <= 20:
+            return f"{num / denom:.3f}"
+        return match.group(0)  # Return unchanged if not a simple fraction
+
+    text = re.sub(r'\b(\d{1,2})/(\d{1,2})\b', replace_fraction, text)
+
+    return text
 
 
 @dataclass

@@ -315,7 +315,7 @@ def format_full_target(example: dict) -> str:
 # =============================================================================
 
 def generate(
-    model, tokenizer, prompt: str, max_tokens: int = 250, greedy: bool = True, temp: float = 0.7
+    model, tokenizer, prompt: str, max_tokens: int = 750, greedy: bool = True, temp: float = 0.7
 ) -> str:
     """Generate completion."""
     tokens = tokenizer.encode(prompt)
@@ -401,6 +401,7 @@ def sft_step(model, tokenizer, batch: list[dict], optimizer, max_len: int = 1024
 def evaluate(
     model, tokenizer, data: list[dict],
     show: int = 0, quiet: bool = False, show_wrong_traces: bool = False,
+    max_tokens: int = 750,
 ) -> dict:
     """Evaluate model on examples.
 
@@ -408,6 +409,7 @@ def evaluate(
         show: Number of examples to print (truncated output)
         quiet: Suppress progress output
         show_wrong_traces: Print full trace for wrong answers (for debugging)
+        max_tokens: Max tokens for generation
     """
     stats = {
         "total": 0, "correct": 0, "parsed": 0, "valid_trace": 0,
@@ -415,12 +417,13 @@ def evaluate(
     }
 
     for idx, ex in enumerate(data):
-        if not quiet and len(data) > 10 and (idx + 1) % 5 == 0:
-            print(f"    evaluating {idx+1}/{len(data)}...", end="\r", flush=True)
+        if not quiet and len(data) > 10 and (idx + 1) % 10 == 0:
+            correct_so_far = stats["correct"]
+            print(f"    evaluating {idx+1}/{len(data)}... ({correct_so_far} correct so far)", flush=True)
 
         question = ex["query"]
         prompt = format_chat_prompt(question)
-        output = generate(model, tokenizer, prompt, greedy=True)
+        output = generate(model, tokenizer, prompt, max_tokens=max_tokens, greedy=True)
         reward, reason = compute_reward(
             output,
             ex.get("answer", 0),
@@ -471,7 +474,7 @@ def evaluate(
 
 def rl_step(
     model, tokenizer, data: list[dict], optimizer, baseline: float,
-    batch_size: int = 8, temp: float = 0.7, max_tokens: int = 250,
+    batch_size: int = 8, temp: float = 0.7, max_tokens: int = 750,
 ):
     """One REINFORCE step with graduated rewards."""
     batch = random.sample(data, min(batch_size, len(data)))
@@ -576,11 +579,14 @@ def main():
     parser.add_argument("--eval-only", action="store_true", help="Skip training, only evaluate")
     parser.add_argument("--eval-sample", type=int, default=0, help="Limit final eval to N training examples (0=all)")
     parser.add_argument("--show-wrong-traces", action="store_true", help="Print full trace for wrong answers (debugging)")
+    parser.add_argument("--max-tokens", type=int, default=750, help="Max tokens for generation (default 750)")
+    parser.add_argument("--hf-only", action="store_true", help="Only evaluate on HuggingFace GSM-8K (skip training data eval)")
+    parser.add_argument("--unfreeze-layers", type=int, default=6, help="Number of layers to unfreeze (default 6, try 12/16 for more capacity)")
     args = parser.parse_args()
 
     # Config
     rl_batch_size = 4 if args.fast else 8
-    max_gen_tokens = 150 if args.fast else 250
+    max_gen_tokens = 150 if args.fast else args.max_tokens
 
     if args.minimal_sft:
         args.sft_epochs = 1
@@ -657,13 +663,16 @@ def main():
         print("BASELINE (before training)")
         print("=" * 70)
         model.freeze()
-        stats = evaluate(model, tokenizer, train_data[:5], show=3)
+        stats = evaluate(model, tokenizer, train_data[:5], show=3, max_tokens=max_gen_tokens)
         print(f"\nBaseline: {stats['correct']}/{stats['total']} correct, {stats['parsed']}/{stats['total']} parsed")
 
         # Unfreeze layers
-        for layer in model.model.layers[-6:]:
+        n_layers = len(model.model.layers)
+        unfreeze_count = min(args.unfreeze_layers, n_layers)
+        for layer in model.model.layers[-unfreeze_count:]:
             layer.unfreeze()
         model.lm_head.unfreeze()
+        print(f"Unfrozen: last {unfreeze_count} of {n_layers} layers + lm_head")
 
         # SFT Phase
         print("\n" + "=" * 70)
@@ -686,7 +695,7 @@ def main():
 
             # Quick eval on subset
             eval_subset = train_data[:20]
-            stats = evaluate(model, tokenizer, eval_subset)
+            stats = evaluate(model, tokenizer, eval_subset, max_tokens=max_gen_tokens)
             acc = stats["correct"] / stats["total"] if stats["total"] else 0
             parse_rate = stats["parsed"] / stats["total"] if stats["total"] else 0
             avg_loss = sum(losses) / len(losses) if losses else 0
@@ -694,7 +703,7 @@ def main():
             print(f"  Epoch {epoch+1} done: loss={avg_loss:.4f} correct={acc:.0%} parsed={parse_rate:.0%} (eval on 20)")
 
         print("\nAfter SFT (sample outputs):")
-        evaluate(model, tokenizer, train_data[:5], show=5)
+        evaluate(model, tokenizer, train_data[:5], show=5, max_tokens=max_gen_tokens)
 
         # Save SFT checkpoint
         if args.save_checkpoint:
@@ -720,7 +729,7 @@ def main():
                 )
                 if (i + 1) % 5 == 0:
                     eval_subset = train_data[:20]
-                    stats = evaluate(model, tokenizer, eval_subset)
+                    stats = evaluate(model, tokenizer, eval_subset, max_tokens=max_gen_tokens)
                     print(
                         f"    eval: {stats['correct']}/{stats['total']} correct "
                         f"({stats['parsed']}/{stats['total']} parsed)"
@@ -735,44 +744,49 @@ def main():
     print("FINAL EVALUATION")
     print("=" * 70)
 
-    print("\nTraining data:")
-    eval_data = train_data
-    if args.eval_sample > 0:
-        eval_data = random.sample(train_data, min(args.eval_sample, len(train_data)))
-        print(f"  (sampled {len(eval_data)} of {len(train_data)})")
-    final = evaluate(model, tokenizer, eval_data, show=5)
-    print(f"\n  Overall: {final['correct']}/{final['total']} ({final['correct']/max(final['total'],1):.0%})")
-    print(f"  Parsed: {final['parsed']}/{final['total']}")
-    print(f"  Valid traces: {final['valid_trace']}/{final['total']}")
-    print(f"  Wrong answer: {final['wrong_answer']}")
-    print(f"  Wrong expert: {final['wrong_expert']}")
+    if not args.hf_only:
+        print("\nTraining data:")
+        eval_data = train_data
+        if args.eval_sample > 0:
+            eval_data = random.sample(train_data, min(args.eval_sample, len(train_data)))
+            print(f"  (sampled {len(eval_data)} of {len(train_data)})")
+        final = evaluate(model, tokenizer, eval_data, show=5, max_tokens=max_gen_tokens)
+        print(f"\n  Overall: {final['correct']}/{final['total']} ({final['correct']/max(final['total'],1):.0%})")
+        print(f"  Parsed: {final['parsed']}/{final['total']}")
+        print(f"  Valid traces: {final['valid_trace']}/{final['total']}")
+        print(f"  Wrong answer: {final['wrong_answer']}")
+        print(f"  Wrong expert: {final['wrong_expert']}")
 
-    if final["by_expert"]:
-        print("\n  By expert:")
-        for expert, s in sorted(final["by_expert"].items()):
-            if s["total"] > 0:
-                acc = s["correct"] / s["total"]
-                print(f"    {expert:15} {acc:.0%} ({s['correct']}/{s['total']})")
+        if final["by_expert"]:
+            print("\n  By expert:")
+            for expert, s in sorted(final["by_expert"].items()):
+                if s["total"] > 0:
+                    acc = s["correct"] / s["total"]
+                    print(f"    {expert:15} {acc:.0%} ({s['correct']}/{s['total']})")
 
-    # Eval on sample GSM-8K problems
-    print("\nGSM-8K sample problems:")
-    gsm_stats = evaluate(
-        model, tokenizer, eval_examples, show=3,
-        show_wrong_traces=args.show_wrong_traces,
-    )
-    print(f"  Correct: {gsm_stats['correct']}/{gsm_stats['total']}")
-    print(f"  Valid traces: {gsm_stats['valid_trace']}/{gsm_stats['total']}")
+        # Eval on sample GSM-8K problems
+        print("\nGSM-8K sample problems:")
+        gsm_stats = evaluate(
+            model, tokenizer, eval_examples, show=3,
+            show_wrong_traces=args.show_wrong_traces,
+            max_tokens=max_gen_tokens,
+        )
+        print(f"  Correct: {gsm_stats['correct']}/{gsm_stats['total']}")
+        print(f"  Valid traces: {gsm_stats['valid_trace']}/{gsm_stats['total']}")
 
     # Eval on HuggingFace GSM-8K
     if hf_eval:
-        print("\nHuggingFace GSM-8K (unseen problems):")
+        print(f"\nHuggingFace GSM-8K ({len(hf_eval)} unseen problems):")
         hf_stats = evaluate(
             model, tokenizer, hf_eval, show=5,
             show_wrong_traces=args.show_wrong_traces,
+            max_tokens=max_gen_tokens,
         )
-        print(f"  Correct: {hf_stats['correct']}/{hf_stats['total']}")
+        print(f"\n  Correct: {hf_stats['correct']}/{hf_stats['total']} ({hf_stats['correct']/max(hf_stats['total'],1):.0%})")
         print(f"  Parsed: {hf_stats['parsed']}/{hf_stats['total']}")
         print(f"  Valid traces: {hf_stats['valid_trace']}/{hf_stats['total']}")
+        print(f"  Wrong answer: {hf_stats['wrong_answer']}")
+        print(f"  Wrong expert: {hf_stats['wrong_expert']}")
 
 
 if __name__ == "__main__":
