@@ -1,0 +1,1122 @@
+[
+  {
+    "schema": "combined_rate",
+    "domain": "travel",
+    "description": "Two machines combined output over time",
+    "agent1": "Jack",
+    "agent2": "Ella",
+    "item": "kilometers",
+    "time_unit": "hour",
+    "time_units": "hours",
+    "verb": "travel",
+    "verbs": "travels",
+    "rate1": 5,
+    "rate2": 20,
+    "time": 4,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 100.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "office",
+    "description": "Two machines combined output over time",
+    "agent1": "Printer A",
+    "agent2": "Printer C",
+    "item": "documents",
+    "time_unit": "hour",
+    "time_units": "hours",
+    "verb": "process",
+    "verbs": "processes",
+    "rate1": 5,
+    "rate2": 11,
+    "time": 3,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 48.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "garden",
+    "description": "Two machines combined output over time",
+    "agent1": "Jade",
+    "agent2": "Polly",
+    "item": "peppers",
+    "time_unit": "day",
+    "time_units": "days",
+    "verb": "produce",
+    "verbs": "produces",
+    "rate1": 15,
+    "rate2": 15,
+    "time": 5,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 150.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "reading",
+    "description": "Two machines combined output over time",
+    "agent1": "Sherry",
+    "agent2": "Ivy",
+    "item": "books",
+    "time_unit": "hour",
+    "time_units": "hours",
+    "verb": "read",
+    "verbs": "reads",
+    "rate1": 7,
+    "rate2": 12,
+    "time": 2,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 38.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "tech",
+    "description": "Two machines combined output over time",
+    "agent1": "Liam",
+    "agent2": "Frank",
+    "item": "queries",
+    "time_unit": "minute",
+    "time_units": "minutes",
+    "verb": "process",
+    "verbs": "processes",
+    "rate1": 15,
+    "rate2": 8,
+    "time": 3,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 69.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "kitchen",
+    "description": "Two machines combined output over time",
+    "agent1": "Jenny",
+    "agent2": "Paula",
+    "item": "cookies",
+    "time_unit": "minute",
+    "time_units": "minutes",
+    "verb": "bake",
+    "verbs": "bakes",
+    "rate1": 9,
+    "rate2": 16,
+    "time": 2,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 50.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "poultry",
+    "description": "Two machines combined output over time",
+    "agent1": "Coop B",
+    "agent2": "Coop C",
+    "item": "eggs",
+    "time_unit": "week",
+    "time_units": "weeks",
+    "verb": "lay",
+    "verbs": "lays",
+    "rate1": 9,
+    "rate2": 10,
+    "time": 3,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 57.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "factory",
+    "description": "Two machines combined output over time",
+    "agent1": "Line 3",
+    "agent2": "Line 4",
+    "item": "parts",
+    "time_unit": "day",
+    "time_units": "days",
+    "verb": "produce",
+    "verbs": "produces",
+    "rate1": 10,
+    "rate2": 12,
+    "time": 3,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 66.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "sports",
+    "description": "Two machines combined output over time",
+    "agent1": "Wendi",
+    "agent2": "Nancy",
+    "item": "goals",
+    "time_unit": "game",
+    "time_units": "games",
+    "verb": "score",
+    "verbs": "scores",
+    "rate1": 9,
+    "rate2": 13,
+    "time": 3,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 66.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "shopping",
+    "description": "Two machines combined output over time",
+    "agent1": "Olivia",
+    "agent2": "Josh",
+    "item": "notebooks",
+    "time_unit": "day",
+    "time_units": "days",
+    "verb": "buy",
+    "verbs": "buys",
+    "rate1": 15,
+    "rate2": 12,
+    "time": 6,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 162.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "construction",
+    "description": "Two machines combined output over time",
+    "agent1": "Crew C",
+    "agent2": "Crew A",
+    "item": "bricks",
+    "time_unit": "hour",
+    "time_units": "hours",
+    "verb": "complete",
+    "verbs": "completes",
+    "rate1": 16,
+    "rate2": 15,
+    "time": 6,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 186.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "farm",
+    "description": "Two machines combined output over time",
+    "agent1": "Tractor B",
+    "agent2": "Tractor A",
+    "item": "bales",
+    "time_unit": "day",
+    "time_units": "days",
+    "verb": "harvest",
+    "verbs": "harvests",
+    "rate1": 10,
+    "rate2": 16,
+    "time": 3,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 78.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "school",
+    "description": "Two machines combined output over time",
+    "agent1": "Class B",
+    "agent2": "Class C",
+    "item": "questions",
+    "time_unit": "week",
+    "time_units": "weeks",
+    "verb": "complete",
+    "verbs": "completes",
+    "rate1": 10,
+    "rate2": 17,
+    "time": 6,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 162.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "plumbing",
+    "description": "Two machines combined output over time",
+    "agent1": "Faucet C",
+    "agent2": "Faucet B",
+    "item": "gallons",
+    "time_unit": "minute",
+    "time_units": "minutes",
+    "verb": "deliver",
+    "verbs": "delivers",
+    "rate1": 10,
+    "rate2": 10,
+    "time": 2,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 40.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "travel",
+    "description": "Two machines combined output over time",
+    "agent1": "Car C",
+    "agent2": "Car A",
+    "item": "kilometers",
+    "time_unit": "hour",
+    "time_units": "hours",
+    "verb": "travel",
+    "verbs": "travels",
+    "rate1": 15,
+    "rate2": 5,
+    "time": 6,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 120.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "office",
+    "description": "Two machines combined output over time",
+    "agent1": "Printer B",
+    "agent2": "Printer A",
+    "item": "documents",
+    "time_unit": "hour",
+    "time_units": "hours",
+    "verb": "process",
+    "verbs": "processes",
+    "rate1": 9,
+    "rate2": 18,
+    "time": 3,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 81.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "garden",
+    "description": "Two machines combined output over time",
+    "agent1": "Albert",
+    "agent2": "Ellie",
+    "item": "flowers",
+    "time_unit": "week",
+    "time_units": "weeks",
+    "verb": "produce",
+    "verbs": "produces",
+    "rate1": 17,
+    "rate2": 11,
+    "time": 3,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 84.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "reading",
+    "description": "Two machines combined output over time",
+    "agent1": "Penelope",
+    "agent2": "Leo",
+    "item": "pages",
+    "time_unit": "day",
+    "time_units": "days",
+    "verb": "read",
+    "verbs": "reads",
+    "rate1": 16,
+    "rate2": 6,
+    "time": 6,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 132.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "tech",
+    "description": "Two machines combined output over time",
+    "agent1": "Kimberly",
+    "agent2": "Jade",
+    "item": "packets",
+    "time_unit": "hour",
+    "time_units": "hours",
+    "verb": "process",
+    "verbs": "processes",
+    "rate1": 14,
+    "rate2": 14,
+    "time": 4,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 112.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  },
+  {
+    "schema": "combined_rate",
+    "domain": "kitchen",
+    "description": "Two machines combined output over time",
+    "agent1": "Erica",
+    "agent2": "Oliver",
+    "item": "pies",
+    "time_unit": "minute",
+    "time_units": "minutes",
+    "verb": "bake",
+    "verbs": "bakes",
+    "rate1": 18,
+    "rate2": 17,
+    "time": 6,
+    "formula": "(rate1 + rate2) * time",
+    "answer": 210.0,
+    "trace": [
+      {
+        "op": "init",
+        "var": "rate1",
+        "value": "rate1"
+      },
+      {
+        "op": "init",
+        "var": "rate2",
+        "value": "rate2"
+      },
+      {
+        "op": "init",
+        "var": "time",
+        "value": "time"
+      },
+      {
+        "op": "compute",
+        "compute_op": "add",
+        "args": [
+          "rate1",
+          "rate2"
+        ],
+        "var": "step1"
+      },
+      {
+        "op": "compute",
+        "compute_op": "mul",
+        "args": [
+          "step1",
+          "time"
+        ],
+        "var": "result"
+      },
+      {
+        "op": "query",
+        "var": "result"
+      }
+    ]
+  }
+]
