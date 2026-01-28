@@ -1,0 +1,209 @@
+# Tool Calling Dynamics Experiment Configuration
+
+model:
+  primary: openai/gpt-oss-20b
+  fallback: allenai/OLMoE-1B-7B-0924
+
+# MoE architecture parameters (GPT-OSS)
+moe:
+  num_experts: 32
+  top_k: 4
+  num_layers: 24
+
+# Analysis configuration
+analyses:
+  - tool_intent
+  - tool_selection
+  - expert_patterns
+  - circuits
+  - vocab_alignment
+  - generation_dynamics
+
+# Tool Intent Probe
+tool_intent:
+  probe_layers: [1, 4, 8, 12, 16, 20]
+  train_samples: 200
+  test_samples: 50
+  accuracy_threshold: 0.95
+
+# Tool Selection Probe
+tool_selection:
+  probe_layers: [4, 8, 12, 16]
+  train_samples: 200
+  test_samples: 50
+  num_tools: 4
+
+# Expert Pattern Analysis
+expert_patterns:
+  concentration_threshold: 0.15
+  min_activations: 10
+  token_categories:
+    - function_syntax   # ( ) , :
+    - json_syntax       # { } [ ] "
+    - tool_markers      # <tool> function call
+    - parameter_tokens  # name arguments value
+
+# Circuit Analysis
+circuits:
+  correlation_threshold: 0.3
+  min_circuit_length: 3
+  consistency_threshold: 0.8
+  num_prompts: 50
+
+# Vocab Alignment
+vocab_alignment:
+  test_layers: [8, 12, 13, 16]
+  top_k_tokens: 50
+  apply_layer_norm: true
+
+# Generation Dynamics
+generation_dynamics:
+  max_tokens: 100
+  track_layers: [4, 8, 12, 16, 20]
+  phases:
+    - intent      # tokens 1-5
+    - selection   # tokens 6-15
+    - format      # tokens 16-30
+    - arguments   # tokens 31+
+
+# Tool Definitions
+tools:
+  calculator:
+    description: "Perform arithmetic calculations"
+    parameters:
+      expression:
+        type: string
+        description: "Math expression to evaluate"
+    examples:
+      - "127 * 89"
+      - "sqrt(144)"
+      - "15% of 340"
+
+  search:
+    description: "Search for current information"
+    parameters:
+      query:
+        type: string
+        description: "Search query"
+    examples:
+      - "current Bitcoin price"
+      - "2024 Super Bowl winner"
+      - "latest news on AI"
+
+  code_exec:
+    description: "Execute Python code"
+    parameters:
+      code:
+        type: string
+        description: "Python code to run"
+    examples:
+      - "print(sum(range(100)))"
+      - "import math; print(math.pi)"
+
+  get_weather:
+    description: "Get weather for a location"
+    parameters:
+      location:
+        type: string
+        description: "City or location name"
+    examples:
+      - "Tokyo"
+      - "New York"
+      - "London"
+
+# Prompt Datasets
+prompts:
+  # Tool-required prompts (labeled by tool)
+  tool_required:
+    calculator:
+      - "What is 127 * 89?"
+      - "Calculate 15% of 340"
+      - "What's the square root of 144?"
+      - "How much is 456 divided by 12?"
+      - "Compute 2^10"
+      - "What is 1000 minus 357?"
+      - "Calculate the area of a circle with radius 5"
+      - "What's 45 times 37?"
+      - "Find 20% tip on $85"
+      - "What is 999 + 111?"
+
+    search:
+      - "What is the current price of Bitcoin?"
+      - "Who won the 2024 Super Bowl?"
+      - "What's the latest news on AI regulation?"
+      - "Who is the current CEO of OpenAI?"
+      - "What happened in the news today?"
+      - "What's the population of Tokyo in 2024?"
+      - "Who won the Nobel Prize in Physics this year?"
+      - "What's the exchange rate for USD to EUR?"
+      - "What movies are playing near me?"
+      - "What's trending on Twitter right now?"
+
+    code_exec:
+      - "Run this Python: print(sum(range(100)))"
+      - "Execute: import math; print(math.factorial(10))"
+      - "Run Python code to list prime numbers under 50"
+      - "Execute this: [x**2 for x in range(10)]"
+      - "Run: from datetime import datetime; print(datetime.now())"
+      - "Execute Python to calculate fibonacci(20)"
+      - "Run this code: sorted([3,1,4,1,5,9,2,6])"
+      - "Execute: len('hello world'.split())"
+      - "Run Python: max([1,5,3,9,2])"
+      - "Execute this script: print('Hello, World!')"
+
+    get_weather:
+      - "What's the weather in Tokyo?"
+      - "Is it raining in London?"
+      - "What's the temperature in New York?"
+      - "Will it snow in Chicago tomorrow?"
+      - "What's the forecast for Paris this week?"
+      - "How hot is it in Dubai?"
+      - "Is it sunny in Los Angeles?"
+      - "What's the humidity in Miami?"
+      - "Do I need an umbrella in Seattle?"
+      - "What's the weather like in Sydney?"
+
+  # Direct-answer prompts (no tool needed)
+  direct_answer:
+    - "What is the capital of France?"
+    - "Explain photosynthesis in simple terms"
+    - "Write a haiku about mountains"
+    - "What is 2 + 2?"
+    - "Who wrote Romeo and Juliet?"
+    - "What color is the sky?"
+    - "Name three planets in our solar system"
+    - "What is the chemical symbol for water?"
+    - "How many days are in a week?"
+    - "What language is spoken in Brazil?"
+    - "Define the word 'ephemeral'"
+    - "What is the largest mammal?"
+    - "Who painted the Mona Lisa?"
+    - "What continent is Egypt in?"
+    - "How many legs does a spider have?"
+    - "What is the opposite of 'hot'?"
+    - "Name a fruit that starts with 'A'"
+    - "What sound does a cat make?"
+    - "What is the freezing point of water in Celsius?"
+    - "Who was the first president of the United States?"
+
+  # Ambiguous prompts (could go either way)
+  ambiguous:
+    - "What is 10 + 10?"  # Trivial math - might not need tool
+    - "Tell me about the weather"  # No location specified
+    - "Calculate something for me"  # No expression given
+    - "Search for information"  # No query specified
+
+# Tool call format template
+tool_call_format: |
+  {
+    "tool": "{tool_name}",
+    "arguments": {
+      "{param_name}": "{param_value}"
+    }
+  }
+
+# Output paths
+output:
+  results_dir: experiments/tool_calling_dynamics/results
+  probe_models_dir: experiments/tool_calling_dynamics/results/probes
+  figures_dir: experiments/tool_calling_dynamics/results/figures
