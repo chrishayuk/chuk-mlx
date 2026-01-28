@@ -106,6 +106,8 @@ experiments/csp_cot_gsm8k/
 ├── docs/                     # Documentation
 │   ├── REVIEW.md             # Critical experiment review
 │   ├── NEXT_EXPERIMENTS.md   # Proposed next experiments
+│   ├── ARITHMETIC_EXPERT_REVIEW.md  # New generator analysis
+│   ├── GENERATOR_VS_GSM8K_COMPARISON.md  # Side-by-side comparison
 │   ├── RESULTS.md            # Full run history (25 runs)
 │   ├── PATTERNS.md           # 17 training patterns discovered
 │   ├── DESIGN.md             # Architecture and design details
